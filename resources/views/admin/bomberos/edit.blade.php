@@ -1,0 +1,136 @@
+@extends('layouts.app')
+
+@section('content')
+    <div class="max-w-3xl mx-auto py-8">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+            <div>
+                <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight flex items-center uppercase">
+                    <i class="fas fa-user-edit mr-3 text-red-700"></i> Editar Bombero
+                </h1>
+                <p class="text-slate-500 mt-1 font-medium">Modificación rápida de datos operativos</p>
+            </div>
+            <a href="{{ route('admin.guardias') }}" class="inline-flex items-center text-slate-600 hover:text-blue-600 font-medium transition-colors bg-white px-4 py-2 rounded-lg border border-slate-200 hover:border-blue-300 shadow-sm">
+                <i class="fas fa-arrow-left mr-2"></i> Volver a Guardias
+            </a>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-slate-200">
+            <!-- Barra superior decorativa -->
+            <div class="h-2 bg-slate-800"></div>
+
+            <form action="{{ route('admin.bomberos.update', $bombero->id) }}" method="POST" class="p-8">
+                @csrf
+                @method('PUT')
+
+                <div class="space-y-6">
+                    <!-- Datos Básicos -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-slate-700 text-sm font-bold mb-2 uppercase tracking-wide" for="name">
+                                Nombres
+                            </label>
+                            <input type="text" name="name" id="name" value="{{ old('name', $bombero->name) }}" required
+                                class="w-full border-slate-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 px-4 py-2.5 text-slate-700 bg-slate-50">
+                            @error('name') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-700 text-sm font-bold mb-2 uppercase tracking-wide" for="last_name_paternal">
+                                Apellido Paterno
+                            </label>
+                            <input type="text" name="last_name_paternal" id="last_name_paternal" value="{{ old('last_name_paternal', $bombero->last_name_paternal) }}"
+                                class="w-full border-slate-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 px-4 py-2.5 text-slate-700 bg-slate-50">
+                            @error('last_name_paternal') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="block text-slate-700 text-sm font-bold mb-2 uppercase tracking-wide" for="email">
+                                Correo Electrónico
+                            </label>
+                            <input type="email" name="email" id="email" value="{{ old('email', $bombero->email) }}" required
+                                class="w-full border-slate-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 px-4 py-2.5 text-slate-700 bg-slate-50">
+                            @error('email') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                        </div>
+                    </div>
+
+                    <!-- Datos Operativos -->
+                    <div class="bg-slate-50 p-6 rounded-lg border border-slate-200">
+                        <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wide mb-4 border-b border-slate-200 pb-2">Información Operativa</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                            <!-- Nota: Edad y Años de Servicio ahora son calculados automáticamente, pero si el usuario desea sobreescribirlos o visualizarlos, se pueden mantener. 
+                                 Sin embargo, según el User model, estos ahora se calculan. 
+                                 Para evitar conflictos, mostraremos los campos pero sugeriríamos usar fechas en el perfil completo. 
+                                 Mantendremos la funcionalidad actual por compatibilidad si se usan como override. -->
+                            
+                            <div>
+                                <label class="block text-slate-700 text-sm font-bold mb-2" for="age">
+                                    Edad (Manual)
+                                </label>
+                                <input type="number" name="age" id="age" value="{{ old('age', $bombero->age) }}" required min="18"
+                                    class="w-full border-slate-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 px-3 py-2 text-slate-700">
+                                <p class="text-xs text-slate-400 mt-1">Se recomienda usar fecha de nacimiento en perfil completo.</p>
+                            </div>
+                            <div>
+                                <label class="block text-slate-700 text-sm font-bold mb-2" for="years_of_service">
+                                    Años Servicio (Manual)
+                                </label>
+                                <input type="number" name="years_of_service" id="years_of_service" value="{{ old('years_of_service', $bombero->years_of_service) }}" required min="0"
+                                    class="w-full border-slate-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 px-3 py-2 text-slate-700">
+                                <p class="text-xs text-slate-400 mt-1">Se recomienda usar fecha de ingreso en perfil completo.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-slate-700 text-sm font-bold mb-2 uppercase tracking-wide" for="guardia_id">
+                                    Guardia Asignada
+                                </label>
+                                <select name="guardia_id" id="guardia_id" class="w-full border-slate-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 px-3 py-2.5 text-slate-700 bg-white">
+                                    @foreach($guardias as $guardia)
+                                        <option value="{{ $guardia->id }}" {{ $bombero->guardia_id == $guardia->id ? 'selected' : '' }}>
+                                            {{ $guardia->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-slate-700 text-sm font-bold mb-2 uppercase tracking-wide" for="role">
+                                    Rol Sistema
+                                </label>
+                                <select name="role" id="role" class="w-full border-slate-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 px-3 py-2.5 text-slate-700 bg-white">
+                                    <option value="bombero" {{ $bombero->role == 'bombero' ? 'selected' : '' }}>Bombero</option>
+                                    <option value="jefe_guardia" {{ $bombero->role == 'jefe_guardia' ? 'selected' : '' }}>Jefe de Guardia</option>
+                                    <option value="capitania" {{ $bombero->role == 'capitania' ? 'selected' : '' }}>Capitanía</option>
+                                    <option value="super_admin" {{ $bombero->role == 'super_admin' ? 'selected' : '' }}>Super Admin</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Especialidades -->
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-100 flex items-center">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" name="is_driver" id="is_driver" value="1" {{ $bombero->is_driver ? 'checked' : '' }}
+                                class="rounded border-slate-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 h-5 w-5">
+                            <span class="ml-3 font-bold text-slate-700 flex items-center">
+                                <i class="fas fa-truck mr-2 text-blue-500"></i> Habilitado como Conductor
+                            </span>
+                        </label>
+                    </div>
+
+                    <div class="flex justify-end pt-4 border-t border-slate-100 mt-6">
+                        <a href="{{ route('admin.guardias') }}" class="mr-4 px-6 py-2.5 rounded-lg border border-slate-300 text-slate-600 font-medium hover:bg-slate-50 transition-colors">
+                            Cancelar
+                        </a>
+                        <button type="submit" class="bg-slate-800 hover:bg-slate-700 text-white font-bold py-2.5 px-8 rounded-lg shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 uppercase tracking-wide text-sm">
+                            <i class="fas fa-save mr-2"></i> Guardar Cambios
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+@endsection
