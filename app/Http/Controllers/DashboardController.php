@@ -9,18 +9,44 @@ use App\Models\User;
 use App\Models\Novelty;
 use App\Models\BedAssignment;
 use App\Models\Guardia;
+use App\Models\GuardiaCalendarDay;
+use App\Services\ReplacementService;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
+    private function resolveActiveGuardia($now)
+    {
+        $weekStart = $now->copy()->startOfWeek(Carbon::SUNDAY);
+
+        $calendarDay = GuardiaCalendarDay::with('guardia')
+            ->where('date', $weekStart->toDateString())
+            ->first();
+
+        if (!$calendarDay) {
+            $calendarDay = GuardiaCalendarDay::with('guardia')
+                ->where('date', $now->toDateString())
+                ->first();
+        }
+
+        if ($calendarDay && $calendarDay->guardia) {
+            return $calendarDay->guardia;
+        }
+
+        return Guardia::where('is_active_week', true)->first();
+    }
+
     public function index()
     {
         $user = auth()->user();
+        $now = now();
+
+        ReplacementService::expire($now);
         $totalBeds = Bed::count();
         $occupiedBeds = Bed::where('status', 'occupied')->count();
         $availableBeds = Bed::where('status', 'available')->count();
         
-        // Guardia Activa de la Semana
-        $activeGuardia = Guardia::where('is_active_week', true)->first();
+        $activeGuardia = $this->resolveActiveGuardia($now);
 
         // Buscar turno activo (filtrado por guardia si corresponde)
         $shiftQuery = Shift::where('status', 'active');
@@ -63,6 +89,10 @@ class DashboardController extends Controller
             // Cargar personal de la guardia (excluyendo la propia cuenta de gestión)
             $myStaff = User::where('guardia_id', $user->guardia_id)
                 ->where('id', '!=', $user->id)
+                ->where(function ($q) use ($now) {
+                    $q->whereNull('replacement_until')
+                      ->orWhere('replacement_until', '>', $now);
+                })
                 ->with(['replacedBy']) // Cargar relación para filtrar conteo
                 ->get();
             
@@ -89,6 +119,9 @@ class DashboardController extends Controller
     public function camas()
     {
         $user = auth()->user();
+        $now = now();
+
+        ReplacementService::expire($now);
         $beds = Bed::with('currentAssignment.user')->get();
         
         // Auto-fix: Corregir camas marcadas como ocupadas pero sin asignación activa
@@ -104,14 +137,18 @@ class DashboardController extends Controller
         $assignedUserIds = \App\Models\BedAssignment::whereNull('released_at')->pluck('user_id')->toArray();
         
         $usersQuery = User::where('role', '!=', 'guardia')
-                          ->whereNotIn('id', $assignedUserIds);
+                          ->whereNotIn('id', $assignedUserIds)
+                          ->where(function ($q) use ($now) {
+                              $q->whereNull('replacement_until')
+                                ->orWhere('replacement_until', '>', $now);
+                          });
 
         // Si el usuario tiene guardia asignada, filtrar voluntarios de su guardia
         if ($user->guardia_id) {
             $usersQuery->where('guardia_id', $user->guardia_id);
         } else {
             // Si es Admin, filtrar por la Guardia Activa de la semana
-            $activeGuardia = Guardia::where('is_active_week', true)->first();
+            $activeGuardia = $this->resolveActiveGuardia($now);
             if ($activeGuardia) {
                 $usersQuery->where('guardia_id', $activeGuardia->id);
             }
@@ -125,7 +162,14 @@ class DashboardController extends Controller
     public function guardia()
     {
         $shift = Shift::with(['leader', 'users.user'])->where('status', 'active')->latest()->first();
-        $users = User::orderBy('name')->get(); // Para asignar
+        $now = now();
+        $users = User::where('role', '!=', 'guardia')
+            ->where(function ($q) use ($now) {
+                $q->whereNull('replacement_until')
+                  ->orWhere('replacement_until', '>', $now);
+            })
+            ->orderBy('name')
+            ->get(); // Para asignar
         return view('guardia', compact('shift', 'users'));
     }
 }

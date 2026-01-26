@@ -37,7 +37,7 @@
                     </a>
                     
                     @if(Auth::user()->role === 'guardia')
-                        <a href="{{ route('admin.guardias') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('admin.guardias*') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                        <a href="{{ route('admin.dotaciones') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('admin.dotaciones*') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
                             <i class="fas fa-users-gear mr-1.5 opacity-70"></i> Mi Dotación
                         </a>
                     @endif
@@ -46,7 +46,13 @@
                         <div class="h-6 w-px bg-slate-700 mx-2"></div>
                         
                         <a href="{{ route('admin.guardias') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('admin.guardias*') ? 'bg-red-900/50 text-red-100 shadow-inner' : 'text-slate-300 hover:bg-red-900/30 hover:text-red-100' }}">
-                            <i class="fas fa-shield-halved mr-1.5 text-red-400"></i> Guardias
+                            <i class="fas fa-shield mr-1.5 text-red-400"></i> Guardias
+                        </a>
+                        <a href="{{ route('admin.dotaciones') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('admin.dotaciones*') ? 'bg-red-900/50 text-red-100 shadow-inner' : 'text-slate-300 hover:bg-red-900/30 hover:text-red-100' }}">
+                            <i class="fas fa-users-gear mr-1.5 text-red-400"></i> Dotaciones
+                        </a>
+                        <a href="{{ route('admin.calendario') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('admin.calendario*') ? 'bg-red-900/50 text-red-100 shadow-inner' : 'text-slate-300 hover:bg-red-900/30 hover:text-red-100' }}">
+                            <i class="fas fa-calendar-alt mr-1.5 text-red-400"></i> Calendario
                         </a>
                         <a href="{{ route('admin.volunteers.index') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('admin.volunteers*') ? 'bg-red-900/50 text-red-100 shadow-inner' : 'text-slate-300 hover:bg-red-900/30 hover:text-red-100' }}">
                             <i class="fas fa-users mr-1.5 text-red-400"></i> Voluntarios

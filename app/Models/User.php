@@ -56,6 +56,15 @@ class User extends Authenticatable
         'is_penalty',
         'attendance_status',
         'is_titular',
+        'replacement_until',
+        'original_guardia_id',
+        'original_attendance_status',
+        'original_is_titular',
+        'original_is_shift_leader',
+        'original_is_exchange',
+        'original_is_penalty',
+        'original_job_replacement_id',
+        'original_role',
     ];
 
     /**
@@ -87,6 +96,11 @@ class User extends Authenticatable
             'is_exchange' => 'boolean',
             'is_penalty' => 'boolean',
             'is_titular' => 'boolean',
+            'replacement_until' => 'datetime',
+            'original_is_titular' => 'boolean',
+            'original_is_shift_leader' => 'boolean',
+            'original_is_exchange' => 'boolean',
+            'original_is_penalty' => 'boolean',
         ];
     }
 

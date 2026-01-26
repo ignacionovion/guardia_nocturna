@@ -294,7 +294,7 @@
                                 <span class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></span> CONSTITUIDA
                             </span>
                         @else
-                            <span class="text-slate-400 italic font-normal text-base">Sin constituir</span>
+                            <!-- <span class="text-slate-400 italic font-normal text-base">Sin constituir</span> -->
                         @endif
                     </p>
                 </div>

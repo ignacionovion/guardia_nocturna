@@ -6,15 +6,57 @@ use Illuminate\Http\Request;
 use App\Models\Shift;
 use App\Models\ShiftUser;
 use App\Models\User;
+use App\Models\Guardia;
+use App\Services\ReplacementService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 
 class GuardiaController extends Controller
 {
+    private function cleanupTransitoriosOnConstitution(Guardia $guardia): void
+    {
+        $now = Carbon::now();
+
+        $scheduleHourToday = $now->isSunday() ? 22 : 23;
+        $todayCutoff = $now->copy()->startOfDay()->addHours($scheduleHourToday);
+
+        if ($now->greaterThanOrEqualTo($todayCutoff)) {
+            $cutoff = $todayCutoff;
+        } else {
+            $yesterday = $now->copy()->subDay();
+            $scheduleHourYesterday = $yesterday->isSunday() ? 22 : 23;
+            $cutoff = $yesterday->copy()->startOfDay()->addHours($scheduleHourYesterday);
+        }
+
+        if ($now->diffInHours($cutoff) > 8) {
+            return;
+        }
+
+        $transitorios = User::where('guardia_id', $guardia->id)
+            ->where('is_titular', false)
+            ->where('updated_at', '<', $cutoff)
+            ->get();
+
+        foreach ($transitorios as $user) {
+            $user->update([
+                'guardia_id' => null,
+                'job_replacement_id' => null,
+                'attendance_status' => 'constituye',
+                'is_shift_leader' => false,
+                'is_exchange' => false,
+                'is_penalty' => false,
+                'role' => ($user->role === 'jefe_guardia') ? 'bombero' : $user->role,
+            ]);
+        }
+    }
+
     public function index()
     {
         $user = Auth::user();
+        $now = Carbon::now();
+
+        ReplacementService::expire($now);
         
         $query = Shift::with(['leader', 'users.user', 'users.replacedUser'])
             ->where('status', 'active');
@@ -28,6 +70,17 @@ class GuardiaController extends Controller
         }
 
         $shift = $query->latest()->first();
+
+        if ($shift) {
+            $shift->setRelation(
+                'users',
+                $shift->users->filter(function ($shiftUser) use ($now) {
+                    return !$shiftUser->user
+                        || !$shiftUser->user->replacement_until
+                        || $shiftUser->user->replacement_until->greaterThan($now);
+                })->values()
+            );
+        }
             
         // Filtrar lista de voluntarios para agregar:
         // 1. Excluir rol 'guardia' (cuentas de sistema)
@@ -37,6 +90,11 @@ class GuardiaController extends Controller
         if ($user->guardia_id) {
             $usersQuery->where('guardia_id', $user->guardia_id);
         }
+
+        $usersQuery->where(function ($q) use ($now) {
+            $q->whereNull('replacement_until')
+              ->orWhere('replacement_until', '>', $now);
+        });
         
         $users = $usersQuery->orderBy('name')->get();
         
@@ -49,6 +107,20 @@ class GuardiaController extends Controller
 
     public function start(Request $request)
     {
+        $authUser = Auth::user();
+
+        $guardia = null;
+        if ($authUser?->guardia_id) {
+            $guardia = Guardia::find($authUser->guardia_id);
+        }
+        if (!$guardia) {
+            $guardia = Guardia::where('is_active_week', true)->first();
+        }
+
+        if ($guardia) {
+            $this->cleanupTransitoriosOnConstitution($guardia);
+        }
+
         $shift = Shift::create([
             'date' => now(),
             'status' => 'active',

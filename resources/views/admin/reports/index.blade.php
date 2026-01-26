@@ -43,6 +43,15 @@
         </div>
     </div>
 
+    <div class="flex flex-col md:flex-row gap-2 mb-6">
+        <a href="{{ route('admin.reports.index') }}" class="px-4 py-2 rounded-lg text-sm font-bold border border-red-200 bg-red-50 text-red-800 hover:bg-red-100 transition">
+            <i class="fas fa-chart-line mr-2 text-red-500"></i> Asistencia
+        </a>
+        <a href="{{ route('admin.reports.replacements') }}" class="px-4 py-2 rounded-lg text-sm font-bold border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition">
+            <i class="fas fa-right-left mr-2 text-slate-400"></i> Reemplazos
+        </a>
+    </div>
+
     @isset($selectedMonthKpis)
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
             <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4">

@@ -3,15 +3,41 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Exports\ReplacementsReportExport;
 use App\Models\User;
 use App\Models\Guardia;
+use App\Models\GuardiaCalendarDay;
+use App\Models\StaffEvent;
 use App\Models\ShiftUser;
+use App\Services\ReplacementService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ReportController extends Controller
 {
+    private function resolveActiveGuardia($now)
+    {
+        $weekStart = $now->copy()->startOfWeek(Carbon::SUNDAY);
+
+        $calendarDay = GuardiaCalendarDay::with('guardia')
+            ->where('date', $weekStart->toDateString())
+            ->first();
+
+        if (!$calendarDay) {
+            $calendarDay = GuardiaCalendarDay::with('guardia')
+                ->where('date', $now->toDateString())
+                ->first();
+        }
+
+        if ($calendarDay && $calendarDay->guardia) {
+            return $calendarDay->guardia;
+        }
+
+        return Guardia::where('is_active_week', true)->first();
+    }
+
     public function index(Request $request)
     {
         $month = (int) $request->input('month', now()->month);
@@ -194,6 +220,361 @@ class ReportController extends Controller
         }
 
         return view('admin.reports.index', compact('guardias', 'month', 'year', 'weeksInMonth', 'charts', 'selectedMonthKpis'));
+    }
+
+    public function replacements(Request $request)
+    {
+        ReplacementService::expire();
+
+        $user = auth()->user();
+        if ($user->role !== 'super_admin') {
+            abort(403, 'No autorizado.');
+        }
+
+        $guardias = Guardia::orderBy('name')->get();
+        $activeGuardia = $this->resolveActiveGuardia(now());
+
+        [$from, $to, $guardiaId] = $this->parseReplacementsFilters($request);
+        $base = $this->replacementsBaseQuery($from, $to, $guardiaId);
+
+        $events = (clone $base)
+            ->with([
+                'user.guardia',
+                'replacementUser',
+            ])
+            ->orderByDesc('start_date')
+            ->limit(250)
+            ->get();
+
+        $totalReplacements = (clone $base)->count();
+        $uniqueReplacers = (clone $base)->whereNotNull('replacement_user_id')->distinct('replacement_user_id')->count('replacement_user_id');
+        $uniqueReplaced = (clone $base)->distinct('user_id')->count('user_id');
+
+        $replacementsByDay = DB::table('staff_events')
+            ->selectRaw("DATE(start_date) as day, COUNT(*) as total")
+            ->where('type', 'replacement')
+            ->where('status', 'approved')
+            ->whereBetween('start_date', [$from, $to])
+            ->when($guardiaId, function ($q) use ($guardiaId) {
+                $q->whereIn('user_id', function ($q2) use ($guardiaId) {
+                    $q2->select('id')->from('users')->where('guardia_id', $guardiaId);
+                });
+            })
+            ->groupBy('day')
+            ->orderBy('day')
+            ->get();
+
+        $period = [];
+        $cursor = $from->copy()->startOfDay();
+        $endCursor = $to->copy()->startOfDay();
+        while ($cursor <= $endCursor) {
+            $period[$cursor->toDateString()] = 0;
+            $cursor->addDay();
+        }
+        foreach ($replacementsByDay as $row) {
+            $period[$row->day] = (int) $row->total;
+        }
+
+        $replacementsByGuardia = DB::table('staff_events')
+            ->join('users as originals', 'staff_events.user_id', '=', 'originals.id')
+            ->leftJoin('guardias', 'originals.guardia_id', '=', 'guardias.id')
+            ->selectRaw('COALESCE(guardias.name, "Sin Asignar") as guardia_name, COUNT(*) as total')
+            ->where('staff_events.type', 'replacement')
+            ->where('staff_events.status', 'approved')
+            ->whereBetween('staff_events.start_date', [$from, $to])
+            ->when($guardiaId, fn ($q) => $q->where('originals.guardia_id', $guardiaId))
+            ->groupBy('guardia_name')
+            ->orderByDesc('total')
+            ->get();
+
+        $topReplacersRaw = DB::table('staff_events')
+            ->join('users as replacers', 'staff_events.replacement_user_id', '=', 'replacers.id')
+            ->join('users as originals', 'staff_events.user_id', '=', 'originals.id')
+            ->leftJoin('guardias', 'originals.guardia_id', '=', 'guardias.id')
+            ->selectRaw('replacers.id as user_id, replacers.name, replacers.last_name_paternal, COUNT(*) as total')
+            ->where('staff_events.type', 'replacement')
+            ->where('staff_events.status', 'approved')
+            ->whereNotNull('staff_events.replacement_user_id')
+            ->whereBetween('staff_events.start_date', [$from, $to])
+            ->when($guardiaId, fn ($q) => $q->where('originals.guardia_id', $guardiaId))
+            ->groupBy('replacers.id', 'replacers.name', 'replacers.last_name_paternal')
+            ->orderByDesc('total')
+            ->limit(10)
+            ->get();
+
+        $topReplacers = $topReplacersRaw->map(function ($r) {
+            return [
+                'user_id' => (int) $r->user_id,
+                'name' => trim($r->name . ' ' . $r->last_name_paternal),
+                'total' => (int) $r->total,
+            ];
+        });
+
+        $topReplacersByGuardiaRaw = DB::table('staff_events')
+            ->join('users as originals', 'staff_events.user_id', '=', 'originals.id')
+            ->leftJoin('guardias', 'originals.guardia_id', '=', 'guardias.id')
+            ->join('users as replacers', 'staff_events.replacement_user_id', '=', 'replacers.id')
+            ->selectRaw('COALESCE(guardias.name, "Sin Asignar") as guardia_name, replacers.id as user_id, replacers.name, replacers.last_name_paternal, COUNT(*) as total')
+            ->where('staff_events.type', 'replacement')
+            ->where('staff_events.status', 'approved')
+            ->whereNotNull('staff_events.replacement_user_id')
+            ->whereBetween('staff_events.start_date', [$from, $to])
+            ->when($guardiaId, fn ($q) => $q->where('originals.guardia_id', $guardiaId))
+            ->groupBy('guardia_name', 'replacers.id', 'replacers.name', 'replacers.last_name_paternal')
+            ->orderBy('guardia_name')
+            ->orderByDesc('total')
+            ->get();
+
+        $topReplacersByGuardia = $topReplacersByGuardiaRaw
+            ->groupBy('guardia_name')
+            ->map(function ($items) {
+                return $items->take(5)->values()->map(function ($r) {
+                    return [
+                        'user_id' => (int) $r->user_id,
+                        'name' => trim($r->name . ' ' . $r->last_name_paternal),
+                        'total' => (int) $r->total,
+                    ];
+                });
+            });
+
+        $drivers = User::with('guardia')
+            ->where('role', '!=', 'guardia')
+            ->whereNotNull('guardia_id')
+            ->where('is_driver', true)
+            ->orderBy('guardia_id')
+            ->orderBy('last_name_paternal')
+            ->orderBy('name')
+            ->get();
+
+        $driversByGuardia = $drivers->groupBy(fn ($u) => $u->guardia?->name ?? 'Sin Asignar')
+            ->map(function ($items) {
+                return $items->groupBy(function ($u) {
+                    return $u->attendance_status ?: 'sin_estado';
+                });
+            });
+
+        $charts = [
+            'timeline' => [
+                'labels' => array_keys($period),
+                'data' => array_values($period),
+            ],
+            'by_guardia' => [
+                'labels' => $replacementsByGuardia->pluck('guardia_name')->values(),
+                'data' => $replacementsByGuardia->pluck('total')->map(fn ($v) => (int) $v)->values(),
+            ],
+            'top_replacers' => [
+                'labels' => $topReplacers->pluck('name')->values(),
+                'data' => $topReplacers->pluck('total')->values(),
+            ],
+        ];
+
+        $kpis = [
+            'total_replacements' => (int) $totalReplacements,
+            'unique_replacers' => (int) $uniqueReplacers,
+            'unique_replaced' => (int) $uniqueReplaced,
+            'range_label' => $from->format('d-m-Y') . ' → ' . $to->format('d-m-Y'),
+        ];
+
+        return view('admin.reports.replacements', compact(
+            'guardias',
+            'from',
+            'to',
+            'guardiaId',
+            'activeGuardia',
+            'kpis',
+            'events',
+            'topReplacers',
+            'topReplacersByGuardia',
+            'driversByGuardia',
+            'charts'
+        ));
+    }
+
+    public function replacementsExport(Request $request)
+    {
+        ReplacementService::expire();
+
+        $user = auth()->user();
+        if ($user->role !== 'super_admin') {
+            abort(403, 'No autorizado.');
+        }
+
+        [$from, $to, $guardiaId] = $this->parseReplacementsFilters($request);
+        $base = $this->replacementsBaseQuery($from, $to, $guardiaId);
+
+        $events = (clone $base)
+            ->with(['user.guardia', 'replacementUser'])
+            ->orderBy('start_date', 'asc')
+            ->limit(10000)
+            ->get();
+
+        $headings = [
+            'Inicio',
+            'Fin',
+            'Guardia',
+            'Reemplazado',
+            'Reemplazante',
+            'Estado',
+            'Descripción',
+        ];
+
+        $rows = $events->map(function ($e) {
+            return [
+                optional($e->start_date)->format('Y-m-d H:i'),
+                optional($e->end_date)->format('Y-m-d H:i'),
+                $e->user?->guardia?->name ?? 'Sin Asignar',
+                trim(($e->user?->name ?? '') . ' ' . ($e->user?->last_name_paternal ?? '')),
+                trim(($e->replacementUser?->name ?? '') . ' ' . ($e->replacementUser?->last_name_paternal ?? '')),
+                $e->status,
+                $e->description,
+            ];
+        })->toArray();
+
+        $suffix = $guardiaId ? ('_guardia_' . $guardiaId) : '';
+        $filename = 'reemplazos_' . $from->format('Ymd') . '_' . $to->format('Ymd') . $suffix . '.xlsx';
+
+        return Excel::download(new ReplacementsReportExport($rows, $headings), $filename);
+    }
+
+    public function replacementsPrint(Request $request)
+    {
+        ReplacementService::expire();
+
+        $user = auth()->user();
+        if ($user->role !== 'super_admin') {
+            abort(403, 'No autorizado.');
+        }
+
+        $guardias = Guardia::orderBy('name')->get();
+        $activeGuardia = $this->resolveActiveGuardia(now());
+        [$from, $to, $guardiaId] = $this->parseReplacementsFilters($request);
+        $base = $this->replacementsBaseQuery($from, $to, $guardiaId);
+
+        $events = (clone $base)
+            ->with(['user.guardia', 'replacementUser'])
+            ->orderByDesc('start_date')
+            ->limit(1500)
+            ->get();
+
+        $totalReplacements = (clone $base)->count();
+        $uniqueReplacers = (clone $base)->whereNotNull('replacement_user_id')->distinct('replacement_user_id')->count('replacement_user_id');
+        $uniqueReplaced = (clone $base)->distinct('user_id')->count('user_id');
+
+        $kpis = [
+            'total_replacements' => (int) $totalReplacements,
+            'unique_replacers' => (int) $uniqueReplacers,
+            'unique_replaced' => (int) $uniqueReplaced,
+            'range_label' => $from->format('d-m-Y') . ' → ' . $to->format('d-m-Y'),
+        ];
+
+        $topReplacersRaw = DB::table('staff_events')
+            ->join('users as replacers', 'staff_events.replacement_user_id', '=', 'replacers.id')
+            ->join('users as originals', 'staff_events.user_id', '=', 'originals.id')
+            ->selectRaw('replacers.id as user_id, replacers.name, replacers.last_name_paternal, COUNT(*) as total')
+            ->where('staff_events.type', 'replacement')
+            ->where('staff_events.status', 'approved')
+            ->whereNotNull('staff_events.replacement_user_id')
+            ->whereBetween('staff_events.start_date', [$from, $to])
+            ->when($guardiaId, fn ($q) => $q->where('originals.guardia_id', $guardiaId))
+            ->groupBy('replacers.id', 'replacers.name', 'replacers.last_name_paternal')
+            ->orderByDesc('total')
+            ->limit(15)
+            ->get();
+
+        $topReplacers = $topReplacersRaw->map(function ($r) {
+            return [
+                'user_id' => (int) $r->user_id,
+                'name' => trim($r->name . ' ' . $r->last_name_paternal),
+                'total' => (int) $r->total,
+            ];
+        });
+
+        $replacementsByGuardia = DB::table('staff_events')
+            ->join('users as originals', 'staff_events.user_id', '=', 'originals.id')
+            ->leftJoin('guardias', 'originals.guardia_id', '=', 'guardias.id')
+            ->selectRaw('COALESCE(guardias.name, "Sin Asignar") as guardia_name, COUNT(*) as total')
+            ->where('staff_events.type', 'replacement')
+            ->where('staff_events.status', 'approved')
+            ->whereBetween('staff_events.start_date', [$from, $to])
+            ->when($guardiaId, fn ($q) => $q->where('originals.guardia_id', $guardiaId))
+            ->groupBy('guardia_name')
+            ->orderByDesc('total')
+            ->get();
+
+        $topReplacersByGuardiaRaw = DB::table('staff_events')
+            ->join('users as originals', 'staff_events.user_id', '=', 'originals.id')
+            ->leftJoin('guardias', 'originals.guardia_id', '=', 'guardias.id')
+            ->join('users as replacers', 'staff_events.replacement_user_id', '=', 'replacers.id')
+            ->selectRaw('COALESCE(guardias.name, "Sin Asignar") as guardia_name, replacers.id as user_id, replacers.name, replacers.last_name_paternal, COUNT(*) as total')
+            ->where('staff_events.type', 'replacement')
+            ->where('staff_events.status', 'approved')
+            ->whereNotNull('staff_events.replacement_user_id')
+            ->whereBetween('staff_events.start_date', [$from, $to])
+            ->when($guardiaId, fn ($q) => $q->where('originals.guardia_id', $guardiaId))
+            ->groupBy('guardia_name', 'replacers.id', 'replacers.name', 'replacers.last_name_paternal')
+            ->orderBy('guardia_name')
+            ->orderByDesc('total')
+            ->get();
+
+        $topReplacersByGuardia = $topReplacersByGuardiaRaw
+            ->groupBy('guardia_name')
+            ->map(function ($items) {
+                return $items->take(5)->values()->map(function ($r) {
+                    return [
+                        'user_id' => (int) $r->user_id,
+                        'name' => trim($r->name . ' ' . $r->last_name_paternal),
+                        'total' => (int) $r->total,
+                    ];
+                });
+            });
+
+        return view('admin.reports.replacements_print', compact(
+            'guardias',
+            'from',
+            'to',
+            'guardiaId',
+            'activeGuardia',
+            'kpis',
+            'events',
+            'topReplacers',
+            'replacementsByGuardia',
+            'topReplacersByGuardia'
+        ));
+    }
+
+    private function parseReplacementsFilters(Request $request): array
+    {
+        $from = $request->input('from')
+            ? Carbon::parse($request->input('from'))->startOfDay()
+            : now()->startOfMonth()->startOfDay();
+        $to = $request->input('to')
+            ? Carbon::parse($request->input('to'))->endOfDay()
+            : now()->endOfMonth()->endOfDay();
+
+        if ($to->lessThan($from)) {
+            [$from, $to] = [$to->copy()->startOfDay(), $from->copy()->endOfDay()];
+        }
+
+        $guardiaId = $request->input('guardia_id');
+        $guardiaId = $guardiaId !== null && $guardiaId !== '' ? (int) $guardiaId : null;
+
+        return [$from, $to, $guardiaId];
+    }
+
+    private function replacementsBaseQuery(Carbon $from, Carbon $to, ?int $guardiaId)
+    {
+        $base = StaffEvent::query()
+            ->where('type', 'replacement')
+            ->where('status', 'approved')
+            ->whereBetween('start_date', [$from, $to]);
+
+        if ($guardiaId) {
+            $base->whereIn('user_id', function ($q) use ($guardiaId) {
+                $q->select('id')->from('users')->where('guardia_id', $guardiaId);
+            });
+        }
+
+        return $base;
     }
 
     private function formatMinutes($minutes)

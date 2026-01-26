@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminCalendarController;
+use App\Http\Controllers\GuardiaController;
 
 // Rutas de Autenticación
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login')->middleware('guest');
@@ -15,7 +17,13 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 Route::middleware('auth')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/camas', [DashboardController::class, 'camas'])->name('camas');
-    Route::get('/guardia', [DashboardController::class, 'guardia'])->name('guardia');
+    Route::get('/guardia', [GuardiaController::class, 'index'])->name('guardia');
+
+    // Rutas operativas de Guardia
+    Route::post('/guardia', [GuardiaController::class, 'start'])->name('guardia.start');
+    Route::post('/guardia/{id}/close', [GuardiaController::class, 'close'])->name('guardia.close');
+    Route::post('/guardia/{id}/add-user', [GuardiaController::class, 'addUser'])->name('guardia.add_user');
+    Route::post('/guardia/{shiftId}/remove-user/{userId}', [GuardiaController::class, 'removeUser'])->name('guardia.remove_user');
 
     // Rutas de Gestión de Camas
     Route::post('/camas/asignar', [App\Http\Controllers\BedAssignmentController::class, 'store'])->name('beds.assign');
@@ -44,7 +52,9 @@ Route::middleware('auth')->group(function () {
 
     // Rutas Admin - Bomberos (Legacy/Guardias specific)
     Route::get('/admin/guardias', [AdminController::class, 'index'])->name('admin.guardias');
+    Route::get('/admin/dotaciones', [AdminController::class, 'dotaciones'])->name('admin.dotaciones');
     Route::post('/admin/guardias/assign', [AdminController::class, 'assignBombero'])->name('admin.guardias.assign');
+    Route::delete('/admin/guardias/unassign', [AdminController::class, 'unassignBombero'])->name('admin.guardias.unassign');
     Route::post('/admin/guardias/replacement', [AdminController::class, 'assignReplacement'])->name('admin.guardias.replacement'); // Nueva ruta
     Route::post('/admin/bomberos', [AdminController::class, 'storeBombero'])->name('admin.bomberos.store');
     
@@ -56,6 +66,14 @@ Route::middleware('auth')->group(function () {
 
     // Rutas de Reportes
     Route::get('/admin/reports', [App\Http\Controllers\ReportController::class, 'index'])->name('admin.reports.index');
+    Route::get('/admin/reports/reemplazos', [App\Http\Controllers\ReportController::class, 'replacements'])->name('admin.reports.replacements');
+    Route::get('/admin/reports/reemplazos/export', [App\Http\Controllers\ReportController::class, 'replacementsExport'])->name('admin.reports.replacements.export');
+    Route::get('/admin/reports/reemplazos/print', [App\Http\Controllers\ReportController::class, 'replacementsPrint'])->name('admin.reports.replacements.print');
+
+    // Rutas Admin - Calendario
+    Route::get('/admin/calendario', [AdminCalendarController::class, 'index'])->name('admin.calendario');
+    Route::post('/admin/calendario/assign-range', [AdminCalendarController::class, 'assignRange'])->name('admin.calendario.assign_range');
+    Route::post('/admin/calendario/generate-rotation', [AdminCalendarController::class, 'generateRotation'])->name('admin.calendario.generate_rotation');
 
     // Rutas de Novedades
     Route::post('/novedades', [App\Http\Controllers\NoveltyController::class, 'store'])->name('novelties.store_web');
