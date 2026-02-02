@@ -171,7 +171,7 @@
                         <div class="bg-yellow-100 p-2 rounded-lg text-yellow-700">
                             <i class="fas fa-user-shield text-lg"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-slate-800">Cualificaciones y Permisos</h3>
+                        <h3 class="text-xl font-bold text-slate-800">Cualidades Técnicas</h3>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">

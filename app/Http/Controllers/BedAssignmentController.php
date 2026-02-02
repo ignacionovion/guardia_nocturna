@@ -89,6 +89,43 @@ class BedAssignmentController extends Controller
         return redirect()->route('camas')->with('success', 'Asignación actualizada.');
     }
 
+    public function markMaintenance(Request $request, Bed $bed)
+    {
+        $user = auth()->user();
+        if (!$user || $user->role !== 'super_admin') {
+            abort(403, 'No autorizado.');
+        }
+
+        if ($bed->status === 'occupied') {
+            return back()->withErrors(['msg' => 'No puedes poner en mantención una cama ocupada.']);
+        }
+
+        $bed->update([
+            'status' => 'maintenance',
+            'description' => $bed->description ?: 'En mantención',
+        ]);
+
+        return redirect()->route('camas')->with('success', 'Cama marcada en mantención.');
+    }
+
+    public function markAvailable(Request $request, Bed $bed)
+    {
+        $user = auth()->user();
+        if (!$user || $user->role !== 'super_admin') {
+            abort(403, 'No autorizado.');
+        }
+
+        if ($bed->currentAssignment) {
+            return back()->withErrors(['msg' => 'No puedes habilitar una cama con ocupación activa.']);
+        }
+
+        $bed->update([
+            'status' => 'available',
+        ]);
+
+        return redirect()->route('camas')->with('success', 'Cama habilitada como disponible.');
+    }
+
     /**
      * Remove the specified resource from storage.
      */

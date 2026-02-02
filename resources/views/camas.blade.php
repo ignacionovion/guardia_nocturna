@@ -98,11 +98,24 @@
                     <!-- Footer / Actions -->
                     <div class="mt-5 pt-4 border-t border-slate-50">
                         @if($bed->status == 'available')
-                            <button onclick="openAssignModal('{{ $bed->id }}', '{{ $bed->number }}')" 
-                                class="group w-full bg-slate-900 hover:bg-emerald-600 text-white font-bold py-2.5 px-4 rounded-lg text-xs transition-all shadow-md hover:shadow-lg flex items-center justify-center uppercase tracking-wider">
-                                <span>Asignar Cama</span>
-                                <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
-                            </button>
+                            <div class="grid grid-cols-1 {{ auth()->user()->role === 'super_admin' ? 'sm:grid-cols-2' : '' }} gap-2">
+                                <button onclick="openAssignModal('{{ $bed->id }}', '{{ $bed->number }}')" 
+                                    class="group w-full bg-slate-900 hover:bg-emerald-600 text-white font-bold py-2.5 px-4 rounded-lg text-xs transition-all shadow-md hover:shadow-lg flex items-center justify-center uppercase tracking-wider">
+                                    <span>Asignar Cama</span>
+                                    <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                                </button>
+
+                                @if(auth()->user()->role === 'super_admin')
+                                    <form action="{{ route('beds.maintenance', $bed->id) }}" method="POST" onsubmit="return confirm('¿Marcar cama #{{ $bed->number }} en mantención?');">
+                                        @csrf
+                                        @method('PUT')
+                                        <button type="submit" class="group w-full bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 font-bold py-2.5 px-4 rounded-lg text-xs transition-all shadow-sm hover:shadow flex items-center justify-center uppercase tracking-wider">
+                                            <i class="fas fa-screwdriver-wrench mr-2 text-slate-400 group-hover:text-slate-600"></i>
+                                            <span>Mantención</span>
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
                         @elseif($bed->status == 'occupied')
                             @if($bed->currentAssignment)
                                 <form action="{{ route('beds.release', $bed->currentAssignment->id) }}" method="POST" onsubmit="return confirm('¿Liberar esta cama?');">
@@ -120,9 +133,20 @@
                                 </div>
                             @endif
                         @else
-                            <button disabled class="w-full bg-slate-100 text-slate-400 font-bold py-2.5 px-4 rounded-lg text-xs cursor-not-allowed uppercase tracking-wider flex items-center justify-center">
-                                <i class="fas fa-ban mr-2"></i> No Disponible
-                            </button>
+                            @if(auth()->user()->role === 'super_admin')
+                                <form action="{{ route('beds.available', $bed->id) }}" method="POST" onsubmit="return confirm('¿Habilitar cama #{{ $bed->number }} como disponible?');">
+                                    @csrf
+                                    @method('PUT')
+                                    <button type="submit" class="group w-full bg-white hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 border border-slate-200 hover:border-emerald-200 font-bold py-2.5 px-4 rounded-lg text-xs transition-all shadow-sm hover:shadow flex items-center justify-center uppercase tracking-wider">
+                                        <i class="fas fa-check mr-2 text-emerald-500"></i>
+                                        <span>Habilitar</span>
+                                    </button>
+                                </form>
+                            @else
+                                <button disabled class="w-full bg-slate-100 text-slate-400 font-bold py-2.5 px-4 rounded-lg text-xs cursor-not-allowed uppercase tracking-wider flex items-center justify-center">
+                                    <i class="fas fa-ban mr-2"></i> No Disponible
+                                </button>
+                            @endif
                         @endif
                     </div>
                 </div>

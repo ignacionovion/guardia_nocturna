@@ -68,7 +68,7 @@
                             @endif
                         </div>
                         <p class="text-slate-400 text-xs mt-1 font-medium flex items-center">
-                            <i class="fas fa-users mr-2 opacity-50"></i> {{ $guardia->users->filter(fn($u) => !$u->replacedBy)->count() }} Efectivos
+                            <i class="fas fa-users mr-2 opacity-50"></i> {{ $guardia->users->filter(fn($u) => !$u->replacedBy)->count() }} Bombero
                         </p>
                     </div>
 

@@ -28,6 +28,8 @@ Route::middleware('auth')->group(function () {
     // Rutas de Gestión de Camas
     Route::post('/camas/asignar', [App\Http\Controllers\BedAssignmentController::class, 'store'])->name('beds.assign');
     Route::put('/camas/liberar/{id}', [App\Http\Controllers\BedAssignmentController::class, 'update'])->name('beds.release');
+    Route::put('/camas/{bed}/mantencion', [App\Http\Controllers\BedAssignmentController::class, 'markMaintenance'])->name('beds.maintenance');
+    Route::put('/camas/{bed}/habilitar', [App\Http\Controllers\BedAssignmentController::class, 'markAvailable'])->name('beds.available');
 
     // Rutas Admin - Guardias
     Route::post('/admin/guardias', [AdminController::class, 'storeGuardia'])->name('admin.guardias.store');

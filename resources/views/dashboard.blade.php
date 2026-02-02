@@ -83,7 +83,7 @@
                     <i class="fas fa-user-shield mr-2 text-red-600"></i> Dotación de la Unidad
                 </h2>
                 <span class="text-[10px] font-bold text-slate-400 bg-white px-3 py-1 rounded-full shadow-sm border border-slate-200">
-                    {{ $myStaff->filter(fn($u) => !$u->replacedBy)->count() }} Efectivos en Lista
+                    {{ $myStaff->filter(fn($u) => !$u->replacedBy)->count() }} Bomberos en Lista
                 </span>
             </div>
             
@@ -299,7 +299,7 @@
                     </p>
                 </div>
                 <div class="bg-red-50 p-3 rounded-lg text-red-600 group-hover:bg-red-600 group-hover:text-white transition-colors">
-                    <i class="fas fa-shield-halved text-2xl"></i>
+                    <i class="fas fa-calendar-week text-2xl"></i>
                 </div>
             </div>
         </div>
