@@ -5,10 +5,14 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Guardia;
 use App\Models\GuardiaCalendarDay;
+use App\Models\Firefighter;
 use App\Models\User;
 use App\Models\Shift;
 use App\Models\ShiftUser;
 use App\Models\StaffEvent;
+use App\Models\GuardiaAttendanceRecord;
+use App\Models\FirefighterUserLegacyMap;
+use App\Models\FirefighterReplacement;
 use App\Services\ReplacementService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +21,31 @@ use Illuminate\Support\Facades\Schema;
 
 class AdminController extends Controller
 {
+    private function resolveGuardiaIdForGuardiaUser(User $user): ?int
+    {
+        if ($user->role !== 'guardia') {
+            return $user->guardia_id ? (int) $user->guardia_id : null;
+        }
+
+        if ($user->guardia_id) {
+            return (int) $user->guardia_id;
+        }
+
+        $byName = Guardia::whereRaw('lower(name) = ?', [strtolower((string) $user->name)])->value('id');
+        if ($byName) {
+            return (int) $byName;
+        }
+
+        $emailLocal = explode('@', (string) $user->email)[0] ?? '';
+        $emailLocal = str_replace('.', ' ', $emailLocal);
+        $byEmail = Guardia::whereRaw('lower(name) = ?', [strtolower((string) $emailLocal)])->value('id');
+        if ($byEmail) {
+            return (int) $byEmail;
+        }
+
+        return null;
+    }
+
     private function resolveActiveGuardia($now)
     {
         $weekStart = $now->copy()->startOfWeek(Carbon::SUNDAY);
@@ -47,19 +76,12 @@ class AdminController extends Controller
 
         $user = auth()->user();
 
-        // Permitir super_admin y guardia (para gestionar su propia dotación)
-        if ($user->role !== 'super_admin' && $user->role !== 'guardia') {
+        if (!in_array($user->role, ['super_admin', 'capitania', 'guardia'], true)) {
             abort(403, 'No tienes permiso para acceder a esta sección.');
         }
 
-        $query = Guardia::with(['users' => function($q) use ($now) {
-            $q->where('role', '!=', 'guardia')
-              ->where(function ($q) use ($now) {
-                  $q->whereNull('replacement_until')
-                    ->orWhere('replacement_until', '>', $now);
-              })
-              ->orderBy('admission_date', 'asc')
-              ->with(['jobReplacement', 'replacedBy']);
+        $query = Guardia::with(['users', 'firefighters' => function ($q) {
+            $q->orderBy('admission_date', 'asc');
         }]);
 
         // Si es cuenta de Guardia, filtrar solo su propia guardia
@@ -71,35 +93,36 @@ class AdminController extends Controller
 
         $activeGuardia = $this->resolveActiveGuardia($now);
 
-        // Obtener usuarios para el select (excluyendo cuentas de sistema)
-        $volunteers = User::where('role', '!=', 'guardia')
+        $activeReplacements = FirefighterReplacement::with(['originalFirefighter', 'replacementFirefighter'])
+            ->where('status', 'active')
+            ->get();
+
+        $replacementByOriginal = $activeReplacements->keyBy('original_firefighter_id');
+        $replacementByReplacement = $activeReplacements->keyBy('replacement_firefighter_id');
+
+        $volunteers = Firefighter::query()
+            ->when($user->role === 'guardia', function ($q) use ($user) {
+                $q->where('guardia_id', $user->guardia_id);
+            })
             ->orderBy('name')
             ->orderBy('last_name_paternal')
             ->get();
 
-        return view('admin.guardias', compact('guardias', 'volunteers', 'activeGuardia'));
+        return view('admin.guardias', compact('guardias', 'volunteers', 'activeGuardia', 'replacementByOriginal', 'replacementByReplacement'));
     }
 
     public function dotaciones()
     {
         ReplacementService::expire();
 
-        $now = Carbon::now();
-
         $user = auth()->user();
 
-        if ($user->role !== 'super_admin' && $user->role !== 'guardia') {
+        if (!in_array($user->role, ['super_admin', 'capitania', 'guardia'], true)) {
             abort(403, 'No tienes permiso para acceder a esta sección.');
         }
 
-        $query = Guardia::with(['users' => function($q) use ($now) {
-            $q->where('role', '!=', 'guardia')
-              ->where(function ($q) use ($now) {
-                  $q->whereNull('replacement_until')
-                    ->orWhere('replacement_until', '>', $now);
-              })
-              ->orderBy('admission_date', 'asc')
-              ->with(['jobReplacement', 'replacedBy']);
+        $query = Guardia::with(['firefighters' => function ($q) {
+            $q->orderBy('admission_date', 'asc');
         }]);
 
         if ($user->role === 'guardia') {
@@ -108,7 +131,7 @@ class AdminController extends Controller
 
         $guardias = $query->get();
 
-        $volunteers = User::where('role', '!=', 'guardia')
+        $volunteers = Firefighter::query()
             ->orderBy('name')
             ->orderBy('last_name_paternal')
             ->get();
@@ -129,271 +152,400 @@ class AdminController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->role !== 'super_admin' && $user->role !== 'guardia') {
+        if (!in_array($user->role, ['super_admin', 'capitania', 'guardia'], true)) {
             abort(403, 'No autorizado.');
         }
 
-        // Validación base
-        $rules = [
+        $validated = $request->validate([
             'guardia_id' => 'required|exists:guardias,id',
-            'user_id' => 'required|exists:users,id',
-            'job_replacement_id' => 'nullable|exists:users,id',
-            'is_driver' => 'nullable|boolean',
-            'is_rescue_operator' => 'nullable|boolean',
-            'is_trauma_assistant' => 'nullable|boolean',
-            'is_shift_leader' => 'nullable|boolean',
-            'is_exchange' => 'nullable|boolean',
-            'is_penalty' => 'nullable|boolean',
-        ];
-
-        $validated = $request->validate($rules);
+            'firefighter_id' => 'required|exists:firefighters,id',
+        ]);
 
         // Si es cuenta de guardia, asegurar que solo asigna a SU guardia
-        if ($user->role === 'guardia' && $validated['guardia_id'] != $user->guardia_id) {
-            abort(403, 'No puedes asignar personal a otra guardia.');
+        if ($user->role === 'guardia') {
+            $userGuardiaId = $this->resolveGuardiaIdForGuardiaUser($user);
+            if (!$userGuardiaId || (int) $validated['guardia_id'] !== (int) $userGuardiaId) {
+                abort(403, 'No puedes asignar personal a otra guardia.');
+            }
         }
 
-        $targetUser = User::findOrFail($validated['user_id']);
-        
-        // Determinar rol del sistema basado en si es oficial a cargo
-        $systemRole = 'bombero';
-        if ($request->has('is_shift_leader')) {
-            $systemRole = 'jefe_guardia';
-        }
-
-        // Mantener roles superiores si ya los tiene
-        if (in_array($targetUser->role, ['super_admin', 'capitania'])) {
-            $systemRole = $targetUser->role;
-        }
-
-        $update = [
+        $firefighter = Firefighter::findOrFail($validated['firefighter_id']);
+        $firefighter->update([
             'guardia_id' => $validated['guardia_id'],
-            'role' => $systemRole,
-            'job_type' => 'Bombero', // Legacy/Fallback
             'attendance_status' => 'constituye',
-            'job_replacement_id' => null,
-            'is_shift_leader' => false,
+            'is_titular' => true,
             'is_exchange' => false,
             'is_penalty' => false,
-            'is_titular' => true, // Al asignar manualmente, se asume titularidad por defecto
-        ];
+        ]);
 
-        if (Schema::hasColumn('users', 'replacement_until')) {
-            $update['replacement_until'] = null;
-        }
-        if (Schema::hasColumn('users', 'original_guardia_id')) {
-            $update['original_guardia_id'] = null;
-        }
-        if (Schema::hasColumn('users', 'original_attendance_status')) {
-            $update['original_attendance_status'] = null;
-        }
-        if (Schema::hasColumn('users', 'original_is_titular')) {
-            $update['original_is_titular'] = null;
-        }
-        if (Schema::hasColumn('users', 'original_is_shift_leader')) {
-            $update['original_is_shift_leader'] = null;
-        }
-        if (Schema::hasColumn('users', 'original_is_exchange')) {
-            $update['original_is_exchange'] = null;
-        }
-        if (Schema::hasColumn('users', 'original_is_penalty')) {
-            $update['original_is_penalty'] = null;
-        }
-        if (Schema::hasColumn('users', 'original_job_replacement_id')) {
-            $update['original_job_replacement_id'] = null;
-        }
-        if (Schema::hasColumn('users', 'original_role')) {
-            $update['original_role'] = null;
-        }
-
-        $targetUser->update($update);
-
-        return redirect()->back()->with('success', 'Bombero asignado correctamente a la guardia.');
+        return redirect()->back()->with('success', 'Voluntario asignado correctamente a la guardia.');
     }
 
     public function unassignBombero(Request $request)
     {
         $user = auth()->user();
 
-        if ($user->role !== 'super_admin' && $user->role !== 'guardia') {
+        if (!in_array($user->role, ['super_admin', 'capitania', 'guardia'], true)) {
             abort(403, 'No autorizado.');
         }
 
         $validated = $request->validate([
             'guardia_id' => 'required|exists:guardias,id',
-            'user_id' => 'required|exists:users,id',
+            'firefighter_id' => 'required|exists:firefighters,id',
         ]);
 
-        if ($user->role === 'guardia' && $validated['guardia_id'] != $user->guardia_id) {
-            abort(403, 'No puedes quitar personal de otra guardia.');
+        if ($user->role === 'guardia') {
+            $userGuardiaId = $this->resolveGuardiaIdForGuardiaUser($user);
+            if (!$userGuardiaId || (int) $validated['guardia_id'] !== (int) $userGuardiaId) {
+                abort(403, 'No puedes quitar personal de otra guardia.');
+            }
         }
 
-        $targetUser = User::findOrFail($validated['user_id']);
+        $firefighter = Firefighter::findOrFail($validated['firefighter_id']);
 
-        if ((int) $targetUser->guardia_id !== (int) $validated['guardia_id']) {
-            return redirect()->back()->withErrors(['msg' => 'El bombero no pertenece a esa guardia.']);
+        if ((int) $firefighter->guardia_id !== (int) $validated['guardia_id']) {
+            return redirect()->back()->withErrors(['msg' => 'El voluntario no pertenece a esa guardia.']);
         }
 
-        $update = [
+        $firefighter->update([
             'guardia_id' => null,
             'attendance_status' => 'constituye',
-            'job_replacement_id' => null,
             'is_shift_leader' => false,
             'is_exchange' => false,
             'is_penalty' => false,
-        ];
+        ]);
 
-        if (Schema::hasColumn('users', 'replacement_until')) {
-            $update['replacement_until'] = null;
-        }
-        if (Schema::hasColumn('users', 'original_guardia_id')) {
-            $update['original_guardia_id'] = null;
-        }
-        if (Schema::hasColumn('users', 'original_attendance_status')) {
-            $update['original_attendance_status'] = null;
-        }
-        if (Schema::hasColumn('users', 'original_is_titular')) {
-            $update['original_is_titular'] = null;
-        }
-        if (Schema::hasColumn('users', 'original_is_shift_leader')) {
-            $update['original_is_shift_leader'] = null;
-        }
-        if (Schema::hasColumn('users', 'original_is_exchange')) {
-            $update['original_is_exchange'] = null;
-        }
-        if (Schema::hasColumn('users', 'original_is_penalty')) {
-            $update['original_is_penalty'] = null;
-        }
-        if (Schema::hasColumn('users', 'original_job_replacement_id')) {
-            $update['original_job_replacement_id'] = null;
-        }
-        if (Schema::hasColumn('users', 'original_role')) {
-            $update['original_role'] = null;
-        }
-
-        $targetUser->update($update);
-
-        return redirect()->back()->with('success', 'Bombero quitado de la guardia.');
+        return redirect()->back()->with('success', 'Voluntario quitado de la guardia.');
     }
 
     public function toggleTitular($id)
     {
         $user = auth()->user();
-        if ($user->role !== 'super_admin' && $user->role !== 'guardia') {
+        if (!in_array($user->role, ['super_admin', 'capitania', 'guardia'], true)) {
             abort(403, 'No autorizado.');
         }
 
-        $bombero = User::findOrFail($id);
+        $firefighter = Firefighter::findOrFail($id);
 
-        if ($user->role === 'guardia' && $bombero->guardia_id != $user->guardia_id) {
+        if ($user->role === 'guardia' && (int) $firefighter->guardia_id !== (int) $user->guardia_id) {
             abort(403, 'No autorizado.');
         }
 
-        $bombero->is_titular = !$bombero->is_titular;
-        $bombero->save();
+        $firefighter->is_titular = !$firefighter->is_titular;
+        $firefighter->save();
 
-        $status = $bombero->is_titular ? 'TITULAR' : 'TRANSITORIO';
-        return redirect()->back()->with('success', "Estado de titularidad actualizado: {$bombero->name} ahora es {$status}.");
+        $status = $firefighter->is_titular ? 'TITULAR' : 'TRANSITORIO';
+        return redirect()->back()->with('success', "Estado de titularidad actualizado: {$firefighter->name} ahora es {$status}.");
     }
 
     public function assignReplacement(Request $request)
     {
         $user = auth()->user();
 
-        if ($user->role !== 'super_admin' && $user->role !== 'guardia') {
+        if (!in_array($user->role, ['super_admin', 'capitania', 'guardia'], true)) {
             abort(403, 'No autorizado.');
         }
 
-        ReplacementService::expire();
-
         $validated = $request->validate([
             'guardia_id' => 'required|exists:guardias,id',
-            'original_user_id' => 'required|exists:users,id',
-            'replacement_user_id' => 'required|exists:users,id',
+            'original_firefighter_id' => 'required|exists:firefighters,id',
+            'replacement_firefighter_id' => 'required|exists:firefighters,id',
         ]);
 
         // Verificar permisos de guardia
-        if ($user->role === 'guardia' && $validated['guardia_id'] != $user->guardia_id) {
-            abort(403, 'No puedes gestionar otra guardia.');
+        if ($user->role === 'guardia') {
+            $userGuardiaId = $this->resolveGuardiaIdForGuardiaUser($user);
+            if (!$userGuardiaId || (int) $validated['guardia_id'] !== (int) $userGuardiaId) {
+                abort(403, 'No puedes gestionar otra guardia.');
+            }
         }
 
         $guardia = Guardia::findOrFail($validated['guardia_id']);
-        $originalUser = User::findOrFail($validated['original_user_id']);
-        $replacementUser = User::findOrFail($validated['replacement_user_id']);
+        $original = Firefighter::findOrFail($validated['original_firefighter_id']);
+        $replacement = Firefighter::findOrFail($validated['replacement_firefighter_id']);
 
-        if ($replacementUser->id === $originalUser->id) {
+        if ((int) $replacement->id === (int) $original->id) {
             return back()->withErrors(['msg' => 'No puedes seleccionar al mismo voluntario como reemplazante.']);
         }
 
-        if ($replacementUser->role === 'guardia') {
-            return back()->withErrors(['msg' => 'No puedes seleccionar una cuenta de guardia como reemplazante.']);
-        }
-
-        if ($replacementUser->replacement_until && $replacementUser->replacement_until->isFuture()) {
-            return back()->withErrors(['msg' => 'El voluntario seleccionado ya está asignado como reemplazo actualmente.']);
-        }
-
-        if ($replacementUser->replacedBy()->exists()) {
-            return back()->withErrors(['msg' => 'El voluntario seleccionado se encuentra actualmente reemplazado (inhabilitado).']);
-        }
-
-        if ($originalUser->replacement_until && $originalUser->replacement_until->isFuture()) {
-            return back()->withErrors(['msg' => 'El bombero a reemplazar está actuando actualmente como reemplazo.']);
-        }
-
-        // Validar que el original pertenezca a la guardia
-        if ($originalUser->guardia_id != $guardia->id) {
+        if ((int) $original->guardia_id !== (int) $guardia->id) {
             return back()->withErrors(['msg' => 'El bombero a reemplazar no pertenece a esta guardia.']);
         }
 
-        $alreadyReplaced = User::where('job_replacement_id', $originalUser->id)->exists();
-        if ($alreadyReplaced) {
-            return back()->withErrors(['msg' => 'Este bombero ya se encuentra reemplazado actualmente.']);
+        $hasActive = FirefighterReplacement::where('original_firefighter_id', $original->id)
+            ->where('status', 'active')
+            ->exists();
+        if ($hasActive) {
+            return back()->withErrors(['msg' => 'Este voluntario ya se encuentra reemplazado actualmente.']);
         }
 
-        $replacementUntil = ReplacementService::calculateReplacementUntil(Carbon::now());
+        $endsAt = ReplacementService::calculateReplacementUntil(Carbon::now());
 
-        // Asignar el reemplazo a la guardia
-        DB::transaction(function () use ($replacementUser, $guardia, $originalUser, $replacementUntil) {
-            $replacementUser->update([
-                'original_guardia_id' => $replacementUser->guardia_id,
-                'original_attendance_status' => $replacementUser->attendance_status,
-                'original_is_titular' => $replacementUser->is_titular,
-                'original_is_shift_leader' => $replacementUser->is_shift_leader,
-                'original_is_exchange' => $replacementUser->is_exchange,
-                'original_is_penalty' => $replacementUser->is_penalty,
-                'original_job_replacement_id' => $replacementUser->job_replacement_id,
-                'original_role' => $replacementUser->role,
+        $shift = Shift::where('status', 'active')->latest()->first();
+
+        DB::transaction(function () use ($guardia, $original, $replacement, $endsAt, $shift) {
+            $replacementPreviousGuardiaId = $replacement->guardia_id;
+            FirefighterReplacement::create([
                 'guardia_id' => $guardia->id,
-                'job_replacement_id' => $originalUser->id,
-                'attendance_status' => 'reemplazo',
-                'replacement_until' => $replacementUntil,
-                'role' => in_array($replacementUser->role, ['super_admin', 'capitania']) ? $replacementUser->role : 'bombero',
+                'original_firefighter_id' => $original->id,
+                'replacement_firefighter_id' => $replacement->id,
+                'starts_at' => Carbon::now(),
+                'ends_at' => $endsAt,
+                'status' => 'active',
+                'notes' => json_encode([
+                    'replacement_previous_guardia_id' => $replacementPreviousGuardiaId,
+                ]),
+            ]);
+
+            $replacement->update([
+                'guardia_id' => $guardia->id,
+                'attendance_status' => 'constituye',
                 'is_titular' => false,
                 'is_shift_leader' => false,
                 'is_exchange' => false,
                 'is_penalty' => false,
             ]);
 
-            $originalUser->update([
+            $original->update([
                 'attendance_status' => 'ausente',
                 'is_shift_leader' => false,
                 'is_exchange' => false,
                 'is_penalty' => false,
             ]);
 
-            StaffEvent::create([
-                'user_id' => $originalUser->id,
-                'type' => 'replacement',
-                'start_date' => now(),
-                'end_date' => $replacementUntil,
-                'description' => 'Reemplazo en guardia: ' . $guardia->name,
-                'status' => 'approved',
-                'replacement_user_id' => $replacementUser->id,
-            ]);
+            if ($shift) {
+                $replacementUserId = FirefighterUserLegacyMap::where('firefighter_id', $replacement->id)->value('user_id');
+                $originalUserId = FirefighterUserLegacyMap::where('firefighter_id', $original->id)->value('user_id');
+
+                ShiftUser::updateOrCreate(
+                    [
+                        'shift_id' => $shift->id,
+                        'firefighter_id' => $replacement->id,
+                    ],
+                    [
+                        'user_id' => $replacementUserId,
+                        'guardia_id' => $guardia->id,
+                        'attendance_status' => 'constituye',
+                        'assignment_type' => 'Reemplazo',
+                        'replaced_user_id' => $originalUserId,
+                        'replaced_firefighter_id' => $original->id,
+                        'present' => true,
+                        'start_time' => $shift->created_at,
+                        'end_time' => null,
+                    ]
+                );
+            }
         });
 
-        return redirect()->back()->with('success', "Reemplazo asignado: {$replacementUser->name} reemplaza a {$originalUser->name}.");
+        return redirect()->back()->with('success', "Reemplazo asignado: {$replacement->name} reemplaza a {$original->name}.");
+    }
+
+    public function undoReplacement(Request $request, FirefighterReplacement $replacement)
+    {
+        $user = auth()->user();
+
+        if (!in_array($user->role, ['super_admin', 'capitania', 'guardia'], true)) {
+            abort(403, 'No autorizado.');
+        }
+
+        $replacement->loadMissing(['originalFirefighter', 'replacementFirefighter']);
+
+        if ($replacement->status !== 'active') {
+            return back()->withErrors(['msg' => 'El reemplazo ya no está activo.']);
+        }
+
+        if ($user->role === 'guardia') {
+            $userGuardiaId = $this->resolveGuardiaIdForGuardiaUser($user);
+            if (!$userGuardiaId || (int) $replacement->guardia_id !== (int) $userGuardiaId) {
+                abort(403, 'No puedes gestionar otra guardia.');
+            }
+        }
+
+        $guardia = Guardia::findOrFail($replacement->guardia_id);
+        $original = $replacement->originalFirefighter;
+        $replacer = $replacement->replacementFirefighter;
+
+        if (!$original || !$replacer) {
+            return back()->withErrors(['msg' => 'Reemplazo inválido (faltan datos de voluntarios).']);
+        }
+
+        $shift = Shift::where('status', 'active')->latest()->first();
+
+        DB::transaction(function () use ($replacement, $guardia, $original, $replacer, $shift) {
+            $replacement->update([
+                'status' => 'closed',
+                'ends_at' => Carbon::now(),
+            ]);
+
+            // Volver el original a constituye (visible nuevamente en la guardia)
+            if ((int) $original->guardia_id === (int) $guardia->id) {
+                $original->update([
+                    'attendance_status' => 'constituye',
+                    'is_shift_leader' => false,
+                    'is_exchange' => false,
+                    'is_penalty' => false,
+                ]);
+            }
+
+            // El reemplazante vuelve a su guardia original.
+            // Preferimos el valor persistido en notes (más confiable), y como fallback usamos el user legacy.
+            $originalReplacerGuardiaId = null;
+            if ($replacement->notes) {
+                $decodedNotes = json_decode((string) $replacement->notes, true);
+                if (is_array($decodedNotes) && array_key_exists('replacement_previous_guardia_id', $decodedNotes)) {
+                    $originalReplacerGuardiaId = $decodedNotes['replacement_previous_guardia_id'];
+                }
+            }
+
+            if ($originalReplacerGuardiaId === null) {
+                $originalReplacerGuardiaId = FirefighterUserLegacyMap::query()
+                    ->join('users', 'users.id', '=', 'firefighter_user_legacy_maps.user_id')
+                    ->where('firefighter_user_legacy_maps.firefighter_id', $replacer->id)
+                    ->value('users.guardia_id');
+            }
+
+            $replacerUserId = FirefighterUserLegacyMap::where('firefighter_id', $replacer->id)->value('user_id');
+
+            $replacer->update([
+                'guardia_id' => $originalReplacerGuardiaId,
+                'attendance_status' => 'constituye',
+                'is_titular' => false,
+                'is_shift_leader' => false,
+                'is_exchange' => false,
+                'is_penalty' => false,
+            ]);
+
+            // Limpieza legacy: evitar que el dashboard reimporte el reemplazo desde users.job_replacement_id
+            if ($replacerUserId) {
+                User::where('id', $replacerUserId)->update([
+                    'job_replacement_id' => null,
+                    'replacement_until' => null,
+                    'attendance_status' => 'constituye',
+                    'original_guardia_id' => null,
+                    'original_attendance_status' => null,
+                    'original_is_titular' => null,
+                    'original_is_shift_leader' => null,
+                    'original_is_exchange' => null,
+                    'original_is_penalty' => null,
+                    'original_job_replacement_id' => null,
+                    'original_role' => null,
+                ]);
+            }
+
+            if ($shift) {
+                $replacementUserId = FirefighterUserLegacyMap::where('firefighter_id', $replacer->id)->value('user_id');
+
+                ShiftUser::where('shift_id', $shift->id)
+                    ->where('firefighter_id', $replacer->id)
+                    ->update([
+                        'guardia_id' => $originalReplacerGuardiaId,
+                        'attendance_status' => 'constituye',
+                        'assignment_type' => null,
+                        'replaced_user_id' => null,
+                        'replaced_firefighter_id' => null,
+                        'user_id' => $replacementUserId,
+                    ]);
+            }
+        });
+
+        return redirect()->back()->with('success', 'Reemplazo deshecho correctamente.');
+    }
+
+    public function cleanupReplacements(Request $request, Guardia $guardia)
+    {
+        $user = auth()->user();
+
+        if (!in_array($user->role, ['super_admin', 'capitania', 'guardia'], true)) {
+            abort(403, 'No autorizado.');
+        }
+
+        if ($user->role === 'guardia') {
+            $userGuardiaId = $this->resolveGuardiaIdForGuardiaUser($user);
+            if (!$userGuardiaId || (int) $guardia->id !== (int) $userGuardiaId) {
+                abort(403, 'No puedes gestionar otra guardia.');
+            }
+        }
+
+        $shift = Shift::where('status', 'active')->latest()->first();
+
+        $activeReplacements = FirefighterReplacement::with(['originalFirefighter', 'replacementFirefighter'])
+            ->where('guardia_id', $guardia->id)
+            ->where('status', 'active')
+            ->get();
+
+        DB::transaction(function () use ($guardia, $activeReplacements, $shift) {
+            foreach ($activeReplacements as $rep) {
+                $rep->update([
+                    'status' => 'closed',
+                    'ends_at' => Carbon::now(),
+                ]);
+
+                $original = $rep->originalFirefighter;
+                $replacer = $rep->replacementFirefighter;
+
+                if ($original && (int) $original->guardia_id === (int) $guardia->id) {
+                    $original->update([
+                        'attendance_status' => 'constituye',
+                        'is_shift_leader' => false,
+                        'is_exchange' => false,
+                        'is_penalty' => false,
+                    ]);
+                }
+
+                if ($replacer) {
+                    $prevGuardiaId = null;
+                    if ($rep->notes) {
+                        $decodedNotes = json_decode((string) $rep->notes, true);
+                        if (is_array($decodedNotes) && array_key_exists('replacement_previous_guardia_id', $decodedNotes)) {
+                            $prevGuardiaId = $decodedNotes['replacement_previous_guardia_id'];
+                        }
+                    }
+
+                    // Si no hay info de origen, lo sacamos de la guardia actual
+                    if ((int) $replacer->guardia_id === (int) $guardia->id) {
+                        $replacer->update([
+                            'guardia_id' => $prevGuardiaId,
+                            'attendance_status' => 'constituye',
+                            'is_titular' => false,
+                            'is_shift_leader' => false,
+                            'is_exchange' => false,
+                            'is_penalty' => false,
+                        ]);
+                    }
+
+                    $replacerUserId = FirefighterUserLegacyMap::where('firefighter_id', $replacer->id)->value('user_id');
+                    if ($replacerUserId) {
+                        User::where('id', $replacerUserId)->update([
+                            'job_replacement_id' => null,
+                            'replacement_until' => null,
+                            'attendance_status' => 'constituye',
+                            'original_guardia_id' => null,
+                            'original_attendance_status' => null,
+                            'original_is_titular' => null,
+                            'original_is_shift_leader' => null,
+                            'original_is_exchange' => null,
+                            'original_is_penalty' => null,
+                            'original_job_replacement_id' => null,
+                            'original_role' => null,
+                        ]);
+                    }
+
+                    if ($shift) {
+                        ShiftUser::where('shift_id', $shift->id)
+                            ->where('firefighter_id', $replacer->id)
+                            ->update([
+                                'guardia_id' => $prevGuardiaId,
+                                'attendance_status' => 'constituye',
+                                'assignment_type' => null,
+                                'replaced_user_id' => null,
+                                'replaced_firefighter_id' => null,
+                            ]);
+                    }
+                }
+            }
+        });
+
+        return redirect()->back()->with('success', 'Reemplazos cerrados y dotación restaurada.');
     }
 
     private function calculateReplacementUntil(Carbon $now): Carbon
@@ -405,7 +557,7 @@ class AdminController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->role !== 'super_admin' && $user->role !== 'guardia') {
+        if (!in_array($user->role, ['super_admin', 'capitania', 'guardia'], true)) {
             abort(403, 'No autorizado.');
         }
 
@@ -413,10 +565,8 @@ class AdminController extends Controller
             'guardia_id' => 'required|exists:guardias,id',
             'name' => 'required|string|max:255',
             'last_name_paternal' => 'nullable|string|max:255',
-            'email' => 'required|email|unique:users,email',
             'age' => 'required|integer|min:18',
             'years_of_service' => 'required|integer|min:0',
-            'role' => 'nullable|string|in:bombero,jefe_guardia',
             'is_driver' => 'nullable|boolean',
         ]);
 
@@ -428,9 +578,9 @@ class AdminController extends Controller
         User::create([
             'name' => $validated['name'],
             'last_name_paternal' => $validated['last_name_paternal'] ?? null,
-            'email' => $validated['email'],
-            'password' => Hash::make('password'),
-            'role' => $request->input('role', 'bombero'),
+            'email' => 'no-email-' . uniqid() . '@system.local',
+            'password' => Hash::make(Str::random(12)),
+            'role' => 'bombero',
             'age' => $validated['age'],
             'years_of_service' => $validated['years_of_service'],
             'guardia_id' => $validated['guardia_id'],
@@ -443,13 +593,13 @@ class AdminController extends Controller
             'is_penalty' => false,
         ]);
 
-        return redirect()->route('admin.guardias')->with('success', 'Bombero agregado correctamente a la guardia.');
+        return redirect()->route($user->role === 'guardia' ? 'admin.dotaciones' : 'admin.guardias')->with('success', 'Bombero agregado correctamente a la guardia.');
     }
 
     public function editBombero($id)
     {
         $user = auth()->user();
-        if ($user->role !== 'super_admin' && $user->role !== 'guardia') {
+        if (!in_array($user->role, ['super_admin', 'capitania', 'guardia'], true)) {
             abort(403, 'No autorizado.');
         }
 
@@ -468,7 +618,7 @@ class AdminController extends Controller
     public function updateBombero(Request $request, $id)
     {
         $user = auth()->user();
-        if ($user->role !== 'super_admin' && $user->role !== 'guardia') {
+        if (!in_array($user->role, ['super_admin', 'capitania', 'guardia'], true)) {
             abort(403, 'No autorizado.');
         }
 
@@ -483,10 +633,8 @@ class AdminController extends Controller
             'guardia_id' => 'required|exists:guardias,id',
             'name' => 'required|string|max:255',
             'last_name_paternal' => 'nullable|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $id,
             'age' => 'required|integer|min:18',
             'years_of_service' => 'required|integer|min:0',
-            'role' => 'required|string|in:super_admin,capitania,jefe_guardia,bombero',
             'is_driver' => 'nullable|boolean',
         ]);
 
@@ -497,16 +645,17 @@ class AdminController extends Controller
 
         $data = $validated;
         $data['is_driver'] = $request->has('is_driver');
-        
+        $data['role'] = 'bombero';
+
         $bombero->update($data);
 
-        return redirect()->route('admin.guardias')->with('success', 'Bombero actualizado correctamente.');
+        return redirect()->route($user->role === 'guardia' ? 'admin.dotaciones' : 'admin.guardias')->with('success', 'Bombero actualizado correctamente.');
     }
 
     public function destroyBombero($id)
     {
         $user = auth()->user();
-        if ($user->role !== 'super_admin' && $user->role !== 'guardia') {
+        if (!in_array($user->role, ['super_admin', 'capitania', 'guardia'], true)) {
             abort(403, 'No autorizado.');
         }
 
@@ -519,14 +668,14 @@ class AdminController extends Controller
 
         $bombero->delete();
 
-        return redirect()->route('admin.guardias')->with('success', 'Bombero eliminado correctamente.');
+        return redirect()->route($user->role === 'guardia' ? 'admin.dotaciones' : 'admin.guardias')->with('success', 'Bombero eliminado correctamente.');
     }
 
     // --- CRUD Guardias ---
 
     public function storeGuardia(Request $request)
     {
-        if (auth()->user()->role !== 'super_admin') {
+        if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
 
@@ -550,7 +699,7 @@ class AdminController extends Controller
 
     public function editGuardia($id)
     {
-        if (auth()->user()->role !== 'super_admin') {
+        if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
 
@@ -561,7 +710,7 @@ class AdminController extends Controller
 
     public function updateGuardia(Request $request, $id)
     {
-         if (auth()->user()->role !== 'super_admin') {
+         if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
 
@@ -585,14 +734,14 @@ class AdminController extends Controller
 
     public function destroyGuardia($id)
     {
-         if (auth()->user()->role !== 'super_admin') {
+         if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
 
         $guardia = Guardia::findOrFail($id);
         
         // Verificar si tiene personal asignado (excluyendo el usuario de gestión de la guardia)
-        $usersCount = $guardia->users()->where('role', '!=', 'guardia')->count();
+        $usersCount = $guardia->firefighters()->count();
 
         if ($usersCount > 0) {
             return back()->withErrors(['msg' => 'No se puede eliminar una guardia que tiene personal operativo asignado.']);
@@ -608,7 +757,7 @@ class AdminController extends Controller
 
     public function activateWeek($id)
     {
-        if (auth()->user()->role !== 'super_admin') {
+        if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
 
@@ -644,36 +793,32 @@ class AdminController extends Controller
     {
         // 1. NO Titulares (Reemplazos, Canjes, Apoyos temporales)
         // Se van de la guardia al terminar el turno
-        $transitorios = User::where('guardia_id', $guardia->id)
-                            ->where('is_titular', false)
-                            ->get();
+        $transitorios = Firefighter::where('guardia_id', $guardia->id)
+            ->where('is_titular', false)
+            ->get();
 
         foreach ($transitorios as $user) {
             $user->update([
                 'guardia_id' => null,
-                'job_replacement_id' => null,
                 'attendance_status' => 'constituye',
                 'is_shift_leader' => false,
                 'is_exchange' => false,
                 'is_penalty' => false,
-                'role' => ($user->role === 'jefe_guardia') ? 'bombero' : $user->role,
             ]);
         }
 
         // 2. Titulares (Dotación permanente)
         // Se quedan, pero se limpia su estado del turno
-        $titulares = User::where('guardia_id', $guardia->id)
-                         ->where('is_titular', true)
-                         ->get();
+        $titulares = Firefighter::where('guardia_id', $guardia->id)
+            ->where('is_titular', true)
+            ->get();
 
         foreach ($titulares as $user) {
             $user->update([
                 'attendance_status' => 'constituye', // Vuelven a estado base
-                'job_replacement_id' => null, // Por si acaso cubrieron a alguien interno
                 'is_shift_leader' => false,
                 'is_exchange' => false,
                 'is_penalty' => false,
-                'role' => ($user->role === 'jefe_guardia') ? 'bombero' : $user->role,
             ]);
         }
     }
@@ -709,7 +854,7 @@ class AdminController extends Controller
             return;
         }
 
-        $transitorios = User::where('guardia_id', $guardia->id)
+        $transitorios = Firefighter::where('guardia_id', $guardia->id)
             ->where('is_titular', false)
             ->where('updated_at', '<', $cutoff)
             ->get();
@@ -717,19 +862,17 @@ class AdminController extends Controller
         foreach ($transitorios as $user) {
             $user->update([
                 'guardia_id' => null,
-                'job_replacement_id' => null,
                 'attendance_status' => 'constituye',
                 'is_shift_leader' => false,
                 'is_exchange' => false,
                 'is_penalty' => false,
-                'role' => ($user->role === 'jefe_guardia') ? 'bombero' : $user->role,
             ]);
         }
     }
 
     public function bulkUpdateGuardia(Request $request, $id)
     {
-        if (auth()->user()->role !== 'super_admin' && auth()->user()->role !== 'guardia') {
+        if (!in_array(auth()->user()->role, ['super_admin', 'capitania', 'guardia'], true)) {
             abort(403, 'No autorizado.');
         }
 
@@ -739,74 +882,86 @@ class AdminController extends Controller
         $this->cleanupTransitoriosOnConstitution($guardia);
         
         // Si es cuenta de guardia, verificar propiedad
-        if (auth()->user()->role === 'guardia' && auth()->user()->guardia_id != $guardia->id) {
-            abort(403, 'No autorizado.');
+        if (auth()->user()->role === 'guardia') {
+            $userGuardiaId = $this->resolveGuardiaIdForGuardiaUser(auth()->user());
+            if (!$userGuardiaId || (int) $userGuardiaId !== (int) $guardia->id) {
+                abort(403, 'No autorizado.');
+            }
         }
 
         $data = $request->validate([
             'users' => 'required|array',
-            'users.*.attendance_status' => 'nullable|string|in:constituye,reemplazo,permiso,ausente,falta,licencia',
+            'users.*.attendance_status' => 'required|string',
         ]);
 
-        // 1. Crear o recuperar el Turno (Shift) del día
-        $shift = Shift::firstOrCreate(
-            [
-                'date' => Carbon::today(),
-                'status' => 'active' // O buscar uno activo independientemente de la fecha si es guardia continua
-            ],
-            [
-                'status' => 'active',
-                'notes' => 'Guardia generada automáticamente'
-            ]
-        );
+        $shift = Shift::with('users')
+            ->where('status', 'active')
+            ->latest()
+            ->first();
 
-        foreach ($data['users'] as $userId => $attributes) {
-            $user = User::find($userId);
-            if ($user && $user->guardia_id == $guardia->id) {
-                // Actualizar estado en tiempo real (User)
-                $user->update([
-                    'attendance_status' => $attributes['attendance_status'] ?? 'constituye',
+        if (!$shift) {
+            $shift = Shift::create([
+                'date' => Carbon::today(),
+                'status' => 'active',
+                'shift_leader_id' => auth()->id(),
+                'notes' => 'Guardia constituida manualmente',
+            ]);
+        }
+
+        DB::transaction(function () use ($data, $guardia, $shift) {
+            foreach ($data['users'] as $firefighterId => $attributes) {
+                $firefighter = Firefighter::find($firefighterId);
+                if (!$firefighter || (int) $firefighter->guardia_id !== (int) $guardia->id) {
+                    continue;
+                }
+
+                $attendanceStatus = $attributes['attendance_status'] ?? 'constituye';
+
+                $firefighter->update([
+                    'attendance_status' => $attendanceStatus,
                 ]);
 
-                // 2. Registrar Historial (ShiftUser)
-                // Determinar presencia
-                $isPresent = in_array($user->attendance_status, ['constituye', 'reemplazo']);
-                
-                // Determinar tipo de asignación para el historial
-                $assignmentType = 'guardia';
-                if ($user->attendance_status === 'reemplazo') $assignmentType = 'reemplazo';
-                if ($user->is_exchange) $assignmentType = 'canje';
-                
-                // Guardar registro histórico
+                $userId = FirefighterUserLegacyMap::where('firefighter_id', $firefighter->id)->value('user_id');
+
                 $shiftUserPayload = [
-                    'role' => $user->role, // Guardar rol que tenía en ese momento
-                    'present' => $isPresent,
-                    'assignment_type' => $assignmentType,
-                    'replaced_user_id' => $user->job_replacement_id, // Si estaba reemplazando a alguien
-                    'start_time' => Carbon::now(),
-                    // Para efectos de reporte inmediato, si está presente, asumimos turno completo o en curso.
-                    // El reporte actual filtra por end_time not null.
-                    // Vamos a setear un end_time provisional si está presente para que aparezca en el reporte.
-                    'end_time' => $isPresent ? Carbon::now()->addHours(9) : null,
+                    'assignment_type' => $attendanceStatus,
+                    'present' => $attendanceStatus !== 'ausente' && $attendanceStatus !== 'permiso' && $attendanceStatus !== 'licencia',
+                    'start_time' => $shift->created_at,
+                    'end_time' => null,
+                    'firefighter_id' => $firefighter->id,
                 ];
+
+                if ($userId) {
+                    $shiftUserPayload['user_id'] = $userId;
+                }
 
                 if (Schema::hasColumn('shift_users', 'guardia_id')) {
                     $shiftUserPayload['guardia_id'] = $guardia->id;
                 }
-
                 if (Schema::hasColumn('shift_users', 'attendance_status')) {
-                    $shiftUserPayload['attendance_status'] = $user->attendance_status;
+                    $shiftUserPayload['attendance_status'] = $attendanceStatus;
                 }
 
                 ShiftUser::updateOrCreate(
                     [
                         'shift_id' => $shift->id,
-                        'user_id' => $user->id,
+                        'firefighter_id' => $firefighter->id,
                     ],
                     $shiftUserPayload
                 );
             }
-        }
+
+            GuardiaAttendanceRecord::updateOrCreate(
+                [
+                    'guardia_id' => $guardia->id,
+                    'date' => Carbon::today(),
+                ],
+                [
+                    'saved_by_user_id' => auth()->id(),
+                    'saved_at' => Carbon::now(),
+                ]
+            );
+        });
 
         return redirect()->back()->with('success', 'Asistencia guardada y registros históricos actualizados.');
     }

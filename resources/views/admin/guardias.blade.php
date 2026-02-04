@@ -68,7 +68,7 @@
                             @endif
                         </div>
                         <p class="text-slate-400 text-xs mt-1 font-medium flex items-center">
-                            <i class="fas fa-users mr-2 opacity-50"></i> {{ $guardia->users->filter(fn($u) => !$u->replacedBy)->count() }} Bombero
+                            <i class="fas fa-users mr-2 opacity-50"></i> {{ $guardia->firefighters->count() }} Voluntario
                         </p>
                     </div>
 
@@ -88,7 +88,7 @@
 
                 <!-- Lista de Personal -->
                 <div class="flex-grow bg-slate-50/50 flex flex-col min-h-[200px]">
-                    @if($guardia->users->isEmpty())
+                    @if($guardia->firefighters->isEmpty())
                         <div class="flex-grow flex flex-col items-center justify-center text-slate-400 p-8 min-h-[150px]">
                             <div class="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-2">
                                 <i class="fas fa-user-slash text-xl opacity-50"></i>
@@ -99,14 +99,18 @@
                         <form action="{{ route('admin.guardias.bulk_update', $guardia->id) }}" method="POST" id="attendance-form-{{ $guardia->id }}" class="flex flex-col">
                             @csrf
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 overflow-y-auto max-h-[650px] pr-2 p-3 content-start items-start auto-rows-min">
-                                @foreach($guardia->users as $user)
+                                @foreach($guardia->firefighters as $user)
+                                    @php
+                                        $repAsOriginal = isset($replacementByOriginal) ? ($replacementByOriginal[$user->id] ?? null) : null;
+                                        $repAsReplacement = isset($replacementByReplacement) ? ($replacementByReplacement[$user->id] ?? null) : null;
+                                    @endphp
                                     <div class="bg-white rounded-xl border border-slate-200 shadow-sm relative overflow-visible group hover:border-blue-400 hover:shadow-md transition-all duration-200 flex flex-col items-center p-2 gap-2 text-center">
                                         
                                         <!-- Titular Toggle (Top Right) -->
                                         <div class="absolute top-2 right-2 z-10">
                                             <button type="button" 
-                                                @if($user->replacedBy) disabled @else onclick="confirmToggleTitular('{{ route('admin.bomberos.toggle_titular', $user->id) }}')" @endif
-                                                class="w-6 h-6 flex items-center justify-center rounded-full border shadow-sm transition-all {{ $user->replacedBy ? 'opacity-50 cursor-not-allowed' : 'hover:scale-110' }} {{ $user->is_titular ? 'bg-blue-100 text-blue-600 border-blue-200' : 'bg-slate-100 text-slate-400 border-slate-200' }}"
+                                                @if($repAsOriginal) disabled @else onclick="confirmToggleTitular('{{ route('admin.bomberos.toggle_titular', $user->id) }}')" @endif
+                                                class="w-6 h-6 flex items-center justify-center rounded-full border shadow-sm transition-all {{ $repAsOriginal ? 'opacity-50 cursor-not-allowed' : 'hover:scale-110' }} {{ $user->is_titular ? 'bg-blue-100 text-blue-600 border-blue-200' : 'bg-slate-100 text-slate-400 border-slate-200' }}"
                                                 title="{{ $user->is_titular ? 'Titular (Permanente)' : 'Transitorio (Temporal)' }}">
                                                 <i class="fas {{ $user->is_titular ? 'fa-shield-halved' : 'fa-user-clock' }} text-[10px]"></i>
                                             </button>
@@ -118,7 +122,7 @@
                                                 {{ substr($user->name, 0, 1) }}{{ substr($user->last_name_paternal, 0, 1) }}
                                             </div>
                                             <!-- Status Dot if Active -->
-                                            <div class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white {{ $user->replacedBy ? 'bg-amber-400' : ($user->attendance_status == 'constituye' ? 'bg-green-500' : ($user->attendance_status == 'reemplazo' ? 'bg-purple-500' : ($user->attendance_status == 'ausente' ? 'bg-red-500' : 'bg-slate-300'))) }}"></div>
+                                            <div class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white {{ $repAsOriginal ? 'bg-amber-400' : ($user->attendance_status == 'constituye' ? 'bg-green-500' : ($user->attendance_status == 'reemplazo' ? 'bg-purple-500' : ($user->attendance_status == 'ausente' ? 'bg-red-500' : 'bg-slate-300'))) }}"></div>
                                         </div>
 
                                         <!-- Main Info (Centered) -->
@@ -129,25 +133,27 @@
                                             </h4>
                                             
                                             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                                                {{ $user->role == 'jefe_guardia' ? 'Jefe de Guardia' : 'Bombero' }}
+                                                {{ $user->is_shift_leader ? 'Jefe de Guardia' : 'Voluntario' }}
                                             </span>
 
                                             <!-- Replacements Status Text -->
-                                            @if($user->jobReplacement)
+                                            @if($repAsReplacement)
                                                 <div class="flex items-center gap-1 text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-100 shadow-sm mt-1">
-                                                    <i class="fas fa-right-left text-[9px]"></i> <span class="text-[9px] font-bold">Reemplaza a {{ substr($user->jobReplacement->name, 0, 1) }}. {{ $user->jobReplacement->last_name_paternal }}</span>
+                                                    <i class="fas fa-right-left text-[9px]"></i>
+                                                    <span class="text-[9px] font-bold">Reemplaza a {{ substr($repAsReplacement->originalFirefighter->name ?? '', 0, 1) }}. {{ $repAsReplacement->originalFirefighter->last_name_paternal ?? '' }}</span>
                                                 </div>
                                             @endif
-                                            @if($user->replacedBy)
+                                            @if($repAsOriginal)
                                                 <div class="flex items-center gap-1 text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-100 shadow-sm mt-1">
-                                                    <i class="fas fa-user-shield text-[9px]"></i> <span class="text-[9px] font-bold">Cubierto por {{ substr($user->replacedBy->name, 0, 1) }}. {{ $user->replacedBy->last_name_paternal }}</span>
+                                                    <i class="fas fa-user-shield text-[9px]"></i>
+                                                    <span class="text-[9px] font-bold">Cubierto por {{ substr($repAsOriginal->replacementFirefighter->name ?? '', 0, 1) }}. {{ $repAsOriginal->replacementFirefighter->last_name_paternal ?? '' }}</span>
                                                 </div>
                                             @endif
                                         </div>
 
                                         <!-- Controls Area (Full Width) -->
                                         <div class="w-full mt-auto space-y-2">
-                                            @if($user->replacedBy)
+                                            @if($repAsOriginal)
                                                 <div class="w-full text-center py-3 bg-amber-100 text-amber-900 font-black text-xs rounded-lg border border-amber-200 uppercase tracking-[0.25em]">
                                                     REEMPLAZADO
                                                 </div>
@@ -214,7 +220,7 @@
                                                     </div>
                                                 </div>
 
-                                                @if(!$user->jobReplacement)
+                                                @if(!$repAsReplacement)
                                                     <button type="button" id="btn-replacement-{{ $user->id }}" data-action="open-replacement-modal" data-guardia-id="{{ $guardia->id }}" data-user-id="{{ $user->id }}" data-user-name="{{ $user->name }} {{ $user->last_name_paternal }}" onclick="openReplacementModal(this.dataset.guardiaId, this.dataset.userId, this.dataset.userName)" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-3 rounded-lg text-[10px] transition shadow-sm uppercase tracking-wider">
                                                         <i class="fas fa-user-plus mr-2"></i> Reemplazar
                                                     </button>
@@ -235,7 +241,7 @@
                                 </div>
                                 <div class="p-4 border-t border-slate-100 bg-white mt-auto">
                                     <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 px-4 rounded-xl text-xs transition-all shadow-lg hover:shadow-xl flex items-center justify-center uppercase tracking-widest group transform hover:-translate-y-0.5">
-                                        <span class="mr-2">Guardar Asistencia</span>
+                                        <span class="mr-2">Constituir Guardia</span>
                                         <i class="fas fa-check-circle text-emerald-400 text-lg group-hover:text-emerald-300 transition-colors"></i>
                                     </button>
                                 </div>
@@ -285,22 +291,22 @@
             <form action="{{ route('admin.guardias.replacement') }}" method="POST">
                 @csrf
                 <input type="hidden" name="guardia_id" id="modal_guardia_id">
-                <input type="hidden" name="original_user_id" id="modal_original_user_id">
+                <input type="hidden" name="original_firefighter_id" id="modal_original_user_id">
 
                 <div class="space-y-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Voluntario Reemplazante</label>
                         <div class="relative">
                             <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                            <input list="modal_volunteers_list" name="replacement_user_id_display" 
+                            <input list="modal_volunteers_list" name="replacement_firefighter_id_display" 
                                 class="w-full text-sm border-slate-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 pl-9 py-2.5 bg-slate-50"
                                 placeholder="Buscar voluntario..." required
                                 oninput="updateModalUserId(this)">
-                            <input type="hidden" name="replacement_user_id" id="modal_replacement_user_id" required>
+                            <input type="hidden" name="replacement_firefighter_id" id="modal_replacement_user_id" required>
                         </div>
                         <datalist id="modal_volunteers_list">
                             @foreach($volunteers as $volunteer)
-                                <option data-value="{{ $volunteer->id }}" value="{{ trim($volunteer->last_name_paternal . ' ' . ($volunteer->last_name_maternal ?? '') . ', ' . $volunteer->name . ' (' . ($volunteer->company ?? 'S/C') . ')' . ($volunteer->rut ? ' - ' . $volunteer->rut : '')) }}"></option>
+                                <option data-value="{{ $volunteer->id }}" value="{{ trim($volunteer->last_name_paternal . ' ' . ($volunteer->last_name_maternal ?? '') . ', ' . $volunteer->name . ($volunteer->rut ? ' - ' . $volunteer->rut : '')) }}"></option>
                             @endforeach
                         </datalist>
                     </div>

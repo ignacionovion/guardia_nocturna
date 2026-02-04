@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\User;
+use App\Models\Firefighter;
 use App\Models\Guardia;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -12,16 +12,11 @@ class VolunteerController extends Controller
 {
     public function index(Request $request)
     {
-        if (auth()->user()->role !== 'super_admin') {
+        if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
 
-        // QUERY BASE: Solo usuarios con rol 'bombero' o 'jefe_guardia'
-        // Se usa closure para agrupar las condiciones OR y evitar problemas con otros wheres
-        $query = User::where(function($q) {
-            $q->where('role', 'bombero')
-              ->orWhere('role', 'jefe_guardia');
-        });
+        $query = Firefighter::query()->with('guardia');
 
         if ($request->has('search')) {
             $search = $request->get('search');
@@ -40,7 +35,7 @@ class VolunteerController extends Controller
 
     public function create()
     {
-        if (auth()->user()->role !== 'super_admin') {
+        if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
         $guardias = Guardia::all();
@@ -49,7 +44,7 @@ class VolunteerController extends Controller
 
     public function store(Request $request)
     {
-        if (auth()->user()->role !== 'super_admin') {
+        if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
 
@@ -57,74 +52,86 @@ class VolunteerController extends Controller
             'name' => 'required|string|max:255',
             'last_name_paternal' => 'nullable|string|max:255',
             'last_name_maternal' => 'nullable|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'rut' => 'nullable|string|unique:users,rut',
-            'guardia_id' => 'nullable|exists:guardias,id',
-            'role' => 'required|in:bombero,jefe_guardia,capitania,super_admin',
-            'registration_number' => 'nullable|string',
-            'company_registration_number' => 'nullable|string',
-            'portable_number' => 'nullable|string',
-            'position_text' => 'nullable|string',
-            'admission_date' => 'nullable|date',
+            'rut' => 'nullable|string|unique:firefighters,rut',
+            'email' => 'nullable|email',
             'birthdate' => 'nullable|date',
-            'profession' => 'nullable|string',
-            'phone' => 'nullable|string',
-            'address_commune' => 'nullable|string',
-            'address_street' => 'nullable|string',
-            'address_number' => 'nullable|string',
-            'company' => 'nullable|string',
-            'call_code' => 'nullable|string',
+            'position_text' => 'nullable|string|max:255',
+            'portable_number' => 'nullable|string|max:255',
+            'guardia_id' => 'nullable|exists:guardias,id',
+            'admission_date' => 'nullable|date',
+            'is_driver' => 'nullable|boolean',
+            'is_rescue_operator' => 'nullable|boolean',
+            'is_trauma_assistant' => 'nullable|boolean',
         ]);
 
-        $data = $request->all();
-        $data['password'] = Hash::make(Str::random(12));
-        
-        // Manejo explícito de booleanos
+        $data = $validated;
+        $data['email'] = $request->input('email') ?: null;
         $data['is_driver'] = $request->has('is_driver');
         $data['is_rescue_operator'] = $request->has('is_rescue_operator');
         $data['is_trauma_assistant'] = $request->has('is_trauma_assistant');
-        $data['is_shift_leader'] = $request->has('is_shift_leader');
-        
-        User::create($data);
+        $data['portable_number'] = $request->input('portable_number') ?: null;
+        $data['attendance_status'] = 'constituye';
+        $data['is_titular'] = true;
+        $data['is_shift_leader'] = false;
+        $data['is_exchange'] = false;
+        $data['is_penalty'] = false;
+
+        Firefighter::create($data);
 
         return redirect()->route('admin.volunteers.index')->with('success', 'Voluntario creado exitosamente.');
     }
 
     public function edit($id)
     {
-        if (auth()->user()->role !== 'super_admin') {
+        if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
-        $volunteer = User::findOrFail($id);
+        $volunteer = Firefighter::findOrFail($id);
         $guardias = Guardia::all();
         return view('admin.volunteers.edit', compact('volunteer', 'guardias'));
     }
 
     public function update(Request $request, $id)
     {
-        if (auth()->user()->role !== 'super_admin') {
+        if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
-        $volunteer = User::findOrFail($id);
+        $volunteer = Firefighter::findOrFail($id);
         
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,'.$id,
-            'rut' => 'nullable|string|unique:users,rut,'.$id,
-            'admission_date' => 'nullable|date',
+            'rut' => 'nullable|string|unique:firefighters,rut,'.$id,
+            'email' => 'nullable|email',
             'birthdate' => 'nullable|date',
-            'registration_number' => 'nullable|string',
-            'portable_number' => 'nullable|string',
+            'position_text' => 'nullable|string|max:255',
+            'portable_number' => 'nullable|string|max:255',
+            'admission_date' => 'nullable|date',
+            'guardia_id' => 'nullable|exists:guardias,id',
         ]);
 
-        $data = $request->except(['password']);
-        
-        // Manejo explícito de booleanos para asegurar que se guarden los 'false'
+        $data = $request->only([
+            'name',
+            'last_name_paternal',
+            'last_name_maternal',
+            'rut',
+            'email',
+            'birthdate',
+            'position_text',
+            'portable_number',
+            'guardia_id',
+            'admission_date',
+        ]);
+
         $data['is_driver'] = $request->has('is_driver');
         $data['is_rescue_operator'] = $request->has('is_rescue_operator');
         $data['is_trauma_assistant'] = $request->has('is_trauma_assistant');
-        $data['is_shift_leader'] = $request->has('is_shift_leader');
-        
+
+        $data['portable_number'] = $request->input('portable_number') ?: null;
+
+        if (empty($data['email'])) {
+            $data['email'] = null;
+        }
+
         $volunteer->update($data);
 
         return redirect()->route('admin.volunteers.index')->with('success', 'Voluntario actualizado exitosamente.');
@@ -132,41 +139,36 @@ class VolunteerController extends Controller
 
     public function destroy($id)
     {
-        if (auth()->user()->role !== 'super_admin') {
+        if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
-        $volunteer = User::findOrFail($id);
+        $volunteer = Firefighter::findOrFail($id);
         $volunteer->delete();
         return redirect()->route('admin.volunteers.index')->with('success', 'Voluntario eliminado exitosamente.');
     }
 
     public function bulkDestroy(Request $request)
     {
-        if (auth()->user()->role !== 'super_admin') {
+        if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
 
         $request->validate([
             'ids' => 'required|array',
-            'ids.*' => 'exists:users,id',
+            'ids.*' => 'exists:firefighters,id',
         ]);
 
         $ids = $request->input('ids');
         $count = count($ids);
 
-        // Evitar eliminar al propio usuario logueado si se selecciona a sí mismo
-        if (in_array(auth()->id(), $ids)) {
-            return back()->with('warning', 'No puedes eliminar tu propia cuenta en una acción masiva.');
-        }
-
-        User::whereIn('id', $ids)->delete();
+        Firefighter::whereIn('id', $ids)->delete();
 
         return redirect()->route('admin.volunteers.index')->with('success', "Se han eliminado $count voluntarios correctamente.");
     }
 
     public function importForm()
     {
-        if (auth()->user()->role !== 'super_admin') {
+        if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
         return view('admin.volunteers.import');
@@ -174,7 +176,7 @@ class VolunteerController extends Controller
 
     public function uploadImport(Request $request)
     {
-        if (auth()->user()->role !== 'super_admin') {
+        if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
             return response()->json(['error' => 'No autorizado'], 403);
         }
 
@@ -237,7 +239,7 @@ class VolunteerController extends Controller
 
     public function processImport(Request $request)
     {
-        if (auth()->user()->role !== 'super_admin') {
+        if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
             return response()->json(['error' => 'No autorizado'], 403);
         }
 
@@ -261,17 +263,13 @@ class VolunteerController extends Controller
 
         foreach ($chunk as $index => $row) {
             // Validar longitud mínima
-            if (count($row) < 8) continue; 
+            if (count($row) < 4) continue;
 
-            $email = isset($row[7]) ? trim($row[7]) : null;
             $rut = isset($row[3]) ? trim($row[3]) : null;
 
-            if (!$email && !$rut) continue;
-            if ($email) $email = strtolower($email);
+            if (!$rut) continue;
 
-            $existsQuery = User::query();
-            if ($email) $existsQuery->where('email', $email);
-            if ($rut) $existsQuery->orWhere('rut', $rut);
+            $existsQuery = Firefighter::query()->where('rut', $rut);
             
             if ($existsQuery->exists()) continue;
 
@@ -281,29 +279,51 @@ class VolunteerController extends Controller
                 };
 
                 $admissionDate = null;
-                $rawDate = $val(10);
+                $rawDate = $val(8);
                 if ($rawDate) {
                     try {
                         $admissionDate = \Carbon\Carbon::parse($rawDate)->toDateString();
                     } catch (\Exception $e) {}
                 }
 
-                User::create([
+                $birthdate = null;
+                $rawBirthdate = $val(6);
+                if ($rawBirthdate) {
+                    try {
+                        $birthdate = \Carbon\Carbon::parse($rawBirthdate)->toDateString();
+                    } catch (\Exception $e) {}
+                }
+
+                $parseBool = function ($value) {
+                    $v = trim((string) $value);
+                    if ($v === '') return false;
+                    $v = mb_strtolower($v);
+                    return in_array($v, ['1', 'si', 'sí', 'true', 'x', 'yes'], true);
+                };
+
+                $cargo = $val(4);
+                $portable = $val(5);
+                $email = $val(12);
+
+                Firefighter::create([
                     'name' => $val(0),
                     'last_name_paternal' => $val(1),
                     'last_name_maternal' => $val(2),
                     'rut' => $val(3),
-                    'registration_number' => $val(4),
-                    'portable_number' => $val(5),
-                    'position_text' => $val(6),
-                    'email' => $email ?? 'no-email-' . uniqid() . '@system.local',
-                    'address_street' => $val(8),
-                    'address_number' => $val(9),
+                    'position_text' => $cargo,
+                    'portable_number' => $portable ?: null,
+                    'birthdate' => $birthdate,
+                    'guardia_id' => $val(7) ?: null,
                     'admission_date' => $admissionDate,
-                    'password' => Hash::make('password'),
-                    'role' => 'bombero',
-                    'age' => 0,
-                    'years_of_service' => 0, 
+                    'email' => $email ?: null,
+                    'is_driver' => $parseBool($val(9)),
+                    'is_rescue_operator' => $parseBool($val(10)),
+                    'is_trauma_assistant' => $parseBool($val(11)),
+                    'attendance_status' => 'constituye',
+                    'is_titular' => true,
+                    'is_shift_leader' => false,
+                    'is_exchange' => false,
+                    'is_penalty' => false,
                 ]);
                 $processed++;
             } catch (\Exception $e) {
@@ -404,7 +424,7 @@ class VolunteerController extends Controller
             // Limpieza básica
             if ($email) $email = strtolower($email);
 
-            $existsQuery = User::query();
+            $existsQuery = Firefighter::query();
             if ($email) {
                 $existsQuery->where('email', $email);
             }
@@ -435,7 +455,7 @@ class VolunteerController extends Controller
                     }
                 }
 
-                User::create([
+                Firefighter::create([
                     'name' => $val(0),
                     'last_name_paternal' => $val(1),
                     'last_name_maternal' => $val(2),
@@ -443,16 +463,16 @@ class VolunteerController extends Controller
                     'registration_number' => $val(4),
                     'portable_number' => $val(5),
                     'position_text' => $val(6),
-                    'email' => $email ?? 'no-email-' . uniqid() . '@system.local', // Fallback si no hay email pero si RUT
+                    'email' => $email ?: null,
                     'address_street' => $val(8),
                     'address_number' => $val(9),
                     'admission_date' => $admissionDate,
-                    
-                    // Campos por defecto
-                    'password' => Hash::make('password'), // Se podría usar el RUT como pass inicial
-                    'role' => 'bombero',
-                    'age' => 0,
-                    'years_of_service' => 0, 
+
+                    'attendance_status' => 'constituye',
+                    'is_titular' => true,
+                    'is_shift_leader' => false,
+                    'is_exchange' => false,
+                    'is_penalty' => false,
                 ]);
                 $count++;
             } catch (\Exception $e) {

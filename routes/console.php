@@ -5,9 +5,14 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use App\Models\Guardia;
 use App\Models\GuardiaCalendarDay;
+use App\Models\Bed;
+use App\Models\BedAssignment;
 use App\Models\Shift;
 use App\Models\ShiftUser;
 use App\Models\User;
+use App\Models\Novelty;
+use App\Models\GuardiaAttendanceRecord;
+use App\Models\InAppNotification;
 use App\Services\ReplacementService;
 use Carbon\Carbon;
 
@@ -141,3 +146,147 @@ Artisan::command('guardia:run-calendar {--at=} {--tz=}', function () {
         'notes' => 'Guardia generada automáticamente por Calendario',
     ]);
 })->purpose('Activa guardia según calendario y crea/cierra turnos automáticamente');
+
+Artisan::command('guardia:reset-beds {--at=} {--tz=}', function () {
+    $scheduleTz = $this->option('tz') ?: env('GUARDIA_SCHEDULE_TZ', config('app.timezone'));
+    $at = $this->option('at');
+
+    $nowLocal = $at ? Carbon::parse($at, $scheduleTz) : Carbon::now($scheduleTz);
+    $nowApp = $nowLocal->copy()->setTimezone(config('app.timezone'));
+
+    if (!$nowLocal->isSunday()) {
+        return;
+    }
+
+    $resetAt = $nowLocal->copy()->startOfDay()->addHours(18);
+    $windowEnd = $resetAt->copy()->addMinutes(5);
+    if (!($nowLocal->greaterThanOrEqualTo($resetAt) && $nowLocal->lessThan($windowEnd))) {
+        return;
+    }
+
+    DB::transaction(function () use ($nowApp) {
+        BedAssignment::whereNull('released_at')->update(['released_at' => $nowApp]);
+        Bed::where('status', 'occupied')->update(['status' => 'available']);
+    });
+
+    $this->info('Camas reseteadas correctamente (' . $nowLocal->toDateTimeString() . ')');
+})->purpose('Resetea camas (libera asignaciones y deja camas disponibles) a las 18:00 del último día de guardia');
+
+Artisan::command('guardia:generate-notifications {--at=} {--tz=}', function () {
+    $scheduleTz = $this->option('tz') ?: env('GUARDIA_SCHEDULE_TZ', config('app.timezone'));
+    $at = $this->option('at');
+
+    $nowLocal = $at ? Carbon::parse($at, $scheduleTz) : Carbon::now($scheduleTz);
+
+    $shiftBusinessDate = function (Carbon $dt) {
+        $cutoff = $dt->copy()->startOfDay()->addHours(7);
+        return $dt->lessThan($cutoff) ? $dt->copy()->subDay()->toDateString() : $dt->toDateString();
+    };
+
+    $withinWindow = function (Carbon $dt, string $hhmm, int $minutes = 5) {
+        [$h, $m] = array_map('intval', explode(':', $hhmm));
+        $start = $dt->copy()->startOfDay()->addHours($h)->addMinutes($m);
+        $end = $start->copy()->addMinutes($minutes);
+        return $dt->greaterThanOrEqualTo($start) && $dt->lessThan($end);
+    };
+
+    $activeGuardia = (function () use ($nowLocal) {
+        $weekStart = $nowLocal->copy()->startOfWeek(Carbon::SUNDAY);
+        $calendarDay = GuardiaCalendarDay::with('guardia')
+            ->where('date', $weekStart->toDateString())
+            ->first();
+
+        if (!$calendarDay) {
+            $calendarDay = GuardiaCalendarDay::with('guardia')
+                ->where('date', $nowLocal->toDateString())
+                ->first();
+        }
+
+        if ($calendarDay && $calendarDay->guardia) {
+            return $calendarDay->guardia;
+        }
+
+        return Guardia::where('is_active_week', true)->first();
+    })();
+
+    if ($activeGuardia) {
+        $businessDate = $shiftBusinessDate($nowLocal);
+
+        if ($withinWindow($nowLocal, '23:55') || $withinWindow($nowLocal, '00:00')) {
+            $already = GuardiaAttendanceRecord::where('guardia_id', $activeGuardia->id)
+                ->whereDate('date', $businessDate)
+                ->exists();
+
+            if (!$already) {
+                $targetUsers = User::whereIn('role', ['super_admin', 'capitania'])
+                    ->get();
+
+                $guardiaAccount = User::where('role', 'guardia')->where('guardia_id', $activeGuardia->id)->first();
+                if ($guardiaAccount) {
+                    $targetUsers->push($guardiaAccount);
+                }
+
+                $slot = $withinWindow($nowLocal, '23:55') ? '2355' : '0000';
+                foreach ($targetUsers->unique('id') as $u) {
+                    $uniqueKey = 'guardia_not_constituted_' . $businessDate . '_' . $slot . '_' . $activeGuardia->id . '_' . $u->id;
+                    InAppNotification::firstOrCreate(
+                        ['unique_key' => $uniqueKey],
+                        [
+                            'user_id' => $u->id,
+                            'type' => 'guardia',
+                            'title' => 'Guardia sin constituir',
+                            'message' => 'La guardia ' . $activeGuardia->name . ' aún no registra asistencia (' . $businessDate . ').',
+                            'action_url' => url('/'),
+                        ]
+                    );
+                }
+            }
+        }
+    }
+
+    if ($withinWindow($nowLocal, '23:00')) {
+        $localDate = $nowLocal->toDateString();
+
+        $academies = Novelty::where('type', 'Academia')
+            ->whereNotNull('date')
+            ->get()
+            ->filter(function ($n) use ($scheduleTz, $localDate) {
+                if (!$n->date) return false;
+                return Carbon::parse($n->date)->setTimezone($scheduleTz)->toDateString() === $localDate;
+            });
+
+        if ($academies->isNotEmpty()) {
+            foreach ($academies as $academy) {
+                $responsible = $academy->user_id ? User::find($academy->user_id) : null;
+                $targets = collect();
+
+                $targets = $targets->merge(User::whereIn('role', ['super_admin', 'capitania'])->get());
+                if ($responsible) {
+                    $targets->push($responsible);
+                }
+
+                $guardiaId = $responsible?->guardia_id;
+                if ($guardiaId) {
+                    $guardiaAccount = User::where('role', 'guardia')->where('guardia_id', $guardiaId)->first();
+                    if ($guardiaAccount) {
+                        $targets->push($guardiaAccount);
+                    }
+                }
+
+                foreach ($targets->unique('id') as $u) {
+                    $uniqueKey = 'academy_reminder_' . $academy->id . '_' . $localDate . '_' . $u->id;
+                    InAppNotification::firstOrCreate(
+                        ['unique_key' => $uniqueKey],
+                        [
+                            'user_id' => $u->id,
+                            'type' => 'academy',
+                            'title' => 'Academia programada hoy',
+                            'message' => ($academy->title ?: 'Academia') . ' - ' . ($academy->description ? \Illuminate\Support\Str::limit($academy->description, 90) : ''),
+                            'action_url' => url('/'),
+                        ]
+                    );
+                }
+            }
+        }
+    }
+})->purpose('Genera notificaciones in-app (guardia sin constituir y recordatorios de academias)');

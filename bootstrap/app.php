@@ -15,9 +15,14 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withSchedule(function (Schedule $schedule) {
         $schedule->command('guardia:expire-replacements')->everyMinute();
         $schedule->command('guardia:run-calendar')->everyMinute();
+        $schedule->command('guardia:reset-beds')->everyMinute();
+        $schedule->command('guardia:generate-notifications')->everyMinute();
     })
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->appendToGroup('web', \App\Http\Middleware\ExpireReplacements::class);
+        $middleware->alias([
+            'super_admin' => \App\Http\Middleware\EnsureSuperAdmin::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

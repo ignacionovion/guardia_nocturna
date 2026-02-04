@@ -26,12 +26,19 @@ class NoveltyController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'type' => 'nullable|string',
+            'user_id' => 'nullable|exists:users,id',
+            'date' => 'nullable|date',
         ]);
 
         try {
             $novelty = new Novelty($validated);
-            $novelty->user_id = auth()->id();
-            $novelty->date = now();
+            if (($validated['type'] ?? null) === 'Academia') {
+                $novelty->user_id = $validated['user_id'] ?? auth()->id();
+                $novelty->date = isset($validated['date']) ? \Carbon\Carbon::parse($validated['date']) : now();
+            } else {
+                $novelty->user_id = auth()->id();
+                $novelty->date = now();
+            }
             $novelty->save();
 
             return back()->with('success', 'Novedad registrada correctamente.');

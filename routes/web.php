@@ -7,6 +7,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminCalendarController;
 use App\Http\Controllers\GuardiaController;
+use App\Http\Controllers\CleaningWebController;
+use App\Http\Controllers\Admin\SystemAdminController;
 
 // Rutas de Autenticación
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login')->middleware('guest');
@@ -18,6 +20,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/camas', [DashboardController::class, 'camas'])->name('camas');
     Route::get('/guardia', [GuardiaController::class, 'index'])->name('guardia');
+
+    Route::get('/aseo', [CleaningWebController::class, 'index'])->name('guardia.aseo');
+    Route::post('/aseo', [CleaningWebController::class, 'store'])->name('guardia.aseo.store');
 
     // Rutas operativas de Guardia
     Route::post('/guardia', [GuardiaController::class, 'start'])->name('guardia.start');
@@ -58,6 +63,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/guardias/assign', [AdminController::class, 'assignBombero'])->name('admin.guardias.assign');
     Route::delete('/admin/guardias/unassign', [AdminController::class, 'unassignBombero'])->name('admin.guardias.unassign');
     Route::post('/admin/guardias/replacement', [AdminController::class, 'assignReplacement'])->name('admin.guardias.replacement'); // Nueva ruta
+    Route::post('/admin/guardias/replacement/{replacement}/undo', [AdminController::class, 'undoReplacement'])->name('admin.guardias.replacement.undo');
+    Route::post('/admin/guardias/{guardia}/replacements/cleanup', [AdminController::class, 'cleanupReplacements'])->name('admin.guardias.replacements.cleanup');
     Route::post('/admin/bomberos', [AdminController::class, 'storeBombero'])->name('admin.bomberos.store');
     
     // Editar y Eliminar Bomberos
@@ -79,4 +86,23 @@ Route::middleware('auth')->group(function () {
 
     // Rutas de Novedades
     Route::post('/novedades', [App\Http\Controllers\NoveltyController::class, 'store'])->name('novelties.store_web');
+
+    // Notificaciones in-app
+    Route::post('/notifications/read', [App\Http\Controllers\InAppNotificationController::class, 'markRead'])->name('notifications.read');
+
+    // Rutas Admin - Usuarios del Sistema (solo Super Admin)
+    Route::middleware('super_admin')->group(function () {
+        Route::get('/admin/system', [SystemAdminController::class, 'index'])->name('admin.system.index');
+        Route::post('/admin/system/purge', [SystemAdminController::class, 'purge'])->name('admin.system.purge');
+
+        Route::resource('admin/users', App\Http\Controllers\Admin\SystemUserController::class, ['as' => 'admin']);
+        Route::resource('admin/emergencies', App\Http\Controllers\Admin\EmergencyController::class, ['as' => 'admin']);
+
+        Route::get('/admin/emergency-keys/import', [App\Http\Controllers\Admin\EmergencyKeyController::class, 'importForm'])->name('admin.emergency-keys.import');
+        Route::post('/admin/emergency-keys/import/upload', [App\Http\Controllers\Admin\EmergencyKeyController::class, 'uploadImport'])->name('admin.emergency-keys.import.upload');
+        Route::post('/admin/emergency-keys/import/process', [App\Http\Controllers\Admin\EmergencyKeyController::class, 'processImport'])->name('admin.emergency-keys.import.process');
+
+        Route::resource('admin/emergency-keys', App\Http\Controllers\Admin\EmergencyKeyController::class, ['as' => 'admin']);
+        Route::resource('admin/emergency-units', App\Http\Controllers\Admin\EmergencyUnitController::class, ['as' => 'admin']);
+    });
 });

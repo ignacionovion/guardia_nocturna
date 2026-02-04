@@ -16,4 +16,9 @@ class Guardia extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    public function firefighters()
+    {
+        return $this->hasMany(Firefighter::class);
+    }
 }

@@ -31,9 +31,24 @@
                         <div class="ml-4">
                             <h3 class="text-sm font-bold text-yellow-800 uppercase tracking-wide">Instrucciones Importantes</h3>
                             <div class="mt-2 text-sm text-yellow-700 space-y-1">
-                                <p>• El archivo debe seguir estrictamente la estructura de columnas (A-K).</p>
+                                <p>• El archivo debe seguir estrictamente la estructura de columnas (A-M).</p>
                                 <p>• Formatos permitidos: <strong>.CSV</strong>, <strong>.XLSX</strong>.</p>
-                                <p>• La contraseña por defecto será: <span class="font-mono bg-yellow-100 px-1 rounded">password</span>.</p>
+                                <div class="pt-2 border-t border-yellow-200">
+                                    <p class="font-bold">Columnas (en español):</p>
+                                    <p>A: nombres</p>
+                                    <p>B: apellido_paterno</p>
+                                    <p>C: apellido_materno</p>
+                                    <p>D: rut</p>
+                                    <p>E: cargo (sugerido: director, secretario, tesorero, capitan, teniente 1, teniente2, teniente 3, teniente 4, ayudante, ayudante1, ayudante 2, ayudante 3, pro secretario, pro tesorero, Administrativo)</p>
+                                    <p>F: portatil (texto. Ej: 364, 37-D)</p>
+                                    <p>G: fecha_cumpleanos</p>
+                                    <p>H: guardia_id</p>
+                                    <p>I: fecha_ingreso</p>
+                                    <p>J: conductor</p>
+                                    <p>K: operador_rescate</p>
+                                    <p>L: asistente_trauma</p>
+                                    <p>M: email</p>
+                                </div>
                             </div>
                         </div>
                     </div>

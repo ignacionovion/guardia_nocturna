@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Guardia Nocturna</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -13,6 +14,7 @@
 </head>
 <body class="bg-slate-50 font-sans leading-normal tracking-normal flex flex-col min-h-screen text-slate-800">
 
+    @if(!(Auth::check() && Auth::user()->role === 'guardia' && request()->routeIs('dashboard')))
     <nav class="bg-slate-900 shadow-xl border-b-4 border-red-700 sticky top-0 z-50">
         <div class="container mx-auto px-4">
             <div class="flex justify-between items-center h-16">
@@ -29,20 +31,26 @@
 
                 <!-- Menú de Navegación -->
                 <div class="hidden md:flex items-center space-x-1">
-                    <a href="{{ route('dashboard') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('dashboard') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-                        <i class="fas fa-home mr-1.5 opacity-70"></i> Inicio
-                    </a>
-                    <a href="{{ route('camas') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('camas') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-                        <i class="fas fa-bed mr-1.5 opacity-70"></i> Camas
-                    </a>
-                    
                     @if(Auth::user()->role === 'guardia')
+                        <a href="{{ route('dashboard') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('dashboard') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                            <i class="fas fa-home mr-1.5 opacity-70"></i> Inicio
+                        </a>
+                        <a href="{{ route('camas') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('camas') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                            <i class="fas fa-bed mr-1.5 opacity-70"></i> Camas
+                        </a>
                         <a href="{{ route('admin.dotaciones') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('admin.dotaciones*') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
                             <i class="fas fa-users-gear mr-1.5 opacity-70"></i> Mi Dotación
                         </a>
+                    @elseif(in_array(Auth::user()->role, ['super_admin', 'capitania'], true))
+                        <a href="{{ route('dashboard') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('dashboard') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                            <i class="fas fa-home mr-1.5 opacity-70"></i> Inicio
+                        </a>
+                        <a href="{{ route('camas') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('camas') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                            <i class="fas fa-bed mr-1.5 opacity-70"></i> Camas
+                        </a>
                     @endif
                     
-                    @if(Auth::user()->role === 'super_admin')
+                    @if(in_array(Auth::user()->role, ['super_admin', 'capitania'], true))
                         <div class="h-6 w-px bg-slate-700 mx-2"></div>
                         
                         <a href="{{ route('admin.guardias') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('admin.guardias*') ? 'bg-red-900/50 text-red-100 shadow-inner' : 'text-slate-300 hover:bg-red-900/30 hover:text-red-100' }}">
@@ -56,6 +64,12 @@
                         </a>
                         <a href="{{ route('admin.volunteers.index') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('admin.volunteers*') ? 'bg-red-900/50 text-red-100 shadow-inner' : 'text-slate-300 hover:bg-red-900/30 hover:text-red-100' }}">
                             <i class="fas fa-users mr-1.5 text-red-400"></i> Voluntarios
+                        </a>
+                        <a href="{{ route('admin.users.index') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('admin.users*') ? 'bg-red-900/50 text-red-100 shadow-inner' : 'text-slate-300 hover:bg-red-900/30 hover:text-red-100' }}">
+                            <i class="fas fa-user-shield mr-1.5 text-red-400"></i> Usuarios
+                        </a>
+                        <a href="{{ route('admin.emergencies.index') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('admin.emergencies*') ? 'bg-red-900/50 text-red-100 shadow-inner' : 'text-slate-300 hover:bg-red-900/30 hover:text-red-100' }}">
+                            <i class="fas fa-truck-medical mr-1.5 text-red-400"></i> Emergencias
                         </a>
                         <a href="{{ route('admin.reports.index') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('admin.reports*') ? 'bg-red-900/50 text-red-100 shadow-inner' : 'text-slate-300 hover:bg-red-900/30 hover:text-red-100' }}">
                             <i class="fas fa-chart-pie mr-1.5 text-red-400"></i> Reportes
@@ -81,49 +95,140 @@
             </div>
         </div>
     </nav>
+    @endif
 
-    <div class="container mx-auto mt-4 px-4 pb-6 flex-grow">
+    <div class="{{ Auth::check() && Auth::user()->role === 'guardia' && request()->routeIs('dashboard') ? 'w-full flex-grow' : 'container mx-auto mt-4 px-4 pb-6 flex-grow' }}">
         <!-- Alertas Globales -->
         @if(session('success'))
-            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded shadow-sm flex justify-between items-center" role="alert">
-                <div>
-                    <p class="font-bold">¡Operación exitosa!</p>
-                    <p>{{ session('success') }}</p>
+            <div id="global-toast-success" class="fixed top-5 right-5 z-[9999] max-w-md w-[calc(100vw-2.5rem)]">
+                <div class="bg-white border border-emerald-200 shadow-2xl rounded-2xl overflow-hidden">
+                    <div class="flex items-start gap-3 p-4">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <div class="text-xs font-black uppercase tracking-widest text-emerald-700">Operación exitosa</div>
+                            <div class="text-sm font-semibold text-slate-800 mt-1 break-words">{{ session('success') }}</div>
+                        </div>
+                        <button type="button" onclick="document.getElementById('global-toast-success')?.remove()" class="text-slate-400 hover:text-slate-700 transition-colors">
+                            <i class="fas fa-xmark"></i>
+                        </button>
+                    </div>
+                    <div class="h-1 bg-emerald-600"></div>
                 </div>
-                <button onclick="this.parentElement.remove()" class="text-green-700 hover:text-green-900"><i class="fas fa-times"></i></button>
             </div>
+            <script>
+                setTimeout(() => {
+                    const el = document.getElementById('global-toast-success');
+                    if (el) el.remove();
+                }, 4500);
+            </script>
         @endif
 
         @if($errors->any())
-            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded shadow-sm flex justify-between items-center" role="alert">
-                <div>
-                    <p class="font-bold">Se encontraron errores:</p>
-                    <ul class="list-disc list-inside text-sm">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
+            <div id="global-toast-error" class="fixed top-5 right-5 z-[9999] max-w-md w-[calc(100vw-2.5rem)]">
+                <div class="bg-white border border-red-200 shadow-2xl rounded-2xl overflow-hidden">
+                    <div class="flex items-start gap-3 p-4">
+                        <div class="w-10 h-10 rounded-xl bg-red-600 text-white flex items-center justify-center shrink-0">
+                            <i class="fas fa-triangle-exclamation"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <div class="text-xs font-black uppercase tracking-widest text-red-700">Atención</div>
+                            <ul class="text-sm font-semibold text-slate-800 mt-1 space-y-1">
+                                @foreach($errors->all() as $error)
+                                    <li class="break-words">{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        <button type="button" onclick="document.getElementById('global-toast-error')?.remove()" class="text-slate-400 hover:text-slate-700 transition-colors">
+                            <i class="fas fa-xmark"></i>
+                        </button>
+                    </div>
+                    <div class="h-1 bg-red-600"></div>
                 </div>
-                <button onclick="this.parentElement.remove()" class="text-red-700 hover:text-red-900"><i class="fas fa-times"></i></button>
             </div>
         @endif
+
+        @auth
+            @php
+                $inAppNotifications = \App\Models\InAppNotification::where('user_id', auth()->id())
+                    ->whereNull('read_at')
+                    ->latest()
+                    ->take(3)
+                    ->get();
+            @endphp
+
+            @if($inAppNotifications->isNotEmpty())
+                <div id="inapp-toast-stack" class="fixed top-5 left-1/2 -translate-x-1/2 z-[9998] w-[calc(100vw-2.5rem)] max-w-xl space-y-3">
+                    @foreach($inAppNotifications as $n)
+                        <div class="bg-white border border-slate-200 shadow-2xl rounded-2xl overflow-hidden">
+                            <div class="flex items-start gap-3 p-4">
+                                <div class="w-10 h-10 rounded-xl {{ ($n->type === 'guardia') ? 'bg-red-600' : 'bg-indigo-600' }} text-white flex items-center justify-center shrink-0">
+                                    <i class="{{ ($n->type === 'guardia') ? 'fas fa-bell' : 'fas fa-chalkboard-user' }}"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="text-xs font-black uppercase tracking-widest text-slate-700">{{ $n->title }}</div>
+                                    @if($n->message)
+                                        <div class="text-sm font-semibold text-slate-800 mt-1 break-words">{{ $n->message }}</div>
+                                    @endif
+                                    @if($n->action_url)
+                                        <a href="{{ $n->action_url }}" class="inline-flex items-center gap-2 mt-2 text-xs font-black uppercase tracking-widest text-blue-600 hover:text-blue-800">
+                                            Ir
+                                            <i class="fas fa-arrow-right"></i>
+                                        </a>
+                                    @endif
+                                </div>
+                                <button type="button" class="text-slate-400 hover:text-slate-700 transition-colors" onclick="this.closest('.bg-white')?.remove()">
+                                    <i class="fas fa-xmark"></i>
+                                </button>
+                            </div>
+                            <div class="h-1 {{ ($n->type === 'guardia') ? 'bg-red-600' : 'bg-indigo-600' }}"></div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <script>
+                    (function() {
+                        const ids = @json($inAppNotifications->pluck('id'));
+                        const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+                        fetch(@json(route('notifications.read')), {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': token,
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({ ids })
+                        }).catch(() => {});
+
+                        setTimeout(() => {
+                            const stack = document.getElementById('inapp-toast-stack');
+                            if (stack) stack.remove();
+                        }, 6500);
+                    })();
+                </script>
+            @endif
+        @endauth
 
         @yield('content')
     </div>
 
-    <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 mt-auto">
-        <div class="container mx-auto py-8 px-4">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <div class="flex items-center space-x-2 mb-4 md:mb-0">
-                    <i class="fas fa-helmet-safety text-red-700 text-xl"></i>
-                    <span class="font-bold text-slate-200 tracking-wide">GUARDIA NOCTURNA</span>
-                </div>
-                <div class="text-sm">
-                    &copy; {{ date('Y') }} Sistema de Gestión de Cuerpo de Bomberos. Todos los derechos reservados.
+    @if(!(Auth::check() && Auth::user()->role === 'guardia' && request()->routeIs('dashboard')))
+        <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 mt-auto">
+            <div class="container mx-auto py-8 px-4">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div class="flex items-center space-x-2 mb-4 md:mb-0">
+                        <i class="fas fa-helmet-safety text-red-700 text-xl"></i>
+                        <span class="font-bold text-slate-200 tracking-wide">GUARDIA NOCTURNA</span>
+                    </div>
+                    <div class="text-sm">
+                        &copy; {{ date('Y') }} Sistema de Gestión de Cuerpo de Bomberos. Todos los derechos reservados.
+                    </div>
                 </div>
             </div>
-        </div>
-    </footer>
+        </footer>
+    @endif
 
 </body>
 </html>

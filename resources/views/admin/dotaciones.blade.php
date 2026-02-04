@@ -52,10 +52,10 @@
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Voluntario</label>
                             <div class="relative">
                                 <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                                <input name="user_id_display" autocomplete="off" data-dotaciones-volunteer-input data-guardia-id="{{ $guardia->id }}"
+                                <input name="firefighter_id_display" autocomplete="off" data-dotaciones-volunteer-input data-guardia-id="{{ $guardia->id }}"
                                        class="w-full text-sm border-slate-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 pl-9 py-2.5 bg-slate-50"
                                        placeholder="Buscar por nombre, apellido o RUT..." required>
-                                <input type="hidden" name="user_id" id="user_id_input_{{ $guardia->id }}" required>
+                                <input type="hidden" name="firefighter_id" id="firefighter_id_input_{{ $guardia->id }}" required>
 
                                 <div id="volunteer_dropdown_{{ $guardia->id }}" class="hidden absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-20 max-h-60 overflow-auto"></div>
                             </div>
@@ -89,11 +89,11 @@
                                             @endif
                                         </div>
                                     </div>
-                                    <form action="{{ route('admin.guardias.unassign') }}" method="POST" onsubmit="return confirm('¿Quitar a este bombero de la guardia?');">
+                                    <form action="{{ route('admin.guardias.unassign') }}" method="POST" onsubmit="return confirm('¿Quitar a este voluntario de la guardia?');">
                                         @csrf
                                         @method('DELETE')
                                         <input type="hidden" name="guardia_id" value="{{ $guardia->id }}">
-                                        <input type="hidden" name="user_id" value="{{ $user->id }}">
+                                        <input type="hidden" name="firefighter_id" value="{{ $user->id }}">
                                         <button type="submit" class="text-slate-400 hover:text-red-600 p-2 rounded-md hover:bg-white transition-all" title="Quitar de guardia">
                                             <i class="fas fa-user-minus"></i>
                                         </button>

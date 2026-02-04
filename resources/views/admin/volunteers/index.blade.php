@@ -28,7 +28,7 @@
             <div class="flex items-center">
                 <i class="fas fa-search absolute left-4 text-gray-400"></i>
                 <input type="text" name="search" value="{{ request('search') }}" 
-                    placeholder="Buscar por nombre, RUT, registro, cargo o email..." 
+                    placeholder="Buscar por nombre, RUT, cargo o email..." 
                     class="w-full pl-11 pr-4 py-3 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-colors text-gray-700">
                 
                 @if(request('search'))
@@ -96,23 +96,23 @@
                                         </div>
                                         <div class="ml-4">
                                             <div class="text-sm font-bold text-slate-900">{{ $volunteer->name }} {{ $volunteer->last_name_paternal }}</div>
-                                            <div class="text-xs text-slate-500 font-mono">{{ $volunteer->rut ?? 'S/RUT' }} • Reg: {{ $volunteer->registration_number ?? '-' }}</div>
+                                            <div class="text-xs text-slate-500 font-mono">{{ $volunteer->rut ?? 'S/RUT' }}</div>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm text-slate-900 font-medium">{{ $volunteer->position_text ?? 'Voluntario' }}</div>
                                     <div class="text-xs text-slate-500">
-                                        {{ $volunteer->role == 'jefe_guardia' ? 'Jefe de Guardia' : ($volunteer->role == 'capitania' ? 'Capitanía' : 'Bombero') }}
+                                        {{ $volunteer->is_shift_leader ? 'Jefe de Guardia' : 'Voluntario' }}
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm text-slate-600 flex flex-col gap-1">
-                                        @if($volunteer->email && !str_contains($volunteer->email, '@system.local'))
+                                        @if($volunteer->email)
                                             <span class="flex items-center"><i class="fas fa-envelope text-slate-400 mr-2 w-4"></i> {{ Str::limit($volunteer->email, 20) }}</span>
                                         @endif
-                                        @if($volunteer->phone)
-                                            <span class="flex items-center"><i class="fas fa-phone text-slate-400 mr-2 w-4"></i> {{ $volunteer->phone }}</span>
+                                        @if($volunteer->portable_number)
+                                            <span class="flex items-center"><i class="fas fa-walkie-talkie text-slate-400 mr-2 w-4"></i> {{ Str::limit($volunteer->portable_number, 20) }}</span>
                                         @endif
                                     </div>
                                 </td>
@@ -133,12 +133,7 @@
                                                 <i class="fas fa-medkit mr-1"></i> Trauma
                                             </span>
                                         @endif
-                                        @if($volunteer->is_shift_leader)
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-yellow-50 text-yellow-700 border border-yellow-100" title="Oficial de Guardia">
-                                                <i class="fas fa-star mr-1"></i> Oficial
-                                            </span>
-                                        @endif
-                                        @if(!$volunteer->is_driver && !$volunteer->is_rescue_operator && !$volunteer->is_trauma_assistant && !$volunteer->is_shift_leader)
+                                        @if(!$volunteer->is_driver && !$volunteer->is_rescue_operator && !$volunteer->is_trauma_assistant)
                                             <span class="text-xs text-slate-400 italic">-</span>
                                         @endif
                                     </div>

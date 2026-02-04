@@ -10,7 +10,7 @@
                 </h1>
                 <p class="text-slate-500 mt-1 font-medium">Modificación rápida de datos operativos</p>
             </div>
-            <a href="{{ route('admin.guardias') }}" class="inline-flex items-center text-slate-600 hover:text-blue-600 font-medium transition-colors bg-white px-4 py-2 rounded-lg border border-slate-200 hover:border-blue-300 shadow-sm">
+            <a href="{{ auth()->user()->role === 'guardia' ? route('admin.dotaciones') : route('admin.guardias') }}" class="inline-flex items-center text-slate-600 hover:text-blue-600 font-medium transition-colors bg-white px-4 py-2 rounded-lg border border-slate-200 hover:border-blue-300 shadow-sm">
                 <i class="fas fa-arrow-left mr-2"></i> Volver a Guardias
             </a>
         </div>
@@ -42,15 +42,6 @@
                             <input type="text" name="last_name_paternal" id="last_name_paternal" value="{{ old('last_name_paternal', $bombero->last_name_paternal) }}"
                                 class="w-full border-slate-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 px-4 py-2.5 text-slate-700 bg-slate-50">
                             @error('last_name_paternal') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                        </div>
-
-                        <div class="md:col-span-2">
-                            <label class="block text-slate-700 text-sm font-bold mb-2 uppercase tracking-wide" for="email">
-                                Correo Electrónico
-                            </label>
-                            <input type="email" name="email" id="email" value="{{ old('email', $bombero->email) }}" required
-                                class="w-full border-slate-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 px-4 py-2.5 text-slate-700 bg-slate-50">
-                            @error('email') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                         </div>
                     </div>
 
@@ -95,18 +86,6 @@
                                     @endforeach
                                 </select>
                             </div>
-
-                            <div>
-                                <label class="block text-slate-700 text-sm font-bold mb-2 uppercase tracking-wide" for="role">
-                                    Rol Sistema
-                                </label>
-                                <select name="role" id="role" class="w-full border-slate-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 px-3 py-2.5 text-slate-700 bg-white">
-                                    <option value="bombero" {{ $bombero->role == 'bombero' ? 'selected' : '' }}>Bombero</option>
-                                    <option value="jefe_guardia" {{ $bombero->role == 'jefe_guardia' ? 'selected' : '' }}>Jefe de Guardia</option>
-                                    <option value="capitania" {{ $bombero->role == 'capitania' ? 'selected' : '' }}>Capitanía</option>
-                                    <option value="super_admin" {{ $bombero->role == 'super_admin' ? 'selected' : '' }}>Super Admin</option>
-                                </select>
-                            </div>
                         </div>
                     </div>
 
@@ -122,7 +101,7 @@
                     </div>
 
                     <div class="flex justify-end pt-4 border-t border-slate-100 mt-6">
-                        <a href="{{ route('admin.guardias') }}" class="mr-4 px-6 py-2.5 rounded-lg border border-slate-300 text-slate-600 font-medium hover:bg-slate-50 transition-colors">
+                        <a href="{{ auth()->user()->role === 'guardia' ? route('admin.dotaciones') : route('admin.guardias') }}" class="mr-4 px-6 py-2.5 rounded-lg border border-slate-300 text-slate-600 font-medium hover:bg-slate-50 transition-colors">
                             Cancelar
                         </a>
                         <button type="submit" class="bg-slate-800 hover:bg-slate-700 text-white font-bold py-2.5 px-8 rounded-lg shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 uppercase tracking-wide text-sm">
