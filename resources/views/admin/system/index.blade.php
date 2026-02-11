@@ -66,5 +66,141 @@
                 </div>
             </form>
         </div>
+
+        <div class="mt-8 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="px-6 py-5 border-b border-slate-200 bg-slate-50">
+                <div class="text-sm font-black text-slate-700 uppercase tracking-widest">Horarios del Sistema</div>
+                <div class="text-xs text-slate-500 mt-1">Define ventanas y automatizaciones del sistema. Horario local según zona configurada.</div>
+            </div>
+
+            <form method="POST" action="{{ route('admin.system.schedule.save') }}" class="p-6">
+                @csrf
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Habilitar Guardar Asistencia (HH:MM)</label>
+                        <input type="time" name="attendance_enable_time" value="{{ old('attendance_enable_time', ($settings['attendance_enable_time'] ?? '21:00')) }}" class="w-full px-4 py-3 border border-slate-200 rounded-lg bg-white text-slate-800 font-semibold" required>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Deshabilitar Guardar Asistencia (HH:MM)</label>
+                        <input type="time" name="attendance_disable_time" value="{{ old('attendance_disable_time', ($settings['attendance_disable_time'] ?? '10:00')) }}" class="w-full px-4 py-3 border border-slate-200 rounded-lg bg-white text-slate-800 font-semibold" required>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Constitución diaria (Lun-Sáb) (HH:MM)</label>
+                        <input type="time" name="guardia_constitution_weekday_time" value="{{ old('guardia_constitution_weekday_time', ($settings['guardia_constitution_weekday_time'] ?? '23:00')) }}" class="w-full px-4 py-3 border border-slate-200 rounded-lg bg-white text-slate-800 font-semibold" required>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Constitución domingo (HH:MM)</label>
+                        <input type="time" name="guardia_constitution_sunday_time" value="{{ old('guardia_constitution_sunday_time', ($settings['guardia_constitution_sunday_time'] ?? '22:00')) }}" class="w-full px-4 py-3 border border-slate-200 rounded-lg bg-white text-slate-800 font-semibold" required>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Salida diaria del turno (HH:MM)</label>
+                        <input type="time" name="guardia_daily_end_time" value="{{ old('guardia_daily_end_time', ($settings['guardia_daily_end_time'] ?? '07:00')) }}" class="w-full px-4 py-3 border border-slate-200 rounded-lg bg-white text-slate-800 font-semibold" required>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Cambio guardia en turno (Semanal) (HH:MM)</label>
+                        <input type="time" name="guardia_week_transition_time" value="{{ old('guardia_week_transition_time', ($settings['guardia_week_transition_time'] ?? '18:00')) }}" class="w-full px-4 py-3 border border-slate-200 rounded-lg bg-white text-slate-800 font-semibold" required>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Limpieza semanal (Domingo) (HH:MM)</label>
+                        <input type="time" name="guardia_week_cleanup_time" value="{{ old('guardia_week_cleanup_time', ($settings['guardia_week_cleanup_time'] ?? '18:00')) }}" class="w-full px-4 py-3 border border-slate-200 rounded-lg bg-white text-slate-800 font-semibold" required>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Zona horaria scheduler</label>
+                        <input type="text" name="guardia_schedule_tz" value="{{ old('guardia_schedule_tz', ($settings['guardia_schedule_tz'] ?? config('app.timezone'))) }}" class="w-full px-4 py-3 border border-slate-200 rounded-lg bg-white text-slate-800 font-semibold" placeholder="America/Santiago" required>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex items-center justify-end">
+                    <button type="submit" class="inline-flex items-center gap-2 bg-slate-950 hover:bg-black text-white font-black py-3 px-6 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest border border-slate-800">
+                        <i class="fas fa-clock"></i>
+                        Guardar Horarios
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="mt-8 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="px-6 py-5 border-b border-slate-200 bg-slate-50">
+                <div class="text-sm font-black text-slate-700 uppercase tracking-widest">Vaciar Guardias</div>
+                <div class="text-xs text-slate-500 mt-1">Elimina datos operativos asociados a una guardia específica o a todas. No elimina bomberos ni usuarios del sistema.</div>
+            </div>
+
+            <form method="POST" action="{{ route('admin.system.clear_guardias') }}" class="p-6">
+                @csrf
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Alcance</label>
+                        <select id="clear-guardias-scope" name="scope" class="w-full px-4 py-3 border border-slate-200 rounded-lg bg-white text-slate-800 font-semibold" required>
+                            <option value="one">Vaciar una guardia</option>
+                            <option value="all">Vaciar todas las guardias</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Guardia</label>
+                        <select id="clear-guardias-guardia" name="guardia_id" class="w-full px-4 py-3 border border-slate-200 rounded-lg bg-white text-slate-800 font-semibold">
+                            <option value="">Seleccionar...</option>
+                            @foreach(($guardias ?? collect()) as $g)
+                                <option value="{{ $g->id }}">{{ $g->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Confirmación</label>
+                        <input type="text" name="confirm_text" class="w-full px-4 py-3 border border-slate-200 rounded-lg bg-white text-slate-800 font-semibold" placeholder="Escribe CONFIRMAR" required>
+                    </div>
+                </div>
+
+                <div class="mt-5 bg-red-50 border border-red-200 rounded-xl p-4">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-red-600 text-white flex items-center justify-center shrink-0">
+                            <i class="fas fa-triangle-exclamation"></i>
+                        </div>
+                        <div class="text-sm text-red-900">
+                            <div class="font-black uppercase tracking-widest text-[11px]">Advertencia</div>
+                            <div class="mt-1 font-semibold">Esta acción elimina turnos/dotación/asistencia/eventos/reemplazos de la(s) guardia(s). No se puede deshacer.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex items-center justify-end">
+                    <button type="submit" class="inline-flex items-center gap-2 bg-red-700 hover:bg-red-800 text-white font-black py-3 px-6 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest border border-red-800" onclick="return confirm('¿Seguro? Esta acción no se puede deshacer.');">
+                        <i class="fas fa-eraser"></i>
+                        Vaciar Guardias
+                    </button>
+                </div>
+            </form>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const scope = document.getElementById('clear-guardias-scope');
+                    const guardia = document.getElementById('clear-guardias-guardia');
+                    if (!scope || !guardia) return;
+
+                    function syncClearGuardiasUI() {
+                        const isAll = scope.value === 'all';
+                        guardia.disabled = isAll;
+                        if (isAll) {
+                            guardia.value = '';
+                            guardia.removeAttribute('required');
+                        } else {
+                            guardia.setAttribute('required', 'required');
+                        }
+                    }
+
+                    scope.addEventListener('change', syncClearGuardiasUI);
+                    syncClearGuardiasUI();
+                });
+            </script>
+        </div>
     </div>
 @endsection

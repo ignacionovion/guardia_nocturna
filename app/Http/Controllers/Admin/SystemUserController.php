@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Guardia;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -13,7 +14,7 @@ class SystemUserController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::query()->where('role', '!=', 'bombero');
+        $query = User::query()->with('roleEntity')->where('role', '!=', 'bombero');
 
         if ($request->filled('search')) {
             $search = $request->string('search')->toString();
@@ -31,7 +32,8 @@ class SystemUserController extends Controller
     public function create()
     {
         $guardias = Guardia::orderBy('name')->get();
-        return view('admin.users.create', compact('guardias'));
+        $roles = Role::orderBy('name')->get();
+        return view('admin.users.create', compact('guardias', 'roles'));
     }
 
     public function store(Request $request)
@@ -41,6 +43,7 @@ class SystemUserController extends Controller
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'role' => ['required', 'string', Rule::in(['super_admin', 'capitania', 'guardia', 'jefe_guardia'])],
             'guardia_id' => ['nullable', 'exists:guardias,id'],
+            'role_id' => ['nullable', 'exists:roles,id'],
             'password' => ['required', 'string', 'min:8'],
         ]);
 
@@ -49,6 +52,7 @@ class SystemUserController extends Controller
             'email' => $validated['email'],
             'role' => $validated['role'],
             'guardia_id' => $validated['guardia_id'] ?? null,
+            'role_id' => $validated['role_id'] ?? null,
             'password' => Hash::make($validated['password']),
             'age' => 0,
             'years_of_service' => 0,
@@ -61,8 +65,9 @@ class SystemUserController extends Controller
     {
         $user = User::findOrFail($id);
         $guardias = Guardia::orderBy('name')->get();
+        $roles = Role::orderBy('name')->get();
 
-        return view('admin.users.edit', compact('user', 'guardias'));
+        return view('admin.users.edit', compact('user', 'guardias', 'roles'));
     }
 
     public function update(Request $request, string $id)
@@ -74,6 +79,7 @@ class SystemUserController extends Controller
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
             'role' => ['required', 'string', Rule::in(['super_admin', 'capitania', 'guardia', 'jefe_guardia'])],
             'guardia_id' => ['nullable', 'exists:guardias,id'],
+            'role_id' => ['nullable', 'exists:roles,id'],
             'password' => ['nullable', 'string', 'min:8'],
         ]);
 
@@ -82,6 +88,7 @@ class SystemUserController extends Controller
             'email' => $validated['email'],
             'role' => $validated['role'],
             'guardia_id' => $validated['guardia_id'] ?? null,
+            'role_id' => $validated['role_id'] ?? null,
         ];
 
         if (!empty($validated['password'])) {

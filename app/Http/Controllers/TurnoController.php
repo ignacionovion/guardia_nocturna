@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Shift;
 use App\Models\ShiftUser;
 
-class ShiftController extends Controller
+class TurnoController extends Controller
 {
     /**
      * Display a listing of the resource.

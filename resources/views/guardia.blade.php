@@ -84,20 +84,20 @@
                             @csrf
                             
                             <div class="mb-5">
-                                <label class="block text-slate-700 text-sm font-bold mb-2 uppercase tracking-wide" for="user_id">
+                                <label class="block text-slate-700 text-sm font-bold mb-2 uppercase tracking-wide" for="firefighter_id">
                                     Voluntario
                                 </label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-search text-slate-400"></i>
                                     </div>
-                                    <input list="volunteers-list" name="user_id" id="user_id" 
+                                    <input list="volunteers-list" name="firefighter_id" id="firefighter_id" 
                                         class="pl-10 shadow-sm appearance-none border border-slate-300 rounded-lg w-full py-2.5 px-3 text-slate-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
                                         placeholder="Buscar por nombre..." required autocomplete="off">
                                 </div>
                                 <datalist id="volunteers-list">
                                     @foreach($users as $user)
-                                        <option value="{{ $user->id }}">{{ $user->name }} {{ $user->last_name_paternal }} - {{ $user->company }}</option>
+                                        <option value="{{ $user->id }}">{{ $user->nombres }} {{ $user->apellido_paterno }}</option>
                                     @endforeach
                                 </datalist>
                             </div>
@@ -128,14 +128,14 @@
                             </div>
 
                             <div class="mb-6 hidden bg-slate-50 p-4 rounded-lg border border-slate-200" id="reemplazo_div">
-                                <label class="block text-slate-700 text-sm font-bold mb-2 uppercase tracking-wide" for="replaced_user_id">
+                                <label class="block text-slate-700 text-sm font-bold mb-2 uppercase tracking-wide" for="replaced_firefighter_id">
                                     Reemplaza a:
                                 </label>
                                 <div class="relative">
-                                    <select name="replaced_user_id" id="replaced_user_id" class="shadow-sm appearance-none border border-slate-300 rounded-lg w-full py-2 px-3 text-slate-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                    <select name="replaced_firefighter_id" id="replaced_firefighter_id" class="shadow-sm appearance-none border border-slate-300 rounded-lg w-full py-2 px-3 text-slate-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                                         <option value="">Seleccione voluntario...</option>
                                         @foreach($users as $user)
-                                            <option value="{{ $user->id }}">{{ $user->name }} {{ $user->last_name_paternal }}</option>
+                                            <option value="{{ $user->id }}">{{ $user->nombres }} {{ $user->apellido_paterno }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -185,11 +185,10 @@
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
                                                 <div class="flex-shrink-0 h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-bold border border-slate-300">
-                                                    {{ substr($shiftUser->user->name, 0, 1) }}{{ substr($shiftUser->user->last_name_paternal, 0, 1) }}
+                                                    {{ substr($shiftUser->firefighter?->nombres ?? '-', 0, 1) }}{{ substr($shiftUser->firefighter?->apellido_paterno ?? '-', 0, 1) }}
                                                 </div>
                                                 <div class="ml-4">
-                                                    <div class="text-sm font-bold text-slate-800">{{ $shiftUser->user->name }} {{ $shiftUser->user->last_name_paternal }}</div>
-                                                    <div class="text-xs text-slate-500 font-medium">{{ $shiftUser->user->company }}</div>
+                                                    <div class="text-sm font-bold text-slate-800">{{ $shiftUser->firefighter?->nombres }} {{ $shiftUser->firefighter?->apellido_paterno }}</div>
                                                 </div>
                                             </div>
                                         </td>
@@ -197,9 +196,9 @@
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
                                                 {{ $shiftUser->assignment_type }}
                                             </span>
-                                            @if($shiftUser->assignment_type === 'Reemplazo' && $shiftUser->replacedUser)
+                                            @if($shiftUser->assignment_type === 'Reemplazo' && $shiftUser->replacedFirefighter)
                                                 <div class="text-xs text-slate-400 mt-1 flex items-center">
-                                                    <i class="fas fa-right-left mr-1 text-xs"></i> {{ $shiftUser->replacedUser->name }}
+                                                    <i class="fas fa-right-left mr-1 text-xs"></i> {{ $shiftUser->replacedFirefighter->nombres }}
                                                 </div>
                                             @endif
                                         </td>
@@ -207,7 +206,7 @@
                                             <i class="fas fa-clock mr-1 text-slate-400"></i> {{ \Carbon\Carbon::parse($shiftUser->start_time)->format('H:i') }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <form action="{{ route('guardia.remove_user', ['shiftId' => $shift->id, 'userId' => $shiftUser->user_id]) }}" method="POST" onsubmit="return confirm('¿Registrar salida de este voluntario?');" class="inline">
+                                            <form action="{{ route('guardia.remove_user', ['shiftId' => $shift->id, 'userId' => $shiftUser->firefighter_id]) }}" method="POST" onsubmit="return confirm('¿Registrar salida de este voluntario?');" class="inline">
                                                 @csrf
                                                 <button type="submit" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-2 rounded-lg transition-colors" title="Registrar Salida">
                                                     <i class="fas fa-right-from-bracket"></i>
@@ -248,7 +247,7 @@
                                     @foreach($shift->users->whereNotNull('end_time') as $shiftUser)
                                         <tr>
                                             <td class="px-6 py-3 whitespace-nowrap text-sm font-medium text-slate-700">
-                                                {{ $shiftUser->user->name }} {{ $shiftUser->user->last_name_paternal }}
+                                                {{ $shiftUser->firefighter?->nombres }} {{ $shiftUser->firefighter?->apellido_paterno }}
                                             </td>
                                             <td class="px-6 py-3 whitespace-nowrap text-sm text-slate-500">
                                                 {{ $shiftUser->assignment_type }}
@@ -269,7 +268,7 @@
         <script>
             function toggleReemplazo(value) {
                 const div = document.getElementById('reemplazo_div');
-                const select = document.getElementById('replaced_user_id');
+                const select = document.getElementById('replaced_firefighter_id');
                 if (value === 'Reemplazo') {
                     div.classList.remove('hidden');
                     select.required = true;

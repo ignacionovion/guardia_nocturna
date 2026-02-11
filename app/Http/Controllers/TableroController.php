@@ -8,17 +8,18 @@ use App\Models\Shift;
 use App\Models\User;
 use App\Models\Novelty;
 use App\Models\BedAssignment;
-use App\Models\Firefighter;
-use App\Models\FirefighterReplacement;
-use App\Models\FirefighterUserLegacyMap;
 use App\Models\Guardia;
 use App\Models\GuardiaCalendarDay;
 use App\Models\GuardiaAttendanceRecord;
+use App\Models\Bombero;
+use App\Models\ReemplazoBombero;
+use App\Models\MapaBomberoUsuarioLegacy;
+use App\Models\ShiftUser;
 use App\Services\ReplacementService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class DashboardController extends Controller
+class TableroController extends Controller
 {
     private function resolveActiveGuardia($now)
     {
@@ -62,6 +63,23 @@ class DashboardController extends Controller
         }
         $currentShift = $shiftQuery->latest()->first();
 
+        // Fallback: datos legacy pueden no tener guardia_id en el líder del turno.
+        // En ese caso, intentamos detectar el turno por personal activo con firefighter_id.
+        if (!$currentShift && $user->guardia_id) {
+            $currentShift = Shift::where('status', 'active')
+                ->whereHas('users', function ($q) use ($user) {
+                    $q->where(function ($q2) {
+                        $q2->whereNull('end_time')
+                            ->orWhere('end_time', '>', now());
+                    })
+                    ->whereHas('firefighter', function ($q3) use ($user) {
+                        $q3->where('guardia_id', $user->guardia_id);
+                    });
+                })
+                ->latest()
+                ->first();
+        }
+
         // Turno activo global (para excluir "en turno" de listas como reemplazos)
         $globalCurrentShift = Shift::with('users')->where('status', 'active')->latest()->first();
         $globalOnDutyUserIds = $globalCurrentShift
@@ -76,27 +94,45 @@ class DashboardController extends Controller
         $guardiaNovelties = null;
         $academies = Novelty::with('user')->where('type', 'Academia')->latest()->take(5)->get();
         $academyLeaders = collect();
+        $academyLeadersFirefighters = collect();
         $isMyGuardiaOnDuty = false;
         $hasAttendanceSavedToday = false;
 
-        // Próximos cumpleaños (Lógica mejorada: próximos 5 sin importar si cambia de mes)
-        // Se obtienen todos, se calcula el día del año y se ordena. 
-        // Para simplificar en SQL:
-        $birthdays = User::whereNotNull('birthdate')
-            ->get()
-            ->filter(function($user) {
-                return (bool) $user->birthdate;
+        $computeUpcomingBirthdays = function ($source) {
+            return collect($source)
+                ->filter(function ($b) {
+                    return (bool) ($b->fecha_nacimiento ?? null);
+                })
+                ->map(function ($b) {
+                    $birthdayThisYear = $b->fecha_nacimiento->copy()->year(now()->year);
+                    if ($birthdayThisYear->isPast() && !$birthdayThisYear->isToday()) {
+                        $birthdayThisYear->addYear();
+                    }
+                    $b->next_birthday = $birthdayThisYear;
+                    return $b;
+                })
+                ->sortBy('next_birthday')
+                ->take(5);
+        };
+
+        // Próximos cumpleaños (Bomberos)
+        $birthdaysSource = Bombero::query()
+            ->whereNotNull('fecha_nacimiento')
+            ->where(function ($q) {
+                $q->whereNull('fuera_de_servicio')->orWhere('fuera_de_servicio', false);
             })
-            ->map(function($user) {
-                $birthdayThisYear = $user->birthdate->copy()->year(now()->year);
-                if ($birthdayThisYear->isPast() && !$birthdayThisYear->isToday()) {
-                    $birthdayThisYear->addYear();
-                }
-                $user->next_birthday = $birthdayThisYear;
-                return $user;
+            ->get();
+
+        $birthdays = $computeUpcomingBirthdays($birthdaysSource);
+
+        $birthdaysMonthCount = $birthdaysSource
+            ->filter(function ($b) {
+                return (bool) ($b->fecha_nacimiento ?? null);
             })
-            ->sortBy('next_birthday')
-            ->take(5);
+            ->filter(function ($b) {
+                return (int) $b->fecha_nacimiento->month === (int) now()->month;
+            })
+            ->count();
 
         // Data específica para cuentas de Guardia
         $myGuardia = null;
@@ -134,7 +170,7 @@ class DashboardController extends Controller
                 ->whereDate('date', Carbon::today()->toDateString())
                 ->exists();
 
-            // Compat: si existen reemplazos legacy (users.job_replacement_id), los migramos a firefighter_replacements
+            // Compat: si existen reemplazos legacy (users.job_replacement_id), los migramos a reemplazos_bomberos
             // para soportar UI y "deshacer" sin depender del esquema antiguo.
             $legacyReplacementUsers = User::query()
                 ->whereNotNull('job_replacement_id')
@@ -152,31 +188,31 @@ class DashboardController extends Controller
                         continue;
                     }
 
-                    $replacementFirefighterId = (int) FirefighterUserLegacyMap::where('user_id', $legacyReplacerUser->id)->value('firefighter_id');
-                    $originalFirefighterId = (int) FirefighterUserLegacyMap::where('user_id', $legacyOriginalUserId)->value('firefighter_id');
+                    $replacementFirefighterId = MapaBomberoUsuarioLegacy::where('user_id', $legacyReplacerUser->id)->value('firefighter_id');
+                    $originalFirefighterId = MapaBomberoUsuarioLegacy::where('user_id', $legacyOriginalUserId)->value('firefighter_id');
 
                     if (!$replacementFirefighterId || !$originalFirefighterId) {
                         continue;
                     }
 
-                    $already = FirefighterReplacement::where('status', 'active')
-                        ->where('original_firefighter_id', $originalFirefighterId)
+                    $already = ReemplazoBombero::where('estado', 'activo')
+                        ->where('bombero_titular_id', $originalFirefighterId)
                         ->exists();
                     if ($already) {
                         continue;
                     }
 
-                    $replacementPrevGuardiaId = Firefighter::where('id', $replacementFirefighterId)->value('guardia_id');
+                    $replacementPrevGuardiaId = Bombero::where('id', $replacementFirefighterId)->value('guardia_id');
 
                     DB::transaction(function () use ($guardiaIdForGuardiaUser, $legacyReplacerUser, $replacementFirefighterId, $originalFirefighterId, $replacementPrevGuardiaId) {
-                        FirefighterReplacement::create([
+                        ReemplazoBombero::create([
                             'guardia_id' => $guardiaIdForGuardiaUser,
-                            'original_firefighter_id' => $originalFirefighterId,
-                            'replacement_firefighter_id' => $replacementFirefighterId,
-                            'starts_at' => $legacyReplacerUser->updated_at ?? now(),
-                            'ends_at' => $legacyReplacerUser->replacement_until,
-                            'status' => 'active',
-                            'notes' => json_encode([
+                            'bombero_titular_id' => $originalFirefighterId,
+                            'bombero_reemplazante_id' => $replacementFirefighterId,
+                            'inicio' => $legacyReplacerUser->updated_at ?? now(),
+                            'fin' => $legacyReplacerUser->replacement_until,
+                            'estado' => 'activo',
+                            'notas' => json_encode([
                                 'replacement_previous_guardia_id' => $replacementPrevGuardiaId,
                             ]),
                         ]);
@@ -184,33 +220,85 @@ class DashboardController extends Controller
                 }
             }
 
-            $activeReplacements = FirefighterReplacement::with(['originalFirefighter', 'replacementFirefighter'])
-                ->where('status', 'active')
+            $activeReplacements = ReemplazoBombero::with(['originalFirefighter', 'replacementFirefighter'])
+                ->where('estado', 'activo')
                 ->get();
-            $replacementByOriginal = $activeReplacements->keyBy('original_firefighter_id');
-            $replacementByReplacement = $activeReplacements->keyBy('replacement_firefighter_id');
+            $replacementByOriginal = $activeReplacements->keyBy('bombero_titular_id');
+            $replacementByReplacement = $activeReplacements->keyBy('bombero_reemplazante_id');
 
             // Cargar personal de la guardia (excluyendo la propia cuenta de gestión)
-            $myStaff = Firefighter::where('guardia_id', $guardiaIdForGuardiaUser)
-                ->orderBy('last_name_paternal')
-                ->orderBy('name')
+            $myStaff = Bombero::where('guardia_id', $guardiaIdForGuardiaUser)
+                ->orderBy('apellido_paterno')
+                ->orderBy('nombres')
                 ->get();
 
-            $replacementCandidates = Firefighter::query()
+            $replacementCandidates = Bombero::query()
                 ->where(function ($q) use ($guardiaIdForGuardiaUser) {
                     $q->whereNull('guardia_id')
                         ->orWhere('guardia_id', '!=', $guardiaIdForGuardiaUser);
                 })
-                ->whereNotIn('id', $activeReplacements->pluck('replacement_firefighter_id')->values()->toArray())
-                ->when(!empty($globalOnDutyFirefighterIds), function ($q) use ($globalOnDutyFirefighterIds) {
-                    $q->whereNotIn('id', $globalOnDutyFirefighterIds);
+                ->where(function ($q) {
+                    $q->whereNull('fuera_de_servicio')->orWhere('fuera_de_servicio', false);
                 })
-                ->orderBy('last_name_paternal')
-                ->orderBy('name')
+                ->whereNotIn('id', $activeReplacements->pluck('bombero_reemplazante_id')->values()->toArray())
+                ->orderBy('apellido_paterno')
+                ->orderBy('nombres')
                 ->get();
 
-            $academyLeaders = User::where('guardia_id', $guardiaIdForGuardiaUser)
+            $academyLeaderIds = [];
+            if ($currentShift) {
+                $shiftUsers = ShiftUser::query()
+                    ->where('shift_id', $currentShift->id)
+                    ->whereNull('end_time')
+                    ->get(['user_id', 'firefighter_id']);
+
+                $directUserIds = $shiftUsers->pluck('user_id')->filter()->map(fn ($v) => (int) $v)->values()->toArray();
+
+                $firefighterIds = $shiftUsers->pluck('firefighter_id')
+                    ->filter()
+                    ->map(fn ($v) => (int) $v)
+                    ->values()
+                    ->toArray();
+
+                $mappedUserIds = !empty($firefighterIds)
+                    ? MapaBomberoUsuarioLegacy::query()
+                        ->whereIn('firefighter_id', $firefighterIds)
+                        ->pluck('user_id')
+                        ->filter()
+                        ->map(fn ($v) => (int) $v)
+                        ->values()
+                        ->toArray()
+                    : [];
+
+                $academyLeaderIds = array_values(array_unique(array_merge($directUserIds, $mappedUserIds)));
+
+                $academyLeaderFirefighterIds = $shiftUsers->pluck('firefighter_id')
+                    ->filter()
+                    ->map(fn ($v) => (int) $v)
+                    ->values()
+                    ->toArray();
+
+                $academyLeadersFirefighters = !empty($academyLeaderFirefighterIds)
+                    ? Bombero::query()
+                        ->where('guardia_id', $guardiaIdForGuardiaUser)
+                        ->whereIn('id', $academyLeaderFirefighterIds)
+                        ->where(function ($q) {
+                            $q->whereNull('fuera_de_servicio')->orWhere('fuera_de_servicio', false);
+                        })
+                        ->orderBy('apellido_paterno')
+                        ->orderBy('nombres')
+                        ->get()
+                    : collect();
+            }
+
+            $academyLeaders = User::query()
+                ->where('guardia_id', $guardiaIdForGuardiaUser)
                 ->whereIn('role', ['bombero', 'jefe_guardia'])
+                ->when(!empty($academyLeaderIds), function ($q) use ($academyLeaderIds) {
+                    $q->whereIn('id', $academyLeaderIds);
+                }, function ($q) {
+                    $q->whereRaw('1 = 0');
+                })
                 ->orderBy('last_name_paternal')
                 ->orderBy('name')
                 ->get();
@@ -218,20 +306,20 @@ class DashboardController extends Controller
             $guardiaNovelties = Novelty::with('user')->latest()->paginate(3);
             $academies = Novelty::with('user')->where('type', 'Academia')->latest()->take(5)->get();
 
-            $birthdays = $myStaff
-                ->filter(function($u) {
-                    return (bool) $u->birthdate;
+            $birthdays = $computeUpcomingBirthdays(
+                $myStaff->filter(function ($b) {
+                    return (bool) ($b->fecha_nacimiento ?? null);
+                })->values()
+            );
+
+            $birthdaysMonthCount = $myStaff
+                ->filter(function ($b) {
+                    return (bool) ($b->fecha_nacimiento ?? null);
                 })
-                ->map(function($u) {
-                    $birthdayThisYear = $u->birthdate->copy()->year(now()->year);
-                    if ($birthdayThisYear->isPast() && !$birthdayThisYear->isToday()) {
-                        $birthdayThisYear->addYear();
-                    }
-                    $u->next_birthday = $birthdayThisYear;
-                    return $u;
+                ->filter(function ($b) {
+                    return (int) $b->fecha_nacimiento->month === (int) now()->month;
                 })
-                ->sortBy('next_birthday')
-                ->take(5);
+                ->count();
         }
 
         return view('dashboard', compact(
@@ -243,9 +331,11 @@ class DashboardController extends Controller
             'guardiaNovelties',
             'academies',
             'academyLeaders',
+            'academyLeadersFirefighters',
             'isMyGuardiaOnDuty',
             'hasAttendanceSavedToday',
             'birthdays',
+            'birthdaysMonthCount',
             'myGuardia',
             'myStaff',
             'replacementCandidates',
@@ -261,7 +351,7 @@ class DashboardController extends Controller
         $now = now();
 
         ReplacementService::expire($now);
-        $beds = Bed::with('currentAssignment.user')->get();
+        $beds = Bed::with(['currentAssignment.firefighter', 'currentAssignment.user'])->get();
         
         // Auto-fix: Corregir camas marcadas como ocupadas pero sin asignación activa
         // Esto previene el error "Attempt to read property id on null" en la vista
@@ -272,15 +362,13 @@ class DashboardController extends Controller
             }
         }
         
-        // Obtener IDs de usuarios que YA tienen una cama asignada
-        $assignedUserIds = \App\Models\BedAssignment::whereNull('released_at')->pluck('user_id')->toArray();
-        
-        $usersQuery = User::where('role', '!=', 'guardia')
-                          ->whereNotIn('id', $assignedUserIds)
-                          ->where(function ($q) use ($now) {
-                              $q->whereNull('replacement_until')
-                                ->orWhere('replacement_until', '>', $now);
-                          });
+        $assignedFirefighterIds = \App\Models\BedAssignment::whereNull('released_at')
+            ->whereNotNull('firefighter_id')
+            ->pluck('firefighter_id')
+            ->toArray();
+
+        $usersQuery = Bombero::query()
+            ->whereNotIn('id', $assignedFirefighterIds);
 
         // Si el usuario tiene guardia asignada, filtrar voluntarios de su guardia
         if ($user->guardia_id) {
@@ -293,21 +381,18 @@ class DashboardController extends Controller
             }
         }
 
-        $users = $usersQuery->orderBy('name')->get();
+        $users = $usersQuery->orderBy('nombres')->orderBy('apellido_paterno')->get();
         
         return view('camas', compact('beds', 'users'));
     }
 
     public function guardia()
     {
-        $shift = Shift::with(['leader', 'users.user'])->where('status', 'active')->latest()->first();
+        $shift = Shift::with(['leader', 'users.user', 'users.firefighter', 'users.replacedFirefighter'])->where('status', 'active')->latest()->first();
         $now = now();
-        $users = User::where('role', '!=', 'guardia')
-            ->where(function ($q) use ($now) {
-                $q->whereNull('replacement_until')
-                  ->orWhere('replacement_until', '>', $now);
-            })
-            ->orderBy('name')
+        $users = Bombero::query()
+            ->orderBy('nombres')
+            ->orderBy('apellido_paterno')
             ->get(); // Para asignar
         return view('guardia', compact('shift', 'users'));
     }

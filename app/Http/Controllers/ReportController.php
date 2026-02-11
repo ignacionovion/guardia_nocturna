@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Exports\ReplacementsReportExport;
-use App\Models\User;
 use App\Models\Guardia;
 use App\Models\GuardiaCalendarDay;
 use App\Models\StaffEvent;
 use App\Models\ShiftUser;
+use App\Models\Bombero;
 use App\Services\ReplacementService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -49,10 +49,11 @@ class ReportController extends Controller
 
         $hasShiftUsersGuardiaId = Schema::hasColumn('shift_users', 'guardia_id');
         $hasShiftUsersAttendanceStatus = Schema::hasColumn('shift_users', 'attendance_status');
+        $hasShiftUsersFirefighterId = Schema::hasColumn('shift_users', 'firefighter_id');
 
         $shiftUsersForYear = ShiftUser::whereYear('start_time', $year)
             ->whereNotNull('start_time')
-            ->with('user')
+            ->with(['firefighter', 'user'])
             ->get();
 
         $totalMinutesByMonth = array_fill(1, 12, 0);
@@ -91,6 +92,9 @@ class ReportController extends Controller
             }
 
             $guardiaId = $hasShiftUsersGuardiaId ? $r->guardia_id : null;
+            if (!$guardiaId) {
+                $guardiaId = $r->firefighter?->guardia_id;
+            }
             if (!$guardiaId) {
                 $guardiaId = $r->user?->guardia_id;
             }
@@ -149,57 +153,42 @@ class ReportController extends Controller
                 ->all(),
         ];
 
-        // 1. Obtener todas las Guardias con sus Usuarios
-        $guardias = Guardia::with(['users' => function($query) {
-            $query->orderBy('last_name_paternal')->orderBy('name');
+        // 1. Guardias con su dotación (Bomberos)
+        $guardias = Guardia::with(['bomberos' => function ($query) {
+            $query->orderBy('apellido_paterno')->orderBy('nombres');
         }])->get();
 
-        // 2. Obtener usuarios sin guardia asignada (opcional, para no perder data)
-        $usersWithoutGuardia = User::whereNull('guardia_id')
-            ->orderBy('last_name_paternal')
-            ->orderBy('name')
-            ->get();
-            
-        if ($usersWithoutGuardia->isNotEmpty()) {
-            $noGuardia = new Guardia(['name' => 'Sin Asignar']);
-            $noGuardia->id = 0; // ID ficticio
-            $noGuardia->setRelation('users', $usersWithoutGuardia);
-            $guardias->push($noGuardia);
-        }
-
-        // 3. Obtener todas las asistencias del AÑO seleccionado para optimizar memoria
-        // Traemos start_time y end_time casteados por Eloquent
+        // 2. Asistencias cerradas del año agrupadas por bombero (o por user legacy)
+        $attendanceKey = $hasShiftUsersFirefighterId ? 'firefighter_id' : 'user_id';
         $allAttendances = ShiftUser::whereYear('start_time', $year)
             ->whereNotNull('end_time')
             ->get()
-            ->groupBy('user_id');
+            ->groupBy($attendanceKey);
 
-        // 4. Procesar datos
+        // 3. Procesar datos por bombero
         foreach ($guardias as $guardia) {
-            foreach ($guardia->users as $user) {
+            foreach ($guardia->bomberos as $user) {
                 $userRecords = $allAttendances->get($user->id, collect());
 
                 // --- ANUAL ---
-                $user->year_days = $userRecords->map(fn($r) => $r->start_time->format('Y-m-d'))->unique()->count();
-                $user->year_minutes = $userRecords->sum(fn($r) => $r->end_time->diffInMinutes($r->start_time));
+                $user->year_days = $userRecords->map(fn ($r) => $r->start_time->format('Y-m-d'))->unique()->count();
+                $user->year_minutes = $userRecords->sum(fn ($r) => $r->end_time->diffInMinutes($r->start_time));
                 $user->year_hours_formatted = $this->formatMinutes($user->year_minutes);
 
                 // --- MENSUAL ---
-                $monthRecords = $userRecords->filter(fn($r) => $r->start_time->month == $month);
-                $user->month_days = $monthRecords->map(fn($r) => $r->start_time->format('Y-m-d'))->unique()->count();
-                $user->month_minutes = $monthRecords->sum(fn($r) => $r->end_time->diffInMinutes($r->start_time));
+                $monthRecords = $userRecords->filter(fn ($r) => $r->start_time->month == $month);
+                $user->month_days = $monthRecords->map(fn ($r) => $r->start_time->format('Y-m-d'))->unique()->count();
+                $user->month_minutes = $monthRecords->sum(fn ($r) => $r->end_time->diffInMinutes($r->start_time));
                 $user->month_hours_formatted = $this->formatMinutes($user->month_minutes);
 
-                // --- SEMANAL (del mes seleccionado) ---
-                // Agrupamos por semana del año para separar las semanas del mes
-                $user->weekly_stats = $monthRecords->groupBy(function($r) {
+                $user->weekly_stats = $monthRecords->groupBy(function ($r) {
                     return $r->start_time->weekOfYear;
-                })->map(function($weekRecords) {
-                    $mins = $weekRecords->sum(fn($r) => $r->end_time->diffInMinutes($r->start_time));
+                })->map(function ($weekRecords) {
+                    $mins = $weekRecords->sum(fn ($r) => $r->end_time->diffInMinutes($r->start_time));
                     return [
-                        'days' => $weekRecords->map(fn($r) => $r->start_time->format('Y-m-d'))->unique()->count(),
+                        'days' => $weekRecords->map(fn ($r) => $r->start_time->format('Y-m-d'))->unique()->count(),
                         'minutes' => $mins,
-                        'formatted' => $this->formatMinutes($mins)
+                        'formatted' => $this->formatMinutes($mins),
                     ];
                 })->sortKeys();
             }
@@ -237,8 +226,12 @@ class ReportController extends Controller
         [$from, $to, $guardiaId] = $this->parseReplacementsFilters($request);
         $base = $this->replacementsBaseQuery($from, $to, $guardiaId);
 
+        $useFirefighterIds = Schema::hasColumn('staff_events', 'firefighter_id');
+
         $events = (clone $base)
             ->with([
+                'firefighter.guardia',
+                'replacementFirefighter',
                 'user.guardia',
                 'replacementUser',
             ])
@@ -247,18 +240,30 @@ class ReportController extends Controller
             ->get();
 
         $totalReplacements = (clone $base)->count();
-        $uniqueReplacers = (clone $base)->whereNotNull('replacement_user_id')->distinct('replacement_user_id')->count('replacement_user_id');
-        $uniqueReplaced = (clone $base)->distinct('user_id')->count('user_id');
+
+        $uniqueReplacers = $useFirefighterIds
+            ? (clone $base)->whereNotNull('replacement_firefighter_id')->distinct('replacement_firefighter_id')->count('replacement_firefighter_id')
+            : (clone $base)->whereNotNull('replacement_user_id')->distinct('replacement_user_id')->count('replacement_user_id');
+
+        $uniqueReplaced = $useFirefighterIds
+            ? (clone $base)->distinct('firefighter_id')->count('firefighter_id')
+            : (clone $base)->distinct('user_id')->count('user_id');
 
         $replacementsByDay = DB::table('staff_events')
-            ->selectRaw("DATE(start_date) as day, COUNT(*) as total")
+            ->selectRaw('DATE(start_date) as day, COUNT(*) as total')
             ->where('type', 'replacement')
             ->where('status', 'approved')
             ->whereBetween('start_date', [$from, $to])
-            ->when($guardiaId, function ($q) use ($guardiaId) {
-                $q->whereIn('user_id', function ($q2) use ($guardiaId) {
-                    $q2->select('id')->from('users')->where('guardia_id', $guardiaId);
-                });
+            ->when($guardiaId, function ($q) use ($guardiaId, $useFirefighterIds) {
+                if ($useFirefighterIds) {
+                    $q->whereIn('firefighter_id', function ($q2) use ($guardiaId) {
+                        $q2->select('id')->from('bomberos')->where('guardia_id', $guardiaId);
+                    });
+                } else {
+                    $q->whereIn('user_id', function ($q2) use ($guardiaId) {
+                        $q2->select('id')->from('users')->where('guardia_id', $guardiaId);
+                    });
+                }
             })
             ->groupBy('day')
             ->orderBy('day')
@@ -276,8 +281,13 @@ class ReportController extends Controller
         }
 
         $replacementsByGuardia = DB::table('staff_events')
-            ->join('users as originals', 'staff_events.user_id', '=', 'originals.id')
-            ->leftJoin('guardias', 'originals.guardia_id', '=', 'guardias.id')
+            ->when($useFirefighterIds, function ($q) {
+                $q->join('bomberos as originals', 'staff_events.firefighter_id', '=', 'originals.id')
+                  ->leftJoin('guardias', 'originals.guardia_id', '=', 'guardias.id');
+            }, function ($q) {
+                $q->join('users as originals', 'staff_events.user_id', '=', 'originals.id')
+                  ->leftJoin('guardias', 'originals.guardia_id', '=', 'guardias.id');
+            })
             ->selectRaw('COALESCE(guardias.name, "Sin Asignar") as guardia_name, COUNT(*) as total')
             ->where('staff_events.type', 'replacement')
             ->where('staff_events.status', 'approved')
@@ -288,16 +298,26 @@ class ReportController extends Controller
             ->get();
 
         $topReplacersRaw = DB::table('staff_events')
-            ->join('users as replacers', 'staff_events.replacement_user_id', '=', 'replacers.id')
-            ->join('users as originals', 'staff_events.user_id', '=', 'originals.id')
-            ->leftJoin('guardias', 'originals.guardia_id', '=', 'guardias.id')
-            ->selectRaw('replacers.id as user_id, replacers.name, replacers.last_name_paternal, COUNT(*) as total')
+            ->when($useFirefighterIds, function ($q) {
+                $q->join('bomberos as replacers', 'staff_events.replacement_firefighter_id', '=', 'replacers.id')
+                  ->join('bomberos as originals', 'staff_events.firefighter_id', '=', 'originals.id')
+                  ->selectRaw('replacers.id as user_id, replacers.nombres as name, replacers.apellido_paterno as last_name_paternal, COUNT(*) as total')
+                  ->whereNotNull('staff_events.replacement_firefighter_id');
+            }, function ($q) {
+                $q->join('users as replacers', 'staff_events.replacement_user_id', '=', 'replacers.id')
+                  ->join('users as originals', 'staff_events.user_id', '=', 'originals.id')
+                  ->selectRaw('replacers.id as user_id, replacers.name, replacers.last_name_paternal, COUNT(*) as total')
+                  ->whereNotNull('staff_events.replacement_user_id');
+            })
             ->where('staff_events.type', 'replacement')
             ->where('staff_events.status', 'approved')
-            ->whereNotNull('staff_events.replacement_user_id')
             ->whereBetween('staff_events.start_date', [$from, $to])
             ->when($guardiaId, fn ($q) => $q->where('originals.guardia_id', $guardiaId))
-            ->groupBy('replacers.id', 'replacers.name', 'replacers.last_name_paternal')
+            ->when($useFirefighterIds, function ($q) {
+                $q->groupBy('replacers.id', 'replacers.nombres', 'replacers.apellido_paterno');
+            }, function ($q) {
+                $q->groupBy('replacers.id', 'replacers.name', 'replacers.last_name_paternal');
+            })
             ->orderByDesc('total')
             ->limit(10)
             ->get();
@@ -305,22 +325,34 @@ class ReportController extends Controller
         $topReplacers = $topReplacersRaw->map(function ($r) {
             return [
                 'user_id' => (int) $r->user_id,
-                'name' => trim($r->name . ' ' . $r->last_name_paternal),
+                'name' => trim((string) ($r->name ?? '') . ' ' . (string) ($r->last_name_paternal ?? '')),
                 'total' => (int) $r->total,
             ];
         });
 
         $topReplacersByGuardiaRaw = DB::table('staff_events')
-            ->join('users as originals', 'staff_events.user_id', '=', 'originals.id')
-            ->leftJoin('guardias', 'originals.guardia_id', '=', 'guardias.id')
-            ->join('users as replacers', 'staff_events.replacement_user_id', '=', 'replacers.id')
-            ->selectRaw('COALESCE(guardias.name, "Sin Asignar") as guardia_name, replacers.id as user_id, replacers.name, replacers.last_name_paternal, COUNT(*) as total')
+            ->when($useFirefighterIds, function ($q) {
+                $q->join('bomberos as originals', 'staff_events.firefighter_id', '=', 'originals.id')
+                  ->leftJoin('guardias', 'originals.guardia_id', '=', 'guardias.id')
+                  ->join('bomberos as replacers', 'staff_events.replacement_firefighter_id', '=', 'replacers.id')
+                  ->selectRaw('COALESCE(guardias.name, "Sin Asignar") as guardia_name, replacers.id as user_id, replacers.nombres as name, replacers.apellido_paterno as last_name_paternal, COUNT(*) as total')
+                  ->whereNotNull('staff_events.replacement_firefighter_id');
+            }, function ($q) {
+                $q->join('users as originals', 'staff_events.user_id', '=', 'originals.id')
+                  ->leftJoin('guardias', 'originals.guardia_id', '=', 'guardias.id')
+                  ->join('users as replacers', 'staff_events.replacement_user_id', '=', 'replacers.id')
+                  ->selectRaw('COALESCE(guardias.name, "Sin Asignar") as guardia_name, replacers.id as user_id, replacers.name, replacers.last_name_paternal, COUNT(*) as total')
+                  ->whereNotNull('staff_events.replacement_user_id');
+            })
             ->where('staff_events.type', 'replacement')
             ->where('staff_events.status', 'approved')
-            ->whereNotNull('staff_events.replacement_user_id')
             ->whereBetween('staff_events.start_date', [$from, $to])
             ->when($guardiaId, fn ($q) => $q->where('originals.guardia_id', $guardiaId))
-            ->groupBy('guardia_name', 'replacers.id', 'replacers.name', 'replacers.last_name_paternal')
+            ->when($useFirefighterIds, function ($q) {
+                $q->groupBy('guardia_name', 'replacers.id', 'replacers.nombres', 'replacers.apellido_paterno');
+            }, function ($q) {
+                $q->groupBy('guardia_name', 'replacers.id', 'replacers.name', 'replacers.last_name_paternal');
+            })
             ->orderBy('guardia_name')
             ->orderByDesc('total')
             ->get();
@@ -331,25 +363,24 @@ class ReportController extends Controller
                 return $items->take(5)->values()->map(function ($r) {
                     return [
                         'user_id' => (int) $r->user_id,
-                        'name' => trim($r->name . ' ' . $r->last_name_paternal),
+                        'name' => trim((string) ($r->name ?? '') . ' ' . (string) ($r->last_name_paternal ?? '')),
                         'total' => (int) $r->total,
                     ];
                 });
             });
 
-        $drivers = User::with('guardia')
-            ->where('role', '!=', 'guardia')
+        $drivers = Bombero::with('guardia')
             ->whereNotNull('guardia_id')
-            ->where('is_driver', true)
+            ->where('es_conductor', true)
             ->orderBy('guardia_id')
-            ->orderBy('last_name_paternal')
-            ->orderBy('name')
+            ->orderBy('apellido_paterno')
+            ->orderBy('nombres')
             ->get();
 
         $driversByGuardia = $drivers->groupBy(fn ($u) => $u->guardia?->name ?? 'Sin Asignar')
             ->map(function ($items) {
                 return $items->groupBy(function ($u) {
-                    return $u->attendance_status ?: 'sin_estado';
+                    return $u->estado_asistencia ?: 'sin_estado';
                 });
             });
 
@@ -403,7 +434,7 @@ class ReportController extends Controller
         $base = $this->replacementsBaseQuery($from, $to, $guardiaId);
 
         $events = (clone $base)
-            ->with(['user.guardia', 'replacementUser'])
+            ->with(['firefighter.guardia', 'replacementFirefighter', 'user.guardia', 'replacementUser'])
             ->orderBy('start_date', 'asc')
             ->limit(10000)
             ->get();
@@ -419,12 +450,20 @@ class ReportController extends Controller
         ];
 
         $rows = $events->map(function ($e) {
+            $guardiaName = $e->firefighter?->guardia?->name ?? $e->user?->guardia?->name ?? 'Sin Asignar';
+            $originalName = $e->firefighter
+                ? trim(($e->firefighter->nombres ?? '') . ' ' . ($e->firefighter->apellido_paterno ?? ''))
+                : trim(($e->user?->name ?? '') . ' ' . ($e->user?->last_name_paternal ?? ''));
+            $replacerName = $e->replacementFirefighter
+                ? trim(($e->replacementFirefighter->nombres ?? '') . ' ' . ($e->replacementFirefighter->apellido_paterno ?? ''))
+                : trim(($e->replacementUser?->name ?? '') . ' ' . ($e->replacementUser?->last_name_paternal ?? ''));
+
             return [
                 optional($e->start_date)->format('Y-m-d H:i'),
                 optional($e->end_date)->format('Y-m-d H:i'),
-                $e->user?->guardia?->name ?? 'Sin Asignar',
-                trim(($e->user?->name ?? '') . ' ' . ($e->user?->last_name_paternal ?? '')),
-                trim(($e->replacementUser?->name ?? '') . ' ' . ($e->replacementUser?->last_name_paternal ?? '')),
+                $guardiaName,
+                $originalName,
+                $replacerName,
                 $e->status,
                 $e->description,
             ];
@@ -450,15 +489,21 @@ class ReportController extends Controller
         [$from, $to, $guardiaId] = $this->parseReplacementsFilters($request);
         $base = $this->replacementsBaseQuery($from, $to, $guardiaId);
 
+        $useFirefighterIds = Schema::hasColumn('staff_events', 'firefighter_id');
+
         $events = (clone $base)
-            ->with(['user.guardia', 'replacementUser'])
+            ->with(['firefighter.guardia', 'replacementFirefighter', 'user.guardia', 'replacementUser'])
             ->orderByDesc('start_date')
             ->limit(1500)
             ->get();
 
         $totalReplacements = (clone $base)->count();
-        $uniqueReplacers = (clone $base)->whereNotNull('replacement_user_id')->distinct('replacement_user_id')->count('replacement_user_id');
-        $uniqueReplaced = (clone $base)->distinct('user_id')->count('user_id');
+        $uniqueReplacers = $useFirefighterIds
+            ? (clone $base)->whereNotNull('replacement_firefighter_id')->distinct('replacement_firefighter_id')->count('replacement_firefighter_id')
+            : (clone $base)->whereNotNull('replacement_user_id')->distinct('replacement_user_id')->count('replacement_user_id');
+        $uniqueReplaced = $useFirefighterIds
+            ? (clone $base)->distinct('firefighter_id')->count('firefighter_id')
+            : (clone $base)->distinct('user_id')->count('user_id');
 
         $kpis = [
             'total_replacements' => (int) $totalReplacements,
@@ -468,15 +513,26 @@ class ReportController extends Controller
         ];
 
         $topReplacersRaw = DB::table('staff_events')
-            ->join('users as replacers', 'staff_events.replacement_user_id', '=', 'replacers.id')
-            ->join('users as originals', 'staff_events.user_id', '=', 'originals.id')
-            ->selectRaw('replacers.id as user_id, replacers.name, replacers.last_name_paternal, COUNT(*) as total')
+            ->when($useFirefighterIds, function ($q) {
+                $q->join('bomberos as replacers', 'staff_events.replacement_firefighter_id', '=', 'replacers.id')
+                  ->join('bomberos as originals', 'staff_events.firefighter_id', '=', 'originals.id')
+                  ->selectRaw('replacers.id as user_id, replacers.nombres as name, replacers.apellido_paterno as last_name_paternal, COUNT(*) as total')
+                  ->whereNotNull('staff_events.replacement_firefighter_id');
+            }, function ($q) {
+                $q->join('users as replacers', 'staff_events.replacement_user_id', '=', 'replacers.id')
+                  ->join('users as originals', 'staff_events.user_id', '=', 'originals.id')
+                  ->selectRaw('replacers.id as user_id, replacers.name, replacers.last_name_paternal, COUNT(*) as total')
+                  ->whereNotNull('staff_events.replacement_user_id');
+            })
             ->where('staff_events.type', 'replacement')
             ->where('staff_events.status', 'approved')
-            ->whereNotNull('staff_events.replacement_user_id')
             ->whereBetween('staff_events.start_date', [$from, $to])
             ->when($guardiaId, fn ($q) => $q->where('originals.guardia_id', $guardiaId))
-            ->groupBy('replacers.id', 'replacers.name', 'replacers.last_name_paternal')
+            ->when($useFirefighterIds, function ($q) {
+                $q->groupBy('replacers.id', 'replacers.nombres', 'replacers.apellido_paterno');
+            }, function ($q) {
+                $q->groupBy('replacers.id', 'replacers.name', 'replacers.last_name_paternal');
+            })
             ->orderByDesc('total')
             ->limit(15)
             ->get();
@@ -490,8 +546,13 @@ class ReportController extends Controller
         });
 
         $replacementsByGuardia = DB::table('staff_events')
-            ->join('users as originals', 'staff_events.user_id', '=', 'originals.id')
-            ->leftJoin('guardias', 'originals.guardia_id', '=', 'guardias.id')
+            ->when($useFirefighterIds, function ($q) {
+                $q->join('bomberos as originals', 'staff_events.firefighter_id', '=', 'originals.id')
+                  ->leftJoin('guardias', 'originals.guardia_id', '=', 'guardias.id');
+            }, function ($q) {
+                $q->join('users as originals', 'staff_events.user_id', '=', 'originals.id')
+                  ->leftJoin('guardias', 'originals.guardia_id', '=', 'guardias.id');
+            })
             ->selectRaw('COALESCE(guardias.name, "Sin Asignar") as guardia_name, COUNT(*) as total')
             ->where('staff_events.type', 'replacement')
             ->where('staff_events.status', 'approved')
@@ -502,16 +563,28 @@ class ReportController extends Controller
             ->get();
 
         $topReplacersByGuardiaRaw = DB::table('staff_events')
-            ->join('users as originals', 'staff_events.user_id', '=', 'originals.id')
-            ->leftJoin('guardias', 'originals.guardia_id', '=', 'guardias.id')
-            ->join('users as replacers', 'staff_events.replacement_user_id', '=', 'replacers.id')
-            ->selectRaw('COALESCE(guardias.name, "Sin Asignar") as guardia_name, replacers.id as user_id, replacers.name, replacers.last_name_paternal, COUNT(*) as total')
+            ->when($useFirefighterIds, function ($q) {
+                $q->join('bomberos as originals', 'staff_events.firefighter_id', '=', 'originals.id')
+                  ->leftJoin('guardias', 'originals.guardia_id', '=', 'guardias.id')
+                  ->join('bomberos as replacers', 'staff_events.replacement_firefighter_id', '=', 'replacers.id')
+                  ->selectRaw('COALESCE(guardias.name, "Sin Asignar") as guardia_name, replacers.id as user_id, replacers.nombres as name, replacers.apellido_paterno as last_name_paternal, COUNT(*) as total')
+                  ->whereNotNull('staff_events.replacement_firefighter_id');
+            }, function ($q) {
+                $q->join('users as originals', 'staff_events.user_id', '=', 'originals.id')
+                  ->leftJoin('guardias', 'originals.guardia_id', '=', 'guardias.id')
+                  ->join('users as replacers', 'staff_events.replacement_user_id', '=', 'replacers.id')
+                  ->selectRaw('COALESCE(guardias.name, "Sin Asignar") as guardia_name, replacers.id as user_id, replacers.name, replacers.last_name_paternal, COUNT(*) as total')
+                  ->whereNotNull('staff_events.replacement_user_id');
+            })
             ->where('staff_events.type', 'replacement')
             ->where('staff_events.status', 'approved')
-            ->whereNotNull('staff_events.replacement_user_id')
             ->whereBetween('staff_events.start_date', [$from, $to])
             ->when($guardiaId, fn ($q) => $q->where('originals.guardia_id', $guardiaId))
-            ->groupBy('guardia_name', 'replacers.id', 'replacers.name', 'replacers.last_name_paternal')
+            ->when($useFirefighterIds, function ($q) {
+                $q->groupBy('guardia_name', 'replacers.id', 'replacers.nombres', 'replacers.apellido_paterno');
+            }, function ($q) {
+                $q->groupBy('guardia_name', 'replacers.id', 'replacers.name', 'replacers.last_name_paternal');
+            })
             ->orderBy('guardia_name')
             ->orderByDesc('total')
             ->get();
@@ -569,9 +642,15 @@ class ReportController extends Controller
             ->whereBetween('start_date', [$from, $to]);
 
         if ($guardiaId) {
-            $base->whereIn('user_id', function ($q) use ($guardiaId) {
-                $q->select('id')->from('users')->where('guardia_id', $guardiaId);
-            });
+            if (Schema::hasColumn('staff_events', 'firefighter_id')) {
+                $base->whereIn('firefighter_id', function ($q) use ($guardiaId) {
+                    $q->select('id')->from('bomberos')->where('guardia_id', $guardiaId);
+                });
+            } else {
+                $base->whereIn('user_id', function ($q) use ($guardiaId) {
+                    $q->select('id')->from('users')->where('guardia_id', $guardiaId);
+                });
+            }
         }
 
         return $base;

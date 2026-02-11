@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Novelty extends Model
 {
-    protected $fillable = ['user_id', 'title', 'description', 'date', 'type'];
+    protected $fillable = ['user_id', 'firefighter_id', 'title', 'description', 'date', 'type'];
 
     protected $casts = [
         'date' => 'datetime',

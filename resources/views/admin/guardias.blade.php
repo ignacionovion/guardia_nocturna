@@ -8,7 +8,7 @@
             </h1>
             <p class="text-slate-500 mt-1 font-medium">Gestión de equipos</p>
         </div>
-        
+
         <!-- Formulario Crear Guardia -->
         @if(auth()->user()->role === 'super_admin')
             <form action="{{ route('admin.guardias.store') }}" method="POST" class="flex gap-2 w-full md:w-auto">
@@ -20,6 +20,55 @@
                 </button>
             </form>
         @endif
+    </div>
+
+    <!-- Modal de Asignación de Refuerzo -->
+    <div id="refuerzoModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-50 flex items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 transform scale-95 transition-transform duration-300 p-6 border border-slate-200">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="text-lg font-black text-slate-800 uppercase tracking-tight">Agregar Refuerzo</h3>
+                    <p class="text-sm text-slate-500 mt-1">Agrega un voluntario provisorio a esta guardia (se libera automáticamente a las 10:00 AM).</p>
+                </div>
+                <button type="button" onclick="closeRefuerzoModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <form action="{{ route('admin.guardias.refuerzo') }}" method="POST">
+                @csrf
+                <input type="hidden" name="guardia_id" id="modal_refuerzo_guardia_id">
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Voluntario</label>
+                        <div class="relative">
+                            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                            <input list="modal_refuerzo_volunteers_list" name="firefighter_id_display"
+                                class="w-full text-sm border-slate-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 pl-9 py-2.5 bg-slate-50"
+                                placeholder="Buscar voluntario..." required
+                                oninput="updateModalRefuerzoId(this)">
+                            <input type="hidden" name="firefighter_id" id="modal_refuerzo_firefighter_id" required>
+                        </div>
+                        <datalist id="modal_refuerzo_volunteers_list">
+                            @foreach($volunteers as $volunteer)
+                                <option data-value="{{ $volunteer->id }}" value="{{ trim($volunteer->nombres . ' ' . $volunteer->apellido_paterno . ' ' . ($volunteer->apellido_materno ?? '') . ($volunteer->rut ? ' - ' . $volunteer->rut : '')) }}"></option>
+                            @endforeach
+                        </datalist>
+                    </div>
+
+                    <div class="flex gap-3 pt-2">
+                        <button type="button" onclick="closeRefuerzoModal()" class="w-1/2 py-2.5 px-4 rounded-lg border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-colors uppercase">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="w-1/2 py-2.5 px-4 rounded-lg bg-slate-900 text-white font-bold text-sm hover:bg-slate-800 shadow-md hover:shadow-lg transition-all uppercase flex items-center justify-center gap-2">
+                            <span>Confirmar</span>
+                            <i class="fas fa-check"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 
     @if(session('success'))
@@ -68,11 +117,14 @@
                             @endif
                         </div>
                         <p class="text-slate-400 text-xs mt-1 font-medium flex items-center">
-                            <i class="fas fa-users mr-2 opacity-50"></i> {{ $guardia->firefighters->count() }} Voluntario
+                            <i class="fas fa-users mr-2 opacity-50"></i> {{ $guardia->bomberos->count() }} Voluntarios
                         </p>
                     </div>
 
                     <div class="flex items-center gap-1 relative z-10 bg-slate-800/50 p-1 rounded-lg backdrop-blur-sm border border-slate-700">
+                        <a href="{{ route('admin.guardias.history.index', $guardia->id) }}" class="text-slate-400 hover:text-white p-2 rounded-md hover:bg-slate-700/50 transition-all" title="Historial">
+                            <i class="fas fa-clock-rotate-left"></i>
+                        </a>
                         <a href="{{ route('admin.guardias.edit', $guardia->id) }}" class="text-slate-400 hover:text-white p-2 rounded-md hover:bg-slate-700/50 transition-all" title="Editar">
                             <i class="fas fa-edit"></i>
                         </a>
@@ -88,7 +140,7 @@
 
                 <!-- Lista de Personal -->
                 <div class="flex-grow bg-slate-50/50 flex flex-col min-h-[200px]">
-                    @if($guardia->firefighters->isEmpty())
+                    @if($guardia->bomberos->isEmpty())
                         <div class="flex-grow flex flex-col items-center justify-center text-slate-400 p-8 min-h-[150px]">
                             <div class="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-2">
                                 <i class="fas fa-user-slash text-xl opacity-50"></i>
@@ -99,10 +151,11 @@
                         <form action="{{ route('admin.guardias.bulk_update', $guardia->id) }}" method="POST" id="attendance-form-{{ $guardia->id }}" class="flex flex-col">
                             @csrf
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 overflow-y-auto max-h-[650px] pr-2 p-3 content-start items-start auto-rows-min">
-                                @foreach($guardia->firefighters as $user)
+                                @foreach($guardia->bomberos as $user)
                                     @php
                                         $repAsOriginal = isset($replacementByOriginal) ? ($replacementByOriginal[$user->id] ?? null) : null;
                                         $repAsReplacement = isset($replacementByReplacement) ? ($replacementByReplacement[$user->id] ?? null) : null;
+                                        $lockAttendanceStatus = (bool) ($repAsReplacement || $user->es_refuerzo);
                                     @endphp
                                     <div class="bg-white rounded-xl border border-slate-200 shadow-sm relative overflow-visible group hover:border-blue-400 hover:shadow-md transition-all duration-200 flex flex-col items-center p-2 gap-2 text-center">
                                         
@@ -110,43 +163,57 @@
                                         <div class="absolute top-2 right-2 z-10">
                                             <button type="button" 
                                                 @if($repAsOriginal) disabled @else onclick="confirmToggleTitular('{{ route('admin.bomberos.toggle_titular', $user->id) }}')" @endif
-                                                class="w-6 h-6 flex items-center justify-center rounded-full border shadow-sm transition-all {{ $repAsOriginal ? 'opacity-50 cursor-not-allowed' : 'hover:scale-110' }} {{ $user->is_titular ? 'bg-blue-100 text-blue-600 border-blue-200' : 'bg-slate-100 text-slate-400 border-slate-200' }}"
-                                                title="{{ $user->is_titular ? 'Titular (Permanente)' : 'Transitorio (Temporal)' }}">
-                                                <i class="fas {{ $user->is_titular ? 'fa-shield-halved' : 'fa-user-clock' }} text-[10px]"></i>
+                                                class="w-6 h-6 flex items-center justify-center rounded-full border shadow-sm transition-all {{ $repAsOriginal ? 'opacity-50 cursor-not-allowed' : 'hover:scale-110' }} {{ $user->es_titular ? 'bg-blue-100 text-blue-600 border-blue-200' : 'bg-slate-100 text-slate-400 border-slate-200' }}"
+                                                title="{{ $user->es_titular ? 'Titular (Permanente)' : 'Transitorio (Temporal)' }}">
+                                                <i class="fas {{ $user->es_titular ? 'fa-shield-halved' : 'fa-user-clock' }} text-[10px]"></i>
                                             </button>
                                         </div>
 
                                         <!-- Avatar (Centered) -->
                                         <div class="relative mt-1">
-                                            <div class="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-500 font-bold border border-slate-200 text-xl shadow-sm uppercase tracking-wider mx-auto">
-                                                {{ substr($user->name, 0, 1) }}{{ substr($user->last_name_paternal, 0, 1) }}
-                                            </div>
+                                            @if($user->photo_path)
+                                                <img src="{{ asset('storage/'.$user->photo_path) }}" class="w-12 h-12 rounded-2xl object-cover border border-slate-200 shadow-sm mx-auto" alt="Foto">
+                                            @else
+                                                <div class="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-500 font-bold border border-slate-200 text-xl shadow-sm uppercase tracking-wider mx-auto">
+                                                    {{ substr($user->nombres, 0, 1) }}{{ substr($user->apellido_paterno, 0, 1) }}
+                                                </div>
+                                            @endif
                                             <!-- Status Dot if Active -->
-                                            <div class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white {{ $repAsOriginal ? 'bg-amber-400' : ($user->attendance_status == 'constituye' ? 'bg-green-500' : ($user->attendance_status == 'reemplazo' ? 'bg-purple-500' : ($user->attendance_status == 'ausente' ? 'bg-red-500' : 'bg-slate-300'))) }}"></div>
+                                            <div class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white {{ $repAsOriginal ? 'bg-amber-400' : ($user->estado_asistencia == 'constituye' ? 'bg-green-500' : ($user->estado_asistencia == 'reemplazo' ? 'bg-purple-500' : ($user->estado_asistencia == 'ausente' ? 'bg-red-500' : 'bg-slate-300'))) }}"></div>
                                         </div>
 
                                         <!-- Main Info (Centered) -->
                                         <div class="w-full flex flex-col items-center gap-1 mb-1">
-                                            <h4 class="font-bold text-slate-800 text-sm leading-tight uppercase tracking-tight px-2" title="{{ $user->name }} {{ $user->last_name_paternal }}">
-                                                {{ $user->name }}
-                                                <span class="block text-xs font-extrabold text-slate-600 mt-0.5">{{ $user->last_name_paternal }}</span>
+                                            <h4 class="font-bold text-slate-800 text-sm leading-tight uppercase tracking-tight px-2" title="{{ $user->nombres }} {{ $user->apellido_paterno }}">
+                                                {{ $user->nombres }}
+                                                <span class="block text-xs font-extrabold text-slate-600 mt-0.5">{{ $user->apellido_paterno }}</span>
                                             </h4>
                                             
                                             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                                                {{ $user->is_shift_leader ? 'Jefe de Guardia' : 'Voluntario' }}
+                                                {{ $user->es_jefe_guardia ? 'Jefe de Guardia' : 'Voluntario' }}
                                             </span>
+
+                                            @if($user->es_refuerzo)
+                                                <span class="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-slate-900 text-white border border-slate-800">REFUERZO</span>
+                                            @endif
+
+                                            @if($user->cargo_texto)
+                                                <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                                                    {{ $user->cargo_texto }}
+                                                </span>
+                                            @endif
 
                                             <!-- Replacements Status Text -->
                                             @if($repAsReplacement)
                                                 <div class="flex items-center gap-1 text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-100 shadow-sm mt-1">
                                                     <i class="fas fa-right-left text-[9px]"></i>
-                                                    <span class="text-[9px] font-bold">Reemplaza a {{ substr($repAsReplacement->originalFirefighter->name ?? '', 0, 1) }}. {{ $repAsReplacement->originalFirefighter->last_name_paternal ?? '' }}</span>
+                                                    <span class="text-[9px] font-bold">Reemplaza a {{ substr($repAsReplacement->originalFirefighter->nombres ?? '', 0, 1) }}. {{ $repAsReplacement->originalFirefighter->apellido_paterno ?? '' }}</span>
                                                 </div>
                                             @endif
                                             @if($repAsOriginal)
                                                 <div class="flex items-center gap-1 text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-100 shadow-sm mt-1">
                                                     <i class="fas fa-user-shield text-[9px]"></i>
-                                                    <span class="text-[9px] font-bold">Cubierto por {{ substr($repAsOriginal->replacementFirefighter->name ?? '', 0, 1) }}. {{ $repAsOriginal->replacementFirefighter->last_name_paternal ?? '' }}</span>
+                                                    <span class="text-[9px] font-bold">Cubierto por {{ substr($repAsOriginal->replacementFirefighter->nombres ?? '', 0, 1) }}. {{ $repAsOriginal->replacementFirefighter->apellido_paterno ?? '' }}</span>
                                                 </div>
                                             @endif
                                         </div>
@@ -159,79 +226,89 @@
                                                 </div>
                                             @else
                                                 <div class="relative w-full">
-                                                    <input type="hidden" name="users[{{ $user->id }}][attendance_status]" id="attendance-status-{{ $user->id }}" value="{{ $user->attendance_status ?? 'constituye' }}">
+                                                    <input type="hidden" name="users[{{ $user->id }}][estado_asistencia]" id="attendance-status-{{ $user->id }}" value="{{ $user->estado_asistencia ?? 'constituye' }}">
 
-                                                    <button type="button" id="attendance-btn-{{ $user->id }}" onclick="toggleAttendanceMenu('{{ $user->id }}')"
+                                                    <button type="button" id="attendance-btn-{{ $user->id }}" @if(!$lockAttendanceStatus) onclick="toggleAttendanceMenu('{{ $user->id }}')" @endif
                                                         class="w-full text-[10px] font-black uppercase py-2 px-2 rounded-md border-0 cursor-pointer transition-colors shadow-sm flex items-center justify-between gap-2
-                                                        {{ $user->attendance_status == 'constituye' ? 'bg-green-100 text-green-700 ring-1 ring-green-200' : '' }}
-                                                        {{ $user->attendance_status == 'reemplazo' ? 'bg-purple-100 text-purple-700 ring-1 ring-purple-200' : '' }}
-                                                        {{ $user->attendance_status == 'permiso' ? 'bg-yellow-100 text-yellow-700 ring-1 ring-yellow-200' : '' }}
-                                                        {{ $user->attendance_status == 'ausente' ? 'bg-red-100 text-red-700 ring-1 ring-red-200' : '' }}
-                                                        {{ $user->attendance_status == 'falta' ? 'bg-red-200 text-red-800 ring-1 ring-red-300' : '' }}
-                                                        {{ $user->attendance_status == 'licencia' ? 'bg-blue-100 text-blue-700 ring-1 ring-blue-200' : '' }}
+                                                        {{ $user->estado_asistencia == 'constituye' ? 'bg-green-100 text-green-700 ring-1 ring-green-200' : '' }}
+                                                        {{ $user->estado_asistencia == 'reemplazo' ? 'bg-purple-100 text-purple-700 ring-1 ring-purple-200' : '' }}
+                                                        {{ $user->estado_asistencia == 'permiso' ? 'bg-yellow-100 text-yellow-700 ring-1 ring-yellow-200' : '' }}
+                                                        {{ $user->estado_asistencia == 'ausente' ? 'bg-red-100 text-red-700 ring-1 ring-red-200' : '' }}
+                                                        {{ $user->estado_asistencia == 'falta' ? 'bg-red-200 text-red-800 ring-1 ring-red-300' : '' }}
+                                                        {{ $user->estado_asistencia == 'licencia' ? 'bg-blue-100 text-blue-700 ring-1 ring-blue-200' : '' }}
+                                                        {{ $lockAttendanceStatus ? 'opacity-80 cursor-not-allowed' : '' }}
                                                     ">
                                                         <span class="flex items-center gap-2">
                                                             <span id="attendance-dot-{{ $user->id }}" class="w-2 h-2 rounded-full
-                                                                {{ $user->attendance_status == 'constituye' ? 'bg-green-500' : '' }}
-                                                                {{ $user->attendance_status == 'reemplazo' ? 'bg-purple-500' : '' }}
-                                                                {{ $user->attendance_status == 'permiso' ? 'bg-yellow-500' : '' }}
-                                                                {{ $user->attendance_status == 'ausente' ? 'bg-red-500' : '' }}
-                                                                {{ $user->attendance_status == 'falta' ? 'bg-red-600' : '' }}
-                                                                {{ $user->attendance_status == 'licencia' ? 'bg-blue-500' : '' }}
+                                                                {{ $user->estado_asistencia == 'constituye' ? 'bg-green-500' : '' }}
+                                                                {{ $user->estado_asistencia == 'reemplazo' ? 'bg-purple-500' : '' }}
+                                                                {{ $user->estado_asistencia == 'permiso' ? 'bg-yellow-500' : '' }}
+                                                                {{ $user->estado_asistencia == 'ausente' ? 'bg-red-500' : '' }}
+                                                                {{ $user->estado_asistencia == 'falta' ? 'bg-red-600' : '' }}
+                                                                {{ $user->estado_asistencia == 'licencia' ? 'bg-blue-500' : '' }}
                                                             "></span>
                                                             <span id="attendance-label-{{ $user->id }}">
-                                                                @if($user->attendance_status == 'constituye') CONSTITUYE @endif
-                                                                @if($user->attendance_status == 'reemplazo') REEMPLAZO @endif
-                                                                @if($user->attendance_status == 'permiso') PERMISO @endif
-                                                                @if($user->attendance_status == 'ausente') AUSENTE @endif
-                                                                @if($user->attendance_status == 'falta') CUMPLE FALTA @endif
-                                                                @if($user->attendance_status == 'licencia') LICENCIA MÉDICA @endif
-                                                                @if(!in_array($user->attendance_status, ['constituye','reemplazo','permiso','ausente','falta','licencia'])) CONSTITUYE @endif
+                                                                @if($user->estado_asistencia == 'constituye') CONSTITUYE @endif
+                                                                @if($user->estado_asistencia == 'reemplazo') REEMPLAZO @endif
+                                                                @if($user->estado_asistencia == 'permiso') PERMISO @endif
+                                                                @if($user->estado_asistencia == 'ausente') AUSENTE @endif
+                                                                @if($user->estado_asistencia == 'falta') CUMPLE FALTA @endif
+                                                                @if($user->estado_asistencia == 'licencia') LICENCIA MÉDICA @endif
+                                                                @if(!in_array($user->estado_asistencia, ['constituye','reemplazo','permiso','ausente','falta','licencia'])) CONSTITUYE @endif
                                                             </span>
                                                         </span>
-                                                        <i class="fas fa-chevron-down text-[10px] opacity-60"></i>
+                                                        @if(!$lockAttendanceStatus)
+                                                            <i class="fas fa-chevron-down text-[10px] opacity-60"></i>
+                                                        @endif
                                                     </button>
 
-                                                    <div id="attendance-menu-{{ $user->id }}" class="hidden absolute left-0 right-0 mt-1 z-30 bg-white border border-slate-200 rounded-lg shadow-xl overflow-hidden">
-                                                        <button type="button" onclick="setAttendanceStatus('{{ $user->id }}', 'constituye')" class="w-full px-3 py-2 text-xs font-black uppercase tracking-wide flex items-center gap-2 hover:bg-slate-50">
-                                                            <span class="w-2 h-2 rounded-full bg-green-500"></span>
-                                                            <span class="text-green-700">CONSTITUYE</span>
-                                                        </button>
-                                                        <button type="button" onclick="setAttendanceStatus('{{ $user->id }}', 'reemplazo')" class="w-full px-3 py-2 text-xs font-black uppercase tracking-wide flex items-center gap-2 hover:bg-slate-50">
-                                                            <span class="w-2 h-2 rounded-full bg-purple-500"></span>
-                                                            <span class="text-purple-700">REEMPLAZO</span>
-                                                        </button>
-                                                        <button type="button" onclick="setAttendanceStatus('{{ $user->id }}', 'permiso')" class="w-full px-3 py-2 text-xs font-black uppercase tracking-wide flex items-center gap-2 hover:bg-slate-50">
-                                                            <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
-                                                            <span class="text-yellow-700">PERMISO</span>
-                                                        </button>
-                                                        <button type="button" onclick="setAttendanceStatus('{{ $user->id }}', 'ausente')" class="w-full px-3 py-2 text-xs font-black uppercase tracking-wide flex items-center gap-2 hover:bg-slate-50">
-                                                            <span class="w-2 h-2 rounded-full bg-red-500"></span>
-                                                            <span class="text-red-700">AUSENTE</span>
-                                                        </button>
-                                                        <button type="button" onclick="setAttendanceStatus('{{ $user->id }}', 'falta')" class="w-full px-3 py-2 text-xs font-black uppercase tracking-wide flex items-center gap-2 hover:bg-slate-50">
-                                                            <span class="w-2 h-2 rounded-full bg-red-600"></span>
-                                                            <span class="text-red-800">CUMPLE FALTA</span>
-                                                        </button>
-                                                        <button type="button" onclick="setAttendanceStatus('{{ $user->id }}', 'licencia')" class="w-full px-3 py-2 text-xs font-black uppercase tracking-wide flex items-center gap-2 hover:bg-slate-50">
-                                                            <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-                                                            <span class="text-blue-700">LICENCIA MÉDICA</span>
-                                                        </button>
-                                                    </div>
+                                                    @if(!$lockAttendanceStatus)
+                                                        <div id="attendance-menu-{{ $user->id }}" class="hidden absolute left-0 right-0 mt-1 z-30 bg-white border border-slate-200 rounded-lg shadow-xl overflow-hidden">
+                                                            <button type="button" onclick="setAttendanceStatus('{{ $user->id }}', 'constituye')" class="w-full px-3 py-2 text-xs font-black uppercase tracking-wide flex items-center gap-2 hover:bg-slate-50">
+                                                                <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                                                                <span class="text-green-700">CONSTITUYE</span>
+                                                            </button>
+                                                            <button type="button" onclick="setAttendanceStatus('{{ $user->id }}', 'reemplazo')" class="w-full px-3 py-2 text-xs font-black uppercase tracking-wide flex items-center gap-2 hover:bg-slate-50">
+                                                                <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+                                                                <span class="text-purple-700">REEMPLAZO</span>
+                                                            </button>
+                                                            <button type="button" onclick="setAttendanceStatus('{{ $user->id }}', 'permiso')" class="w-full px-3 py-2 text-xs font-black uppercase tracking-wide flex items-center gap-2 hover:bg-slate-50">
+                                                                <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+                                                                <span class="text-yellow-700">PERMISO</span>
+                                                            </button>
+                                                            <button type="button" onclick="setAttendanceStatus('{{ $user->id }}', 'ausente')" class="w-full px-3 py-2 text-xs font-black uppercase tracking-wide flex items-center gap-2 hover:bg-slate-50">
+                                                                <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                                                                <span class="text-red-700">AUSENTE</span>
+                                                            </button>
+                                                            <button type="button" onclick="setAttendanceStatus('{{ $user->id }}', 'falta')" class="w-full px-3 py-2 text-xs font-black uppercase tracking-wide flex items-center gap-2 hover:bg-slate-50">
+                                                                <span class="w-2 h-2 rounded-full bg-red-600"></span>
+                                                                <span class="text-red-800">CUMPLE FALTA</span>
+                                                            </button>
+                                                            <button type="button" onclick="setAttendanceStatus('{{ $user->id }}', 'licencia')" class="w-full px-3 py-2 text-xs font-black uppercase tracking-wide flex items-center gap-2 hover:bg-slate-50">
+                                                                <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                                                                <span class="text-blue-700">LICENCIA MÉDICA</span>
+                                                            </button>
+                                                        </div>
+                                                    @endif
                                                 </div>
 
                                                 @if(!$repAsReplacement)
-                                                    <button type="button" id="btn-replacement-{{ $user->id }}" data-action="open-replacement-modal" data-guardia-id="{{ $guardia->id }}" data-user-id="{{ $user->id }}" data-user-name="{{ $user->name }} {{ $user->last_name_paternal }}" onclick="openReplacementModal(this.dataset.guardiaId, this.dataset.userId, this.dataset.userName)" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-3 rounded-lg text-[10px] transition shadow-sm uppercase tracking-wider">
+                                                    <button type="button" id="btn-replacement-{{ $user->id }}" data-action="open-replacement-modal" data-guardia-id="{{ $guardia->id }}" data-user-id="{{ $user->id }}" data-user-name="{{ $user->nombres }} {{ $user->apellido_paterno }}" onclick="openReplacementModal(this.dataset.guardiaId, this.dataset.userId, this.dataset.userName)" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-3 rounded-lg text-[10px] transition shadow-sm uppercase tracking-wider">
                                                         <i class="fas fa-user-plus mr-2"></i> Reemplazar
                                                     </button>
                                                 @endif
                                             @endif
 
                                             <div class="flex justify-center gap-2 mt-2 pt-2 border-t border-slate-50">
-                                                @if($user->is_rescue_operator) 
+                                                @if($user->es_conductor)
+                                                    <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[10px] font-bold border border-blue-200" title="Conductor">
+                                                        <i class="fas fa-car text-[10px]"></i>
+                                                    </span>
+                                                @endif
+                                                @if($user->es_operador_rescate) 
                                                     <span class="w-6 h-6 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-[10px] font-bold border border-orange-200" title="Rescate">R</span>
                                                 @endif
-                                                @if($user->is_trauma_assistant) 
+                                                @if($user->es_asistente_trauma) 
                                                     <span class="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-[10px] font-bold border border-red-200" title="Trauma">T</span>
                                                 @endif
                                             </div>
@@ -252,9 +329,14 @@
 
                 <!-- Formulario Agregar / Asignar (Colapsable) -->
                 <div class="bg-white border-t border-slate-200 mt-auto shadow-[0_-4px_20px_-5px_rgba(0,0,0,0.1)] z-10 relative">
-                    <a href="{{ route('admin.dotaciones') }}" class="w-full p-3 flex items-center justify-center text-[10px] font-black text-slate-500 uppercase tracking-widest hover:bg-slate-50 transition-colors group outline-none focus:bg-slate-50">
-                        <i class="fas fa-users-gear mr-2 text-slate-400"></i> Gestionar Dotación en Dotaciones
-                    </a>
+                    <div class="grid grid-cols-2">
+                        <button type="button" onclick="openRefuerzoModal('{{ $guardia->id }}')" class="w-full p-3 flex items-center justify-center text-[10px] font-black text-slate-500 uppercase tracking-widest hover:bg-slate-50 transition-colors group outline-none focus:bg-slate-50 border-r border-slate-200">
+                            <i class="fas fa-user-plus mr-2 text-slate-400"></i> Agregar Refuerzo
+                        </button>
+                        <a href="{{ route('admin.dotaciones') }}" class="w-full p-3 flex items-center justify-center text-[10px] font-black text-slate-500 uppercase tracking-widest hover:bg-slate-50 transition-colors group outline-none focus:bg-slate-50">
+                            <i class="fas fa-users-gear mr-2 text-slate-400"></i> Gestionar Dotación
+                        </a>
+                    </div>
                 </div>
             </div>
         @endforeach
@@ -306,7 +388,7 @@
                         </div>
                         <datalist id="modal_volunteers_list">
                             @foreach($volunteers as $volunteer)
-                                <option data-value="{{ $volunteer->id }}" value="{{ trim($volunteer->last_name_paternal . ' ' . ($volunteer->last_name_maternal ?? '') . ', ' . $volunteer->name . ($volunteer->rut ? ' - ' . $volunteer->rut : '')) }}"></option>
+                                <option data-value="{{ $volunteer->id }}" value="{{ trim($volunteer->nombres . ' ' . $volunteer->apellido_paterno . ' ' . ($volunteer->apellido_materno ?? '') . ($volunteer->rut ? ' - ' . $volunteer->rut : '')) }}"></option>
                             @endforeach
                         </datalist>
                     </div>
@@ -502,10 +584,59 @@
             }, 300);
         }
 
+        function updateModalRefuerzoId(input) {
+            const list = document.getElementById('modal_refuerzo_volunteers_list');
+            const hiddenInput = document.getElementById('modal_refuerzo_firefighter_id');
+            const options = list.options;
+
+            hiddenInput.value = '';
+            for (let i = 0; i < options.length; i++) {
+                if (options[i].value === input.value) {
+                    hiddenInput.value = options[i].getAttribute('data-value');
+                    break;
+                }
+            }
+        }
+
+        function openRefuerzoModal(guardiaId) {
+            const modal = document.getElementById('refuerzoModal');
+            if (!modal) return;
+
+            const content = modal.firstElementChild;
+            const inputGuardia = document.getElementById('modal_refuerzo_guardia_id');
+            if (inputGuardia) inputGuardia.value = guardiaId;
+
+            modal.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                modal.classList.remove('opacity-0');
+                if (content) {
+                    content.classList.remove('scale-95');
+                    content.classList.add('scale-100');
+                }
+            });
+        }
+
+        function closeRefuerzoModal() {
+            const modal = document.getElementById('refuerzoModal');
+            if (!modal) return;
+
+            const content = modal.firstElementChild;
+            modal.classList.add('opacity-0');
+            if (content) {
+                content.classList.remove('scale-100');
+                content.classList.add('scale-95');
+            }
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
         // Close on escape
         document.addEventListener('keydown', function(event) {
             if (event.key === "Escape") {
                 closeReplacementModal();
+                closeRefuerzoModal();
             }
         });
 

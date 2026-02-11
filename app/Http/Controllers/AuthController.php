@@ -15,7 +15,7 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'username' => ['required', 'string'],
             'password' => ['required'],
         ]);
 
@@ -26,8 +26,8 @@ class AuthController extends Controller
             if ($user->role === 'bombero') {
                 Auth::logout();
                 return back()->withErrors([
-                    'email' => 'Su cuenta no tiene permisos para acceder al sistema.',
-                ])->onlyInput('email');
+                    'username' => 'Su cuenta no tiene permisos para acceder al sistema.',
+                ])->onlyInput('username');
             }
 
             $request->session()->regenerate();
@@ -36,8 +36,8 @@ class AuthController extends Controller
         }
 
         return back()->withErrors([
-            'email' => 'Las credenciales proporcionadas no coinciden con nuestros registros.',
-        ])->onlyInput('email');
+            'username' => 'Las credenciales proporcionadas no coinciden con nuestros registros.',
+        ])->onlyInput('username');
     }
 
     public function logout(Request $request)

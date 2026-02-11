@@ -43,51 +43,6 @@ return new class extends Migration
             $table->index(['guardia_id', 'is_titular']);
             $table->index(['guardia_id', 'attendance_status']);
         });
-
-        $shouldBackfill = Schema::hasColumn('users', 'role');
-        if (!$shouldBackfill) {
-            return;
-        }
-
-        $existing = DB::table('users')
-            ->whereIn('role', ['bombero', 'jefe_guardia'])
-            ->count();
-
-        if ($existing <= 0) {
-            return;
-        }
-
-        $now = now();
-
-        DB::transaction(function () use ($now) {
-            $rows = DB::table('users')
-                ->whereIn('role', ['bombero', 'jefe_guardia'])
-                ->get();
-
-            foreach ($rows as $u) {
-                DB::table('firefighters')->insert([
-                    'guardia_id' => $u->guardia_id,
-                    'name' => $u->name,
-                    'last_name_paternal' => $u->last_name_paternal,
-                    'last_name_maternal' => $u->last_name_maternal,
-                    'rut' => $u->rut,
-                    'birthdate' => $u->birthdate,
-                    'admission_date' => $u->admission_date,
-                    'position_text' => $u->position_text,
-                    'portable_number' => $u->portable_number,
-                    'is_driver' => (bool) ($u->is_driver ?? false),
-                    'is_rescue_operator' => (bool) ($u->is_rescue_operator ?? false),
-                    'is_trauma_assistant' => (bool) ($u->is_trauma_assistant ?? false),
-                    'is_shift_leader' => (bool) ($u->role === 'jefe_guardia') || (bool) ($u->is_shift_leader ?? false),
-                    'attendance_status' => $u->attendance_status ?? 'constituye',
-                    'is_titular' => (bool) ($u->is_titular ?? true),
-                    'is_exchange' => (bool) ($u->is_exchange ?? false),
-                    'is_penalty' => (bool) ($u->is_penalty ?? false),
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ]);
-            }
-        });
     }
 
     /**

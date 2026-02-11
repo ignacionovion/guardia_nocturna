@@ -12,7 +12,7 @@
             </a>
         </div>
 
-        <form method="POST" action="{{ route('admin.emergencies.store') }}">
+        <form id="emergency-form" method="POST" action="{{ route('admin.emergencies.store') }}">
             @csrf
             @include('admin.emergencies._form')
         </form>

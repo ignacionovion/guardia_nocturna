@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Bombero;
 
 class ShiftUser extends Model
 {
@@ -39,7 +40,7 @@ class ShiftUser extends Model
 
     public function firefighter()
     {
-        return $this->belongsTo(Firefighter::class);
+        return $this->belongsTo(Bombero::class, 'firefighter_id');
     }
 
     public function replacedUser()
@@ -49,6 +50,6 @@ class ShiftUser extends Model
 
     public function replacedFirefighter()
     {
-        return $this->belongsTo(Firefighter::class, 'replaced_firefighter_id');
+        return $this->belongsTo(Bombero::class, 'replaced_firefighter_id');
     }
 }

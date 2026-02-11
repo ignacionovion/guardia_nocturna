@@ -21,45 +21,6 @@ return new class extends Migration
             $table->unique('user_id');
             $table->unique('firefighter_id');
         });
-
-        if (!Schema::hasColumn('users', 'role')) {
-            return;
-        }
-
-        $now = now();
-
-        DB::transaction(function () use ($now) {
-            $users = DB::table('users')
-                ->whereIn('role', ['bombero', 'jefe_guardia'])
-                ->get();
-
-            foreach ($users as $u) {
-                $ffId = DB::table('firefighters')
-                    ->where(function ($q) use ($u) {
-                        if (!empty($u->rut)) {
-                            $q->where('rut', $u->rut);
-                            return;
-                        }
-                        $q->where('name', $u->name)
-                          ->whereNull('rut');
-                    })
-                    ->orderBy('id')
-                    ->value('id');
-
-                if (!$ffId) {
-                    continue;
-                }
-
-                DB::table('firefighter_user_legacy_maps')->updateOrInsert(
-                    ['user_id' => $u->id],
-                    [
-                        'firefighter_id' => $ffId,
-                        'created_at' => $now,
-                        'updated_at' => $now,
-                    ]
-                );
-            }
-        });
     }
 
     /**

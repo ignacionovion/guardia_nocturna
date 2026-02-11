@@ -53,8 +53,8 @@
                             <select name="assignments[{{ $task->id }}]" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg bg-white text-sm font-semibold text-slate-800">
                                 <option value="">Sin asignar</option>
                                 @foreach($users as $u)
-                                    <option value="{{ $u->id }}" {{ ($current?->user_id === $u->id) ? 'selected' : '' }}>
-                                        {{ $u->name }} {{ $u->last_name_paternal }}
+                                    <option value="{{ $u->id }}" {{ ((string)($current?->firefighter_id) === (string)$u->id) ? 'selected' : '' }}>
+                                        {{ $u->nombres }} {{ $u->apellido_paterno }}
                                     </option>
                                 @endforeach
                             </select>

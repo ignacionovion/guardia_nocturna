@@ -160,7 +160,7 @@
 
     <div class="space-y-8">
         @foreach($guardias as $guardia)
-            @if($guardia->users->count() > 0)
+            @if($guardia->bomberos->count() > 0)
                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                     <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
                         <h2 class="text-lg font-bold text-slate-800 flex items-center uppercase tracking-wide">
@@ -168,7 +168,7 @@
                             {{ $guardia->name }}
                         </h2>
                         <span class="text-xs font-bold bg-white text-slate-600 px-3 py-1 rounded-full border border-slate-200 shadow-sm">
-                            {{ $guardia->users->count() }} Voluntarios
+                            {{ $guardia->bomberos->count() }} Voluntarios
                         </span>
                     </div>
 
@@ -196,18 +196,15 @@
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-slate-100">
-                                @foreach($guardia->users as $user)
+                                @foreach($guardia->bomberos as $user)
                                     <tr class="hover:bg-slate-50 transition-colors group">
                                         <td class="px-6 py-3 whitespace-nowrap sticky left-0 bg-white group-hover:bg-slate-50 transition-colors z-10 border-r border-slate-200 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
                                             <div class="flex items-center">
                                                 <div class="flex-shrink-0 h-8 w-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 font-bold text-xs">
-                                                    {{ substr($user->name, 0, 1) }}{{ substr($user->last_name_paternal, 0, 1) }}
+                                                    {{ substr($user->nombres, 0, 1) }}{{ substr($user->apellido_paterno, 0, 1) }}
                                                 </div>
                                                 <div class="ml-3">
-                                                    <div class="text-sm font-bold text-slate-700">{{ $user->name }} {{ $user->last_name_paternal }}</div>
-                                                    @if($user->company)
-                                                        <div class="text-[10px] text-slate-400 font-medium">{{ $user->company }}</div>
-                                                    @endif
+                                                    <div class="text-sm font-bold text-slate-700">{{ $user->nombres }} {{ $user->apellido_paterno }}</div>
                                                 </div>
                                             </div>
                                         </td>

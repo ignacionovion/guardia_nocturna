@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Models\StaffEvent;
 
-class StaffEventController extends Controller
+class EventoPersonalController extends Controller
 {
     /**
      * Display a listing of the resource.

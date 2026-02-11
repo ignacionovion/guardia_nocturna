@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Bombero;
+use App\Models\User;
 
 class Emergency extends Model
 {
@@ -14,6 +16,7 @@ class Emergency extends Model
         'shift_id',
         'guardia_id',
         'officer_in_charge_user_id',
+        'officer_in_charge_firefighter_id',
         'created_by',
     ];
 
@@ -50,6 +53,11 @@ class Emergency extends Model
     public function officerInCharge()
     {
         return $this->belongsTo(User::class, 'officer_in_charge_user_id');
+    }
+
+    public function officerInChargeFirefighter()
+    {
+        return $this->belongsTo(Bombero::class, 'officer_in_charge_firefighter_id');
     }
 
     public function creator()

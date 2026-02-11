@@ -11,8 +11,11 @@ use App\Models\GuardiaCalendarDay;
 use App\Models\Shift;
 use App\Models\ShiftUser;
 use App\Models\User;
+use App\Models\Bombero;
+use App\Models\MapaBomberoUsuarioLegacy;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class EmergencyController extends Controller
 {
@@ -48,17 +51,34 @@ class EmergencyController extends Controller
 
         $query = Shift::with(['leader'])->where('status', 'active');
 
+        // Preferimos filtrar por guardia via el líder del turno.
+        // Hay datos legacy donde shift_users.guardia_id puede venir null y rompe el filtro.
         if ($guardiaId) {
-            $query->whereHas('users', function ($q) use ($guardiaId) {
-                $q->where('guardia_id', $guardiaId)
-                    ->where(function ($q2) {
-                        $q2->whereNull('end_time')
-                            ->orWhere('end_time', '>', now());
-                    });
+            $query->whereHas('leader', function ($q) use ($guardiaId) {
+                $q->where('guardia_id', $guardiaId);
             });
         }
 
         $shift = $query->latest()->first();
+
+        // Fallback: en algunos datos legacy el líder del turno puede no tener guardia_id,
+        // pero los ShiftUser sí tienen firefighter_id. Buscamos turnos donde haya personal activo
+        // cuya guardia coincida con la del usuario.
+        if (!$shift && $guardiaId) {
+            $shift = Shift::with(['leader'])
+                ->where('status', 'active')
+                ->whereHas('users', function ($q) use ($guardiaId) {
+                    $q->where(function ($q2) {
+                        $q2->whereNull('end_time')
+                            ->orWhere('end_time', '>', now());
+                    })
+                    ->whereHas('firefighter', function ($q3) use ($guardiaId) {
+                        $q3->where('guardia_id', $guardiaId);
+                    });
+                })
+                ->latest()
+                ->first();
+        }
 
         if (!$shift) {
             $shift = Shift::with(['leader'])->where('status', 'active')->latest()->first();
@@ -73,7 +93,7 @@ class EmergencyController extends Controller
             return collect();
         }
 
-        $shiftUsers = ShiftUser::with('user')
+        $shiftUsers = ShiftUser::with(['firefighter', 'user'])
             ->where('shift_id', $shift->id)
             ->where(function ($q) {
                 $q->whereNull('end_time')
@@ -82,34 +102,61 @@ class EmergencyController extends Controller
             ->get();
 
         if ($shiftUsers->isEmpty() && $shift->status === 'active') {
-            $shiftUsers = ShiftUser::with('user')
+            $shiftUsers = ShiftUser::with(['firefighter', 'user'])
                 ->where('shift_id', $shift->id)
                 ->where('present', true)
                 ->get();
         }
 
-        $users = $shiftUsers
-            ->filter(fn ($su) => (bool) $su->user)
-            ->map(fn ($su) => $su->user);
+        $firefighters = $shiftUsers
+            ->filter(fn ($su) => (bool) $su->firefighter)
+            ->map(fn ($su) => $su->firefighter);
 
-        $users = $users->filter(function ($u) {
-            return $u->role !== 'guardia';
-        });
+        // Fallback: en datos legacy puede no existir firefighter_id en shift_users.
+        // En ese caso, ofrecemos una lista razonable para "A cargo" basada en la dotación
+        // marcada como presente en la guardia del usuario.
+        if ($firefighters->isEmpty() && $authUser?->guardia_id) {
+            return Bombero::query()
+                ->where('guardia_id', $authUser->guardia_id)
+                ->whereIn('estado_asistencia', ['constituye', 'reemplazo'])
+                ->where(function ($q) {
+                    $q->whereNull('fuera_de_servicio')->orWhere('fuera_de_servicio', false);
+                })
+                ->orderBy('apellido_paterno')
+                ->orderBy('nombres')
+                ->get();
+        }
 
         if ($shift->leader?->guardia_id) {
-            $users = $users->where('guardia_id', $shift->leader->guardia_id);
+            $firefighters = $firefighters->where('guardia_id', $shift->leader->guardia_id);
         }
 
         if ($authUser?->guardia_id) {
-            $users = $users->where('guardia_id', $authUser->guardia_id);
+            $firefighters = $firefighters->where('guardia_id', $authUser->guardia_id);
         }
 
-        return $users->sortBy('name')->values();
+        if ($firefighters->isEmpty() && $authUser?->guardia_id) {
+            return Bombero::query()
+                ->where('guardia_id', $authUser->guardia_id)
+                ->whereIn('estado_asistencia', ['constituye', 'reemplazo'])
+                ->where(function ($q) {
+                    $q->whereNull('fuera_de_servicio')->orWhere('fuera_de_servicio', false);
+                })
+                ->orderBy('apellido_paterno')
+                ->orderBy('nombres')
+                ->get();
+        }
+
+        $firefighters = $firefighters->reject(function ($f) {
+            return (bool) ($f->fuera_de_servicio ?? false);
+        });
+
+        return $firefighters->sortBy('apellido_paterno')->values();
     }
 
     public function index(Request $request)
     {
-        $query = Emergency::with(['key', 'units', 'guardia', 'officerInCharge'])
+        $query = Emergency::with(['key', 'units', 'guardia', 'officerInCharge', 'officerInChargeFirefighter'])
             ->orderByDesc('dispatched_at');
 
         if ($request->filled('search')) {
@@ -154,7 +201,7 @@ class EmergencyController extends Controller
             'details' => 'nullable|string',
             'unit_ids' => 'nullable|array',
             'unit_ids.*' => 'exists:emergency_units,id',
-            'officer_in_charge_user_id' => 'nullable|exists:users,id',
+            'officer_in_charge_firefighter_id' => 'nullable|exists:bomberos,id',
         ]);
 
         $dispatchedAt = Carbon::createFromFormat('Y-m-d\TH:i', $validated['dispatched_at']);
@@ -188,7 +235,10 @@ class EmergencyController extends Controller
             'details' => $validated['details'] ?? null,
             'shift_id' => $shift?->id,
             'guardia_id' => $guardiaId,
-            'officer_in_charge_user_id' => $validated['officer_in_charge_user_id'] ?? null,
+            'officer_in_charge_firefighter_id' => $validated['officer_in_charge_firefighter_id'] ?? null,
+            'officer_in_charge_user_id' => ($validated['officer_in_charge_firefighter_id'] ?? null)
+                ? MapaBomberoUsuarioLegacy::where('firefighter_id', (int) $validated['officer_in_charge_firefighter_id'])->value('user_id')
+                : null,
             'created_by' => $authUser?->id,
         ]);
 
@@ -222,7 +272,7 @@ class EmergencyController extends Controller
             'details' => 'nullable|string',
             'unit_ids' => 'nullable|array',
             'unit_ids.*' => 'exists:emergency_units,id',
-            'officer_in_charge_user_id' => 'nullable|exists:users,id',
+            'officer_in_charge_firefighter_id' => 'nullable|exists:bomberos,id',
         ]);
 
         $dispatchedAt = Carbon::createFromFormat('Y-m-d\TH:i', $validated['dispatched_at']);
@@ -241,7 +291,10 @@ class EmergencyController extends Controller
             'dispatched_at' => $dispatchedAt,
             'arrived_at' => $arrivedAt,
             'details' => $validated['details'] ?? null,
-            'officer_in_charge_user_id' => $validated['officer_in_charge_user_id'] ?? null,
+            'officer_in_charge_firefighter_id' => $validated['officer_in_charge_firefighter_id'] ?? null,
+            'officer_in_charge_user_id' => ($validated['officer_in_charge_firefighter_id'] ?? null)
+                ? MapaBomberoUsuarioLegacy::where('firefighter_id', (int) $validated['officer_in_charge_firefighter_id'])->value('user_id')
+                : null,
         ]);
 
         $emergency->units()->sync($validated['unit_ids'] ?? []);

@@ -139,9 +139,19 @@
                         <tr>
                             <td class="px-6 py-2 whitespace-nowrap text-sm font-bold text-slate-700">{{ optional($e->start_date)->format('d-m-Y H:i') }}</td>
                             <td class="px-6 py-2 whitespace-nowrap text-sm font-bold text-slate-700">{{ optional($e->end_date)->format('d-m-Y H:i') ?? '—' }}</td>
-                            <td class="px-6 py-2 whitespace-nowrap text-sm text-slate-600">{{ $e->user?->guardia?->name ?? 'Sin Asignar' }}</td>
-                            <td class="px-6 py-2 whitespace-nowrap text-sm text-slate-700">{{ $e->user?->name }} {{ $e->user?->last_name_paternal }}</td>
-                            <td class="px-6 py-2 whitespace-nowrap text-sm text-slate-700">{{ $e->replacementUser?->name }} {{ $e->replacementUser?->last_name_paternal }}</td>
+                            <td class="px-6 py-2 whitespace-nowrap text-sm text-slate-600">{{ $e->firefighter?->guardia?->name ?? $e->user?->guardia?->name ?? 'Sin Asignar' }}</td>
+                            <td class="px-6 py-2 whitespace-nowrap text-sm text-slate-700">
+                                {{ $e->firefighter
+                                    ? trim(($e->firefighter?->nombres ?? '') . ' ' . ($e->firefighter?->apellido_paterno ?? ''))
+                                    : ($e->user?->name ?? '')
+                                }}
+                            </td>
+                            <td class="px-6 py-2 whitespace-nowrap text-sm text-slate-700">
+                                {{ $e->replacementFirefighter
+                                    ? trim(($e->replacementFirefighter?->nombres ?? '') . ' ' . ($e->replacementFirefighter?->apellido_paterno ?? ''))
+                                    : ($e->replacementUser?->name ?? '')
+                                }}
+                            </td>
                         </tr>
                     @empty
                         <tr>

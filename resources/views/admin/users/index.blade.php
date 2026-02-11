@@ -11,6 +11,9 @@
             <a href="{{ route('admin.users.create') }}" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200 transform hover:-translate-y-0.5">
                 <i class="fas fa-plus mr-2"></i> Nuevo Usuario
             </a>
+            <a href="{{ route('admin.roles.index') }}" class="inline-flex items-center bg-slate-800 hover:bg-slate-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200 transform hover:-translate-y-0.5">
+                <i class="fas fa-user-gear mr-2"></i> Roles
+            </a>
         </div>
     </div>
 
@@ -73,6 +76,13 @@
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-100">
                                         {{ str_replace('_', ' ', $user->role) }}
                                     </span>
+                                    @if($user->roleEntity)
+                                        <div class="mt-1">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-50 text-slate-700 border border-slate-100">
+                                                {{ $user->roleEntity->name }}
+                                            </span>
+                                        </div>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                                     @if($user->guardia)

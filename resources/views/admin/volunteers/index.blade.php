@@ -28,7 +28,7 @@
             <div class="flex items-center">
                 <i class="fas fa-search absolute left-4 text-gray-400"></i>
                 <input type="text" name="search" value="{{ request('search') }}" 
-                    placeholder="Buscar por nombre, RUT, cargo o email..." 
+                    placeholder="Buscar por nombre, RUT o cargo..." 
                     class="w-full pl-11 pr-4 py-3 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-colors text-gray-700">
                 
                 @if(request('search'))
@@ -72,73 +72,112 @@
                 <table class="min-w-full divide-y divide-slate-200">
                     <thead class="bg-slate-50">
                         <tr>
-                            <th scope="col" class="px-6 py-4 text-left">
+                            <th scope="col" class="px-3 md:px-6 py-4 text-left">
                                 <input type="checkbox" id="select-all" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 w-5 h-5">
                             </th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Identificación</th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Cargo / Rol</th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Contacto</th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Especialidades</th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Guardia</th>
-                            <th scope="col" class="px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Acciones</th>
+                            <th scope="col" class="px-3 md:px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Identificación</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider hidden md:table-cell">Cargo / Rol</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider hidden lg:table-cell">Contacto</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider hidden lg:table-cell">Especialidades</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider hidden md:table-cell">Guardia</th>
+                            <th scope="col" class="px-3 md:px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Acciones</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-slate-200">
                         @foreach($volunteers as $volunteer)
                             <tr class="hover:bg-slate-50 transition-colors">
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-3 md:px-6 py-4 whitespace-nowrap">
                                     <input type="checkbox" name="selected_ids[]" value="{{ $volunteer->id }}" class="volunteer-checkbox rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 w-5 h-5">
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-3 md:px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-bold border border-slate-300 shadow-sm text-sm">
-                                            {{ substr($volunteer->name, 0, 1) }}{{ substr($volunteer->last_name_paternal, 0, 1) }}
-                                        </div>
+                                        @if($volunteer->photo_path)
+                                            <img src="{{ asset('storage/'.$volunteer->photo_path) }}" class="flex-shrink-0 h-10 w-10 rounded-full object-cover border border-slate-300 shadow-sm" alt="Foto">
+                                        @else
+                                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-bold border border-slate-300 shadow-sm text-sm">
+                                                {{ substr($volunteer->nombres, 0, 1) }}{{ substr($volunteer->apellido_paterno, 0, 1) }}
+                                            </div>
+                                        @endif
                                         <div class="ml-4">
-                                            <div class="text-sm font-bold text-slate-900">{{ $volunteer->name }} {{ $volunteer->last_name_paternal }}</div>
+                                            <div class="text-sm font-bold text-slate-900">{{ $volunteer->nombres }} {{ $volunteer->apellido_paterno }}</div>
                                             <div class="text-xs text-slate-500 font-mono">{{ $volunteer->rut ?? 'S/RUT' }}</div>
+
+                                            <div class="md:hidden mt-1 text-[11px] text-slate-600 font-black uppercase tracking-widest">
+                                                {{ $volunteer->cargo_texto ?? '-' }}
+                                            </div>
+                                            <div class="md:hidden text-[10px] text-slate-500 font-medium uppercase tracking-wide">
+                                                {{ $volunteer->es_jefe_guardia ? 'Jefe de Guardia' : '-' }}
+                                            </div>
+
+                                            <div class="md:hidden mt-1 flex flex-wrap gap-1">
+                                                @if($volunteer->es_conductor)
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-100" title="Conductor">
+                                                        <i class="fas fa-car mr-1"></i> Cond
+                                                    </span>
+                                                @endif
+                                                @if($volunteer->es_operador_rescate)
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-orange-50 text-orange-700 border border-orange-100" title="Operador de Rescate">
+                                                        <i class="fas fa-tools mr-1"></i> Resc
+                                                    </span>
+                                                @endif
+                                                @if($volunteer->es_asistente_trauma)
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-50 text-red-700 border border-red-100" title="Asistente de Trauma">
+                                                        <i class="fas fa-medkit mr-1"></i> Trauma
+                                                    </span>
+                                                @endif
+                                                @if(!$volunteer->es_conductor && !$volunteer->es_operador_rescate && !$volunteer->es_asistente_trauma)
+                                                    <span class="text-xs text-slate-400 italic">-</span>
+                                                @endif
+                                            </div>
+
+                                            <div class="md:hidden mt-1">
+                                                @if($volunteer->guardia_id)
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                        {{ $volunteer->guardia->name }}
+                                                    </span>
+                                                @else
+                                                    <span class="text-slate-400 text-xs italic">Sin asignar</span>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-slate-900 font-medium">{{ $volunteer->position_text ?? 'Voluntario' }}</div>
+                                <td class="px-6 py-4 whitespace-nowrap hidden md:table-cell">
+                                    <div class="text-sm text-slate-900 font-medium">{{ $volunteer->cargo_texto ?? '-' }}</div>
                                     <div class="text-xs text-slate-500">
-                                        {{ $volunteer->is_shift_leader ? 'Jefe de Guardia' : 'Voluntario' }}
+                                        {{ $volunteer->es_jefe_guardia ? 'Jefe de Guardia' : '-' }}
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-6 py-4 whitespace-nowrap hidden lg:table-cell">
                                     <div class="text-sm text-slate-600 flex flex-col gap-1">
-                                        @if($volunteer->email)
-                                            <span class="flex items-center"><i class="fas fa-envelope text-slate-400 mr-2 w-4"></i> {{ Str::limit($volunteer->email, 20) }}</span>
-                                        @endif
-                                        @if($volunteer->portable_number)
-                                            <span class="flex items-center"><i class="fas fa-walkie-talkie text-slate-400 mr-2 w-4"></i> {{ Str::limit($volunteer->portable_number, 20) }}</span>
+                                        @if($volunteer->numero_portatil)
+                                            <span class="flex items-center"><i class="fas fa-walkie-talkie text-slate-400 mr-2 w-4"></i> {{ Str::limit($volunteer->numero_portatil, 20) }}</span>
                                         @endif
                                     </div>
                                 </td>
-                                <td class="px-6 py-4">
+                                <td class="px-6 py-4 hidden lg:table-cell">
                                     <div class="flex flex-wrap gap-1 max-w-xs">
-                                        @if($volunteer->is_driver)
+                                        @if($volunteer->es_conductor)
                                             <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-100" title="Conductor">
                                                 <i class="fas fa-car mr-1"></i> Cond
                                             </span>
                                         @endif
-                                        @if($volunteer->is_rescue_operator)
+                                        @if($volunteer->es_operador_rescate)
                                             <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-orange-50 text-orange-700 border border-orange-100" title="Operador de Rescate">
                                                 <i class="fas fa-tools mr-1"></i> Resc
                                             </span>
                                         @endif
-                                        @if($volunteer->is_trauma_assistant)
+                                        @if($volunteer->es_asistente_trauma)
                                             <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-50 text-red-700 border border-red-100" title="Asistente de Trauma">
                                                 <i class="fas fa-medkit mr-1"></i> Trauma
                                             </span>
                                         @endif
-                                        @if(!$volunteer->is_driver && !$volunteer->is_rescue_operator && !$volunteer->is_trauma_assistant)
+                                        @if(!$volunteer->es_conductor && !$volunteer->es_operador_rescate && !$volunteer->es_asistente_trauma)
                                             <span class="text-xs text-slate-400 italic">-</span>
                                         @endif
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 hidden md:table-cell">
                                     @if($volunteer->guardia_id)
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                             {{ $volunteer->guardia->name }}
@@ -147,12 +186,12 @@
                                         <span class="text-slate-400 text-xs italic">Sin asignar</span>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <td class="px-3 md:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div class="flex items-center justify-end gap-2">
                                         <a href="{{ route('admin.volunteers.edit', $volunteer->id) }}" class="text-slate-400 hover:text-blue-600 transition-colors p-1" title="Editar">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <form action="{{ route('admin.volunteers.destroy', $volunteer->id) }}" method="POST" onsubmit="return confirm('¿Está seguro de eliminar a {{ $volunteer->name }}? Esta acción no se puede deshacer.');" class="inline">
+                                        <form action="{{ route('admin.volunteers.destroy', $volunteer->id) }}" method="POST" onsubmit="return confirm('¿Está seguro de eliminar a {{ $volunteer->nombres }}? Esta acción no se puede deshacer.');" class="inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="text-slate-400 hover:text-red-600 transition-colors p-1" title="Eliminar">

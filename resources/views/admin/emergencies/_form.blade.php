@@ -1,7 +1,7 @@
 @php
     $selectedUnitIds = old('unit_ids', isset($emergency) ? $emergency->units->pluck('id')->toArray() : []);
     $selectedKeyId = old('emergency_key_id', isset($emergency) ? $emergency->emergency_key_id : null);
-    $selectedOfficerId = old('officer_in_charge_user_id', isset($emergency) ? $emergency->officer_in_charge_user_id : null);
+    $selectedOfficerId = old('officer_in_charge_firefighter_id', isset($emergency) ? ($emergency->officer_in_charge_firefighter_id ?? null) : null);
 
     $shiftLabel = $shift ? ('Turno activo #' . $shift->id . ' • ' . optional($shift->date)->format('d-m-Y')) : 'Sin turno activo detectado';
 @endphp
@@ -82,12 +82,12 @@
 
                     <div>
                         <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">A cargo</label>
-                        <select name="officer_in_charge_user_id"
+                        <select name="officer_in_charge_firefighter_id"
                             class="w-full px-3 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-colors text-slate-700">
                             <option value="" {{ $selectedOfficerId ? '' : 'selected' }}>Sin asignar</option>
                             @foreach($onDutyUsers as $u)
                                 <option value="{{ $u->id }}" {{ (string)$selectedOfficerId === (string)$u->id ? 'selected' : '' }}>
-                                    {{ $u->name }}
+                                    {{ $u->nombres ?? $u->name }} {{ $u->apellido_paterno ?? '' }}
                                 </option>
                             @endforeach
                         </select>
@@ -212,7 +212,7 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const emergencyForm = document.currentScript?.closest('form');
+        const emergencyForm = document.getElementById('emergency-form') || document.currentScript?.closest('form');
         const modalKeys = document.getElementById('modal-keys');
         const modalUnits = document.getElementById('modal-units');
 
@@ -290,14 +290,15 @@
         });
 
         function syncHiddenUnits(ids) {
-            emergencyForm?.querySelectorAll('input.unit-hidden').forEach(el => el.remove());
+            if (!emergencyForm) return;
+            emergencyForm.querySelectorAll('input.unit-hidden').forEach(el => el.remove());
             ids.forEach(id => {
                 const input = document.createElement('input');
                 input.type = 'hidden';
                 input.name = 'unit_ids[]';
                 input.value = id;
                 input.className = 'unit-hidden';
-                emergencyForm?.appendChild(input);
+                emergencyForm.appendChild(input);
             });
         }
 
@@ -330,5 +331,15 @@
             renderUnitChips(ids);
             closeModal(modalUnits);
         });
+
+        emergencyForm?.addEventListener('submit', function () {
+            const ids = Array.from(document.querySelectorAll('.unit-checkbox:checked')).map(cb => cb.value);
+            syncHiddenUnits(ids);
+        });
+
+        if (emergencyForm) {
+            const idsInit = Array.from(emergencyForm.querySelectorAll('input[name="unit_ids[]"]')).map(el => el.value);
+            renderUnitChips(idsInit);
+        }
     });
 </script>

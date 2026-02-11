@@ -249,13 +249,19 @@
                                     {{ optional($e->end_date)->format('d-m-Y H:i') ?? '—' }}
                                 </td>
                                 <td class="px-6 py-3 whitespace-nowrap text-sm text-slate-600">
-                                    {{ $e->user?->guardia?->name ?? 'Sin Asignar' }}
+                                    {{ $e->firefighter?->guardia?->name ?? $e->user?->guardia?->name ?? 'Sin Asignar' }}
                                 </td>
                                 <td class="px-6 py-3 whitespace-nowrap text-sm text-slate-700">
-                                    {{ $e->user?->name }} {{ $e->user?->last_name_paternal }}
+                                    {{ $e->firefighter
+                                        ? trim(($e->firefighter?->nombres ?? '') . ' ' . ($e->firefighter?->apellido_paterno ?? ''))
+                                        : ($e->user?->name ?? '')
+                                    }}
                                 </td>
                                 <td class="px-6 py-3 whitespace-nowrap text-sm text-slate-700">
-                                    {{ $e->replacementUser?->name }} {{ $e->replacementUser?->last_name_paternal }}
+                                    {{ $e->replacementFirefighter
+                                        ? trim(($e->replacementFirefighter?->nombres ?? '') . ' ' . ($e->replacementFirefighter?->apellido_paterno ?? ''))
+                                        : ($e->replacementUser?->name ?? '')
+                                    }}
                                 </td>
                             </tr>
                         @empty
@@ -295,9 +301,9 @@
                                     <div class="space-y-1">
                                         @foreach($items as $d)
                                             <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-md px-2 py-1">
-                                                <div class="text-sm font-bold text-slate-700">{{ $d->name }} {{ $d->last_name_paternal }}</div>
+                                                <div class="text-sm font-bold text-slate-700">{{ $d->nombres }} {{ $d->apellido_paterno }}</div>
                                                 <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                                                    {{ $d->is_titular ? 'TITULAR' : 'NO TITULAR' }}
+                                                    {{ $d->es_titular ? 'TITULAR' : 'NO TITULAR' }}
                                                 </div>
                                             </div>
                                         @endforeach

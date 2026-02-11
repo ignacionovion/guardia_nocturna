@@ -5,9 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\CleaningAssignment;
 use App\Models\CleaningTask;
 use App\Models\Guardia;
+use App\Models\Bombero;
+use App\Models\MapaBomberoUsuarioLegacy;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class CleaningWebController extends Controller
 {
@@ -68,14 +71,13 @@ class CleaningWebController extends Controller
             ->orderByRaw('FIELD(name, ' . implode(',', array_fill(0, count($desiredTasks), '?')) . ')', array_map(fn ($t) => $t['name'], $desiredTasks))
             ->get();
 
-        $users = User::where('guardia_id', $guardiaId)
-            ->where('role', '!=', 'guardia')
-            ->where('attendance_status', 'constituye')
-            ->orderBy('last_name_paternal')
-            ->orderBy('name')
+        $users = Bombero::where('guardia_id', $guardiaId)
+            ->where('estado_asistencia', 'constituye')
+            ->orderBy('apellido_paterno')
+            ->orderBy('nombres')
             ->get();
 
-        $assignments = CleaningAssignment::with(['cleaningTask', 'user'])
+        $assignments = CleaningAssignment::with(['cleaningTask', 'firefighter', 'user'])
             ->whereDate('assigned_date', $date->toDateString())
             ->whereIn('cleaning_task_id', $tasks->pluck('id'))
             ->get();
@@ -100,20 +102,19 @@ class CleaningWebController extends Controller
         $validated = $request->validate([
             'assigned_date' => 'required|date',
             'assignments' => 'required|array',
-            'assignments.*' => 'nullable|exists:users,id',
+            'assignments.*' => 'nullable|exists:bomberos,id',
         ]);
 
         $date = Carbon::parse($validated['assigned_date'])->startOfDay();
 
-        $userIds = collect($validated['assignments'])->filter()->map(fn ($v) => (int) $v)->unique()->values();
-        if ($userIds->isNotEmpty()) {
-            $validUsersCount = User::whereIn('id', $userIds)
+        $firefighterIds = collect($validated['assignments'])->filter()->map(fn ($v) => (int) $v)->unique()->values();
+        if ($firefighterIds->isNotEmpty()) {
+            $validCount = Bombero::whereIn('id', $firefighterIds)
                 ->where('guardia_id', $guardiaId)
-                ->where('role', '!=', 'guardia')
                 ->count();
 
-            if ($validUsersCount !== $userIds->count()) {
-                abort(403, 'No puedes asignar aseo a usuarios de otra guardia.');
+            if ($validCount !== $firefighterIds->count()) {
+                abort(403, 'No puedes asignar aseo a bomberos de otra guardia.');
             }
         }
 
@@ -128,12 +129,21 @@ class CleaningWebController extends Controller
                 continue;
             }
 
-            CleaningAssignment::create([
+            $data = [
                 'cleaning_task_id' => (int) $taskId,
-                'user_id' => (int) $assignedUserId,
+                'firefighter_id' => (int) $assignedUserId,
                 'assigned_date' => $date->toDateString(),
                 'status' => 'pending',
-            ]);
+            ];
+
+            if (Schema::hasColumn('cleaning_assignments', 'user_id')) {
+                $legacyUserId = MapaBomberoUsuarioLegacy::where('firefighter_id', (int) $assignedUserId)->value('user_id');
+                if ($legacyUserId) {
+                    $data['user_id'] = (int) $legacyUserId;
+                }
+            }
+
+            CleaningAssignment::create($data);
         }
 
         return redirect()->route('guardia.aseo', ['date' => $date->toDateString()])->with('success', 'Asignación de aseo guardada correctamente.');

@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Models\Bed;
 
-class BedController extends Controller
+class CamaController extends Controller
 {
     /**
      * Display a listing of the resource.

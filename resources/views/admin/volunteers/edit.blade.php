@@ -6,7 +6,7 @@
         <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
             <div>
                 <h1 class="text-3xl font-bold text-gray-800 tracking-tight">Editar Voluntario</h1>
-                <p class="text-gray-500 mt-1 text-sm">Actualizando información de: <span class="font-semibold text-blue-600">{{ $volunteer->name }} {{ $volunteer->last_name_paternal }}</span></p>
+                <p class="text-gray-500 mt-1 text-sm">Actualizando información de: <span class="font-semibold text-blue-600">{{ $volunteer->nombres }} {{ $volunteer->apellido_paterno }}</span></p>
             </div>
             <a href="{{ route('admin.volunteers.index') }}" class="inline-flex items-center text-gray-600 hover:text-blue-600 font-medium transition-colors bg-white px-4 py-2 rounded-lg border border-gray-200 hover:border-blue-300 shadow-sm">
                 <i class="fas fa-arrow-left mr-2"></i> Volver al listado
@@ -17,7 +17,7 @@
             <!-- Barra superior decorativa -->
             <div class="h-2 bg-red-700"></div>
 
-            <form action="{{ route('admin.volunteers.update', $volunteer->id) }}" method="POST" class="p-8">
+            <form action="{{ route('admin.volunteers.update', $volunteer->id) }}" method="POST" enctype="multipart/form-data" class="p-8">
                 @csrf
                 @method('PUT')
 
@@ -33,17 +33,17 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="md:col-span-3 space-y-2">
                             <label class="text-sm font-bold text-slate-700 uppercase tracking-wide">Nombres <span class="text-red-500">*</span></label>
-                            <input type="text" name="name" value="{{ old('name', $volunteer->name) }}" required
+                            <input type="text" name="nombres" value="{{ old('nombres', $volunteer->nombres) }}" required
                                 class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all">
                         </div>
                         <div class="space-y-2">
                             <label class="text-sm font-bold text-slate-700 uppercase tracking-wide">Apellido Paterno</label>
-                            <input type="text" name="last_name_paternal" value="{{ old('last_name_paternal', $volunteer->last_name_paternal) }}"
+                            <input type="text" name="apellido_paterno" value="{{ old('apellido_paterno', $volunteer->apellido_paterno) }}"
                                 class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all">
                         </div>
                         <div class="space-y-2">
                             <label class="text-sm font-bold text-slate-700 uppercase tracking-wide">Apellido Materno</label>
-                            <input type="text" name="last_name_maternal" value="{{ old('last_name_maternal', $volunteer->last_name_maternal) }}"
+                            <input type="text" name="apellido_materno" value="{{ old('apellido_materno', $volunteer->apellido_materno) }}"
                                 class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all">
                         </div>
                         <div class="space-y-2">
@@ -55,7 +55,7 @@
                             <label class="text-sm font-bold text-slate-700 uppercase tracking-wide">Cargo</label>
                             <div class="relative" id="cargoComboboxEdit">
                                 <div class="relative">
-                                    <input type="text" name="position_text" value="{{ old('position_text', $volunteer->position_text) }}" autocomplete="off" id="cargoInputEdit"
+                                    <input type="text" name="cargo_texto" value="{{ old('cargo_texto', $volunteer->cargo_texto) }}" autocomplete="off" id="cargoInputEdit"
                                         class="w-full px-4 py-2.5 pr-11 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all">
                                     <button type="button" id="cargoToggleEdit" class="absolute inset-y-0 right-0 flex items-center px-3 text-slate-500 hover:text-slate-700">
                                         <i class="fas fa-chevron-down"></i>
@@ -68,18 +68,41 @@
                         </div>
                         <div class="space-y-2">
                             <label class="text-sm font-bold text-slate-700 uppercase tracking-wide">Portátil</label>
-                            <input type="text" name="portable_number" value="{{ old('portable_number', $volunteer->portable_number) }}" placeholder="364 / 37-D"
+                            <input type="text" name="numero_portatil" value="{{ old('numero_portatil', $volunteer->numero_portatil) }}" placeholder="364 / 37-D"
                                 class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all">
                         </div>
                         <div class="space-y-2">
                             <label class="text-sm font-bold text-slate-700 uppercase tracking-wide">Fecha Cumpleaños</label>
-                            <input type="date" name="birthdate" value="{{ old('birthdate', optional($volunteer->birthdate)->format('Y-m-d')) }}"
+                            <input type="date" name="fecha_nacimiento" value="{{ old('fecha_nacimiento', optional($volunteer->fecha_nacimiento)->format('Y-m-d')) }}"
                                 class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all text-slate-600">
                         </div>
                         <div class="md:col-span-3 space-y-2">
                             <label class="text-sm font-bold text-slate-700 uppercase tracking-wide">Email</label>
-                            <input type="email" name="email" value="{{ old('email', $volunteer->email) }}"
+                            <input type="email" name="correo" value="{{ old('correo', $volunteer->correo) }}"
                                 class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all">
+                        </div>
+
+                        <div class="md:col-span-3 space-y-2">
+                            <label class="text-sm font-bold text-slate-700 uppercase tracking-wide">Foto</label>
+                            <div class="flex items-center gap-4">
+                                @if($volunteer->photo_path)
+                                    <img src="{{ asset('storage/'.$volunteer->photo_path) }}" class="w-14 h-14 rounded-full object-cover border border-slate-200" alt="Foto">
+                                @else
+                                    <div class="w-14 h-14 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-bold border border-slate-300 shadow-sm text-sm">
+                                        {{ substr($volunteer->nombres, 0, 1) }}{{ substr($volunteer->apellido_paterno, 0, 1) }}
+                                    </div>
+                                @endif
+
+                                <input type="file" name="photo" accept="image/*"
+                                    class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all">
+                            </div>
+                            @if($volunteer->photo_path)
+                                <button type="submit" form="delete-volunteer-photo-form" onclick="return confirm('¿Eliminar la foto?');" class="mt-2 inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-red-200 bg-red-50 text-red-700 font-bold hover:bg-red-100 text-xs">
+                                    <i class="fas fa-trash-can"></i>
+                                    Eliminar foto
+                                </button>
+                            @endif
+                            @error('photo') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                         </div>
                     </div>
                 </div>
@@ -96,7 +119,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="space-y-2">
                             <label class="text-sm font-bold text-slate-700 uppercase tracking-wide">Fecha Ingreso</label>
-                            <input type="date" name="admission_date" value="{{ old('admission_date', optional($volunteer->admission_date)->format('Y-m-d')) }}" 
+                            <input type="date" name="fecha_ingreso" value="{{ old('fecha_ingreso', optional($volunteer->fecha_ingreso)->format('Y-m-d')) }}" 
                                 class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all text-slate-600">
                         </div>
                         <div class="md:col-span-2 space-y-2">
@@ -114,6 +137,16 @@
                                     <i class="fas fa-chevron-down"></i>
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="md:col-span-3">
+                            <label class="flex items-center gap-3 p-4 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100 transition">
+                                <input type="checkbox" name="fuera_de_servicio" value="1" {{ old('fuera_de_servicio', $volunteer->fuera_de_servicio) ? 'checked' : '' }} class="rounded text-red-600 focus:ring-red-500 h-5 w-5 border-slate-300">
+                                <div class="min-w-0">
+                                    <div class="text-sm font-black text-slate-800 uppercase tracking-wide">Fuera de servicio</div>
+                                    <div class="text-xs text-slate-500">No aparecerá en listas operativas (turno, emergencias, academias, reemplazos, refuerzos).</div>
+                                </div>
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -134,7 +167,7 @@
                             </h4>
                             <div class="space-y-3">
                                 <label class="flex items-center p-3 bg-white border border-slate-200 rounded-lg hover:border-blue-400 cursor-pointer transition-all shadow-sm group">
-                                    <input type="checkbox" name="is_driver" value="1" {{ $volunteer->is_driver ? 'checked' : '' }} class="rounded text-blue-600 focus:ring-blue-500 h-5 w-5 border-slate-300">
+                                    <input type="checkbox" name="es_conductor" value="1" {{ $volunteer->es_conductor ? 'checked' : '' }} class="rounded text-blue-600 focus:ring-blue-500 h-5 w-5 border-slate-300">
                                     <div class="ml-3">
                                         <span class="block text-sm font-bold text-slate-800 group-hover:text-blue-700">Conductor</span>
                                         <span class="block text-xs text-slate-500">Autorizado para conducir máquinas</span>
@@ -142,7 +175,7 @@
                                     <i class="fas fa-truck ml-auto text-blue-500"></i>
                                 </label>
                                 <label class="flex items-center p-3 bg-white border border-slate-200 rounded-lg hover:border-orange-400 cursor-pointer transition-all shadow-sm group">
-                                    <input type="checkbox" name="is_rescue_operator" value="1" {{ $volunteer->is_rescue_operator ? 'checked' : '' }} class="rounded text-orange-600 focus:ring-orange-500 h-5 w-5 border-slate-300">
+                                    <input type="checkbox" name="es_operador_rescate" value="1" {{ $volunteer->es_operador_rescate ? 'checked' : '' }} class="rounded text-orange-600 focus:ring-orange-500 h-5 w-5 border-slate-300">
                                     <div class="ml-3">
                                         <span class="block text-sm font-bold text-slate-800 group-hover:text-orange-700">Operador Rescate</span>
                                         <span class="block text-xs text-slate-500">Especialista en rescate vehicular</span>
@@ -150,7 +183,7 @@
                                     <i class="fas fa-car-crash ml-auto text-orange-500"></i>
                                 </label>
                                 <label class="flex items-center p-3 bg-white border border-slate-200 rounded-lg hover:border-red-400 cursor-pointer transition-all shadow-sm group">
-                                    <input type="checkbox" name="is_trauma_assistant" value="1" {{ $volunteer->is_trauma_assistant ? 'checked' : '' }} class="rounded text-red-600 focus:ring-red-500 h-5 w-5 border-slate-300">
+                                    <input type="checkbox" name="es_asistente_trauma" value="1" {{ $volunteer->es_asistente_trauma ? 'checked' : '' }} class="rounded text-red-600 focus:ring-red-500 h-5 w-5 border-slate-300">
                                     <div class="ml-3">
                                         <span class="block text-sm font-bold text-slate-800 group-hover:text-red-700">Asistente Trauma</span>
                                         <span class="block text-xs text-slate-500">Capacitación prehospitalaria</span>
@@ -171,6 +204,11 @@
                         <i class="fas fa-save mr-2"></i> Actualizar Voluntario
                     </button>
                 </div>
+            </form>
+
+            <form id="delete-volunteer-photo-form" method="POST" action="{{ route('admin.volunteers.photo.destroy', $volunteer->id) }}" class="hidden">
+                @csrf
+                @method('DELETE')
             </form>
         </div>
     </div>

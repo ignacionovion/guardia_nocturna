@@ -30,49 +30,24 @@
                             <label class="block text-slate-700 text-sm font-bold mb-2 uppercase tracking-wide" for="name">
                                 Nombres
                             </label>
-                            <input type="text" name="name" id="name" value="{{ old('name', $bombero->name) }}" required
+                            <input type="text" name="nombres" id="name" value="{{ old('nombres', $bombero->nombres) }}" required
                                 class="w-full border-slate-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 px-4 py-2.5 text-slate-700 bg-slate-50">
-                            @error('name') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                            @error('nombres') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                         </div>
 
                         <div>
                             <label class="block text-slate-700 text-sm font-bold mb-2 uppercase tracking-wide" for="last_name_paternal">
                                 Apellido Paterno
                             </label>
-                            <input type="text" name="last_name_paternal" id="last_name_paternal" value="{{ old('last_name_paternal', $bombero->last_name_paternal) }}"
+                            <input type="text" name="apellido_paterno" id="last_name_paternal" value="{{ old('apellido_paterno', $bombero->apellido_paterno) }}"
                                 class="w-full border-slate-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 px-4 py-2.5 text-slate-700 bg-slate-50">
-                            @error('last_name_paternal') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                            @error('apellido_paterno') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                         </div>
                     </div>
 
                     <!-- Datos Operativos -->
                     <div class="bg-slate-50 p-6 rounded-lg border border-slate-200">
                         <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wide mb-4 border-b border-slate-200 pb-2">Información Operativa</h3>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-                            <!-- Nota: Edad y Años de Servicio ahora son calculados automáticamente, pero si el usuario desea sobreescribirlos o visualizarlos, se pueden mantener. 
-                                 Sin embargo, según el User model, estos ahora se calculan. 
-                                 Para evitar conflictos, mostraremos los campos pero sugeriríamos usar fechas en el perfil completo. 
-                                 Mantendremos la funcionalidad actual por compatibilidad si se usan como override. -->
-                            
-                            <div>
-                                <label class="block text-slate-700 text-sm font-bold mb-2" for="age">
-                                    Edad (Manual)
-                                </label>
-                                <input type="number" name="age" id="age" value="{{ old('age', $bombero->age) }}" required min="18"
-                                    class="w-full border-slate-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 px-3 py-2 text-slate-700">
-                                <p class="text-xs text-slate-400 mt-1">Se recomienda usar fecha de nacimiento en perfil completo.</p>
-                            </div>
-                            <div>
-                                <label class="block text-slate-700 text-sm font-bold mb-2" for="years_of_service">
-                                    Años Servicio (Manual)
-                                </label>
-                                <input type="number" name="years_of_service" id="years_of_service" value="{{ old('years_of_service', $bombero->years_of_service) }}" required min="0"
-                                    class="w-full border-slate-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 px-3 py-2 text-slate-700">
-                                <p class="text-xs text-slate-400 mt-1">Se recomienda usar fecha de ingreso en perfil completo.</p>
-                            </div>
-                        </div>
-
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label class="block text-slate-700 text-sm font-bold mb-2 uppercase tracking-wide" for="guardia_id">
@@ -92,7 +67,7 @@
                     <!-- Especialidades -->
                     <div class="bg-blue-50 p-4 rounded-lg border border-blue-100 flex items-center">
                         <label class="flex items-center cursor-pointer">
-                            <input type="checkbox" name="is_driver" id="is_driver" value="1" {{ $bombero->is_driver ? 'checked' : '' }}
+                            <input type="checkbox" name="es_conductor" id="is_driver" value="1" {{ $bombero->es_conductor ? 'checked' : '' }}
                                 class="rounded border-slate-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 h-5 w-5">
                             <span class="ml-3 font-bold text-slate-700 flex items-center">
                                 <i class="fas fa-truck mr-2 text-blue-500"></i> Habilitado como Conductor

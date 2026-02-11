@@ -35,17 +35,17 @@
                     @csrf
 
                     <div class="mb-5">
-                        <label class="block text-slate-700 text-xs font-bold mb-2 uppercase tracking-wide" for="email">
-                            Correo Electrónico
+                        <label class="block text-slate-700 text-xs font-bold mb-2 uppercase tracking-wide" for="username">
+                            Usuario
                         </label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fas fa-envelope text-slate-400"></i>
+                                <i class="fas fa-user text-slate-400"></i>
                             </div>
-                            <input class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 focus:outline-none focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all @error('email') border-red-500 bg-red-50 @enderror" 
-                                   id="email" type="email" name="email" value="{{ old('email') }}" required autofocus placeholder="nombre@bomberos.cl">
+                            <input class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 focus:outline-none focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all @error('username') border-red-500 bg-red-50 @enderror" 
+                                   id="username" type="text" name="username" value="{{ old('username') }}" required autofocus placeholder="admin">
                         </div>
-                        @error('email')
+                        @error('username')
                             <p class="text-red-600 text-xs mt-1 font-medium flex items-center"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p>
                         @enderror
                     </div>

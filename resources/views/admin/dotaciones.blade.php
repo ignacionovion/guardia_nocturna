@@ -38,7 +38,7 @@
                     <div>
                         <h2 class="text-lg font-black tracking-tight uppercase">{{ $guardia->name }}</h2>
                         <p class="text-slate-400 text-xs mt-1 font-medium flex items-center">
-                            <i class="fas fa-users mr-2 opacity-50"></i> {{ $guardia->users->count() }} Asignados
+                            <i class="fas fa-users mr-2 opacity-50"></i> {{ $guardia->bomberos->count() }} Asignados
                         </p>
                     </div>
                 </div>
@@ -70,28 +70,32 @@
                     <div class="border-t border-slate-100 pt-4">
                         <h3 class="text-xs font-black text-slate-500 uppercase tracking-widest mb-3">Personal asignado</h3>
                         <div class="space-y-2">
-                            @forelse($guardia->users as $user)
+                            @forelse($guardia->bomberos as $user)
                                 <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-lg p-2">
                                     <div>
-                                        <p class="text-sm font-bold text-slate-800">{{ $user->name }} {{ $user->last_name_paternal }}</p>
+                                        <p class="text-sm font-bold text-slate-800">{{ $user->nombres }} {{ $user->apellido_paterno }}</p>
+                                        @if($user->cargo_texto)
+                                            <p class="text-[11px] text-slate-600 font-black uppercase tracking-widest">{{ $user->cargo_texto }}</p>
+                                        @endif
                                         <p class="text-[11px] text-slate-500 font-medium uppercase tracking-wide">
-                                            {{ $user->role == 'jefe_guardia' ? 'Jefe de Guardia' : 'Bombero' }}
-                                            @if($user->jobReplacement)
-                                                <span class="ml-2 text-purple-700">(Reemplazo)</span>
-                                            @endif
+                                            {{ $user->es_jefe_guardia ? 'Jefe de Guardia' : 'Bombero' }}
                                         </p>
                                         <div class="flex gap-1 mt-1">
-                                            @if($user->is_rescue_operator)
+                                            @if($user->es_conductor)
+                                                <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[9px] font-bold border border-blue-200" title="Conductor">
+                                                    <i class="fas fa-car text-[9px]"></i>
+                                                </span>
+                                            @endif
+                                            @if($user->es_operador_rescate)
                                                 <span class="w-5 h-5 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-[9px] font-bold border border-orange-200" title="Operador de Rescate">R</span>
                                             @endif
-                                            @if($user->is_trauma_assistant)
+                                            @if($user->es_asistente_trauma)
                                                 <span class="w-5 h-5 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-[9px] font-bold border border-red-200" title="Asistente de Trauma">T</span>
                                             @endif
                                         </div>
                                     </div>
                                     <form action="{{ route('admin.guardias.unassign') }}" method="POST" onsubmit="return confirm('¿Quitar a este voluntario de la guardia?');">
                                         @csrf
-                                        @method('DELETE')
                                         <input type="hidden" name="guardia_id" value="{{ $guardia->id }}">
                                         <input type="hidden" name="firefighter_id" value="{{ $user->id }}">
                                         <button type="submit" class="text-slate-400 hover:text-red-600 p-2 rounded-md hover:bg-white transition-all" title="Quitar de guardia">
@@ -123,11 +127,10 @@
             $dotacionesVolunteers = $volunteers->map(function ($v) {
                 return [
                     'id' => $v->id,
-                    'name' => $v->name,
-                    'last_name_paternal' => $v->last_name_paternal,
-                    'last_name_maternal' => $v->last_name_maternal,
+                    'nombres' => $v->nombres,
+                    'apellido_paterno' => $v->apellido_paterno,
+                    'apellido_materno' => $v->apellido_materno,
                     'rut' => $v->rut,
-                    'company' => $v->company,
                 ];
             })->values();
         @endphp
@@ -136,11 +139,10 @@
 
         const DOTACIONES_VOLUNTEERS_INDEX = DOTACIONES_VOLUNTEERS.map(v => {
             const label = [
-                v.last_name_paternal,
-                v.last_name_maternal,
-                v.name,
+                v.apellido_paterno,
+                v.apellido_materno,
+                v.nombres,
                 v.rut,
-                v.company,
             ].filter(Boolean).join(' ');
 
             return {
@@ -151,9 +153,9 @@
         });
 
         function formatVolunteerLabel(v) {
-            const last = [v.last_name_paternal, v.last_name_maternal].filter(Boolean).join(' ');
-            const main = [last, v.name].filter(Boolean).join(', ');
-            const extra = [v.company ? '(' + v.company + ')' : null, v.rut ? '- ' + v.rut : null].filter(Boolean).join(' ');
+            const last = [v.apellido_paterno, v.apellido_materno].filter(Boolean).join(' ');
+            const main = [last, v.nombres].filter(Boolean).join(', ');
+            const extra = [v.rut ? '- ' + v.rut : null].filter(Boolean).join(' ');
             return (main + (extra ? ' ' + extra : '')).trim();
         }
 
@@ -173,7 +175,7 @@
 
         function setSelectedVolunteer(guardiaId, volunteer) {
             const input = document.querySelector('[data-dotaciones-volunteer-input][data-guardia-id="' + guardiaId + '"]');
-            const hiddenInput = document.getElementById('user_id_input_' + guardiaId);
+            const hiddenInput = document.getElementById('firefighter_id_input_' + guardiaId);
             const dropdown = document.getElementById('volunteer_dropdown_' + guardiaId);
             if (!input || !hiddenInput || !dropdown) return;
 
@@ -224,7 +226,7 @@
 
         function attachDotacionesAutocomplete(input) {
             const guardiaId = input.getAttribute('data-guardia-id');
-            const hiddenInput = document.getElementById('user_id_input_' + guardiaId);
+            const hiddenInput = document.getElementById('firefighter_id_input_' + guardiaId);
             const dropdown = document.getElementById('volunteer_dropdown_' + guardiaId);
             if (!guardiaId || !hiddenInput || !dropdown) return;
 
@@ -283,7 +285,7 @@
             const guardiaId = guardiaIdInput ? guardiaIdInput.value : null;
             if (!guardiaId) return true;
 
-            const hiddenInput = document.getElementById('user_id_input_' + guardiaId);
+            const hiddenInput = document.getElementById('firefighter_id_input_' + guardiaId);
             const displayInput = form.querySelector('[data-dotaciones-volunteer-input][data-guardia-id="' + guardiaId + '"]');
 
             if (!hiddenInput || !displayInput) {

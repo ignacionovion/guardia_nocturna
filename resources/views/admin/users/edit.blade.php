@@ -42,6 +42,19 @@
                     </div>
 
                     <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Rol del sistema (opcional)</label>
+                        <select name="role_id"
+                            class="w-full px-4 py-3 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-colors text-gray-700">
+                            <option value="" {{ old('role_id', $user->role_id) ? '' : 'selected' }}>Sin asignar</option>
+                            @foreach(($roles ?? collect()) as $r)
+                                <option value="{{ $r->id }}" {{ (string)old('role_id', $user->role_id) === (string)$r->id ? 'selected' : '' }}>
+                                    {{ $r->name }} ({{ $r->slug }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
                         <label class="block text-sm font-semibold text-slate-700 mb-2">Guardia (opcional)</label>
                         <select name="guardia_id"
                             class="w-full px-4 py-3 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-colors text-gray-700">

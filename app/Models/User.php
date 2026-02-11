@@ -19,10 +19,12 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'username',
         'email',
         'password',
         'birthdate',
         'role',
+        'role_id',
         'age',
         'years_of_service',
         'guardia_id',
@@ -164,6 +166,11 @@ class User extends Authenticatable
     public function guardia()
     {
         return $this->belongsTo(Guardia::class);
+    }
+
+    public function roleEntity()
+    {
+        return $this->belongsTo(Role::class, 'role_id');
     }
 
     public function bedAssignments()

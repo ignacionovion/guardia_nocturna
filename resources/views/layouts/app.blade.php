@@ -41,7 +41,70 @@
                         <a href="{{ route('admin.dotaciones') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('admin.dotaciones*') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
                             <i class="fas fa-users-gear mr-1.5 opacity-70"></i> Mi Dotación
                         </a>
-                    @elseif(in_array(Auth::user()->role, ['super_admin', 'capitania'], true))
+                    @elseif(Auth::user()->role === 'super_admin')
+                        <a href="{{ route('dashboard') }}" class="px-3 py-2 rounded-md text-sm font-black uppercase tracking-widest transition-colors {{ request()->routeIs('dashboard') ? 'bg-red-900/50 text-red-100 shadow-inner' : 'text-slate-300 hover:bg-red-900/30 hover:text-red-100' }}">
+                            <i class="fas fa-home mr-1.5 opacity-70"></i> Inicio
+                        </a>
+                        <div class="h-6 w-px bg-slate-700 mx-2"></div>
+
+                        <div class="relative group">
+                            <button type="button" class="px-3 py-2 rounded-md text-sm font-black uppercase tracking-widest transition-colors text-slate-300 hover:bg-red-900/30 hover:text-red-100">
+                                Gestión
+                                <i class="fas fa-chevron-down ml-1 text-[10px] opacity-70"></i>
+                            </button>
+                            <div class="hidden group-hover:block absolute left-0 top-full w-56 bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden">
+                                <div class="h-2"></div>
+                                <a href="{{ route('admin.volunteers.index') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                                    <i class="fas fa-users mr-2 text-slate-500"></i> Voluntarios
+                                </a>
+                                <a href="{{ route('admin.emergencies.index') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                                    <i class="fas fa-truck-medical mr-2 text-slate-500"></i> Emergencias
+                                </a>
+                                <a href="{{ route('camas') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                                    <i class="fas fa-bed mr-2 text-slate-500"></i> Camas
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="relative group">
+                            <button type="button" class="px-3 py-2 rounded-md text-sm font-black uppercase tracking-widest transition-colors text-slate-300 hover:bg-red-900/30 hover:text-red-100">
+                                Guardias
+                                <i class="fas fa-chevron-down ml-1 text-[10px] opacity-70"></i>
+                            </button>
+                            <div class="hidden group-hover:block absolute left-0 top-full w-56 bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden">
+                                <div class="h-2"></div>
+                                <a href="{{ route('admin.guardias') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                                    <i class="fas fa-shield mr-2 text-slate-500"></i> Guardias
+                                </a>
+                                <a href="{{ route('admin.dotaciones') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                                    <i class="fas fa-users-gear mr-2 text-slate-500"></i> Dotaciones
+                                </a>
+                                <a href="{{ route('admin.calendario') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                                    <i class="fas fa-calendar-alt mr-2 text-slate-500"></i> Calendario
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="relative group">
+                            <button type="button" class="px-3 py-2 rounded-md text-sm font-black uppercase tracking-widest transition-colors text-slate-300 hover:bg-red-900/30 hover:text-red-100">
+                                Administración
+                                <i class="fas fa-chevron-down ml-1 text-[10px] opacity-70"></i>
+                            </button>
+                            <div class="hidden group-hover:block absolute left-0 top-full w-64 bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden">
+                                <div class="h-2"></div>
+                                <a href="{{ route('admin.system.index') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                                    <i class="fas fa-shield mr-2 text-slate-500"></i> Administración del Sistema
+                                </a>
+                                <a href="{{ route('admin.users.index') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                                    <i class="fas fa-user-shield mr-2 text-slate-500"></i> Usuarios
+                                </a>
+                            </div>
+                        </div>
+
+                        <a href="{{ route('admin.reports.index') }}" class="px-3 py-2 rounded-md text-sm font-black uppercase tracking-widest transition-colors {{ request()->routeIs('admin.reports*') ? 'bg-red-900/50 text-red-100 shadow-inner' : 'text-slate-300 hover:bg-red-900/30 hover:text-red-100' }}">
+                            <i class="fas fa-chart-pie mr-1.5 text-red-400"></i> Reportes
+                        </a>
+                    @elseif(Auth::user()->role === 'capitania')
                         <a href="{{ route('dashboard') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('dashboard') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
                             <i class="fas fa-home mr-1.5 opacity-70"></i> Inicio
                         </a>
@@ -50,7 +113,7 @@
                         </a>
                     @endif
                     
-                    @if(in_array(Auth::user()->role, ['super_admin', 'capitania'], true))
+                    @if(in_array(Auth::user()->role, ['super_admin', 'capitania'], true) && Auth::user()->role !== 'super_admin')
                         <div class="h-6 w-px bg-slate-700 mx-2"></div>
                         
                         <a href="{{ route('admin.guardias') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('admin.guardias*') ? 'bg-red-900/50 text-red-100 shadow-inner' : 'text-slate-300 hover:bg-red-900/30 hover:text-red-100' }}">

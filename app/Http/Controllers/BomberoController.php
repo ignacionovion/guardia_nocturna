@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Firefighter;
+use App\Models\Bombero;
 use App\Models\Guardia;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 
-class VolunteerController extends Controller
+class BomberoController extends Controller
 {
     public function index(Request $request)
     {
@@ -16,26 +18,26 @@ class VolunteerController extends Controller
             abort(403, 'No autorizado.');
         }
 
-        $query = Firefighter::query()->with('guardia');
+        $query = Bombero::query()->with('guardia');
 
         if ($request->has('search')) {
             $search = $request->get('search');
             $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
+                $q->where('nombres', 'like', "%{$search}%")
+                  ->orWhere('correo', 'like', "%{$search}%")
                   ->orWhere('rut', 'like', "%{$search}%")
-                  ->orWhere('last_name_paternal', 'like', "%{$search}%");
+                  ->orWhere('apellido_paterno', 'like', "%{$search}%");
             });
         }
 
-        $volunteers = $query->orderBy('name')->paginate(20);
+        $volunteers = $query->orderBy('nombres')->paginate(20);
 
         return view('admin.volunteers.index', compact('volunteers'));
     }
 
     public function create()
     {
-        if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
+        if (auth()->user()->role !== 'super_admin') {
             abort(403, 'No autorizado.');
         }
         $guardias = Guardia::all();
@@ -44,39 +46,46 @@ class VolunteerController extends Controller
 
     public function store(Request $request)
     {
-        if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
+        if (auth()->user()->role !== 'super_admin') {
             abort(403, 'No autorizado.');
         }
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'last_name_paternal' => 'nullable|string|max:255',
-            'last_name_maternal' => 'nullable|string|max:255',
-            'rut' => 'nullable|string|unique:firefighters,rut',
-            'email' => 'nullable|email',
-            'birthdate' => 'nullable|date',
-            'position_text' => 'nullable|string|max:255',
-            'portable_number' => 'nullable|string|max:255',
+            'nombres' => 'required|string|max:255',
+            'apellido_paterno' => 'nullable|string|max:255',
+            'apellido_materno' => 'nullable|string|max:255',
+            'rut' => 'nullable|string|unique:bomberos,rut',
+            'correo' => 'nullable|email',
+            'photo' => 'nullable|image|max:2048',
+            'fecha_nacimiento' => 'nullable|date',
+            'cargo_texto' => 'nullable|string|max:255',
+            'numero_portatil' => 'nullable|string|max:255',
             'guardia_id' => 'nullable|exists:guardias,id',
-            'admission_date' => 'nullable|date',
-            'is_driver' => 'nullable|boolean',
-            'is_rescue_operator' => 'nullable|boolean',
-            'is_trauma_assistant' => 'nullable|boolean',
+            'fecha_ingreso' => 'nullable|date',
+            'es_conductor' => 'nullable|boolean',
+            'es_operador_rescate' => 'nullable|boolean',
+            'es_asistente_trauma' => 'nullable|boolean',
+            'fuera_de_servicio' => 'nullable|boolean',
         ]);
 
         $data = $validated;
-        $data['email'] = $request->input('email') ?: null;
-        $data['is_driver'] = $request->has('is_driver');
-        $data['is_rescue_operator'] = $request->has('is_rescue_operator');
-        $data['is_trauma_assistant'] = $request->has('is_trauma_assistant');
-        $data['portable_number'] = $request->input('portable_number') ?: null;
-        $data['attendance_status'] = 'constituye';
-        $data['is_titular'] = true;
-        $data['is_shift_leader'] = false;
-        $data['is_exchange'] = false;
-        $data['is_penalty'] = false;
+        $data['correo'] = $request->input('correo') ?: null;
+        $data['es_conductor'] = $request->has('es_conductor');
+        $data['es_operador_rescate'] = $request->has('es_operador_rescate');
+        $data['es_asistente_trauma'] = $request->has('es_asistente_trauma');
+        $data['fuera_de_servicio'] = $request->has('fuera_de_servicio');
+        $data['numero_portatil'] = $request->input('numero_portatil') ?: null;
+        $data['estado_asistencia'] = 'constituye';
+        $data['es_titular'] = true;
+        $data['es_jefe_guardia'] = false;
+        $data['es_cambio'] = false;
+        $data['es_sancion'] = false;
 
-        Firefighter::create($data);
+        if ($request->hasFile('photo')) {
+            $data['photo_path'] = $request->file('photo')->store('bomberos', 'public');
+        }
+
+        Bombero::create($data);
 
         return redirect()->route('admin.volunteers.index')->with('success', 'Voluntario creado exitosamente.');
     }
@@ -86,7 +95,7 @@ class VolunteerController extends Controller
         if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
-        $volunteer = Firefighter::findOrFail($id);
+        $volunteer = Bombero::findOrFail($id);
         $guardias = Guardia::all();
         return view('admin.volunteers.edit', compact('volunteer', 'guardias'));
     }
@@ -96,40 +105,52 @@ class VolunteerController extends Controller
         if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
-        $volunteer = Firefighter::findOrFail($id);
+        $volunteer = Bombero::findOrFail($id);
         
         $request->validate([
-            'name' => 'required|string|max:255',
-            'rut' => 'nullable|string|unique:firefighters,rut,'.$id,
-            'email' => 'nullable|email',
-            'birthdate' => 'nullable|date',
-            'position_text' => 'nullable|string|max:255',
-            'portable_number' => 'nullable|string|max:255',
-            'admission_date' => 'nullable|date',
+            'nombres' => 'required|string|max:255',
+            'rut' => 'nullable|string|unique:bomberos,rut,'.$id,
+            'correo' => 'nullable|email',
+            'photo' => 'nullable|image|max:2048',
+            'fecha_nacimiento' => 'nullable|date',
+            'cargo_texto' => 'nullable|string|max:255',
+            'numero_portatil' => 'nullable|string|max:255',
+            'fecha_ingreso' => 'nullable|date',
             'guardia_id' => 'nullable|exists:guardias,id',
+            'fuera_de_servicio' => 'nullable|boolean',
         ]);
 
         $data = $request->only([
-            'name',
-            'last_name_paternal',
-            'last_name_maternal',
+            'nombres',
+            'apellido_paterno',
+            'apellido_materno',
             'rut',
-            'email',
-            'birthdate',
-            'position_text',
-            'portable_number',
+            'correo',
+            'fecha_nacimiento',
+            'cargo_texto',
+            'numero_portatil',
             'guardia_id',
-            'admission_date',
+            'fecha_ingreso',
+            'fuera_de_servicio',
         ]);
 
-        $data['is_driver'] = $request->has('is_driver');
-        $data['is_rescue_operator'] = $request->has('is_rescue_operator');
-        $data['is_trauma_assistant'] = $request->has('is_trauma_assistant');
+        $data['es_conductor'] = $request->has('es_conductor');
+        $data['es_operador_rescate'] = $request->has('es_operador_rescate');
+        $data['es_asistente_trauma'] = $request->has('es_asistente_trauma');
+        $data['fuera_de_servicio'] = $request->has('fuera_de_servicio');
 
-        $data['portable_number'] = $request->input('portable_number') ?: null;
+        $data['numero_portatil'] = $request->input('numero_portatil') ?: null;
 
-        if (empty($data['email'])) {
-            $data['email'] = null;
+        if (empty($data['correo'])) {
+            $data['correo'] = null;
+        }
+
+        if ($request->hasFile('photo')) {
+            $newPath = $request->file('photo')->store('bomberos', 'public');
+            if ($volunteer->photo_path) {
+                Storage::disk('public')->delete($volunteer->photo_path);
+            }
+            $data['photo_path'] = $newPath;
         }
 
         $volunteer->update($data);
@@ -139,36 +160,53 @@ class VolunteerController extends Controller
 
     public function destroy($id)
     {
-        if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
+        if (auth()->user()->role !== 'super_admin') {
             abort(403, 'No autorizado.');
         }
-        $volunteer = Firefighter::findOrFail($id);
+        $volunteer = Bombero::findOrFail($id);
         $volunteer->delete();
         return redirect()->route('admin.volunteers.index')->with('success', 'Voluntario eliminado exitosamente.');
     }
 
-    public function bulkDestroy(Request $request)
+    public function destroyPhoto(Bombero $volunteer)
     {
         if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
 
+        if ($volunteer->photo_path) {
+            Storage::disk('public')->delete($volunteer->photo_path);
+        }
+
+        $volunteer->update([
+            'photo_path' => null,
+        ]);
+
+        return redirect()->back()->with('success', 'Foto eliminada correctamente.');
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        if (auth()->user()->role !== 'super_admin') {
+            abort(403, 'No autorizado.');
+        }
+
         $request->validate([
             'ids' => 'required|array',
-            'ids.*' => 'exists:firefighters,id',
+            'ids.*' => 'exists:bomberos,id',
         ]);
 
         $ids = $request->input('ids');
         $count = count($ids);
 
-        Firefighter::whereIn('id', $ids)->delete();
+        Bombero::whereIn('id', $ids)->delete();
 
         return redirect()->route('admin.volunteers.index')->with('success', "Se han eliminado $count voluntarios correctamente.");
     }
 
     public function importForm()
     {
-        if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
+        if (auth()->user()->role !== 'super_admin') {
             abort(403, 'No autorizado.');
         }
         return view('admin.volunteers.import');
@@ -176,7 +214,7 @@ class VolunteerController extends Controller
 
     public function uploadImport(Request $request)
     {
-        if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
+        if (auth()->user()->role !== 'super_admin') {
             return response()->json(['error' => 'No autorizado'], 403);
         }
 
@@ -239,7 +277,7 @@ class VolunteerController extends Controller
 
     public function processImport(Request $request)
     {
-        if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
+        if (auth()->user()->role !== 'super_admin') {
             return response()->json(['error' => 'No autorizado'], 403);
         }
 
@@ -269,7 +307,7 @@ class VolunteerController extends Controller
 
             if (!$rut) continue;
 
-            $existsQuery = Firefighter::query()->where('rut', $rut);
+            $existsQuery = Bombero::query()->where('rut', $rut);
             
             if ($existsQuery->exists()) continue;
 
@@ -277,6 +315,15 @@ class VolunteerController extends Controller
                 $val = function($idx) use ($row) {
                     return isset($row[$idx]) ? trim($row[$idx]) : null;
                 };
+
+                $nombres = $val(0);
+                $apellidoPaterno = $val(1);
+                $apellidoMaterno = $val(2);
+
+                if (!$nombres) {
+                    $errors[] = "Fila " . ($offset + $index + 2) . ": Falta 'nombres'";
+                    continue;
+                }
 
                 $admissionDate = null;
                 $rawDate = $val(8);
@@ -305,25 +352,25 @@ class VolunteerController extends Controller
                 $portable = $val(5);
                 $email = $val(12);
 
-                Firefighter::create([
-                    'name' => $val(0),
-                    'last_name_paternal' => $val(1),
-                    'last_name_maternal' => $val(2),
+                Bombero::create([
+                    'nombres' => $nombres,
+                    'apellido_paterno' => $apellidoPaterno,
+                    'apellido_materno' => $apellidoMaterno,
                     'rut' => $val(3),
-                    'position_text' => $cargo,
-                    'portable_number' => $portable ?: null,
-                    'birthdate' => $birthdate,
+                    'cargo_texto' => $cargo,
+                    'numero_portatil' => $portable ?: null,
+                    'fecha_nacimiento' => $birthdate,
                     'guardia_id' => $val(7) ?: null,
-                    'admission_date' => $admissionDate,
-                    'email' => $email ?: null,
-                    'is_driver' => $parseBool($val(9)),
-                    'is_rescue_operator' => $parseBool($val(10)),
-                    'is_trauma_assistant' => $parseBool($val(11)),
-                    'attendance_status' => 'constituye',
-                    'is_titular' => true,
-                    'is_shift_leader' => false,
-                    'is_exchange' => false,
-                    'is_penalty' => false,
+                    'fecha_ingreso' => $admissionDate,
+                    'correo' => $email ?: null,
+                    'es_conductor' => $parseBool($val(9)),
+                    'es_operador_rescate' => $parseBool($val(10)),
+                    'es_asistente_trauma' => $parseBool($val(11)),
+                    'estado_asistencia' => 'constituye',
+                    'es_titular' => true,
+                    'es_jefe_guardia' => false,
+                    'es_cambio' => false,
+                    'es_sancion' => false,
                 ]);
                 $processed++;
             } catch (\Exception $e) {
@@ -424,9 +471,9 @@ class VolunteerController extends Controller
             // Limpieza básica
             if ($email) $email = strtolower($email);
 
-            $existsQuery = Firefighter::query();
+            $existsQuery = Bombero::query();
             if ($email) {
-                $existsQuery->where('email', $email);
+                $existsQuery->where('correo', $email);
             }
             if ($rut) {
                 $existsQuery->orWhere('rut', $rut);
@@ -443,6 +490,12 @@ class VolunteerController extends Controller
                     return isset($row[$idx]) ? trim($row[$idx]) : null;
                 };
 
+                $nombres = $val(0);
+                if (!$nombres) {
+                    $errors[] = "Fila " . ($index + 2) . ": Falta 'nombres'";
+                    continue;
+                }
+
                 // Parsear fecha de ingreso si existe
                 $admissionDate = null;
                 $rawDate = $val(10);
@@ -455,24 +508,24 @@ class VolunteerController extends Controller
                     }
                 }
 
-                Firefighter::create([
-                    'name' => $val(0),
-                    'last_name_paternal' => $val(1),
-                    'last_name_maternal' => $val(2),
+                Bombero::create([
+                    'nombres' => $nombres,
+                    'apellido_paterno' => $val(1),
+                    'apellido_materno' => $val(2),
                     'rut' => $val(3),
-                    'registration_number' => $val(4),
-                    'portable_number' => $val(5),
-                    'position_text' => $val(6),
-                    'email' => $email ?: null,
-                    'address_street' => $val(8),
-                    'address_number' => $val(9),
-                    'admission_date' => $admissionDate,
+                    'numero_registro' => $val(4),
+                    'numero_portatil' => $val(5),
+                    'cargo_texto' => $val(6),
+                    'correo' => $email ?: null,
+                    'direccion_calle' => $val(8),
+                    'direccion_numero' => $val(9),
+                    'fecha_ingreso' => $admissionDate,
 
-                    'attendance_status' => 'constituye',
-                    'is_titular' => true,
-                    'is_shift_leader' => false,
-                    'is_exchange' => false,
-                    'is_penalty' => false,
+                    'estado_asistencia' => 'constituye',
+                    'es_titular' => true,
+                    'es_jefe_guardia' => false,
+                    'es_cambio' => false,
+                    'es_sancion' => false,
                 ]);
                 $count++;
             } catch (\Exception $e) {

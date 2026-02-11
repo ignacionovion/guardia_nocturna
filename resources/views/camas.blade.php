@@ -57,11 +57,11 @@
                                 <div class="bg-red-50/50 rounded-lg p-3 border border-red-100">
                                     <div class="flex items-center gap-3">
                                         <div class="w-8 h-8 rounded-lg bg-white border border-red-100 text-red-600 flex items-center justify-center font-bold text-xs shadow-sm">
-                                            {{ substr($bed->currentAssignment->user->name, 0, 1) }}{{ substr($bed->currentAssignment->user->last_name_paternal, 0, 1) }}
+                                            {{ substr($bed->currentAssignment->firefighter?->nombres ?? '', 0, 1) }}{{ substr($bed->currentAssignment->firefighter?->apellido_paterno ?? '', 0, 1) }}
                                         </div>
                                         <div class="overflow-hidden">
                                             <p class="text-[10px] font-bold text-red-400 uppercase tracking-wide mb-0.5">Ocupante</p>
-                                            <p class="font-bold text-slate-800 text-sm truncate leading-tight">{{ $bed->currentAssignment->user->name }} {{ $bed->currentAssignment->user->last_name_paternal }}</p>
+                                            <p class="font-bold text-slate-800 text-sm truncate leading-tight">{{ $bed->currentAssignment->firefighter?->nombres }} {{ $bed->currentAssignment->firefighter?->apellido_paterno }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -177,10 +177,10 @@
                         <label class="block text-slate-700 text-xs font-bold mb-2 uppercase tracking-wide">Voluntario</label>
                         <div class="relative">
                             <i class="fas fa-user absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                            <select name="user_id" class="w-full pl-9 pr-4 py-2.5 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-slate-50 transition-colors cursor-pointer hover:bg-white" required>
+                            <select name="firefighter_id" class="w-full pl-9 pr-4 py-2.5 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-slate-50 transition-colors cursor-pointer hover:bg-white" required>
                                 <option value="">Seleccione voluntario...</option>
                                 @foreach($users as $user)
-                                    <option value="{{ $user->id }}">{{ $user->name }} {{ $user->last_name_paternal }}</option>
+                                    <option value="{{ $user->id }}">{{ $user->nombres }} {{ $user->apellido_paterno }}</option>
                                 @endforeach
                             </select>
                         </div>

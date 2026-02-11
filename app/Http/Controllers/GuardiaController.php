@@ -5,12 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Shift;
 use App\Models\ShiftUser;
-use App\Models\User;
+use App\Models\Bombero;
 use App\Models\Guardia;
-use App\Services\ReplacementService;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
+use App\Models\MapaBomberoUsuarioLegacy;
+use App\Services\ReplacementService;
+use Carbon\Carbon;
 
 class GuardiaController extends Controller
 {
@@ -33,20 +34,18 @@ class GuardiaController extends Controller
             return;
         }
 
-        $transitorios = User::where('guardia_id', $guardia->id)
-            ->where('is_titular', false)
+        $transitorios = Bombero::where('guardia_id', $guardia->id)
+            ->where('es_titular', false)
             ->where('updated_at', '<', $cutoff)
             ->get();
 
-        foreach ($transitorios as $user) {
-            $user->update([
+        foreach ($transitorios as $bombero) {
+            $bombero->update([
                 'guardia_id' => null,
-                'job_replacement_id' => null,
-                'attendance_status' => 'constituye',
-                'is_shift_leader' => false,
-                'is_exchange' => false,
-                'is_penalty' => false,
-                'role' => ($user->role === 'jefe_guardia') ? 'bombero' : $user->role,
+                'estado_asistencia' => 'constituye',
+                'es_jefe_guardia' => false,
+                'es_cambio' => false,
+                'es_sancion' => false,
             ]);
         }
     }
@@ -58,7 +57,7 @@ class GuardiaController extends Controller
 
         ReplacementService::expire($now);
         
-        $query = Shift::with(['leader', 'users.user', 'users.replacedUser'])
+        $query = Shift::with(['leader', 'users.firefighter', 'users.replacedFirefighter'])
             ->where('status', 'active');
 
         // Si el usuario pertenece a una guardia (es cuenta de guardia o bombero), 
@@ -82,25 +81,20 @@ class GuardiaController extends Controller
             );
         }
             
-        // Filtrar lista de voluntarios para agregar:
-        // 1. Excluir rol 'guardia' (cuentas de sistema)
-        // 2. Si el usuario logueado tiene guardia_id, mostrar solo voluntarios de esa guardia
-        $usersQuery = User::where('role', '!=', 'guardia');
-        
+        $bomberosQuery = Bombero::query();
+
         if ($user->guardia_id) {
-            $usersQuery->where('guardia_id', $user->guardia_id);
+            $bomberosQuery->where('guardia_id', $user->guardia_id);
         }
 
-        $usersQuery->where(function ($q) use ($now) {
-            $q->whereNull('replacement_until')
-              ->orWhere('replacement_until', '>', $now);
-        });
-        
-        $users = $usersQuery->orderBy('name')->get();
+        $users = $bomberosQuery
+            ->orderBy('nombres')
+            ->orderBy('apellido_paterno')
+            ->get();
         
         // Usuarios actualmente en guardia para excluir del select si se desea, 
         // o para mostrar en el select de reemplazo.
-        $currentGuardiaUsers = $shift ? $shift->users->pluck('user_id')->toArray() : [];
+        $currentGuardiaUsers = $shift ? $shift->users->pluck('firefighter_id')->filter()->toArray() : [];
         
         return view('guardia', compact('shift', 'users', 'currentGuardiaUsers'));
     }
@@ -152,22 +146,28 @@ class GuardiaController extends Controller
     public function addUser(Request $request, $id)
     {
         $request->validate([
-            'user_id' => 'required|exists:users,id',
+            'firefighter_id' => 'required|exists:bomberos,id',
             'assignment_type' => 'required|string',
-            'replaced_user_id' => 'nullable|required_if:assignment_type,Reemplazo|exists:users,id',
+            'replaced_firefighter_id' => 'nullable|required_if:assignment_type,Reemplazo|exists:bomberos,id',
         ]);
 
         $exists = ShiftUser::where('shift_id', $id)
-            ->where('user_id', $request->user_id)
+            ->where('firefighter_id', $request->firefighter_id)
             ->whereNull('end_time')
             ->exists();
 
         if ($exists) {
-            return back()->withErrors(['user_id' => 'El voluntario ya está activo en esta guardia.']);
+            return back()->withErrors(['firefighter_id' => 'El voluntario ya está activo en esta guardia.']);
         }
 
         $shift = Shift::with('leader')->findOrFail($id);
-        $user = User::findOrFail($request->user_id);
+        $bombero = Bombero::findOrFail($request->firefighter_id);
+
+        $legacyUserId = MapaBomberoUsuarioLegacy::where('firefighter_id', $bombero->id)->value('user_id');
+        $legacyReplacedUserId = null;
+        if (!empty($request->replaced_firefighter_id)) {
+            $legacyReplacedUserId = MapaBomberoUsuarioLegacy::where('firefighter_id', (int) $request->replaced_firefighter_id)->value('user_id');
+        }
 
         $attendanceStatus = 'constituye';
         if ($request->assignment_type === 'Reemplazo') {
@@ -179,15 +179,17 @@ class GuardiaController extends Controller
 
         $shiftUserPayload = [
             'shift_id' => $id,
-            'user_id' => $user->id,
+            'user_id' => $legacyUserId,
+            'firefighter_id' => $bombero->id,
             'assignment_type' => $request->assignment_type,
-            'replaced_user_id' => $request->replaced_user_id,
+            'replaced_user_id' => $legacyReplacedUserId,
+            'replaced_firefighter_id' => $request->replaced_firefighter_id,
             'start_time' => now(),
             'present' => $request->assignment_type !== 'Cumple falta', // Asumo que cumple falta es no presente físicamente o algo así, pero lo dejaré true por defecto salvo que sea falta explícita
         ];
 
         if (Schema::hasColumn('shift_users', 'guardia_id')) {
-            $shiftUserPayload['guardia_id'] = $shift->leader?->guardia_id ?? Auth::user()?->guardia_id ?? $user->guardia_id;
+            $shiftUserPayload['guardia_id'] = $shift->leader?->guardia_id ?? Auth::user()?->guardia_id ?? $bombero->guardia_id;
         }
 
         if (Schema::hasColumn('shift_users', 'attendance_status')) {
@@ -202,7 +204,7 @@ class GuardiaController extends Controller
     public function removeUser(Request $request, $shiftId, $userId)
     {
         $shiftUser = ShiftUser::where('shift_id', $shiftId)
-            ->where('user_id', $userId)
+            ->where('firefighter_id', $userId)
             ->whereNull('end_time')
             ->firstOrFail();
 

@@ -17,11 +17,13 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->command('guardia:run-calendar')->everyMinute();
         $schedule->command('guardia:reset-beds')->everyMinute();
         $schedule->command('guardia:generate-notifications')->everyMinute();
+        $schedule->command('guardia:daily-cleanup')->everyMinute();
     })
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->appendToGroup('web', \App\Http\Middleware\ExpireReplacements::class);
         $middleware->alias([
             'super_admin' => \App\Http\Middleware\EnsureSuperAdmin::class,
+            'emergency_access' => \App\Http\Middleware\EnsureEmergencyAccess::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

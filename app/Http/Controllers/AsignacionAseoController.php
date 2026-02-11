@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Models\CleaningAssignment;
 
-class CleaningAssignmentController extends Controller
+class AsignacionAseoController extends Controller
 {
     /**
      * Display a listing of the resource.

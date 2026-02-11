@@ -5,8 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Models\Novelty;
+use App\Models\MapaBomberoUsuarioLegacy;
 
-class NoveltyController extends Controller
+class NovedadController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -27,13 +28,24 @@ class NoveltyController extends Controller
             'description' => 'required|string',
             'type' => 'nullable|string',
             'user_id' => 'nullable|exists:users,id',
+            'firefighter_id' => 'nullable|exists:bomberos,id',
             'date' => 'nullable|date',
         ]);
 
         try {
             $novelty = new Novelty($validated);
             if (($validated['type'] ?? null) === 'Academia') {
-                $novelty->user_id = $validated['user_id'] ?? auth()->id();
+                $userId = $validated['user_id'] ?? null;
+                $firefighterId = $validated['firefighter_id'] ?? null;
+
+                if (!$userId && $firefighterId) {
+                    $userId = MapaBomberoUsuarioLegacy::where('firefighter_id', (int) $firefighterId)->value('user_id');
+                }
+
+                $novelty->user_id = $userId ?: auth()->id();
+                if ($firefighterId) {
+                    $novelty->firefighter_id = (int) $firefighterId;
+                }
                 $novelty->date = isset($validated['date']) ? \Carbon\Carbon::parse($validated['date']) : now();
             } else {
                 $novelty->user_id = auth()->id();

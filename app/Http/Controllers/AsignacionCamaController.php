@@ -6,15 +6,17 @@ use Illuminate\Http\Request;
 
 use App\Models\Bed;
 use App\Models\BedAssignment;
+use App\Models\MapaBomberoUsuarioLegacy;
+use Illuminate\Support\Facades\Schema;
 
-class BedAssignmentController extends Controller
+class AsignacionCamaController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $assignments = BedAssignment::with(['bed', 'user'])->latest()->paginate(20);
+        $assignments = BedAssignment::with(['bed', 'firefighter', 'user'])->latest()->paginate(20);
         return response()->json($assignments);
     }
 
@@ -25,7 +27,7 @@ class BedAssignmentController extends Controller
     {
         $validated = $request->validate([
             'bed_id' => 'required|exists:beds,id',
-            'user_id' => 'required|exists:users,id',
+            'firefighter_id' => 'required|exists:bomberos,id',
             'notes' => 'nullable|string',
         ]);
 
@@ -36,16 +38,38 @@ class BedAssignmentController extends Controller
         }
 
         // Validación: Verificar si el usuario ya tiene una cama asignada
-        $existingAssignment = BedAssignment::where('user_id', $validated['user_id'])
-                                           ->whereNull('released_at')
-                                           ->first();
+        $existingAssignment = BedAssignment::where(function ($q) use ($validated) {
+                $q->where('firefighter_id', $validated['firefighter_id']);
+
+                if (Schema::hasColumn('bed_assignments', 'user_id')) {
+                    $legacyUserId = MapaBomberoUsuarioLegacy::where('firefighter_id', $validated['firefighter_id'])->value('user_id');
+                    if ($legacyUserId) {
+                        $q->orWhere('user_id', $legacyUserId);
+                    }
+                }
+            })
+            ->whereNull('released_at')
+            ->first();
 
         if ($existingAssignment) {
             return back()->withErrors(['msg' => 'Este voluntario ya tiene asignada la cama #' . $existingAssignment->bed->number]);
         }
 
+        $data = [
+            'bed_id' => $validated['bed_id'],
+            'firefighter_id' => $validated['firefighter_id'],
+            'notes' => $validated['notes'] ?? null,
+        ];
+
+        if (Schema::hasColumn('bed_assignments', 'user_id')) {
+            $legacyUserId = MapaBomberoUsuarioLegacy::where('firefighter_id', $validated['firefighter_id'])->value('user_id');
+            if ($legacyUserId) {
+                $data['user_id'] = $legacyUserId;
+            }
+        }
+
         // Crear asignación
-        $assignment = BedAssignment::create($validated);
+        $assignment = BedAssignment::create($data);
 
         // Actualizar estado de la cama
         $bed->update(['status' => 'occupied']);
@@ -58,7 +82,7 @@ class BedAssignmentController extends Controller
      */
     public function show(string $id)
     {
-        $assignment = BedAssignment::with(['bed', 'user'])->findOrFail($id);
+        $assignment = BedAssignment::with(['bed', 'firefighter', 'user'])->findOrFail($id);
         return response()->json($assignment);
     }
 

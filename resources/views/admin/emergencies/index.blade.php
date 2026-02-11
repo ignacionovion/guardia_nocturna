@@ -8,12 +8,14 @@
         </div>
 
         <div class="flex flex-wrap gap-3 items-center">
-            <a href="{{ route('admin.emergency-keys.index') }}" class="inline-flex items-center bg-slate-700 hover:bg-slate-800 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200">
-                <i class="fas fa-key mr-2"></i> Claves
-            </a>
-            <a href="{{ route('admin.emergency-units.index') }}" class="inline-flex items-center bg-slate-700 hover:bg-slate-800 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200">
-                <i class="fas fa-truck mr-2"></i> Unidades
-            </a>
+            @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'capitania'], true))
+                <a href="{{ route('admin.emergency-keys.index') }}" class="inline-flex items-center bg-slate-700 hover:bg-slate-800 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200">
+                    <i class="fas fa-key mr-2"></i> Claves
+                </a>
+                <a href="{{ route('admin.emergency-units.index') }}" class="inline-flex items-center bg-slate-700 hover:bg-slate-800 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200">
+                    <i class="fas fa-truck mr-2"></i> Unidades
+                </a>
+            @endif
             <a href="{{ route('admin.emergencies.create') }}" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200 transform hover:-translate-y-0.5">
                 <i class="fas fa-plus mr-2"></i> Nueva Emergencia
             </a>
@@ -94,8 +96,8 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 align-top">
-                                    @if($emergency->officerInCharge)
-                                        <div class="text-sm font-medium text-slate-900">{{ $emergency->officerInCharge->name }}</div>
+                                    @if($emergency->officerInChargeFirefighter || $emergency->officerInCharge)
+                                        <div class="text-sm font-medium text-slate-900">{{ $emergency->officerInChargeFirefighter?->nombres ?? $emergency->officerInCharge?->name }} {{ $emergency->officerInChargeFirefighter?->apellido_paterno ?? '' }}</div>
                                         <div class="text-xs text-slate-500">{{ $emergency->guardia?->name ?? '-' }}</div>
                                     @else
                                         <span class="text-xs text-slate-400 italic">-</span>

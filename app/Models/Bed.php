@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use App\Models\BedAssignment;
+
 class Bed extends Model
 {
     protected $fillable = ['number', 'status', 'description'];

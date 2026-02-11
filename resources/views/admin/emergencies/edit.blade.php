@@ -12,7 +12,7 @@
             </a>
         </div>
 
-        <form method="POST" action="{{ route('admin.emergencies.update', $emergency->id) }}">
+        <form id="emergency-form" method="POST" action="{{ route('admin.emergencies.update', $emergency->id) }}">
             @csrf
             @method('PUT')
             @include('admin.emergencies._form', ['emergency' => $emergency])
