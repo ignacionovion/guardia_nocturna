@@ -9,12 +9,13 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use Shuchkin\SimpleXLSX;
 
 class BomberoController extends Controller
 {
     public function index(Request $request)
     {
-        if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
+        if (!auth()->check() || !in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
 
@@ -37,7 +38,7 @@ class BomberoController extends Controller
 
     public function create()
     {
-        if (auth()->user()->role !== 'super_admin') {
+        if (!auth()->check() || auth()->user()->role !== 'super_admin') {
             abort(403, 'No autorizado.');
         }
         $guardias = Guardia::all();
@@ -46,7 +47,7 @@ class BomberoController extends Controller
 
     public function store(Request $request)
     {
-        if (auth()->user()->role !== 'super_admin') {
+        if (!auth()->check() || auth()->user()->role !== 'super_admin') {
             abort(403, 'No autorizado.');
         }
 
@@ -209,7 +210,7 @@ class BomberoController extends Controller
 
     public function importForm()
     {
-        if (auth()->user()->role !== 'super_admin') {
+        if (!auth()->check() || auth()->user()->role !== 'super_admin') {
             abort(403, 'No autorizado.');
         }
         return view('admin.volunteers.import');
@@ -217,7 +218,7 @@ class BomberoController extends Controller
 
     public function uploadImport(Request $request)
     {
-        if (auth()->user()->role !== 'super_admin') {
+        if (!auth()->check() || auth()->user()->role !== 'super_admin') {
             return response()->json(['error' => 'No autorizado'], 403);
         }
 
@@ -236,24 +237,22 @@ class BomberoController extends Controller
                 $data = array_map('str_getcsv', file($path));
             } elseif (strtolower($extension) === 'xlsx') {
                 $tempPath = storage_path('app/temp_import_' . uniqid() . '.xlsx');
-                move_uploaded_file($path, $tempPath);
-                
-                $scriptPath = base_path('app/Scripts/excel_to_json.py');
-                $command = "python3 " . escapeshellarg($scriptPath) . " " . escapeshellarg($tempPath);
-                $output = shell_exec($command);
-                
+
+                $uploaded = $request->file('file');
+                $uploaded->move(dirname($tempPath), basename($tempPath));
+
+                $xlsx = SimpleXLSX::parse($tempPath);
+                if (!$xlsx) {
+                    if (file_exists($tempPath)) {
+                        unlink($tempPath);
+                    }
+                    return response()->json(['error' => 'Error leyendo Excel.'], 400);
+                }
+
+                $data = $xlsx->rows();
+
                 if (file_exists($tempPath)) {
                     unlink($tempPath);
-                }
-                
-                $jsonData = json_decode($output, true);
-                
-                if (isset($jsonData['error'])) {
-                    return response()->json(['error' => 'Error leyendo Excel: ' . $jsonData['error']], 400);
-                }
-                
-                if (is_array($jsonData)) {
-                    $data = $jsonData;
                 }
             }
         } catch (\Exception $e) {
@@ -397,7 +396,7 @@ class BomberoController extends Controller
     public function import(Request $request)
     {
         // ... (Mantener método original como fallback o eliminar si se desea reemplazar totalmente)
-        if (auth()->user()->role !== 'super_admin') {
+        if (!auth()->check() || auth()->user()->role !== 'super_admin') {
             abort(403, 'No autorizado.');
         }
 
@@ -414,28 +413,23 @@ class BomberoController extends Controller
         if (in_array(strtolower($extension), ['csv', 'txt'])) {
             $data = array_map('str_getcsv', file($path));
         } elseif (strtolower($extension) === 'xlsx') {
-            // Guardar temporalmente con extensión correcta para que openpyxl no falle
             $tempPath = storage_path('app/temp_import_' . uniqid() . '.xlsx');
-            move_uploaded_file($path, $tempPath);
-            
-            // Usar script python para leer xlsx
-            $scriptPath = base_path('app/Scripts/excel_to_json.py');
-            $command = "python3 " . escapeshellarg($scriptPath) . " " . escapeshellarg($tempPath);
-            $output = shell_exec($command);
-            
-            // Eliminar archivo temporal
+
+            $uploaded = $request->file('file');
+            $uploaded->move(dirname($tempPath), basename($tempPath));
+
+            $xlsx = SimpleXLSX::parse($tempPath);
+            if (!$xlsx) {
+                if (file_exists($tempPath)) {
+                    unlink($tempPath);
+                }
+                return back()->withErrors(['file' => 'Error leyendo Excel.']);
+            }
+
+            $data = $xlsx->rows();
+
             if (file_exists($tempPath)) {
                 unlink($tempPath);
-            }
-            
-            $jsonData = json_decode($output, true);
-            
-            if (isset($jsonData['error'])) {
-                return back()->withErrors(['file' => 'Error leyendo Excel: ' . $jsonData['error']]);
-            }
-            
-            if (is_array($jsonData)) {
-                $data = $jsonData;
             }
         }
 
