@@ -66,7 +66,7 @@
             ];
         @endphp
         <!-- VISTA ESPECÍFICA PARA CUENTA DE GUARDIA (FULLSCREEN TARJETAS) -->
-        <div class="w-full min-h-[calc(100vh-4rem)] px-4 md:px-6 lg:px-8 py-4 bg-slate-950 text-slate-100">
+        <div class="w-full min-h-screen px-4 md:px-6 lg:px-8 py-4 bg-slate-900 text-slate-100">
             <div class="flex items-center justify-between mb-5 gap-4 border-b border-slate-800 pb-4">
                 <div class="flex items-center gap-3 min-w-0">
                     <div class="bg-red-700 p-2 rounded-lg text-white shadow-lg border border-red-600 shrink-0">
@@ -102,29 +102,30 @@
                     <div class="flex items-center gap-3">
                         <form method="POST" action="{{ route('admin.guardias.replacements.cleanup', $myGuardia->id) }}" class="hidden md:block" onsubmit="return confirm('¿Cerrar todos los reemplazos activos de la guardia?');">
                             @csrf
-                            <button type="submit" class="w-10 h-10 bg-slate-900 hover:bg-slate-800 text-slate-100 rounded-xl border border-slate-800 shadow-sm flex items-center justify-center" title="Limpiar Reemplazos">
+                            <button type="submit" class="w-10 h-10 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center" title="Limpiar Reemplazos">
                                 <i class="fas fa-rotate-left text-[14px] text-purple-300"></i>
                             </button>
                         </form>
-                        <a href="{{ route('guardia.aseo') }}" class="w-10 h-10 bg-slate-950 hover:bg-black text-white rounded-xl border border-slate-800 shadow-md flex items-center justify-center" title="Asignación de Aseo">
+                        <button type="button" onclick="toggleFullscreen()" class="w-10 h-10 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center" title="Pantalla completa">
+                            <i class="fas fa-expand text-[14px] text-slate-200"></i>
+                        </button>
+                        <a href="{{ route('guardia.aseo') }}" class="w-10 h-10 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center" title="Asignación de Aseo">
                             <i class="fas fa-broom text-[14px] text-red-300"></i>
                         </a>
-                        <a href="{{ route('admin.emergencies.index') }}" class="w-10 h-10 bg-slate-900 hover:bg-slate-800 text-slate-100 rounded-xl border border-slate-800 shadow-sm flex items-center justify-center" title="Emergencias">
-                            <i class="fas fa-truck-medical text-[14px]"></i>
+                        <a href="{{ route('admin.emergencies.index') }}" class="w-10 h-10 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center" title="Emergencias">
+                            <i class="fas fa-truck-medical text-[14px] text-amber-300"></i>
                         </a>
-                        <button type="button" onclick="openRefuerzoModal()" class="w-10 h-10 bg-slate-900 hover:bg-slate-800 text-slate-100 rounded-xl border border-slate-800 shadow-sm flex items-center justify-center" title="Refuerzo">
-                            <i class="fas fa-user-plus text-[14px]"></i>
+                        <button type="button" onclick="openRefuerzoModal()" class="w-10 h-10 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center" title="Refuerzo">
+                            <i class="fas fa-user-plus text-[14px] text-sky-300"></i>
                         </button>
-                        <button form="guardia-attendance-form" type="submit" @if(!$attendanceEnabled) disabled @endif class="w-10 h-10 {{ $attendanceEnabled ? 'bg-slate-950 hover:bg-black text-white border-slate-800 shadow-md hover:shadow-lg' : 'bg-slate-200 text-slate-500 border-slate-300 shadow-sm cursor-not-allowed' }} rounded-xl transition-all border flex items-center justify-center" title="Guardar Asistencia">
-                            <i class="fas fa-floppy-disk text-[14px]"></i>
+                        <button form="guardia-attendance-form" type="submit" @if(!$attendanceEnabled) disabled @endif class="w-10 h-10 {{ $attendanceEnabled ? 'bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700 shadow-sm' : 'bg-slate-200 text-slate-500 border-slate-300 shadow-sm cursor-not-allowed' }} rounded-xl transition-all border flex items-center justify-center" title="Guardar Asistencia">
+                            <i class="fas fa-floppy-disk text-[14px] {{ $attendanceEnabled ? 'text-emerald-300' : '' }}"></i>
                         </button>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-3 shrink-0">
-                    @if(!$attendanceEnabled)
-                        <span id="attendance-saved-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-amber-200 bg-amber-50 text-amber-800 shrink-0">HABILITADO DESDE LAS {{ $attendanceEnableTime }} HASTA LAS {{ $attendanceDisableTime }}</span>
-                    @elseif(isset($hasAttendanceSavedToday) && $hasAttendanceSavedToday)
+                    @if(isset($hasAttendanceSavedToday) && $hasAttendanceSavedToday)
                         <span id="attendance-saved-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 shrink-0">GUARDIA CONSTITUIDA</span>
                     @else
                         <span id="attendance-saved-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-red-200 bg-red-50 text-red-700 shrink-0">SIN REGISTRAR ASISTENCIA</span>
@@ -132,15 +133,16 @@
 
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="w-10 h-10 bg-slate-900 hover:bg-slate-800 text-slate-100 rounded-xl border border-slate-800 shadow-sm flex items-center justify-center" title="Cerrar sesión">
-                            <i class="fas fa-right-from-bracket text-[14px]"></i>
+                        <button type="submit" class="h-10 px-3 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center gap-2" title="Cerrar sesión">
+                            <i class="fas fa-right-from-bracket text-[14px] text-rose-300"></i>
+                            <span class="hidden sm:inline text-[10px] font-black uppercase tracking-widest">Salir</span>
                         </button>
                     </form>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-4">
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 md:p-5 shadow-sm">
+                <div class="bg-slate-800 border border-slate-700 rounded-xl p-4 md:p-5 shadow-sm">
                     <form id="guardia-attendance-form" method="POST" action="{{ route('admin.guardias.bulk_update', $myGuardia->id) }}">
                         @csrf
 
@@ -212,6 +214,22 @@
                                             </div>
                                             <div class="text-[10px] font-black text-slate-500 uppercase tracking-widest truncate">
                                                 {{ $staff->cargo_texto ?: ($staff->es_jefe_guardia ? 'Jefe de Guardia' : 'Bombero') }}
+                                            </div>
+
+                                            @php
+                                                $ingreso = $staff->fecha_ingreso ? \Carbon\Carbon::parse($staff->fecha_ingreso) : null;
+                                                $diff = $ingreso ? $ingreso->diff(now()) : null;
+                                                $serviceYears = $diff ? (int) $diff->y : 0;
+                                                $serviceMonths = $diff ? (int) $diff->m : 0;
+                                                $yearsLabel = $serviceYears . ' ' . ($serviceYears === 1 ? 'año' : 'años');
+                                                $monthsLabel = $serviceMonths . ' ' . ($serviceMonths === 1 ? 'm' : 'm');
+                                                $serviceLabel = $diff ? trim($yearsLabel . ' ' . $monthsLabel) : '—';
+                                            @endphp
+                                            <div class="mt-1 text-[10px] font-black text-slate-400 uppercase tracking-widest truncate" title="Antigüedad">
+                                                {{ $serviceLabel }}
+                                            </div>
+                                            <div class="mt-0.5 text-[10px] font-black text-slate-400 uppercase tracking-widest truncate" title="Móvil">
+                                                Móvil: {{ $staff->numero_portatil ?: '—' }}
                                             </div>
                                             @if($staff->es_refuerzo)
                                                 <div class="mt-1.5 text-[10px] font-black uppercase tracking-widest text-emerald-200 bg-emerald-500/15 border border-emerald-500/25 rounded-md px-2 py-1 w-fit">
@@ -346,12 +364,17 @@
                 </div>
 
                 <div class="space-y-4">
-                    <div class="bg-slate-900 rounded-2xl shadow-sm border border-slate-800 overflow-hidden">
+                    <div class="bg-slate-800 rounded-2xl shadow-sm border border-slate-700 overflow-hidden">
                         <div class="flex items-center justify-between px-5 py-4 border-b border-slate-800 bg-slate-950">
                             <div class="text-sm font-black text-slate-200 uppercase tracking-widest">Hora Local</div>
                             <div class="text-xs font-black text-red-600 uppercase tracking-widest">EN LÍNEA</div>
                         </div>
                         <div class="p-5">
+                            @if(!$attendanceEnabled)
+                                <div class="flex justify-end mb-3">
+                                    <span class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-amber-300/30 bg-amber-500/10 text-amber-200">HABILITADO DESDE LAS {{ $attendanceEnableTime }} HASTA LAS {{ $attendanceDisableTime }}</span>
+                                </div>
+                            @endif
                             <div class="bg-slate-900 text-white px-5 py-3 rounded-lg shadow-lg border-2 border-slate-700 flex items-center justify-center">
                                 <span id="digital-clock" class="text-2xl md:text-3xl font-mono font-bold tracking-widest text-white drop-shadow-md">--:--:--</span>
                             </div>
@@ -364,11 +387,14 @@
                             <div class="text-xs font-black text-slate-400">{{ mb_strtoupper(\Carbon\Carbon::now()->locale('es')->translatedFormat('F'), 'UTF-8') }}</div>
                         </div>
                         <div class="p-5">
-                            @if($birthdays->isEmpty())
-                                <div class="text-sm text-slate-400">Sin cumpleaños.</div>
+                            @php
+                                $birthdaysList = $birthdaysThisMonth ?? $birthdays;
+                            @endphp
+                            @if($birthdaysList->isEmpty())
+                                <div class="text-sm text-slate-400">Sin cumpleaños este mes.</div>
                             @else
                                 <div class="space-y-4">
-                                    @foreach($birthdays->take(5) as $user)
+                                    @foreach($birthdaysList->take(5) as $user)
                                         <div class="flex items-center justify-between gap-3">
                                             <div class="min-w-0">
                                                 <div class="text-sm font-black text-slate-100 truncate">{{ $user->nombres }} {{ $user->apellido_paterno }}</div>
@@ -577,14 +603,17 @@
                 <span class="text-xs font-bold px-2 py-1 rounded {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-800 text-slate-200' : 'bg-slate-200 text-slate-600' }}">{{ date('F') }}</span>
             </div>
             <div class="p-4">
-                @if($birthdays->isEmpty())
+                @php
+                    $birthdaysList = $birthdaysThisMonth ?? $birthdays;
+                @endphp
+                @if($birthdaysList->isEmpty())
                     <div class="text-center py-8 {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-400' : 'text-slate-400' }}">
                         <i class="fas fa-calendar-xmark text-4xl mb-3 opacity-50"></i>
                         <p>No hay cumpleaños registrados para este mes.</p>
                     </div>
                 @else
                     <ul class="space-y-3 max-h-[320px] overflow-auto pr-1">
-                        @foreach($birthdays->take(5) as $user)
+                        @foreach($birthdaysList->take(5) as $user)
                             <li class="flex items-center justify-between p-3 rounded-lg border border-transparent transition-all {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'hover:bg-slate-950 hover:border-slate-800' : 'hover:bg-slate-50 hover:border-slate-100' }}">
                                 <div class="flex items-center gap-3">
                                     @if($user->photo_path)
@@ -778,7 +807,7 @@
                             <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Voluntario</label>
                             <div class="relative">
                                 <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                                <input list="refuerzo_volunteers_list" name="firefighter_id_display" required
+                                <input list="refuerzo_volunteers_list" name="firefighter_id_display" required autocomplete="off"
                                     class="w-full pl-9 pr-3 py-3 border border-slate-800 bg-slate-950 text-slate-100 rounded-lg focus:ring-2 focus:ring-slate-700 focus:border-slate-500"
                                     placeholder="Buscar por nombre o RUT..." oninput="updateRefuerzoUserId(this)">
                                 <input type="hidden" name="firefighter_id" id="refuerzo_firefighter_id" required>
@@ -864,19 +893,29 @@
             if (modal) modal.classList.add('hidden');
         }
 
+        function syncDatalistHiddenId(displayInput, datalistEl, hiddenInput) {
+            if (!displayInput || !datalistEl || !hiddenInput) return;
+
+            const displayValue = (displayInput.value || '').trim();
+            hiddenInput.value = '';
+
+            if (!displayValue) return;
+
+            const options = datalistEl.options;
+            for (let i = 0; i < options.length; i++) {
+                if ((options[i].value || '').trim() === displayValue) {
+                    hiddenInput.value = options[i].getAttribute('data-value') || '';
+                    break;
+                }
+            }
+        }
+
         window.updateRefuerzoUserId = function(input) {
             const list = document.getElementById('refuerzo_volunteers_list');
             const hiddenInput = document.getElementById('refuerzo_firefighter_id');
             if (!list || !hiddenInput) return;
 
-            hiddenInput.value = '';
-            const options = list.options;
-            for (let i = 0; i < options.length; i++) {
-                if (options[i].value === input.value) {
-                    hiddenInput.value = options[i].getAttribute('data-value');
-                    break;
-                }
-            }
+            syncDatalistHiddenId(input, list, hiddenInput);
         }
 
         window.removeRefuerzo = function(guardiaId, firefighterId) {
@@ -1005,16 +1044,51 @@
             const hiddenInput = document.getElementById('modal_replacement_firefighter_id');
             if (!list || !hiddenInput) return;
 
-            const options = list.options;
-            hiddenInput.value = '';
+            syncDatalistHiddenId(input, list, hiddenInput);
+        }
 
-            for (let i = 0; i <options.length; i++) {
-                if (options[i].value === input.value) {
-                    hiddenInput.value = options[i].getAttribute('data-value') || '';
-                    break;
+        document.addEventListener('DOMContentLoaded', function() {
+            const refuerzoDisplay = document.querySelector('input[list="refuerzo_volunteers_list"]');
+            const refuerzoList = document.getElementById('refuerzo_volunteers_list');
+            const refuerzoHidden = document.getElementById('refuerzo_firefighter_id');
+
+            if (refuerzoDisplay && refuerzoList && refuerzoHidden) {
+                ['change', 'blur'].forEach(evt => {
+                    refuerzoDisplay.addEventListener(evt, () => syncDatalistHiddenId(refuerzoDisplay, refuerzoList, refuerzoHidden));
+                });
+
+                const refuerzoForm = refuerzoDisplay.closest('form');
+                if (refuerzoForm) {
+                    refuerzoForm.addEventListener('submit', (e) => {
+                        syncDatalistHiddenId(refuerzoDisplay, refuerzoList, refuerzoHidden);
+                        if ((refuerzoHidden.value || '').trim() === '') {
+                            e.preventDefault();
+                            alert('Debes seleccionar un voluntario de la lista.');
+                        }
+                    });
                 }
             }
-        }
+
+            const replDisplay = document.querySelector('#replacementModal input[list="modal_volunteers_list"]');
+            const replList = document.getElementById('modal_volunteers_list');
+            const replHidden = document.getElementById('modal_replacement_firefighter_id');
+            if (replDisplay && replList && replHidden) {
+                ['change', 'blur'].forEach(evt => {
+                    replDisplay.addEventListener(evt, () => syncDatalistHiddenId(replDisplay, replList, replHidden));
+                });
+
+                const replForm = replDisplay.closest('form');
+                if (replForm) {
+                    replForm.addEventListener('submit', (e) => {
+                        syncDatalistHiddenId(replDisplay, replList, replHidden);
+                        if ((replHidden.value || '').trim() === '') {
+                            e.preventDefault();
+                            alert('Debes seleccionar un voluntario de la lista.');
+                        }
+                    });
+                }
+            }
+        });
 
         document.addEventListener('click', function(event) {
             const btn = event.target.closest('[data-open-replacement="1"]');
@@ -1206,7 +1280,7 @@
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Voluntario Reemplazante</label>
                             <div class="relative">
                                 <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                                <input list="modal_volunteers_list" name="replacement_firefighter_id_display"
+                                <input list="modal_volunteers_list" name="replacement_firefighter_id_display" autocomplete="off"
                                 class="w-full text-sm border-slate-800 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-slate-700 pl-9 py-2.5 bg-slate-950 text-slate-100 placeholder:text-slate-500"
                                 placeholder="Buscar voluntario..." required
                                 oninput="updateModalReplacementUserId(this)">
@@ -1232,4 +1306,18 @@
             </div>
         </div>
     @endif
+
+    <script>
+        function toggleFullscreen() {
+            try {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen();
+                } else {
+                    document.exitFullscreen();
+                }
+            } catch (e) {
+                // No-op
+            }
+        }
+    </script>
 @endsection

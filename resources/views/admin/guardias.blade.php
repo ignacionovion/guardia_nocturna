@@ -9,6 +9,10 @@
             <p class="text-slate-500 mt-1 font-medium">Gestión de equipos</p>
         </div>
 
+        <button type="button" onclick="toggleFullscreen()" class="inline-flex items-center justify-center w-11 h-11 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 shadow-sm transition" title="Pantalla completa">
+            <i class="fas fa-expand"></i>
+        </button>
+
         <!-- Formulario Crear Guardia -->
         @if(auth()->user()->role === 'super_admin')
             <form action="{{ route('admin.guardias.store') }}" method="POST" class="flex gap-2 w-full md:w-auto">
@@ -44,7 +48,7 @@
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Voluntario</label>
                         <div class="relative">
                             <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                            <input list="modal_refuerzo_volunteers_list" name="firefighter_id_display"
+                            <input list="modal_refuerzo_volunteers_list" name="firefighter_id_display" autocomplete="off"
                                 class="w-full text-sm border-slate-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 pl-9 py-2.5 bg-slate-50"
                                 placeholder="Buscar voluntario..." required
                                 oninput="updateModalRefuerzoId(this)">
@@ -202,6 +206,24 @@
                                                     {{ $user->cargo_texto }}
                                                 </span>
                                             @endif
+
+                                            <div class="flex flex-col items-center gap-0.5">
+                                                @php
+                                                    $ingreso = $user->fecha_ingreso ? \Carbon\Carbon::parse($user->fecha_ingreso) : null;
+                                                    $diff = $ingreso ? $ingreso->diff(now()) : null;
+                                                    $serviceYears = $diff ? (int) $diff->y : 0;
+                                                    $serviceMonths = $diff ? (int) $diff->m : 0;
+                                                    $yearsLabel = $serviceYears . ' ' . ($serviceYears === 1 ? 'a' : 'a');
+                                                    $monthsLabel = $serviceMonths . ' ' . ($serviceMonths === 1 ? 'm' : 'm');
+                                                    $serviceLabel = $diff ? trim($yearsLabel . ' ' . $monthsLabel) : '—';
+                                                @endphp
+                                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                                    {{ $serviceLabel }}
+                                                </span>
+                                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                                    Móvil: {{ $user->numero_portatil ? $user->numero_portatil : '—' }}
+                                                </span>
+                                            </div>
 
                                             <!-- Replacements Status Text -->
                                             @if($repAsReplacement)
@@ -380,7 +402,7 @@
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Voluntario Reemplazante</label>
                         <div class="relative">
                             <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                            <input list="modal_volunteers_list" name="replacement_firefighter_id_display" 
+                            <input list="modal_volunteers_list" name="replacement_firefighter_id_display" autocomplete="off"
                                 class="w-full text-sm border-slate-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 pl-9 py-2.5 bg-slate-50"
                                 placeholder="Buscar voluntario..." required
                                 oninput="updateModalUserId(this)">
@@ -539,9 +561,11 @@
             const options = list.options;
             
             hiddenInput.value = '';
+            const displayValue = (input.value || '').trim();
+            if (!displayValue) return;
             
             for (let i = 0; i < options.length; i++) {
-                if (options[i].value === input.value) {
+                if ((options[i].value || '').trim() === displayValue) {
                     hiddenInput.value = options[i].getAttribute('data-value');
                     break;
                 }
@@ -590,8 +614,10 @@
             const options = list.options;
 
             hiddenInput.value = '';
+            const displayValue = (input.value || '').trim();
+            if (!displayValue) return;
             for (let i = 0; i < options.length; i++) {
-                if (options[i].value === input.value) {
+                if ((options[i].value || '').trim() === displayValue) {
                     hiddenInput.value = options[i].getAttribute('data-value');
                     break;
                 }
@@ -650,6 +676,47 @@
                 });
             });
 
+            const modalReplacementDisplay = document.querySelector('#replacementModal input[list="modal_volunteers_list"]');
+            const modalReplacementList = document.getElementById('modal_volunteers_list');
+            const modalReplacementHidden = document.getElementById('modal_replacement_user_id');
+
+            if (modalReplacementDisplay && modalReplacementList && modalReplacementHidden) {
+                ['change', 'blur'].forEach(evt => {
+                    modalReplacementDisplay.addEventListener(evt, () => updateModalUserId(modalReplacementDisplay));
+                });
+
+                const form = modalReplacementDisplay.closest('form');
+                if (form) {
+                    form.addEventListener('submit', (e) => {
+                        updateModalUserId(modalReplacementDisplay);
+                        if ((modalReplacementHidden.value || '').trim() === '') {
+                            e.preventDefault();
+                            alert('Debes seleccionar un voluntario de la lista.');
+                        }
+                    });
+                }
+            }
+
+            const modalRefuerzoDisplay = document.querySelector('#refuerzoModal input[list="modal_refuerzo_volunteers_list"]');
+            const modalRefuerzoHidden = document.getElementById('modal_refuerzo_firefighter_id');
+            const modalRefuerzoList = document.getElementById('modal_refuerzo_volunteers_list');
+            if (modalRefuerzoDisplay && modalRefuerzoHidden && modalRefuerzoList) {
+                ['change', 'blur'].forEach(evt => {
+                    modalRefuerzoDisplay.addEventListener(evt, () => updateModalRefuerzoId(modalRefuerzoDisplay));
+                });
+
+                const form = modalRefuerzoDisplay.closest('form');
+                if (form) {
+                    form.addEventListener('submit', (e) => {
+                        updateModalRefuerzoId(modalRefuerzoDisplay);
+                        if ((modalRefuerzoHidden.value || '').trim() === '') {
+                            e.preventDefault();
+                            alert('Debes seleccionar un voluntario de la lista.');
+                        }
+                    });
+                }
+            }
+
             document.addEventListener('click', function (event) {
                 const target = event.target;
                 const isAttendanceBtn = target.closest && target.closest('[id^="attendance-btn-"]');
@@ -659,5 +726,19 @@
                 }
             });
         });
+    </div>
+
+    <script>
+        function toggleFullscreen() {
+            try {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen();
+                } else {
+                    document.exitFullscreen();
+                }
+            } catch (e) {
+                // No-op
+            }
+        }
     </script>
 @endsection

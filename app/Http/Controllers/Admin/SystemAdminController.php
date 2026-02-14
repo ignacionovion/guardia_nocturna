@@ -34,6 +34,15 @@ class SystemAdminController extends Controller
             'guardia_week_transition_time' => SystemSetting::getValue('guardia_week_transition_time', '18:00'),
             'guardia_week_cleanup_time' => SystemSetting::getValue('guardia_week_cleanup_time', '18:00'),
             'guardia_schedule_tz' => SystemSetting::getValue('guardia_schedule_tz', env('GUARDIA_SCHEDULE_TZ', config('app.timezone'))),
+
+            'mail_from_address' => SystemSetting::getValue('mail_from_address', 'app@germaniatemuco.cl'),
+            'mail_from_name' => SystemSetting::getValue('mail_from_name', config('app.name', 'AppGuardia')),
+            'mail_recipients' => SystemSetting::getValue('mail_recipients', 'ignacio.n12@gmail.com'),
+            'mail_allowed_trigger_emails' => SystemSetting::getValue('mail_allowed_trigger_emails', ''),
+            'mail_enabled_cleaning' => SystemSetting::getValue('mail_enabled_cleaning', '0'),
+            'mail_enabled_novelty' => SystemSetting::getValue('mail_enabled_novelty', '0'),
+            'mail_enabled_academy' => SystemSetting::getValue('mail_enabled_academy', '0'),
+            'mail_enabled_beds' => SystemSetting::getValue('mail_enabled_beds', '0'),
         ];
 
         return view('admin.system.index', compact('guardias', 'settings'));
@@ -59,6 +68,34 @@ class SystemAdminController extends Controller
         });
 
         return back()->with('success', 'Horarios del sistema actualizados correctamente.');
+    }
+
+    public function saveMailSettings(Request $request)
+    {
+        $validated = $request->validate([
+            'mail_from_address' => ['required', 'email', 'max:255'],
+            'mail_from_name' => ['required', 'string', 'max:255'],
+            'mail_recipients' => ['required', 'string', 'max:5000'],
+            'mail_allowed_trigger_emails' => ['nullable', 'string', 'max:5000'],
+            'mail_enabled_cleaning' => ['nullable', 'boolean'],
+            'mail_enabled_novelty' => ['nullable', 'boolean'],
+            'mail_enabled_academy' => ['nullable', 'boolean'],
+            'mail_enabled_beds' => ['nullable', 'boolean'],
+        ]);
+
+        $data = $validated;
+        $data['mail_enabled_cleaning'] = $request->has('mail_enabled_cleaning') ? '1' : '0';
+        $data['mail_enabled_novelty'] = $request->has('mail_enabled_novelty') ? '1' : '0';
+        $data['mail_enabled_academy'] = $request->has('mail_enabled_academy') ? '1' : '0';
+        $data['mail_enabled_beds'] = $request->has('mail_enabled_beds') ? '1' : '0';
+
+        DB::transaction(function () use ($data) {
+            foreach ($data as $key => $value) {
+                SystemSetting::setValue($key, (string) $value);
+            }
+        });
+
+        return back()->with('success', 'Configuración de correos actualizada correctamente.');
     }
 
     public function purge(Request $request)

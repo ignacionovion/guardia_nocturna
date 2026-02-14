@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Guardia Nocturna - Sistema de Gestión</title>
+    <title>{{ config('app.name', 'AppGuardia') }} - Sistema de Gestión</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
@@ -26,7 +26,7 @@
         </div>
         
         <h1 class="text-5xl md:text-6xl font-extrabold text-white tracking-tight uppercase mb-4 drop-shadow-lg">
-            Guardia <span class="text-red-600">Nocturna</span>
+            {{ config('app.name', 'AppGuardia') }}
         </h1>
         
         <p class="text-lg md:text-xl text-slate-400 mb-10 font-light tracking-wide max-w-xl mx-auto">
@@ -67,7 +67,7 @@
     <!-- Footer -->
     <div class="absolute bottom-6 w-full text-center z-10">
         <p class="text-slate-600 text-xs uppercase tracking-widest font-semibold">
-            &copy; {{ date('Y') }} Sistema de Guardia Nocturna
+            &copy; {{ date('Y') }} {{ config('app.name', 'AppGuardia') }}
         </p>
     </div>
 

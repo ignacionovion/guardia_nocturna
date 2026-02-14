@@ -125,7 +125,7 @@ class User extends Authenticatable
         }
 
         if ($diff->m > 0) {
-            $parts[] = $diff->m . ' ' . ($diff->m == 1 ? 'mes' : 'meses');
+            $parts[] = $diff->m . ' ' . ($diff->m == 1 ? 'm' : 'm');
         }
 
         // Si tiene años o meses, mostramos la combinación

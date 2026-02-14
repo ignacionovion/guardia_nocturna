@@ -150,13 +150,18 @@
                             </h4>
                             <div class="space-y-3">
                                 <label class="flex items-center p-3 bg-white border border-slate-200 rounded-lg hover:border-blue-400 cursor-pointer transition-all shadow-sm group">
-                                    <input type="checkbox" name="es_conductor" value="1" class="rounded text-blue-600 focus:ring-blue-500 h-5 w-5 border-slate-300">
+                                    <input id="es_conductor" type="checkbox" name="es_conductor" value="1" class="rounded text-blue-600 focus:ring-blue-500 h-5 w-5 border-slate-300">
                                     <div class="ml-3">
                                         <span class="block text-sm font-bold text-slate-800 group-hover:text-blue-700">Conductor</span>
                                         <span class="block text-xs text-slate-500">Autorizado para conducir máquinas</span>
                                     </div>
                                     <i class="fas fa-truck ml-auto text-blue-500"></i>
                                 </label>
+                                <input type="hidden" name="conductor_carros_bomba" id="conductor_carros_bomba" value="">
+                                <div id="conductor_disponibilidad" class="hidden rounded-lg border border-slate-200 bg-white px-4 py-3">
+                                    <div class="text-xs font-black uppercase tracking-wide text-slate-500">Disponibilidad</div>
+                                    <div id="conductor_disponibilidad_text" class="mt-1 text-sm font-bold text-slate-700"></div>
+                                </div>
                                 <label class="flex items-center p-3 bg-white border border-slate-200 rounded-lg hover:border-orange-400 cursor-pointer transition-all shadow-sm group">
                                     <input type="checkbox" name="es_operador_rescate" value="1" class="rounded text-orange-600 focus:ring-orange-500 h-5 w-5 border-slate-300">
                                     <div class="ml-3">
@@ -325,6 +330,41 @@
             });
 
             render();
+        })();
+    </script>
+
+    <script>
+        (function() {
+            const driverCheckbox = document.getElementById('es_conductor');
+            const driverTypeInput = document.getElementById('conductor_carros_bomba');
+            const availabilityWrap = document.getElementById('conductor_disponibilidad');
+            const availabilityText = document.getElementById('conductor_disponibilidad_text');
+
+            if (!driverCheckbox || !driverTypeInput || !availabilityWrap || !availabilityText) return;
+
+            const setAvailability = (isCarrosBomba) => {
+                driverTypeInput.value = isCarrosBomba ? '1' : '';
+                availabilityWrap.classList.remove('hidden');
+                availabilityText.textContent = isCarrosBomba
+                    ? 'Disponible para unidades B-3 / BR-3 / RX-3'
+                    : 'Habilitado solo para vehículos de comandancia';
+            };
+
+            const clearAvailability = () => {
+                driverTypeInput.value = '';
+                availabilityWrap.classList.add('hidden');
+                availabilityText.textContent = '';
+            };
+
+            driverCheckbox.addEventListener('change', () => {
+                if (!driverCheckbox.checked) {
+                    clearAvailability();
+                    return;
+                }
+
+                const ok = confirm('¿Eres conductor habilitado para manejar carros bomba?');
+                setAvailability(ok);
+            });
         })();
     </script>
 @endsection

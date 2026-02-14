@@ -52,11 +52,14 @@
     </div>
 
     <div class="flex flex-col md:flex-row gap-2 mb-6">
-        <a href="{{ route('admin.reports.index') }}" class="px-4 py-2 rounded-lg text-sm font-bold border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition">
+        <a href="{{ route('admin.reports.index') }}" class="px-4 py-2 rounded-lg text-sm font-bold border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition flex items-center">
             <i class="fas fa-chart-line mr-2 text-slate-400"></i> Asistencia
         </a>
-        <a href="{{ route('admin.reports.replacements') }}" class="px-4 py-2 rounded-lg text-sm font-bold border border-red-200 bg-red-50 text-red-800 hover:bg-red-100 transition">
+        <a href="{{ route('admin.reports.replacements') }}" class="px-4 py-2 rounded-lg text-sm font-bold border border-red-200 bg-red-50 text-red-800 hover:bg-red-100 transition flex items-center">
             <i class="fas fa-right-left mr-2 text-red-500"></i> Reemplazos
+        </a>
+        <a href="{{ route('admin.reports.drivers') }}" class="px-4 py-2 rounded-lg text-sm font-bold border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition flex items-center">
+            <i class="fas fa-id-card mr-2 text-slate-400"></i> Conductores
         </a>
     </div>
 
@@ -100,7 +103,7 @@
         </div>
     @endisset
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-2 gap-4 mb-8">
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
             <div class="flex items-center justify-between">
                 <div>
@@ -117,40 +120,14 @@
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
             <div class="flex items-center justify-between">
                 <div>
-                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Reemplazantes únicos</div>
-                    <div class="text-2xl font-black text-slate-800 mt-1">{{ $kpis['unique_replacers'] ?? 0 }}</div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total histórico</div>
+                    <div class="text-2xl font-black text-slate-800 mt-1">{{ $kpis['total_replacements_all_time'] ?? 0 }}</div>
                 </div>
-                <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center border border-blue-100">
-                    <i class="fas fa-user-plus text-lg"></i>
-                </div>
-            </div>
-            <div class="text-[10px] text-slate-400 mt-2 font-medium">Personas distintas que cubrieron</div>
-        </div>
-
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
-            <div class="flex items-center justify-between">
-                <div>
-                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Reemplazados únicos</div>
-                    <div class="text-2xl font-black text-slate-800 mt-1">{{ $kpis['unique_replaced'] ?? 0 }}</div>
-                </div>
-                <div class="w-10 h-10 rounded-xl bg-slate-50 text-slate-700 flex items-center justify-center border border-slate-200">
-                    <i class="fas fa-user-clock text-lg"></i>
+                <div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center border border-slate-800">
+                    <i class="fas fa-infinity text-lg"></i>
                 </div>
             </div>
-            <div class="text-[10px] text-slate-400 mt-2 font-medium">Personas que fueron cubiertas</div>
-        </div>
-
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
-            <div class="flex items-center justify-between">
-                <div>
-                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Top 1 (reemplazos)</div>
-                    <div class="text-2xl font-black text-slate-800 mt-1">{{ ($topReplacers[0]['total'] ?? 0) }}</div>
-                </div>
-                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-100">
-                    <i class="fas fa-trophy text-lg"></i>
-                </div>
-            </div>
-            <div class="text-[10px] text-slate-400 mt-2 font-medium">{{ $topReplacers[0]['name'] ?? '—' }}</div>
+            <div class="text-[10px] text-slate-400 mt-2 font-medium">Mismo filtro de guardia</div>
         </div>
     </div>
 
@@ -273,50 +250,6 @@
                 </table>
             </div>
         </div>
-
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="bg-slate-50 px-6 py-4 border-b border-slate-200">
-                <h2 class="text-lg font-bold text-slate-800 flex items-center uppercase tracking-wide">
-                    <span class="w-2 h-6 bg-blue-600 rounded mr-3"></span>
-                    Conductores (snapshot)
-                </h2>
-                <p class="text-xs text-slate-500 mt-1 font-medium">Agrupado por guardia y estado actual</p>
-            </div>
-
-            <div class="p-4 space-y-4">
-                @forelse($driversByGuardia as $guardiaName => $statuses)
-                    <div class="border border-slate-200 rounded-lg overflow-hidden">
-                        <div class="bg-slate-900 text-white px-4 py-3 flex items-center justify-between">
-                            <div class="font-black uppercase tracking-wide text-sm">{{ $guardiaName }}</div>
-                            <div class="text-[10px] text-slate-300 font-bold uppercase tracking-widest">{{ $statuses->flatten(1)->count() }} conductores</div>
-                        </div>
-
-                        <div class="p-3 space-y-3">
-                            @foreach($statuses as $status => $items)
-                                <div>
-                                    <div class="flex items-center justify-between mb-2">
-                                        <div class="text-[10px] font-black uppercase tracking-widest text-slate-500">{{ $status }}</div>
-                                        <div class="text-[10px] font-bold text-slate-400">{{ $items->count() }}</div>
-                                    </div>
-                                    <div class="space-y-1">
-                                        @foreach($items as $d)
-                                            <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-md px-2 py-1">
-                                                <div class="text-sm font-bold text-slate-700">{{ $d->nombres }} {{ $d->apellido_paterno }}</div>
-                                                <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                                                    {{ $d->es_titular ? 'TITULAR' : 'NO TITULAR' }}
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                @empty
-                    <div class="text-sm text-slate-400">No hay conductores asignados actualmente.</div>
-                @endforelse
-            </div>
-        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -416,6 +349,7 @@
                     }
                 });
             }
+
         });
     </script>
 @endsection

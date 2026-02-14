@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Guardia Nocturna</title>
+    <title>{{ config('app.name', 'AppGuardia') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -24,7 +24,7 @@
                         <i class="fas fa-helmet-safety text-lg"></i>
                     </div>
                     <div class="flex flex-col">
-                        <span class="text-white text-lg font-bold tracking-wide uppercase leading-none">Guardia Nocturna</span>
+                        <span class="text-white text-lg font-bold tracking-wide uppercase leading-none">{{ config('app.name', 'AppGuardia') }}</span>
                         <span class="text-slate-400 text-xs font-medium tracking-wider uppercase">Sistema de Gestión</span>
                     </div>
                 </a>
@@ -42,13 +42,14 @@
                             <i class="fas fa-users-gear mr-1.5 opacity-70"></i> Mi Dotación
                         </a>
                     @elseif(Auth::user()->role === 'super_admin')
-                        <a href="{{ route('dashboard') }}" class="px-3 py-2 rounded-md text-sm font-black uppercase tracking-widest transition-colors {{ request()->routeIs('dashboard') ? 'bg-red-900/50 text-red-100 shadow-inner' : 'text-slate-300 hover:bg-red-900/30 hover:text-red-100' }}">
-                            <i class="fas fa-home mr-1.5 opacity-70"></i> Inicio
+                        <a href="{{ route('dashboard') }}" class="px-3 py-2 rounded-md text-sm font-semibold transition-colors {{ request()->routeIs('dashboard') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+                            <i class="fas fa-home mr-1.5 opacity-80"></i> Inicio
                         </a>
                         <div class="h-6 w-px bg-slate-700 mx-2"></div>
 
                         <div class="relative group">
-                            <button type="button" class="px-3 py-2 rounded-md text-sm font-black uppercase tracking-widest transition-colors text-slate-300 hover:bg-red-900/30 hover:text-red-100">
+                            <button type="button" class="px-3 py-2 rounded-md text-sm font-semibold transition-colors text-slate-200 hover:bg-slate-800 hover:text-white">
+                                <i class="fas fa-layer-group mr-1.5 opacity-80"></i>
                                 Gestión
                                 <i class="fas fa-chevron-down ml-1 text-[10px] opacity-70"></i>
                             </button>
@@ -67,7 +68,8 @@
                         </div>
 
                         <div class="relative group">
-                            <button type="button" class="px-3 py-2 rounded-md text-sm font-black uppercase tracking-widest transition-colors text-slate-300 hover:bg-red-900/30 hover:text-red-100">
+                            <button type="button" class="px-3 py-2 rounded-md text-sm font-semibold transition-colors text-slate-200 hover:bg-slate-800 hover:text-white">
+                                <i class="fas fa-shield-halved mr-1.5 opacity-80"></i>
                                 Guardias
                                 <i class="fas fa-chevron-down ml-1 text-[10px] opacity-70"></i>
                             </button>
@@ -86,7 +88,8 @@
                         </div>
 
                         <div class="relative group">
-                            <button type="button" class="px-3 py-2 rounded-md text-sm font-black uppercase tracking-widest transition-colors text-slate-300 hover:bg-red-900/30 hover:text-red-100">
+                            <button type="button" class="px-3 py-2 rounded-md text-sm font-semibold transition-colors text-slate-200 hover:bg-slate-800 hover:text-white">
+                                <i class="fas fa-gear mr-1.5 opacity-80"></i>
                                 Administración
                                 <i class="fas fa-chevron-down ml-1 text-[10px] opacity-70"></i>
                             </button>
@@ -101,8 +104,14 @@
                             </div>
                         </div>
 
-                        <a href="{{ route('admin.reports.index') }}" class="px-3 py-2 rounded-md text-sm font-black uppercase tracking-widest transition-colors {{ request()->routeIs('admin.reports*') ? 'bg-red-900/50 text-red-100 shadow-inner' : 'text-slate-300 hover:bg-red-900/30 hover:text-red-100' }}">
-                            <i class="fas fa-chart-pie mr-1.5 text-red-400"></i> Reportes
+                        <a href="{{ route('admin.reports.index') }}" class="px-3 py-2 rounded-md text-sm font-semibold transition-colors {{ request()->routeIs('admin.reports*') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+                            <i class="fas fa-chart-pie mr-1.5 opacity-80"></i> Reportes
+                        </a>
+                        <a href="{{ route('admin.preventivas.index') }}" class="px-3 py-2 rounded-md text-sm font-semibold transition-colors {{ request()->routeIs('admin.preventivas*') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+                            <i class="fas fa-clipboard-list mr-1.5 opacity-80"></i> Preventivas
+                        </a>
+                        <a href="{{ route('admin.planillas.index') }}" class="px-3 py-2 rounded-md text-sm font-semibold transition-colors {{ request()->routeIs('admin.planillas*') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+                            <i class="fas fa-table-list mr-1.5 opacity-80"></i> Planillas
                         </a>
                     @elseif(Auth::user()->role === 'capitania')
                         <a href="{{ route('dashboard') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('dashboard') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
@@ -160,7 +169,7 @@
     </nav>
     @endif
 
-    <div class="{{ Auth::check() && Auth::user()->role === 'guardia' && request()->routeIs('dashboard') ? 'w-full flex-grow' : 'container mx-auto mt-4 px-4 pb-6 flex-grow' }}">
+    <div class="{{ Auth::check() && Auth::user()->role === 'guardia' && request()->routeIs('dashboard') ? 'w-full flex-grow' : 'container mx-auto mt-0 px-4 pb-6 flex-grow' }}">
         <!-- Alertas Globales -->
         @if(session('success'))
             <div id="global-toast-success" class="fixed top-5 right-5 z-[9999] max-w-md w-[calc(100vw-2.5rem)]">
@@ -283,7 +292,7 @@
                 <div class="flex flex-col md:flex-row justify-between items-center">
                     <div class="flex items-center space-x-2 mb-4 md:mb-0">
                         <i class="fas fa-helmet-safety text-red-700 text-xl"></i>
-                        <span class="font-bold text-slate-200 tracking-wide">GUARDIA NOCTURNA</span>
+                        <span class="font-bold text-slate-200 tracking-wide">{{ strtoupper(config('app.name', 'AppGuardia')) }}</span>
                     </div>
                     <div class="text-sm">
                         &copy; {{ date('Y') }} Sistema de Gestión de Cuerpo de Bomberos. Todos los derechos reservados.

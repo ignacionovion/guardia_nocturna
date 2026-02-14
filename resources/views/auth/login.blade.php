@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acceso - Guardia Nocturna</title>
+    <title>Acceso - {{ config('app.name', 'AppGuardia') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -19,7 +19,7 @@
             <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-800 text-white mb-4 border-4 border-slate-800 shadow-2xl">
                 <i class="fas fa-helmet-safety text-4xl"></i>
             </div>
-            <h1 class="text-3xl font-extrabold text-white tracking-tight uppercase">Guardia Nocturna</h1>
+            <h1 class="text-3xl font-extrabold text-white tracking-tight uppercase">{{ config('app.name', 'AppGuardia') }}</h1>
             <p class="text-slate-400 text-sm font-medium tracking-wide uppercase mt-1">Sistema de Gestión Operativa</p>
         </div>
 
@@ -73,7 +73,7 @@
             </div>
             <div class="bg-slate-50 px-8 py-4 border-t border-slate-100 text-center">
                 <p class="text-xs text-slate-400">
-                    &copy; {{ date('Y') }} Sistema de Guardia Nocturna.
+                    &copy; {{ date('Y') }} {{ config('app.name', 'AppGuardia') }}.
                 </p>
             </div>
         </div>

@@ -14,6 +14,13 @@ use App\Http\Controllers\AsignacionCamaController;
 use App\Http\Controllers\NovedadController;
 use App\Http\Controllers\Admin\GuardiaArchiveController;
 
+use App\Http\Controllers\Admin\PreventiveEventController;
+use App\Http\Controllers\Admin\PlanillaController;
+use App\Http\Controllers\PreventivePublicController;
+
+Route::get('/preventivas/{token}', [PreventivePublicController::class, 'show'])->name('preventivas.public.show');
+Route::post('/preventivas/{token}/confirmar', [PreventivePublicController::class, 'confirm'])->name('preventivas.public.confirm');
+
 // Rutas de Autenticación
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login')->middleware('guest');
 Route::post('/login', [AuthController::class, 'login']);
@@ -88,6 +95,7 @@ Route::middleware('auth')->group(function () {
     // Rutas de Reportes
     Route::get('/admin/reports', [App\Http\Controllers\ReportController::class, 'index'])->name('admin.reports.index');
     Route::get('/admin/reports/reemplazos', [App\Http\Controllers\ReportController::class, 'replacements'])->name('admin.reports.replacements');
+    Route::get('/admin/reports/conductores', [App\Http\Controllers\ReportController::class, 'drivers'])->name('admin.reports.drivers');
     Route::get('/admin/reports/reemplazos/export', [App\Http\Controllers\ReportController::class, 'replacementsExport'])->name('admin.reports.replacements.export');
     Route::get('/admin/reports/reemplazos/print', [App\Http\Controllers\ReportController::class, 'replacementsPrint'])->name('admin.reports.replacements.print');
 
@@ -111,8 +119,32 @@ Route::middleware('auth')->group(function () {
     Route::middleware('super_admin')->group(function () {
         Route::get('/admin/system', [SystemAdminController::class, 'index'])->name('admin.system.index');
         Route::post('/admin/system/schedule', [SystemAdminController::class, 'saveSchedule'])->name('admin.system.schedule.save');
+        Route::post('/admin/system/mail', [SystemAdminController::class, 'saveMailSettings'])->name('admin.system.mail.save');
         Route::post('/admin/system/purge', [SystemAdminController::class, 'purge'])->name('admin.system.purge');
         Route::post('/admin/system/clear-guardias', [SystemAdminController::class, 'clearGuardias'])->name('admin.system.clear_guardias');
+
+        Route::get('/admin/planillas', [PlanillaController::class, 'index'])->name('admin.planillas.index');
+        Route::get('/admin/planillas/create', [PlanillaController::class, 'create'])->name('admin.planillas.create');
+        Route::post('/admin/planillas', [PlanillaController::class, 'store'])->name('admin.planillas.store');
+        Route::get('/admin/planillas/{planilla}', [PlanillaController::class, 'show'])->name('admin.planillas.show');
+        Route::get('/admin/planillas/{planilla}/edit', [PlanillaController::class, 'edit'])->name('admin.planillas.edit');
+        Route::put('/admin/planillas/{planilla}', [PlanillaController::class, 'update'])->name('admin.planillas.update');
+        Route::put('/admin/planillas/{planilla}/estado', [PlanillaController::class, 'updateEstado'])->name('admin.planillas.estado.update');
+        Route::delete('/admin/planillas/{planilla}', [PlanillaController::class, 'destroy'])->name('admin.planillas.destroy');
+
+        Route::get('/admin/preventivas', [PreventiveEventController::class, 'index'])->name('admin.preventivas.index');
+        Route::get('/admin/preventivas/create', [PreventiveEventController::class, 'create'])->name('admin.preventivas.create');
+        Route::post('/admin/preventivas', [PreventiveEventController::class, 'store'])->name('admin.preventivas.store');
+        Route::get('/admin/preventivas/{event}', [PreventiveEventController::class, 'show'])->name('admin.preventivas.show');
+        Route::post('/admin/preventivas/{event}/templates', [PreventiveEventController::class, 'saveTemplates'])->name('admin.preventivas.templates.save');
+        Route::post('/admin/preventivas/{event}/assignments', [PreventiveEventController::class, 'addAssignment'])->name('admin.preventivas.assignments.add');
+        Route::delete('/admin/preventivas/{event}/assignments/{assignment}', [PreventiveEventController::class, 'removeAssignment'])->name('admin.preventivas.assignments.remove');
+        Route::get('/admin/preventivas/{event}/pdf', [PreventiveEventController::class, 'pdf'])->name('admin.preventivas.pdf');
+        Route::get('/admin/preventivas/{event}/qr', [PreventiveEventController::class, 'qr'])->name('admin.preventivas.qr');
+        Route::post('/admin/preventivas/{event}/qr/regenerar', [PreventiveEventController::class, 'regenerateQr'])->name('admin.preventivas.qr.regenerate');
+        Route::post('/admin/preventivas/{event}/estado/activar', [PreventiveEventController::class, 'activate'])->name('admin.preventivas.status.activate');
+        Route::post('/admin/preventivas/{event}/estado/cerrar', [PreventiveEventController::class, 'close'])->name('admin.preventivas.status.close');
+        Route::post('/admin/preventivas/{event}/estado/borrador', [PreventiveEventController::class, 'setDraft'])->name('admin.preventivas.status.draft');
 
         Route::resource('admin/users', App\Http\Controllers\Admin\SystemUserController::class, ['as' => 'admin']);
         Route::resource('admin/roles', App\Http\Controllers\Admin\RoleController::class, ['as' => 'admin']);

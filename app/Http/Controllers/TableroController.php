@@ -134,6 +134,18 @@ class TableroController extends Controller
             })
             ->count();
 
+        $birthdaysThisMonth = $birthdaysSource
+            ->filter(function ($b) {
+                return (bool) ($b->fecha_nacimiento ?? null);
+            })
+            ->filter(function ($b) {
+                return (int) $b->fecha_nacimiento->month === (int) now()->month;
+            })
+            ->sortBy(function ($b) {
+                return (int) $b->fecha_nacimiento->day;
+            })
+            ->values();
+
         // Data específica para cuentas de Guardia
         $myGuardia = null;
         $myStaff = collect();
@@ -243,7 +255,16 @@ class TableroController extends Controller
                 ->whereNotIn('id', $activeReplacements->pluck('bombero_reemplazante_id')->values()->toArray())
                 ->orderBy('apellido_paterno')
                 ->orderBy('nombres')
-                ->get();
+                ->get()
+                ->unique(function ($f) {
+                    $rut = trim((string) ($f->rut ?? ''));
+                    if ($rut !== '') {
+                        return mb_strtolower($rut);
+                    }
+
+                    return (int) $f->id;
+                })
+                ->values();
 
             $academyLeaderIds = [];
             if ($currentShift) {
@@ -320,6 +341,18 @@ class TableroController extends Controller
                     return (int) $b->fecha_nacimiento->month === (int) now()->month;
                 })
                 ->count();
+
+            $birthdaysThisMonth = $myStaff
+                ->filter(function ($b) {
+                    return (bool) ($b->fecha_nacimiento ?? null);
+                })
+                ->filter(function ($b) {
+                    return (int) $b->fecha_nacimiento->month === (int) now()->month;
+                })
+                ->sortBy(function ($b) {
+                    return (int) $b->fecha_nacimiento->day;
+                })
+                ->values();
         }
 
         return view('dashboard', compact(
@@ -336,6 +369,7 @@ class TableroController extends Controller
             'hasAttendanceSavedToday',
             'birthdays',
             'birthdaysMonthCount',
+            'birthdaysThisMonth',
             'myGuardia',
             'myStaff',
             'replacementCandidates',

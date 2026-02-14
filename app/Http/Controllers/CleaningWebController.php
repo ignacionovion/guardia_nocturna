@@ -8,6 +8,7 @@ use App\Models\Guardia;
 use App\Models\Bombero;
 use App\Models\MapaBomberoUsuarioLegacy;
 use App\Models\User;
+use App\Services\SystemEmailService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
@@ -145,6 +146,23 @@ class CleaningWebController extends Controller
 
             CleaningAssignment::create($data);
         }
+
+        $firefighterIdsForMail = collect($validated['assignments'])->filter()->map(fn ($v) => (int) $v)->unique()->values();
+        $fighters = $firefighterIdsForMail->isNotEmpty()
+            ? Bombero::query()->whereIn('id', $firefighterIdsForMail)->get(['id', 'nombres', 'apellido_paterno'])
+            : collect();
+
+        $lines = [];
+        $lines[] = 'Guardia: ' . (Guardia::find($guardiaId)?->name ?? '—');
+        $lines[] = 'Fecha: ' . $date->toDateString();
+        $lines[] = 'Asignaciones: ' . $fighters->map(fn ($f) => trim((string) $f->nombres . ' ' . (string) $f->apellido_paterno))->implode(', ');
+
+        SystemEmailService::send(
+            type: 'cleaning',
+            subject: 'Asignación de aseo registrada',
+            lines: $lines,
+            actorEmail: $user->email ?? null
+        );
 
         return redirect()->route('guardia.aseo', ['date' => $date->toDateString()])->with('success', 'Asignación de aseo guardada correctamente.');
     }

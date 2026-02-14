@@ -63,6 +63,7 @@ class BomberoController extends Controller
             'guardia_id' => 'nullable|exists:guardias,id',
             'fecha_ingreso' => 'nullable|date',
             'es_conductor' => 'nullable|boolean',
+            'conductor_carros_bomba' => 'nullable|boolean',
             'es_operador_rescate' => 'nullable|boolean',
             'es_asistente_trauma' => 'nullable|boolean',
             'fuera_de_servicio' => 'nullable|boolean',
@@ -71,6 +72,7 @@ class BomberoController extends Controller
         $data = $validated;
         $data['correo'] = $request->input('correo') ?: null;
         $data['es_conductor'] = $request->has('es_conductor');
+        $data['conductor_carros_bomba'] = $data['es_conductor'] ? ($request->has('conductor_carros_bomba') ? true : false) : null;
         $data['es_operador_rescate'] = $request->has('es_operador_rescate');
         $data['es_asistente_trauma'] = $request->has('es_asistente_trauma');
         $data['fuera_de_servicio'] = $request->has('fuera_de_servicio');
@@ -135,6 +137,7 @@ class BomberoController extends Controller
         ]);
 
         $data['es_conductor'] = $request->has('es_conductor');
+        $data['conductor_carros_bomba'] = $data['es_conductor'] ? ($request->has('conductor_carros_bomba') ? true : false) : null;
         $data['es_operador_rescate'] = $request->has('es_operador_rescate');
         $data['es_asistente_trauma'] = $request->has('es_asistente_trauma');
         $data['fuera_de_servicio'] = $request->has('fuera_de_servicio');

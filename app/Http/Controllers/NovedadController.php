@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Models\Novelty;
 use App\Models\MapaBomberoUsuarioLegacy;
+use App\Services\SystemEmailService;
 
 class NovedadController extends Controller
 {
@@ -52,6 +53,20 @@ class NovedadController extends Controller
                 $novelty->date = now();
             }
             $novelty->save();
+
+            $isAcademy = (($validated['type'] ?? null) === 'Academia');
+            $lines = [];
+            $lines[] = 'Título: ' . (string) ($novelty->title ?? '');
+            $lines[] = 'Tipo: ' . (string) ($novelty->type ?? '');
+            $lines[] = 'Descripción: ' . (string) ($novelty->description ?? '');
+            $lines[] = 'Fecha: ' . optional($novelty->date)->format('Y-m-d H:i');
+
+            SystemEmailService::send(
+                type: $isAcademy ? 'academy' : 'novelty',
+                subject: $isAcademy ? 'Academia registrada' : 'Novedad registrada',
+                lines: $lines,
+                actorEmail: auth()->user()?->email
+            );
 
             return back()->with('success', 'Novedad registrada correctamente.');
         } catch (\Exception $e) {

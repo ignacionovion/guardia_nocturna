@@ -17,6 +17,31 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ReportController extends Controller
 {
+    private function resolveShiftDay(Carbon $dateTime): Carbon
+    {
+        $scheduleTz = env('GUARDIA_SCHEDULE_TZ', 'America/Santiago');
+        $local = $dateTime->copy()->setTimezone($scheduleTz);
+
+        // El "día" del reporte corresponde al turno nocturno.
+        // Ventana: domingo 22:00 -> 07:00, resto de días 23:00 -> 07:00.
+        // Para asignar el día de turno:
+        // - Si la hora es < 07:00 => pertenece al turno del día anterior.
+        // - Si la hora es >= 07:00 y < hora de inicio del turno (22/23) => pertenece al día anterior.
+        // - Si la hora es >= hora de inicio del turno => pertenece al mismo día.
+
+        $day = $local->copy()->startOfDay();
+        $scheduleHour = $local->isSunday() ? 22 : 23;
+        $hour = (int) $local->hour;
+
+        if ($hour < 7) {
+            $day->subDay();
+        } elseif ($hour < $scheduleHour) {
+            $day->subDay();
+        }
+
+        return $day;
+    }
+
     private function resolveActiveGuardia($now)
     {
         $weekStart = $now->copy()->startOfWeek(Carbon::SUNDAY);
@@ -56,48 +81,65 @@ class ReportController extends Controller
             ->with(['firefighter', 'user'])
             ->get();
 
-        $totalMinutesByMonth = array_fill(1, 12, 0);
-        foreach ($shiftUsersForYear as $r) {
-            if (!$r->end_time || !$r->start_time) {
+        $resolvedForYear = $shiftUsersForYear
+            ->map(function ($r) use ($hasShiftUsersGuardiaId, $hasShiftUsersAttendanceStatus) {
+                if (!$r->start_time) {
+                    return null;
+                }
+
+                $r->shift_day = $this->resolveShiftDay($r->start_time);
+
+                $guardiaId = $hasShiftUsersGuardiaId ? $r->guardia_id : null;
+                if (!$guardiaId) {
+                    $guardiaId = $r->firefighter?->guardia_id;
+                }
+                if (!$guardiaId) {
+                    $guardiaId = $r->user?->guardia_id;
+                }
+                $r->resolved_guardia_id = $guardiaId ? (int) $guardiaId : null;
+
+                $status = $hasShiftUsersAttendanceStatus ? ($r->attendance_status ?: 'sin_dato') : null;
+                $r->resolved_status = $status;
+
+                return $r;
+            })
+            ->filter()
+            ->values();
+
+        $presentShiftsByMonth = array_fill(1, 12, 0);
+        foreach ($resolvedForYear as $r) {
+            $isPresent = $hasShiftUsersAttendanceStatus
+                ? in_array($r->attendance_status, ['constituye', 'reemplazo'], true)
+                : (bool) $r->present;
+            if (!$isPresent) {
                 continue;
             }
-            $m = (int) $r->start_time->month;
-            $totalMinutesByMonth[$m] += $r->end_time->diffInMinutes($r->start_time);
+            $m = (int) $r->shift_day->month;
+            $presentShiftsByMonth[$m] += 1;
         }
 
-        $statusKeys = ['reemplazo', 'ausente', 'permiso', 'licencia'];
+        $statusKeys = ['constituye', 'reemplazo', 'permiso', 'ausente', 'licencia', 'falta', 'sin_dato'];
         $statusCountsByMonth = [];
         foreach ($statusKeys as $k) {
             $statusCountsByMonth[$k] = array_fill(1, 12, 0);
         }
 
         if ($hasShiftUsersAttendanceStatus) {
-            foreach ($shiftUsersForYear as $r) {
-                if (!$r->start_time) {
-                    continue;
+            foreach ($resolvedForYear as $r) {
+                $status = $r->resolved_status ?: 'sin_dato';
+                if (!in_array($status, $statusKeys, true)) {
+                    $status = 'sin_dato';
                 }
-                $status = $r->attendance_status;
-                if (!$status || !in_array($status, $statusKeys, true)) {
-                    continue;
-                }
-                $m = (int) $r->start_time->month;
+                $m = (int) $r->shift_day->month;
                 $statusCountsByMonth[$status][$m] += 1;
             }
         }
 
         $presentCountByMonthGuardiaDay = [];
-        foreach ($shiftUsersForYear as $r) {
-            if (!$r->start_time) {
-                continue;
-            }
+        foreach ($resolvedForYear as $r) {
+            $shiftDay = $r->shift_day;
 
-            $guardiaId = $hasShiftUsersGuardiaId ? $r->guardia_id : null;
-            if (!$guardiaId) {
-                $guardiaId = $r->firefighter?->guardia_id;
-            }
-            if (!$guardiaId) {
-                $guardiaId = $r->user?->guardia_id;
-            }
+            $guardiaId = $r->resolved_guardia_id;
             if (!$guardiaId) {
                 continue;
             }
@@ -110,8 +152,8 @@ class ReportController extends Controller
                 continue;
             }
 
-            $m = (int) $r->start_time->month;
-            $day = $r->start_time->toDateString();
+            $m = (int) $shiftDay->month;
+            $day = $shiftDay->toDateString();
             $key = $guardiaId . '|' . $day;
 
             if (!isset($presentCountByMonthGuardiaDay[$m])) {
@@ -131,26 +173,93 @@ class ReportController extends Controller
             $avgFirefightersPerGuardiaDayByMonth[$m] = $total / count($map);
         }
 
-        $selectedMonthMinutes = $totalMinutesByMonth[$month] ?? 0;
-        $selectedMonthHoursFormatted = $this->formatMinutes($selectedMonthMinutes);
+        $selectedMonthPresentShifts = (int) ($presentShiftsByMonth[$month] ?? 0);
+
+        $resolvedForMonth = $resolvedForYear
+            ->filter(fn ($r) => (int) $r->shift_day->month === (int) $month)
+            ->values();
+
+        $dailyStatusCounts = $resolvedForMonth
+            ->groupBy(fn ($r) => $r->shift_day->toDateString())
+            ->map(function ($items) use ($hasShiftUsersAttendanceStatus, $statusKeys) {
+                $base = [];
+                foreach ($statusKeys as $k) {
+                    $base[$k] = 0;
+                }
+                foreach ($items as $r) {
+                    $status = $hasShiftUsersAttendanceStatus ? ($r->resolved_status ?: 'sin_dato') : 'sin_dato';
+                    if (!in_array($status, $statusKeys, true)) {
+                        $status = 'sin_dato';
+                    }
+                    $base[$status] += 1;
+                }
+                return $base;
+            })
+            ->sortKeys();
+
+        $guardiaNamesById = Guardia::query()->pluck('name', 'id')->map(fn ($v) => (string) $v)->all();
+
+        $guardiaStatusCounts = $resolvedForMonth
+            ->filter(fn ($r) => (bool) ($r->resolved_guardia_id ?? null))
+            ->groupBy(fn ($r) => (int) $r->resolved_guardia_id)
+            ->map(function ($items) use ($hasShiftUsersAttendanceStatus, $statusKeys, $guardiaNamesById) {
+                $base = [];
+                foreach ($statusKeys as $k) {
+                    $base[$k] = 0;
+                }
+                foreach ($items as $r) {
+                    $status = $hasShiftUsersAttendanceStatus ? ($r->resolved_status ?: 'sin_dato') : 'sin_dato';
+                    if (!in_array($status, $statusKeys, true)) {
+                        $status = 'sin_dato';
+                    }
+                    $base[$status] += 1;
+                }
+
+                $guardiaId = (int) ($items->first()->resolved_guardia_id ?? 0);
+                return [
+                    'guardia_id' => $guardiaId,
+                    'guardia_name' => $guardiaNamesById[$guardiaId] ?? ('Guardia #' . $guardiaId),
+                    'counts' => $base,
+                ];
+            })
+            ->sortBy(fn ($row) => $row['guardia_name'] ?? '')
+            ->values();
+
+        $disabledCountsByMonth = array_fill(1, 12, 0);
+        $disabledEventsForYear = StaffEvent::query()
+            ->where('type', 'service_status')
+            ->where('status', 'approved')
+            ->where('description', 'inhabilitado')
+            ->whereYear('start_date', $year)
+            ->get(['start_date']);
+
+        foreach ($disabledEventsForYear as $e) {
+            if (!$e->start_date) {
+                continue;
+            }
+            $disabledCountsByMonth[(int) $e->start_date->month] += 1;
+        }
+
+        $selectedMonthDisabled = (int) ($disabledCountsByMonth[$month] ?? 0);
 
         $selectedMonthKpis = [
-            'avg_firefighters_per_guardia_day' => round((float) ($avgFirefightersPerGuardiaDayByMonth[$month] ?? 0), 1),
-            'total_minutes' => (int) $selectedMonthMinutes,
-            'total_hours_formatted' => $selectedMonthHoursFormatted,
+            'constituye' => (int) ($statusCountsByMonth['constituye'][$month] ?? 0),
             'reemplazo' => (int) ($statusCountsByMonth['reemplazo'][$month] ?? 0),
-            'ausente' => (int) ($statusCountsByMonth['ausente'][$month] ?? 0),
             'permiso' => (int) ($statusCountsByMonth['permiso'][$month] ?? 0),
+            'ausente' => (int) ($statusCountsByMonth['ausente'][$month] ?? 0),
             'licencia' => (int) ($statusCountsByMonth['licencia'][$month] ?? 0),
+            'present_shifts' => (int) $selectedMonthPresentShifts,
+            'disabled' => (int) $selectedMonthDisabled,
         ];
 
         $charts = [
             'labels' => $monthLabels,
             'avg_firefighters_per_guardia_day' => collect($avgFirefightersPerGuardiaDayByMonth)->values(),
-            'total_minutes' => collect($totalMinutesByMonth)->values(),
+            'present_shifts' => collect($presentShiftsByMonth)->values(),
             'status_counts' => collect($statusCountsByMonth)
                 ->map(fn ($arr) => collect($arr)->values())
                 ->all(),
+            'disabled_counts' => collect($disabledCountsByMonth)->values(),
         ];
 
         // 1. Guardias con su dotación (Bomberos)
@@ -161,7 +270,7 @@ class ReportController extends Controller
         // 2. Asistencias cerradas del año agrupadas por bombero (o por user legacy)
         $attendanceKey = $hasShiftUsersFirefighterId ? 'firefighter_id' : 'user_id';
         $allAttendances = ShiftUser::whereYear('start_time', $year)
-            ->whereNotNull('end_time')
+            ->whereNotNull('start_time')
             ->get()
             ->groupBy($attendanceKey);
 
@@ -170,25 +279,32 @@ class ReportController extends Controller
             foreach ($guardia->bomberos as $user) {
                 $userRecords = $allAttendances->get($user->id, collect());
 
+                $userRecords = $userRecords
+                    ->filter(fn ($r) => (bool) ($r->start_time ?? null))
+                    ->map(function ($r) use ($hasShiftUsersAttendanceStatus) {
+                        $r->shift_day = $this->resolveShiftDay($r->start_time);
+                        $r->resolved_present = $hasShiftUsersAttendanceStatus
+                            ? in_array($r->attendance_status, ['constituye', 'reemplazo'], true)
+                            : (bool) $r->present;
+                        return $r;
+                    })
+                    ->filter(fn ($r) => (bool) ($r->resolved_present ?? false));
+
                 // --- ANUAL ---
-                $user->year_days = $userRecords->map(fn ($r) => $r->start_time->format('Y-m-d'))->unique()->count();
-                $user->year_minutes = $userRecords->sum(fn ($r) => $r->end_time->diffInMinutes($r->start_time));
-                $user->year_hours_formatted = $this->formatMinutes($user->year_minutes);
+                $user->year_days = $userRecords->map(fn ($r) => $r->shift_day->format('Y-m-d'))->unique()->count();
+                $user->year_shifts = $userRecords->count();
 
                 // --- MENSUAL ---
-                $monthRecords = $userRecords->filter(fn ($r) => $r->start_time->month == $month);
-                $user->month_days = $monthRecords->map(fn ($r) => $r->start_time->format('Y-m-d'))->unique()->count();
-                $user->month_minutes = $monthRecords->sum(fn ($r) => $r->end_time->diffInMinutes($r->start_time));
-                $user->month_hours_formatted = $this->formatMinutes($user->month_minutes);
+                $monthRecords = $userRecords->filter(fn ($r) => (int) $r->shift_day->month === (int) $month);
+                $user->month_days = $monthRecords->map(fn ($r) => $r->shift_day->format('Y-m-d'))->unique()->count();
+                $user->month_shifts = $monthRecords->count();
 
                 $user->weekly_stats = $monthRecords->groupBy(function ($r) {
-                    return $r->start_time->weekOfYear;
+                    return $r->shift_day->weekOfYear;
                 })->map(function ($weekRecords) {
-                    $mins = $weekRecords->sum(fn ($r) => $r->end_time->diffInMinutes($r->start_time));
                     return [
-                        'days' => $weekRecords->map(fn ($r) => $r->start_time->format('Y-m-d'))->unique()->count(),
-                        'minutes' => $mins,
-                        'formatted' => $this->formatMinutes($mins),
+                        'days' => $weekRecords->map(fn ($r) => $r->shift_day->format('Y-m-d'))->unique()->count(),
+                        'shifts' => $weekRecords->count(),
                     ];
                 })->sortKeys();
             }
@@ -208,7 +324,92 @@ class ReportController extends Controller
             $currentDate->addDay();
         }
 
-        return view('admin.reports.index', compact('guardias', 'month', 'year', 'weeksInMonth', 'charts', 'selectedMonthKpis'));
+        return view('admin.reports.index', compact(
+            'guardias',
+            'month',
+            'year',
+            'weeksInMonth',
+            'charts',
+            'selectedMonthKpis',
+            'dailyStatusCounts',
+            'guardiaStatusCounts',
+            'selectedMonthDisabled'
+        ));
+    }
+
+    public function drivers(Request $request)
+    {
+        $user = auth()->user();
+        if ($user->role !== 'super_admin') {
+            abort(403, 'No autorizado.');
+        }
+
+        $month = (int) $request->input('month', now()->month);
+        $year = (int) $request->input('year', now()->year);
+
+        $hasShiftUsersAttendanceStatus = Schema::hasColumn('shift_users', 'attendance_status');
+        $hasShiftUsersFirefighterId = Schema::hasColumn('shift_users', 'firefighter_id');
+
+        $drivers = Bombero::query()
+            ->with('guardia')
+            ->where('es_conductor', true)
+            ->orderBy('apellido_paterno')
+            ->orderBy('nombres')
+            ->get();
+
+        $driverIds = $drivers->pluck('id')->map(fn ($v) => (int) $v)->values()->toArray();
+        $rows = [];
+
+        if (!empty($driverIds) && $hasShiftUsersFirefighterId) {
+            $shiftUsers = ShiftUser::query()
+                ->whereYear('start_time', $year)
+                ->whereNotNull('start_time')
+                ->whereIn('firefighter_id', $driverIds)
+                ->get(['firefighter_id', 'start_time', 'attendance_status', 'present']);
+
+            $resolved = $shiftUsers
+                ->map(function ($r) use ($hasShiftUsersAttendanceStatus) {
+                    if (!$r->start_time) {
+                        return null;
+                    }
+                    $r->shift_day = $this->resolveShiftDay($r->start_time);
+
+                    $status = $hasShiftUsersAttendanceStatus ? ($r->attendance_status ?: 'sin_dato') : null;
+                    $r->resolved_status = $status;
+
+                    $r->resolved_present = $hasShiftUsersAttendanceStatus
+                        ? in_array($r->attendance_status, ['constituye', 'reemplazo'], true)
+                        : (bool) $r->present;
+
+                    return $r;
+                })
+                ->filter()
+                ->filter(fn ($r) => (int) $r->shift_day->month === (int) $month)
+                ->values();
+
+            $byDriver = $resolved->groupBy(fn ($r) => (int) $r->firefighter_id);
+
+            foreach ($drivers as $d) {
+                $items = $byDriver->get((int) $d->id, collect());
+                $present = $items->filter(fn ($r) => (bool) $r->resolved_present)->count();
+                $days = $items->map(fn ($r) => $r->shift_day->toDateString())->unique()->count();
+
+                $rows[] = [
+                    'firefighter_id' => (int) $d->id,
+                    'name' => trim((string) ($d->nombres ?? '') . ' ' . (string) ($d->apellido_paterno ?? '')),
+                    'guardia' => $d->guardia?->name ?? 'Sin Asignar',
+                    'present_shifts' => (int) $present,
+                    'unique_days' => (int) $days,
+                ];
+            }
+        }
+
+        $topDrivers = collect($rows)
+            ->sortByDesc('present_shifts')
+            ->values()
+            ->take(20);
+
+        return view('admin.reports.drivers', compact('month', 'year', 'topDrivers'));
     }
 
     public function replacements(Request $request)
@@ -226,6 +427,22 @@ class ReportController extends Controller
         [$from, $to, $guardiaId] = $this->parseReplacementsFilters($request);
         $base = $this->replacementsBaseQuery($from, $to, $guardiaId);
 
+        $baseAllTime = StaffEvent::query()
+            ->where('type', 'replacement')
+            ->where('status', 'approved')
+            ->when($guardiaId, function ($q) use ($guardiaId) {
+                $useFirefighterIds = Schema::hasColumn('staff_events', 'firefighter_id');
+                if ($useFirefighterIds) {
+                    $q->whereIn('firefighter_id', function ($q2) use ($guardiaId) {
+                        $q2->select('id')->from('bomberos')->where('guardia_id', $guardiaId);
+                    });
+                } else {
+                    $q->whereIn('user_id', function ($q2) use ($guardiaId) {
+                        $q2->select('id')->from('users')->where('guardia_id', $guardiaId);
+                    });
+                }
+            });
+
         $useFirefighterIds = Schema::hasColumn('staff_events', 'firefighter_id');
 
         $events = (clone $base)
@@ -240,6 +457,7 @@ class ReportController extends Controller
             ->get();
 
         $totalReplacements = (clone $base)->count();
+        $totalReplacementsAllTime = (clone $baseAllTime)->count();
 
         $uniqueReplacers = $useFirefighterIds
             ? (clone $base)->whereNotNull('replacement_firefighter_id')->distinct('replacement_firefighter_id')->count('replacement_firefighter_id')
@@ -296,6 +514,34 @@ class ReportController extends Controller
             ->groupBy('guardia_name')
             ->orderByDesc('total')
             ->get();
+
+        $peakGuardiaRow = $replacementsByGuardia->first();
+        $peakGuardia = $peakGuardiaRow ? (string) $peakGuardiaRow->guardia_name : '—';
+        $peakGuardiaTotal = $peakGuardiaRow ? (int) $peakGuardiaRow->total : 0;
+
+        $replacementsByMonth = DB::table('staff_events')
+            ->selectRaw('DATE_FORMAT(start_date, "%Y-%m") as ym, COUNT(*) as total')
+            ->where('type', 'replacement')
+            ->where('status', 'approved')
+            ->whereBetween('start_date', [$from, $to])
+            ->when($guardiaId, function ($q) use ($guardiaId, $useFirefighterIds) {
+                if ($useFirefighterIds) {
+                    $q->whereIn('firefighter_id', function ($q2) use ($guardiaId) {
+                        $q2->select('id')->from('bomberos')->where('guardia_id', $guardiaId);
+                    });
+                } else {
+                    $q->whereIn('user_id', function ($q2) use ($guardiaId) {
+                        $q2->select('id')->from('users')->where('guardia_id', $guardiaId);
+                    });
+                }
+            })
+            ->groupBy('ym')
+            ->orderBy('ym')
+            ->get();
+
+        $peakMonthRow = $replacementsByMonth->sortByDesc('total')->first();
+        $peakMonth = $peakMonthRow ? (string) $peakMonthRow->ym : '—';
+        $peakMonthTotal = $peakMonthRow ? (int) $peakMonthRow->total : 0;
 
         $topReplacersRaw = DB::table('staff_events')
             ->when($useFirefighterIds, function ($q) {
@@ -389,6 +635,10 @@ class ReportController extends Controller
                 'labels' => array_keys($period),
                 'data' => array_values($period),
             ],
+            'by_month' => [
+                'labels' => $replacementsByMonth->pluck('ym')->values(),
+                'data' => $replacementsByMonth->pluck('total')->map(fn ($v) => (int) $v)->values(),
+            ],
             'by_guardia' => [
                 'labels' => $replacementsByGuardia->pluck('guardia_name')->values(),
                 'data' => $replacementsByGuardia->pluck('total')->map(fn ($v) => (int) $v)->values(),
@@ -401,8 +651,13 @@ class ReportController extends Controller
 
         $kpis = [
             'total_replacements' => (int) $totalReplacements,
+            'total_replacements_all_time' => (int) $totalReplacementsAllTime,
             'unique_replacers' => (int) $uniqueReplacers,
             'unique_replaced' => (int) $uniqueReplaced,
+            'peak_month' => $peakMonth,
+            'peak_month_total' => (int) $peakMonthTotal,
+            'peak_guardia' => $peakGuardia,
+            'peak_guardia_total' => (int) $peakGuardiaTotal,
             'range_label' => $from->format('d-m-Y') . ' → ' . $to->format('d-m-Y'),
         ];
 

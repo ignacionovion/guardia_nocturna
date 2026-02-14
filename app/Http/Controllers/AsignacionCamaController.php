@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Bed;
 use App\Models\BedAssignment;
 use App\Models\MapaBomberoUsuarioLegacy;
+use App\Services\SystemEmailService;
 use Illuminate\Support\Facades\Schema;
 
 class AsignacionCamaController extends Controller
@@ -70,9 +71,22 @@ class AsignacionCamaController extends Controller
 
         // Crear asignación
         $assignment = BedAssignment::create($data);
+        $assignment->load(['bed', 'firefighter']);
 
         // Actualizar estado de la cama
         $bed->update(['status' => 'occupied']);
+
+        $lines = [];
+        $lines[] = 'Cama: #' . (string) ($bed->number ?? $bed->id);
+        $lines[] = 'Voluntario: ' . trim((string) ($assignment->firefighter?->nombres ?? '') . ' ' . (string) ($assignment->firefighter?->apellido_paterno ?? ''));
+        $lines[] = 'Notas: ' . (string) ($assignment->notes ?? '');
+
+        SystemEmailService::send(
+            type: 'beds',
+            subject: 'Cama asignada',
+            lines: $lines,
+            actorEmail: auth()->user()?->email
+        );
 
         return redirect()->route('camas')->with('success', 'Cama asignada correctamente.');
     }
@@ -99,7 +113,19 @@ class AsignacionCamaController extends Controller
                  'released_at' => now(),
              ]);
 
+             $assignment->load(['bed', 'firefighter']);
              $assignment->bed->update(['status' => 'available']);
+
+             $lines = [];
+             $lines[] = 'Cama: #' . (string) ($assignment->bed?->number ?? $assignment->bed_id);
+             $lines[] = 'Voluntario: ' . trim((string) ($assignment->firefighter?->nombres ?? '') . ' ' . (string) ($assignment->firefighter?->apellido_paterno ?? ''));
+
+             SystemEmailService::send(
+                 type: 'beds',
+                 subject: 'Cama liberada',
+                 lines: $lines,
+                 actorEmail: auth()->user()?->email
+             );
              
              return redirect()->route('camas')->with('success', 'Cama liberada correctamente.');
         }

@@ -18,6 +18,7 @@ use App\Services\ReplacementService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
 
@@ -62,6 +63,16 @@ class AdministradorController extends Controller
 
         $firefighter->fuera_de_servicio = !$firefighter->fuera_de_servicio;
         $firefighter->save();
+
+        StaffEvent::create([
+            'firefighter_id' => $firefighter->id,
+            'type' => 'service_status',
+            'start_date' => now(),
+            'end_date' => null,
+            'description' => $firefighter->fuera_de_servicio ? 'inhabilitado' : 'habilitado',
+            'status' => 'approved',
+            'user_id' => $user->id,
+        ]);
 
         $status = $firefighter->fuera_de_servicio ? 'FUERA DE SERVICIO' : 'EN SERVICIO';
         return redirect()->back()->with('success', "Estado actualizado: {$firefighter->nombres} ahora está {$status}.");
@@ -723,8 +734,21 @@ class AdministradorController extends Controller
         $guardia = Guardia::create(['name' => $request->name]);
 
         // Crear usuario automático para gestión de la guardia
+        $baseUsername = Str::slug((string) $request->name);
+        if ($baseUsername === '') {
+            $baseUsername = 'guardia';
+        }
+
+        $username = $baseUsername;
+        $i = 2;
+        while (User::where('username', $username)->exists()) {
+            $username = $baseUsername . '-' . $i;
+            $i++;
+        }
+
         User::create([
             'name' => $request->name,
+            'username' => $username,
             'email' => strtolower(str_replace(' ', '.', $request->name)) . '@guardianocturna.cl',
             'password' => Hash::make('password'),
             'role' => 'guardia',
