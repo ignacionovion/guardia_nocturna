@@ -13,7 +13,7 @@ class SystemNotificationMail extends Mailable
     public function __construct(
         public string $fromAddress,
         public string $fromName,
-        public string $subject,
+        public string $mailSubject,
         public array $lines,
     ) {}
 
@@ -21,7 +21,7 @@ class SystemNotificationMail extends Mailable
     {
         return $this
             ->from($this->fromAddress, $this->fromName)
-            ->subject($this->subject)
+            ->subject($this->mailSubject)
             ->view('emails.system_notification');
     }
 }

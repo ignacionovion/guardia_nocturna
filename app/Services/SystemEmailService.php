@@ -97,7 +97,7 @@ class SystemEmailService
             Mail::to($recipients)->send(new SystemNotificationMail(
                 fromAddress: (string) ($from['address'] ?? ''),
                 fromName: (string) ($from['name'] ?? ''),
-                subject: $subject,
+                mailSubject: $subject,
                 lines: $lines
             ));
         } catch (\Throwable $e) {
