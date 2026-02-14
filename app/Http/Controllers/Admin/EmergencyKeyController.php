@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\EmergencyKey;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Shuchkin\SimpleXLSX;
 
 class EmergencyKeyController extends Controller
 {
@@ -98,23 +99,22 @@ class EmergencyKeyController extends Controller
                 $data = array_map('str_getcsv', file($path));
             } elseif (strtolower($extension) === 'xlsx') {
                 $tempPath = storage_path('app/temp_import_keys_' . uniqid() . '.xlsx');
-                move_uploaded_file($path, $tempPath);
 
-                $scriptPath = base_path('app/Scripts/excel_to_json.py');
-                $command = "python3 " . escapeshellarg($scriptPath) . " " . escapeshellarg($tempPath);
-                $output = shell_exec($command);
+                $uploaded = $request->file('file');
+                $uploaded->move(dirname($tempPath), basename($tempPath));
+
+                $xlsx = SimpleXLSX::parse($tempPath);
+                if (!$xlsx) {
+                    if (file_exists($tempPath)) {
+                        unlink($tempPath);
+                    }
+                    return response()->json(['error' => 'Error leyendo Excel.'], 400);
+                }
+
+                $data = $xlsx->rows();
 
                 if (file_exists($tempPath)) {
                     unlink($tempPath);
-                }
-
-                $jsonData = json_decode($output, true);
-                if (isset($jsonData['error'])) {
-                    return response()->json(['error' => 'Error leyendo Excel: ' . $jsonData['error']], 400);
-                }
-
-                if (is_array($jsonData)) {
-                    $data = $jsonData;
                 }
             }
         } catch (\Exception $e) {
