@@ -31,6 +31,7 @@
 
                 <!-- Menú de Navegación -->
                 <div class="hidden md:flex items-center space-x-1">
+                    @auth
                     @if(Auth::user()->role === 'guardia')
                         <a href="{{ route('dashboard') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('dashboard') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
                             <i class="fas fa-home mr-1.5 opacity-70"></i> Inicio
@@ -147,6 +148,7 @@
                             <i class="fas fa-chart-pie mr-1.5 text-red-400"></i> Reportes
                         </a>
                     @endif
+                    @endauth
                 </div>
 
                 <!-- Perfil de Usuario -->
