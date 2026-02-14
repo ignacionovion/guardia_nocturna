@@ -163,6 +163,12 @@
                                     };
 
                                     $statusHeaderClass = match ($status) {
+                                        'constituye' => 'bg-emerald-950/40',
+                                        'reemplazo' => 'bg-purple-950/40',
+                                        'permiso' => 'bg-amber-950/35',
+                                        'ausente' => 'bg-slate-950',
+                                        'licencia' => 'bg-blue-950/40',
+                                        'falta' => 'bg-rose-950/40',
                                         default => 'bg-slate-950',
                                     };
                                 @endphp
@@ -187,7 +193,6 @@
                                                     Inhabilitar
                                                 </button>
                                             @endif
-                                            <div id="card-dot-{{ $staff->id }}" class="w-3 h-3 rounded-full {{ $statusDotClass }}"></div>
                                         </div>
                                     </div>
 
@@ -548,7 +553,7 @@
                     <p class="text-xl font-bold mt-2">
                         @if($currentShift)
                             <span class="text-green-600 flex items-center gap-2">
-                                <span class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></span> CONSTITUIDA
+                                CONSTITUIDA
                             </span>
                         @else
                             <!-- <span class="text-slate-400 italic font-normal text-base">Sin constituir</span> -->
@@ -1152,16 +1157,16 @@
         }
 
         function updateGuardiaCardUI(userId, status) {
-            const dot = document.getElementById('card-dot-' + userId);
-            if (dot) {
-                dot.classList.remove('bg-emerald-400','bg-purple-400','bg-amber-400','bg-slate-500','bg-blue-400','bg-red-400');
-                if (status === 'constituye') dot.classList.add('bg-emerald-400');
-                else if (status === 'reemplazo') dot.classList.add('bg-purple-400');
-                else if (status === 'permiso') dot.classList.add('bg-amber-400');
-                else if (status === 'ausente') dot.classList.add('bg-slate-500');
-                else if (status === 'licencia') dot.classList.add('bg-blue-400');
-                else if (status === 'falta') dot.classList.add('bg-red-400');
-                else dot.classList.add('bg-slate-500');
+            const header = document.getElementById('card-header-' + userId);
+            if (header) {
+                header.classList.remove('bg-emerald-950/40','bg-purple-950/40','bg-amber-950/35','bg-slate-950','bg-blue-950/40','bg-rose-950/40');
+                if (status === 'constituye') header.classList.add('bg-emerald-950/40');
+                else if (status === 'reemplazo') header.classList.add('bg-purple-950/40');
+                else if (status === 'permiso') header.classList.add('bg-amber-950/35');
+                else if (status === 'ausente') header.classList.add('bg-slate-950');
+                else if (status === 'licencia') header.classList.add('bg-blue-950/40');
+                else if (status === 'falta') header.classList.add('bg-rose-950/40');
+                else header.classList.add('bg-slate-950');
             }
 
             document.querySelectorAll('button[data-user-id="' + userId + '"][data-status]').forEach(btn => {
@@ -1225,6 +1230,31 @@
             if (!modal) return;
             modal.classList.add('hidden');
         }
+
+        @if(Auth::check() && Auth::user()->role === 'guardia')
+            async function kioskPing() {
+                try {
+                    const res = await fetch('{{ route('kiosk.ping') }}', {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                        },
+                        credentials: 'same-origin',
+                        cache: 'no-store',
+                    });
+
+                    if (res.status === 401) {
+                        window.location.reload();
+                        return;
+                    }
+                } catch (e) {
+                    // noop
+                }
+            }
+
+            kioskPing();
+            setInterval(kioskPing, 60 * 1000);
+        @endif
     </script>
 
     <div id="undoReplacementModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center">

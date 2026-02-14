@@ -32,6 +32,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/camas', [TableroController::class, 'camas'])->name('camas');
     Route::get('/guardia', [GuardiaController::class, 'index'])->name('guardia');
 
+    Route::get('/kiosk/ping', [TableroController::class, 'kioskPing'])->name('kiosk.ping');
+
     Route::get('/aseo', [CleaningWebController::class, 'index'])->name('guardia.aseo');
     Route::post('/aseo', [CleaningWebController::class, 'store'])->name('guardia.aseo.store');
 
@@ -68,6 +70,8 @@ Route::middleware('auth')->group(function () {
     
     // Ruta para eliminación masiva
     Route::delete('/admin/volunteers/bulk-destroy', [BomberoController::class, 'bulkDestroy'])->name('admin.volunteers.bulk_destroy');
+
+    Route::delete('/admin/volunteers/purge', [BomberoController::class, 'purgeAll'])->name('admin.volunteers.purge');
 
     Route::delete('/admin/volunteers/{volunteer}/photo', [BomberoController::class, 'destroyPhoto'])->name('admin.volunteers.photo.destroy');
     

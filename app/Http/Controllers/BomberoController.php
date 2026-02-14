@@ -208,6 +208,37 @@ class BomberoController extends Controller
         return redirect()->route('admin.volunteers.index')->with('success', "Se han eliminado $count voluntarios correctamente.");
     }
 
+    public function purgeAll(Request $request)
+    {
+        if (auth()->user()->role !== 'super_admin') {
+            abort(403, 'No autorizado.');
+        }
+
+        $validated = $request->validate([
+            'confirm_text' => ['required', 'string', 'max:50'],
+        ]);
+
+        if (trim((string) $validated['confirm_text']) !== 'ELIMINAR TODO') {
+            return redirect()->route('admin.volunteers.index')->with('warning', 'Confirmación inválida. Escribe ELIMINAR TODO para continuar.');
+        }
+
+        $photoPaths = Bombero::query()
+            ->whereNotNull('photo_path')
+            ->pluck('photo_path')
+            ->filter()
+            ->values();
+
+        $count = Bombero::query()->count();
+
+        Bombero::query()->delete();
+
+        foreach ($photoPaths as $path) {
+            Storage::disk('public')->delete((string) $path);
+        }
+
+        return redirect()->route('admin.volunteers.index')->with('success', "Se han eliminado $count voluntarios correctamente.");
+    }
+
     public function importForm()
     {
         if (!auth()->check() || auth()->user()->role !== 'super_admin') {

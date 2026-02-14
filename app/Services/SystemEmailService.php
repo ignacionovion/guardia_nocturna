@@ -36,6 +36,9 @@ class SystemEmailService
     public static function recipients(): array
     {
         $value = (string) SystemSetting::getValue('mail_recipients', '');
+        if (trim($value) === '') {
+            $value = (string) env('MAIL_RECIPIENTS', '');
+        }
         return collect(explode(',', $value))
             ->map(fn ($v) => trim((string) $v))
             ->filter(fn ($v) => $v !== '')
@@ -47,7 +50,14 @@ class SystemEmailService
     public static function from(): array
     {
         $address = (string) SystemSetting::getValue('mail_from_address', config('mail.from.address'));
+        if (trim($address) === '') {
+            $address = (string) env('MAIL_FROM_ADDRESS', config('mail.from.address'));
+        }
+
         $name = (string) SystemSetting::getValue('mail_from_name', config('mail.from.name'));
+        if (trim($name) === '') {
+            $name = (string) env('MAIL_FROM_NAME', config('mail.from.name'));
+        }
 
         return [
             'address' => $address,

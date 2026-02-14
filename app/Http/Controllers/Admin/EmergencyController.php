@@ -93,6 +93,11 @@ class EmergencyController extends Controller
             return collect();
         }
 
+        $guardiaId = $authUser?->guardia_id;
+        if (!$guardiaId && $authUser?->role === 'super_admin') {
+            $guardiaId = $this->resolveActiveGuardia(Carbon::now())?->id;
+        }
+
         $shiftUsers = ShiftUser::with(['firefighter', 'user'])
             ->where('shift_id', $shift->id)
             ->where(function ($q) {
@@ -115,9 +120,9 @@ class EmergencyController extends Controller
         // Fallback: en datos legacy puede no existir firefighter_id en shift_users.
         // En ese caso, ofrecemos una lista razonable para "A cargo" basada en la dotación
         // marcada como presente en la guardia del usuario.
-        if ($firefighters->isEmpty() && $authUser?->guardia_id) {
+        if ($firefighters->isEmpty() && $guardiaId) {
             return Bombero::query()
-                ->where('guardia_id', $authUser->guardia_id)
+                ->where('guardia_id', $guardiaId)
                 ->whereIn('estado_asistencia', ['constituye', 'reemplazo'])
                 ->where(function ($q) {
                     $q->whereNull('fuera_de_servicio')->orWhere('fuera_de_servicio', false);
@@ -127,17 +132,15 @@ class EmergencyController extends Controller
                 ->get();
         }
 
-        if ($shift->leader?->guardia_id) {
+        if ($guardiaId) {
+            $firefighters = $firefighters->where('guardia_id', $guardiaId);
+        } elseif ($shift->leader?->guardia_id) {
             $firefighters = $firefighters->where('guardia_id', $shift->leader->guardia_id);
         }
 
-        if ($authUser?->guardia_id) {
-            $firefighters = $firefighters->where('guardia_id', $authUser->guardia_id);
-        }
-
-        if ($firefighters->isEmpty() && $authUser?->guardia_id) {
+        if ($firefighters->isEmpty() && $guardiaId) {
             return Bombero::query()
-                ->where('guardia_id', $authUser->guardia_id)
+                ->where('guardia_id', $guardiaId)
                 ->whereIn('estado_asistencia', ['constituye', 'reemplazo'])
                 ->where(function ($q) {
                     $q->whereNull('fuera_de_servicio')->orWhere('fuera_de_servicio', false);

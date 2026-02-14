@@ -312,6 +312,18 @@ class TableroController extends Controller
                     : collect();
             }
 
+            if (($academyLeadersFirefighters ?? collect())->isEmpty()) {
+                $academyLeadersFirefighters = Bombero::query()
+                    ->where('guardia_id', $guardiaIdForGuardiaUser)
+                    ->whereIn('estado_asistencia', ['constituye', 'reemplazo'])
+                    ->where(function ($q) {
+                        $q->whereNull('fuera_de_servicio')->orWhere('fuera_de_servicio', false);
+                    })
+                    ->orderBy('apellido_paterno')
+                    ->orderBy('nombres')
+                    ->get();
+            }
+
             $academyLeaders = User::query()
                 ->where('guardia_id', $guardiaIdForGuardiaUser)
                 ->whereIn('role', ['bombero', 'jefe_guardia'])
@@ -377,6 +389,21 @@ class TableroController extends Controller
             'replacementByReplacement',
             'activeGuardia'
         ));
+    }
+
+    public function kioskPing(Request $request)
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['ok' => false], 401);
+        }
+
+        $request->session()->put('kiosk_last_ping_at', now()->toISOString());
+
+        return response()->json([
+            'ok' => true,
+            'ts' => now()->toISOString(),
+        ]);
     }
 
     public function camas()

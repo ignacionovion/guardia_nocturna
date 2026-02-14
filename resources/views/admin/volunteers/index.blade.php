@@ -13,6 +13,12 @@
                 <i class="fas fa-trash-can mr-2"></i> Eliminar (<span id="selected-count">0</span>)
             </button>
 
+            @if(auth()->check() && auth()->user()->role === 'super_admin')
+                <button type="button" class="inline-flex items-center bg-rose-700 hover:bg-rose-800 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200 transform hover:-translate-y-0.5" onclick="openPurgeModal()">
+                    <i class="fas fa-bomb mr-2"></i> Eliminar todos
+                </button>
+            @endif
+
             <a href="{{ route('admin.volunteers.import') }}" class="inline-flex items-center bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200 transform hover:-translate-y-0.5">
                 <i class="fas fa-file-excel mr-2"></i> Importar Excel
             </a>
@@ -306,5 +312,41 @@
     </script>
             </div>
         </div>
+
+        @if(auth()->check() && auth()->user()->role === 'super_admin')
+            <div id="purgeModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center">
+                <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 border border-slate-200 overflow-hidden">
+                    <div class="p-5 border-b border-slate-200 bg-slate-50">
+                        <div class="text-sm font-black text-slate-800 uppercase tracking-widest">Eliminar todos los voluntarios</div>
+                        <div class="mt-2 text-sm text-slate-600">Esta acción es irreversible. Para confirmar escribe <span class="font-black">ELIMINAR TODO</span>.</div>
+                    </div>
+                    <form method="POST" action="{{ route('admin.volunteers.purge') }}" class="p-5">
+                        @csrf
+                        @method('DELETE')
+                        <input type="text" name="confirm_text" class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-white text-slate-800 font-semibold" placeholder="ELIMINAR TODO" required>
+                        <div class="mt-4 flex gap-2">
+                            <button type="button" onclick="closePurgeModal()" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-black uppercase tracking-widest text-[11px] py-3 rounded-xl border border-slate-200">Cancelar</button>
+                            <button type="submit" class="w-1/2 bg-rose-700 hover:bg-rose-800 text-white font-black uppercase tracking-widest text-[11px] py-3 rounded-xl">Eliminar todo</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        @endif
     @endif
 @endsection
+
+@if(auth()->check() && auth()->user()->role === 'super_admin')
+    <script>
+        window.openPurgeModal = function () {
+            const modal = document.getElementById('purgeModal');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+        }
+
+        window.closePurgeModal = function () {
+            const modal = document.getElementById('purgeModal');
+            if (!modal) return;
+            modal.classList.add('hidden');
+        }
+    </script>
+@endif
