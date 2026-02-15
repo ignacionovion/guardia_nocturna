@@ -95,7 +95,11 @@
                             <div class="text-sm font-extrabold text-slate-900">{{ $label }}</div>
                         </div>
                         <div class="col-span-5">
-                            <input type="text" name="data[cantidades][{{ $key }}]" value="{{ $data['cantidades'][$key] ?? '' }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm" placeholder="Cantidad">
+                            <input type="text" name="data[cantidades][{{ $key }}]" value="{{ $data['cantidades'][$key] ?? '' }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm" placeholder="Cantidad" data-cantidad-item="{{ $key }}">
+                        </div>
+
+                        <div class="col-span-12 hidden" data-cantidad-novedad-row="{{ $key }}">
+                            <input type="text" name="data[cantidades_novedades][{{ $key }}]" value="{{ $data['cantidades_novedades'][$key] ?? '' }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm" placeholder="Novedad">
                         </div>
                     </div>
                 @endforeach
@@ -115,4 +119,30 @@
         if (!el) return;
         el.classList.toggle('hidden');
     }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        function syncCantidadNovedad(key) {
+            const cantidad = document.querySelector('[data-cantidad-item="' + key + '"]');
+            const row = document.querySelector('[data-cantidad-novedad-row="' + key + '"]');
+            if (!cantidad || !row) return;
+
+            const v = String(cantidad.value ?? '').trim();
+            if (v === '0') {
+                row.classList.remove('hidden');
+            } else {
+                row.classList.add('hidden');
+                const input = row.querySelector('input');
+                if (input) input.value = '';
+            }
+        }
+
+        document.querySelectorAll('[data-cantidad-item]').forEach(function (input) {
+            const key = input.getAttribute('data-cantidad-item');
+            if (!key) return;
+            syncCantidadNovedad(key);
+            input.addEventListener('input', function () {
+                syncCantidadNovedad(key);
+            });
+        });
+    });
 </script>

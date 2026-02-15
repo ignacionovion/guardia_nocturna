@@ -406,6 +406,45 @@ class TableroController extends Controller
         ]);
     }
 
+    public function guardiaSnapshot(Request $request)
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['ok' => false], 401);
+        }
+
+        if ($user->role !== 'guardia') {
+            return response()->json(['ok' => false], 403);
+        }
+
+        $guardiaId = $user->guardia_id;
+        if (!$guardiaId) {
+            $guardiaId = Guardia::whereRaw('lower(name) = ?', [strtolower($user->name)])->value('id');
+        }
+
+        if (!$guardiaId) {
+            return response()->json(['ok' => false], 403);
+        }
+
+        $latestNovelty = Novelty::query()->latest('updated_at')->value('updated_at');
+        $latestBombero = Bombero::query()->where('guardia_id', $guardiaId)->latest('updated_at')->value('updated_at');
+        $latestReplacement = ReemplazoBombero::query()->latest('updated_at')->value('updated_at');
+        $attendanceSavedAt = GuardiaAttendanceRecord::query()
+            ->where('guardia_id', $guardiaId)
+            ->whereDate('date', Carbon::today()->toDateString())
+            ->value('saved_at');
+
+        return response()->json([
+            'ok' => true,
+            'guardia_id' => (int) $guardiaId,
+            'latest_novelty_at' => $latestNovelty?->toISOString(),
+            'latest_bombero_at' => $latestBombero?->toISOString(),
+            'latest_replacement_at' => $latestReplacement?->toISOString(),
+            'attendance_saved_at' => $attendanceSavedAt?->toISOString(),
+            'ts' => now()->toISOString(),
+        ]);
+    }
+
     public function camas()
     {
         $user = auth()->user();

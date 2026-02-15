@@ -939,7 +939,8 @@ class AdministradorController extends Controller
             abort(403, 'No autorizado.');
         }
 
-        $now = Carbon::now();
+        $tz = SystemSetting::getValue('guardia_schedule_tz', env('GUARDIA_SCHEDULE_TZ', config('app.timezone')));
+        $now = Carbon::now($tz);
         $attendanceEnableTime = SystemSetting::getValue('attendance_enable_time', '21:00');
         $attendanceDisableTime = SystemSetting::getValue('attendance_disable_time', '10:00');
 
@@ -962,8 +963,16 @@ class AdministradorController extends Controller
 
         $guardia = Guardia::findOrFail($id);
 
-        // Al momento de constituir turno, limpiar transitorios/reemplazos del turno anterior
-        $this->cleanupTransitoriosOnConstitution($guardia);
+        $hasAttendanceSavedToday = GuardiaAttendanceRecord::query()
+            ->where('guardia_id', $guardia->id)
+            ->whereDate('date', Carbon::today($tz)->toDateString())
+            ->exists();
+
+        // Al momento de constituir turno, limpiar transitorios/reemplazos del turno anterior.
+        // Importante: solo hacerlo 1 vez al día (si no, al guardar asistencia más tarde puede borrar refuerzos/reemplazos).
+        if (!$hasAttendanceSavedToday) {
+            $this->cleanupTransitoriosOnConstitution($guardia);
+        }
         
         // Si es cuenta de guardia, verificar propiedad
         if (auth()->user()->role === 'guardia') {
@@ -1055,11 +1064,11 @@ class AdministradorController extends Controller
             GuardiaAttendanceRecord::updateOrCreate(
                 [
                     'guardia_id' => $guardia->id,
-                    'date' => Carbon::today(),
+                    'date' => Carbon::today($tz),
                 ],
                 [
                     'saved_by_user_id' => auth()->id(),
-                    'saved_at' => Carbon::now(),
+                    'saved_at' => Carbon::now($tz),
                 ]
             );
         });

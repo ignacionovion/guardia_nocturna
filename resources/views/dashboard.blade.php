@@ -842,6 +842,13 @@
         window.__attendanceSavedToday = @json((bool) ($hasAttendanceSavedToday ?? false));
         window.__attendanceDirty = false;
 
+        window.__guardiaSnapshot = {
+            latest_novelty_at: @json(optional(($guardiaNovelties ?? null)?->first()?->updated_at ?? null)?->toISOString()),
+            latest_bombero_at: @json(optional(($myStaff ?? collect())->max('updated_at') ?? null)?->toISOString()),
+            latest_replacement_at: @json(optional(($replacementByOriginal ?? collect())->max('updated_at') ?? null)?->toISOString()),
+            attendance_saved_at: @json(optional(($hasAttendanceSavedToday ?? false) ? (\App\Models\GuardiaAttendanceRecord::where('guardia_id', $myGuardia->id ?? null)->whereDate('date', \Carbon\Carbon::today()->toDateString())->value('saved_at')) : null)?->toISOString()),
+        };
+
         function markAttendanceDirty() {
             if (!window.__attendanceSavedToday) return;
             if (window.__attendanceDirty) return;
@@ -1254,6 +1261,48 @@
 
             kioskPing();
             setInterval(kioskPing, 60 * 1000);
+
+            async function checkGuardiaUpdates() {
+                try {
+                    if (window.__attendanceDirty) return;
+                    const res = await fetch('{{ route('guardia.snapshot') }}', {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                        },
+                        credentials: 'same-origin',
+                        cache: 'no-store',
+                    });
+                    if (!res.ok) return;
+
+                    const data = await res.json();
+                    if (!data || !data.ok) return;
+
+                    const prev = window.__guardiaSnapshot || {};
+                    const changed = (
+                        (data.latest_novelty_at && data.latest_novelty_at !== prev.latest_novelty_at) ||
+                        (data.latest_bombero_at && data.latest_bombero_at !== prev.latest_bombero_at) ||
+                        (data.latest_replacement_at && data.latest_replacement_at !== prev.latest_replacement_at) ||
+                        (data.attendance_saved_at && data.attendance_saved_at !== prev.attendance_saved_at)
+                    );
+
+                    if (changed) {
+                        window.location.reload();
+                        return;
+                    }
+
+                    window.__guardiaSnapshot = {
+                        latest_novelty_at: data.latest_novelty_at,
+                        latest_bombero_at: data.latest_bombero_at,
+                        latest_replacement_at: data.latest_replacement_at,
+                        attendance_saved_at: data.attendance_saved_at,
+                    };
+                } catch (e) {
+                    // noop
+                }
+            }
+
+            setInterval(checkGuardiaUpdates, 20 * 1000);
         @endif
     </script>
 

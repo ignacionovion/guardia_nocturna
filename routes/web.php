@@ -34,6 +34,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/kiosk/ping', [TableroController::class, 'kioskPing'])->name('kiosk.ping');
 
+    Route::get('/guardia/snapshot', [TableroController::class, 'guardiaSnapshot'])->name('guardia.snapshot');
+
     Route::get('/aseo', [CleaningWebController::class, 'index'])->name('guardia.aseo');
     Route::post('/aseo', [CleaningWebController::class, 'store'])->name('guardia.aseo.store');
 
