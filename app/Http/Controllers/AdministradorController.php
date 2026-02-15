@@ -962,17 +962,6 @@ class AdministradorController extends Controller
         }
 
         $guardia = Guardia::findOrFail($id);
-
-        $hasAttendanceSavedToday = GuardiaAttendanceRecord::query()
-            ->where('guardia_id', $guardia->id)
-            ->whereDate('date', Carbon::today($tz)->toDateString())
-            ->exists();
-
-        // Al momento de constituir turno, limpiar transitorios/reemplazos del turno anterior.
-        // Importante: solo hacerlo 1 vez al día (si no, al guardar asistencia más tarde puede borrar refuerzos/reemplazos).
-        if (!$hasAttendanceSavedToday) {
-            $this->cleanupTransitoriosOnConstitution($guardia);
-        }
         
         // Si es cuenta de guardia, verificar propiedad
         if (auth()->user()->role === 'guardia') {

@@ -12,12 +12,14 @@ use Illuminate\Support\Facades\Schema;
 use App\Models\MapaBomberoUsuarioLegacy;
 use App\Services\ReplacementService;
 use Carbon\Carbon;
+use App\Models\SystemSetting;
 
 class GuardiaController extends Controller
 {
     private function cleanupTransitoriosOnConstitution(Guardia $guardia): void
     {
-        $now = Carbon::now();
+        $tz = SystemSetting::getValue('guardia_schedule_tz', env('GUARDIA_SCHEDULE_TZ', config('app.timezone')));
+        $now = Carbon::now($tz);
 
         $scheduleHourToday = $now->isSunday() ? 22 : 23;
         $todayCutoff = $now->copy()->startOfDay()->addHours($scheduleHourToday);
