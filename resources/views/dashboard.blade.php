@@ -66,8 +66,8 @@
             ];
         @endphp
         <!-- VISTA ESPECÍFICA PARA CUENTA DE GUARDIA (FULLSCREEN TARJETAS) -->
-        <div class="w-full min-h-screen px-4 md:px-6 lg:px-8 py-4 bg-slate-900 text-slate-100">
-            <div class="flex items-center justify-between mb-5 gap-4 border-b border-slate-800 pb-4">
+        <div class="w-full min-h-screen px-4 md:px-6 lg:px-8 py-4 pt-[env(safe-area-inset-top)] bg-slate-900 text-slate-100">
+            <div class="sticky top-0 z-40 flex flex-col md:flex-row md:items-center md:justify-between mb-5 gap-4 border-b border-slate-800 pb-4 bg-slate-900">
                 <div class="flex items-center gap-3 min-w-0">
                     <div class="bg-red-700 p-2 rounded-lg text-white shadow-lg border border-red-600 shrink-0">
                         <i class="fas fa-gauge-high text-lg"></i>
@@ -98,33 +98,33 @@
                     </div>
                 </div>
 
-                <div class="flex-1 flex items-center justify-center">
-                    <div class="flex items-center gap-3">
+                <div class="w-full md:flex-1 flex items-center justify-start md:justify-center">
+                    <div class="flex items-center gap-2 sm:gap-3 w-full md:w-auto overflow-x-auto md:overflow-visible -mx-1 px-1">
                         <form method="POST" action="{{ route('admin.guardias.replacements.cleanup', $myGuardia->id) }}" class="hidden md:block" onsubmit="return confirm('¿Cerrar todos los reemplazos activos de la guardia?');">
                             @csrf
-                            <button type="submit" class="w-10 h-10 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center" title="Limpiar Reemplazos">
+                            <button type="submit" class="w-9 h-9 sm:w-10 sm:h-10 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center" title="Limpiar Reemplazos">
                                 <i class="fas fa-rotate-left text-[14px] text-purple-300"></i>
                             </button>
                         </form>
-                        <button type="button" onclick="toggleFullscreen()" class="w-10 h-10 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center" title="Pantalla completa">
+                        <button type="button" onclick="toggleFullscreen()" class="w-9 h-9 sm:w-10 sm:h-10 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center" title="Pantalla completa">
                             <i class="fas fa-expand text-[14px] text-slate-200"></i>
                         </button>
-                        <a href="{{ route('guardia.aseo') }}" class="w-10 h-10 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center" title="Asignación de Aseo">
+                        <a href="{{ route('guardia.aseo') }}" class="w-9 h-9 sm:w-10 sm:h-10 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center" title="Asignación de Aseo">
                             <i class="fas fa-broom text-[14px] text-red-300"></i>
                         </a>
-                        <a href="{{ route('admin.emergencies.index') }}" class="w-10 h-10 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center" title="Emergencias">
+                        <a href="{{ route('admin.emergencies.index') }}" class="w-9 h-9 sm:w-10 sm:h-10 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center" title="Emergencias">
                             <i class="fas fa-truck-medical text-[14px] text-amber-300"></i>
                         </a>
-                        <button type="button" onclick="openRefuerzoModal()" class="w-10 h-10 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center" title="Refuerzo">
+                        <button type="button" onclick="openRefuerzoModal()" class="w-9 h-9 sm:w-10 sm:h-10 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center" title="Refuerzo">
                             <i class="fas fa-user-plus text-[14px] text-sky-300"></i>
                         </button>
-                        <button form="guardia-attendance-form" type="submit" @if(!$attendanceEnabled) disabled @endif class="w-10 h-10 {{ $attendanceEnabled ? 'bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700 shadow-sm' : 'bg-slate-200 text-slate-500 border-slate-300 shadow-sm cursor-not-allowed' }} rounded-xl transition-all border flex items-center justify-center" title="Guardar Asistencia">
+                        <button form="guardia-attendance-form" type="submit" @if(!$attendanceEnabled) disabled @endif class="w-9 h-9 sm:w-10 sm:h-10 {{ $attendanceEnabled ? 'bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700 shadow-sm' : 'bg-slate-200 text-slate-500 border-slate-300 shadow-sm cursor-not-allowed' }} rounded-xl transition-all border flex items-center justify-center" title="Guardar Asistencia">
                             <i class="fas fa-floppy-disk text-[14px] {{ $attendanceEnabled ? 'text-emerald-300' : '' }}"></i>
                         </button>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-3 shrink-0">
+                <div class="flex items-center justify-between md:justify-end gap-3 shrink-0">
                     @if(isset($hasAttendanceSavedToday) && $hasAttendanceSavedToday)
                         <span id="attendance-saved-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 shrink-0">GUARDIA CONSTITUIDA</span>
                     @else
@@ -133,7 +133,7 @@
 
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="h-10 px-3 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center gap-2" title="Cerrar sesión">
+                        <button type="submit" class="h-9 sm:h-10 px-3 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center gap-2" title="Cerrar sesión">
                             <i class="fas fa-right-from-bracket text-[14px] text-rose-300"></i>
                             <span class="hidden sm:inline text-[10px] font-black uppercase tracking-widest">Salir</span>
                         </button>

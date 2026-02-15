@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'AppGuardia') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -15,7 +15,7 @@
 <body class="bg-slate-50 font-sans leading-normal tracking-normal flex flex-col min-h-screen text-slate-800">
 
     @if(!(Auth::check() && Auth::user()->role === 'guardia' && request()->routeIs('dashboard')))
-    <nav class="bg-slate-900 shadow-xl border-b-4 border-red-700 sticky top-0 z-50">
+    <nav class="bg-slate-900 shadow-xl border-b-4 border-red-700 sticky top-0 z-50 pt-[env(safe-area-inset-top)]">
         <div class="container mx-auto px-4">
             <div class="flex justify-between items-center h-16">
                 <!-- Logo / Marca -->
@@ -29,7 +29,7 @@
                     </div>
                 </a>
 
-                <!-- Menú de Navegación -->
+                <!-- Menú de Navegación (Desktop) -->
                 <div class="hidden md:flex items-center space-x-1">
                     @auth
                     @if(Auth::user()->role === 'guardia')
@@ -151,24 +151,105 @@
                     @endauth
                 </div>
 
-                <!-- Perfil de Usuario -->
-                @auth
-                    <div class="flex items-center pl-4 ml-4 border-l border-slate-700">
-                        <div class="flex flex-col items-end mr-3">
-                            <span class="text-slate-200 text-sm font-semibold leading-tight">{{ Auth::user()->name }}</span>
-                            <span class="text-slate-500 text-xs uppercase">{{ str_replace('_', ' ', Auth::user()->role) }}</span>
+                <!-- Controles Mobile + Perfil -->
+                <div class="flex items-center gap-2">
+                    <!-- Botón Menú (Mobile) -->
+                    <button type="button" id="mobile-menu-button" class="md:hidden shrink-0 bg-slate-800 text-slate-200 p-2 rounded-lg transition-all duration-200 border border-slate-700" aria-label="Abrir menú">
+                        <i class="fas fa-bars"></i>
+                    </button>
+
+                    <!-- Perfil de Usuario -->
+                    @auth
+                        <div class="flex items-center pl-3 ml-1 border-l border-slate-700">
+                            <div class="hidden sm:flex flex-col items-end mr-3">
+                                <span class="text-slate-200 text-sm font-semibold leading-tight">{{ Auth::user()->name }}</span>
+                                <span class="text-slate-500 text-xs uppercase">{{ str_replace('_', ' ', Auth::user()->role) }}</span>
+                            </div>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="bg-slate-800 hover:bg-red-900 text-slate-300 hover:text-white p-2 rounded-lg transition-all duration-200 border border-slate-700 hover:border-red-700" title="Cerrar Sesión">
+                                    <i class="fas fa-right-from-bracket"></i>
+                                </button>
+                            </form>
                         </div>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="bg-slate-800 hover:bg-red-900 text-slate-300 hover:text-white p-2 rounded-lg transition-all duration-200 border border-slate-700 hover:border-red-700" title="Cerrar Sesión">
-                                <i class="fas fa-right-from-bracket"></i>
-                            </button>
-                        </form>
+                    @endauth
+                </div>
+            </div>
+
+            <!-- Menú Mobile -->
+            <div id="mobile-menu" class="hidden md:hidden pb-4">
+                <div class="mt-3 rounded-2xl border border-slate-800 bg-slate-950/30 overflow-hidden">
+                    <div class="p-2 space-y-1">
+                        @auth
+                            @if(Auth::user()->role === 'guardia')
+                                <a href="{{ route('dashboard') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('dashboard') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+                                    <i class="fas fa-home mr-2 opacity-80"></i> Inicio
+                                </a>
+                                <a href="{{ route('camas') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('camas') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+                                    <i class="fas fa-bed mr-2 opacity-80"></i> Camas
+                                </a>
+                                <a href="{{ route('admin.dotaciones') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('admin.dotaciones*') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+                                    <i class="fas fa-users-gear mr-2 opacity-80"></i> Mi Dotación
+                                </a>
+                            @elseif(Auth::user()->role === 'super_admin')
+                                <a href="{{ route('dashboard') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('dashboard') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+                                    <i class="fas fa-home mr-2 opacity-80"></i> Inicio
+                                </a>
+                                <a href="{{ route('admin.volunteers.index') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:bg-slate-800 hover:text-white">
+                                    <i class="fas fa-users mr-2 opacity-80"></i> Voluntarios
+                                </a>
+                                <a href="{{ route('admin.emergencies.index') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:bg-slate-800 hover:text-white">
+                                    <i class="fas fa-truck-medical mr-2 opacity-80"></i> Emergencias
+                                </a>
+                                <a href="{{ route('admin.guardias') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:bg-slate-800 hover:text-white">
+                                    <i class="fas fa-shield mr-2 opacity-80"></i> Guardias
+                                </a>
+                                <a href="{{ route('admin.dotaciones') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:bg-slate-800 hover:text-white">
+                                    <i class="fas fa-users-gear mr-2 opacity-80"></i> Dotaciones
+                                </a>
+                                <a href="{{ route('admin.calendario') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:bg-slate-800 hover:text-white">
+                                    <i class="fas fa-calendar-alt mr-2 opacity-80"></i> Calendario
+                                </a>
+                                <a href="{{ route('admin.system.index') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:bg-slate-800 hover:text-white">
+                                    <i class="fas fa-gear mr-2 opacity-80"></i> Administración del Sistema
+                                </a>
+                                <a href="{{ route('admin.users.index') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:bg-slate-800 hover:text-white">
+                                    <i class="fas fa-user-shield mr-2 opacity-80"></i> Usuarios
+                                </a>
+                                <a href="{{ route('admin.reports.index') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:bg-slate-800 hover:text-white">
+                                    <i class="fas fa-chart-pie mr-2 opacity-80"></i> Reportes
+                                </a>
+                                <a href="{{ route('admin.preventivas.index') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:bg-slate-800 hover:text-white">
+                                    <i class="fas fa-clipboard-list mr-2 opacity-80"></i> Preventivas
+                                </a>
+                                <a href="{{ route('admin.planillas.index') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:bg-slate-800 hover:text-white">
+                                    <i class="fas fa-table-list mr-2 opacity-80"></i> Planillas
+                                </a>
+                            @elseif(Auth::user()->role === 'capitania')
+                                <a href="{{ route('dashboard') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('dashboard') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+                                    <i class="fas fa-home mr-2 opacity-80"></i> Inicio
+                                </a>
+                                <a href="{{ route('camas') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('camas') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+                                    <i class="fas fa-bed mr-2 opacity-80"></i> Camas
+                                </a>
+                            @endif
+                        @endauth
                     </div>
-                @endauth
+                </div>
             </div>
         </div>
     </nav>
+    <script>
+        (function () {
+            const btn = document.getElementById('mobile-menu-button');
+            const menu = document.getElementById('mobile-menu');
+            if (!btn || !menu) return;
+
+            btn.addEventListener('click', function () {
+                menu.classList.toggle('hidden');
+            });
+        })();
+    </script>
     @endif
 
     <div class="{{ Auth::check() && Auth::user()->role === 'guardia' && request()->routeIs('dashboard') ? 'w-full flex-grow' : 'container mx-auto mt-0 px-4 pb-6 flex-grow' }}">
