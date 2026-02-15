@@ -987,14 +987,14 @@ class AdministradorController extends Controller
 
         if (!$shift) {
             $shift = Shift::create([
-                'date' => Carbon::today(),
+                'date' => Carbon::today($tz),
                 'status' => 'active',
                 'shift_leader_id' => auth()->id(),
                 'notes' => 'Guardia constituida manualmente',
             ]);
         }
 
-        DB::transaction(function () use ($data, $guardia, $shift) {
+        DB::transaction(function () use ($data, $guardia, $shift, $tz) {
             $lockedReplacementIds = ReemplazoBombero::query()
                 ->where('estado', 'activo')
                 ->pluck('bombero_reemplazante_id')
