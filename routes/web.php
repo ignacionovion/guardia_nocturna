@@ -27,6 +27,9 @@ use App\Http\Controllers\Admin\InventarioImportController;
 Route::get('/preventivas/{token}', [PreventivePublicController::class, 'show'])->name('preventivas.public.show');
 Route::post('/preventivas/{token}/confirmar', [PreventivePublicController::class, 'confirm'])->name('preventivas.public.confirm');
 
+Route::get('/inventario/qr/{token}', [InventarioQrController::class, 'show'])->name('inventario.qr.show');
+Route::post('/inventario/qr/{token}/retirar', [InventarioQrController::class, 'store'])->name('inventario.qr.retiro.store');
+
 // Rutas de Autenticación
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login')->middleware('guest');
 Route::post('/login', [AuthController::class, 'login']);
@@ -73,7 +76,6 @@ Route::middleware('auth')->group(function () {
         return redirect()->route('inventario.dashboard');
     })->name('inventario.index');
 
-    Route::get('/inventario/qr/{token}', [InventarioQrController::class, 'show'])->name('inventario.qr.show');
     Route::get('/planillas/qr/{token}', [PlanillasQrController::class, 'show'])->name('planillas.qr.show');
 
     Route::middleware('inventory_access')->group(function () {

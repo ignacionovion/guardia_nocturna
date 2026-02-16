@@ -28,7 +28,7 @@
                 <div class="text-sm text-slate-300 mt-1">Selecciona un ítem e ingresa la cantidad retirada.</div>
             </div>
 
-            <form method="POST" action="{{ route('inventario.retiro.store') }}" class="p-6 space-y-4">
+            <form method="POST" action="{{ isset($token) ? route('inventario.qr.retiro.store', ['token' => $token]) : route('inventario.retiro.store') }}" class="p-6 space-y-4">
                 @csrf
 
                 @if(session('success'))

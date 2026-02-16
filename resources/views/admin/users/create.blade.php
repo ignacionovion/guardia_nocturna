@@ -38,6 +38,7 @@
                             <option value="capitania" {{ old('role') === 'capitania' ? 'selected' : '' }}>Capitanía</option>
                             <option value="guardia" {{ old('role') === 'guardia' ? 'selected' : '' }}>Cuenta de Guardia</option>
                             <option value="jefe_guardia" {{ old('role') === 'jefe_guardia' ? 'selected' : '' }}>Jefe de Guardia</option>
+                            <option value="inventario" {{ old('role') === 'inventario' ? 'selected' : '' }}>Inventario</option>
                         </select>
                     </div>
 
