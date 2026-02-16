@@ -32,7 +32,7 @@
                 <i class="fas fa-file-pdf"></i>
                 PDF
             </a>
-            <a href="{{ route('admin.preventivas.qr', $event) }}" class="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-900 font-black py-3 px-5 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest border border-slate-200">
+            <a href="{{ $status === 'active' ? route('admin.preventivas.qr', $event) : '#' }}" class="inline-flex items-center gap-2 bg-white text-slate-900 font-black py-3 px-5 rounded-xl text-[11px] transition-all shadow-md uppercase tracking-widest border border-slate-200 {{ $status === 'active' ? 'hover:bg-slate-50 hover:shadow-lg' : 'opacity-50 cursor-not-allowed pointer-events-none' }}" {{ $status === 'active' ? '' : 'aria-disabled=true tabindex=-1' }}>
                 <i class="fas fa-qrcode"></i>
                 QR
             </a>

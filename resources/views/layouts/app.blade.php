@@ -12,21 +12,21 @@
         body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body class="bg-slate-50 font-sans leading-normal tracking-normal flex flex-col min-h-screen text-slate-800">
+<body class="bg-gradient-to-b from-slate-100 via-slate-50 to-slate-100 font-sans leading-normal tracking-normal flex flex-col min-h-screen text-slate-800">
 
     @if(!(Auth::check() && Auth::user()->role === 'guardia' && request()->routeIs('dashboard')))
     <nav class="bg-slate-900 shadow-xl border-b-4 border-red-700 sticky top-0 z-50 pt-[env(safe-area-inset-top)]">
         <div class="container mx-auto px-4">
             <div class="flex justify-between items-center h-16">
                 <!-- Logo / Marca -->
-                <a href="{{ route('dashboard') }}" class="flex items-center space-x-3 group">
-                    <div class="bg-red-700 p-2 rounded-lg text-white transform group-hover:rotate-3 transition-transform duration-300 shadow-lg border border-red-600">
-                        <i class="fas fa-helmet-safety text-lg"></i>
-                    </div>
-                    <div class="flex flex-col">
-                        <span class="text-white text-lg font-bold tracking-wide uppercase leading-none">{{ config('app.name', 'AppGuardia') }}</span>
-                        <span class="text-slate-400 text-xs font-medium tracking-wider uppercase">Sistema de Gestión</span>
-                    </div>
+                <a href="{{ route('dashboard') }}" class="flex items-center group">
+                    @if(file_exists(public_path('brand/guardiapp.png')))
+                        <img src="{{ asset('brand/guardiapp.png') }}" alt="GuardiaAPP" class="h-10 w-auto drop-shadow-sm">
+                    @else
+                        <div class="bg-red-700 p-2.5 rounded-lg text-white transform group-hover:rotate-3 transition-transform duration-300 shadow-lg border border-red-600">
+                            <i class="fas fa-helmet-safety text-xl"></i>
+                        </div>
+                    @endif
                 </a>
 
                 <!-- Menú de Navegación (Desktop) -->
@@ -62,8 +62,8 @@
                                 <a href="{{ route('admin.emergencies.index') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                                     <i class="fas fa-truck-medical mr-2 text-slate-500"></i> Emergencias
                                 </a>
-                                <a href="{{ route('camas') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
-                                    <i class="fas fa-bed mr-2 text-slate-500"></i> Camas
+                                <a href="{{ route('admin.calendario') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                                    <i class="fas fa-calendar-alt mr-2 text-slate-500"></i> Calendario
                                 </a>
                             </div>
                         </div>
@@ -82,8 +82,11 @@
                                 <a href="{{ route('admin.dotaciones') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                                     <i class="fas fa-users-gear mr-2 text-slate-500"></i> Dotaciones
                                 </a>
-                                <a href="{{ route('admin.calendario') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
-                                    <i class="fas fa-calendar-alt mr-2 text-slate-500"></i> Calendario
+                                <a href="{{ route('camas') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                                    <i class="fas fa-bed mr-2 text-slate-500"></i> Camas
+                                </a>
+                                <a href="{{ route('admin.reports.index') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                                    <i class="fas fa-chart-pie mr-2 text-slate-500"></i> Reportes
                                 </a>
                             </div>
                         </div>
@@ -105,9 +108,6 @@
                             </div>
                         </div>
 
-                        <a href="{{ route('admin.reports.index') }}" class="px-3 py-2 rounded-md text-sm font-semibold transition-colors {{ request()->routeIs('admin.reports*') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
-                            <i class="fas fa-chart-pie mr-1.5 opacity-80"></i> Reportes
-                        </a>
                         <a href="{{ route('admin.preventivas.index') }}" class="px-3 py-2 rounded-md text-sm font-semibold transition-colors {{ request()->routeIs('admin.preventivas*') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                             <i class="fas fa-clipboard-list mr-1.5 opacity-80"></i> Preventivas
                         </a>
@@ -201,14 +201,17 @@
                                 <a href="{{ route('admin.emergencies.index') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:bg-slate-800 hover:text-white">
                                     <i class="fas fa-truck-medical mr-2 opacity-80"></i> Emergencias
                                 </a>
+                                <a href="{{ route('admin.calendario') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:bg-slate-800 hover:text-white">
+                                    <i class="fas fa-calendar-alt mr-2 opacity-80"></i> Calendario
+                                </a>
                                 <a href="{{ route('admin.guardias') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:bg-slate-800 hover:text-white">
                                     <i class="fas fa-shield mr-2 opacity-80"></i> Guardias
                                 </a>
                                 <a href="{{ route('admin.dotaciones') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:bg-slate-800 hover:text-white">
                                     <i class="fas fa-users-gear mr-2 opacity-80"></i> Dotaciones
                                 </a>
-                                <a href="{{ route('admin.calendario') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:bg-slate-800 hover:text-white">
-                                    <i class="fas fa-calendar-alt mr-2 opacity-80"></i> Calendario
+                                <a href="{{ route('camas') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:bg-slate-800 hover:text-white">
+                                    <i class="fas fa-bed mr-2 opacity-80"></i> Camas
                                 </a>
                                 <a href="{{ route('admin.system.index') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:bg-slate-800 hover:text-white">
                                     <i class="fas fa-gear mr-2 opacity-80"></i> Administración del Sistema
@@ -252,7 +255,7 @@
     </script>
     @endif
 
-    <div class="{{ Auth::check() && Auth::user()->role === 'guardia' && request()->routeIs('dashboard') ? 'w-full flex-grow' : 'container mx-auto mt-0 px-4 pb-6 flex-grow' }}">
+    <div class="{{ Auth::check() && Auth::user()->role === 'guardia' && request()->routeIs('dashboard') ? 'w-full flex-grow' : 'container mx-auto mt-0 px-4 pb-6 pt-6 flex-grow bg-slate-100/80 rounded-3xl border border-slate-200' }}">
         <!-- Alertas Globales -->
         @if(session('success'))
             <div id="global-toast-success" class="fixed top-5 right-5 z-[9999] max-w-md w-[calc(100vw-2.5rem)]">

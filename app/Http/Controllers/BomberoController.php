@@ -68,6 +68,7 @@ class BomberoController extends Controller
             'es_operador_rescate' => 'nullable|boolean',
             'es_asistente_trauma' => 'nullable|boolean',
             'fuera_de_servicio' => 'nullable|boolean',
+            'es_permanente' => 'nullable|boolean',
         ]);
 
         $data = $validated;
@@ -77,6 +78,7 @@ class BomberoController extends Controller
         $data['es_operador_rescate'] = $request->has('es_operador_rescate');
         $data['es_asistente_trauma'] = $request->has('es_asistente_trauma');
         $data['fuera_de_servicio'] = $request->has('fuera_de_servicio');
+        $data['es_permanente'] = $request->boolean('es_permanente');
         $data['numero_portatil'] = $request->input('numero_portatil') ?: null;
         $data['estado_asistencia'] = 'constituye';
         $data['es_titular'] = true;
@@ -121,6 +123,7 @@ class BomberoController extends Controller
             'fecha_ingreso' => 'nullable|date',
             'guardia_id' => 'nullable|exists:guardias,id',
             'fuera_de_servicio' => 'nullable|boolean',
+            'es_permanente' => 'nullable|boolean',
         ]);
 
         $data = $request->only([
@@ -142,6 +145,7 @@ class BomberoController extends Controller
         $data['es_operador_rescate'] = $request->has('es_operador_rescate');
         $data['es_asistente_trauma'] = $request->has('es_asistente_trauma');
         $data['fuera_de_servicio'] = $request->has('fuera_de_servicio');
+        $data['es_permanente'] = $request->boolean('es_permanente');
 
         $data['numero_portatil'] = $request->input('numero_portatil') ?: null;
 

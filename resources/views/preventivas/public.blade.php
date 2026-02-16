@@ -10,10 +10,14 @@
 <body class="bg-slate-900 min-h-screen text-slate-100">
     <div class="max-w-2xl mx-auto px-4 py-10">
         <div class="text-center">
-            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-slate-800 border border-slate-700 shadow-xl">
-                <i class="fas fa-qrcode text-2xl text-slate-100"></i>
-            </div>
-            <div class="mt-4 text-xs font-black uppercase tracking-widest text-slate-400">Guardias Preventivas</div>
+            @if(file_exists(public_path('brand/guardiapp9-0.png')))
+                <img src="{{ asset('brand/guardiapp9-0.png') }}" alt="GuardiaAPP" class="mx-auto h-[80px] w-auto drop-shadow-sm">
+            @else
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-slate-800 border border-slate-700 shadow-xl">
+                    <i class="fas fa-qrcode text-2xl text-slate-100"></i>
+                </div>
+            @endif
+            <div class="-mt-3 text-xs font-black uppercase tracking-widest text-slate-400">Guardias Preventivas</div>
             <div class="text-2xl font-extrabold text-white">{{ $event->title }}</div>
             <div class="text-sm text-slate-400 mt-1">Hora local: {{ $now->format('d-m-Y H:i') }}</div>
         </div>
@@ -93,7 +97,7 @@
         </div>
 
         <div class="mt-6 text-center text-xs text-slate-500">
-            {{ config('app.name', 'AppGuardia') }}
+            GuardiaAPP
         </div>
     </div>
 </body>

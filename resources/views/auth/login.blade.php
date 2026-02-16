@@ -16,11 +16,14 @@
     <div class="w-full max-w-md">
         <!-- Logo / Marca Principal -->
         <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-800 text-white mb-4 border-4 border-slate-800 shadow-2xl">
-                <i class="fas fa-helmet-safety text-4xl"></i>
-            </div>
-            <h1 class="text-3xl font-extrabold text-white tracking-tight uppercase">{{ config('app.name', 'AppGuardia') }}</h1>
-            <p class="text-slate-400 text-sm font-medium tracking-wide uppercase mt-1">Sistema de Gestión Operativa</p>
+            @if(file_exists(public_path('brand/guardiapp.png')))
+                <img src="{{ asset('brand/guardiapp.png') }}" alt="GuardiaAPP" class="mx-auto mb-1 h-[80px] w-auto">
+            @else
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-800 text-white mb-4 border-4 border-slate-800 shadow-2xl">
+                    <i class="fas fa-helmet-safety text-4xl"></i>
+                </div>
+            @endif
+            <p class="text-slate-400 text-sm font-medium tracking-wide uppercase -mt-2">Sistema de Gestión Operativa</p>
         </div>
 
         <!-- Tarjeta de Login -->

@@ -194,7 +194,7 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden lg:col-span-2">
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden lg:col-span-3">
             <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
                 <h2 class="text-lg font-bold text-slate-800 flex items-center uppercase tracking-wide">
                     <span class="w-2 h-6 bg-red-600 rounded mr-3"></span>
@@ -209,8 +209,7 @@
                 <table class="min-w-full divide-y divide-slate-200">
                     <thead class="bg-slate-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Inicio</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Fin</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Día</th>
                             <th class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Guardia</th>
                             <th class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Reemplazado</th>
                             <th class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Reemplazante</th>
@@ -220,10 +219,7 @@
                         @forelse($events as $e)
                             <tr class="hover:bg-slate-50 transition-colors">
                                 <td class="px-6 py-3 whitespace-nowrap text-sm font-bold text-slate-700">
-                                    {{ optional($e->start_date)->format('d-m-Y H:i') }}
-                                </td>
-                                <td class="px-6 py-3 whitespace-nowrap text-sm font-bold text-slate-700">
-                                    {{ optional($e->end_date)->format('d-m-Y H:i') ?? '—' }}
+                                    {{ optional($e->start_date)->format('d-m-Y') }}
                                 </td>
                                 <td class="px-6 py-3 whitespace-nowrap text-sm text-slate-600">
                                     {{ $e->firefighter?->guardia?->name ?? $e->user?->guardia?->name ?? 'Sin Asignar' }}
@@ -243,7 +239,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-6 py-10 text-center text-slate-400">Sin reemplazos en el rango seleccionado.</td>
+                                <td colspan="4" class="px-6 py-10 text-center text-slate-400">Sin reemplazos en el rango seleccionado.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -256,17 +252,21 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const chartsData = @json($charts);
-            if (!chartsData) return;
+            const safe = (chartsData && typeof chartsData === 'object') ? chartsData : {};
+
+            const timeline = safe.timeline && typeof safe.timeline === 'object' ? safe.timeline : { labels: [], data: [] };
+            const topReplacers = safe.top_replacers && typeof safe.top_replacers === 'object' ? safe.top_replacers : { labels: [], data: [] };
+            const byGuardia = safe.by_guardia && typeof safe.by_guardia === 'object' ? safe.by_guardia : { labels: [], data: [] };
 
             const elTimeline = document.getElementById('chartTimeline');
             if (elTimeline) {
                 new Chart(elTimeline, {
                     type: 'line',
                     data: {
-                        labels: chartsData.timeline.labels || [],
+                        labels: timeline.labels || [],
                         datasets: [{
                             label: 'Reemplazos',
-                            data: chartsData.timeline.data || [],
+                            data: timeline.data || [],
                             borderColor: '#7c3aed',
                             backgroundColor: 'rgba(124, 58, 237, 0.12)',
                             borderWidth: 3,
@@ -295,10 +295,10 @@
                 new Chart(elTop, {
                     type: 'bar',
                     data: {
-                        labels: chartsData.top_replacers.labels || [],
+                        labels: topReplacers.labels || [],
                         datasets: [{
                             label: 'Reemplazos',
-                            data: chartsData.top_replacers.data || [],
+                            data: topReplacers.data || [],
                             backgroundColor: 'rgba(16, 185, 129, 0.35)',
                             borderColor: '#059669',
                             borderWidth: 1,
@@ -325,10 +325,10 @@
                 new Chart(elByGuardia, {
                     type: 'bar',
                     data: {
-                        labels: chartsData.by_guardia.labels || [],
+                        labels: byGuardia.labels || [],
                         datasets: [{
                             label: 'Reemplazos',
-                            data: chartsData.by_guardia.data || [],
+                            data: byGuardia.data || [],
                             backgroundColor: 'rgba(59, 130, 246, 0.30)',
                             borderColor: '#2563eb',
                             borderWidth: 1,

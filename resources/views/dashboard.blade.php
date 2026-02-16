@@ -221,6 +221,12 @@
                                                 {{ $staff->cargo_texto ?: ($staff->es_jefe_guardia ? 'Jefe de Guardia' : 'Bombero') }}
                                             </div>
 
+                                            @if($staff->es_permanente)
+                                                <div class="mt-1 text-[9px] font-black uppercase tracking-widest text-emerald-200 bg-emerald-500/15 border border-emerald-500/25 rounded px-1.5 py-0.5 w-fit">
+                                                    PERMANENTE
+                                                </div>
+                                            @endif
+
                                             @php
                                                 $ingreso = $staff->fecha_ingreso ? \Carbon\Carbon::parse($staff->fecha_ingreso) : null;
                                                 $diff = $ingreso ? $ingreso->diff(now()) : null;

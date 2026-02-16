@@ -16,6 +16,46 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class PreventiveEventController extends Controller
 {
+    private function autoCloseExpiredEvents(?PreventiveEvent $specificEvent = null): void
+    {
+        $events = $specificEvent
+            ? collect([$specificEvent])
+            : PreventiveEvent::query()->where('status', 'active')->get();
+
+        foreach ($events as $event) {
+            if (!$event instanceof PreventiveEvent) {
+                continue;
+            }
+
+            $status = $this->normalizedStatus($event);
+            if ($status !== 'active') {
+                continue;
+            }
+
+            $tz = (string) ($event->timezone ?? 'UTC');
+            $maxEnd = PreventiveShiftTemplate::query()
+                ->where('preventive_event_id', $event->id)
+                ->max('end_time');
+
+            $maxEnd = $maxEnd ? substr((string) $maxEnd, 0, 5) : '23:59';
+            $endDate = $event->end_date?->toDateString();
+            if (!$endDate) {
+                continue;
+            }
+
+            try {
+                $endsAt = Carbon::createFromFormat('Y-m-d H:i', $endDate . ' ' . $maxEnd, $tz);
+            } catch (\Throwable $e) {
+                continue;
+            }
+
+            if (Carbon::now($tz)->greaterThanOrEqualTo($endsAt)) {
+                $event->status = 'closed';
+                $event->save();
+            }
+        }
+    }
+
     private function normalizedStatus(PreventiveEvent $event): string
     {
         $status = strtolower((string) ($event->status ?? 'draft'));
@@ -24,6 +64,7 @@ class PreventiveEventController extends Controller
 
     public function index()
     {
+        $this->autoCloseExpiredEvents();
         $events = PreventiveEvent::query()->latest()->paginate(20);
         return view('admin.preventivas.index', compact('events'));
     }
@@ -76,6 +117,7 @@ class PreventiveEventController extends Controller
 
     public function show(PreventiveEvent $event)
     {
+        $this->autoCloseExpiredEvents($event);
         $event->load(['templates' => function ($q) {
             $q->orderBy('sort_order');
         }]);
@@ -206,6 +248,12 @@ class PreventiveEventController extends Controller
 
     public function qr(PreventiveEvent $event)
     {
+        $this->autoCloseExpiredEvents($event);
+        $status = $this->normalizedStatus($event);
+        if ($status !== 'active') {
+            return back()->with('warning', 'Debes activar la preventiva para habilitar el QR.');
+        }
+
         $url = route('preventivas.public.show', $event->public_token);
         $svg = QrCode::format('svg')->size(220)->margin(1)->generate($url);
 

@@ -105,7 +105,12 @@
                                             </div>
                                         @endif
                                         <div class="ml-4">
-                                            <div class="text-sm font-bold text-slate-900">{{ $volunteer->nombres }} {{ $volunteer->apellido_paterno }}</div>
+                                            <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                                                <span>{{ $volunteer->nombres }} {{ $volunteer->apellido_paterno }}</span>
+                                                @if($volunteer->es_permanente)
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-800 border border-emerald-200">Permanente</span>
+                                                @endif
+                                            </div>
                                             <div class="text-xs text-slate-500 font-mono">{{ $volunteer->rut ?? 'S/RUT' }}</div>
 
                                             <div class="md:hidden mt-1 text-[11px] text-slate-600 font-black uppercase tracking-widest">

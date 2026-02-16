@@ -9,6 +9,8 @@ use App\Models\BedAssignment;
 use App\Models\MapaBomberoUsuarioLegacy;
 use App\Services\SystemEmailService;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AsignacionCamaController extends Controller
 {
@@ -32,63 +34,101 @@ class AsignacionCamaController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        $bed = Bed::findOrFail($validated['bed_id']);
-
-        if ($bed->status !== 'available') {
-            return back()->withErrors(['msg' => 'La cama no está disponible.']);
+        // Evitar pegarle a information_schema en cada request.
+        // Si en el futuro agregas/eliminas la columna, reinicia PHP-FPM o el servidor para limpiar cache.
+        static $hasUserIdColumn = null;
+        if ($hasUserIdColumn === null) {
+            $hasUserIdColumn = Schema::hasColumn('bed_assignments', 'user_id');
         }
 
-        // Validación: Verificar si el usuario ya tiene una cama asignada
-        $existingAssignment = BedAssignment::where(function ($q) use ($validated) {
-                $q->where('firefighter_id', $validated['firefighter_id']);
-
-                if (Schema::hasColumn('bed_assignments', 'user_id')) {
-                    $legacyUserId = MapaBomberoUsuarioLegacy::where('firefighter_id', $validated['firefighter_id'])->value('user_id');
-                    if ($legacyUserId) {
-                        $q->orWhere('user_id', $legacyUserId);
-                    }
-                }
-            })
-            ->whereNull('released_at')
-            ->first();
-
-        if ($existingAssignment) {
-            return back()->withErrors(['msg' => 'Este voluntario ya tiene asignada la cama #' . $existingAssignment->bed->number]);
-        }
-
-        $data = [
-            'bed_id' => $validated['bed_id'],
-            'firefighter_id' => $validated['firefighter_id'],
-            'notes' => $validated['notes'] ?? null,
-        ];
-
-        if (Schema::hasColumn('bed_assignments', 'user_id')) {
+        // Resolver legacy user_id una sola vez (en tu código original se hacía 2 veces)
+        $legacyUserId = null;
+        if ($hasUserIdColumn) {
             $legacyUserId = MapaBomberoUsuarioLegacy::where('firefighter_id', $validated['firefighter_id'])->value('user_id');
-            if ($legacyUserId) {
-                $data['user_id'] = $legacyUserId;
-            }
         }
 
-        // Crear asignación
-        $assignment = BedAssignment::create($data);
-        $assignment->load(['bed', 'firefighter']);
+        try {
+            // Transacción + lock para evitar condiciones de carrera (2 guardias asignando a la vez)
+            $assignment = DB::transaction(function () use ($validated, $legacyUserId) {
+                // Lock a la cama para que no la asignen en paralelo
+                $bed = Bed::whereKey($validated['bed_id'])->lockForUpdate()->firstOrFail();
 
-        // Actualizar estado de la cama
-        $bed->update(['status' => 'occupied']);
+                if ($bed->status !== 'available') {
+                    // Lanzamos excepción controlada para salir de la transacción
+                    throw new \RuntimeException('La cama no está disponible.');
+                }
 
-        $lines = [];
-        $lines[] = 'Cama: #' . (string) ($bed->number ?? $bed->id);
-        $lines[] = 'Voluntario: ' . trim((string) ($assignment->firefighter?->nombres ?? '') . ' ' . (string) ($assignment->firefighter?->apellido_paterno ?? ''));
-        $lines[] = 'Notas: ' . (string) ($assignment->notes ?? '');
+                // Validación: Verificar si el voluntario (o su usuario legacy) ya tiene una cama activa
+                $existingAssignment = BedAssignment::query()
+                    ->whereNull('released_at')
+                    ->where(function ($q) use ($validated, $legacyUserId) {
+                        $q->where('firefighter_id', $validated['firefighter_id']);
+                        if ($legacyUserId) {
+                            $q->orWhere('user_id', $legacyUserId);
+                        }
+                    })
+                    ->with('bed')
+                    ->first();
 
-        SystemEmailService::send(
-            type: 'beds',
-            subject: 'Cama asignada',
-            lines: $lines,
-            actorEmail: auth()->user()?->email
-        );
+                if ($existingAssignment) {
+                    throw new \RuntimeException('Este voluntario ya tiene asignada la cama #' . ($existingAssignment->bed->number ?? $existingAssignment->bed_id));
+                }
 
-        return redirect()->route('camas')->with('success', 'Cama asignada correctamente.');
+                $data = [
+                    'bed_id' => $validated['bed_id'],
+                    'firefighter_id' => $validated['firefighter_id'],
+                    'notes' => $validated['notes'] ?? null,
+                ];
+
+                if ($legacyUserId) {
+                    $data['user_id'] = $legacyUserId;
+                }
+
+                // Crear asignación
+                $assignment = BedAssignment::create($data);
+                $assignment->load(['bed', 'firefighter']);
+
+                // Actualizar estado de la cama
+                $bed->update(['status' => 'occupied']);
+
+                return $assignment;
+            }, 3); // 3 reintentos si hay deadlock
+
+            // Enviar email fuera de la transacción (si el SMTP se pega, no bloquea locks)
+            DB::afterCommit(function () use ($assignment) {
+                try {
+                    $bed = $assignment->bed;
+
+                    $lines = [];
+                    $lines[] = 'Cama: #' . (string) ($bed->number ?? $bed->id);
+                    $lines[] = 'Voluntario: ' . trim((string) ($assignment->firefighter?->nombres ?? '') . ' ' . (string) ($assignment->firefighter?->apellido_paterno ?? ''));
+                    $lines[] = 'Notas: ' . (string) ($assignment->notes ?? '');
+
+                    SystemEmailService::send(
+                        type: 'beds',
+                        subject: 'Cama asignada',
+                        lines: $lines,
+                        actorEmail: auth()->user()?->email
+                    );
+                } catch (\Throwable $e) {
+                    // No fallar la asignación por un problema de correo
+                    Log::warning('Fallo envío correo (beds asignada): ' . $e->getMessage(), [
+                        'bed_id' => $assignment->bed_id,
+                        'firefighter_id' => $assignment->firefighter_id,
+                    ]);
+                }
+            });
+
+            return redirect()->route('camas')->with('success', 'Cama asignada correctamente.');
+        } catch (\RuntimeException $e) {
+            return back()->withErrors(['msg' => $e->getMessage()]);
+        } catch (\Throwable $e) {
+            Log::error('Error asignando cama: ' . $e->getMessage(), [
+                'bed_id' => $validated['bed_id'] ?? null,
+                'firefighter_id' => $validated['firefighter_id'] ?? null,
+            ]);
+            return back()->withErrors(['msg' => 'Ocurrió un error al asignar la cama. Revisa los logs.']);
+        }
     }
 
     /**

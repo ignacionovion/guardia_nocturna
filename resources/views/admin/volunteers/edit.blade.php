@@ -122,6 +122,18 @@
                             <input type="date" name="fecha_ingreso" value="{{ old('fecha_ingreso', optional($volunteer->fecha_ingreso)->format('Y-m-d')) }}" 
                                 class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all text-slate-600">
                         </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-bold text-slate-700 uppercase tracking-wide">¿El voluntario es guardián permanente?</label>
+                            <div class="relative">
+                                <select name="es_permanente" class="w-full appearance-none px-4 py-2.5 pr-10 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all bg-white">
+                                    <option value="0" {{ old('es_permanente', $volunteer->es_permanente ? '1' : '0') === '0' ? 'selected' : '' }}>No</option>
+                                    <option value="1" {{ old('es_permanente', $volunteer->es_permanente ? '1' : '0') === '1' ? 'selected' : '' }}>Sí</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                            </div>
+                        </div>
                         <div class="md:col-span-2 space-y-2">
                             <label class="text-sm font-bold text-slate-700 uppercase tracking-wide">Guardia Asignada</label>
                             <div class="relative">
