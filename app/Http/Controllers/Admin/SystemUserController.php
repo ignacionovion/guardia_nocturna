@@ -41,7 +41,7 @@ class SystemUserController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'role' => ['required', 'string', Rule::in(['super_admin', 'capitania', 'guardia', 'jefe_guardia'])],
+            'role' => ['required', 'string', Rule::in(['super_admin', 'capitania', 'guardia', 'jefe_guardia', 'inventario'])],
             'guardia_id' => ['nullable', 'exists:guardias,id'],
             'role_id' => ['nullable', 'exists:roles,id'],
             'password' => ['required', 'string', 'min:8'],
@@ -77,7 +77,7 @@ class SystemUserController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
-            'role' => ['required', 'string', Rule::in(['super_admin', 'capitania', 'guardia', 'jefe_guardia'])],
+            'role' => ['required', 'string', Rule::in(['super_admin', 'capitania', 'guardia', 'jefe_guardia', 'inventario'])],
             'guardia_id' => ['nullable', 'exists:guardias,id'],
             'role_id' => ['nullable', 'exists:roles,id'],
             'password' => ['nullable', 'string', 'min:8'],

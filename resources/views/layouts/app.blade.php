@@ -42,6 +42,10 @@
                         <a href="{{ route('admin.dotaciones') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('admin.dotaciones*') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
                             <i class="fas fa-users-gear mr-1.5 opacity-70"></i> Mi Dotación
                         </a>
+                    @elseif(Auth::user()->role === 'inventario')
+                        <a href="{{ route('inventario.index') }}" class="px-3 py-2 rounded-md text-sm font-semibold transition-colors {{ request()->routeIs('inventario.*') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+                            <i class="fas fa-boxes-stacked mr-1.5 opacity-80"></i> Inventario
+                        </a>
                     @elseif(Auth::user()->role === 'super_admin')
                         <a href="{{ route('dashboard') }}" class="px-3 py-2 rounded-md text-sm font-semibold transition-colors {{ request()->routeIs('dashboard') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                             <i class="fas fa-home mr-1.5 opacity-80"></i> Inicio
@@ -113,6 +117,9 @@
                         </a>
                         <a href="{{ route('admin.planillas.index') }}" class="px-3 py-2 rounded-md text-sm font-semibold transition-colors {{ request()->routeIs('admin.planillas*') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                             <i class="fas fa-table-list mr-1.5 opacity-80"></i> Planillas
+                        </a>
+                        <a href="{{ route('inventario.index') }}" class="px-3 py-2 rounded-md text-sm font-semibold transition-colors {{ request()->routeIs('inventario.*') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+                            <i class="fas fa-boxes-stacked mr-1.5 opacity-80"></i> Inventario
                         </a>
                     @elseif(Auth::user()->role === 'capitania')
                         <a href="{{ route('dashboard') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('dashboard') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
@@ -191,6 +198,10 @@
                                 <a href="{{ route('admin.dotaciones') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('admin.dotaciones*') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                                     <i class="fas fa-users-gear mr-2 opacity-80"></i> Mi Dotación
                                 </a>
+                            @elseif(Auth::user()->role === 'inventario')
+                                <a href="{{ route('inventario.index') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('inventario.*') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+                                    <i class="fas fa-boxes-stacked mr-2 opacity-80"></i> Inventario
+                                </a>
                             @elseif(Auth::user()->role === 'super_admin')
                                 <a href="{{ route('dashboard') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('dashboard') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                                     <i class="fas fa-home mr-2 opacity-80"></i> Inicio
@@ -227,6 +238,9 @@
                                 </a>
                                 <a href="{{ route('admin.planillas.index') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:bg-slate-800 hover:text-white">
                                     <i class="fas fa-table-list mr-2 opacity-80"></i> Planillas
+                                </a>
+                                <a href="{{ route('inventario.index') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:bg-slate-800 hover:text-white">
+                                    <i class="fas fa-boxes-stacked mr-2 opacity-80"></i> Inventario
                                 </a>
                             @elseif(Auth::user()->role === 'capitania')
                                 <a href="{{ route('dashboard') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('dashboard') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">

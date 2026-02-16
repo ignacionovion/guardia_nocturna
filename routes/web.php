@@ -17,6 +17,12 @@ use App\Http\Controllers\Admin\GuardiaArchiveController;
 use App\Http\Controllers\Admin\PreventiveEventController;
 use App\Http\Controllers\Admin\PlanillaController;
 use App\Http\Controllers\PreventivePublicController;
+use App\Http\Controllers\InventarioQrController;
+use App\Http\Controllers\Admin\InventarioController;
+use App\Http\Controllers\PlanillasQrController;
+use App\Http\Controllers\Admin\InventarioQrAdminController;
+use App\Http\Controllers\Admin\PlanillaQrFijoController;
+use App\Http\Controllers\Admin\InventarioImportController;
 
 Route::get('/preventivas/{token}', [PreventivePublicController::class, 'show'])->name('preventivas.public.show');
 Route::post('/preventivas/{token}/confirmar', [PreventivePublicController::class, 'confirm'])->name('preventivas.public.confirm');
@@ -62,6 +68,32 @@ Route::middleware('auth')->group(function () {
     Route::get('/', [TableroController::class, 'index'])->name('dashboard');
     Route::get('/camas', [TableroController::class, 'camas'])->name('camas');
     Route::get('/guardia', [GuardiaController::class, 'index'])->name('guardia');
+
+    Route::get('/inventario', function () {
+        return redirect()->route('inventario.dashboard');
+    })->name('inventario.index');
+
+    Route::get('/inventario/qr/{token}', [InventarioQrController::class, 'show'])->name('inventario.qr.show');
+    Route::get('/planillas/qr/{token}', [PlanillasQrController::class, 'show'])->name('planillas.qr.show');
+
+    Route::middleware('inventory_access')->group(function () {
+        Route::get('/inventario/panel', [InventarioController::class, 'index'])->name('inventario.dashboard');
+        Route::get('/inventario/retiro/acceso', [InventarioController::class, 'retiroAccess'])->name('inventario.retiro.access');
+        Route::get('/inventario/retiro', [InventarioController::class, 'retiroForm'])->name('inventario.retiro.form');
+        Route::post('/inventario/retiro', [InventarioController::class, 'retiroStore'])->name('inventario.retiro.store');
+
+        Route::get('/inventario/config', [InventarioController::class, 'configForm'])->name('inventario.config.form');
+        Route::post('/inventario/config/bodega', [InventarioController::class, 'bodegaStore'])->name('inventario.config.bodega.store');
+        Route::post('/inventario/config/items', [InventarioController::class, 'itemStore'])->name('inventario.config.items.store');
+        Route::delete('/inventario/config/items/{itemId}', [InventarioController::class, 'itemDestroy'])->name('inventario.config.items.destroy');
+
+        Route::get('/inventario/qr', [InventarioQrAdminController::class, 'show'])->name('inventario.qr.admin');
+        Route::post('/inventario/qr/regenerar', [InventarioQrAdminController::class, 'regenerar'])->name('inventario.qr.regenerar');
+
+        Route::get('/inventario/importar', [InventarioImportController::class, 'importForm'])->name('inventario.import.form');
+        Route::post('/inventario/importar/upload', [InventarioImportController::class, 'uploadImport'])->name('inventario.import.upload');
+        Route::post('/inventario/importar/process', [InventarioImportController::class, 'processImport'])->name('inventario.import.process');
+    });
 
     Route::get('/kiosk/ping', [TableroController::class, 'kioskPing'])->name('kiosk.ping');
 
@@ -169,6 +201,9 @@ Route::middleware('auth')->group(function () {
         Route::put('/admin/planillas/{planilla}', [PlanillaController::class, 'update'])->name('admin.planillas.update');
         Route::put('/admin/planillas/{planilla}/estado', [PlanillaController::class, 'updateEstado'])->name('admin.planillas.estado.update');
         Route::delete('/admin/planillas/{planilla}', [PlanillaController::class, 'destroy'])->name('admin.planillas.destroy');
+
+        Route::get('/admin/planillas/qr-fijo', [PlanillaQrFijoController::class, 'show'])->name('admin.planillas.qr_fijo');
+        Route::post('/admin/planillas/qr-fijo/regenerar', [PlanillaQrFijoController::class, 'regenerar'])->name('admin.planillas.qr_fijo.regenerar');
 
         Route::get('/admin/preventivas', [PreventiveEventController::class, 'index'])->name('admin.preventivas.index');
         Route::get('/admin/preventivas/create', [PreventiveEventController::class, 'create'])->name('admin.preventivas.create');

@@ -9,10 +9,18 @@
             <div class="text-sm text-slate-600 mt-1">Registro semanal de revisión de unidades.</div>
         </div>
 
-        <a href="{{ route('admin.planillas.create') }}" class="inline-flex items-center gap-2 bg-slate-950 hover:bg-black text-white font-black py-3 px-5 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest border border-slate-800">
-            <i class="fas fa-plus"></i>
-            Nueva planilla
-        </a>
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            <a href="{{ route('admin.planillas.create') }}" class="inline-flex items-center justify-center gap-2 bg-slate-950 hover:bg-black text-white font-black py-3 px-5 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest border border-slate-800">
+                <i class="fas fa-plus"></i>
+                Nueva planilla
+            </a>
+            @if(auth()->check() && auth()->user()->role === 'super_admin')
+                <a href="{{ route('admin.planillas.qr_fijo') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-extrabold text-[11px] uppercase tracking-widest">
+                    <i class="fas fa-qrcode"></i>
+                    QR fijo
+                </a>
+            @endif
+        </div>
     </div>
 
     @if(session('success'))

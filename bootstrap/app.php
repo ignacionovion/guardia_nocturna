@@ -21,9 +21,12 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->appendToGroup('web', \App\Http\Middleware\ExpireReplacements::class);
+        $middleware->appendToGroup('web', \App\Http\Middleware\EnsureInventoryOnly::class);
         $middleware->alias([
             'super_admin' => \App\Http\Middleware\EnsureSuperAdmin::class,
             'emergency_access' => \App\Http\Middleware\EnsureEmergencyAccess::class,
+            'inventory_access' => \App\Http\Middleware\EnsureInventoryAccess::class,
+            'inventario_only' => \App\Http\Middleware\EnsureInventoryOnly::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
