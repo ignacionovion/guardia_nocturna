@@ -176,7 +176,7 @@
                                         <!-- Avatar (Centered) -->
                                         <div class="relative mt-1">
                                             @if($user->photo_path)
-                                                <img src="{{ asset('storage/'.$user->photo_path) }}" class="w-12 h-12 rounded-2xl object-cover border border-slate-200 shadow-sm mx-auto" alt="Foto">
+                                                <img src="{{ url('media/' . ltrim($user->photo_path, '/')) }}" class="w-12 h-12 rounded-2xl object-cover border border-slate-200 shadow-sm mx-auto" alt="Foto">
                                             @else
                                                 <div class="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-500 font-bold border border-slate-200 text-xl shadow-sm uppercase tracking-wider mx-auto">
                                                     {{ substr($user->nombres, 0, 1) }}{{ substr($user->apellido_paterno, 0, 1) }}

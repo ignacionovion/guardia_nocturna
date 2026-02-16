@@ -86,7 +86,7 @@
                             <label class="text-sm font-bold text-slate-700 uppercase tracking-wide">Foto</label>
                             <div class="flex items-center gap-4">
                                 @if($volunteer->photo_path)
-                                    <img src="{{ asset('storage/'.$volunteer->photo_path) }}" class="w-14 h-14 rounded-full object-cover border border-slate-200" alt="Foto">
+                                    <img src="{{ url('media/' . ltrim($volunteer->photo_path, '/')) }}" class="w-14 h-14 rounded-full object-cover border border-slate-200" alt="Foto">
                                 @else
                                     <div class="w-14 h-14 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-bold border border-slate-300 shadow-sm text-sm">
                                         {{ substr($volunteer->nombres, 0, 1) }}{{ substr($volunteer->apellido_paterno, 0, 1) }}

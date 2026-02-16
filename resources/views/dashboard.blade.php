@@ -66,7 +66,7 @@
             ];
         @endphp
         <!-- VISTA ESPECÍFICA PARA CUENTA DE GUARDIA (FULLSCREEN TARJETAS) -->
-        <div class="w-full min-h-screen px-4 md:px-6 lg:px-8 py-4 pt-[env(safe-area-inset-top)] bg-slate-900 text-slate-100">
+        <div id="guardia-dashboard-root" class="w-full min-h-screen px-4 md:px-6 lg:px-8 py-4 pt-[env(safe-area-inset-top)] bg-slate-900 text-slate-100">
             <div class="sticky top-0 z-40 flex flex-col md:flex-row md:items-center md:justify-between mb-5 gap-4 border-b border-slate-800 pb-4 bg-slate-900">
                 <div class="flex items-center gap-3 min-w-0">
                     <div class="bg-red-700 p-2 rounded-lg text-white shadow-lg border border-red-600 shrink-0">
@@ -201,7 +201,7 @@
                                     <div class="grid grid-cols-2 gap-1.5 flex-1">
                                         <div class="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden flex items-stretch justify-stretch h-[120px]">
                                             @if($staff->photo_path)
-                                                <img src="{{ asset('storage/'.$staff->photo_path) }}" class="w-full h-full object-cover" alt="Foto">
+                                                <img src="{{ url('media/' . ltrim($staff->photo_path, '/')) }}" class="w-full h-full object-cover" alt="Foto">
                                             @else
                                                 <div class="w-full h-full bg-slate-900 flex items-center justify-center text-slate-200 font-black text-[12px]">
                                                     {{ strtoupper(substr($staff->nombres, 0, 1) . substr($staff->apellido_paterno, 0, 1)) }}
@@ -622,7 +622,7 @@
                             <li class="flex items-center justify-between p-3 rounded-lg border border-transparent transition-all {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'hover:bg-slate-950 hover:border-slate-800' : 'hover:bg-slate-50 hover:border-slate-100' }}">
                                 <div class="flex items-center gap-3">
                                     @if($user->photo_path)
-                                        <img src="{{ asset('storage/'.$user->photo_path) }}" class="w-10 h-10 rounded-full object-cover border border-amber-200 shadow-sm" alt="Foto">
+                                        <img src="{{ url('media/' . ltrim($user->photo_path, '/')) }}" class="w-10 h-10 rounded-full object-cover border border-amber-200 shadow-sm" alt="Foto">
                                     @else
                                         <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center font-bold text-sm">
                                             {{ substr($user->nombres, 0, 1) }}{{ substr($user->apellido_paterno, 0, 1) }}
@@ -1262,6 +1262,55 @@
             kioskPing();
             setInterval(kioskPing, 60 * 1000);
 
+            async function softRefreshGuardiaDashboard() {
+                const root = document.getElementById('guardia-dashboard-root');
+                if (!root) return;
+
+                const activeEl = document.activeElement;
+                const activeId = activeEl?.id;
+                const activeName = activeEl?.getAttribute?.('name');
+                const scrollY = window.scrollY;
+
+                try {
+                    const res = await fetch(window.location.href, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'text/html',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        credentials: 'same-origin',
+                        cache: 'no-store',
+                    });
+
+                    if (res.status === 401) {
+                        window.location.reload();
+                        return;
+                    }
+
+                    if (!res.ok) return;
+
+                    const html = await res.text();
+                    const doc = new DOMParser().parseFromString(html, 'text/html');
+                    const nextRoot = doc.getElementById('guardia-dashboard-root');
+                    if (!nextRoot) return;
+
+                    root.innerHTML = nextRoot.innerHTML;
+
+                    window.scrollTo(0, scrollY);
+
+                    if (activeId) {
+                        const nextActive = document.getElementById(activeId);
+                        if (nextActive && typeof nextActive.focus === 'function') nextActive.focus();
+                    } else if (activeName) {
+                        const esc = (window.CSS && typeof window.CSS.escape === 'function') ? window.CSS.escape : (v) => String(v).replace(/"/g, '\\"');
+                        const nextActive = document.querySelector('[name="' + esc(activeName) + '"]');
+                        if (nextActive && typeof nextActive.focus === 'function') nextActive.focus();
+                    }
+                } catch (e) {
+                    // noop
+                }
+            }
+
             async function checkGuardiaUpdates() {
                 try {
                     if (window.__attendanceDirty) return;
@@ -1287,7 +1336,13 @@
                     );
 
                     if (changed) {
-                        window.location.reload();
+                        await softRefreshGuardiaDashboard();
+                        window.__guardiaSnapshot = {
+                            latest_novelty_at: data.latest_novelty_at,
+                            latest_bombero_at: data.latest_bombero_at,
+                            latest_replacement_at: data.latest_replacement_at,
+                            attendance_saved_at: data.attendance_saved_at,
+                        };
                         return;
                     }
 

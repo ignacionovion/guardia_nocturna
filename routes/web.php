@@ -26,6 +26,37 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login')->m
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
+Route::get('/media/{path}', function (string $path) {
+    $path = str_replace(['%2F', '%2f'], '/', $path);
+    $path = rawurldecode($path);
+
+    if ($path === '' || str_contains($path, '..') || str_starts_with($path, '/')) {
+        abort(404);
+    }
+
+    $disk = \Illuminate\Support\Facades\Storage::disk('public');
+    if (!$disk->exists($path)) {
+        abort(404);
+    }
+
+    $stream = $disk->readStream($path);
+    if ($stream === false) {
+        abort(404);
+    }
+
+    $mime = $disk->mimeType($path) ?: 'application/octet-stream';
+
+    return response()->stream(function () use ($stream) {
+        fpassthru($stream);
+        if (is_resource($stream)) {
+            fclose($stream);
+        }
+    }, 200, [
+        'Content-Type' => $mime,
+        'Cache-Control' => 'public, max-age=31536000',
+    ]);
+})->where('path', '.*')->name('media');
+
 // Rutas Protegidas (Dashboard)
 Route::middleware('auth')->group(function () {
     Route::get('/', [TableroController::class, 'index'])->name('dashboard');
