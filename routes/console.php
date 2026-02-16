@@ -78,7 +78,9 @@ Artisan::command('guardia:daily-cleanup {--at=} {--tz=}', function () {
     $nowLocal = $at ? Carbon::parse($at, $scheduleTz) : Carbon::now($scheduleTz);
     $nowApp = $nowLocal->copy()->setTimezone(config('app.timezone'));
 
-    $runAt = $nowLocal->copy()->startOfDay()->addHours(10);
+    $cleanupTime = SystemSetting::getValue('guardia_daily_cleanup_time', '12:01');
+    [$cleanupH, $cleanupM] = array_map('intval', explode(':', (string) $cleanupTime));
+    $runAt = $nowLocal->copy()->startOfDay()->addHours($cleanupH)->addMinutes($cleanupM);
     $windowEnd = $runAt->copy()->addMinutes(5);
     if (!($nowLocal->greaterThanOrEqualTo($runAt) && $nowLocal->lessThan($windowEnd))) {
         return;
@@ -157,6 +159,44 @@ Artisan::command('guardia:daily-cleanup {--at=} {--tz=}', function () {
             }
         }
 
+        // Dejar guardias solo con dotación titular: sacar todo NO titular.
+        // Nota: algunos NO titulares tienen "guardia anterior" (refuerzos), otros simplemente se liberan (null).
+        $nonTitular = Bombero::query()
+            ->whereNotNull('guardia_id')
+            ->where('es_titular', false)
+            ->get();
+
+        foreach ($nonTitular as $bombero) {
+            $bomberoLocalDate = $localDateString($bombero->updated_at);
+            if (!$bomberoLocalDate || $bomberoLocalDate >= $todayLocal) {
+                continue;
+            }
+
+            $prevGuardiaId = $bombero->refuerzo_guardia_anterior_id;
+
+            $bombero->update([
+                'guardia_id' => $prevGuardiaId,
+                'estado_asistencia' => 'constituye',
+                'es_refuerzo' => false,
+                'refuerzo_guardia_anterior_id' => null,
+                'es_jefe_guardia' => false,
+                'es_cambio' => false,
+                'es_sancion' => false,
+            ]);
+
+            if ($shift) {
+                ShiftUser::where('shift_id', $shift->id)
+                    ->where('firefighter_id', $bombero->id)
+                    ->update([
+                        'guardia_id' => $prevGuardiaId,
+                        'attendance_status' => 'constituye',
+                        'assignment_type' => null,
+                        'replaced_user_id' => null,
+                        'replaced_firefighter_id' => null,
+                    ]);
+            }
+        }
+
         $temporales = Bombero::query()
             ->whereIn('estado_asistencia', ['ausente', 'permiso', 'licencia', 'falta'])
             ->get();
@@ -171,45 +211,10 @@ Artisan::command('guardia:daily-cleanup {--at=} {--tz=}', function () {
                 'estado_asistencia' => 'constituye',
             ]);
         }
-
-        $refuerzos = Bombero::query()
-            ->where('es_refuerzo', true)
-            ->get();
-
-        foreach ($refuerzos as $refuerzo) {
-            $refuerzoLocalDate = $localDateString($refuerzo->updated_at);
-            if (!$refuerzoLocalDate || $refuerzoLocalDate >= $todayLocal) {
-                continue;
-            }
-
-            $prevGuardiaId = $refuerzo->refuerzo_guardia_anterior_id;
-
-            $refuerzo->update([
-                'guardia_id' => $prevGuardiaId,
-                'estado_asistencia' => 'constituye',
-                'es_refuerzo' => false,
-                'refuerzo_guardia_anterior_id' => null,
-                'es_jefe_guardia' => false,
-                'es_cambio' => false,
-                'es_sancion' => false,
-            ]);
-
-            if ($shift) {
-                ShiftUser::where('shift_id', $shift->id)
-                    ->where('firefighter_id', $refuerzo->id)
-                    ->update([
-                        'guardia_id' => $prevGuardiaId,
-                        'attendance_status' => 'constituye',
-                        'assignment_type' => null,
-                        'replaced_user_id' => null,
-                        'replaced_firefighter_id' => null,
-                    ]);
-            }
-        }
     });
 
     $this->info('Daily cleanup ejecutado (' . $nowLocal->toDateTimeString() . ')');
-})->purpose('A las 10:00 AM: cierra reemplazos, resetea estados y elimina refuerzos');
+})->purpose('A las 12:01 PM: cierra reemplazos, resetea estados, elimina refuerzos y deja solo dotación titular');
 
 Artisan::command('guardia:run-calendar {--at=} {--tz=}', function () {
     $scheduleTz = $this->option('tz')
