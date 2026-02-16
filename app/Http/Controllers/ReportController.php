@@ -10,6 +10,10 @@ use App\Models\StaffEvent;
 use App\Models\ShiftUser;
 use App\Models\Bombero;
 use App\Models\ReemplazoBombero;
+use App\Models\PreventiveEvent;
+use App\Models\PreventiveShift;
+use App\Models\PreventiveShiftAssignment;
+use App\Models\PreventiveShiftAttendance;
 use App\Services\ReplacementService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -62,6 +66,94 @@ class ReportController extends Controller
         }
 
         return Guardia::where('is_active_week', true)->first();
+    }
+
+    public function preventivas(Request $request)
+    {
+        $user = auth()->user();
+        if ($user->role !== 'super_admin') {
+            abort(403, 'No autorizado.');
+        }
+
+        $fromStr = (string) $request->input('from', now()->subDays(14)->toDateString());
+        $toStr = (string) $request->input('to', now()->toDateString());
+        $eventId = $request->input('event_id');
+
+        try {
+            $from = Carbon::parse($fromStr)->startOfDay();
+        } catch (\Throwable $e) {
+            $from = now()->subDays(14)->startOfDay();
+        }
+        try {
+            $to = Carbon::parse($toStr)->endOfDay();
+        } catch (\Throwable $e) {
+            $to = now()->endOfDay();
+        }
+
+        $events = PreventiveEvent::query()->latest()->get(['id', 'title', 'start_date', 'end_date', 'status']);
+
+        $shiftsQ = PreventiveShift::query()
+            ->with(['event'])
+            ->whereBetween('shift_date', [$from->toDateString(), $to->toDateString()])
+            ->when($eventId, fn ($q) => $q->where('preventive_event_id', (int) $eventId))
+            ->orderBy('shift_date')
+            ->orderBy('sort_order');
+
+        $shifts = $shiftsQ->get();
+        $shiftIds = $shifts->pluck('id')->values();
+
+        $assignments = $shiftIds->isEmpty()
+            ? collect()
+            : PreventiveShiftAssignment::query()
+                ->whereIn('preventive_shift_id', $shiftIds)
+                ->with(['shift.event', 'firefighter', 'attendance'])
+                ->get();
+
+        $totalAssignments = $assignments->count();
+        $presentAssignments = $assignments->filter(fn ($a) => (bool) $a->attendance)->count();
+        $pendingAssignments = $totalAssignments - $presentAssignments;
+
+        $byEvent = $assignments
+            ->groupBy(fn ($a) => $a->shift?->event?->title ?? '—')
+            ->map(function ($items, $title) {
+                $total = $items->count();
+                $present = $items->filter(fn ($a) => (bool) $a->attendance)->count();
+                return [
+                    'event' => $title,
+                    'total' => $total,
+                    'present' => $present,
+                    'pending' => $total - $present,
+                ];
+            })
+            ->values()
+            ->sortByDesc('total')
+            ->values();
+
+        $rows = $assignments
+            ->sortBy(function ($a) {
+                $d = $a->shift?->shift_date?->toDateString() ?? '';
+                $o = (int) ($a->shift?->sort_order ?? 0);
+                $ln = (string) ($a->firefighter?->apellido_paterno ?? '');
+                return sprintf('%s-%02d-%s', $d, $o, $ln);
+            })
+            ->values();
+
+        $kpis = [
+            'total_assignments' => (int) $totalAssignments,
+            'present' => (int) $presentAssignments,
+            'pending' => (int) $pendingAssignments,
+            'range_label' => $from->format('d-m-Y') . ' → ' . $to->format('d-m-Y'),
+        ];
+
+        return view('admin.reports.preventivas', [
+            'events' => $events,
+            'eventId' => $eventId,
+            'from' => $from,
+            'to' => $to,
+            'kpis' => $kpis,
+            'byEvent' => $byEvent,
+            'rows' => $rows,
+        ]);
     }
 
     public function index(Request $request)

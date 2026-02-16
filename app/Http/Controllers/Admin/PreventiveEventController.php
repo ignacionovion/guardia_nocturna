@@ -7,8 +7,10 @@ use App\Models\Bombero;
 use App\Models\PreventiveEvent;
 use App\Models\PreventiveShift;
 use App\Models\PreventiveShiftAssignment;
+use App\Models\PreventiveShiftAttendance;
 use App\Models\PreventiveShiftTemplate;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -214,6 +216,35 @@ class PreventiveEventController extends Controller
 
         $assignment->delete();
         return back()->with('success', 'Asignación eliminada.');
+    }
+
+    public function toggleAttendance(Request $request, PreventiveEvent $event, PreventiveShiftAssignment $assignment)
+    {
+        $this->autoCloseExpiredEvents($event);
+        $status = $this->normalizedStatus($event);
+        if ($status === 'closed') {
+            return back()->with('warning', 'La preventiva está Cerrada. No se puede modificar asistencia.');
+        }
+
+        $assignment->load(['shift', 'attendance']);
+        if (!$assignment->shift || (int) $assignment->shift->preventive_event_id !== (int) $event->id) {
+            abort(404);
+        }
+
+        if ($assignment->attendance) {
+            $assignment->attendance->delete();
+            return back()->with('success', 'Asistencia removida.');
+        }
+
+        PreventiveShiftAttendance::create([
+            'preventive_shift_assignment_id' => (int) $assignment->id,
+            'status' => 'present',
+            'confirmed_at' => now(),
+            'confirm_ip' => $request->ip(),
+            'confirm_user_agent' => substr('admin-manual', 0, 1024),
+        ]);
+
+        return back()->with('success', 'Asistencia marcada manualmente.');
     }
 
     public function pdf(PreventiveEvent $event)

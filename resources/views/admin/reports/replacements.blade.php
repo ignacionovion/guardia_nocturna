@@ -55,6 +55,9 @@
         <a href="{{ route('admin.reports.index') }}" class="px-4 py-2 rounded-lg text-sm font-bold border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition flex items-center">
             <i class="fas fa-chart-line mr-2 text-slate-400"></i> Asistencia
         </a>
+        <a href="{{ route('admin.reports.preventivas') }}" class="px-4 py-2 rounded-lg text-sm font-bold border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition flex items-center">
+            <i class="fas fa-clipboard-list mr-2 text-slate-400"></i> Preventivas
+        </a>
         <a href="{{ route('admin.reports.replacements') }}" class="px-4 py-2 rounded-lg text-sm font-bold border border-red-200 bg-red-50 text-red-800 hover:bg-red-100 transition flex items-center">
             <i class="fas fa-right-left mr-2 text-red-500"></i> Reemplazos
         </a>

@@ -185,9 +185,21 @@
                                                     <td class="py-2 font-bold text-slate-900">{{ $a->firefighter?->apellido_paterno }} {{ $a->firefighter?->nombres }}</td>
                                                     <td class="py-2">
                                                         @if($a->attendance)
-                                                            <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-800 border border-emerald-200">Asistió</span>
+                                                            <div class="flex items-center gap-2">
+                                                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-800 border border-emerald-200">Asistió</span>
+                                                                <form method="POST" action="{{ route('admin.preventivas.assignments.attendance.toggle', [$event, $a]) }}" onsubmit="return {{ $status === 'closed' ? 'false' : 'confirm(\'¿Quitar asistencia?\')' }};">
+                                                                    @csrf
+                                                                    <button type="submit" class="px-2.5 py-1 rounded-lg border border-slate-200 bg-white text-slate-700 font-black text-[10px] uppercase tracking-widest {{ $status === 'closed' ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-50' }}" {{ $status === 'closed' ? 'disabled' : '' }}>Quitar</button>
+                                                                </form>
+                                                            </div>
                                                         @else
-                                                            <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-widest bg-slate-100 text-slate-700 border border-slate-200">Pendiente</span>
+                                                            <div class="flex items-center gap-2">
+                                                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-widest bg-slate-100 text-slate-700 border border-slate-200">Pendiente</span>
+                                                                <form method="POST" action="{{ route('admin.preventivas.assignments.attendance.toggle', [$event, $a]) }}" onsubmit="return {{ $status === 'closed' ? 'false' : 'confirm(\'¿Marcar asistencia manualmente?\')' }};">
+                                                                    @csrf
+                                                                    <button type="submit" class="px-2.5 py-1 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-800 font-black text-[10px] uppercase tracking-widest {{ $status === 'closed' ? 'opacity-50 cursor-not-allowed' : 'hover:bg-emerald-100' }}" {{ $status === 'closed' ? 'disabled' : '' }}>Marcar</button>
+                                                                </form>
+                                                            </div>
                                                         @endif
                                                     </td>
                                                     <td class="py-2 text-right">

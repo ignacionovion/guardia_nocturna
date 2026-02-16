@@ -30,10 +30,10 @@
 
     <!-- Buscador -->
     <div class="bg-white p-4 rounded-xl shadow-sm mb-8 border border-gray-100">
-        <form action="{{ route('admin.volunteers.index') }}" method="GET" class="relative">
+        <form action="{{ route('admin.volunteers.index') }}" method="GET" class="relative" id="volunteer-search-form">
             <div class="flex items-center">
                 <i class="fas fa-search absolute left-4 text-gray-400"></i>
-                <input type="text" name="search" value="{{ request('search') }}" 
+                <input type="text" name="search" value="{{ request('search') }}" id="volunteer-search-input"
                     placeholder="Buscar por nombre, RUT o cargo..." 
                     class="w-full pl-11 pr-4 py-3 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-colors text-gray-700">
                 
@@ -89,9 +89,15 @@
                             <th scope="col" class="px-3 md:px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-slate-200">
+                    <tbody class="bg-white divide-y divide-slate-200" id="volunteer-table-body">
                         @foreach($volunteers as $volunteer)
-                            <tr class="hover:bg-slate-50 transition-colors">
+                            @php
+                                $full = trim((string)($volunteer->nombres ?? '') . ' ' . (string)($volunteer->apellido_paterno ?? '') . ' ' . (string)($volunteer->apellido_materno ?? ''));
+                                $rut = (string)($volunteer->rut ?? '');
+                                $cargo = (string)($volunteer->cargo_texto ?? '');
+                                $hay = strtolower($full . ' ' . $rut . ' ' . $cargo);
+                            @endphp
+                            <tr class="hover:bg-slate-50 transition-colors" data-search="{{ $hay }}">
                                 <td class="px-3 md:px-6 py-4 whitespace-nowrap">
                                     <input type="checkbox" name="selected_ids[]" value="{{ $volunteer->id }}" class="volunteer-checkbox rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 w-5 h-5">
                                 </td>
@@ -220,123 +226,125 @@
             <!-- Paginación Footer -->
             <div class="bg-slate-50 px-6 py-4 border-t border-slate-200">
                 {{ $volunteers->links() }}
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const selectAll = document.getElementById('select-all');
-            const checkboxes = document.querySelectorAll('.volunteer-checkbox');
-            const btnBulkDelete = document.getElementById('btn-bulk-delete');
-            const selectedCountSpan = document.getElementById('selected-count');
-
-            console.log('Bulk delete script loaded. Checkboxes found:', checkboxes.length);
-
-            function updateBulkActionUI() {
-                const selected = document.querySelectorAll('.volunteer-checkbox:checked').length;
-                console.log('Selection updated:', selected);
-                
-                if (selectedCountSpan) {
-                    selectedCountSpan.textContent = selected;
-                }
-                
-                if (btnBulkDelete) {
-                    if (selected > 0) {
-                        btnBulkDelete.classList.remove('hidden'); // Tailwind remove
-                        btnBulkDelete.style.display = 'inline-flex'; // Force display
-                    } else {
-                        btnBulkDelete.style.display = 'none'; // Force hide
-                    }
-                }
-            }
-
-            // Evento "Seleccionar Todo"
-            if(selectAll) {
-                selectAll.addEventListener('change', function() {
-                    const isChecked = this.checked;
-                    checkboxes.forEach(cb => {
-                        cb.checked = isChecked;
-                    });
-                    updateBulkActionUI();
-                });
-            }
-
-            // Eventos individuales
-            checkboxes.forEach(cb => {
-                cb.addEventListener('change', function() {
-                    updateBulkActionUI();
-                    
-                    // Sincronizar "Select All"
-                    if(selectAll) {
-                        if (!this.checked) {
-                            selectAll.checked = false;
-                        } else {
-                            const allChecked = Array.from(checkboxes).every(c => c.checked);
-                            if(allChecked) selectAll.checked = true;
-                        }
-                    }
-                });
-            });
-
-            // Función global para el botón de eliminar
-            window.confirmBulkDelete = function() {
-                const selectedIds = Array.from(document.querySelectorAll('.volunteer-checkbox:checked'))
-                                         .map(cb => cb.value);
-
-                if (selectedIds.length === 0) return;
-
-                if (confirm('¿Estás seguro de que deseas eliminar ' + selectedIds.length + ' voluntarios seleccionados? Esta acción es irreversible.')) {
-                    // Crear formulario dinámico para enviar DELETE
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = '{{ route("admin.volunteers.bulk_destroy") }}';
-                    
-                    const csrfToken = document.createElement('input');
-                    csrfToken.type = 'hidden';
-                    csrfToken.name = '_token';
-                    csrfToken.value = '{{ csrf_token() }}';
-                    form.appendChild(csrfToken);
-
-                    const methodField = document.createElement('input');
-                    methodField.type = 'hidden';
-                    methodField.name = '_method';
-                    methodField.value = 'DELETE';
-                    form.appendChild(methodField);
-
-                    selectedIds.forEach(id => {
-                        const input = document.createElement('input');
-                        input.type = 'hidden';
-                        input.name = 'ids[]';
-                        input.value = id;
-                        form.appendChild(input);
-                    });
-
-                    document.body.appendChild(form);
-                    form.submit();
-                }
-            };
-        });
-    </script>
             </div>
         </div>
 
-        @if(auth()->check() && auth()->user()->role === 'super_admin')
-            <div id="purgeModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center">
-                <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 border border-slate-200 overflow-hidden">
-                    <div class="p-5 border-b border-slate-200 bg-slate-50">
-                        <div class="text-sm font-black text-slate-800 uppercase tracking-widest">Eliminar todos los voluntarios</div>
-                        <div class="mt-2 text-sm text-slate-600">Esta acción es irreversible. Para confirmar escribe <span class="font-black">ELIMINAR TODO</span>.</div>
-                    </div>
-                    <form method="POST" action="{{ route('admin.volunteers.purge') }}" class="p-5">
-                        @csrf
-                        @method('DELETE')
-                        <input type="text" name="confirm_text" class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-white text-slate-800 font-semibold" placeholder="ELIMINAR TODO" required>
-                        <div class="mt-4 flex gap-2">
-                            <button type="button" onclick="closePurgeModal()" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-black uppercase tracking-widest text-[11px] py-3 rounded-xl border border-slate-200">Cancelar</button>
-                            <button type="submit" class="w-1/2 bg-rose-700 hover:bg-rose-800 text-white font-black uppercase tracking-widest text-[11px] py-3 rounded-xl">Eliminar todo</button>
-                        </div>
-                    </form>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const input = document.getElementById('volunteer-search-input');
+                const body = document.getElementById('volunteer-table-body');
+                if (input && body) {
+                    input.addEventListener('input', function() {
+                        const q = (this.value || '').trim().toLowerCase();
+                        const rows = body.querySelectorAll('tr[data-search]');
+                        rows.forEach((tr) => {
+                            const hay = (tr.getAttribute('data-search') || '');
+                            tr.style.display = (q === '' || hay.includes(q)) ? '' : 'none';
+                        });
+                    });
+                }
+
+                const selectAll = document.getElementById('select-all');
+                const checkboxes = document.querySelectorAll('.volunteer-checkbox');
+                const btnBulkDelete = document.getElementById('btn-bulk-delete');
+                const selectedCountSpan = document.getElementById('selected-count');
+
+                function updateBulkActionUI() {
+                    const selected = document.querySelectorAll('.volunteer-checkbox:checked').length;
+                    if (selectedCountSpan) {
+                        selectedCountSpan.textContent = selected;
+                    }
+                    if (btnBulkDelete) {
+                        if (selected > 0) {
+                            btnBulkDelete.classList.remove('hidden');
+                            btnBulkDelete.style.display = 'inline-flex';
+                        } else {
+                            btnBulkDelete.style.display = 'none';
+                        }
+                    }
+                }
+
+                if (selectAll) {
+                    selectAll.addEventListener('change', function() {
+                        const isChecked = this.checked;
+                        checkboxes.forEach(cb => {
+                            cb.checked = isChecked;
+                        });
+                        updateBulkActionUI();
+                    });
+                }
+
+                checkboxes.forEach(cb => {
+                    cb.addEventListener('change', function() {
+                        updateBulkActionUI();
+
+                        if (selectAll) {
+                            if (!this.checked) {
+                                selectAll.checked = false;
+                            } else {
+                                const allChecked = Array.from(checkboxes).every(c => c.checked);
+                                if (allChecked) selectAll.checked = true;
+                            }
+                        }
+                    });
+                });
+
+                window.confirmBulkDelete = function() {
+                    const selectedIds = Array.from(document.querySelectorAll('.volunteer-checkbox:checked'))
+                        .map(cb => cb.value);
+
+                    if (selectedIds.length === 0) return;
+
+                    if (confirm('¿Estás seguro de que deseas eliminar ' + selectedIds.length + ' voluntarios seleccionados? Esta acción es irreversible.')) {
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = '{{ route("admin.volunteers.bulk_destroy") }}';
+
+                        const csrfToken = document.createElement('input');
+                        csrfToken.type = 'hidden';
+                        csrfToken.name = '_token';
+                        csrfToken.value = '{{ csrf_token() }}';
+                        form.appendChild(csrfToken);
+
+                        const methodField = document.createElement('input');
+                        methodField.type = 'hidden';
+                        methodField.name = '_method';
+                        methodField.value = 'DELETE';
+                        form.appendChild(methodField);
+
+                        selectedIds.forEach(id => {
+                            const input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = 'ids[]';
+                            input.value = id;
+                            form.appendChild(input);
+                        });
+
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+                };
+            });
+        </script>
+    @if(auth()->check() && auth()->user()->role === 'super_admin')
+        <div id="purgeModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 border border-slate-200 overflow-hidden">
+                <div class="p-5 border-b border-slate-200 bg-slate-50">
+                    <div class="text-sm font-black text-slate-800 uppercase tracking-widest">Eliminar todos los voluntarios</div>
+                    <div class="mt-2 text-sm text-slate-600">Esta acción es irreversible. Para confirmar escribe <span class="font-black">ELIMINAR TODO</span>.</div>
                 </div>
+                <form method="POST" action="{{ route('admin.volunteers.purge') }}" class="p-5">
+                    @csrf
+                    @method('DELETE')
+                    <input type="text" name="confirm_text" class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-white text-slate-800 font-semibold" placeholder="ELIMINAR TODO" required>
+                    <div class="mt-4 flex gap-2">
+                        <button type="button" onclick="closePurgeModal()" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-black uppercase tracking-widest text-[11px] py-3 rounded-xl border border-slate-200">Cancelar</button>
+                        <button type="submit" class="w-1/2 bg-rose-700 hover:bg-rose-800 text-white font-black uppercase tracking-widest text-[11px] py-3 rounded-xl">Eliminar todo</button>
+                    </div>
+                </form>
             </div>
-        @endif
+        </div>
+    @endif
     @endif
 @endsection
 
