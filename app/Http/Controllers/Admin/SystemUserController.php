@@ -41,15 +41,22 @@ class SystemUserController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'username' => ['nullable', 'string', 'max:255', 'unique:users,username'],
             'role' => ['required', 'string', Rule::in(['super_admin', 'capitania', 'guardia', 'jefe_guardia', 'inventario'])],
             'guardia_id' => ['nullable', 'exists:guardias,id'],
             'role_id' => ['nullable', 'exists:roles,id'],
             'password' => ['required', 'string', 'min:8'],
         ]);
 
+        $username = $validated['username'] ?? null;
+        if (!$username) {
+            $username = $validated['email'];
+        }
+
         User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'username' => $username,
             'role' => $validated['role'],
             'guardia_id' => $validated['guardia_id'] ?? null,
             'role_id' => $validated['role_id'] ?? null,
@@ -77,15 +84,22 @@ class SystemUserController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'username' => ['nullable', 'string', 'max:255', Rule::unique('users', 'username')->ignore($user->id)],
             'role' => ['required', 'string', Rule::in(['super_admin', 'capitania', 'guardia', 'jefe_guardia', 'inventario'])],
             'guardia_id' => ['nullable', 'exists:guardias,id'],
             'role_id' => ['nullable', 'exists:roles,id'],
             'password' => ['nullable', 'string', 'min:8'],
         ]);
 
+        $username = $validated['username'] ?? null;
+        if (!$username) {
+            $username = $validated['email'];
+        }
+
         $payload = [
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'username' => $username,
             'role' => $validated['role'],
             'guardia_id' => $validated['guardia_id'] ?? null,
             'role_id' => $validated['role_id'] ?? null,

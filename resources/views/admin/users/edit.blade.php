@@ -25,6 +25,12 @@
                     </div>
 
                     <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Usuario (opcional)</label>
+                        <input type="text" name="username" value="{{ old('username', $user->username) }}"
+                            class="w-full px-4 py-3 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-colors text-gray-700">
+                    </div>
+
+                    <div>
                         <label class="block text-sm font-semibold text-slate-700 mb-2">Email</label>
                         <input type="email" name="email" value="{{ old('email', $user->email) }}" required
                             class="w-full px-4 py-3 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-colors text-gray-700">
