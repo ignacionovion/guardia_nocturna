@@ -28,6 +28,8 @@ Route::get('/preventivas/{token}', [PreventivePublicController::class, 'show'])-
 Route::post('/preventivas/{token}/confirmar', [PreventivePublicController::class, 'confirm'])->name('preventivas.public.confirm');
 
 Route::get('/inventario/qr/{token}', [InventarioQrController::class, 'show'])->name('inventario.qr.show');
+Route::get('/inventario/qr/{token}/identificar', [InventarioQrController::class, 'identificarForm'])->name('inventario.qr.identificar.form');
+Route::post('/inventario/qr/{token}/identificar', [InventarioQrController::class, 'identificarStore'])->name('inventario.qr.identificar.store');
 Route::post('/inventario/qr/{token}/retirar', [InventarioQrController::class, 'store'])->name('inventario.qr.retiro.store');
 
 // Rutas de Autenticación
@@ -81,6 +83,8 @@ Route::middleware('auth')->group(function () {
     Route::middleware('inventory_access')->group(function () {
         Route::get('/inventario/panel', [InventarioController::class, 'index'])->name('inventario.dashboard');
         Route::get('/inventario/retiro/acceso', [InventarioController::class, 'retiroAccess'])->name('inventario.retiro.access');
+        Route::get('/inventario/retiro/identificar', [InventarioController::class, 'identificarForm'])->name('inventario.retiro.identificar.form');
+        Route::post('/inventario/retiro/identificar', [InventarioController::class, 'identificarStore'])->name('inventario.retiro.identificar.store');
         Route::get('/inventario/retiro', [InventarioController::class, 'retiroForm'])->name('inventario.retiro.form');
         Route::post('/inventario/retiro', [InventarioController::class, 'retiroStore'])->name('inventario.retiro.store');
 

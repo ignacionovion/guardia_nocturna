@@ -15,6 +15,7 @@ class InventoryMovement extends Model
         'cantidad',
         'nota',
         'creado_por',
+        'bombero_id',
     ];
 
     public function warehouse()
@@ -30,5 +31,10 @@ class InventoryMovement extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'creado_por');
+    }
+
+    public function firefighter()
+    {
+        return $this->belongsTo(Bombero::class, 'bombero_id');
     }
 }
