@@ -12,6 +12,7 @@ class Planilla extends Model
         'unidad',
         'fecha_revision',
         'created_by',
+        'bombero_id',
         'data',
         'estado',
     ];
@@ -24,5 +25,10 @@ class Planilla extends Model
     public function creador()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function bombero()
+    {
+        return $this->belongsTo(Bombero::class, 'bombero_id');
     }
 }

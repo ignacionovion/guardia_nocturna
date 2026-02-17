@@ -78,7 +78,7 @@
                                     </select>
                                 </form>
                             </td>
-                            <td class="px-6 py-4 text-slate-700">{{ $p->creador?->name ?? '—' }}</td>
+                            <td class="px-6 py-4 text-slate-700">{{ $p->creador?->name ?? trim((string)($p->bombero?->nombres ?? '') . ' ' . (string)($p->bombero?->apellido_paterno ?? '')) ?: '—' }}</td>
                             <td class="px-6 py-4 text-right">
                                 <div class="inline-flex items-center gap-2">
                                     @if(($p->estado ?? '') !== 'finalizado')

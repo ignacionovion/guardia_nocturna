@@ -6,7 +6,7 @@
         <div>
             <div class="text-xs font-black uppercase tracking-widest text-slate-500">Planillas</div>
             <div class="text-2xl font-extrabold text-slate-900">{{ $planilla->unidad }} · {{ $planilla->fecha_revision?->format('d-m-Y H:i') }}</div>
-            <div class="text-sm text-slate-600 mt-1">Registrada por: {{ $planilla->creador?->name ?? '—' }}</div>
+            <div class="text-sm text-slate-600 mt-1">Registrada por: {{ $planilla->creador?->name ?? trim((string)($planilla->bombero?->nombres ?? '') . ' ' . (string)($planilla->bombero?->apellido_paterno ?? '')) ?: '—' }}</div>
             <div class="mt-2">
                 @if(($planilla->estado ?? '') === 'finalizado')
                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest bg-emerald-100 text-emerald-900 border border-emerald-200">Finalizado</span>

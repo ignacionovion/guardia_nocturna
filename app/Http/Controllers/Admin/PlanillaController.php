@@ -17,7 +17,7 @@ class PlanillaController extends Controller
         $unidad = $request->string('unidad')->toString();
         $unidad = $unidad !== '' ? $unidad : null;
 
-        $query = Planilla::query()->with('creador')->latest('fecha_revision');
+        $query = Planilla::query()->with(['creador', 'bombero'])->latest('fecha_revision');
         if ($unidad && in_array($unidad, self::UNIDADES, true)) {
             $query->where('unidad', $unidad);
         }
@@ -124,7 +124,7 @@ class PlanillaController extends Controller
 
     public function show(Planilla $planilla)
     {
-        $planilla->load('creador');
+        $planilla->load(['creador', 'bombero']);
 
         return view('admin.planillas.show', [
             'planilla' => $planilla,

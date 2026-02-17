@@ -40,6 +40,22 @@ Route::post('/inventario/qr/{token}/retirar', [InventarioQrController::class, 's
     ->where('token', '[A-Za-z0-9]{40}')
     ->name('inventario.qr.retiro.store');
 
+Route::get('/planillas/qr/{token}', [PlanillasQrController::class, 'show'])
+    ->where('token', '[A-Za-z0-9]{40}')
+    ->name('planillas.qr.show');
+Route::get('/planillas/qr/{token}/identificar', [PlanillasQrController::class, 'identificarForm'])
+    ->where('token', '[A-Za-z0-9]{40}')
+    ->name('planillas.qr.identificar.form');
+Route::post('/planillas/qr/{token}/identificar', [PlanillasQrController::class, 'identificarStore'])
+    ->where('token', '[A-Za-z0-9]{40}')
+    ->name('planillas.qr.identificar.store');
+Route::get('/planillas/qr/{token}/crear', [PlanillasQrController::class, 'createForm'])
+    ->where('token', '[A-Za-z0-9]{40}')
+    ->name('planillas.qr.create.form');
+Route::post('/planillas/qr/{token}/guardar', [PlanillasQrController::class, 'store'])
+    ->where('token', '[A-Za-z0-9]{40}')
+    ->name('planillas.qr.store');
+
 // Rutas de Autenticación
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login')->middleware('guest');
 Route::post('/login', [AuthController::class, 'login']);
@@ -85,10 +101,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/inventario', function () {
         return redirect()->route('inventario.dashboard');
     })->name('inventario.index');
-
-    Route::get('/planillas/qr/{token}', [PlanillasQrController::class, 'show'])
-        ->where('token', '[A-Za-z0-9]{40}')
-        ->name('planillas.qr.show');
 
     Route::middleware('inventory_access')->group(function () {
         Route::get('/inventario/panel', [InventarioController::class, 'index'])->name('inventario.dashboard');
