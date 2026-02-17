@@ -12,14 +12,18 @@
         <div>
             <div class="text-xs font-black uppercase tracking-widest text-slate-500">Inventario</div>
             <div class="text-2xl font-extrabold text-slate-900">Configuración inicial</div>
-            <div class="text-sm text-slate-600 mt-1">La <span class="font-bold">bodega</span> es el lugar físico (ej: “Bodega Sala de Máquinas”). Las <span class="font-bold">categorías</span> (Trauma, Ferulas, etc.) vienen desde el Excel.</div>
+            <div class="text-sm text-slate-600 mt-1">La <span class="font-bold">bodega</span> es el lugar físico (ej: “Bodega Sala de Máquinas”). Las <span class="font-bold">categorías</span> (Trauma, Ferulas, etc.)</div>
         </div>
 
         @if($bodega)
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                 <a href="{{ route('inventario.qr.admin') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-extrabold text-[11px] uppercase tracking-widest">
                     <i class="fas fa-qrcode"></i>
-                    Ver QR fijo
+                    Ver QR
+                </a>
+                <a href="{{ route('inventario.movimientos.index') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-extrabold text-[11px] uppercase tracking-widest">
+                    <i class="fas fa-list"></i>
+                    Historial
                 </a>
                 <a href="{{ route('inventario.import.form') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-extrabold text-[11px] uppercase tracking-widest">
                     <i class="fas fa-file-import"></i>
@@ -36,7 +40,7 @@
     <div class="mt-6 bg-white rounded-2xl border border-teal-900/20 shadow-sm overflow-hidden">
         <div class="p-6 border-b border-teal-900/20 bg-sky-100">
             <div class="text-xs font-black uppercase tracking-widest text-slate-600">Stock actual</div>
-            <div class="text-sm text-slate-600 mt-1">Listado de ítems activos.</div>
+            <div class="text-sm text-slate-600 mt-1">Bodega actual.</div>
         </div>
 
         <div class="p-4">

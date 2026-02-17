@@ -9,6 +9,7 @@ use App\Models\InventoryMovement;
 use App\Models\InventoryWarehouse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 
 class InventarioController extends Controller
@@ -68,9 +69,8 @@ class InventarioController extends Controller
             ->get();
 
         $movimientos = InventoryMovement::query()
-            ->with(['item', 'firefighter'])
+            ->with(['item', 'firefighter', 'creator'])
             ->where('bodega_id', $bodega->id)
-            ->where('tipo', 'egreso')
             ->orderByDesc('created_at')
             ->limit(50)
             ->get();
@@ -187,15 +187,19 @@ class InventarioController extends Controller
                 'stock' => (int) $item->stock - $cantidad,
             ]);
 
-            InventoryMovement::create([
+            $movementData = [
                 'bodega_id' => $bodega->id,
                 'item_id' => $item->id,
                 'tipo' => 'egreso',
                 'cantidad' => $cantidad,
                 'nota' => $validated['nota'] ?? null,
                 'creado_por' => (int) $request->user()->id,
-                'bombero_id' => (int) $bomberoId,
-            ]);
+            ];
+            if (Schema::hasColumn('inventario_movimientos', 'bombero_id')) {
+                $movementData['bombero_id'] = (int) $bomberoId;
+            }
+
+            InventoryMovement::create($movementData);
         });
 
         $request->session()->forget('inventario_retiro_acceso');
@@ -329,15 +333,19 @@ class InventarioController extends Controller
                 'stock' => (int) $item->stock + $cantidad,
             ]);
 
-            InventoryMovement::create([
+            $movementData = [
                 'bodega_id' => $bodega->id,
                 'item_id' => $item->id,
                 'tipo' => 'ingreso',
                 'cantidad' => $cantidad,
                 'nota' => $validated['nota'] ?? null,
                 'creado_por' => (int) $request->user()->id,
-                'bombero_id' => null,
-            ]);
+            ];
+            if (Schema::hasColumn('inventario_movimientos', 'bombero_id')) {
+                $movementData['bombero_id'] = null;
+            }
+
+            InventoryMovement::create($movementData);
         });
 
         return redirect()->route('inventario.config.form')->with('success', 'Stock ingresado correctamente.');
@@ -362,5 +370,28 @@ class InventarioController extends Controller
         $item->delete();
 
         return redirect()->route('inventario.config.form')->with('success', 'Ítem eliminado correctamente.');
+    }
+
+    public function movimientosIndex(Request $request)
+    {
+        $bodega = InventoryWarehouse::query()
+            ->where('activo', true)
+            ->orderBy('id')
+            ->first();
+
+        if (!$bodega) {
+            return redirect()->route('inventario.config.form');
+        }
+
+        $movimientos = InventoryMovement::query()
+            ->with(['item', 'firefighter', 'creator'])
+            ->where('bodega_id', $bodega->id)
+            ->orderByDesc('created_at')
+            ->paginate(100);
+
+        return view('admin.inventario.movimientos', [
+            'bodega' => $bodega,
+            'movimientos' => $movimientos,
+        ]);
     }
 }

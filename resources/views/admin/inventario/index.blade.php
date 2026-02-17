@@ -28,7 +28,7 @@
     <div class="mt-6 bg-white rounded-2xl border border-teal-900/20 shadow-sm overflow-hidden">
         <div class="p-6 border-b border-teal-900/20 bg-sky-100">
             <div class="text-xs font-black uppercase tracking-widest text-slate-600">Stock actual</div>
-            <div class="text-sm text-slate-600 mt-1">Listado de ítems activos.</div>
+            <div class="text-sm text-slate-600 mt-1">Bodega actual.</div>
         </div>
 
         <div class="overflow-x-auto">

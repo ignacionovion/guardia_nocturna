@@ -9,6 +9,7 @@ use App\Models\InventoryQrLink;
 use App\Models\InventoryWarehouse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 
 class InventarioQrController extends Controller
@@ -121,7 +122,7 @@ class InventarioQrController extends Controller
         }
 
         $request->session()->put('inventario_qr_bombero_id', (int) $bombero->id);
-        $request->session()->forget('inventario_qr_confirmed_token');
+        $request->session()->put('inventario_qr_confirmed_token', $token);
 
         return redirect()->route('inventario.qr.show', ['token' => $token]);
     }
@@ -183,15 +184,19 @@ class InventarioQrController extends Controller
                     'stock' => (int) $item->stock - $cantidad,
                 ]);
 
-                InventoryMovement::create([
+                $movementData = [
                     'bodega_id' => $bodega->id,
                     'item_id' => $item->id,
                     'tipo' => 'egreso',
                     'cantidad' => $cantidad,
                     'nota' => $validated['nota'] ?? null,
                     'creado_por' => null,
-                    'bombero_id' => (int) $bomberoId,
-                ]);
+                ];
+                if (Schema::hasColumn('inventario_movimientos', 'bombero_id')) {
+                    $movementData['bombero_id'] = (int) $bomberoId;
+                }
+
+                InventoryMovement::create($movementData);
             });
         } catch (\Throwable $e) {
             $msg = $e instanceof \RuntimeException ? $e->getMessage() : 'No se pudo registrar el retiro.';

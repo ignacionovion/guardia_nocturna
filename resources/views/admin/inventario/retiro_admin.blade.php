@@ -78,8 +78,8 @@
 
                 <div class="mt-8 bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
                     <div class="p-6 border-b border-white/10">
-                        <div class="text-sm font-black uppercase tracking-widest text-slate-300">Baja de inventario</div>
-                        <div class="text-sm text-slate-300 mt-1">Historial de salidas de la bodega.</div>
+                        <div class="text-sm font-black uppercase tracking-widest text-slate-300">Historial</div>
+                        <div class="text-sm text-slate-300 mt-1">Últimos movimientos de la bodega (ingresos y egresos).</div>
                     </div>
 
                     <div class="p-6">
@@ -89,21 +89,31 @@
                                     <thead class="bg-white/5 border-b border-white/10">
                                         <tr class="text-xs font-black uppercase tracking-widest text-slate-300">
                                             <th class="text-left px-4 py-3">Fecha</th>
+                                            <th class="text-left px-4 py-3">Tipo</th>
                                             <th class="text-left px-4 py-3">Ítem</th>
                                             <th class="text-right px-4 py-3">Cantidad</th>
-                                            <th class="text-left px-4 py-3">Bombero</th>
+                                            <th class="text-left px-4 py-3">Registrado por</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-white/10">
                                         @foreach($movimientos as $m)
                                             <tr>
                                                 <td class="px-4 py-3 text-slate-300 whitespace-nowrap">{{ optional($m->created_at)->format('d-m-Y H:i') }}</td>
+                                                <td class="px-4 py-3">
+                                                    @if(($m->tipo ?? '') === 'ingreso')
+                                                        <span class="inline-flex items-center rounded-full bg-sky-500/15 text-sky-200 border border-sky-500/30 px-2 py-1 text-[10px] font-black uppercase tracking-widest">Ingreso</span>
+                                                    @else
+                                                        <span class="inline-flex items-center rounded-full bg-rose-500/15 text-rose-200 border border-rose-500/30 px-2 py-1 text-[10px] font-black uppercase tracking-widest">Egreso</span>
+                                                    @endif
+                                                </td>
                                                 <td class="px-4 py-3 text-slate-100 font-semibold">{{ $m->item?->display_name ?? '—' }}</td>
                                                 <td class="px-4 py-3 text-right text-slate-100 font-extrabold">{{ $m->cantidad }}</td>
                                                 <td class="px-4 py-3 text-slate-300">
                                                     @if($m->firefighter)
                                                         <div class="font-semibold">{{ $m->firefighter->rut }}</div>
                                                         <div class="text-xs text-slate-400">{{ trim((string)($m->firefighter->nombres ?? '') . ' ' . (string)($m->firefighter->apellido_paterno ?? '')) }}</div>
+                                                    @elseif($m->creator)
+                                                        <div class="font-semibold">{{ $m->creator->name ?? $m->creator->email ?? 'Usuario' }}</div>
                                                     @else
                                                         —
                                                     @endif
@@ -114,7 +124,7 @@
                                 </table>
                             </div>
                         @else
-                            <div class="text-sm text-slate-400">Aún no hay bajas registradas.</div>
+                            <div class="text-sm text-slate-400">Aún no hay movimientos registrados.</div>
                         @endif
                     </div>
                 </div>

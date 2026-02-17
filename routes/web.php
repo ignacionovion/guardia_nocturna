@@ -119,6 +119,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/inventario/config/stock/ingreso', [InventarioController::class, 'stockIngresoStore'])->name('inventario.config.stock.ingreso.store');
         Route::delete('/inventario/config/items/{itemId}', [InventarioController::class, 'itemDestroy'])->name('inventario.config.items.destroy');
 
+        Route::get('/inventario/movimientos', [InventarioController::class, 'movimientosIndex'])->name('inventario.movimientos.index');
+
         Route::get('/inventario/qr', [InventarioQrAdminController::class, 'show'])->name('inventario.qr.admin');
         Route::get('/inventario/qr/imprimir', [InventarioQrAdminController::class, 'print'])->name('inventario.qr.print');
         Route::post('/inventario/qr/regenerar', [InventarioQrAdminController::class, 'regenerar'])->name('inventario.qr.regenerar');
