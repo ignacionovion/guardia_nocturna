@@ -976,18 +976,31 @@ class AdministradorController extends Controller
             'users.*.estado_asistencia' => 'required|string',
         ]);
 
-        $shiftQuery = Shift::query();
-        if (method_exists(Shift::class, 'firefighters')) {
-            $shiftQuery->with('firefighters');
-        }
+        $resolvedShiftDay = (function () use ($now, $tz) {
+            $local = $now->copy()->setTimezone($tz);
 
-        $shift = $shiftQuery->where('status', 'active')
-            ->latest()
+            $day = $local->copy()->startOfDay();
+            $scheduleHour = $local->isSunday() ? 22 : 23;
+            $hour = (int) $local->hour;
+
+            if ($hour < 7) {
+                $day->subDay();
+            } elseif ($hour < $scheduleHour) {
+                $day->subDay();
+            }
+
+            return $day;
+        })();
+
+        $shift = Shift::query()
+            ->where('status', 'active')
+            ->whereDate('date', $resolvedShiftDay->toDateString())
+            ->latest('id')
             ->first();
 
         if (!$shift) {
             $shift = Shift::create([
-                'date' => Carbon::today($tz),
+                'date' => $resolvedShiftDay->toDateString(),
                 'status' => 'active',
                 'shift_leader_id' => auth()->id(),
                 'notes' => 'Guardia constituida manualmente',
@@ -1025,7 +1038,7 @@ class AdministradorController extends Controller
                 $shiftUserPayload = [
                     'assignment_type' => $attendanceStatus,
                     'present' => $attendanceStatus !== 'ausente' && $attendanceStatus !== 'permiso' && $attendanceStatus !== 'licencia',
-                    'start_time' => $shift->created_at,
+                    'start_time' => Carbon::now($tz),
                     'end_time' => null,
                     'firefighter_id' => $firefighter->id,
                 ];
