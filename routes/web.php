@@ -100,6 +100,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/', [TableroController::class, 'index'])->name('dashboard');
     Route::get('/camas', [TableroController::class, 'camas'])->name('camas');
     Route::get('/guardia', [GuardiaController::class, 'index'])->name('guardia');
+    Route::get('/guardia/now', [GuardiaController::class, 'now'])->name('guardia.now');
+    Route::get('/guardia/now/data', [GuardiaController::class, 'nowData'])->name('guardia.now.data');
 
     Route::get('/inventario', function () {
         return redirect()->route('inventario.dashboard');

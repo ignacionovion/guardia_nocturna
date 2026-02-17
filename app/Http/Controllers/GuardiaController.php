@@ -101,6 +101,130 @@ class GuardiaController extends Controller
         return view('guardia', compact('shift', 'users', 'currentGuardiaUsers'));
     }
 
+    public function now(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            abort(403);
+        }
+
+        $now = Carbon::now();
+
+        ReplacementService::expire($now);
+
+        $query = Shift::with(['leader', 'users.firefighter', 'users.replacedFirefighter'])
+            ->where('status', 'active');
+
+        if ($user->guardia_id) {
+            $query->whereHas('leader', function ($q) use ($user) {
+                $q->where('guardia_id', $user->guardia_id);
+            });
+        }
+
+        $shift = $query->latest()->first();
+
+        if ($shift) {
+            $shift->setRelation(
+                'users',
+                $shift->users->filter(function ($shiftUser) use ($now) {
+                    return !$shiftUser->user
+                        || !$shiftUser->user->replacement_until
+                        || $shiftUser->user->replacement_until->greaterThan($now);
+                })->values()
+            );
+        }
+
+        $bomberosQuery = Bombero::query();
+        if ($user->guardia_id) {
+            $bomberosQuery->where('guardia_id', $user->guardia_id);
+        }
+
+        $users = $bomberosQuery
+            ->orderBy('nombres')
+            ->orderBy('apellido_paterno')
+            ->get();
+
+        $currentGuardiaUsers = $shift ? $shift->users->whereNull('end_time')->pluck('firefighter_id')->filter()->toArray() : [];
+
+        return view('guardia_now', compact('shift', 'users', 'currentGuardiaUsers'));
+    }
+
+    public function nowData(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'No autorizado'], 403);
+        }
+
+        $now = Carbon::now();
+        ReplacementService::expire($now);
+
+        $query = Shift::with(['leader', 'users.firefighter', 'users.replacedFirefighter'])
+            ->where('status', 'active');
+
+        if ($user->guardia_id) {
+            $query->whereHas('leader', function ($q) use ($user) {
+                $q->where('guardia_id', $user->guardia_id);
+            });
+        }
+
+        $shift = $query->latest()->first();
+
+        if ($shift) {
+            $shift->setRelation(
+                'users',
+                $shift->users->filter(function ($shiftUser) use ($now) {
+                    return !$shiftUser->user
+                        || !$shiftUser->user->replacement_until
+                        || $shiftUser->user->replacement_until->greaterThan($now);
+                })->values()
+            );
+        }
+
+        $bomberosQuery = Bombero::query();
+        if ($user->guardia_id) {
+            $bomberosQuery->where('guardia_id', $user->guardia_id);
+        }
+
+        $bomberos = $bomberosQuery
+            ->orderBy('nombres')
+            ->orderBy('apellido_paterno')
+            ->get();
+
+        $onDutyFirefighterIds = $shift
+            ? $shift->users->whereNull('end_time')->pluck('firefighter_id')->filter()->map(fn ($v) => (int) $v)->values()->toArray()
+            : [];
+        $onDutyLookup = array_fill_keys($onDutyFirefighterIds, true);
+
+        $payload = [
+            'server_time' => $now->toIso8601String(),
+            'shift' => $shift ? [
+                'id' => $shift->id,
+                'status' => $shift->status,
+                'leader' => $shift->leader?->name,
+                'created_at' => optional($shift->created_at)->toIso8601String(),
+            ] : null,
+            'bomberos' => $bomberos->map(function (Bombero $b) use ($onDutyLookup) {
+                $name = trim((string)($b->nombres ?? '') . ' ' . (string)($b->apellido_paterno ?? '') . ' ' . (string)($b->apellido_materno ?? ''));
+
+                return [
+                    'id' => (int) $b->id,
+                    'nombre' => $name,
+                    'portatil' => $b->numero_portatil,
+                    'estado_asistencia' => $b->estado_asistencia ?? 'constituye',
+                    'es_jefe_guardia' => (bool) ($b->es_jefe_guardia ?? false),
+                    'es_refuerzo' => (bool) ($b->es_refuerzo ?? false),
+                    'es_cambio' => (bool) ($b->es_cambio ?? false),
+                    'es_sancion' => (bool) ($b->es_sancion ?? false),
+                    'fuera_de_servicio' => (bool) ($b->fuera_de_servicio ?? false),
+                    'en_turno' => isset($onDutyLookup[(int) $b->id]),
+                ];
+            })->values(),
+        ];
+
+        return response()->json($payload);
+    }
+
     public function start(Request $request)
     {
         $authUser = Auth::user();

@@ -6,7 +6,7 @@
         <div>
             <div class="text-xs font-black uppercase tracking-widest text-slate-500">Inventario</div>
             <div class="text-2xl font-extrabold text-slate-900">QR fijo</div>
-            <div class="text-sm text-slate-600 mt-1">Escanea para ir directo al formulario de retiro (con login).</div>
+            <div class="text-sm text-slate-600 mt-1">Escanea para ir directo al formulario de retiro.</div>
         </div>
 
         <div class="flex items-center gap-2">

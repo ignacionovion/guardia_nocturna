@@ -6,7 +6,7 @@
         <div>
             <div class="text-xs font-black uppercase tracking-widest text-slate-500">Planillas</div>
             <div class="text-2xl font-extrabold text-slate-900">QR fijo (Revisión de niveles)</div>
-            <div class="text-sm text-slate-600 mt-1">Escanea para ir directo a crear una nueva planilla (con login).</div>
+            <div class="text-sm text-slate-600 mt-1">Escanea para ir directo a crear una nueva planilla.</div>
         </div>
 
         <div class="flex items-center gap-2">

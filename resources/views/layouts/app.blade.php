@@ -36,6 +36,9 @@
                         <a href="{{ route('dashboard') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('dashboard') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
                             <i class="fas fa-home mr-1.5 opacity-70"></i> Inicio
                         </a>
+                        <a href="{{ route('guardia.now') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('guardia.now*') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                            <i class="fas fa-bolt mr-1.5 opacity-70"></i> Now
+                        </a>
                         <a href="{{ route('camas') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('camas') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
                             <i class="fas fa-bed mr-1.5 opacity-70"></i> Camas
                         </a>
@@ -80,6 +83,9 @@
                             </button>
                             <div class="hidden group-hover:block absolute left-0 top-full w-56 bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden">
                                 <div class="h-2"></div>
+                                <a href="{{ route('guardia.now') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                                    <i class="fas fa-bolt mr-2 text-slate-500"></i> Now
+                                </a>
                                 <a href="{{ route('admin.guardias') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                                     <i class="fas fa-shield mr-2 text-slate-500"></i> Guardias
                                 </a>
@@ -124,6 +130,9 @@
                     @elseif(Auth::user()->role === 'capitania')
                         <a href="{{ route('dashboard') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('dashboard') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
                             <i class="fas fa-home mr-1.5 opacity-70"></i> Inicio
+                        </a>
+                        <a href="{{ route('guardia.now') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('guardia.now*') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                            <i class="fas fa-bolt mr-1.5 opacity-70"></i> Now
                         </a>
                         <a href="{{ route('camas') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('camas') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
                             <i class="fas fa-bed mr-1.5 opacity-70"></i> Camas
@@ -192,6 +201,9 @@
                                 <a href="{{ route('dashboard') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('dashboard') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                                     <i class="fas fa-home mr-2 opacity-80"></i> Inicio
                                 </a>
+                                <a href="{{ route('guardia.now') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('guardia.now*') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+                                    <i class="fas fa-bolt mr-2 opacity-80"></i> Now
+                                </a>
                                 <a href="{{ route('camas') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('camas') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                                     <i class="fas fa-bed mr-2 opacity-80"></i> Camas
                                 </a>
@@ -245,6 +257,9 @@
                             @elseif(Auth::user()->role === 'capitania')
                                 <a href="{{ route('dashboard') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('dashboard') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                                     <i class="fas fa-home mr-2 opacity-80"></i> Inicio
+                                </a>
+                                <a href="{{ route('guardia.now') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('guardia.now*') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+                                    <i class="fas fa-bolt mr-2 opacity-80"></i> Now
                                 </a>
                                 <a href="{{ route('camas') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('camas') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                                     <i class="fas fa-bed mr-2 opacity-80"></i> Camas
