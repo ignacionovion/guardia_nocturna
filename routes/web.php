@@ -86,7 +86,9 @@ Route::middleware('auth')->group(function () {
         return redirect()->route('inventario.dashboard');
     })->name('inventario.index');
 
-    Route::get('/planillas/qr/{token}', [PlanillasQrController::class, 'show'])->name('planillas.qr.show');
+    Route::get('/planillas/qr/{token}', [PlanillasQrController::class, 'show'])
+        ->where('token', '[A-Za-z0-9]{40}')
+        ->name('planillas.qr.show');
 
     Route::middleware('inventory_access')->group(function () {
         Route::get('/inventario/panel', [InventarioController::class, 'index'])->name('inventario.dashboard');
@@ -211,14 +213,19 @@ Route::middleware('auth')->group(function () {
         Route::get('/admin/planillas', [PlanillaController::class, 'index'])->name('admin.planillas.index');
         Route::get('/admin/planillas/create', [PlanillaController::class, 'create'])->name('admin.planillas.create');
         Route::post('/admin/planillas', [PlanillaController::class, 'store'])->name('admin.planillas.store');
-        Route::get('/admin/planillas/{planilla}', [PlanillaController::class, 'show'])->name('admin.planillas.show');
-        Route::get('/admin/planillas/{planilla}/edit', [PlanillaController::class, 'edit'])->name('admin.planillas.edit');
-        Route::put('/admin/planillas/{planilla}', [PlanillaController::class, 'update'])->name('admin.planillas.update');
-        Route::put('/admin/planillas/{planilla}/estado', [PlanillaController::class, 'updateEstado'])->name('admin.planillas.estado.update');
-        Route::delete('/admin/planillas/{planilla}', [PlanillaController::class, 'destroy'])->name('admin.planillas.destroy');
+        Route::get('/admin/planillas/{planilla}', [PlanillaController::class, 'show'])->whereNumber('planilla')->name('admin.planillas.show');
+        Route::get('/admin/planillas/{planilla}/edit', [PlanillaController::class, 'edit'])->whereNumber('planilla')->name('admin.planillas.edit');
+        Route::put('/admin/planillas/{planilla}', [PlanillaController::class, 'update'])->whereNumber('planilla')->name('admin.planillas.update');
+        Route::put('/admin/planillas/{planilla}/estado', [PlanillaController::class, 'updateEstado'])->whereNumber('planilla')->name('admin.planillas.estado.update');
+        Route::delete('/admin/planillas/{planilla}', [PlanillaController::class, 'destroy'])->whereNumber('planilla')->name('admin.planillas.destroy');
 
         Route::get('/admin/planillas/qr-fijo', [PlanillaQrFijoController::class, 'show'])->name('admin.planillas.qr_fijo');
+        Route::get('/admin/planillas/qr-fijo/imprimir', [PlanillaQrFijoController::class, 'print'])->name('admin.planillas.qr_fijo.print');
         Route::post('/admin/planillas/qr-fijo/regenerar', [PlanillaQrFijoController::class, 'regenerar'])->name('admin.planillas.qr_fijo.regenerar');
+
+        Route::get('/planillas/qr-fijo', function () {
+            return redirect()->route('admin.planillas.qr_fijo');
+        })->name('planillas.qr_fijo.alias');
 
         Route::get('/admin/preventivas', [PreventiveEventController::class, 'index'])->name('admin.preventivas.index');
         Route::get('/admin/preventivas/create', [PreventiveEventController::class, 'create'])->name('admin.preventivas.create');

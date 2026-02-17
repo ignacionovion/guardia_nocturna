@@ -40,6 +40,37 @@ class PlanillaQrFijoController extends Controller
         ]);
     }
 
+    public function print(Request $request)
+    {
+        $link = InventoryQrLink::query()
+            ->where('tipo', 'planillas')
+            ->where('activo', true)
+            ->orderBy('id')
+            ->first();
+
+        if (!$link) {
+            $link = InventoryQrLink::create([
+                'token' => Str::random(40),
+                'tipo' => 'planillas',
+                'bodega_id' => null,
+                'activo' => true,
+            ]);
+        }
+
+        $url = route('planillas.qr.show', ['token' => $link->token]);
+
+        $qrSvg = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')
+            ->size(520)
+            ->margin(1)
+            ->generate($url);
+
+        return view('admin.planillas.qr_fijo_print', [
+            'link' => $link,
+            'url' => $url,
+            'qrSvg' => $qrSvg,
+        ]);
+    }
+
     public function regenerar(Request $request)
     {
         $link = InventoryQrLink::query()

@@ -9,13 +9,23 @@
             <div class="text-sm text-slate-600 mt-1">Escanea para ir directo a crear una nueva planilla (con login).</div>
         </div>
 
-        <form method="POST" action="{{ route('admin.planillas.qr_fijo.regenerar') }}" onsubmit="return confirm('¿Regenerar QR? El código anterior dejará de funcionar.')">
-            @csrf
-            <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-800 font-extrabold text-xs">
-                <i class="fas fa-rotate"></i>
-                Regenerar
-            </button>
-        </form>
+        <div class="flex items-center gap-2">
+            <a href="{{ route('admin.planillas.index') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs">
+                <i class="fas fa-arrow-left"></i>
+                Historial
+            </a>
+            <a href="{{ route('admin.planillas.qr_fijo.print') }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-extrabold text-xs">
+                <i class="fas fa-print"></i>
+                Imprimir
+            </a>
+            <form method="POST" action="{{ route('admin.planillas.qr_fijo.regenerar') }}" onsubmit="return confirm('¿Regenerar QR? El código anterior dejará de funcionar.')">
+                @csrf
+                <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-800 font-extrabold text-xs">
+                    <i class="fas fa-rotate"></i>
+                    Regenerar
+                </button>
+            </form>
+        </div>
     </div>
 
     <div class="mt-6 bg-white rounded-2xl border border-teal-900/20 shadow-sm overflow-hidden">
