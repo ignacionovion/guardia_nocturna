@@ -206,6 +206,7 @@ class InventarioQrController extends Controller
         $request->session()->forget('inventario_qr_bombero_id');
         $request->session()->forget('inventario_qr_confirmed_token');
 
-        return back()->with('success', 'Retiro registrado correctamente.');
+        return redirect()->route('inventario.qr.identificar.form', ['token' => $token])
+            ->with('success', 'Retiro registrado correctamente.');
     }
 }

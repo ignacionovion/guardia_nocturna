@@ -31,7 +31,7 @@
                         <div class="ml-4">
                             <h3 class="text-sm font-bold text-yellow-800 uppercase tracking-wide">Instrucciones Importantes</h3>
                             <div class="mt-2 text-sm text-yellow-700 space-y-1">
-                                <p>• El archivo debe seguir estrictamente la estructura de columnas (A-M).</p>
+                                <p>• El archivo debe seguir estrictamente la estructura de columnas (A-N).</p>
                                 <p>• Formatos permitidos: <strong>.CSV</strong>, <strong>.XLSX</strong>.</p>
                                 <div class="pt-2 border-t border-yellow-200">
                                     <p class="font-bold">Columnas (en español):</p>
@@ -48,6 +48,7 @@
                                     <p>K: operador_rescate</p>
                                     <p>L: asistente_trauma</p>
                                     <p>M: email</p>
+                                    <p>N: NUMERO_REGISTRO</p>
                                 </div>
                             </div>
                         </div>

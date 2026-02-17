@@ -56,6 +56,7 @@ class BomberoController extends Controller
             'apellido_paterno' => 'nullable|string|max:255',
             'apellido_materno' => 'nullable|string|max:255',
             'rut' => 'nullable|string|unique:bomberos,rut',
+            'numero_registro' => 'nullable|string|max:255',
             'correo' => 'nullable|email',
             'photo' => 'nullable|image|max:2048',
             'fecha_nacimiento' => 'nullable|date',
@@ -115,6 +116,7 @@ class BomberoController extends Controller
         $request->validate([
             'nombres' => 'required|string|max:255',
             'rut' => 'nullable|string|unique:bomberos,rut,'.$id,
+            'numero_registro' => 'nullable|string|max:255',
             'correo' => 'nullable|email',
             'photo' => 'nullable|image|max:2048',
             'fecha_nacimiento' => 'nullable|date',
@@ -131,6 +133,7 @@ class BomberoController extends Controller
             'apellido_paterno',
             'apellido_materno',
             'rut',
+            'numero_registro',
             'correo',
             'fecha_nacimiento',
             'cargo_texto',
@@ -388,12 +391,14 @@ class BomberoController extends Controller
                 $cargo = $val(4);
                 $portable = $val(5);
                 $email = $val(12);
+                $numeroRegistro = $val(13);
 
                 Bombero::create([
                     'nombres' => $nombres,
                     'apellido_paterno' => $apellidoPaterno,
                     'apellido_materno' => $apellidoMaterno,
                     'rut' => $val(3),
+                    'numero_registro' => $numeroRegistro ?: null,
                     'cargo_texto' => $cargo,
                     'numero_portatil' => $portable ?: null,
                     'fecha_nacimiento' => $birthdate,

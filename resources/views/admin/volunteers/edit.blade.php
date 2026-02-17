@@ -51,6 +51,11 @@
                             <input type="text" name="rut" value="{{ old('rut', $volunteer->rut) }}" placeholder="12.345.678-9"
                                 class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all text-slate-700 font-medium">
                         </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-bold text-slate-700 uppercase tracking-wide">Número de Registro</label>
+                            <input type="text" name="numero_registro" value="{{ old('numero_registro', $volunteer->numero_registro) }}" placeholder="Ej: 611"
+                                class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all">
+                        </div>
                         <div class="md:col-span-3 space-y-2">
                             <label class="text-sm font-bold text-slate-700 uppercase tracking-wide">Cargo</label>
                             <div class="relative" id="cargoComboboxEdit">

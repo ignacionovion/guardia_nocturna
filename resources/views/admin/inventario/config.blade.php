@@ -11,7 +11,7 @@
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
             <div class="text-xs font-black uppercase tracking-widest text-slate-500">Inventario</div>
-            <div class="text-2xl font-extrabold text-slate-900">Configuración inicial</div>
+            <div class="text-2xl font-extrabold text-slate-900">Bodega material menor</div>
             <div class="text-sm text-slate-600 mt-1">La <span class="font-bold">bodega</span> es el lugar físico (ej: “Bodega Sala de Máquinas”). Las <span class="font-bold">categorías</span> (Trauma, Ferulas, etc.)</div>
         </div>
 
@@ -151,80 +151,91 @@
                         </form>
                     </div>
 
-                    <form method="POST" action="{{ route('inventario.config.items.store') }}" class="space-y-4 mt-6">
-                        @csrf
+                    <div class="bg-slate-50 rounded-2xl border border-slate-200 p-5 mt-6">
+                        <div class="text-xs font-black uppercase tracking-widest text-slate-600">Nuevo ítem</div>
+                        <div class="text-sm text-slate-600 mt-1">Crea un ítem (y su variante/medida) con stock inicial.</div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-black uppercase tracking-widest text-slate-600 mb-2">Categoría (opcional)</label>
-                                <input type="text" name="categoria" value="{{ old('categoria') }}" class="w-full px-3 py-3 border border-slate-200 rounded-xl bg-white text-slate-800 font-semibold text-sm" />
+                        <form method="POST" action="{{ route('inventario.config.items.store') }}" class="mt-4 space-y-4">
+                            @csrf
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-black uppercase tracking-widest text-slate-600 mb-2">Categoría (opcional)</label>
+                                    <input type="text" name="categoria" value="{{ old('categoria') }}" class="w-full px-3 py-3 border border-slate-200 rounded-xl bg-white text-slate-800 font-semibold text-sm" />
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-black uppercase tracking-widest text-slate-600 mb-2">Unidad (opcional)</label>
+                                    <input type="text" name="unidad" value="{{ old('unidad') }}" class="w-full px-3 py-3 border border-slate-200 rounded-xl bg-white text-slate-800 font-semibold text-sm" placeholder="Ej: unidades, cajas" />
+                                </div>
                             </div>
+
                             <div>
-                                <label class="block text-xs font-black uppercase tracking-widest text-slate-600 mb-2">Unidad (opcional)</label>
-                                <input type="text" name="unidad" value="{{ old('unidad') }}" class="w-full px-3 py-3 border border-slate-200 rounded-xl bg-white text-slate-800 font-semibold text-sm" placeholder="Ej: unidades, cajas" />
+                                <label class="block text-xs font-black uppercase tracking-widest text-slate-600 mb-2">Título</label>
+                                <input type="text" name="titulo" value="{{ old('titulo') }}" class="w-full px-3 py-3 border border-slate-200 rounded-xl bg-white text-slate-800 font-semibold text-sm" required />
                             </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-black uppercase tracking-widest text-slate-600 mb-2">Variante (opcional)</label>
+                                    <input type="text" name="variante" value="{{ old('variante') }}" class="w-full px-3 py-3 border border-slate-200 rounded-xl bg-white text-slate-800 font-semibold text-sm" placeholder="Ej: Adulto, Pediátrico" />
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-black uppercase tracking-widest text-slate-600 mb-2">Stock inicial</label>
+                                    <input type="number" name="stock" min="0" value="{{ old('stock', 0) }}" class="w-full px-3 py-3 border border-slate-200 rounded-xl bg-white text-slate-800 font-semibold text-sm" required />
+                                </div>
+                            </div>
+
+                            <div class="pt-1">
+                                <button type="submit" class="w-full sm:w-auto inline-flex items-center gap-2 bg-slate-950 hover:bg-black text-white font-black py-3 px-5 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest border border-slate-800">
+                                    <i class="fas fa-plus"></i>
+                                    Agregar ítem
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-teal-900/20 shadow-sm overflow-hidden mt-6">
+                        <div class="p-6 border-b border-teal-900/20 bg-sky-100">
+                            <div class="text-xs font-black uppercase tracking-widest text-slate-600">Ítems cargados</div>
+                            <div class="text-sm text-slate-600 mt-1">Listado de ítems activos en la bodega.</div>
                         </div>
 
-                        <div>
-                            <label class="block text-xs font-black uppercase tracking-widest text-slate-600 mb-2">Título</label>
-                            <input type="text" name="titulo" value="{{ old('titulo') }}" class="w-full px-3 py-3 border border-slate-200 rounded-xl bg-white text-slate-800 font-semibold text-sm" required />
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-black uppercase tracking-widest text-slate-600 mb-2">Variante (opcional)</label>
-                                <input type="text" name="variante" value="{{ old('variante') }}" class="w-full px-3 py-3 border border-slate-200 rounded-xl bg-white text-slate-800 font-semibold text-sm" placeholder="Ej: Adulto, Pediátrico" />
-                            </div>
-                            <div>
-                                <label class="block text-xs font-black uppercase tracking-widest text-slate-600 mb-2">Stock inicial</label>
-                                <input type="number" name="stock" min="0" value="{{ old('stock', 0) }}" class="w-full px-3 py-3 border border-slate-200 rounded-xl bg-white text-slate-800 font-semibold text-sm" required />
-                            </div>
-                        </div>
-
-                        <div class="pt-2">
-                            <button type="submit" class="w-full sm:w-auto inline-flex items-center gap-2 bg-slate-950 hover:bg-black text-white font-black py-3 px-5 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest border border-slate-800">
-                                <i class="fas fa-plus"></i>
-                                Agregar ítem
-                            </button>
-                        </div>
-                    </form>
-
-                    <div class="mt-6">
-                        <div class="text-xs font-black uppercase tracking-widest text-slate-500">Ítems cargados</div>
-                        <div class="mt-3 overflow-x-auto overflow-y-auto rounded-xl border border-slate-200" style="max-height: 420px;">
-                            <table class="min-w-full text-sm">
-                                <thead class="bg-slate-50 border-b border-slate-200">
-                                    <tr class="text-xs font-black uppercase tracking-widest text-slate-700">
-                                        <th class="text-left px-4 py-3">Ítem</th>
-                                        <th class="text-left px-4 py-3">Categoría</th>
-                                        <th class="text-right px-4 py-3">Stock</th>
-                                        <th class="text-right px-4 py-3">Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-100">
-                                    @forelse($items as $item)
-                                        <tr>
-                                            <td class="px-4 py-3 font-bold text-slate-900">{{ $item->display_name }}</td>
-                                            <td class="px-4 py-3 text-slate-600">{{ $item->categoria ?? '—' }}</td>
-                                            <td class="px-4 py-3 text-right font-extrabold text-slate-900">{{ $item->stock }}</td>
-                                            <td class="px-4 py-3 text-right">
-                                                <form method="POST" action="{{ route('inventario.config.items.destroy', ['itemId' => $item->id]) }}" onsubmit="return confirm('¿Eliminar este ítem?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-800 font-extrabold text-[11px] uppercase tracking-widest">
-                                                        <i class="fas fa-trash"></i>
-                                                        Eliminar
-                                                    </button>
-                                                </form>
-                                            </td>
+                        <div class="p-6">
+                            <div class="overflow-x-auto overflow-y-auto rounded-xl border border-slate-200" style="max-height: 420px;">
+                                <table class="min-w-full text-sm">
+                                    <thead class="bg-slate-50 border-b border-slate-200">
+                                        <tr class="text-xs font-black uppercase tracking-widest text-slate-700">
+                                            <th class="text-left px-4 py-3">Ítem</th>
+                                            <th class="text-left px-4 py-3">Categoría</th>
+                                            <th class="text-right px-4 py-3">Stock</th>
+                                            <th class="text-right px-4 py-3">Acciones</th>
                                         </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="4" class="px-4 py-6 text-center text-slate-500">Aún no hay ítems.</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100">
+                                        @forelse($items as $item)
+                                            <tr>
+                                                <td class="px-4 py-3 font-bold text-slate-900">{{ $item->display_name }}</td>
+                                                <td class="px-4 py-3 text-slate-600">{{ $item->categoria ?? '—' }}</td>
+                                                <td class="px-4 py-3 text-right font-extrabold text-slate-900">{{ $item->stock }}</td>
+                                                <td class="px-4 py-3 text-right">
+                                                    <form method="POST" action="{{ route('inventario.config.items.destroy', ['itemId' => $item->id]) }}" onsubmit="return confirm('¿Eliminar este ítem?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-800 font-extrabold text-[11px] uppercase tracking-widest">
+                                                            <i class="fas fa-trash"></i>
+                                                            Eliminar
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="4" class="px-4 py-6 text-center text-slate-500">Aún no hay ítems.</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 @endif

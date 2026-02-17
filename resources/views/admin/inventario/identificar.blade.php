@@ -13,22 +13,22 @@
             @if(file_exists(public_path('brand/guardiappcheck.png')))
                 <img src="{{ asset('brand/guardiappcheck.png') }}" alt="GuardiaAPP" class="mx-auto h-[80px] w-auto drop-shadow-sm">
             @else
-                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-slate-800 border border-slate-700 shadow-xl">
-                    <i class="fas fa-boxes-stacked text-2xl text-slate-100"></i>
-                </div>
+                <div class="mt-2 text-xs font-black uppercase tracking-widest text-slate-400">Inventario</div>
+                <div class="text-2xl font-extrabold text-white">Identificación</div>
+                <div class="text-sm text-slate-400 mt-1">Ingresa tu RUT para registrar el retiro.</div>
             @endif
-            <div class="-mt-3 text-xs font-black uppercase tracking-widest text-slate-400">Inventario</div>
-            <div class="text-2xl font-extrabold text-white">Identificación</div>
-            <div class="text-sm text-slate-400 mt-1">Ingresa tu RUT antes de registrar un retiro.</div>
         </div>
 
-        <div class="mt-8 bg-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
-            <div class="p-6 border-b border-white/10 bg-white/5">
-                <div class="text-sm font-black uppercase tracking-widest text-slate-300">RUT del bombero</div>
-                <div class="text-sm text-slate-300 mt-1">Formato requerido: <span class="font-mono font-black">11222333-4</span></div>
+        @if(session('success'))
+            <div class="mt-6">
+                <div class="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-emerald-100">
+                    <div class="text-sm font-extrabold">{{ session('success') }}</div>
+                </div>
             </div>
+        @endif
 
-            @if(isset($bombero) && $bombero)
+        @if(isset($bombero) && $bombero)
+            <div class="mt-6 bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
                 <div class="p-6 space-y-4">
                     <div class="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-4">
                         <div class="text-xs font-black uppercase tracking-widest text-emerald-100/80">Confirmación</div>
@@ -51,15 +51,16 @@
                         Si tu RUT no aparece en el sistema, solicita que te agreguen en <span class="font-bold">Gestión de Voluntarios</span>.
                     </div>
                 </div>
-            @else
-                <form method="POST" action="{{ route('inventario.qr.identificar.store', ['token' => $token]) }}" class="p-6 space-y-4">
-                    @csrf
+            </div>
+        @else
+            <form method="POST" action="{{ route('inventario.qr.identificar.store', ['token' => $token]) }}" class="p-6 space-y-4">
+                @csrf
 
-                    @if($errors->any())
-                        <div class="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-rose-100">
-                            <div class="text-sm font-extrabold">Revisa el RUT e intenta nuevamente.</div>
-                        </div>
-                    @endif
+                @if($errors->any())
+                    <div class="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-rose-100">
+                        <div class="text-sm font-extrabold">Revisa el RUT e intenta nuevamente.</div>
+                    </div>
+                @endif
 
                     <div>
                         <label class="block text-xs font-black uppercase tracking-widest text-slate-300 mb-2">RUT</label>
@@ -87,8 +88,7 @@
                         Si tu RUT no aparece en el sistema, solicita que te agreguen en <span class="font-bold">Gestión de Voluntarios</span>.
                     </div>
                 </form>
-            @endif
-        </div>
+        @endif
 
         <div class="mt-6 text-center text-xs text-slate-500">
             GuardiaAPP
