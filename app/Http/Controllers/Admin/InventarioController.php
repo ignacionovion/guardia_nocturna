@@ -9,6 +9,7 @@ use App\Models\InventoryMovement;
 use App\Models\InventoryWarehouse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class InventarioController extends Controller
 {
@@ -291,6 +292,55 @@ class InventarioController extends Controller
         ]);
 
         return redirect()->route('inventario.config.form')->with('success', 'Ítem agregado correctamente.');
+    }
+
+    public function stockIngresoStore(Request $request)
+    {
+        $bodega = InventoryWarehouse::query()
+            ->where('activo', true)
+            ->orderBy('id')
+            ->first();
+
+        if (!$bodega) {
+            return redirect()->route('inventario.config.form');
+        }
+
+        $validated = $request->validate([
+            'item_id' => [
+                'required',
+                'integer',
+                Rule::exists('inventario_items', 'id')->where(fn ($q) => $q->where('bodega_id', $bodega->id)->where('activo', true)),
+            ],
+            'cantidad' => ['required', 'integer', 'min:1'],
+            'nota' => ['nullable', 'string', 'max:2000'],
+        ]);
+
+        $cantidad = (int) $validated['cantidad'];
+
+        DB::transaction(function () use ($bodega, $cantidad, $validated, $request) {
+            $item = InventoryItem::query()
+                ->where('id', (int) $validated['item_id'])
+                ->where('bodega_id', $bodega->id)
+                ->where('activo', true)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            $item->update([
+                'stock' => (int) $item->stock + $cantidad,
+            ]);
+
+            InventoryMovement::create([
+                'bodega_id' => $bodega->id,
+                'item_id' => $item->id,
+                'tipo' => 'ingreso',
+                'cantidad' => $cantidad,
+                'nota' => $validated['nota'] ?? null,
+                'creado_por' => (int) $request->user()->id,
+                'bombero_id' => null,
+            ]);
+        });
+
+        return redirect()->route('inventario.config.form')->with('success', 'Stock ingresado correctamente.');
     }
 
     public function itemDestroy(Request $request, int $itemId)

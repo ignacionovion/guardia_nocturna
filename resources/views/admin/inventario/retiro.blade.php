@@ -46,7 +46,7 @@
 
                 @if($errors->any())
                     <div class="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-rose-100">
-                        <div class="text-sm font-extrabold">Revisa los datos e intenta nuevamente.</div>
+                        <div class="text-sm font-extrabold">{{ $errors->first() ?: 'Revisa los datos e intenta nuevamente.' }}</div>
                     </div>
                 @endif
 
@@ -84,55 +84,6 @@
                     Deja una nota si el retiro fue para un uso específico.
                 </div>
             </form>
-        </div>
-
-        <div class="mt-8 bg-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
-            <div class="p-6 border-b border-white/10 bg-white/5">
-                <div class="text-sm font-black uppercase tracking-widest text-slate-300">Baja de inventario</div>
-                <div class="text-sm text-slate-300 mt-1">Historial de salidas de la bodega.</div>
-            </div>
-
-            <div class="p-6">
-                @if(isset($movimientos) && $movimientos && count($movimientos) > 0)
-                    <div class="overflow-x-auto rounded-xl border border-white/10">
-                        <table class="min-w-full text-sm">
-                            <thead class="bg-white/5 border-b border-white/10">
-                                <tr class="text-xs font-black uppercase tracking-widest text-slate-300">
-                                    <th class="text-left px-4 py-3">Fecha</th>
-                                    <th class="text-left px-4 py-3">Ítem</th>
-                                    <th class="text-right px-4 py-3">Cantidad</th>
-                                    <th class="text-left px-4 py-3">Bombero</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-white/10">
-                                @foreach($movimientos as $m)
-                                    <tr>
-                                        <td class="px-4 py-3 text-slate-300 whitespace-nowrap">
-                                            {{ optional($m->created_at)->format('d-m-Y H:i') }}
-                                        </td>
-                                        <td class="px-4 py-3 text-slate-100 font-semibold">
-                                            {{ $m->item?->display_name ?? '—' }}
-                                        </td>
-                                        <td class="px-4 py-3 text-right text-slate-100 font-extrabold">
-                                            {{ $m->cantidad }}
-                                        </td>
-                                        <td class="px-4 py-3 text-slate-300">
-                                            @if($m->firefighter)
-                                                <div class="font-semibold">{{ $m->firefighter->rut }}</div>
-                                                <div class="text-xs text-slate-400">{{ trim((string)($m->firefighter->nombres ?? '') . ' ' . (string)($m->firefighter->apellido_paterno ?? '')) }}</div>
-                                            @else
-                                                —
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                @else
-                    <div class="text-sm text-slate-400">Aún no hay bajas registradas.</div>
-                @endif
-            </div>
         </div>
 
         <div class="mt-6 text-center text-xs text-slate-500">

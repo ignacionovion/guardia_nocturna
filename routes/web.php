@@ -30,6 +30,9 @@ Route::post('/preventivas/{token}/confirmar', [PreventivePublicController::class
 Route::get('/inventario/qr/{token}', [InventarioQrController::class, 'show'])
     ->where('token', '[A-Za-z0-9]{40}')
     ->name('inventario.qr.show');
+Route::get('/inventario/qr/{token}/confirmar', [InventarioQrController::class, 'confirm'])
+    ->where('token', '[A-Za-z0-9]{40}')
+    ->name('inventario.qr.confirm');
 Route::get('/inventario/qr/{token}/identificar', [InventarioQrController::class, 'identificarForm'])
     ->where('token', '[A-Za-z0-9]{40}')
     ->name('inventario.qr.identificar.form');
@@ -113,6 +116,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/inventario/config', [InventarioController::class, 'configForm'])->name('inventario.config.form');
         Route::post('/inventario/config/bodega', [InventarioController::class, 'bodegaStore'])->name('inventario.config.bodega.store');
         Route::post('/inventario/config/items', [InventarioController::class, 'itemStore'])->name('inventario.config.items.store');
+        Route::post('/inventario/config/stock/ingreso', [InventarioController::class, 'stockIngresoStore'])->name('inventario.config.stock.ingreso.store');
         Route::delete('/inventario/config/items/{itemId}', [InventarioController::class, 'itemDestroy'])->name('inventario.config.items.destroy');
 
         Route::get('/inventario/qr', [InventarioQrAdminController::class, 'show'])->name('inventario.qr.admin');

@@ -40,10 +40,13 @@
         </div>
 
         <div class="p-4">
+            <div class="mb-4">
+                <input id="invStockSearch" type="text" class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-white text-slate-800 font-semibold text-sm" placeholder="Buscar por nombre, categoría o unidad..." autocomplete="off" />
+            </div>
             <div class="overflow-y-auto" style="max-height: 420px;">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                <div id="invStockGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                     @forelse($items as $item)
-                        <div class="rounded-xl border border-slate-200 bg-white p-4 hover:bg-sky-50">
+                        <div class="rounded-xl border border-slate-200 bg-white p-4 hover:bg-sky-50" data-search="{{ mb_strtolower(($item->display_name ?? '') . ' ' . ($item->categoria ?? '') . ' ' . ($item->unidad ?? '')) }}">
                             <div class="flex items-start justify-between gap-3">
                                 <div class="min-w-0">
                                     <div class="text-sm font-extrabold text-slate-900 truncate">{{ $item->display_name }}</div>
@@ -107,7 +110,44 @@
                         Primero guarda la bodega para poder agregar ítems.
                     </div>
                 @else
-                    <form method="POST" action="{{ route('inventario.config.items.store') }}" class="space-y-4">
+                    <div class="bg-slate-50 rounded-2xl border border-slate-200 p-5">
+                        <div class="text-xs font-black uppercase tracking-widest text-slate-600">Ingreso de stock</div>
+                        <div class="text-sm text-slate-600 mt-1">Suma unidades a un ítem existente (queda registro como movimiento de ingreso).</div>
+
+                        <form method="POST" action="{{ route('inventario.config.stock.ingreso.store') }}" class="mt-4 space-y-4">
+                            @csrf
+
+                            <div>
+                                <label class="block text-xs font-black uppercase tracking-widest text-slate-600 mb-2">Ítem</label>
+                                <select name="item_id" class="w-full px-3 py-3 border border-slate-200 rounded-xl bg-white text-slate-800 font-semibold text-sm" required>
+                                    <option value="">Seleccionar...</option>
+                                    @foreach($items as $it)
+                                        <option value="{{ $it->id }}">{{ $it->display_name }} (Stock: {{ $it->stock }})</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-black uppercase tracking-widest text-slate-600 mb-2">Cantidad a ingresar</label>
+                                    <input type="number" name="cantidad" min="1" value="1" class="w-full px-3 py-3 border border-slate-200 rounded-xl bg-white text-slate-800 font-semibold text-sm" required />
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-black uppercase tracking-widest text-slate-600 mb-2">Nota (opcional)</label>
+                                    <input type="text" name="nota" class="w-full px-3 py-3 border border-slate-200 rounded-xl bg-white text-slate-800 font-semibold text-sm" placeholder="Ej: reposición" />
+                                </div>
+                            </div>
+
+                            <div class="pt-1">
+                                <button type="submit" class="w-full sm:w-auto inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 px-5 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest border border-emerald-700">
+                                    <i class="fas fa-plus"></i>
+                                    Ingresar stock
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <form method="POST" action="{{ route('inventario.config.items.store') }}" class="space-y-4 mt-6">
                         @csrf
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -189,3 +229,25 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    (function () {
+        const input = document.getElementById('invStockSearch');
+        const grid = document.getElementById('invStockGrid');
+        if (!input || !grid) return;
+
+        function apply() {
+            const q = (input.value || '').trim().toLowerCase();
+            const cards = Array.from(grid.querySelectorAll('[data-search]'));
+            cards.forEach((c) => {
+                const hay = (c.getAttribute('data-search') || '');
+                c.style.display = q === '' || hay.includes(q) ? '' : 'none';
+            });
+        }
+
+        input.addEventListener('input', apply);
+        apply();
+    })();
+</script>
+@endpush

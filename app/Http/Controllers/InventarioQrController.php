@@ -9,12 +9,18 @@ use App\Models\InventoryQrLink;
 use App\Models\InventoryWarehouse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class InventarioQrController extends Controller
 {
     public function show(Request $request, string $token)
     {
         if (!$request->session()->get('inventario_qr_bombero_id')) {
+            return redirect()->route('inventario.qr.identificar.form', ['token' => $token]);
+        }
+
+        $confirmedToken = (string) $request->session()->get('inventario_qr_confirmed_token', '');
+        if ($confirmedToken !== $token) {
             return redirect()->route('inventario.qr.identificar.form', ['token' => $token]);
         }
 
@@ -53,27 +59,44 @@ class InventarioQrController extends Controller
             $bombero = Bombero::query()->where('id', (int) $bomberoId)->first();
         }
 
-        $movimientos = InventoryMovement::query()
-            ->with(['item', 'firefighter'])
-            ->where('bodega_id', $bodega->id)
-            ->where('tipo', 'egreso')
-            ->orderByDesc('created_at')
-            ->limit(50)
-            ->get();
-
         return view('admin.inventario.retiro', [
             'bodega' => $bodega,
             'items' => $items,
             'token' => $token,
             'bombero' => $bombero,
-            'movimientos' => $movimientos,
         ]);
+    }
+
+    public function confirm(Request $request, string $token)
+    {
+        if (!$request->session()->get('inventario_qr_bombero_id')) {
+            return redirect()->route('inventario.qr.identificar.form', ['token' => $token]);
+        }
+
+        $request->session()->put('inventario_qr_confirmed_token', $token);
+
+        return redirect()->route('inventario.qr.show', ['token' => $token]);
     }
 
     public function identificarForm(Request $request, string $token)
     {
+        if ($request->boolean('reset')) {
+            $request->session()->forget('inventario_qr_bombero_id');
+            $request->session()->forget('inventario_qr_confirmed_token');
+        }
+
+        $bombero = null;
+        $bomberoId = $request->session()->get('inventario_qr_bombero_id');
+        if ($bomberoId) {
+            $bombero = Bombero::query()->where('id', (int) $bomberoId)->first();
+            if (!$bombero) {
+                $request->session()->forget('inventario_qr_bombero_id');
+            }
+        }
+
         return view('admin.inventario.identificar', [
             'token' => $token,
+            'bombero' => $bombero,
         ]);
     }
 
@@ -98,6 +121,7 @@ class InventarioQrController extends Controller
         }
 
         $request->session()->put('inventario_qr_bombero_id', (int) $bombero->id);
+        $request->session()->forget('inventario_qr_confirmed_token');
 
         return redirect()->route('inventario.qr.show', ['token' => $token]);
     }
@@ -131,29 +155,33 @@ class InventarioQrController extends Controller
         }
 
         $validated = $request->validate([
-            'item_id' => ['required', 'integer'],
+            'item_id' => [
+                'required',
+                'integer',
+                Rule::exists('inventario_items', 'id')->where(fn ($q) => $q->where('bodega_id', $bodega->id)->where('activo', true)),
+            ],
             'cantidad' => ['required', 'integer', 'min:1'],
             'nota' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        $item = InventoryItem::query()
-            ->where('id', (int) $validated['item_id'])
-            ->where('bodega_id', $bodega->id)
-            ->where('activo', true)
-            ->firstOrFail();
-
         $cantidad = (int) $validated['cantidad'];
 
         try {
-            DB::transaction(function () use ($item, $bodega, $cantidad, $validated, $bomberoId) {
-                $item->refresh();
+            DB::transaction(function () use ($bodega, $cantidad, $validated, $bomberoId) {
+                $item = InventoryItem::query()
+                    ->where('id', (int) $validated['item_id'])
+                    ->where('bodega_id', $bodega->id)
+                    ->where('activo', true)
+                    ->lockForUpdate()
+                    ->firstOrFail();
 
                 if ((int) $item->stock < $cantidad) {
                     throw new \RuntimeException('Stock insuficiente.');
                 }
 
-                $item->stock = (int) $item->stock - $cantidad;
-                $item->save();
+                $item->update([
+                    'stock' => (int) $item->stock - $cantidad,
+                ]);
 
                 InventoryMovement::create([
                     'bodega_id' => $bodega->id,
@@ -165,13 +193,13 @@ class InventarioQrController extends Controller
                     'bombero_id' => (int) $bomberoId,
                 ]);
             });
-        } catch (\RuntimeException $e) {
-            return back()
-                ->withInput()
-                ->withErrors(['cantidad' => $e->getMessage()]);
+        } catch (\Throwable $e) {
+            $msg = $e instanceof \RuntimeException ? $e->getMessage() : 'No se pudo registrar el retiro.';
+            return back()->withInput()->withErrors(['cantidad' => $msg]);
         }
 
         $request->session()->forget('inventario_qr_bombero_id');
+        $request->session()->forget('inventario_qr_confirmed_token');
 
         return back()->with('success', 'Retiro registrado correctamente.');
     }
