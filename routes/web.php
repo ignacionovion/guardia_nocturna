@@ -27,10 +27,18 @@ use App\Http\Controllers\Admin\InventarioImportController;
 Route::get('/preventivas/{token}', [PreventivePublicController::class, 'show'])->name('preventivas.public.show');
 Route::post('/preventivas/{token}/confirmar', [PreventivePublicController::class, 'confirm'])->name('preventivas.public.confirm');
 
-Route::get('/inventario/qr/{token}', [InventarioQrController::class, 'show'])->name('inventario.qr.show');
-Route::get('/inventario/qr/{token}/identificar', [InventarioQrController::class, 'identificarForm'])->name('inventario.qr.identificar.form');
-Route::post('/inventario/qr/{token}/identificar', [InventarioQrController::class, 'identificarStore'])->name('inventario.qr.identificar.store');
-Route::post('/inventario/qr/{token}/retirar', [InventarioQrController::class, 'store'])->name('inventario.qr.retiro.store');
+Route::get('/inventario/qr/{token}', [InventarioQrController::class, 'show'])
+    ->where('token', '[A-Za-z0-9]{40}')
+    ->name('inventario.qr.show');
+Route::get('/inventario/qr/{token}/identificar', [InventarioQrController::class, 'identificarForm'])
+    ->where('token', '[A-Za-z0-9]{40}')
+    ->name('inventario.qr.identificar.form');
+Route::post('/inventario/qr/{token}/identificar', [InventarioQrController::class, 'identificarStore'])
+    ->where('token', '[A-Za-z0-9]{40}')
+    ->name('inventario.qr.identificar.store');
+Route::post('/inventario/qr/{token}/retirar', [InventarioQrController::class, 'store'])
+    ->where('token', '[A-Za-z0-9]{40}')
+    ->name('inventario.qr.retiro.store');
 
 // Rutas de Autenticación
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login')->middleware('guest');
@@ -94,6 +102,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/inventario/config/items/{itemId}', [InventarioController::class, 'itemDestroy'])->name('inventario.config.items.destroy');
 
         Route::get('/inventario/qr', [InventarioQrAdminController::class, 'show'])->name('inventario.qr.admin');
+        Route::get('/inventario/qr/imprimir', [InventarioQrAdminController::class, 'print'])->name('inventario.qr.print');
         Route::post('/inventario/qr/regenerar', [InventarioQrAdminController::class, 'regenerar'])->name('inventario.qr.regenerar');
 
         Route::get('/inventario/importar', [InventarioImportController::class, 'importForm'])->name('inventario.import.form');

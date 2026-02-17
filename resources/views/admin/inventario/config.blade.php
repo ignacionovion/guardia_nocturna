@@ -39,31 +39,30 @@
             <div class="text-sm text-slate-600 mt-1">Listado de ítems activos.</div>
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="min-w-full text-sm">
-                <thead class="bg-sky-50 border-b border-teal-900/20">
-                    <tr class="text-xs font-black uppercase tracking-widest text-slate-700">
-                        <th class="text-left px-6 py-3">Ítem</th>
-                        <th class="text-left px-6 py-3">Categoría</th>
-                        <th class="text-left px-6 py-3">Unidad</th>
-                        <th class="text-right px-6 py-3">Stock</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
+        <div class="p-4">
+            <div class="overflow-y-auto" style="max-height: 420px;">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                     @forelse($items as $item)
-                        <tr class="hover:bg-sky-50">
-                            <td class="px-6 py-4 font-bold text-slate-900">{{ $item->display_name }}</td>
-                            <td class="px-6 py-4 text-slate-700">{{ $item->categoria ?? '—' }}</td>
-                            <td class="px-6 py-4 text-slate-700">{{ $item->unidad ?? '—' }}</td>
-                            <td class="px-6 py-4 text-right font-extrabold text-slate-900">{{ $item->stock }}</td>
-                        </tr>
+                        <div class="rounded-xl border border-slate-200 bg-white p-4 hover:bg-sky-50">
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="min-w-0">
+                                    <div class="text-sm font-extrabold text-slate-900 truncate">{{ $item->display_name }}</div>
+                                    <div class="mt-1 text-[11px] text-slate-600 truncate">{{ $item->categoria ?? '—' }}</div>
+                                    <div class="mt-1 text-[11px] text-slate-500 truncate">{{ $item->unidad ?? '—' }}</div>
+                                </div>
+                                <div class="shrink-0">
+                                    <div class="text-xs font-black uppercase tracking-widest text-slate-500 text-right">Stock</div>
+                                    <div class="text-2xl font-extrabold text-slate-900 text-right leading-none mt-1">{{ $item->stock }}</div>
+                                </div>
+                            </div>
+                        </div>
                     @empty
-                        <tr>
-                            <td colspan="4" class="px-6 py-10 text-center text-slate-500">No hay ítems activos.</td>
-                        </tr>
+                        <div class="col-span-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-10 text-center text-slate-500">
+                            No hay ítems activos.
+                        </div>
                     @endforelse
-                </tbody>
-            </table>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -148,7 +147,7 @@
 
                     <div class="mt-6">
                         <div class="text-xs font-black uppercase tracking-widest text-slate-500">Ítems cargados</div>
-                        <div class="mt-3 overflow-x-auto rounded-xl border border-slate-200">
+                        <div class="mt-3 overflow-x-auto overflow-y-auto rounded-xl border border-slate-200" style="max-height: 420px;">
                             <table class="min-w-full text-sm">
                                 <thead class="bg-slate-50 border-b border-slate-200">
                                     <tr class="text-xs font-black uppercase tracking-widest text-slate-700">

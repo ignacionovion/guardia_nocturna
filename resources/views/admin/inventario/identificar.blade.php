@@ -25,7 +25,7 @@
         <div class="mt-8 bg-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
             <div class="p-6 border-b border-white/10 bg-white/5">
                 <div class="text-sm font-black uppercase tracking-widest text-slate-300">RUT del bombero</div>
-                <div class="text-sm text-slate-300 mt-1">Formato requerido: <span class="font-mono font-black">18485962-9</span></div>
+                <div class="text-sm text-slate-300 mt-1">Formato requerido: <span class="font-mono font-black">11222333-4</span></div>
             </div>
 
             <form method="POST" action="{{ route('inventario.qr.identificar.store', ['token' => $token]) }}" class="p-6 space-y-4">
@@ -44,7 +44,7 @@
                         name="rut"
                         value="{{ old('rut') }}"
                         required
-                        placeholder="18485962-9"
+                        placeholder="11222333-4"
                         class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 font-semibold font-mono"
                         autocomplete="off"
                         inputmode="text"

@@ -94,7 +94,22 @@ class InventarioController extends Controller
             return redirect()->route('inventario.dashboard');
         }
 
-        return view('admin.inventario.identificar_admin');
+        if ($request->boolean('reset')) {
+            $request->session()->forget('inventario_retiro_bombero_id');
+        }
+
+        $bombero = null;
+        $bomberoId = $request->session()->get('inventario_retiro_bombero_id');
+        if ($bomberoId) {
+            $bombero = Bombero::query()->where('id', (int) $bomberoId)->first();
+            if (!$bombero) {
+                $request->session()->forget('inventario_retiro_bombero_id');
+            }
+        }
+
+        return view('admin.inventario.identificar_admin', [
+            'bombero' => $bombero,
+        ]);
     }
 
     public function identificarStore(Request $request)

@@ -40,6 +40,37 @@ class InventarioQrAdminController extends Controller
         ]);
     }
 
+    public function print(Request $request)
+    {
+        $link = InventoryQrLink::query()
+            ->where('tipo', 'inventario')
+            ->where('activo', true)
+            ->orderBy('id')
+            ->first();
+
+        if (!$link) {
+            $link = InventoryQrLink::create([
+                'token' => Str::random(40),
+                'tipo' => 'inventario',
+                'bodega_id' => null,
+                'activo' => true,
+            ]);
+        }
+
+        $url = route('inventario.qr.show', ['token' => $link->token]);
+
+        $qrSvg = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')
+            ->size(520)
+            ->margin(1)
+            ->generate($url);
+
+        return view('admin.inventario.qr_print', [
+            'link' => $link,
+            'url' => $url,
+            'qrSvg' => $qrSvg,
+        ]);
+    }
+
     public function regenerar(Request $request)
     {
         $link = InventoryQrLink::query()
