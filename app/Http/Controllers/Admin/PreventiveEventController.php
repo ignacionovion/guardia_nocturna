@@ -295,6 +295,24 @@ class PreventiveEventController extends Controller
         ]);
     }
 
+    public function qrPrint(PreventiveEvent $event)
+    {
+        $this->autoCloseExpiredEvents($event);
+        $status = $this->normalizedStatus($event);
+        if ($status !== 'active') {
+            return back()->with('warning', 'Debes activar la preventiva para imprimir el QR.');
+        }
+
+        $url = route('preventivas.public.show', $event->public_token);
+        $svg = QrCode::format('svg')->size(280)->margin(2)->generate($url);
+
+        return response()->view('admin.preventivas.qr_print', [
+            'event' => $event,
+            'url' => $url,
+            'svg' => $svg,
+        ]);
+    }
+
     public function regenerateQr(Request $request, PreventiveEvent $event)
     {
         $status = $this->normalizedStatus($event);

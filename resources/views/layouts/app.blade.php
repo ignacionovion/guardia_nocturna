@@ -36,9 +36,6 @@
                         <a href="{{ route('dashboard') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('dashboard') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
                             <i class="fas fa-home mr-1.5 opacity-70"></i> Inicio
                         </a>
-                        <a href="{{ route('guardia.now') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('guardia.now*') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-                            <i class="fas fa-bolt mr-1.5 opacity-70"></i> Now
-                        </a>
                         <a href="{{ route('camas') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('camas') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
                             <i class="fas fa-bed mr-1.5 opacity-70"></i> Camas
                         </a>
@@ -113,9 +110,6 @@
                     @elseif(Auth::user()->role === 'capitania')
                         <a href="{{ route('dashboard') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('dashboard') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
                             <i class="fas fa-home mr-1.5 opacity-70"></i> Inicio
-                        </a>
-                        <a href="{{ route('guardia.now') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('guardia.now*') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-                            <i class="fas fa-bolt mr-1.5 opacity-70"></i> Now
                         </a>
                         <a href="{{ route('camas') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('camas') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
                             <i class="fas fa-bed mr-1.5 opacity-70"></i> Camas
@@ -200,9 +194,6 @@
                                 <a href="{{ route('dashboard') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('dashboard') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                                     <i class="fas fa-home mr-2 opacity-80"></i> Inicio
                                 </a>
-                                <a href="{{ route('guardia.now') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('guardia.now*') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
-                                    <i class="fas fa-bolt mr-2 opacity-80"></i> Now
-                                </a>
                                 <a href="{{ route('camas') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('camas') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                                     <i class="fas fa-bed mr-2 opacity-80"></i> Camas
                                 </a>
@@ -212,6 +203,12 @@
                             @elseif(Auth::user()->role === 'inventario')
                                 <a href="{{ route('inventario.index') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('inventario.*') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                                     <i class="fas fa-boxes-stacked mr-2 opacity-80"></i> Inventario
+                                </a>
+                                <a href="{{ route('admin.volunteers.index') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:bg-slate-800 hover:text-white">
+                                    <i class="fas fa-users mr-2 opacity-80"></i> Voluntarios
+                                </a>
+                                <a href="{{ route('admin.emergencies.index') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:bg-slate-800 hover:text-white">
+                                    <i class="fas fa-truck-medical mr-2 opacity-80"></i> Emergencias
                                 </a>
                             @elseif(Auth::user()->role === 'super_admin')
                                 <a href="{{ route('dashboard') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('dashboard') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
@@ -259,9 +256,6 @@
                             @elseif(Auth::user()->role === 'capitania')
                                 <a href="{{ route('dashboard') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('dashboard') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                                     <i class="fas fa-home mr-2 opacity-80"></i> Inicio
-                                </a>
-                                <a href="{{ route('guardia.now') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('guardia.now*') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
-                                    <i class="fas fa-bolt mr-2 opacity-80"></i> Now
                                 </a>
                                 <a href="{{ route('camas') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('camas') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                                     <i class="fas fa-bed mr-2 opacity-80"></i> Camas

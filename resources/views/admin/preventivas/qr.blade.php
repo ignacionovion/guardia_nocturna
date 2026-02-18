@@ -49,6 +49,13 @@
                     </a>
                 </div>
 
+                <div class="mt-3">
+                    <a href="{{ route('admin.preventivas.qr.print', $event) }}" target="_blank" class="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-900 font-black py-3 px-6 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest border border-slate-200">
+                        <i class="fas fa-print"></i>
+                        Imprimir QR
+                    </a>
+                </div>
+
                 @if($status !== 'closed')
                     <form method="POST" action="{{ route('admin.preventivas.qr.regenerate', $event) }}" class="mt-3" onsubmit="return confirm('Esto generará un nuevo QR/link y el anterior dejará de funcionar. ¿Continuar?');">
                         @csrf

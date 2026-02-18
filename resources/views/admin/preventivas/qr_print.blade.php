@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Planillas - QR fijo</title>
+    <title>Guardias Preventivas - QR</title>
     <style>
         @page { margin: 12mm; }
         * { box-sizing: border-box; }
@@ -23,8 +23,6 @@
         .steps ol { margin: 10px 0 0 18px; padding: 0; }
         .steps li { margin: 8px 0; font-size: 14px; }
         .url { margin-top: 12px; font-size: 12px; color: #334155; word-break: break-all; }
-        .footer { display: flex; justify-content: space-between; gap: 12px; margin-top: 14px; font-size: 12px; color: #475569; }
-        .pill { border: 1px solid #cbd5e1; border-radius: 999px; padding: 6px 10px; font-weight: 700; }
 
         .screen-only { margin-top: 14px; display: flex; gap: 10px; }
         .btn { display: inline-block; padding: 10px 14px; border-radius: 12px; border: 1px solid #0f172a; background: #0f172a; color: #fff; font-weight: 900; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; text-decoration: none; }
@@ -45,22 +43,13 @@
     <div class="card">
         <div class="top">
             <div>
-                <div class="kicker">Planillas</div>
-                <div class="title">Revisión de niveles</div>
-                <div class="subtitle">Escanea el QR y crea una nueva planilla.</div>
+                <div class="kicker">Guardias Preventivas</div>
+                <div class="title">{{ $event->title }}</div>
+                <div class="subtitle">Escanea el QR para confirmar tu asistencia al turno.</div>
             </div>
             <div class="brand">
-                <div class="mt-6">
-                    <a href="{{ route('admin.preventivas.qr.print', $event) }}" target="_blank" class="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-900 font-black py-3 px-6 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest border border-slate-200">
-                        <i class="fas fa-print"></i>
-                        Imprimir QR
-                    </a>
-                </div>
-
-                @if($status !== 'closed')
                 @if(file_exists(public_path('brand/guardiappcheck.png')))
                     <img src="{{ asset('brand/guardiappcheck.png') }}" alt="GuardiaAPP">
-                @endif
                 @endif
             </div>
         </div>
@@ -71,24 +60,21 @@
                     <h3>Pasos</h3>
                     <ol>
                         <li>Escanea el código QR.</li>
-                        <li>Inicia sesión si te lo solicita.</li>
-                        <li>Crea una nueva planilla.</li>
+                        <li>Ingresa tu código de bombero.</li>
+                        <li>Confirma tu asistencia.</li>
                     </ol>
                     <div class="url">{{ $url }}</div>
-                </div>
-
-                <div class="footer">
                 </div>
             </div>
 
             <div class="qrbox">
-                {!! $qrSvg !!}
+                {!! $svg !!}
             </div>
         </div>
 
         <div class="screen-only">
             <a class="btn" href="#" onclick="window.print(); return false;">Imprimir</a>
-            <a class="btn secondary" href="{{ route('admin.planillas.qr_fijo') }}">Volver</a>
+            <a class="btn secondary" href="{{ route('admin.preventivas.show', $event) }}">Volver</a>
         </div>
     </div>
 </div>

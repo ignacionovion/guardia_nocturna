@@ -258,6 +258,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/admin/preventivas/{event}/assignments/{assignment}/attendance/toggle', [PreventiveEventController::class, 'toggleAttendance'])->name('admin.preventivas.assignments.attendance.toggle');
         Route::get('/admin/preventivas/{event}/pdf', [PreventiveEventController::class, 'pdf'])->name('admin.preventivas.pdf');
         Route::get('/admin/preventivas/{event}/qr', [PreventiveEventController::class, 'qr'])->name('admin.preventivas.qr');
+        Route::get('/admin/preventivas/{event}/qr/print', [PreventiveEventController::class, 'qrPrint'])->name('admin.preventivas.qr.print');
         Route::post('/admin/preventivas/{event}/qr/regenerar', [PreventiveEventController::class, 'regenerateQr'])->name('admin.preventivas.qr.regenerate');
         Route::post('/admin/preventivas/{event}/estado/activar', [PreventiveEventController::class, 'activate'])->name('admin.preventivas.status.activate');
         Route::post('/admin/preventivas/{event}/estado/cerrar', [PreventiveEventController::class, 'close'])->name('admin.preventivas.status.close');

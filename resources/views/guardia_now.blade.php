@@ -32,7 +32,7 @@
                     <div class="mt-1 text-lg font-extrabold text-slate-900" id="now-shift-status">—</div>
                 </div>
                 <div class="rounded-xl border border-slate-200 bg-white p-4">
-                    <div class="text-xs font-black uppercase tracking-widest text-slate-500">Líder</div>
+                    <div class="text-xs font-black uppercase tracking-widest text-slate-500">Guardia Nocturna</div>
                     <div class="mt-1 text-lg font-extrabold text-slate-900" id="now-shift-leader">—</div>
                 </div>
                 <div class="rounded-xl border border-slate-200 bg-white p-4">
