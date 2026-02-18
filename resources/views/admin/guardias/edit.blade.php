@@ -14,7 +14,7 @@
             </a>
         </div>
 
-        <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-slate-200">
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-slate-200">
             <!-- Barra superior decorativa -->
             <div class="h-2 bg-red-700"></div>
 
@@ -32,7 +32,7 @@
                                 <i class="fa-solid fa-shield-halved text-slate-400"></i>
                             </div>
                             <input type="text" name="name" id="name" value="{{ old('name', $guardia->name) }}" required
-                                class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:bg-white transition-all text-slate-800 font-medium placeholder-slate-400">
+                                class="w-full pl-10 pr-4 py-3 bg-white border-2 border-slate-200 rounded-xl shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:bg-white transition-all text-slate-800 font-medium placeholder-slate-400">
                         </div>
                         @error('name')
                             <p class="text-red-600 text-xs mt-2 font-medium flex items-center"><i class="fa-solid fa-circle-exclamation mr-1"></i> {{ $message }}</p>
@@ -40,7 +40,7 @@
                     </div>
 
                     <div class="flex justify-end pt-4 border-t border-slate-100">
-                        <button type="submit" class="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center uppercase tracking-wide text-sm">
+                        <button type="submit" class="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 px-6 rounded-xl shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center uppercase tracking-wide text-sm">
                             <i class="fas fa-save mr-2"></i> Actualizar Nombre
                         </button>
                     </div>

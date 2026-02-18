@@ -8,7 +8,7 @@
 
 <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
     <div class="lg:col-span-2">
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="bg-white rounded-2xl shadow-lg border-2 border-slate-200 overflow-hidden">
             <div class="bg-slate-900 px-5 py-4 border-b-4 border-red-700">
                 <div class="flex items-center justify-between">
                     <div>
@@ -26,7 +26,7 @@
 
                         <input type="hidden" name="emergency_key_id" id="emergency_key_id" value="{{ $selectedKeyId }}">
 
-                        <button type="button" id="btn-pick-key" class="w-full text-left px-4 py-3 border border-slate-200 rounded-lg bg-white hover:bg-slate-50 transition">
+                        <button type="button" id="btn-pick-key" class="w-full text-left px-4 py-3 border-2 border-slate-200 rounded-xl bg-white hover:bg-slate-50 transition">
                             <div class="flex items-start justify-between gap-3">
                                 <div>
                                     <div class="text-sm font-bold text-slate-900" id="key-code">{{ $selectedKeyId ? optional($keys->firstWhere('id', (int)$selectedKeyId))->code : 'Seleccionar clave...' }}</div>
@@ -44,20 +44,20 @@
                             <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">H. salida</label>
                             <input type="datetime-local" name="dispatched_at"
                                 value="{{ old('dispatched_at', isset($emergency) && $emergency->dispatched_at ? $emergency->dispatched_at->format('Y-m-d\TH:i') : now()->format('Y-m-d\TH:i')) }}"
-                                class="w-full px-3 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-colors text-slate-700">
+                                class="w-full px-3 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-slate-700 bg-white">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">H. llegada</label>
                             <input type="datetime-local" name="arrived_at"
                                 value="{{ old('arrived_at', isset($emergency) && $emergency->arrived_at ? $emergency->arrived_at->format('Y-m-d\TH:i') : '') }}"
-                                class="w-full px-3 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-colors text-slate-700">
+                                class="w-full px-3 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-slate-700 bg-white">
                         </div>
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Unidades</label>
 
-                        <button type="button" id="btn-pick-units" class="w-full text-left px-4 py-3 border border-slate-200 rounded-lg bg-white hover:bg-slate-50 transition">
+                        <button type="button" id="btn-pick-units" class="w-full text-left px-4 py-3 border-2 border-slate-200 rounded-xl bg-white hover:bg-slate-50 transition">
                             <div class="flex items-start justify-between gap-3">
                                 <div>
                                     <div class="text-sm font-bold text-slate-900">Seleccionar unidades</div>
@@ -83,7 +83,7 @@
                     <div>
                         <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">A cargo</label>
                         <select name="officer_in_charge_firefighter_id"
-                            class="w-full px-3 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-colors text-slate-700">
+                            class="w-full px-3 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-slate-700 bg-white">
                             <option value="" {{ $selectedOfficerId ? '' : 'selected' }}>Sin asignar</option>
                             @foreach($onDutyUsers as $u)
                                 <option value="{{ $u->id }}" {{ (string)$selectedOfficerId === (string)$u->id ? 'selected' : '' }}>
@@ -109,20 +109,20 @@
     </div>
 
     <div class="lg:col-span-3">
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="bg-white rounded-2xl shadow-lg border-2 border-slate-200 overflow-hidden">
             <div class="bg-slate-50 px-6 py-4 border-b border-slate-200">
                 <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wider">Detalles del llamado</h3>
             </div>
             <div class="p-6">
                 <textarea name="details" rows="14"
                     placeholder="Describe el llamado: dirección, tipo de incidente, observaciones relevantes, personas involucradas, etc."
-                    class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-colors text-slate-700 text-sm">{{ old('details', isset($emergency) ? $emergency->details : '') }}</textarea>
+                    class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-slate-700 text-sm bg-white">{{ old('details', isset($emergency) ? $emergency->details : '') }}</textarea>
             </div>
         </div>
 
         <div class="mt-6 flex items-center justify-end gap-3">
-            <a href="{{ route('admin.emergencies.index') }}" class="px-4 py-2 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50">Cancelar</a>
-            <button type="submit" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-5 rounded-lg shadow-sm transition-all duration-200">
+            <a href="{{ route('admin.emergencies.index') }}" class="px-5 py-2.5 rounded-xl border-2 border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold transition-colors">Cancelar</a>
+            <button type="submit" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-md transition-all duration-200">
                 <i class="fas fa-save mr-2"></i> Guardar
             </button>
         </div>

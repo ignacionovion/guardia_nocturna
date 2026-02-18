@@ -33,34 +33,34 @@
                         <div class="md:col-span-3 space-y-2">
                             <label class="text-sm font-bold text-slate-700 uppercase tracking-wide">Nombres <span class="text-red-500">*</span></label>
                             <input type="text" name="nombres" value="{{ old('nombres') }}" required
-                                class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all">
+                                class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all">
                         </div>
                         <div class="space-y-2">
                             <label class="text-sm font-bold text-slate-700 uppercase tracking-wide">Apellido Paterno</label>
                             <input type="text" name="apellido_paterno" value="{{ old('apellido_paterno') }}"
-                                class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all">
+                                class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all">
                         </div>
                         <div class="space-y-2">
                             <label class="text-sm font-bold text-slate-700 uppercase tracking-wide">Apellido Materno</label>
                             <input type="text" name="apellido_materno" value="{{ old('apellido_materno') }}"
-                                class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all">
+                                class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all">
                         </div>
                         <div class="space-y-2">
                             <label class="text-sm font-bold text-slate-700 uppercase tracking-wide">RUT <span class="text-red-500">*</span></label>
                             <input type="text" name="rut" value="{{ old('rut') }}" placeholder="12.345.678-9"
-                                class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all text-slate-700 font-medium">
+                                class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all text-slate-700 font-medium">
                         </div>
                         <div class="space-y-2">
                             <label class="text-sm font-bold text-slate-700 uppercase tracking-wide">Número de Registro</label>
                             <input type="text" name="numero_registro" value="{{ old('numero_registro') }}" placeholder="Ej: 611"
-                                class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all">
+                                class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all">
                         </div>
                         <div class="md:col-span-3 space-y-2">
                             <label class="text-sm font-bold text-slate-700 uppercase tracking-wide">Cargo</label>
                             <div class="relative" id="cargoComboboxCreate">
                                 <div class="relative">
                                     <input type="text" name="cargo_texto" value="{{ old('cargo_texto') }}" autocomplete="off" id="cargoInputCreate"
-                                        class="w-full px-4 py-2.5 pr-11 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all">
+                                        class="w-full px-4 py-2.5 pr-11 rounded-xl border-2 border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all">
                                     <button type="button" id="cargoToggleCreate" class="absolute inset-y-0 right-0 flex items-center px-3 text-slate-500 hover:text-slate-700">
                                         <i class="fas fa-chevron-down"></i>
                                     </button>
@@ -73,23 +73,23 @@
                         <div class="space-y-2">
                             <label class="text-sm font-bold text-slate-700 uppercase tracking-wide">Portátil</label>
                             <input type="text" name="numero_portatil" value="{{ old('numero_portatil') }}" placeholder="364 / 37-D"
-                                class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all">
+                                class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all">
                         </div>
                         <div class="space-y-2">
                             <label class="text-sm font-bold text-slate-700 uppercase tracking-wide">Fecha Cumpleaños</label>
                             <input type="date" name="fecha_nacimiento" value="{{ old('fecha_nacimiento') }}"
-                                class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all text-slate-600">
+                                class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all text-slate-600">
                         </div>
                         <div class="md:col-span-3 space-y-2">
                             <label class="text-sm font-bold text-slate-700 uppercase tracking-wide">Email</label>
                             <input type="email" name="correo" value="{{ old('correo') }}"
-                                class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all">
+                                class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all">
                         </div>
 
                         <div class="md:col-span-3 space-y-2">
                             <label class="text-sm font-bold text-slate-700 uppercase tracking-wide">Foto</label>
                             <input type="file" name="photo" accept="image/*"
-                                class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all">
+                                class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all">
                             @error('photo') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                         </div>
                     </div>
@@ -108,12 +108,12 @@
                         <div class="space-y-2">
                             <label class="text-sm font-bold text-slate-700 uppercase tracking-wide">Fecha Ingreso</label>
                             <input type="date" name="fecha_ingreso" value="{{ old('fecha_ingreso') }}" 
-                                class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all text-slate-600">
+                                class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all text-slate-600">
                         </div>
                         <div class="space-y-2">
                             <label class="text-sm font-bold text-slate-700 uppercase tracking-wide">¿El voluntario es guardián permanente?</label>
                             <div class="relative">
-                                <select name="es_permanente" class="w-full appearance-none px-4 py-2.5 pr-10 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all bg-white">
+                                <select name="es_permanente" class="w-full appearance-none px-4 py-2.5 pr-10 rounded-xl border-2 border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all bg-white">
                                     <option value="0" {{ old('es_permanente', '0') === '0' ? 'selected' : '' }}>No</option>
                                     <option value="1" {{ old('es_permanente') === '1' ? 'selected' : '' }}>Sí</option>
                                 </select>
@@ -125,7 +125,7 @@
                         <div class="md:col-span-2 space-y-2">
                             <label class="text-sm font-bold text-slate-700 uppercase tracking-wide">Guardia Asignada</label>
                             <div class="relative">
-                                <select name="guardia_id" class="w-full appearance-none px-4 py-2.5 pr-10 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all bg-white">
+                                <select name="guardia_id" class="w-full appearance-none px-4 py-2.5 pr-10 rounded-xl border-2 border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all bg-white">
                                     <option value="">Sin Asignar</option>
                                     @foreach($guardias as $guardia)
                                         <option value="{{ $guardia->id }}" {{ old('guardia_id') == $guardia->id ? 'selected' : '' }}>
@@ -140,7 +140,7 @@
                         </div>
 
                         <div class="md:col-span-3">
-                            <label class="flex items-center gap-3 p-4 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100 transition">
+                            <label class="flex items-center gap-3 p-4 bg-slate-50 border-2 border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100 transition">
                                 <input type="checkbox" name="fuera_de_servicio" value="1" {{ old('fuera_de_servicio') ? 'checked' : '' }} class="rounded text-red-600 focus:ring-red-500 h-5 w-5 border-slate-300">
                                 <div class="min-w-0">
                                     <div class="text-sm font-black text-slate-800 uppercase tracking-wide">Fuera de servicio</div>

@@ -10,25 +10,25 @@
         <a href="{{ route('admin.preventivas.index') }}" class="px-4 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs">Volver</a>
     </div>
 
-    <form method="POST" action="{{ route('admin.preventivas.store') }}" class="mt-6 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <form method="POST" action="{{ route('admin.preventivas.store') }}" class="mt-6 bg-white rounded-2xl border-2 border-slate-200 shadow-lg overflow-hidden">
         @csrf
         <div class="p-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Título</label>
-                    <input type="text" name="title" value="{{ old('title') }}" required class="w-full px-4 py-3 border border-slate-200 rounded-lg bg-white text-slate-900 font-semibold">
+                    <input type="text" name="title" value="{{ old('title') }}" required class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl bg-white text-slate-900 font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                 </div>
                 <div>
                     <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Zona horaria</label>
-                    <input type="text" name="timezone" value="{{ old('timezone', 'America/Santiago') }}" required class="w-full px-4 py-3 border border-slate-200 rounded-lg bg-white text-slate-900 font-semibold">
+                    <input type="text" name="timezone" value="{{ old('timezone', 'America/Santiago') }}" required class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl bg-white text-slate-900 font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                 </div>
                 <div>
                     <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Inicio</label>
-                    <input type="date" name="start_date" value="{{ old('start_date') }}" required class="w-full px-4 py-3 border border-slate-200 rounded-lg bg-white text-slate-900 font-semibold">
+                    <input type="date" name="start_date" value="{{ old('start_date') }}" required class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl bg-white text-slate-900 font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                 </div>
                 <div>
                     <label class="block text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Término</label>
-                    <input type="date" name="end_date" value="{{ old('end_date') }}" required class="w-full px-4 py-3 border border-slate-200 rounded-lg bg-white text-slate-900 font-semibold">
+                    <input type="date" name="end_date" value="{{ old('end_date') }}" required class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl bg-white text-slate-900 font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                 </div>
             </div>
 
@@ -55,9 +55,9 @@
                         </thead>
                         <tbody id="rows" class="divide-y divide-slate-100">
                             <tr>
-                                <td class="px-4 py-3"><input type="time" name="template[0][start_time]" value="08:00" required class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold"></td>
-                                <td class="px-4 py-3"><input type="time" name="template[0][end_time]" value="12:00" required class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold"></td>
-                                <td class="px-4 py-3"><input type="text" name="template[0][label]" value="" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold" placeholder="ej: Turno 1"></td>
+                                <td class="px-4 py-3"><input type="time" name="template[0][start_time]" value="08:00" required class="w-full px-3 py-2 border-2 border-slate-200 rounded-xl bg-white font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"></td>
+                                <td class="px-4 py-3"><input type="time" name="template[0][end_time]" value="12:00" required class="w-full px-3 py-2 border-2 border-slate-200 rounded-xl bg-white font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"></td>
+                                <td class="px-4 py-3"><input type="text" name="template[0][label]" value="" class="w-full px-3 py-2 border-2 border-slate-200 rounded-xl bg-white font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="ej: Turno 1"></td>
                                 <td class="px-4 py-3 text-right"><button type="button" class="remove px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-red-50 text-red-700 font-bold text-xs"><i class="fas fa-trash"></i></button></td>
                             </tr>
                         </tbody>
@@ -104,9 +104,9 @@
         const idx = rowsEl.querySelectorAll('tr').length;
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td class="px-4 py-3"><input type="time" name="template[${idx}][start_time]" value="" required class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold"></td>
-            <td class="px-4 py-3"><input type="time" name="template[${idx}][end_time]" value="" required class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold"></td>
-            <td class="px-4 py-3"><input type="text" name="template[${idx}][label]" value="" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold" placeholder="ej: Turno ${idx+1}"></td>
+            <td class="px-4 py-3"><input type="time" name="template[${idx}][start_time]" value="" required class="w-full px-3 py-2 border-2 border-slate-200 rounded-xl bg-white font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"></td>
+            <td class="px-4 py-3"><input type="time" name="template[${idx}][end_time]" value="" required class="w-full px-3 py-2 border-2 border-slate-200 rounded-xl bg-white font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"></td>
+            <td class="px-4 py-3"><input type="text" name="template[${idx}][label]" value="" class="w-full px-3 py-2 border-2 border-slate-200 rounded-xl bg-white font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="ej: Turno ${idx+1}"></td>
             <td class="px-4 py-3 text-right"><button type="button" class="remove px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-red-50 text-red-700 font-bold text-xs"><i class="fas fa-trash"></i></button></td>
         `;
         rowsEl.appendChild(tr);

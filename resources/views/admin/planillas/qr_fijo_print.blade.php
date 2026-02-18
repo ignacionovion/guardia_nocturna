@@ -12,21 +12,20 @@
         .card { border: 2px solid #0f172a; border-radius: 18px; padding: 18px; }
         .top { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
         .brand { display: flex; align-items: center; gap: 12px; }
-        .brand img { height: 86px; width: auto; }
-        .kicker { font-size: 12px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: #334155; }
-        .title { font-size: 28px; font-weight: 900; margin-top: 4px; }
-        .subtitle { font-size: 14px; margin-top: 6px; color: #334155; }
-        .grid { display: grid; grid-template-columns: 1fr 520px; gap: 18px; margin-top: 18px; align-items: center; }
-        .qrbox { border: 2px solid #e2e8f0; border-radius: 18px; padding: 18px; display: flex; align-items: center; justify-content: center; background: #fff; }
+        .brand img { height: 72px; width: auto; max-width: 100%; }
+        .kicker { font-size: 11px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: #334155; }
+        .title { font-size: 22px; font-weight: 900; margin-top: 4px; line-height: 1.2; }
+        .subtitle { font-size: 13px; margin-top: 6px; color: #334155; }
+        .grid { display: grid; grid-template-columns: 1fr 400px; gap: 18px; margin-top: 18px; align-items: center; }
+        .qrbox { border: 2px solid #e2e8f0; border-radius: 18px; padding: 14px; display: flex; align-items: center; justify-content: center; background: #fff; }
+        .qrbox svg { max-width: 100%; height: auto; }
         .steps { border: 2px dashed #cbd5e1; border-radius: 18px; padding: 14px; }
-        .steps h3 { margin: 0; font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.14em; color: #0f172a; }
+        .steps h3 { margin: 0; font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.14em; color: #0f172a; }
         .steps ol { margin: 10px 0 0 18px; padding: 0; }
-        .steps li { margin: 8px 0; font-size: 14px; }
-        .url { margin-top: 12px; font-size: 12px; color: #334155; word-break: break-all; }
-        .footer { display: flex; justify-content: space-between; gap: 12px; margin-top: 14px; font-size: 12px; color: #475569; }
-        .pill { border: 1px solid #cbd5e1; border-radius: 999px; padding: 6px 10px; font-weight: 700; }
+        .steps li { margin: 8px 0; font-size: 13px; }
+        .url { margin-top: 12px; font-size: 11px; color: #334155; word-break: break-all; }
 
-        .screen-only { margin-top: 14px; display: flex; gap: 10px; }
+        .screen-only { margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap; }
         .btn { display: inline-block; padding: 10px 14px; border-radius: 12px; border: 1px solid #0f172a; background: #0f172a; color: #fff; font-weight: 900; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; text-decoration: none; }
         .btn.secondary { background: #fff; color: #0f172a; }
 
@@ -35,8 +34,18 @@
             a { color: inherit; text-decoration: none; }
         }
 
-        @media (max-width: 900px) {
-            .grid { grid-template-columns: 1fr; }
+        @media (max-width: 768px) {
+            .wrap { padding: 10px; }
+            .card { padding: 14px; border-width: 1px; }
+            .top { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .brand img { height: 56px; }
+            .title { font-size: 18px; }
+            .subtitle { font-size: 12px; }
+            .grid { grid-template-columns: 1fr; gap: 14px; }
+            .qrbox { order: -1; padding: 10px; }
+            .qrbox svg { max-height: 280px; }
+            .steps { padding: 12px; }
+            .steps li { font-size: 12px; }
         }
     </style>
 </head>
@@ -50,17 +59,8 @@
                 <div class="subtitle">Escanea el QR y crea una nueva planilla.</div>
             </div>
             <div class="brand">
-                <div class="mt-6">
-                    <a href="{{ route('admin.preventivas.qr.print', $event) }}" target="_blank" class="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-900 font-black py-3 px-6 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest border border-slate-200">
-                        <i class="fas fa-print"></i>
-                        Imprimir QR
-                    </a>
-                </div>
-
-                @if($status !== 'closed')
                 @if(file_exists(public_path('brand/guardiappcheck.png')))
                     <img src="{{ asset('brand/guardiappcheck.png') }}" alt="GuardiaAPP">
-                @endif
                 @endif
             </div>
         </div>
@@ -75,9 +75,6 @@
                         <li>Crea una nueva planilla.</li>
                     </ol>
                     <div class="url">{{ $url }}</div>
-                </div>
-
-                <div class="footer">
                 </div>
             </div>
 

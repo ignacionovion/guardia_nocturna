@@ -15,7 +15,7 @@
             </a>
         </div>
 
-        <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-slate-200">
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-slate-200">
             <!-- Barra superior decorativa -->
             <div class="h-2 bg-slate-800"></div>
 
@@ -31,7 +31,7 @@
                                 Nombres
                             </label>
                             <input type="text" name="nombres" id="name" value="{{ old('nombres', $bombero->nombres) }}" required
-                                class="w-full border-slate-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 px-4 py-2.5 text-slate-700 bg-slate-50">
+                                class="w-full border-2 border-slate-200 rounded-xl shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 px-4 py-2.5 text-slate-700 bg-white">
                             @error('nombres') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                         </div>
 
@@ -40,20 +40,20 @@
                                 Apellido Paterno
                             </label>
                             <input type="text" name="apellido_paterno" id="last_name_paternal" value="{{ old('apellido_paterno', $bombero->apellido_paterno) }}"
-                                class="w-full border-slate-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 px-4 py-2.5 text-slate-700 bg-slate-50">
+                                class="w-full border-2 border-slate-200 rounded-xl shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 px-4 py-2.5 text-slate-700 bg-white">
                             @error('apellido_paterno') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                         </div>
                     </div>
 
                     <!-- Datos Operativos -->
-                    <div class="bg-slate-50 p-6 rounded-lg border border-slate-200">
+                    <div class="bg-slate-50 p-6 rounded-xl border-2 border-slate-200">
                         <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wide mb-4 border-b border-slate-200 pb-2">Información Operativa</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label class="block text-slate-700 text-sm font-bold mb-2 uppercase tracking-wide" for="guardia_id">
                                     Guardia Asignada
                                 </label>
-                                <select name="guardia_id" id="guardia_id" class="w-full border-slate-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 px-3 py-2.5 text-slate-700 bg-white">
+                                <select name="guardia_id" id="guardia_id" class="w-full border-2 border-slate-200 rounded-xl shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 px-3 py-2.5 text-slate-700 bg-white">
                                     @foreach($guardias as $guardia)
                                         <option value="{{ $guardia->id }}" {{ $bombero->guardia_id == $guardia->id ? 'selected' : '' }}>
                                             {{ $guardia->name }}

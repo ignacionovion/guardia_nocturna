@@ -42,7 +42,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                     <div class="text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Unidad</div>
-                    <select name="unidad" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold" required>
+                    <select name="unidad" class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl bg-white font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" required>
                         @foreach($unidades as $u)
                             <option value="{{ $u }}" {{ old('unidad', $planilla->unidad) === $u ? 'selected' : '' }}>{{ $u }}</option>
                         @endforeach
@@ -50,7 +50,7 @@
                 </div>
                 <div>
                     <div class="text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Fecha y hora de revisión</div>
-                    <input type="text" id="fechaRevisionDisplay" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold" value="" disabled>
+                    <input type="text" id="fechaRevisionDisplay" class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl bg-white font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value="" disabled>
                     <input type="hidden" id="fechaRevisionHidden" name="fecha_revision" value="{{ old('fecha_revision', optional($planilla->fecha_revision)->format('Y-m-d\\TH:i')) }}" required>
                     <div class="text-xs text-slate-500 mt-2 font-semibold">La fecha/hora no es editable.</div>
                 </div>
