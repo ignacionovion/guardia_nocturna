@@ -21,7 +21,7 @@
                 <!-- Logo / Marca -->
                 <a href="{{ route('dashboard') }}" class="flex items-center group">
                     @if(file_exists(public_path('brand/guardiapp.png')))
-                        <img src="{{ asset('brand/guardiapp.png') }}" alt="GuardiaAPP" class="h-14 w-auto drop-shadow-sm">
+                        <img src="{{ asset('brand/guardiapp.png') }}?v={{ filemtime(public_path('brand/guardiapp.png')) }}" alt="GuardiaAPP" class="h-14 w-auto drop-shadow-sm">
                     @else
                         <div class="bg-red-300 p-2.5 rounded-lg text-white transform group-hover:rotate-3 transition-transform duration-300 shadow-lg border border-red-200">
                             <i class="fas fa-helmet-safety text-xl"></i>
