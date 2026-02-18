@@ -93,26 +93,26 @@
                     </div>
                 </div>
 
-                <div id="attendance-stale-banner" class="hidden w-full max-w-3xl mx-auto mb-4 px-4 py-3 rounded-xl border border-amber-200 bg-amber-50 text-amber-900 shadow-sm">
-                    <div class="flex items-start gap-3">
-                        <div class="w-9 h-9 rounded-lg bg-amber-100 flex items-center justify-center shrink-0 border border-amber-200">
-                            <i class="fas fa-triangle-exclamation"></i>
-                        </div>
-                        <div class="min-w-0">
-                            <div class="text-xs font-black uppercase tracking-widest">Asistencia desactualizada</div>
-                            <div class="text-sm font-bold leading-tight">Se detectaron cambios después de guardar la asistencia. Debes presionar <span class="font-black">Guardar Asistencia</span> nuevamente para confirmar.</div>
+                <div id="attendance-stale-banner" class="hidden fixed inset-0 z-[55] flex items-center justify-center">
+                    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeAttendanceStaleBanner()"></div>
+                    <div class="relative w-full max-w-lg mx-4 px-6 py-5 rounded-2xl border border-amber-200 bg-amber-50 text-amber-900 shadow-2xl">
+                        <button onclick="closeAttendanceStaleBanner()" class="absolute top-3 right-3 w-8 h-8 rounded-lg bg-amber-100 hover:bg-amber-200 flex items-center justify-center border border-amber-200 text-amber-700 transition-colors">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center shrink-0 border border-amber-200">
+                                <i class="fas fa-triangle-exclamation text-xl"></i>
+                            </div>
+                            <div class="min-w-0 pt-1">
+                                <div class="text-sm font-black uppercase tracking-widest mb-1">Asistencia desactualizada</div>
+                                <div class="text-base font-bold leading-snug">Se detectaron cambios después de guardar la asistencia. Debes presionar <span class="font-black text-amber-700">Guardar Asistencia</span> nuevamente para confirmar.</div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="w-full md:flex-1 flex items-center justify-start md:justify-center">
                     <div class="flex items-center gap-2 sm:gap-3 w-full md:w-auto overflow-x-auto md:overflow-visible -mx-1 px-1">
-                        <form method="POST" action="{{ route('admin.guardias.replacements.cleanup', $myGuardia->id) }}" class="hidden md:block" onsubmit="return confirm('¿Cerrar todos los reemplazos activos de la guardia?');">
-                            @csrf
-                            <button type="submit" class="w-9 h-9 sm:w-10 sm:h-10 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center" title="Limpiar Reemplazos">
-                                <i class="fas fa-rotate-left text-[14px] text-purple-300"></i>
-                            </button>
-                        </form>
                         <button type="button" onclick="toggleFullscreen()" class="w-9 h-9 sm:w-10 sm:h-10 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center" title="Pantalla completa">
                             <i class="fas fa-expand text-[14px] text-slate-200"></i>
                         </button>
@@ -230,7 +230,7 @@
                                                     <span class="w-5 h-5 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-[9px] font-bold border border-orange-200" title="Operador de Rescate">R</span>
                                                 @endif
                                                 @if($staff->es_asistente_trauma)
-                                                    <span class="w-7 h-5 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-[9px] font-bold border border-red-200" title="Asistente de Trauma">AT.M</span>
+                                                    <span class="w-7 h-5 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-[9px] font-bold border border-red-200" title="Asistente de Trauma">A.T</span>
                                                 @endif
                                             </div>
                                         </div>
@@ -291,10 +291,9 @@
                                     @endif
 
                                     <div class="mt-1.5">
-                                        @if(in_array($status, ['constituye','reemplazo'], true) || $staff->es_refuerzo || $repAsReplacement)
+                                        <div id="confirm-box-wrap-{{ $staff->id }}" class="{{ (in_array($status, ['constituye','reemplazo'], true) || $staff->es_refuerzo || $repAsReplacement) ? '' : 'hidden' }}">
                                             <div id="confirm-box-{{ $staff->id }}" class="mb-2 rounded-xl border border-slate-800 bg-slate-950 px-2.5 py-2">
                                                 <div class="flex items-center justify-between gap-2">
-                                                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Confirmación</label>
                                                     <div id="confirm-status-{{ $staff->id }}" class="text-[9px] font-black uppercase tracking-widest text-rose-200">NO CONFIRMADO</div>
                                                 </div>
                                                 <div id="confirm-controls-{{ $staff->id }}" class="mt-1.5 flex items-center gap-2">
@@ -303,7 +302,7 @@
                                                 </div>
                                                 <div id="confirm-msg-{{ $staff->id }}" class="mt-1 text-[10px] font-black uppercase tracking-widest text-slate-400"></div>
                                             </div>
-                                        @endif
+                                        </div>
                                         <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Estado</label>
                                         @if($lockAttendanceStatus)
                                             @if($repAsReplacement)
@@ -879,7 +878,36 @@
 
     <div class="hidden border-2 border-rose-400 border-emerald-400 border-slate-800"></div>
 
+    <div id="confirm-error-toast" class="fixed inset-0 z-[60] hidden items-center justify-center">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeConfirmErrorToast()"></div>
+        <div class="relative bg-slate-900 border border-rose-500/50 rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6 text-center">
+            <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-rose-500/20 flex items-center justify-center">
+                <i class="fas fa-circle-xmark text-rose-500 text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-black text-white uppercase tracking-widest mb-2">Código Incorrecto</h3>
+            <p id="confirm-error-text" class="text-sm text-slate-400 mb-4">El código ingresado no es válido.</p>
+            <button onclick="closeConfirmErrorToast()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-black uppercase tracking-widest text-xs py-3 rounded-xl border border-rose-700">
+                Aceptar
+            </button>
+        </div>
+    </div>
+
     <script>
+        window.closeConfirmErrorToast = function() {
+            const toast = document.getElementById('confirm-error-toast');
+            if (toast) {
+                toast.classList.add('hidden');
+                toast.classList.remove('flex');
+            }
+        }
+
+        window.closeAttendanceStaleBanner = function() {
+            const banner = document.getElementById('attendance-stale-banner');
+            if (banner) {
+                banner.classList.add('hidden');
+                banner.classList.remove('flex');
+            }
+        }
         window.__guardiaId = @json((int) ($myGuardia->id ?? 0));
         window.__attendanceSavedToday = @json((bool) ($hasAttendanceSavedToday ?? false));
         window.__attendanceDirty = false;
@@ -905,7 +933,10 @@
             window.__attendanceDirty = true;
 
             const banner = document.getElementById('attendance-stale-banner');
-            if (banner) banner.classList.remove('hidden');
+            if (banner) {
+                banner.classList.remove('hidden');
+                banner.classList.add('flex');
+            }
 
             const badge = document.getElementById('attendance-saved-badge');
             if (badge) {
@@ -1342,9 +1373,15 @@
 
             const statusEl = document.getElementById('confirm-status-' + userId);
             if (statusEl) {
-                statusEl.textContent = confirmed ? 'CONFIRMADO' : 'NO CONFIRMADO';
-                statusEl.classList.remove('text-emerald-200','text-rose-200');
-                statusEl.classList.add(confirmed ? 'text-emerald-200' : 'text-rose-200');
+                if (confirmed) {
+                    statusEl.innerHTML = '<span class="flex items-center gap-1"><i class="fas fa-check-circle text-emerald-400"></i> CONFIRMADO</span>';
+                    statusEl.classList.remove('text-rose-200');
+                    statusEl.classList.add('text-emerald-200');
+                } else {
+                    statusEl.textContent = 'NO CONFIRMADO';
+                    statusEl.classList.remove('text-emerald-200');
+                    statusEl.classList.add('text-rose-200');
+                }
             }
         }
 
@@ -1377,10 +1414,12 @@
 
             const numeroRegistro = (codeEl?.value || '').trim();
             if (!numeroRegistro) {
-                if (msgEl) {
-                    msgEl.textContent = 'INGRESA EL CÓDIGO';
-                    msgEl.classList.remove('text-emerald-200','text-slate-400');
-                    msgEl.classList.add('text-rose-200');
+                const toast = document.getElementById('confirm-error-toast');
+                const toastText = document.getElementById('confirm-error-text');
+                if (toast && toastText) {
+                    toastText.textContent = 'INGRESA EL CÓDIGO DEL BOMBERO';
+                    toast.classList.remove('hidden');
+                    toast.classList.add('flex');
                 }
                 return;
             }
@@ -1417,10 +1456,12 @@
 
                 if (!res.ok || !data || !data.ok) {
                     const errMsg = (data && (data.message || data.error)) ? (data.message || data.error) : 'NO SE PUDO CONFIRMAR';
-                    if (msgEl) {
-                        msgEl.textContent = String(errMsg).toUpperCase();
-                        msgEl.classList.remove('text-emerald-200','text-slate-400');
-                        msgEl.classList.add('text-rose-200');
+                    const toast = document.getElementById('confirm-error-toast');
+                    const toastText = document.getElementById('confirm-error-text');
+                    if (toast && toastText) {
+                        toastText.textContent = String(errMsg).toUpperCase();
+                        toast.classList.remove('hidden');
+                        toast.classList.add('flex');
                     }
                     clearConfirmation(bomberoId);
                     return;
@@ -1441,10 +1482,12 @@
 
                 refreshAttendanceSubmitButton();
             } catch (e) {
-                if (msgEl) {
-                    msgEl.textContent = 'ERROR AL CONFIRMAR';
-                    msgEl.classList.remove('text-emerald-200','text-slate-400');
-                    msgEl.classList.add('text-rose-200');
+                const toast = document.getElementById('confirm-error-toast');
+                const toastText = document.getElementById('confirm-error-text');
+                if (toast && toastText) {
+                    toastText.textContent = 'ERROR AL CONFIRMAR';
+                    toast.classList.remove('hidden');
+                    toast.classList.add('flex');
                 }
                 clearConfirmation(bomberoId);
             } finally {
@@ -1507,6 +1550,12 @@
                 const isRefuerzo = card.textContent.includes('REFUERZO');
                 const requires = (status === 'constituye' || status === 'reemplazo' || isRefuerzo);
                 card.setAttribute('data-requires-confirmation', requires ? '1' : '0');
+
+                // Show/hide confirm box based on status
+                const confirmWrap = document.getElementById('confirm-box-wrap-' + userId);
+                if (confirmWrap) {
+                    confirmWrap.classList.toggle('hidden', !requires);
+                }
 
                 if (!requires) {
                     card.setAttribute('data-is-confirmed', '0');
