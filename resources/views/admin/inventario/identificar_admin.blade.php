@@ -6,7 +6,7 @@
         <div class="bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 shadow-xl">
             <div class="p-8 text-center">
                 @if(file_exists(public_path('brand/guardiappcheck.png')))
-                    <img src="{{ asset('brand/guardiappcheck.png') }}" alt="GuardiaAPP" class="mx-auto h-[70px] w-auto drop-shadow-sm">
+                    <img src="{{ asset('brand/guardiappcheck.png') }}?v={{ filemtime(public_path('brand/guardiappcheck.png')) }}" alt="GuardiaAPP" class="mx-auto h-[70px] w-auto drop-shadow-sm">
                 @endif
                 <div class="mt-2 text-xs font-black uppercase tracking-widest text-slate-400">Inventario</div>
                 <div class="text-2xl font-extrabold text-white">Identificación</div>

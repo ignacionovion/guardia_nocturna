@@ -60,7 +60,7 @@
             </div>
             <div class="brand">
                 @if(file_exists(public_path('brand/guardiappcheck.png')))
-                    <img src="{{ asset('brand/guardiappcheck.png') }}" alt="GuardiaAPP">
+                    <img src="{{ asset('brand/guardiappcheck.png') }}?v={{ filemtime(public_path('brand/guardiappcheck.png')) }}" alt="GuardiaAPP">
                 @endif
             </div>
         </div>

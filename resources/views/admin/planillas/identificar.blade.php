@@ -11,7 +11,7 @@
     <div class="max-w-2xl mx-auto px-4 py-10">
         <div class="text-center">
             @if(file_exists(public_path('brand/guardiappcheck.png')))
-                <img src="{{ asset('brand/guardiappcheck.png') }}" alt="GuardiaAPP" class="mx-auto h-[80px] w-auto drop-shadow-sm">
+                <img src="{{ asset('brand/guardiappcheck.png') }}?v={{ filemtime(public_path('brand/guardiappcheck.png')) }}" alt="GuardiaAPP" class="mx-auto h-[80px] w-auto drop-shadow-sm">
             @else
                 <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-slate-800 border border-slate-700 shadow-xl">
                     <i class="fas fa-table-list text-2xl text-slate-100"></i>
