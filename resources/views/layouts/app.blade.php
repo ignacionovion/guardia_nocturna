@@ -217,6 +217,9 @@
                                 <a href="{{ route('dashboard') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('dashboard') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                                     <i class="fas fa-home mr-2 opacity-80"></i> Inicio
                                 </a>
+                                <a href="{{ route('guardia.now') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('guardia.now*') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+                                    <i class="fas fa-bolt mr-2 opacity-80"></i> Now
+                                </a>
                                 <a href="{{ route('admin.volunteers.index') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:bg-slate-800 hover:text-white">
                                     <i class="fas fa-users mr-2 opacity-80"></i> Voluntarios
                                 </a>
