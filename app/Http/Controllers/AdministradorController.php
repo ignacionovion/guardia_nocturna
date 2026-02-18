@@ -117,6 +117,7 @@ class AdministradorController extends Controller
             $q->where(function ($q2) {
                 $q2->whereNull('fuera_de_servicio')->orWhere('fuera_de_servicio', false);
             });
+            $q->where('es_titular', true);
             $q->orderBy($orderFechaIngreso, 'asc');
         }]);
 

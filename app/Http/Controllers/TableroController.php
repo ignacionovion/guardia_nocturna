@@ -11,6 +11,7 @@ use App\Models\BedAssignment;
 use App\Models\Guardia;
 use App\Models\GuardiaCalendarDay;
 use App\Models\GuardiaAttendanceRecord;
+use App\Models\SystemSetting;
 use App\Models\Bombero;
 use App\Models\ReemplazoBombero;
 use App\Models\MapaBomberoUsuarioLegacy;
@@ -169,6 +170,35 @@ class TableroController extends Controller
 
             if (!$guardiaIdForGuardiaUser) {
                 abort(403, 'Cuenta de guardia sin guardia asignada.');
+            }
+
+            $tz = SystemSetting::getValue('guardia_schedule_tz', env('GUARDIA_SCHEDULE_TZ', config('app.timezone')));
+            $localNow = $now->copy()->setTimezone($tz);
+            $dailyEndTime = SystemSetting::getValue('guardia_daily_end_time', '07:00');
+            [$endH, $endM] = array_map('intval', explode(':', (string) $dailyEndTime));
+            $endAt = $localNow->copy()->setTime($endH, $endM, 0);
+
+            if ($localNow->greaterThanOrEqualTo($endAt)) {
+                Bombero::query()
+                    ->where('guardia_id', $guardiaIdForGuardiaUser)
+                    ->where('es_titular', false)
+                    ->get()
+                    ->each(function (Bombero $b) {
+                        $restoreGuardiaId = null;
+                        if ((bool) ($b->es_refuerzo ?? false)) {
+                            $restoreGuardiaId = $b->refuerzo_guardia_anterior_id;
+                        }
+
+                        $b->update([
+                            'guardia_id' => $restoreGuardiaId,
+                            'estado_asistencia' => 'constituye',
+                            'es_jefe_guardia' => false,
+                            'es_refuerzo' => false,
+                            'refuerzo_guardia_anterior_id' => null,
+                            'es_cambio' => false,
+                            'es_sancion' => false,
+                        ]);
+                    });
             }
 
             $myGuardia = Guardia::find($guardiaIdForGuardiaUser);

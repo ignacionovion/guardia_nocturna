@@ -78,7 +78,7 @@ Artisan::command('guardia:daily-cleanup {--at=} {--tz=}', function () {
     $nowLocal = $at ? Carbon::parse($at, $scheduleTz) : Carbon::now($scheduleTz);
     $nowApp = $nowLocal->copy()->setTimezone(config('app.timezone'));
 
-    $cleanupTime = SystemSetting::getValue('guardia_daily_cleanup_time', '12:01');
+    $cleanupTime = SystemSetting::getValue('guardia_daily_end_time', '07:00');
     [$cleanupH, $cleanupM] = array_map('intval', explode(':', (string) $cleanupTime));
     $runAt = $nowLocal->copy()->startOfDay()->addHours($cleanupH)->addMinutes($cleanupM);
     $windowEnd = $runAt->copy()->addMinutes(5);
@@ -214,7 +214,7 @@ Artisan::command('guardia:daily-cleanup {--at=} {--tz=}', function () {
     });
 
     $this->info('Daily cleanup ejecutado (' . $nowLocal->toDateTimeString() . ')');
-})->purpose('A las 12:01 PM: cierra reemplazos, resetea estados, elimina refuerzos y deja solo dotación titular');
+})->purpose('A las 07:00 AM: cierra reemplazos, resetea estados, elimina refuerzos y deja solo dotación titular');
 
 Artisan::command('guardia:run-calendar {--at=} {--tz=}', function () {
     $scheduleTz = $this->option('tz')

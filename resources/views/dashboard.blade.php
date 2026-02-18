@@ -5,6 +5,13 @@
         @php
             $attendanceEnableTime = \App\Models\SystemSetting::getValue('attendance_enable_time', '21:00');
             $attendanceDisableTime = \App\Models\SystemSetting::getValue('attendance_disable_time', '10:00');
+            $guardiaTz = \App\Models\SystemSetting::getValue('guardia_schedule_tz', env('GUARDIA_SCHEDULE_TZ', config('app.timezone')));
+            $guardiaDailyEndTime = \App\Models\SystemSetting::getValue('guardia_daily_end_time', '07:00');
+
+            $localNow = now()->copy()->setTimezone($guardiaTz);
+            [$endH, $endM] = array_map('intval', explode(':', (string) $guardiaDailyEndTime));
+            $dailyEndAt = $localNow->copy()->setTime($endH, $endM, 0);
+            $shiftClosedForToday = $localNow->greaterThanOrEqualTo($dailyEndAt);
 
             $attendanceEnabled = (function () use ($attendanceEnableTime, $attendanceDisableTime) {
                 $now = now();
@@ -66,7 +73,7 @@
             ];
         @endphp
         <!-- VISTA ESPECÍFICA PARA CUENTA DE GUARDIA (FULLSCREEN TARJETAS) -->
-        <div id="guardia-dashboard-root" class="w-full min-h-screen px-4 md:px-6 lg:px-8 py-4 pt-[env(safe-area-inset-top)] bg-slate-900 text-slate-100">
+        <div id="guardia-dashboard-root" class="w-full min-h-screen px-4 md:px-6 lg:px-8 py-4 pt-[calc(env(safe-area-inset-top)+1.25rem)] bg-slate-900 text-slate-100">
             <div class="sticky top-0 z-40 flex flex-col md:flex-row md:items-center md:justify-between mb-5 gap-4 border-b border-slate-800 pb-4 bg-slate-900">
                 <div class="flex items-center gap-3 min-w-0">
                     <div class="bg-red-700 p-2 rounded-lg text-white shadow-lg border border-red-600 shrink-0">
@@ -125,10 +132,14 @@
                 </div>
 
                 <div class="flex items-center justify-between md:justify-end gap-3 shrink-0">
-                    @if(isset($hasAttendanceSavedToday) && $hasAttendanceSavedToday)
-                        <span id="attendance-saved-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 shrink-0">GUARDIA CONSTITUIDA</span>
+                    @if($shiftClosedForToday)
+                        <span id="attendance-saved-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-amber-200 bg-amber-50 text-amber-800 shrink-0">RECORDAR REGISTRAR GUARDIA A LAS 23:00</span>
                     @else
-                        <span id="attendance-saved-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-red-200 bg-red-50 text-red-700 shrink-0">SIN REGISTRAR ASISTENCIA</span>
+                        @if(isset($hasAttendanceSavedToday) && $hasAttendanceSavedToday)
+                            <span id="attendance-saved-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 shrink-0">GUARDIA CONSTITUIDA</span>
+                        @else
+                            <span id="attendance-saved-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-red-200 bg-red-50 text-red-700 shrink-0">SIN REGISTRAR ASISTENCIA</span>
+                        @endif
                     @endif
 
                     <form method="POST" action="{{ route('logout') }}">
@@ -439,7 +450,7 @@
                                             <div class="text-sm font-black text-slate-100">{{ $novelty->title }}</div>
                                             <div class="text-xs text-slate-400 mt-1 line-clamp-2">{{ $novelty->description }}</div>
                                             <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">
-                                                {{ $novelty->created_at->diffForHumans() }}
+                                                {{ $novelty->created_at->locale('es')->diffForHumans() }}
                                                 @if($novelty->user)
                                                     <span class="text-slate-300">|</span>
                                                     {{ $novelty->user->name ?? '-' }}
@@ -473,7 +484,7 @@
                                             <div class="text-sm font-black text-slate-100">{{ $academy->title }}</div>
                                             <div class="text-xs text-slate-400 mt-1 line-clamp-2">{{ $academy->description }}</div>
                                             <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">
-                                                {{ ($academy->created_at ?? $academy->date)?->diffForHumans() }}
+                                                {{ ($academy->created_at ?? $academy->date)?->locale('es')->diffForHumans() }}
                                             </div>
                                         </div>
                                     @endforeach
@@ -772,7 +783,7 @@
 
                 <div class="mb-4">
                     <label class="block text-xs font-bold mb-2 uppercase tracking-wide {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-300' : 'text-slate-700' }}">Día y hora</label>
-                    <input type="datetime-local" name="date" class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 border-slate-800 text-slate-100' : 'bg-white border-slate-300 text-slate-900' }}" required>
+                    <input type="datetime-local" name="date" value="{{ now()->copy()->setTimezone($guardiaTz)->format('Y-m-d\\TH:i') }}" class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 border-slate-800 text-slate-100' : 'bg-white border-slate-300 text-slate-900' }}" required>
                 </div>
 
                 <div class="mb-4">

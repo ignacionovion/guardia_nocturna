@@ -13,11 +13,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withSchedule(function (Schedule $schedule) {
+        $scheduleTz = env('GUARDIA_SCHEDULE_TZ', config('app.timezone'));
         $schedule->command('guardia:expire-replacements')->everyMinute();
         $schedule->command('guardia:run-calendar')->everyMinute();
         $schedule->command('guardia:reset-beds')->everyMinute();
         $schedule->command('guardia:generate-notifications')->everyMinute();
-        $schedule->command('guardia:daily-cleanup')->everyMinute();
+        $schedule->command('guardia:daily-cleanup')->dailyAt('07:00')->timezone($scheduleTz);
     })
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->appendToGroup('web', \App\Http\Middleware\ExpireReplacements::class);
