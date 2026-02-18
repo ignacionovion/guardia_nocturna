@@ -7,16 +7,12 @@
             <div class="text-xs font-black uppercase tracking-widest text-slate-500">Guardia</div>
             <div class="text-3xl font-extrabold text-slate-900 tracking-tight flex items-center uppercase">
                 <i class="fas fa-bolt mr-3 text-red-700"></i>
-                Now
+                Guardiapp NOW
             </div>
             <div class="text-sm text-slate-600 mt-1">Vista en vivo del estado de la guardia constituida.</div>
         </div>
 
         <div class="flex items-center gap-2">
-            <a href="{{ route('guardia') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs">
-                <i class="fas fa-arrow-left"></i>
-                Ir a libro
-            </a>
             <div class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 text-xs font-extrabold">
                 <span class="w-2 h-2 rounded-full bg-emerald-600" id="now-live-dot"></span>
                 <span id="now-last-update">Actualizando...</span>

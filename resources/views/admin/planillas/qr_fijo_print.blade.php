@@ -12,12 +12,12 @@
         .card { border: 2px solid #0f172a; border-radius: 18px; padding: 18px; }
         .top { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
         .brand { display: flex; align-items: center; gap: 12px; }
-        .brand img { height: 54px; width: auto; }
+        .brand img { height: 86px; width: auto; }
         .kicker { font-size: 12px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: #334155; }
         .title { font-size: 28px; font-weight: 900; margin-top: 4px; }
         .subtitle { font-size: 14px; margin-top: 6px; color: #334155; }
         .grid { display: grid; grid-template-columns: 1fr 520px; gap: 18px; margin-top: 18px; align-items: center; }
-        .qrbox { border: 2px solid #e2e8f0; border-radius: 18px; padding: 14px; display: flex; align-items: center; justify-content: center; background: #fff; }
+        .qrbox { border: 2px solid #e2e8f0; border-radius: 18px; padding: 18px; display: flex; align-items: center; justify-content: center; background: #fff; }
         .steps { border: 2px dashed #cbd5e1; border-radius: 18px; padding: 14px; }
         .steps h3 { margin: 0; font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.14em; color: #0f172a; }
         .steps ol { margin: 10px 0 0 18px; padding: 0; }

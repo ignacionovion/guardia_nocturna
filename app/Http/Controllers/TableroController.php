@@ -266,9 +266,10 @@ class TableroController extends Controller
 
             $activeReplacements = ReemplazoBombero::with(['originalFirefighter', 'replacementFirefighter'])
                 ->where('estado', 'activo')
+                ->where('guardia_id', $guardiaIdForGuardiaUser)
                 ->get();
-            $replacementByOriginal = $activeReplacements->keyBy('bombero_titular_id');
-            $replacementByReplacement = $activeReplacements->keyBy('bombero_reemplazante_id');
+            $replacementByOriginal = $activeReplacements->keyBy(fn (ReemplazoBombero $r) => (int) $r->bombero_titular_id);
+            $replacementByReplacement = $activeReplacements->keyBy(fn (ReemplazoBombero $r) => (int) $r->bombero_reemplazante_id);
 
             // Cargar personal de la guardia (excluyendo la propia cuenta de gestión)
             $myStaff = Bombero::where('guardia_id', $guardiaIdForGuardiaUser)

@@ -15,7 +15,7 @@ class GuardiaSeeder extends Seeder
         User::updateOrCreate(
             ['email' => 'admin@guardianocturna.cl'],
             [
-                'name' => 'Super Admin',
+                'name' => 'Ignacio Novión',
                 'username' => 'admin',
                 'password' => Hash::make('password'),
                 'role' => 'super_admin',
@@ -27,7 +27,7 @@ class GuardiaSeeder extends Seeder
         User::updateOrCreate(
             ['email' => 'capitan@guardianocturna.cl'],
             [
-                'name' => 'Capitán General',
+                'name' => 'Capitán',
                 'username' => 'capitan',
                 'password' => Hash::make('password'),
                 'role' => 'capitania',

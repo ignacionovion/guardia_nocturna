@@ -21,9 +21,9 @@
                 <!-- Logo / Marca -->
                 <a href="{{ route('dashboard') }}" class="flex items-center group">
                     @if(file_exists(public_path('brand/guardiapp.png')))
-                        <img src="{{ asset('brand/guardiapp.png') }}" alt="GuardiaAPP" class="h-10 w-auto drop-shadow-sm">
+                        <img src="{{ asset('brand/guardiapp.png') }}" alt="GuardiaAPP" class="h-14 w-auto drop-shadow-sm">
                     @else
-                        <div class="bg-red-700 p-2.5 rounded-lg text-white transform group-hover:rotate-3 transition-transform duration-300 shadow-lg border border-red-600">
+                        <div class="bg-red-300 p-2.5 rounded-lg text-white transform group-hover:rotate-3 transition-transform duration-300 shadow-lg border border-red-200">
                             <i class="fas fa-helmet-safety text-xl"></i>
                         </div>
                     @endif
@@ -101,23 +101,6 @@
                             </div>
                         </div>
 
-                        <div class="relative group">
-                            <button type="button" class="px-3 py-2 rounded-md text-sm font-semibold transition-colors text-slate-200 hover:bg-slate-800 hover:text-white">
-                                <i class="fas fa-gear mr-1.5 opacity-80"></i>
-                                Administración
-                                <i class="fas fa-chevron-down ml-1 text-[10px] opacity-70"></i>
-                            </button>
-                            <div class="hidden group-hover:block absolute left-0 top-full w-64 bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden">
-                                <div class="h-2"></div>
-                                <a href="{{ route('admin.system.index') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
-                                    <i class="fas fa-shield mr-2 text-slate-500"></i> Administración del Sistema
-                                </a>
-                                <a href="{{ route('admin.users.index') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
-                                    <i class="fas fa-user-shield mr-2 text-slate-500"></i> Usuarios
-                                </a>
-                            </div>
-                        </div>
-
                         <a href="{{ route('admin.preventivas.index') }}" class="px-3 py-2 rounded-md text-sm font-semibold transition-colors {{ request()->routeIs('admin.preventivas*') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                             <i class="fas fa-clipboard-list mr-1.5 opacity-80"></i> Preventivas
                         </a>
@@ -177,9 +160,25 @@
                     <!-- Perfil de Usuario -->
                     @auth
                         <div class="flex items-center pl-3 ml-1 border-l border-slate-700">
-                            <div class="hidden sm:flex flex-col items-end mr-3">
-                                <span class="text-slate-200 text-sm font-semibold leading-tight">{{ Auth::user()->name }}</span>
-                                <span class="text-slate-500 text-xs uppercase">{{ str_replace('_', ' ', Auth::user()->role) }}</span>
+                            <div class="relative hidden sm:block mr-3" id="user-menu-root">
+                                <button type="button" id="user-menu-button" class="flex flex-col items-end rounded-lg px-2 py-1 hover:bg-slate-800 transition-colors">
+                                    <span class="text-slate-200 text-sm font-semibold leading-tight">{{ Auth::user()->name }}</span>
+                                    <span class="text-slate-500 text-xs uppercase">{{ str_replace('_', ' ', Auth::user()->role) }}</span>
+                                </button>
+                                @if(Auth::user()->role === 'super_admin')
+                                    <div id="user-menu-dropdown" class="hidden absolute right-0 top-full w-64 pt-2">
+                                        <div class="bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden">
+                                            <div class="py-2">
+                                                <a href="{{ route('admin.system.index') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                                                    <i class="fas fa-gear mr-2 text-slate-500"></i> Administración del Sistema
+                                                </a>
+                                                <a href="{{ route('admin.users.index') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                                                    <i class="fas fa-user-shield mr-2 text-slate-500"></i> Usuarios
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
@@ -279,6 +278,31 @@
 
             btn.addEventListener('click', function () {
                 menu.classList.toggle('hidden');
+            });
+        })();
+
+        (function () {
+            const root = document.getElementById('user-menu-root');
+            const btn = document.getElementById('user-menu-button');
+            const dd = document.getElementById('user-menu-dropdown');
+            if (!root || !btn || !dd) return;
+
+            function close() {
+                dd.classList.add('hidden');
+            }
+
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                dd.classList.toggle('hidden');
+            });
+
+            document.addEventListener('click', function (e) {
+                if (!root.contains(e.target)) close();
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') close();
             });
         })();
     </script>

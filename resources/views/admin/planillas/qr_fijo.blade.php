@@ -35,7 +35,7 @@
         </div>
 
         <div class="p-6 flex flex-col items-center">
-            <div class="bg-white p-4 rounded-2xl border border-slate-200">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200">
                 {!! $qrSvg !!}
             </div>
             <div class="mt-4 text-sm text-slate-600">Token: <span class="font-mono text-xs">{{ $link->token }}</span></div>

@@ -91,13 +91,7 @@
                     </thead>
                     <tbody class="bg-white divide-y divide-slate-200" id="volunteer-table-body">
                         @foreach($volunteers as $volunteer)
-                            @php
-                                $full = trim((string)($volunteer->nombres ?? '') . ' ' . (string)($volunteer->apellido_paterno ?? '') . ' ' . (string)($volunteer->apellido_materno ?? ''));
-                                $rut = (string)($volunteer->rut ?? '');
-                                $cargo = (string)($volunteer->cargo_texto ?? '');
-                                $hay = strtolower($full . ' ' . $rut . ' ' . $cargo);
-                            @endphp
-                            <tr class="hover:bg-slate-50 transition-colors" data-search="{{ $hay }}">
+                            <tr class="hover:bg-slate-50 transition-colors">
                                 <td class="px-3 md:px-6 py-4 whitespace-nowrap">
                                     <input type="checkbox" name="selected_ids[]" value="{{ $volunteer->id }}" class="volunteer-checkbox rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 w-5 h-5">
                                 </td>
@@ -225,22 +219,21 @@
             
             <!-- Paginación Footer -->
             <div class="bg-slate-50 px-6 py-4 border-t border-slate-200">
-                {{ $volunteers->links() }}
+                {{ $volunteers->appends(request()->only('search'))->links() }}
             </div>
         </div>
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const input = document.getElementById('volunteer-search-input');
-                const body = document.getElementById('volunteer-table-body');
-                if (input && body) {
+                const form = document.getElementById('volunteer-search-form');
+                if (input && form) {
+                    let t = null;
                     input.addEventListener('input', function() {
-                        const q = (this.value || '').trim().toLowerCase();
-                        const rows = body.querySelectorAll('tr[data-search]');
-                        rows.forEach((tr) => {
-                            const hay = (tr.getAttribute('data-search') || '');
-                            tr.style.display = (q === '' || hay.includes(q)) ? '' : 'none';
-                        });
+                        clearTimeout(t);
+                        t = setTimeout(() => {
+                            form.submit();
+                        }, 450);
                     });
                 }
 

@@ -12,7 +12,7 @@
         .card { border: 2px solid #0f172a; border-radius: 18px; padding: 18px; }
         .top { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
         .brand { display: flex; align-items: center; gap: 12px; }
-        .brand img { height: 54px; width: auto; }
+        .brand img { height: 86px; width: auto; }
         .kicker { font-size: 12px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: #334155; }
         .title { font-size: 28px; font-weight: 900; margin-top: 4px; }
         .subtitle { font-size: 14px; margin-top: 6px; color: #334155; }

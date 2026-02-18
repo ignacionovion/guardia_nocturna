@@ -115,7 +115,7 @@ class GuardiaController extends Controller
         $query = Shift::with(['leader', 'users.firefighter', 'users.replacedFirefighter'])
             ->where('status', 'active');
 
-        if ($user->guardia_id) {
+        if ($user->role === 'guardia' && $user->guardia_id) {
             $query->whereHas('leader', function ($q) use ($user) {
                 $q->where('guardia_id', $user->guardia_id);
             });
@@ -134,19 +134,8 @@ class GuardiaController extends Controller
             );
         }
 
-        $bomberosQuery = Bombero::query();
-        if ($user->guardia_id) {
-            $bomberosQuery->where('guardia_id', $user->guardia_id);
-        }
-
-        $users = $bomberosQuery
-            ->orderBy('nombres')
-            ->orderBy('apellido_paterno')
-            ->get();
-
-        $currentGuardiaUsers = $shift ? $shift->users->whereNull('end_time')->pluck('firefighter_id')->filter()->toArray() : [];
-
-        return view('guardia_now', compact('shift', 'users', 'currentGuardiaUsers'));
+        // La vista NOW se alimenta por polling a nowData; no necesitamos cargar todos los bomberos aquí.
+        return view('guardia_now', compact('shift'));
     }
 
     public function nowData(Request $request)
@@ -162,7 +151,7 @@ class GuardiaController extends Controller
         $query = Shift::with(['leader', 'users.firefighter', 'users.replacedFirefighter'])
             ->where('status', 'active');
 
-        if ($user->guardia_id) {
+        if ($user->role === 'guardia' && $user->guardia_id) {
             $query->whereHas('leader', function ($q) use ($user) {
                 $q->where('guardia_id', $user->guardia_id);
             });
@@ -181,20 +170,12 @@ class GuardiaController extends Controller
             );
         }
 
-        $bomberosQuery = Bombero::query();
-        if ($user->guardia_id) {
-            $bomberosQuery->where('guardia_id', $user->guardia_id);
-        }
-
-        $bomberos = $bomberosQuery
-            ->orderBy('nombres')
-            ->orderBy('apellido_paterno')
-            ->get();
-
-        $onDutyFirefighterIds = $shift
-            ? $shift->users->whereNull('end_time')->pluck('firefighter_id')->filter()->map(fn ($v) => (int) $v)->values()->toArray()
-            : [];
-        $onDutyLookup = array_fill_keys($onDutyFirefighterIds, true);
+        $onDutyShiftUsers = $shift
+            ? $shift->users
+                ->whereNull('end_time')
+                ->filter(fn ($su) => (int) ($su->firefighter_id ?? 0) > 0)
+                ->values()
+            : collect();
 
         $payload = [
             'server_time' => $now->toIso8601String(),
@@ -204,22 +185,32 @@ class GuardiaController extends Controller
                 'leader' => $shift->leader?->name,
                 'created_at' => optional($shift->created_at)->toIso8601String(),
             ] : null,
-            'bomberos' => $bomberos->map(function (Bombero $b) use ($onDutyLookup) {
+            'bomberos' => $onDutyShiftUsers->map(function ($su) {
+                $b = $su->firefighter;
+                if (!$b) {
+                    return null;
+                }
+
                 $name = trim((string)($b->nombres ?? '') . ' ' . (string)($b->apellido_paterno ?? '') . ' ' . (string)($b->apellido_materno ?? ''));
+
+                $estado = $b->estado_asistencia ?? null;
+                if (!$estado && property_exists($su, 'attendance_status')) {
+                    $estado = $su->attendance_status;
+                }
 
                 return [
                     'id' => (int) $b->id,
                     'nombre' => $name,
                     'portatil' => $b->numero_portatil,
-                    'estado_asistencia' => $b->estado_asistencia ?? 'constituye',
+                    'estado_asistencia' => $estado ?: 'constituye',
                     'es_jefe_guardia' => (bool) ($b->es_jefe_guardia ?? false),
                     'es_refuerzo' => (bool) ($b->es_refuerzo ?? false),
                     'es_cambio' => (bool) ($b->es_cambio ?? false),
                     'es_sancion' => (bool) ($b->es_sancion ?? false),
                     'fuera_de_servicio' => (bool) ($b->fuera_de_servicio ?? false),
-                    'en_turno' => isset($onDutyLookup[(int) $b->id]),
+                    'en_turno' => true,
                 ];
-            })->values(),
+            })->filter()->values(),
         ];
 
         return response()->json($payload);

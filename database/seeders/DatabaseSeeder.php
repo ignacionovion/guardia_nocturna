@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
     {
         // Llamar a los seeders
         $this->call([
-            SuperAdminSeeder::class,
+            // SuperAdminSeeder::class,
             BedSeeder::class,
             CleaningTaskSeeder::class,
             GuardiaSeeder::class,

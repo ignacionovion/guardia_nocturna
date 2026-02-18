@@ -160,8 +160,8 @@
                         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2">
                             @forelse($activeStaff as $staff)
                                 @php
-                                    $status = $staff->estado_asistencia;
                                     $repAsReplacement = isset($replacementByReplacement) ? $replacementByReplacement->get($staff->id) : null;
+                                    $status = $repAsReplacement ? 'reemplazo' : $staff->estado_asistencia;
                                     $lockAttendanceStatus = (bool) ($repAsReplacement || $staff->es_refuerzo);
                                     $statusDotClass = match ($status) {
                                         'constituye' => 'bg-emerald-400',
@@ -211,7 +211,7 @@
                                 <div class="p-1.5 flex-1 flex flex-col">
 
                                     <div class="grid grid-cols-2 gap-1.5 flex-1">
-                                        <div class="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden flex items-stretch justify-stretch h-[120px]">
+                                        <div class="relative bg-slate-950 rounded-xl border border-slate-800 overflow-hidden flex items-stretch justify-stretch h-[120px]">
                                             @if($staff->photo_path)
                                                 <img src="{{ url('media/' . ltrim($staff->photo_path, '/')) }}" class="w-full h-full object-cover" alt="Foto">
                                             @else
@@ -219,6 +219,20 @@
                                                     {{ strtoupper(substr($staff->nombres, 0, 1) . substr($staff->apellido_paterno, 0, 1)) }}
                                                 </div>
                                             @endif
+
+                                            <div class="absolute bottom-1 left-1 right-1 flex items-center justify-center gap-1">
+                                                @if($staff->es_conductor)
+                                                    <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[9px] font-bold border border-blue-200" title="Conductor">
+                                                        <i class="fas fa-car text-[9px]"></i>
+                                                    </span>
+                                                @endif
+                                                @if($staff->es_operador_rescate)
+                                                    <span class="w-5 h-5 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-[9px] font-bold border border-orange-200" title="Operador de Rescate">R</span>
+                                                @endif
+                                                @if($staff->es_asistente_trauma)
+                                                    <span class="w-7 h-5 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-[9px] font-bold border border-red-200" title="Asistente de Trauma">AT.M</span>
+                                                @endif
+                                            </div>
                                         </div>
                                         <div class="flex flex-col justify-start min-w-0">
                                             <div class="min-h-[40px] flex flex-col justify-start min-w-0">
@@ -276,20 +290,6 @@
                                         </div>
                                     @endif
 
-                                    <div class="mt-1.5 min-h-[22px] flex items-center justify-center gap-1.5">
-                                        @if($staff->es_conductor)
-                                            <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[9px] font-bold border border-blue-200" title="Conductor">
-                                                <i class="fas fa-car text-[9px]"></i>
-                                            </span>
-                                        @endif
-                                        @if($staff->es_operador_rescate)
-                                            <span class="w-5 h-5 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-[9px] font-bold border border-orange-200" title="Operador de Rescate">R</span>
-                                        @endif
-                                        @if($staff->es_asistente_trauma)
-                                            <span class="w-7 h-5 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-[9px] font-bold border border-red-200" title="Asistente de Trauma">A.T</span>
-                                        @endif
-                                    </div>
-
                                     <div class="mt-1.5">
                                         @if(in_array($status, ['constituye','reemplazo'], true) || $staff->es_refuerzo || $repAsReplacement)
                                             <div id="confirm-box-{{ $staff->id }}" class="mb-2 rounded-xl border border-slate-800 bg-slate-950 px-2.5 py-2">
@@ -297,40 +297,49 @@
                                                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Confirmación</label>
                                                     <div id="confirm-status-{{ $staff->id }}" class="text-[9px] font-black uppercase tracking-widest text-rose-200">NO CONFIRMADO</div>
                                                 </div>
-                                                <div class="mt-1.5 flex items-center gap-2">
-                                                    <input type="password" inputmode="numeric" autocomplete="one-time-code" id="confirm-code-{{ $staff->id }}" placeholder="Código" class="flex-1 min-w-0 px-3 py-2 rounded-lg border border-slate-800 bg-slate-900 text-[11px] font-black uppercase tracking-widest text-slate-100 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
-                                                    <button type="button" id="confirm-btn-{{ $staff->id }}" onclick="confirmBombero({{ (int) $myGuardia->id }}, {{ (int) $staff->id }})" class="shrink-0 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-100 text-[10px] font-black uppercase tracking-widest border border-slate-700">Confirmar</button>
+                                                <div id="confirm-controls-{{ $staff->id }}" class="mt-1.5 flex items-center gap-2">
+                                                    <input type="password" inputmode="numeric" autocomplete="one-time-code" id="confirm-code-{{ $staff->id }}" placeholder="Código" class="flex-1 min-w-0 px-2.5 py-1.5 rounded-lg border border-slate-800 bg-slate-900 text-[10px] font-black uppercase tracking-widest text-slate-100 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
+                                                    <button type="button" id="confirm-btn-{{ $staff->id }}" onclick="confirmBombero({{ (int) $myGuardia->id }}, {{ (int) $staff->id }})" class="shrink-0 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-100 text-[9px] font-black uppercase tracking-widest border border-slate-700">Confirmar</button>
                                                 </div>
+                                                <div id="confirm-msg-{{ $staff->id }}" class="mt-1 text-[10px] font-black uppercase tracking-widest text-slate-400"></div>
                                             </div>
                                         @endif
                                         <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Estado</label>
                                         @if($lockAttendanceStatus)
-                                            <div class="rounded-lg border border-emerald-500/30 bg-emerald-500/15 text-emerald-200 px-3 py-2 text-center">
-                                                <div class="text-sm font-black">CONSTITUYE</div>
-                                            </div>
+                                            @if($repAsReplacement)
+                                                <div class="rounded-lg border border-purple-500/30 bg-purple-500/15 text-purple-200 px-3 py-2 text-center">
+                                                    <div class="text-sm font-black">REEMPLAZO</div>
+                                                </div>
+                                            @else
+                                                <div class="rounded-lg border border-emerald-500/30 bg-emerald-500/15 text-emerald-200 px-3 py-2 text-center">
+                                                    <div class="text-sm font-black">CONSTITUYE</div>
+                                                </div>
+                                            @endif
                                         @else
-                                            <div class="grid grid-cols-2 gap-1">
-                                                <button type="button" data-user-id="{{ $staff->id }}" data-status="constituye" onclick="setGuardiaStatus('{{ $staff->id }}', 'constituye')" class="w-full px-1 py-1 rounded-lg border text-[10px] font-black uppercase tracking-widest transition flex items-center justify-center gap-1 {{ $status === 'constituye' ? 'bg-emerald-500/80 text-white border-emerald-400/50 shadow-sm' : 'bg-emerald-500/15 text-emerald-200 border-emerald-500/25 hover:bg-emerald-500/20' }}">
-                                                    <span class="w-2 h-2 rounded-full {{ $status === 'constituye' ? 'bg-white' : 'bg-emerald-500' }}"></span>
-                                                    Constituye
-                                                </button>
-                                                <button type="button" data-user-id="{{ $staff->id }}" data-status="permiso" onclick="setGuardiaStatus('{{ $staff->id }}', 'permiso')" class="w-full px-1 py-1 rounded-lg border text-[10px] font-black uppercase tracking-widest transition flex items-center justify-center gap-1 {{ $status === 'permiso' ? 'bg-amber-500/80 text-white border-amber-400/50 shadow-sm' : 'bg-amber-500/15 text-amber-200 border-amber-500/25 hover:bg-amber-500/20' }}">
-                                                    <span class="w-2 h-2 rounded-full {{ $status === 'permiso' ? 'bg-white' : 'bg-amber-500' }}"></span>
-                                                    Permiso
-                                                </button>
-                                                <button type="button" data-user-id="{{ $staff->id }}" data-status="ausente" onclick="setGuardiaStatus('{{ $staff->id }}', 'ausente')" class="w-full px-2 py-1.5 rounded-lg border text-[10px] font-black uppercase tracking-widest transition flex items-center justify-center gap-1.5 {{ $status === 'ausente' ? 'bg-slate-400/30 text-white border-slate-500/30 shadow-sm' : 'bg-slate-500/10 text-slate-200 border-slate-500/20 hover:bg-slate-500/15' }}">
-                                                    <span class="w-2.5 h-2.5 rounded-full {{ $status === 'ausente' ? 'bg-white' : 'bg-slate-600' }}"></span>
-                                                    Ausente
-                                                </button>
-                                                <button type="button" data-user-id="{{ $staff->id }}" data-status="licencia" onclick="setGuardiaStatus('{{ $staff->id }}', 'licencia')" class="w-full px-2 py-1.5 rounded-lg border text-[10px] font-black uppercase tracking-widest transition flex items-center justify-center gap-1.5 {{ $status === 'licencia' ? 'bg-blue-600/80 text-white border-blue-400/50 shadow-sm' : 'bg-blue-600/15 text-blue-200 border-blue-500/25 hover:bg-blue-600/20' }}">
-                                                    <span class="w-2.5 h-2.5 rounded-full {{ $status === 'licencia' ? 'bg-white' : 'bg-blue-600' }}"></span>
-                                                    Licencia
-                                                </button>
-                                                <button type="button" data-user-id="{{ $staff->id }}" data-status="falta" onclick="setGuardiaStatus('{{ $staff->id }}', 'falta')" class="w-full px-2 py-1.5 rounded-lg border text-[10px] font-black uppercase tracking-widest transition flex items-center justify-center gap-1.5 col-span-2 {{ $status === 'falta' ? 'bg-red-600/80 text-white border-red-400/50 shadow-sm' : 'bg-red-600/15 text-red-200 border-red-500/25 hover:bg-red-600/20' }}">
-                                                    <span class="w-2.5 h-2.5 rounded-full {{ $status === 'falta' ? 'bg-white' : 'bg-red-600' }}"></span>
-                                                    Falta
-                                                </button>
-                                            </div>
+                                            @php
+                                                $statusLabel = match ($status) {
+                                                    'constituye' => 'CONSTITUYE',
+                                                    'reemplazo' => 'REEMPLAZO',
+                                                    'permiso' => 'PERMISO',
+                                                    'ausente' => 'AUSENTE',
+                                                    'licencia' => 'LICENCIA',
+                                                    'falta' => 'FALTA',
+                                                    default => 'CONSTITUYE',
+                                                };
+                                                $statusBtnClass = match ($status) {
+                                                    'constituye' => 'bg-emerald-500/80 text-white border-emerald-400/50',
+                                                    'reemplazo' => 'bg-purple-500/80 text-white border-purple-400/50',
+                                                    'permiso' => 'bg-amber-500/80 text-white border-amber-400/50',
+                                                    'ausente' => 'bg-slate-400/30 text-white border-slate-500/30',
+                                                    'licencia' => 'bg-blue-600/80 text-white border-blue-400/50',
+                                                    'falta' => 'bg-red-600/80 text-white border-red-400/50',
+                                                    default => 'bg-emerald-500/80 text-white border-emerald-400/50',
+                                                };
+                                            @endphp
+                                            <button type="button" id="status-cycle-{{ $staff->id }}" data-user-id="{{ $staff->id }}" data-status="{{ $status }}" onclick="cycleGuardiaStatus('{{ $staff->id }}')" class="w-full px-2 py-2 rounded-lg border text-[11px] font-black uppercase tracking-widest transition flex items-center justify-center gap-2 shadow-sm {{ $statusBtnClass }}">
+                                                <span id="status-cycle-label-{{ $staff->id }}">{{ $statusLabel }}</span>
+                                                <i class="fas fa-rotate text-[10px] opacity-80"></i>
+                                            </button>
                                         @endif
                                     </div>
 
@@ -868,9 +877,20 @@
         </div>
     @endif
 
+    <div class="hidden border-2 border-rose-400 border-emerald-400 border-slate-800"></div>
+
     <script>
+        window.__guardiaId = @json((int) ($myGuardia->id ?? 0));
         window.__attendanceSavedToday = @json((bool) ($hasAttendanceSavedToday ?? false));
         window.__attendanceDirty = false;
+
+        function getLocalYmd() {
+            try {
+                return new Date().toLocaleDateString('sv-SE');
+            } catch (e) {
+                return new Date().toISOString().slice(0, 10);
+            }
+        }
 
         window.__guardiaSnapshot = {
             latest_novelty_at: @json(optional(($guardiaNovelties ?? null)?->first()?->updated_at ?? null)?->toISOString()),
@@ -1042,10 +1062,56 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('[data-card-user][data-requires-confirmation="1"]').forEach(card => {
-                card.classList.add('ring-2','ring-rose-400');
+            const restoreConfirmations = function() {
+                if (!window.__guardiaId) return;
+                const ymd = getLocalYmd();
+
+                document.querySelectorAll('[data-card-user]').forEach(card => {
+                    const userId = card.getAttribute('data-card-user');
+                    if (!userId) return;
+
+                    const key = `guardia_confirm_${window.__guardiaId}_${ymd}_${userId}`;
+                    let raw = null;
+                    try {
+                        raw = sessionStorage.getItem(key);
+                    } catch (e) {
+                        raw = null;
+                    }
+                    if (!raw) return;
+
+                    let payload = null;
+                    try {
+                        payload = JSON.parse(raw);
+                    } catch (e) {
+                        payload = null;
+                    }
+
+                    if (!payload || !payload.token) return;
+
+                    const tokenEl = document.getElementById('confirm-token-' + userId);
+                    if (tokenEl) tokenEl.value = payload.token;
+                    setConfirmState(userId, true);
+                });
+            };
+
+            const resetAllConfirmations = function() {
+                document.querySelectorAll('[data-card-user]').forEach(card => {
+                    const userId = card.getAttribute('data-card-user');
+                    if (!userId) return;
+                    const tokenEl = document.getElementById('confirm-token-' + userId);
+                    if (tokenEl) tokenEl.value = '';
+                    setConfirmState(userId, false);
+                });
+                refreshAttendanceSubmitButton();
+            };
+
+            resetAllConfirmations();
+            restoreConfirmations();
+
+            window.addEventListener('pageshow', function() {
+                resetAllConfirmations();
+                restoreConfirmations();
             });
-            refreshAttendanceSubmitButton();
         });
 
         window.toggleInhabilitado = function(firefighterId) {
@@ -1215,13 +1281,21 @@
             markAttendanceDirty();
         }
 
+        window.cycleGuardiaStatus = function(userId) {
+            const input = document.getElementById('attendance-status-' + userId);
+            if (!input) return;
+            const current = (input.value || 'constituye').toLowerCase();
+
+            const order = ['constituye', 'permiso', 'ausente', 'licencia', 'falta'];
+            const idx = order.indexOf(current);
+            const next = order[(idx === -1 ? 0 : (idx + 1) % order.length)];
+
+            window.setGuardiaStatus(userId, next);
+        }
+
         function refreshAttendanceSubmitButton() {
             const submitBtn = document.getElementById('guardia-attendance-submit');
             if (!submitBtn) return;
-
-            if (submitBtn.hasAttribute('disabled')) {
-                return;
-            }
 
             const cards = document.querySelectorAll('[data-card-user][data-requires-confirmation="1"]');
             let ok = true;
@@ -1244,11 +1318,25 @@
             const card = document.getElementById('guardia-card-' + userId);
             if (card) {
                 card.setAttribute('data-is-confirmed', confirmed ? '1' : '0');
-                card.classList.remove('ring-2','ring-emerald-400','ring-rose-400');
+                card.style.borderWidth = '';
+                card.style.borderColor = '';
                 if (confirmed) {
-                    card.classList.add('ring-2','ring-emerald-400');
-                } else if (card.getAttribute('data-requires-confirmation') === '1') {
-                    card.classList.add('ring-2','ring-rose-400');
+                    card.style.borderWidth = '2px';
+                    card.style.borderColor = '#34d399';
+                }
+            }
+
+            const controls = document.getElementById('confirm-controls-' + userId);
+            if (controls) {
+                controls.style.display = confirmed ? 'none' : '';
+            }
+
+            const msgEl = document.getElementById('confirm-msg-' + userId);
+            if (msgEl) {
+                if (confirmed) {
+                    msgEl.textContent = '';
+                    msgEl.classList.remove('text-emerald-200','text-rose-200');
+                    msgEl.classList.add('text-slate-400');
                 }
             }
 
@@ -1263,6 +1351,20 @@
         function clearConfirmation(userId) {
             const tokenEl = document.getElementById('confirm-token-' + userId);
             if (tokenEl) tokenEl.value = '';
+
+            try {
+                if (window.__guardiaId) {
+                    const ymd = getLocalYmd();
+                    sessionStorage.removeItem(`guardia_confirm_${window.__guardiaId}_${ymd}_${userId}`);
+                }
+            } catch (e) {}
+
+            const msgEl = document.getElementById('confirm-msg-' + userId);
+            if (msgEl) {
+                msgEl.textContent = '';
+                msgEl.classList.remove('text-emerald-200','text-rose-200');
+                msgEl.classList.add('text-slate-400');
+            }
             setConfirmState(userId, false);
             refreshAttendanceSubmitButton();
         }
@@ -1271,10 +1373,15 @@
             const codeEl = document.getElementById('confirm-code-' + bomberoId);
             const tokenEl = document.getElementById('confirm-token-' + bomberoId);
             const btnEl = document.getElementById('confirm-btn-' + bomberoId);
+            const msgEl = document.getElementById('confirm-msg-' + bomberoId);
 
             const numeroRegistro = (codeEl?.value || '').trim();
             if (!numeroRegistro) {
-                alert('Ingresa el código del bombero.');
+                if (msgEl) {
+                    msgEl.textContent = 'INGRESA EL CÓDIGO';
+                    msgEl.classList.remove('text-emerald-200','text-slate-400');
+                    msgEl.classList.add('text-rose-200');
+                }
                 return;
             }
 
@@ -1300,19 +1407,45 @@
                     return;
                 }
 
-                const data = await res.json().catch(() => null);
+                let data = null;
+                const raw = await res.text().catch(() => '');
+                try {
+                    data = raw ? JSON.parse(raw) : null;
+                } catch (e) {
+                    data = null;
+                }
+
                 if (!res.ok || !data || !data.ok) {
-                    const msg = (data && (data.message || data.error)) ? (data.message || data.error) : 'No se pudo confirmar.';
-                    alert(msg);
+                    const errMsg = (data && (data.message || data.error)) ? (data.message || data.error) : 'NO SE PUDO CONFIRMAR';
+                    if (msgEl) {
+                        msgEl.textContent = String(errMsg).toUpperCase();
+                        msgEl.classList.remove('text-emerald-200','text-slate-400');
+                        msgEl.classList.add('text-rose-200');
+                    }
                     clearConfirmation(bomberoId);
                     return;
                 }
 
                 if (tokenEl) tokenEl.value = data.token || '';
                 setConfirmState(bomberoId, true);
+
+                try {
+                    if (window.__guardiaId && data.token) {
+                        const ymd = getLocalYmd();
+                        sessionStorage.setItem(
+                            `guardia_confirm_${window.__guardiaId}_${ymd}_${bomberoId}`,
+                            JSON.stringify({ token: data.token, ts: data.ts || null })
+                        );
+                    }
+                } catch (e) {}
+
                 refreshAttendanceSubmitButton();
             } catch (e) {
-                alert('Error al confirmar.');
+                if (msgEl) {
+                    msgEl.textContent = 'ERROR AL CONFIRMAR';
+                    msgEl.classList.remove('text-emerald-200','text-slate-400');
+                    msgEl.classList.add('text-rose-200');
+                }
                 clearConfirmation(bomberoId);
             } finally {
                 if (btnEl) {
@@ -1335,52 +1468,57 @@
                 else header.classList.add('bg-slate-950');
             }
 
-            document.querySelectorAll('button[data-user-id="' + userId + '"][data-status]').forEach(btn => {
-                const s = btn.getAttribute('data-status');
-                btn.classList.remove(
-                    'bg-emerald-500/80','text-white','border-emerald-400/50','shadow-sm',
+            const card = document.getElementById('guardia-card-' + userId);
+            const lockEl = card ? card.querySelector('[data-lock-attendance="1"]') : null;
+
+            const cycleBtn = document.getElementById('status-cycle-' + userId);
+            const cycleLbl = document.getElementById('status-cycle-label-' + userId);
+            if (cycleBtn && cycleLbl) {
+                const labelMap = {
+                    constituye: 'CONSTITUYE',
+                    permiso: 'PERMISO',
+                    ausente: 'AUSENTE',
+                    licencia: 'LICENCIA',
+                    falta: 'FALTA',
+                };
+                const themeRemove = [
+                    'bg-emerald-500/80','border-emerald-400/50',
                     'bg-amber-500/80','border-amber-400/50',
                     'bg-slate-400/30','border-slate-500/30',
                     'bg-blue-600/80','border-blue-400/50',
                     'bg-red-600/80','border-red-400/50'
-                );
-                btn.classList.add('shadow-none');
+                ];
+                cycleBtn.classList.remove(...themeRemove);
 
-                // Restaurar clases base por tipo
-                if (s === 'constituye') {
-                    btn.classList.add('bg-emerald-500/15','text-emerald-200','border-emerald-500/25','hover:bg-emerald-500/20');
-                }
-                if (s === 'permiso') {
-                    btn.classList.add('bg-amber-500/15','text-amber-200','border-amber-500/25','hover:bg-amber-500/20');
-                }
-                if (s === 'ausente') {
-                    btn.classList.add('bg-slate-500/10','text-slate-200','border-slate-500/20','hover:bg-slate-500/15');
-                }
-                if (s === 'licencia') {
-                    btn.classList.add('bg-blue-600/15','text-blue-200','border-blue-500/25','hover:bg-blue-600/20');
-                }
-                if (s === 'falta') {
-                    btn.classList.add('bg-red-600/15','text-red-200','border-red-500/25','hover:bg-red-600/20');
-                }
+                const s = (status || 'constituye').toLowerCase();
+                cycleLbl.textContent = labelMap[s] || 'CONSTITUYE';
+                if (s === 'constituye') cycleBtn.classList.add('bg-emerald-500/80','border-emerald-400/50');
+                else if (s === 'permiso') cycleBtn.classList.add('bg-amber-500/80','border-amber-400/50');
+                else if (s === 'ausente') cycleBtn.classList.add('bg-slate-400/30','border-slate-500/30');
+                else if (s === 'licencia') cycleBtn.classList.add('bg-blue-600/80','border-blue-400/50');
+                else if (s === 'falta') cycleBtn.classList.add('bg-red-600/80','border-red-400/50');
 
-                if (s === status) {
-                    // Quitar base y aplicar activo
-                    btn.classList.remove(
-                        'bg-emerald-500/15','text-emerald-200','border-emerald-500/25','hover:bg-emerald-500/20',
-                        'bg-amber-500/15','text-amber-200','border-amber-500/25','hover:bg-amber-500/20',
-                        'bg-slate-500/10','text-slate-200','border-slate-500/20','hover:bg-slate-500/15',
-                        'bg-blue-600/15','text-blue-200','border-blue-500/25','hover:bg-blue-600/20',
-                        'bg-red-600/15','text-red-200','border-red-500/25','hover:bg-red-600/20'
-                    );
-                    if (s === 'constituye') btn.classList.add('bg-emerald-500/80','text-white','border-emerald-400/50','shadow-sm');
-                    if (s === 'permiso') btn.classList.add('bg-amber-500/80','text-white','border-amber-400/50','shadow-sm');
-                    if (s === 'ausente') btn.classList.add('bg-slate-400/30','text-white','border-slate-500/30','shadow-sm');
-                    if (s === 'licencia') btn.classList.add('bg-blue-600/80','text-white','border-blue-400/50','shadow-sm');
-                    if (s === 'falta') btn.classList.add('bg-red-600/80','text-white','border-red-400/50','shadow-sm');
+                if (lockEl) {
+                    lockEl.style.display = (status === 'constituye' || status === 'reemplazo') ? 'none' : '';
+                }
+            }
+
+            if (card) {
+                const isRefuerzo = card.textContent.includes('REFUERZO');
+                const requires = (status === 'constituye' || status === 'reemplazo' || isRefuerzo);
+                card.setAttribute('data-requires-confirmation', requires ? '1' : '0');
+
+                if (!requires) {
+                    card.setAttribute('data-is-confirmed', '0');
+                    setConfirmState(userId, false);
+                } else if (card.getAttribute('data-is-confirmed') === '1') {
+                    setConfirmState(userId, true);
                 } else {
-                    btn.classList.remove('text-white');
+                    setConfirmState(userId, false);
                 }
-            });
+            }
+
+            refreshAttendanceSubmitButton();
         }
 
         window.openUndoReplacementModal = function(actionUrl) {

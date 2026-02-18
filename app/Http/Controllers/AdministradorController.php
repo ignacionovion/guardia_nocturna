@@ -250,15 +250,20 @@ class AdministradorController extends Controller
         }
 
         $validated = $request->validate([
-            'codigo' => ['required', 'string', 'max:50'],
+            'numero_registro' => ['nullable', 'string', 'max:50'],
+            'codigo' => ['nullable', 'string', 'max:50'],
         ]);
+
+        $provided = trim((string) ($validated['numero_registro'] ?? $validated['codigo'] ?? ''));
+        if ($provided === '') {
+            return response()->json(['ok' => false, 'message' => 'Código requerido'], 422);
+        }
 
         $expected = trim((string) ($bombero->numero_registro ?? ''));
         if ($expected === '') {
             return response()->json(['ok' => false, 'message' => 'Bombero sin número de registro'], 422);
         }
 
-        $provided = trim((string) $validated['codigo']);
         if ($provided !== $expected) {
             return response()->json(['ok' => false, 'message' => 'Código inválido'], 422);
         }

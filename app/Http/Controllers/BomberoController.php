@@ -21,17 +21,20 @@ class BomberoController extends Controller
 
         $query = Bombero::query()->with('guardia');
 
-        if ($request->has('search')) {
-            $search = $request->get('search');
+        if ($request->filled('search')) {
+            $search = trim((string) $request->get('search'));
             $query->where(function($q) use ($search) {
                 $q->where('nombres', 'like', "%{$search}%")
                   ->orWhere('correo', 'like', "%{$search}%")
                   ->orWhere('rut', 'like', "%{$search}%")
-                  ->orWhere('apellido_paterno', 'like', "%{$search}%");
+                  ->orWhere('apellido_paterno', 'like', "%{$search}%")
+                  ->orWhere('apellido_materno', 'like', "%{$search}%")
+                  ->orWhere('cargo_texto', 'like', "%{$search}%")
+                  ->orWhere('numero_portatil', 'like', "%{$search}%");
             });
         }
 
-        $volunteers = $query->orderBy('nombres')->paginate(20);
+        $volunteers = $query->orderBy('nombres')->paginate(20)->withQueryString();
 
         return view('admin.volunteers.index', compact('volunteers'));
     }
