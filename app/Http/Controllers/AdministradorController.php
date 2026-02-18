@@ -24,6 +24,39 @@ use Illuminate\Validation\ValidationException;
 
 class AdministradorController extends Controller
 {
+    private function makeAttendanceConfirmToken(int $guardiaId, int $bomberoId, int $ts): string
+    {
+        $key = (string) config('app.key');
+        $sig = hash_hmac('sha256', $guardiaId . '|' . $bomberoId . '|' . $ts, $key);
+        return $ts . '.' . $sig;
+    }
+
+    private function validateAttendanceConfirmToken(int $guardiaId, int $bomberoId, ?string $token): bool
+    {
+        if (!$token) {
+            return false;
+        }
+
+        $parts = explode('.', $token, 2);
+        if (count($parts) !== 2) {
+            return false;
+        }
+
+        $ts = (int) $parts[0];
+        $sig = (string) $parts[1];
+        if ($ts <= 0 || $sig === '') {
+            return false;
+        }
+
+        $expected = $this->makeAttendanceConfirmToken($guardiaId, $bomberoId, $ts);
+        if (!hash_equals($expected, $token)) {
+            return false;
+        }
+
+        // Expira en 12 horas
+        return (time() - $ts) <= (12 * 60 * 60);
+    }
+
     private function resolveGuardiaIdForGuardiaUser(User $user): ?int
     {
         if ($user->role !== 'guardia') {
@@ -196,6 +229,48 @@ class AdministradorController extends Controller
     private function releaseExpiredReplacements()
     {
         ReplacementService::expire();
+    }
+
+    public function confirmBombero(Request $request, Guardia $guardia, Bombero $bombero)
+    {
+        $user = auth()->user();
+        if (!$user || !in_array($user->role, ['super_admin', 'capitania', 'guardia'], true)) {
+            return response()->json(['ok' => false, 'message' => 'No autorizado'], 403);
+        }
+
+        if ($user->role === 'guardia') {
+            $userGuardiaId = $this->resolveGuardiaIdForGuardiaUser($user);
+            if (!$userGuardiaId || (int) $userGuardiaId !== (int) $guardia->id) {
+                return response()->json(['ok' => false, 'message' => 'No autorizado'], 403);
+            }
+        }
+
+        if ((int) $bombero->guardia_id !== (int) $guardia->id) {
+            return response()->json(['ok' => false, 'message' => 'Bombero no pertenece a la guardia'], 422);
+        }
+
+        $validated = $request->validate([
+            'codigo' => ['required', 'string', 'max:50'],
+        ]);
+
+        $expected = trim((string) ($bombero->numero_registro ?? ''));
+        if ($expected === '') {
+            return response()->json(['ok' => false, 'message' => 'Bombero sin número de registro'], 422);
+        }
+
+        $provided = trim((string) $validated['codigo']);
+        if ($provided !== $expected) {
+            return response()->json(['ok' => false, 'message' => 'Código inválido'], 422);
+        }
+
+        $ts = time();
+        $token = $this->makeAttendanceConfirmToken((int) $guardia->id, (int) $bombero->id, $ts);
+
+        return response()->json([
+            'ok' => true,
+            'token' => $token,
+            'ts' => $ts,
+        ]);
     }
 
     public function assignBombero(Request $request)
@@ -975,7 +1050,39 @@ class AdministradorController extends Controller
         $data = $request->validate([
             'users' => 'required|array',
             'users.*.estado_asistencia' => 'required|string',
+            'users.*.confirm_token' => 'nullable|string',
         ]);
+
+        // Validación de concurrencia (2 pasos): solo permitir guardar si los presentes fueron confirmados.
+        $presentStatuses = ['constituye', 'reemplazo', 'falta'];
+        $tokensById = collect($data['users'])->mapWithKeys(function ($attrs, $fid) {
+            return [(int) $fid => (string) ($attrs['confirm_token'] ?? '')];
+        });
+
+        $firefighters = Bombero::query()
+            ->whereIn('id', array_map('intval', array_keys($data['users'])))
+            ->get()
+            ->keyBy(fn (Bombero $b) => (int) $b->id);
+
+        foreach ($data['users'] as $firefighterId => $attributes) {
+            $fid = (int) $firefighterId;
+            $firefighter = $firefighters->get($fid);
+            if (!$firefighter || (int) $firefighter->guardia_id !== (int) $guardia->id) {
+                continue;
+            }
+
+            $attendanceStatus = strtolower((string) ($attributes['estado_asistencia'] ?? 'constituye'));
+            if (!in_array($attendanceStatus, $presentStatuses, true)) {
+                continue;
+            }
+
+            $token = $tokensById->get($fid);
+            if (!$this->validateAttendanceConfirmToken((int) $guardia->id, $fid, $token)) {
+                throw ValidationException::withMessages([
+                    'confirm' => 'Falta confirmar concurrencia: ' . trim((string) $firefighter->nombres) . ' ' . trim((string) $firefighter->apellido_paterno) . '.',
+                ]);
+            }
+        }
 
         $resolvedShiftDay = (function () use ($now, $tz) {
             $local = $now->copy()->setTimezone($tz);

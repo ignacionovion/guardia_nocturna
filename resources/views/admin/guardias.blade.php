@@ -161,7 +161,7 @@
                                         $repAsReplacement = isset($replacementByReplacement) ? ($replacementByReplacement[$user->id] ?? null) : null;
                                         $lockAttendanceStatus = (bool) ($repAsReplacement || $user->es_refuerzo);
                                     @endphp
-                                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm relative overflow-visible group hover:border-blue-400 hover:shadow-md transition-all duration-200 flex flex-col items-center p-2 gap-2 text-center">
+                                    <div id="bombero-card-{{ $user->id }}" data-guardia-id="{{ $guardia->id }}" data-bombero-id="{{ $user->id }}" class="bg-white rounded-xl border border-slate-200 shadow-sm relative overflow-visible group hover:border-blue-400 hover:shadow-md transition-all duration-200 flex flex-col items-center p-2 gap-2 text-center">
                                         
                                         <!-- Titular Toggle (Top Right) -->
                                         <div class="absolute top-2 right-2 z-10">
@@ -247,6 +247,9 @@
                                                     REEMPLAZADO
                                                 </div>
                                             @else
+                                                @if(!$lockAttendanceStatus)
+                                                @endif
+
                                                 <div class="relative w-full">
                                                     <input type="hidden" name="users[{{ $user->id }}][estado_asistencia]" id="attendance-status-{{ $user->id }}" value="{{ $user->estado_asistencia ?? 'constituye' }}">
 
@@ -339,7 +342,7 @@
                                 @endforeach
                                 </div>
                                 <div class="p-4 border-t border-slate-100 bg-white mt-auto">
-                                    <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 px-4 rounded-xl text-xs transition-all shadow-lg hover:shadow-xl flex items-center justify-center uppercase tracking-widest group transform hover:-translate-y-0.5">
+                                    <button type="submit" id="attendance-submit-{{ $guardia->id }}" disabled class="w-full bg-slate-900 hover:bg-slate-800 disabled:bg-slate-400 disabled:hover:bg-slate-400 text-white font-bold py-3.5 px-4 rounded-xl text-xs transition-all shadow-lg hover:shadow-xl disabled:shadow-none flex items-center justify-center uppercase tracking-widest group transform hover:-translate-y-0.5 disabled:transform-none">
                                         <span class="mr-2">Constituir Guardia</span>
                                         <i class="fas fa-check-circle text-emerald-400 text-lg group-hover:text-emerald-300 transition-colors"></i>
                                     </button>
@@ -667,6 +670,8 @@
         });
 
         document.addEventListener('DOMContentLoaded', function() {
+            refreshAttendanceSubmitButtons();
+
             document.querySelectorAll('[data-action="open-replacement-modal"]').forEach(btn => {
                 btn.addEventListener('click', function () {
                     const guardiaId = this.getAttribute('data-guardia-id');

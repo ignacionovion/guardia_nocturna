@@ -17,9 +17,9 @@
         <!-- Logo / Marca Principal -->
         <div class="text-center mb-8">
             @if(file_exists(public_path('brand/guardiapp.png')))
-                <img src="{{ asset('brand/guardiapp.png') }}" alt="GuardiaAPP" class="mx-auto mb-1 h-[80px] w-auto">
+                <img src="{{ asset('brand/guardiapp.png') }}" alt="GuardiaAPP" class="mx-auto mb-1 h-[280px] w-auto">
             @else
-                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-800 text-white mb-4 border-4 border-slate-800 shadow-2xl">
+                <div class="inline-flex items-center justify-center w-10 h-20 rounded-full bg-red-300 text-white mb-4 border-4 border-slate-300 shadow-2xl">
                     <i class="fas fa-helmet-safety text-4xl"></i>
                 </div>
             @endif

@@ -125,7 +125,7 @@
                         <button type="button" onclick="openRefuerzoModal()" class="w-9 h-9 sm:w-10 sm:h-10 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center" title="Refuerzo">
                             <i class="fas fa-user-plus text-[14px] text-sky-300"></i>
                         </button>
-                        <button form="guardia-attendance-form" type="submit" @if(!$attendanceEnabled) disabled @endif class="w-9 h-9 sm:w-10 sm:h-10 {{ $attendanceEnabled ? 'bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700 shadow-sm' : 'bg-slate-200 text-slate-500 border-slate-300 shadow-sm cursor-not-allowed' }} rounded-xl transition-all border flex items-center justify-center" title="Guardar Asistencia">
+                        <button id="guardia-attendance-submit" form="guardia-attendance-form" type="submit" @if(!$attendanceEnabled) disabled @endif class="w-9 h-9 sm:w-10 sm:h-10 {{ $attendanceEnabled ? 'bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700 shadow-sm' : 'bg-slate-200 text-slate-500 border-slate-300 shadow-sm cursor-not-allowed' }} rounded-xl transition-all border flex items-center justify-center" title="Guardar Asistencia">
                             <i class="fas fa-floppy-disk text-[14px] {{ $attendanceEnabled ? 'text-emerald-300' : '' }}"></i>
                         </button>
                     </div>
@@ -184,8 +184,9 @@
                                     };
                                 @endphp
                                 <input type="hidden" name="users[{{ $staff->id }}][estado_asistencia]" id="attendance-status-{{ $staff->id }}" value="{{ $status }}">
+                                <input type="hidden" name="users[{{ $staff->id }}][confirm_token]" id="confirm-token-{{ $staff->id }}" value="">
 
-                                <div class="bg-slate-900 rounded-xl shadow-sm border border-slate-800 overflow-hidden flex flex-col h-[420px]" data-card-user="{{ $staff->id }}">
+                                <div id="guardia-card-{{ $staff->id }}" class="bg-slate-900 rounded-xl shadow-sm border border-slate-800 overflow-hidden flex flex-col h-[420px]" data-card-user="{{ $staff->id }}" data-requires-confirmation="{{ (in_array($status, ['constituye','reemplazo'], true) || $staff->es_refuerzo || $repAsReplacement) ? '1' : '0' }}" data-is-confirmed="0">
                                     <div id="card-header-{{ $staff->id }}" class="{{ $statusHeaderClass }} text-white px-2 py-1.5 flex items-center justify-between">
                                         <div class="min-w-0">
                                             <div class="text-[12px] font-black truncate" title="{{ $staff->nombres }} {{ $staff->apellido_paterno }}">
@@ -290,6 +291,18 @@
                                     </div>
 
                                     <div class="mt-1.5">
+                                        @if(in_array($status, ['constituye','reemplazo'], true) || $staff->es_refuerzo || $repAsReplacement)
+                                            <div id="confirm-box-{{ $staff->id }}" class="mb-2 rounded-xl border border-slate-800 bg-slate-950 px-2.5 py-2">
+                                                <div class="flex items-center justify-between gap-2">
+                                                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Confirmación</label>
+                                                    <div id="confirm-status-{{ $staff->id }}" class="text-[9px] font-black uppercase tracking-widest text-rose-200">NO CONFIRMADO</div>
+                                                </div>
+                                                <div class="mt-1.5 flex items-center gap-2">
+                                                    <input type="password" inputmode="numeric" autocomplete="one-time-code" id="confirm-code-{{ $staff->id }}" placeholder="Código" class="flex-1 min-w-0 px-3 py-2 rounded-lg border border-slate-800 bg-slate-900 text-[11px] font-black uppercase tracking-widest text-slate-100 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
+                                                    <button type="button" id="confirm-btn-{{ $staff->id }}" onclick="confirmBombero({{ (int) $myGuardia->id }}, {{ (int) $staff->id }})" class="shrink-0 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-100 text-[10px] font-black uppercase tracking-widest border border-slate-700">Confirmar</button>
+                                                </div>
+                                            </div>
+                                        @endif
                                         <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Estado</label>
                                         @if($lockAttendanceStatus)
                                             <div class="rounded-lg border border-emerald-500/30 bg-emerald-500/15 text-emerald-200 px-3 py-2 text-center">
@@ -1012,7 +1025,28 @@
                     content.classList.add('scale-100');
                 }
             });
+
+            const card = document.getElementById('guardia-card-' + userId);
+            if (card) {
+                const lockEl = card.querySelector('[data-lock-attendance="1"]');
+                const isRefuerzo = card.textContent.includes('REFUERZO');
+                const requires = (status === 'constituye' || status === 'reemplazo' || isRefuerzo);
+                card.setAttribute('data-requires-confirmation', requires ? '1' : '0');
+                if (!requires) {
+                    card.classList.remove('ring-2','ring-rose-400','ring-emerald-400');
+                    card.setAttribute('data-is-confirmed', '0');
+                }
+            }
+
+            refreshAttendanceSubmitButton();
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('[data-card-user][data-requires-confirmation="1"]').forEach(card => {
+                card.classList.add('ring-2','ring-rose-400');
+            });
+            refreshAttendanceSubmitButton();
+        });
 
         window.toggleInhabilitado = function(firefighterId) {
             if (!confirm('¿Inhabilitar este bombero?')) {
@@ -1176,8 +1210,116 @@
             }
 
             input.value = status;
+            clearConfirmation(userId);
             updateGuardiaCardUI(userId, status);
             markAttendanceDirty();
+        }
+
+        function refreshAttendanceSubmitButton() {
+            const submitBtn = document.getElementById('guardia-attendance-submit');
+            if (!submitBtn) return;
+
+            if (submitBtn.hasAttribute('disabled')) {
+                return;
+            }
+
+            const cards = document.querySelectorAll('[data-card-user][data-requires-confirmation="1"]');
+            let ok = true;
+            cards.forEach(card => {
+                if (card.getAttribute('data-is-confirmed') !== '1') ok = false;
+            });
+
+            if (ok) {
+                submitBtn.removeAttribute('disabled');
+                submitBtn.classList.remove('bg-slate-200','text-slate-500','border-slate-300','cursor-not-allowed');
+                submitBtn.classList.add('bg-slate-800','hover:bg-slate-700','text-slate-100','border-slate-700');
+            } else {
+                submitBtn.setAttribute('disabled', 'disabled');
+                submitBtn.classList.remove('bg-slate-800','hover:bg-slate-700','text-slate-100','border-slate-700');
+                submitBtn.classList.add('bg-slate-200','text-slate-500','border-slate-300','cursor-not-allowed');
+            }
+        }
+
+        function setConfirmState(userId, confirmed) {
+            const card = document.getElementById('guardia-card-' + userId);
+            if (card) {
+                card.setAttribute('data-is-confirmed', confirmed ? '1' : '0');
+                card.classList.remove('ring-2','ring-emerald-400','ring-rose-400');
+                if (confirmed) {
+                    card.classList.add('ring-2','ring-emerald-400');
+                } else if (card.getAttribute('data-requires-confirmation') === '1') {
+                    card.classList.add('ring-2','ring-rose-400');
+                }
+            }
+
+            const statusEl = document.getElementById('confirm-status-' + userId);
+            if (statusEl) {
+                statusEl.textContent = confirmed ? 'CONFIRMADO' : 'NO CONFIRMADO';
+                statusEl.classList.remove('text-emerald-200','text-rose-200');
+                statusEl.classList.add(confirmed ? 'text-emerald-200' : 'text-rose-200');
+            }
+        }
+
+        function clearConfirmation(userId) {
+            const tokenEl = document.getElementById('confirm-token-' + userId);
+            if (tokenEl) tokenEl.value = '';
+            setConfirmState(userId, false);
+            refreshAttendanceSubmitButton();
+        }
+
+        window.confirmBombero = async function(guardiaId, bomberoId) {
+            const codeEl = document.getElementById('confirm-code-' + bomberoId);
+            const tokenEl = document.getElementById('confirm-token-' + bomberoId);
+            const btnEl = document.getElementById('confirm-btn-' + bomberoId);
+
+            const numeroRegistro = (codeEl?.value || '').trim();
+            if (!numeroRegistro) {
+                alert('Ingresa el código del bombero.');
+                return;
+            }
+
+            try {
+                if (btnEl) {
+                    btnEl.setAttribute('disabled', 'disabled');
+                    btnEl.classList.add('opacity-60','cursor-not-allowed');
+                }
+
+                const res = await fetch(`/admin/guardias/${guardiaId}/bomberos/${bomberoId}/confirm`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ numero_registro: numeroRegistro }),
+                });
+
+                if (res.status === 401) {
+                    window.location.reload();
+                    return;
+                }
+
+                const data = await res.json().catch(() => null);
+                if (!res.ok || !data || !data.ok) {
+                    const msg = (data && (data.message || data.error)) ? (data.message || data.error) : 'No se pudo confirmar.';
+                    alert(msg);
+                    clearConfirmation(bomberoId);
+                    return;
+                }
+
+                if (tokenEl) tokenEl.value = data.token || '';
+                setConfirmState(bomberoId, true);
+                refreshAttendanceSubmitButton();
+            } catch (e) {
+                alert('Error al confirmar.');
+                clearConfirmation(bomberoId);
+            } finally {
+                if (btnEl) {
+                    btnEl.removeAttribute('disabled');
+                    btnEl.classList.remove('opacity-60','cursor-not-allowed');
+                }
+            }
         }
 
         function updateGuardiaCardUI(userId, status) {

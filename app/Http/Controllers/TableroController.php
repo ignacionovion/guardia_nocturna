@@ -48,6 +48,8 @@ class TableroController extends Controller
         $user = auth()->user();
         $now = now();
 
+        $guardiaTz = SystemSetting::getValue('guardia_schedule_tz', env('GUARDIA_SCHEDULE_TZ', config('app.timezone')));
+
         ReplacementService::expire($now);
         $totalBeds = Bed::count();
         $occupiedBeds = Bed::where('status', 'occupied')->count();
@@ -172,7 +174,7 @@ class TableroController extends Controller
                 abort(403, 'Cuenta de guardia sin guardia asignada.');
             }
 
-            $tz = SystemSetting::getValue('guardia_schedule_tz', env('GUARDIA_SCHEDULE_TZ', config('app.timezone')));
+            $tz = $guardiaTz;
             $localNow = $now->copy()->setTimezone($tz);
             $dailyEndTime = SystemSetting::getValue('guardia_daily_end_time', '07:00');
             [$endH, $endM] = array_map('intval', explode(':', (string) $dailyEndTime));
@@ -398,17 +400,17 @@ class TableroController extends Controller
         }
 
         return view('dashboard', compact(
-            'totalBeds', 
-            'occupiedBeds', 
-            'availableBeds', 
-            'currentShift', 
-            'novelties', 
+            'totalBeds',
+            'occupiedBeds',
+            'availableBeds',
+            'activeGuardia',
+            'currentShift',
+            'globalCurrentShift',
+            'globalOnDutyUserIds',
+            'globalOnDutyFirefighterIds',
+            'novelties',
             'guardiaNovelties',
             'academies',
-            'academyLeaders',
-            'academyLeadersFirefighters',
-            'isMyGuardiaOnDuty',
-            'hasAttendanceSavedToday',
             'birthdays',
             'birthdaysMonthCount',
             'birthdaysThisMonth',
@@ -417,23 +419,12 @@ class TableroController extends Controller
             'replacementCandidates',
             'replacementByOriginal',
             'replacementByReplacement',
-            'activeGuardia'
+            'isMyGuardiaOnDuty',
+            'hasAttendanceSavedToday',
+            'academyLeaders',
+            'academyLeadersFirefighters',
+            'guardiaTz'
         ));
-    }
-
-    public function kioskPing(Request $request)
-    {
-        $user = $request->user();
-        if (!$user) {
-            return response()->json(['ok' => false], 401);
-        }
-
-        $request->session()->put('kiosk_last_ping_at', now()->toISOString());
-
-        return response()->json([
-            'ok' => true,
-            'ts' => now()->toISOString(),
-        ]);
     }
 
     public function guardiaSnapshot(Request $request)

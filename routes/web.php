@@ -157,6 +157,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/admin/guardias/{id}', [AdministradorController::class, 'updateGuardia'])->name('admin.guardias.update');
     Route::delete('/admin/guardias/{id}', [AdministradorController::class, 'destroyGuardia'])->name('admin.guardias.destroy');
     Route::post('/admin/guardias/{id}/activate-week', [AdministradorController::class, 'activateWeek'])->name('admin.guardias.activate_week');
+    Route::post('/admin/guardias/{guardia}/bomberos/{bombero}/confirm', [AdministradorController::class, 'confirmBombero'])->name('admin.guardias.bomberos.confirm');
     Route::post('/admin/guardias/{id}/bulk-update', [AdministradorController::class, 'bulkUpdateGuardia'])->name('admin.guardias.bulk_update');
 
     Route::get('/admin/guardias/{guardia}/history', [App\Http\Controllers\Admin\GuardiaArchiveController::class, 'index'])->name('admin.guardias.history.index');
