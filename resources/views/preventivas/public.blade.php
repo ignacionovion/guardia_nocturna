@@ -137,6 +137,7 @@
                         @endif
 
                         {{-- Info del bombero identificado --}}
+                        @if($identifiedBombero)
                         <div class="mb-6 p-4 rounded-xl bg-slate-700/50 border border-slate-600">
                             <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Bombero identificado</div>
                             <div class="text-lg font-extrabold text-white uppercase">{{ $identifiedBombero->apellido_paterno }}</div>
@@ -145,6 +146,7 @@
                                 <div class="mt-1 text-xs font-semibold text-slate-500">{{ $identifiedBombero->cargo_texto }}</div>
                             @endif
                         </div>
+                        @endif
 
                         <form action="{{ route('preventivas.public.tipo_ingreso.store', $event->public_token) }}" method="POST" id="tipoIngresoForm">
                             @csrf
