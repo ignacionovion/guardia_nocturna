@@ -26,6 +26,10 @@ use App\Http\Controllers\Admin\InventarioImportController;
 
 Route::get('/preventivas/{token}', [PreventivePublicController::class, 'show'])->name('preventivas.public.show');
 Route::post('/preventivas/{token}/confirmar', [PreventivePublicController::class, 'confirm'])->name('preventivas.public.confirm');
+Route::get('/preventivas/{token}/identificar', [PreventivePublicController::class, 'identificarForm'])->name('preventivas.public.identificar.form');
+Route::post('/preventivas/{token}/identificar', [PreventivePublicController::class, 'identificarStore'])->name('preventivas.public.identificar.store');
+Route::get('/preventivas/{token}/tipo-ingreso', [PreventivePublicController::class, 'tipoIngresoForm'])->name('preventivas.public.tipo_ingreso.form');
+Route::post('/preventivas/{token}/tipo-ingreso', [PreventivePublicController::class, 'tipoIngresoStore'])->name('preventivas.public.tipo_ingreso.store');
 
 Route::get('/inventario/qr/{token}', [InventarioQrController::class, 'show'])
     ->where('token', '[A-Za-z0-9]{40}')
@@ -252,6 +256,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/admin/preventivas/create', [PreventiveEventController::class, 'create'])->name('admin.preventivas.create');
         Route::post('/admin/preventivas', [PreventiveEventController::class, 'store'])->name('admin.preventivas.store');
         Route::get('/admin/preventivas/{event}', [PreventiveEventController::class, 'show'])->name('admin.preventivas.show');
+        Route::get('/admin/preventivas/{event}/reporte', [PreventiveEventController::class, 'report'])->name('admin.preventivas.report');
+        Route::get('/admin/preventivas/{event}/reporte/excel', [PreventiveEventController::class, 'reportExcel'])->name('admin.preventivas.report.excel');
+        Route::get('/admin/preventivas/{event}/reporte/pdf', [PreventiveEventController::class, 'reportPdf'])->name('admin.preventivas.report.pdf');
         Route::post('/admin/preventivas/{event}/templates', [PreventiveEventController::class, 'saveTemplates'])->name('admin.preventivas.templates.save');
         Route::post('/admin/preventivas/{event}/assignments', [PreventiveEventController::class, 'addAssignment'])->name('admin.preventivas.assignments.add');
         Route::delete('/admin/preventivas/{event}/assignments/{assignment}', [PreventiveEventController::class, 'removeAssignment'])->name('admin.preventivas.assignments.remove');

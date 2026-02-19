@@ -170,12 +170,39 @@ class GuardiaController extends Controller
             );
         }
 
-        $onDutyShiftUsers = $shift
+        // Obtener guardia activa para cargar TODOS sus bomberos
+        $guardiaId = $shift?->leader?->guardia_id ?? $user->guardia_id;
+        $guardia = $guardiaId ? Guardia::find($guardiaId) : null;
+
+        // Cargar reemplazos activos de esta guardia
+        $activeReplacements = \App\Models\ReemplazoBombero::with(['originalFirefighter', 'replacementFirefighter'])
+            ->where('estado', 'activo')
+            ->where('guardia_id', $guardiaId)
+            ->get();
+        $replacementByOriginal = $activeReplacements->keyBy(fn ($r) => (int) $r->bombero_titular_id);
+        $replacementByReplacement = $activeReplacements->keyBy(fn ($r) => (int) $r->bombero_reemplazante_id);
+
+        // Si hay guardia, cargar todos sus bomberos (incluyendo los no asignados al turno)
+        if ($guardiaId) {
+            $allBomberos = Bombero::where('guardia_id', $guardiaId)
+                ->where(function ($q) {
+                    $q->whereNull('fuera_de_servicio')->orWhere('fuera_de_servicio', false);
+                })
+                ->orderBy('apellido_paterno')
+                ->orderBy('nombres')
+                ->get();
+        } else {
+            $allBomberos = collect();
+        }
+
+        // Mapear bomberos del turno para saber quién está confirmado
+        $shiftFirefighterIds = $shift
             ? $shift->users
                 ->whereNull('end_time')
-                ->filter(fn ($su) => (int) ($su->firefighter_id ?? 0) > 0)
-                ->values()
-            : collect();
+                ->pluck('firefighter_id')
+                ->filter()
+                ->toArray()
+            : [];
 
         $payload = [
             'server_time' => $now->toIso8601String(),
@@ -185,32 +212,71 @@ class GuardiaController extends Controller
                 'leader' => $shift->leader?->name,
                 'created_at' => optional($shift->created_at)->toIso8601String(),
             ] : null,
-            'bomberos' => $onDutyShiftUsers->map(function ($su) {
-                $b = $su->firefighter;
-                if (!$b) {
-                    return null;
-                }
-
+            'bomberos' => $allBomberos->map(function ($b) use ($shiftFirefighterIds, $replacementByOriginal, $replacementByReplacement) {
                 $name = trim((string)($b->nombres ?? '') . ' ' . (string)($b->apellido_paterno ?? '') . ' ' . (string)($b->apellido_materno ?? ''));
 
-                $estado = $b->estado_asistencia ?? null;
-                if (!$estado && property_exists($su, 'attendance_status')) {
-                    $estado = $su->attendance_status;
+                // Calcular años de servicio
+                $serviceYears = null;
+                $serviceMonths = null;
+                if ($b->fecha_ingreso) {
+                    $ingreso = Carbon::parse($b->fecha_ingreso);
+                    $diff = $ingreso->diff(now());
+                    $serviceYears = (int) $diff->y;
+                    $serviceMonths = (int) $diff->m;
+                }
+
+                // Verificar si está en el turno (confirmado)
+                $enTurno = in_array((int) $b->id, $shiftFirefighterIds);
+
+                // Verificar si es un reemplazante
+                $repAsReplacement = $replacementByReplacement->get((int) $b->id);
+                $esReemplazante = (bool) $repAsReplacement;
+
+                // Verificar si está siendo reemplazado
+                $repAsOriginal = $replacementByOriginal->get((int) $b->id);
+                $esReemplazado = (bool) $repAsOriginal;
+
+                // Determinar estado visual
+                $estado = $b->estado_asistencia ?? 'constituye';
+                if ($esReemplazante) {
+                    $estado = 'reemplazo';
                 }
 
                 return [
                     'id' => (int) $b->id,
                     'nombre' => $name,
+                    'nombres' => $b->nombres,
+                    'apellido_paterno' => $b->apellido_paterno,
+                    'apellido_materno' => $b->apellido_materno,
                     'portatil' => $b->numero_portatil,
-                    'estado_asistencia' => $estado ?: 'constituye',
+                    'estado_asistencia' => $estado,
+                    'en_turno' => $enTurno,
+                    'confirmado' => $enTurno,
                     'es_jefe_guardia' => (bool) ($b->es_jefe_guardia ?? false),
                     'es_refuerzo' => (bool) ($b->es_refuerzo ?? false),
                     'es_cambio' => (bool) ($b->es_cambio ?? false),
                     'es_sancion' => (bool) ($b->es_sancion ?? false),
                     'fuera_de_servicio' => (bool) ($b->fuera_de_servicio ?? false),
-                    'en_turno' => true,
+                    'es_conductor' => (bool) ($b->es_conductor ?? false),
+                    'es_operador_rescate' => (bool) ($b->es_operador_rescate ?? false),
+                    'es_asistente_trauma' => (bool) ($b->es_asistente_trauma ?? false),
+                    'es_permanente' => (bool) ($b->es_permanente ?? false),
+                    'cargo_texto' => $b->cargo_texto,
+                    'service_years' => $serviceYears,
+                    'service_months' => $serviceMonths,
+                    // Información de reemplazo
+                    'es_reemplazante' => $esReemplazante,
+                    'es_reemplazado' => $esReemplazado,
+                    'reemplaza_a' => $esReemplazante ? [
+                        'id' => $repAsReplacement->originalFirefighter?->id,
+                        'nombre' => trim(($repAsReplacement->originalFirefighter?->nombres ?? '') . ' ' . ($repAsReplacement->originalFirefighter?->apellido_paterno ?? '')),
+                    ] : null,
+                    'reemplazado_por' => $esReemplazado ? [
+                        'id' => $repAsOriginal->replacementFirefighter?->id,
+                        'nombre' => trim(($repAsOriginal->replacementFirefighter?->nombres ?? '') . ' ' . ($repAsOriginal->replacementFirefighter?->apellido_paterno ?? '')),
+                    ] : null,
                 ];
-            })->filter()->values(),
+            })->values(),
         ];
 
         return response()->json($payload);

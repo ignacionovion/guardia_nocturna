@@ -357,6 +357,167 @@ class PreventiveEventController extends Controller
         return back()->with('success', 'Preventiva reabierta en modo Borrador.');
     }
 
+    /**
+     * Muestra el reporte detallado del evento preventivo
+     */
+    public function report(PreventiveEvent $event)
+    {
+        $event->load(['templates', 'shifts.assignments.firefighter', 'shifts.assignments.attendance']);
+
+        $shifts = PreventiveShift::query()
+            ->where('preventive_event_id', $event->id)
+            ->with(['assignments.firefighter', 'assignments.attendance'])
+            ->orderBy('shift_date')
+            ->orderBy('sort_order')
+            ->get();
+
+        // Estadísticas
+        $totalAssignments = 0;
+        $totalAttendance = 0;
+        $totalRefuerzos = 0;
+        $totalReemplazos = 0;
+
+        foreach ($shifts as $shift) {
+            foreach ($shift->assignments as $assignment) {
+                $totalAssignments++;
+                if ($assignment->attendance) {
+                    $totalAttendance++;
+                }
+                if ($assignment->es_refuerzo) {
+                    $totalRefuerzos++;
+                }
+                // Consideramos reemplazo si tiene entrada_hora pero no estaba en asignaciones originales
+                if ($assignment->entrada_hora && !$assignment->attendance?->confirmed_at?->equalTo($assignment->entrada_hora)) {
+                    $totalReemplazos++;
+                }
+            }
+        }
+
+        return view('admin.preventivas.report', compact(
+            'event',
+            'shifts',
+            'totalAssignments',
+            'totalAttendance',
+            'totalRefuerzos',
+            'totalReemplazos'
+        ));
+    }
+
+    /**
+     * Exporta el reporte a Excel
+     */
+    public function reportExcel(PreventiveEvent $event)
+    {
+        $event->load(['shifts.assignments.firefighter', 'shifts.assignments.attendance']);
+
+        $shifts = PreventiveShift::query()
+            ->where('preventive_event_id', $event->id)
+            ->with(['assignments.firefighter', 'assignments.attendance'])
+            ->orderBy('shift_date')
+            ->orderBy('sort_order')
+            ->get();
+
+        $headers = [
+            'Content-Type' => 'text/csv; charset=utf-8',
+            'Content-Disposition' => 'attachment; filename="reporte_preventiva_' . $event->id . '.csv"',
+        ];
+
+        $callback = function() use ($event, $shifts) {
+            $output = fopen('php://output', 'w');
+            
+            // BOM para Excel
+            fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+            // Título
+            fputcsv($output, ['REPORTE DE PREVENTIVA']);
+            fputcsv($output, ['Evento:', $event->title]);
+            fputcsv($output, ['Período:', $event->start_date->format('d/m/Y') . ' - ' . $event->end_date->format('d/m/Y')]);
+            fputcsv($output, ['Zona horaria:', $event->timezone]);
+            fputcsv($output, ['Estado:', $event->status]);
+            fputcsv($output, []);
+
+            // Encabezados
+            fputcsv($output, [
+                'Fecha',
+                'Turno',
+                'Horario',
+                'Apellidos',
+                'Nombres',
+                'RUT',
+                'Cargo',
+                'Tipo',
+                'Hora Entrada',
+                'Asistencia Confirmada',
+                'Hora Confirmación'
+            ]);
+
+            foreach ($shifts as $shift) {
+                foreach ($shift->assignments as $assignment) {
+                    $f = $assignment->firefighter;
+                    fputcsv($output, [
+                        $shift->shift_date->format('d/m/Y'),
+                        $shift->label ?: 'Turno ' . ($shift->sort_order + 1),
+                        substr($shift->start_time, 0, 5) . ' - ' . substr($shift->end_time, 0, 5),
+                        $f?->apellido_paterno ?? 'N/A',
+                        $f?->nombres ?? 'N/A',
+                        $f?->rut ?? 'N/A',
+                        $f?->cargo_texto ?? 'N/A',
+                        $assignment->es_refuerzo ? 'REFUERZO' : 'TITULAR',
+                        $assignment->entrada_hora?->format('H:i:s') ?? ($assignment->attendance?->confirmed_at?->format('H:i:s') ?? ''),
+                        $assignment->attendance ? 'SÍ' : 'NO',
+                        $assignment->attendance?->confirmed_at?->format('d/m/Y H:i:s') ?? ''
+                    ]);
+                }
+            }
+
+            fclose($output);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Exporta el reporte a PDF
+     */
+    public function reportPdf(PreventiveEvent $event)
+    {
+        $event->load(['shifts.assignments.firefighter', 'shifts.assignments.attendance']);
+
+        $shifts = PreventiveShift::query()
+            ->where('preventive_event_id', $event->id)
+            ->with(['assignments.firefighter', 'assignments.attendance'])
+            ->orderBy('shift_date')
+            ->orderBy('sort_order')
+            ->get();
+
+        // Estadísticas
+        $totalAssignments = 0;
+        $totalAttendance = 0;
+        $totalRefuerzos = 0;
+
+        foreach ($shifts as $shift) {
+            foreach ($shift->assignments as $assignment) {
+                $totalAssignments++;
+                if ($assignment->attendance) {
+                    $totalAttendance++;
+                }
+                if ($assignment->es_refuerzo) {
+                    $totalRefuerzos++;
+                }
+            }
+        }
+
+        $pdf = Pdf::loadView('admin.preventivas.report_pdf', compact(
+            'event',
+            'shifts',
+            'totalAssignments',
+            'totalAttendance',
+            'totalRefuerzos'
+        ))->setPaper('a4', 'landscape');
+
+        return $pdf->download('reporte_preventiva_' . $event->id . '.pdf');
+    }
+
     private function generateShiftsForEvent(PreventiveEvent $event): void
     {
         $templates = PreventiveShiftTemplate::query()
