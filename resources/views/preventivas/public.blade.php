@@ -37,7 +37,118 @@
                     <div class="text-sm text-slate-300 mt-1">Fecha: {{ $shift->shift_date?->format('d-m-Y') }}</div>
                 </div>
 
-                <form method="POST" action="{{ route('preventivas.public.rut', $event->public_token) }}" class="p-6">
+                @if($needsTipoIngreso && $identifiedBombero)
+                    {{-- Modal de selección de tipo de ingreso --}}
+                    <div id="tipoIngresoModal" class="p-6">
+                        @if(session('error') || $errors->any())
+                            <div class="mb-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-rose-100">
+                                @if(session('error'))
+                                    <div class="text-sm font-extrabold"><i class="fas fa-times-circle mr-2"></i>{{ session('error') }}</div>
+                                @endif
+                                @foreach($errors->all() as $error)
+                                    <div class="text-sm font-extrabold"><i class="fas fa-times-circle mr-2"></i>{{ $error }}</div>
+                                @endforeach
+                            </div>
+                        @endif
+
+                        {{-- Info del bombero identificado --}}
+                        <div class="mb-6 p-4 rounded-xl bg-slate-700/50 border border-slate-600">
+                            <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Bombero identificado</div>
+                            <div class="text-lg font-extrabold text-white uppercase">{{ $identifiedBombero->apellido_paterno }}</div>
+                            <div class="text-sm text-slate-300">{{ $identifiedBombero->nombres }}</div>
+                            @if($identifiedBombero->cargo_texto)
+                                <div class="mt-1 text-xs font-semibold text-slate-500">{{ $identifiedBombero->cargo_texto }}</div>
+                            @endif
+                        </div>
+
+                        <form action="{{ route('preventivas.public.tipo_ingreso.store', $event->public_token) }}" method="POST" id="tipoIngresoForm">
+                            @csrf
+
+                            <div class="grid grid-cols-2 gap-3 mb-4">
+                                {{-- Opción REFUERZO --}}
+                                <label class="cursor-pointer group">
+                                    <input type="radio" name="tipo" value="refuerzo" class="peer hidden" required>
+                                    <div class="p-4 rounded-xl border-2 border-slate-600 bg-slate-700/30 peer-checked:border-sky-500 peer-checked:bg-sky-500/20 transition-all group-hover:border-slate-500">
+                                        <div class="text-center">
+                                            <div class="w-12 h-12 mx-auto rounded-full bg-sky-500/20 border border-sky-500/30 flex items-center justify-center mb-3">
+                                                <i class="fas fa-user-plus text-sky-400 text-xl"></i>
+                                            </div>
+                                            <div class="text-sm font-black text-white uppercase tracking-wider">REFUERZO</div>
+                                            <div class="text-[10px] text-slate-400 mt-1">Ingreso adicional al turno</div>
+                                        </div>
+                                    </div>
+                                </label>
+
+                                {{-- Opción REEMPLAZO --}}
+                                <label class="cursor-pointer group">
+                                    <input type="radio" name="tipo" value="reemplazo" class="peer hidden" required>
+                                    <div class="p-4 rounded-xl border-2 border-slate-600 bg-slate-700/30 peer-checked:border-purple-500 peer-checked:bg-purple-500/20 transition-all group-hover:border-slate-500">
+                                        <div class="text-center">
+                                            <div class="w-12 h-12 mx-auto rounded-full bg-purple-500/20 border border-purple-500/30 flex items-center justify-center mb-3">
+                                                <i class="fas fa-exchange-alt text-purple-400 text-xl"></i>
+                                            </div>
+                                            <div class="text-sm font-black text-white uppercase tracking-wider">REEMPLAZO</div>
+                                            <div class="text-[10px] text-slate-400 mt-1">Reemplazar a un bombero</div>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            {{-- Selección de bombero a reemplazar --}}
+                            <div id="reemplazoSection" class="hidden mb-4">
+                                <label class="block text-xs font-black uppercase tracking-widest text-slate-300 mb-2">
+                                    ¿A quién reemplazas?
+                                </label>
+                                <select name="bombero_reemplazo_id" id="bomberoReemplazoId"
+                                        class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 font-semibold">
+                                    <option value="">Selecciona un bombero</option>
+                                    @foreach($availableForReplacement as $b)
+                                        <option value="{{ $b->id }}">
+                                            {{ $b->apellido_paterno }}, {{ $b->nombres }}
+                                            @if($b->cargo_texto) - {{ $b->cargo_texto }} @endif
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <p class="text-[10px] text-slate-500 mt-1">El bombero seleccionado será marcado como reemplazado.</p>
+                            </div>
+
+                            <button type="submit" class="w-full inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 px-6 rounded-xl text-[12px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest">
+                                <i class="fas fa-check-circle"></i>
+                                Confirmar Ingreso
+                            </button>
+                        </form>
+
+                        <div class="mt-4 text-center">
+                            <a href="{{ route('preventivas.public.show', $event->public_token) }}" class="text-xs font-semibold text-slate-500 hover:text-slate-300 transition-colors">
+                                <i class="fas fa-arrow-left mr-1"></i>
+                                Volver e ingresar otro RUT
+                            </a>
+                        </div>
+                    </div>
+
+                    <script>
+                        (function() {
+                            const radioButtons = document.querySelectorAll('input[name="tipo"]');
+                            const reemplazoSection = document.getElementById('reemplazoSection');
+                            const select = document.getElementById('bomberoReemplazoId');
+
+                            radioButtons.forEach(radio => {
+                                radio.addEventListener('change', function() {
+                                    if (this.value === 'reemplazo') {
+                                        reemplazoSection.classList.remove('hidden');
+                                        select.setAttribute('required', 'required');
+                                    } else {
+                                        reemplazoSection.classList.add('hidden');
+                                        select.removeAttribute('required');
+                                        select.value = '';
+                                    }
+                                });
+                            });
+                        })();
+                    </script>
+                @else
+                    {{-- Formulario normal de RUT --}}
+                    <form method="POST" action="{{ route('preventivas.public.rut', $event->public_token) }}" class="p-6">
                     @csrf
                     @if(session('success'))
                         <div class="mb-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-emerald-100">
@@ -139,7 +250,11 @@
                         @endforeach
                     </div>
                 </div>
-                </form>
+                    </form>
+                @endif
+
+                {{-- Lista de asignados --}}
+                <div class="px-6 pb-6">
             @endif
         </div>
 

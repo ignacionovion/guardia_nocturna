@@ -179,10 +179,12 @@ class PreventivePublicController extends Controller
                 ->with('warning', 'No hay un turno activo en este momento.');
         }
 
-        // Obtener bomberos disponibles para reemplazo (los que están asignados al turno actual pero SIN asistencia confirmada)
+        // Obtener bomberos disponibles para reemplazo (los que están asignados al turno actual pero SIN asistencia confirmada y NO son refuerzos)
         $assignedWithNoAttendance = PreventiveShiftAssignment::query()
             ->where('preventive_shift_id', $shift->id)
-            ->whereNull('es_refuerzo')
+            ->where(function ($q) {
+                $q->whereNull('es_refuerzo')->orWhere('es_refuerzo', false);
+            })
             ->whereDoesntHave('attendance')
             ->pluck('bombero_id')
             ->toArray();
@@ -317,6 +319,8 @@ class PreventivePublicController extends Controller
                 'assignments' => collect(),
                 'now' => $now,
                 'identifiedBombero' => null,
+                'needsTipoIngreso' => false,
+                'availableForReplacement' => collect(),
             ]);
         }
 
@@ -331,8 +335,43 @@ class PreventivePublicController extends Controller
 
         // Verificar si hay un bombero identificado en sesión
         $identifiedBombero = null;
+        $needsTipoIngreso = false;
+        $availableForReplacement = collect();
+
         if ($request->session()->has('preventiva_bombero_id')) {
             $identifiedBombero = Bombero::find($request->session()->get('preventiva_bombero_id'));
+
+            if ($identifiedBombero) {
+                // Verificar si el bombero ya tiene una asignación en este turno
+                $existingAssignment = PreventiveShiftAssignment::query()
+                    ->where('preventive_shift_id', $shift->id)
+                    ->where('bombero_id', $identifiedBombero->id)
+                    ->first();
+
+                // Si no tiene asignación, necesita seleccionar tipo de ingreso
+                $needsTipoIngreso = !$existingAssignment;
+
+                if ($needsTipoIngreso) {
+                    // Obtener bomberos disponibles para reemplazo (los que están asignados al turno actual pero SIN asistencia confirmada y NO son refuerzos)
+                    $assignedWithNoAttendance = PreventiveShiftAssignment::query()
+                        ->where('preventive_shift_id', $shift->id)
+                        ->where(function ($q) {
+                            $q->whereNull('es_refuerzo')->orWhere('es_refuerzo', false);
+                        })
+                        ->whereDoesntHave('attendance')
+                        ->pluck('bombero_id')
+                        ->toArray();
+
+                    $availableForReplacement = Bombero::query()
+                        ->whereIn('id', $assignedWithNoAttendance)
+                        ->where(function ($q) {
+                            $q->whereNull('fuera_de_servicio')->orWhere('fuera_de_servicio', false);
+                        })
+                        ->orderBy('apellido_paterno')
+                        ->orderBy('nombres')
+                        ->get();
+                }
+            }
         }
 
         return view('preventivas.public', [
@@ -341,6 +380,8 @@ class PreventivePublicController extends Controller
             'assignments' => $assignments,
             'now' => $now,
             'identifiedBombero' => $identifiedBombero,
+            'needsTipoIngreso' => $needsTipoIngreso,
+            'availableForReplacement' => $availableForReplacement,
         ]);
     }
 

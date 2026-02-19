@@ -196,21 +196,59 @@
                                     <form method="POST" action="{{ route('admin.preventivas.assignments.add', $event) }}" class="flex flex-col sm:flex-row sm:items-center gap-2">
                                         @csrf
                                         <input type="hidden" name="preventive_shift_id" value="{{ $shift->id }}">
-                                        <div class="flex items-center gap-2">
-                                            <input type="text" class="js-bombero-search px-3 py-2 border border-slate-200 rounded-lg bg-white text-slate-800 font-semibold text-sm w-full sm:w-56" placeholder="Buscar por nombre o RUT..." {{ $status === 'closed' ? 'disabled' : '' }}>
-                                            <select name="bombero_id" class="js-bombero-select px-3 py-2 border border-slate-200 rounded-lg bg-white text-slate-800 font-semibold text-sm w-full sm:w-72" required {{ $status === 'closed' ? 'disabled' : '' }}>
-                                                <option value="">Seleccionar bombero...</option>
-                                                @foreach($firefighters as $f)
-                                                    @php
-                                                        $rut = trim((string) ($f->rut ?? ''));
-                                                        $label = trim((string) $f->apellido_paterno . ' ' . (string) $f->nombres);
-                                                        $full = trim($label . ($rut !== '' ? ' · ' . $rut : ''));
-                                                        $haystack = strtolower($label . ' ' . $rut);
-                                                    @endphp
-                                                    <option value="{{ $f->id }}" data-search="{{ $haystack }}">{{ $full }}</option>
-                                                @endforeach
-                                            </select>
+                                        
+                                        {{-- Select con buscador integrado --}}
+                                        <div class="relative w-full sm:w-72" x-data="{ open: false, search: '', selectedId: '', selectedText: 'Seleccionar bombero...' }" @click.away="open = false">
+                                            <input type="hidden" name="bombero_id" x-model="selectedId" required>
+                                            
+                                            {{-- Botón que abre el dropdown --}}
+                                            <button type="button" @click="open = !open" 
+                                                    class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white text-slate-800 font-semibold text-sm text-left flex items-center justify-between {{ $status === 'closed' ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                                    {{ $status === 'closed' ? 'disabled' : '' }}>
+                                                <span x-text="selectedText" :class="selectedId ? 'text-slate-800' : 'text-slate-400'"></span>
+                                                <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
+                                            </button>
+                                            
+                                            {{-- Dropdown con buscador --}}
+                                            <div x-show="open" x-transition class="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-72 overflow-hidden">
+                                                {{-- Input de búsqueda --}}
+                                                <div class="p-2 border-b border-slate-100">
+                                                    <div class="relative">
+                                                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                                        <input type="text" x-model="search" placeholder="Buscar bombero..." 
+                                                               class="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-md focus:outline-none focus:border-slate-400"
+                                                               @click.stop>
+                                                    </div>
+                                                </div>
+                                                
+                                                {{-- Lista de opciones --}}
+                                                <div class="overflow-y-auto max-h-52">
+                                                    @foreach($firefighters as $f)
+                                                        @php
+                                                            $rut = trim((string) ($f->rut ?? ''));
+                                                            $label = trim((string) $f->apellido_paterno . ' ' . (string) $f->nombres);
+                                                            $full = trim($label . ($rut !== '' ? ' · ' . $rut : ''));
+                                                            $searchText = strtolower($full);
+                                                        @endphp
+                                                        <div x-show="!search || '{{ $searchText }}'.includes(search.toLowerCase())" 
+                                                             @click="selectedId = '{{ $f->id }}'; selectedText = '{{ $full }}'; open = false"
+                                                             class="px-3 py-2 text-sm hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-0 {{ $status === 'closed' ? 'opacity-50 pointer-events-none' : '' }}">
+                                                            <div class="font-semibold text-slate-800">{{ $f->apellido_paterno }}, {{ $f->nombres }}</div>
+                                                            @if($rut)
+                                                                <div class="text-xs text-slate-500">{{ $rut }}</div>
+                                                            @endif
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                                
+                                                {{-- Mensaje si no hay resultados --}}
+                                                <div x-show="search && [...$el.querySelectorAll('[x-show]:not([x-show=\\'open\\'])')].every(el => el.style.display === 'none')" 
+                                                     class="px-3 py-4 text-sm text-slate-500 text-center">
+                                                    No se encontraron resultados
+                                                </div>
+                                            </div>
                                         </div>
+                                        
                                         <button type="submit" class="px-4 py-2 rounded-lg bg-slate-900 hover:bg-black text-white font-black text-[11px] uppercase tracking-widest {{ $status === 'closed' ? 'opacity-50 cursor-not-allowed' : '' }}" {{ $status === 'closed' ? 'disabled' : '' }}>
                                             <i class="fas fa-plus mr-1"></i> Agregar
                                         </button>
@@ -222,14 +260,34 @@
                                         <thead>
                                             <tr class="text-xs font-black uppercase tracking-widest text-slate-500">
                                                 <th class="text-left py-2">Bombero</th>
+                                                <th class="text-left py-2">Tipo</th>
                                                 <th class="text-left py-2">Estado</th>
                                                 <th class="text-right py-2">—</th>
                                             </tr>
                                         </thead>
                                         <tbody class="divide-y divide-slate-100">
                                             @forelse($shift->assignments->sortBy(fn($a) => (string)($a->firefighter?->apellido_paterno ?? '')) as $a)
+                                                @php
+                                                    $esReemplazo = (bool) $a->reemplaza_a_bombero_id;
+                                                    $reemplazaA = $a->replacedFirefighter;
+                                                @endphp
                                                 <tr>
                                                     <td class="py-2 font-bold text-slate-900">{{ $a->firefighter?->apellido_paterno }} {{ $a->firefighter?->nombres }}</td>
+                                                    <td class="py-2">
+                                                        <div class="flex items-center gap-1">
+                                                            @if($a->es_refuerzo)
+                                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-sky-100 text-sky-700 border border-sky-200">
+                                                                    <i class="fas fa-user-plus mr-1 text-[8px]"></i>REF
+                                                                </span>
+                                                            @elseif($esReemplazo)
+                                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-purple-100 text-purple-700 border border-purple-200" title="Reemplaza a: {{ $reemplazaA?->apellido_paterno ?? 'N/A' }}">
+                                                                    <i class="fas fa-exchange-alt mr-1 text-[8px]"></i>REEMP
+                                                                </span>
+                                                            @else
+                                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200">TIT</span>
+                                                            @endif
+                                                        </div>
+                                                    </td>
                                                     <td class="py-2">
                                                         @if($a->attendance)
                                                             <div class="flex items-center gap-2">
@@ -267,7 +325,7 @@
                                                 </tr>
                                             @empty
                                                 <tr>
-                                                    <td colspan="3" class="py-4 text-slate-500">Sin asignaciones.</td>
+                                                    <td colspan="4" class="py-4 text-slate-500">Sin asignaciones.</td>
                                                 </tr>
                                             @endforelse
                                         </tbody>
