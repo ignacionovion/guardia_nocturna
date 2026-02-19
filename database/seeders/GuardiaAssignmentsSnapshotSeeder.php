@@ -53,7 +53,10 @@ class GuardiaAssignmentsSnapshotSeeder extends Seeder
                     continue;
                 }
 
-                $bombero->update(['guardia_id' => $guardia->id]);
+                $bombero->update([
+                    'guardia_id' => $guardia->id,
+                    'es_titular' => true,
+                ]);
             }
         }
     }
