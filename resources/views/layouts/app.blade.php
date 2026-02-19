@@ -98,9 +98,21 @@
                             </div>
                         </div>
 
-                        <a href="{{ route('admin.preventivas.index') }}" class="px-3 py-2 rounded-md text-sm font-semibold transition-colors {{ request()->routeIs('admin.preventivas*') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
-                            <i class="fas fa-clipboard-list mr-1.5 opacity-80"></i> Preventivas
-                        </a>
+                        <div class="relative group">
+                            <button type="button" class="px-3 py-2 rounded-md text-sm font-semibold transition-colors {{ request()->routeIs('admin.preventivas*') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+                                <i class="fas fa-clipboard-list mr-1.5 opacity-80"></i>
+                                Preventivas
+                                <i class="fas fa-chevron-down ml-1 text-[10px] opacity-70"></i>
+                            </button>
+                            <div class="hidden group-hover:block absolute left-0 top-full w-56 bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden">
+                                <div class="h-2"></div>
+                                <a href="{{ route('admin.preventivas.index') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                                    <i class="fas fa-list mr-2 text-slate-500"></i> Eventos
+                                </a>
+                                <div class="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-wider">Reportes por evento</div>
+                                <div class="px-4 pb-2 text-xs text-slate-500">Ver reporte desde el detalle de cada evento</div>
+                            </div>
+                        </div>
                         <a href="{{ route('admin.planillas.index') }}" class="px-3 py-2 rounded-md text-sm font-semibold transition-colors {{ request()->routeIs('admin.planillas*') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                             <i class="fas fa-table-list mr-1.5 opacity-80"></i> Planillas
                         </a>

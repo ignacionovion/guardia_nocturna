@@ -147,11 +147,11 @@
 
                 const flags = [];
                 
-                // Confirmado / No confirmado
+                // Badge de confirmación en turno (no es el mismo que "confirmado con código" del dashboard)
                 if (b.en_turno) {
-                    flags.push(pill('CONFIRMADO', 'bg-emerald-100 text-emerald-700 border-emerald-300'));
+                    flags.push(pill('EN TURNO', 'bg-emerald-100 text-emerald-700 border-emerald-300'));
                 } else {
-                    flags.push(pill('NO CONFIRMADO', 'bg-rose-100 text-rose-700 border-rose-300'));
+                    flags.push(pill('PENDIENTE', 'bg-amber-100 text-amber-700 border-amber-300'));
                 }
                 
                 if (b.es_jefe_guardia) flags.push(pill('JEFE', 'bg-indigo-500 text-white border-indigo-600'));
