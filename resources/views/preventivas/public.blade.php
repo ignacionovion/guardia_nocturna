@@ -37,48 +37,42 @@
                     <div class="text-sm text-slate-300 mt-1">Fecha: {{ $shift->shift_date?->format('d-m-Y') }}</div>
                 </div>
 
-                <form method="POST" action="{{ route('preventivas.public.confirm', $event->public_token) }}" class="p-6">
+                <form method="POST" action="{{ route('preventivas.public.rut', $event->public_token) }}" class="p-6">
                     @csrf
-        @if(session('success'))
-            <div class="mb-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-emerald-100">
-                <div class="text-sm font-extrabold"><i class="fas fa-check-circle mr-2"></i>{{ session('success') }}</div>
-            </div>
-        @endif
-        @if(session('warning'))
-            <div class="mb-4 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-amber-100">
-                <div class="text-sm font-extrabold"><i class="fas fa-exclamation-triangle mr-2"></i>{{ session('warning') }}</div>
-            </div>
-        @endif
-        @if(session('error'))
-            <div class="mb-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-rose-100">
-                <div class="text-sm font-extrabold"><i class="fas fa-times-circle mr-2"></i>{{ session('error') }}</div>
-            </div>
-        @endif
+                    @if(session('success'))
+                        <div class="mb-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-emerald-100">
+                            <div class="text-sm font-extrabold"><i class="fas fa-check-circle mr-2"></i>{{ session('success') }}</div>
+                        </div>
+                    @endif
+                    @if(session('warning'))
+                        <div class="mb-4 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-amber-100">
+                            <div class="text-sm font-extrabold"><i class="fas fa-exclamation-triangle mr-2"></i>{{ session('warning') }}</div>
+                        </div>
+                    @endif
+                    @if(session('error'))
+                        <div class="mb-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-rose-100">
+                            <div class="text-sm font-extrabold"><i class="fas fa-times-circle mr-2"></i>{{ session('error') }}</div>
+                        </div>
+                    @endif
+                    @if($errors->any())
+                        <div class="mb-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-rose-100">
+                            @foreach($errors->all() as $error)
+                                <div class="text-sm font-extrabold"><i class="fas fa-times-circle mr-2"></i>{{ $error }}</div>
+                            @endforeach
+                        </div>
+                    @endif
 
-                    <label class="block text-xs font-black uppercase tracking-widest text-slate-300 mb-2">Selecciona tu nombre</label>
-                    <select name="assignment_id" required class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 font-semibold">
-                        <option value="">Seleccionar...</option>
-                        @foreach($assignments as $a)
-                            @php
-                                $disabled = (bool) $a->attendance;
-                                $label = trim((string)($a->firefighter?->apellido_paterno ?? '') . ' ' . (string)($a->firefighter?->nombres ?? ''));
-                                $refuerzoBadge = $a->es_refuerzo ? ' [REFUERZO]' : '';
-                            @endphp
-                            <option value="{{ $a->id }}" {{ (string) old('assignment_id') === (string) $a->id ? 'selected' : '' }} {{ $disabled ? 'disabled' : '' }}>
-                                {{ $label }}{{ $refuerzoBadge }}{{ $disabled ? ' (ya confirmado)' : '' }}
-                            </option>
-                        @endforeach
-                    </select>
+                    <label class="block text-xs font-black uppercase tracking-widest text-slate-300 mb-2">Ingresa tu RUT</label>
+                    <input type="text" name="rut" required placeholder="Ej: 12345678-9" 
+                        class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 font-semibold uppercase placeholder-slate-500"
+                        pattern="[0-9]{7,8}-[0-9kK]" title="Formato: 12345678-5">
+                    <div class="text-xs text-slate-500 mt-1">Formato: 12345678-5</div>
 
-                    <div class="mt-4 flex gap-2">
-                        <button type="submit" class="flex-1 inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 px-6 rounded-xl text-[12px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest">
-                            <i class="fas fa-check"></i>
+                    <div class="mt-4">
+                        <button type="submit" class="w-full inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 px-6 rounded-xl text-[12px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest">
+                            <i class="fas fa-fingerprint"></i>
                             Confirmar Asistencia
                         </button>
-                        <a href="{{ route('preventivas.public.identificar.form', $event->public_token) }}" class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-black py-3 px-4 rounded-xl text-[12px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest">
-                            <i class="fas fa-fingerprint"></i>
-                            Identificar
-                        </a>
                     </div>
 
                     <div class="text-xs text-slate-400 mt-4">
@@ -109,7 +103,7 @@
                                         @endif
                                         @if($locked)
                                             <div class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-100 border border-emerald-500/30">
-                                                <i class="fas fa-lock mr-1"></i>Bloqueado
+                                                <i class="fas fa-lock mr-1"></i>Confirmado
                                             </div>
                                         @else
                                             <div class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-widest bg-slate-100/10 text-slate-200 border border-white/10">Disponible</div>

@@ -13,6 +13,69 @@ use Illuminate\Http\Request;
 class PreventivePublicController extends Controller
 {
     /**
+     * Procesa el RUT ingresado directamente desde la página pública
+     */
+    public function processRut(Request $request, string $token)
+    {
+        $event = PreventiveEvent::query()->where('public_token', $token)->firstOrFail();
+
+        $validated = $request->validate([
+            'rut' => ['required', 'string', 'max:20', 'regex:/^\d{7,8}-[0-9kK]$/'],
+        ], [
+            'rut.regex' => 'Formato inválido. Debe ser como 12345678-5.',
+        ]);
+
+        $rut = mb_strtolower(trim((string) $validated['rut']));
+
+        // Buscar bombero por RUT
+        $bombero = Bombero::query()
+            ->whereRaw('lower(rut) = ?', [$rut])
+            ->first();
+
+        if (!$bombero) {
+            return back()->withInput()->withErrors([
+                'rut' => 'Bombero no existe en nuestra base de datos.',
+            ]);
+        }
+
+        // Verificar si hay un turno activo
+        $now = Carbon::now($event->timezone);
+        $shift = $this->resolveCurrentShift($event, $now);
+
+        if (!$shift) {
+            return back()->with('warning', 'No hay un turno activo en este momento.');
+        }
+
+        // Verificar si el bombero está asignado al turno actual
+        $assignment = PreventiveShiftAssignment::query()
+            ->where('preventive_shift_id', $shift->id)
+            ->where('bombero_id', $bombero->id)
+            ->first();
+
+        if ($assignment) {
+            // Verificar si ya tiene asistencia registrada
+            $attendance = PreventiveShiftAttendance::query()
+                ->where('preventive_shift_assignment_id', $assignment->id)
+                ->first();
+
+            if ($attendance) {
+                return back()->with('warning', 'Ya registraste asistencia para este turno.');
+            }
+
+            // El bombero está asignado - registrar asistencia automáticamente
+            $this->registerAttendance($assignment, $request);
+            
+            return back()->with('success', '¡Asistencia registrada correctamente!');
+        }
+
+        // El bombero NO está asignado - guardar en sesión y redirigir a selección de tipo de ingreso
+        $request->session()->put('preventiva_bombero_id', (int) $bombero->id);
+        $request->session()->put('preventiva_event_token', $token);
+
+        return redirect()->route('preventivas.public.tipo_ingreso.form', ['token' => $token]);
+    }
+
+    /**
      * Muestra el formulario de identificación con RUT
      */
     public function identificarForm(Request $request, string $token)

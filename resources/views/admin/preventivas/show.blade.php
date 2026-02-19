@@ -28,6 +28,14 @@
             </span>
 
             <a href="{{ route('admin.preventivas.index') }}" class="px-4 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs">Volver</a>
+            <a href="{{ route('admin.preventivas.report', $event) }}" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-black py-3 px-5 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest">
+                <i class="fas fa-chart-pie"></i>
+                Reporte
+            </a>
+            <a href="{{ route('admin.preventivas.report.excel', $event) }}" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 px-5 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest">
+                <i class="fas fa-file-excel"></i>
+                Excel
+            </a>
             <a href="{{ route('admin.preventivas.pdf', $event) }}" class="inline-flex items-center gap-2 bg-slate-950 hover:bg-black text-white font-black py-3 px-5 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest border border-slate-800">
                 <i class="fas fa-file-pdf"></i>
                 PDF
