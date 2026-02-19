@@ -292,6 +292,7 @@
                                 <a href="{{ route('admin.preventivas.index') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('admin.preventivas*') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                                     <i class="fas fa-clipboard-list mr-2 opacity-80"></i> Preventivas
                                 </a>
+                            @endif
                         @endauth
                     </div>
                 </div>
