@@ -270,11 +270,6 @@
                         @endforeach
                     </div>
                 </div>
-                    </form>
-                @endif
-
-                {{-- Lista de asignados --}}
-                <div class="px-6 pb-6">
             @endif
         </div>
 
