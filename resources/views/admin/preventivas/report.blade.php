@@ -94,6 +94,7 @@
                                         <th class="text-left py-2 px-3 font-black text-xs uppercase tracking-wider text-slate-500">RUT</th>
                                         <th class="text-left py-2 px-3 font-black text-xs uppercase tracking-wider text-slate-500">Cargo</th>
                                         <th class="text-left py-2 px-3 font-black text-xs uppercase tracking-wider text-slate-500">Tipo</th>
+                                        <th class="text-left py-2 px-3 font-black text-xs uppercase tracking-wider text-slate-500">Reemplaza a</th>
                                         <th class="text-left py-2 px-3 font-black text-xs uppercase tracking-wider text-slate-500">Hora Entrada</th>
                                         <th class="text-left py-2 px-3 font-black text-xs uppercase tracking-wider text-slate-500">Asistencia</th>
                                     </tr>
@@ -103,6 +104,8 @@
                                         @php
                                             $f = $assignment->firefighter;
                                             $hasAttendance = (bool) $assignment->attendance;
+                                            $esReemplazo = (bool) $assignment->reemplaza_a_bombero_id;
+                                            $reemplazaA = $assignment->replacedFirefighter;
                                         @endphp
                                         <tr class="border-b border-slate-100 last:border-0 {{ $hasAttendance ? 'bg-emerald-50/30' : '' }}">
                                             <td class="py-3 px-3">
@@ -116,8 +119,19 @@
                                                     <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-black bg-sky-100 text-sky-700 border border-sky-200">
                                                         <i class="fas fa-user-plus mr-1 text-[10px]"></i>REFUERZO
                                                     </span>
+                                                @elseif($esReemplazo)
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-black bg-purple-100 text-purple-700 border border-purple-200">
+                                                        <i class="fas fa-exchange-alt mr-1 text-[10px]"></i>REEMPLAZO
+                                                    </span>
                                                 @else
                                                     <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-black bg-slate-100 text-slate-600 border border-slate-200">TITULAR</span>
+                                                @endif
+                                            </td>
+                                            <td class="py-3 px-3 text-slate-600">
+                                                @if($esReemplazo && $reemplazaA)
+                                                    <span class="text-xs font-semibold text-purple-700">{{ $reemplazaA->apellido_paterno }}</span>
+                                                @else
+                                                    <span class="text-slate-400">-</span>
                                                 @endif
                                             </td>
                                             <td class="py-3 px-3 text-slate-600">

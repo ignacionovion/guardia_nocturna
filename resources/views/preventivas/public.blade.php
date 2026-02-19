@@ -8,7 +8,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body class="bg-slate-900 min-h-screen text-slate-100">
-    <div class="max-w-2xl mx-auto px-4 py-10">
+    <div class="w-full max-w-2xl mx-auto px-3 sm:px-4 py-6 sm:py-10">
         <div class="text-center">
             @if(file_exists(public_path('brand/guardiapp9-0.png')))
                 <img src="{{ asset('brand/guardiapp9-0.png') }}?v={{ filemtime(public_path('brand/guardiapp9-0.png')) }}" alt="GuardiaAPP" class="mx-auto h-[80px] w-auto drop-shadow-sm">
@@ -63,10 +63,29 @@
                     @endif
 
                     <label class="block text-xs font-black uppercase tracking-widest text-slate-300 mb-2">Ingresa tu RUT</label>
-                    <input type="text" name="rut" required placeholder="Ej: 12345678-9" 
+                    <input type="text" name="rut" id="rutInput" required placeholder="Ej: 12345678-9" 
                         class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 font-semibold uppercase placeholder-slate-500"
-                        pattern="[0-9]{7,8}-[0-9kK]" title="Formato: 12345678-5">
+                        pattern="[0-9]{7,8}-[0-9kK]" title="Formato: 12345678-5" maxlength="10">
                     <div class="text-xs text-slate-500 mt-1">Formato: 12345678-5</div>
+
+                    <script>
+                        (function() {
+                            const input = document.getElementById('rutInput');
+                            if (!input) return;
+                            
+                            input.addEventListener('input', function(e) {
+                                let value = e.target.value.replace(/[^0-9kK]/g, '');
+                                
+                                if (value.length > 1) {
+                                    const body = value.slice(0, -1);
+                                    const dv = value.slice(-1);
+                                    value = body + '-' + dv;
+                                }
+                                
+                                e.target.value = value.toUpperCase();
+                            });
+                        })();
+                    </script>
 
                     <div class="mt-4">
                         <button type="submit" class="w-full inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 px-6 rounded-xl text-[12px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest">
@@ -79,40 +98,47 @@
                         Una vez confirmado, el registro queda bloqueado.
                     </div>
 
-                    <div class="mt-6">
-                        <div class="text-xs font-black uppercase tracking-widest text-slate-300">Asignados a este turno</div>
-                        <div class="mt-3 space-y-2">
-                            @foreach($assignments as $a)
-                                @php
-                                    $locked = (bool) $a->attendance;
-                                    $label = trim((string)($a->firefighter?->apellido_paterno ?? '') . ' ' . (string)($a->firefighter?->nombres ?? ''));
-                                    $entrada = $a->entrada_hora ? $a->entrada_hora->format('H:i') : null;
-                                @endphp
-                                <div class="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-                                    <div class="flex items-center gap-3">
-                                        <div class="text-sm font-extrabold text-white">{{ $label }}</div>
-                                        @if($a->es_refuerzo)
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-sky-500/20 text-sky-200 border border-sky-500/30">
-                                                <i class="fas fa-user-plus mr-1"></i>REFUERZO
-                                            </span>
-                                        @endif
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        @if($entrada)
-                                            <span class="text-[10px] text-slate-400">{{ $entrada }}</span>
-                                        @endif
-                                        @if($locked)
-                                            <div class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-100 border border-emerald-500/30">
-                                                <i class="fas fa-lock mr-1"></i>Confirmado
-                                            </div>
-                                        @else
-                                            <div class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-widest bg-slate-100/10 text-slate-200 border border-white/10">Disponible</div>
-                                        @endif
-                                    </div>
+                <div class="mt-6">
+                    <div class="text-xs font-black uppercase tracking-widest text-slate-300">Asignados a este turno</div>
+                    <div class="mt-3 space-y-2">
+                        @foreach($assignments as $a)
+                            @php
+                                $locked = (bool) $a->attendance;
+                                $label = trim((string)($a->firefighter?->apellido_paterno ?? '') . ' ' . (string)($a->firefighter?->nombres ?? ''));
+                                $entrada = $a->entrada_hora ? $a->entrada_hora->format('H:i') : null;
+                                $esReemplazo = (bool) $a->reemplaza_a_bombero_id;
+                                $reemplazaA = $a->replacedFirefighter;
+                            @endphp
+                            <div class="flex items-center justify-between rounded-xl border {{ $locked ? 'border-emerald-500/30 bg-emerald-500/10' : 'border-white/10 bg-white/5' }} px-4 py-3">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <div class="text-sm font-extrabold text-white">{{ $label }}</div>
+                                    @if($a->es_refuerzo)
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-sky-500/20 text-sky-200 border border-sky-500/30">
+                                            <i class="fas fa-user-plus mr-1"></i>REFUERZO
+                                        </span>
+                                    @endif
+                                    @if($esReemplazo && $reemplazaA)
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-purple-500/20 text-purple-200 border border-purple-500/30">
+                                            <i class="fas fa-exchange-alt mr-1"></i>REEMPLAZA A: {{ $reemplazaA->apellido_paterno }}
+                                        </span>
+                                    @endif
                                 </div>
-                            @endforeach
-                        </div>
+                                <div class="flex items-center gap-2">
+                                    @if($entrada)
+                                        <span class="text-[10px] text-slate-400">{{ $entrada }}</span>
+                                    @endif
+                                    @if($locked)
+                                        <div class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-widest bg-emerald-500/20 text-emerald-100 border border-emerald-500/30">
+                                            <i class="fas fa-check-circle mr-1"></i>Confirmado
+                                        </div>
+                                    @else
+                                        <div class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-widest bg-slate-100/10 text-slate-300 border border-white/10">Pendiente</div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
+                </div>
                 </form>
             @endif
         </div>

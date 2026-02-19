@@ -11,6 +11,7 @@ class PreventiveShiftAssignment extends Model
         'bombero_id',
         'es_refuerzo',
         'entrada_hora',
+        'reemplaza_a_bombero_id',
     ];
 
     protected $casts = [
@@ -31,5 +32,10 @@ class PreventiveShiftAssignment extends Model
     public function attendance()
     {
         return $this->hasOne(PreventiveShiftAttendance::class, 'preventive_shift_assignment_id');
+    }
+
+    public function replacedFirefighter()
+    {
+        return $this->belongsTo(Bombero::class, 'reemplaza_a_bombero_id');
     }
 }

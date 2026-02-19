@@ -179,14 +179,16 @@ class PreventivePublicController extends Controller
                 ->with('warning', 'No hay un turno activo en este momento.');
         }
 
-        // Obtener bomberos disponibles para reemplazo (los que están asignados al turno actual)
-        $assignedBomberoIds = PreventiveShiftAssignment::query()
+        // Obtener bomberos disponibles para reemplazo (los que están asignados al turno actual pero SIN asistencia confirmada)
+        $assignedWithNoAttendance = PreventiveShiftAssignment::query()
             ->where('preventive_shift_id', $shift->id)
+            ->whereNull('es_refuerzo')
+            ->whereDoesntHave('attendance')
             ->pluck('bombero_id')
             ->toArray();
 
         $availableForReplacement = Bombero::query()
-            ->whereIn('id', $assignedBomberoIds)
+            ->whereIn('id', $assignedWithNoAttendance)
             ->where(function ($q) {
                 $q->whereNull('fuera_de_servicio')->orWhere('fuera_de_servicio', false);
             })
@@ -217,12 +219,19 @@ class PreventivePublicController extends Controller
 
         $validated = $request->validate([
             'tipo' => ['required', 'in:refuerzo,reemplazo'],
-            'bombero_reemplazo_id' => ['required_if:tipo,reemplazo', 'exists:bomberos,id'],
+            'bombero_reemplazo_id' => ['nullable', 'exists:bomberos,id'],
         ], [
             'tipo.required' => 'Debes seleccionar un tipo de ingreso.',
             'tipo.in' => 'Tipo de ingreso inválido.',
-            'bombero_reemplazo_id.required_if' => 'Debes seleccionar al bombero que reemplazas.',
+            'bombero_reemplazo_id.exists' => 'El bombero seleccionado no existe.',
         ]);
+
+        // Validación adicional: si es reemplazo, debe haber seleccionado un bombero
+        if ($validated['tipo'] === 'reemplazo' && empty($validated['bombero_reemplazo_id'])) {
+            return back()->withErrors([
+                'bombero_reemplazo_id' => 'Debes seleccionar al bombero que reemplazas.',
+            ])->withInput();
+        }
 
         $bomberoId = $request->session()->get('preventiva_bombero_id');
         $tipo = $validated['tipo'];
@@ -242,17 +251,21 @@ class PreventivePublicController extends Controller
             ->where('bombero_id', $bomberoId)
             ->first();
 
+        $reemplazaABomberoId = $tipo === 'reemplazo' ? $validated['bombero_reemplazo_id'] : null;
+
         if (!$assignment) {
             $assignment = PreventiveShiftAssignment::create([
                 'preventive_shift_id' => $shift->id,
                 'bombero_id' => $bomberoId,
                 'es_refuerzo' => $tipo === 'refuerzo',
                 'entrada_hora' => now(),
+                'reemplaza_a_bombero_id' => $reemplazaABomberoId,
             ]);
         } else {
             $assignment->update([
                 'es_refuerzo' => $tipo === 'refuerzo',
                 'entrada_hora' => now(),
+                'reemplaza_a_bombero_id' => $reemplazaABomberoId,
             ]);
         }
 
@@ -309,7 +322,7 @@ class PreventivePublicController extends Controller
 
         $assignments = PreventiveShiftAssignment::query()
             ->where('preventive_shift_id', $shift->id)
-            ->with(['firefighter', 'attendance'])
+            ->with(['firefighter', 'attendance', 'replacedFirefighter'])
             ->get()
             ->sortBy(function ($a) {
                 return (string) ($a->firefighter?->apellido_paterno ?? '');

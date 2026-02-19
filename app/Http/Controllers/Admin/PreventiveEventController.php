@@ -357,16 +357,59 @@ class PreventiveEventController extends Controller
         return back()->with('success', 'Preventiva reabierta en modo Borrador.');
     }
 
+    public function destroy(Request $request, PreventiveEvent $event)
+    {
+        $status = $this->normalizedStatus($event);
+        if ($status === 'active') {
+            return back()->with('warning', 'No se puede eliminar una preventiva activa. Ciérrala primero.');
+        }
+
+        DB::transaction(function () use ($event) {
+            // Delete attendances first
+            PreventiveShiftAttendance::query()
+                ->whereIn('preventive_shift_assignment_id', function ($q) use ($event) {
+                    $q->select('id')
+                        ->from('preventive_shift_assignments')
+                        ->whereIn('preventive_shift_id', function ($q2) use ($event) {
+                            $q2->select('id')
+                                ->from('preventive_shifts')
+                                ->where('preventive_event_id', $event->id);
+                        });
+                })
+                ->delete();
+
+            // Delete assignments
+            PreventiveShiftAssignment::query()
+                ->whereIn('preventive_shift_id', function ($q) use ($event) {
+                    $q->select('id')
+                        ->from('preventive_shifts')
+                        ->where('preventive_event_id', $event->id);
+                })
+                ->delete();
+
+            // Delete shifts
+            PreventiveShift::query()->where('preventive_event_id', $event->id)->delete();
+
+            // Delete templates
+            PreventiveShiftTemplate::query()->where('preventive_event_id', $event->id)->delete();
+
+            // Delete event
+            $event->delete();
+        });
+
+        return redirect()->route('admin.preventivas.index')->with('success', 'Preventiva eliminada correctamente.');
+    }
+
     /**
      * Muestra el reporte detallado del evento preventivo
      */
     public function report(PreventiveEvent $event)
     {
-        $event->load(['templates', 'shifts.assignments.firefighter', 'shifts.assignments.attendance']);
+        $event->load(['templates', 'shifts.assignments.firefighter', 'shifts.assignments.attendance', 'shifts.assignments.replacedFirefighter']);
 
         $shifts = PreventiveShift::query()
             ->where('preventive_event_id', $event->id)
-            ->with(['assignments.firefighter', 'assignments.attendance'])
+            ->with(['assignments.firefighter', 'assignments.attendance', 'assignments.replacedFirefighter'])
             ->orderBy('shift_date')
             ->orderBy('sort_order')
             ->get();
@@ -386,8 +429,7 @@ class PreventiveEventController extends Controller
                 if ($assignment->es_refuerzo) {
                     $totalRefuerzos++;
                 }
-                // Consideramos reemplazo si tiene entrada_hora pero no estaba en asignaciones originales
-                if ($assignment->entrada_hora && !$assignment->attendance?->confirmed_at?->equalTo($assignment->entrada_hora)) {
+                if ($assignment->reemplaza_a_bombero_id) {
                     $totalReemplazos++;
                 }
             }
@@ -408,11 +450,11 @@ class PreventiveEventController extends Controller
      */
     public function reportExcel(PreventiveEvent $event)
     {
-        $event->load(['shifts.assignments.firefighter', 'shifts.assignments.attendance']);
+        $event->load(['shifts.assignments.firefighter', 'shifts.assignments.attendance', 'shifts.assignments.replacedFirefighter']);
 
         $shifts = PreventiveShift::query()
             ->where('preventive_event_id', $event->id)
-            ->with(['assignments.firefighter', 'assignments.attendance'])
+            ->with(['assignments.firefighter', 'shifts.assignments.attendance', 'shifts.assignments.replacedFirefighter'])
             ->orderBy('shift_date')
             ->orderBy('sort_order')
             ->get();
@@ -454,6 +496,12 @@ class PreventiveEventController extends Controller
             foreach ($shifts as $shift) {
                 foreach ($shift->assignments as $assignment) {
                     $f = $assignment->firefighter;
+                    $tipo = 'TITULAR';
+                    if ($assignment->es_refuerzo) {
+                        $tipo = 'REFUERZO';
+                    } elseif ($assignment->reemplaza_a_bombero_id) {
+                        $tipo = 'REEMPLAZO';
+                    }
                     fputcsv($output, [
                         $shift->shift_date->format('d/m/Y'),
                         $shift->label ?: 'Turno ' . ($shift->sort_order + 1),
@@ -462,7 +510,7 @@ class PreventiveEventController extends Controller
                         $f?->nombres ?? 'N/A',
                         $f?->rut ?? 'N/A',
                         $f?->cargo_texto ?? 'N/A',
-                        $assignment->es_refuerzo ? 'REFUERZO' : 'TITULAR',
+                        $tipo,
                         $assignment->entrada_hora?->format('H:i:s') ?? ($assignment->attendance?->confirmed_at?->format('H:i:s') ?? ''),
                         $assignment->attendance ? 'SÍ' : 'NO',
                         $assignment->attendance?->confirmed_at?->format('d/m/Y H:i:s') ?? ''

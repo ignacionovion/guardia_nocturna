@@ -272,6 +272,7 @@ Route::middleware('auth')->group(function () {
             Route::post('/admin/preventivas/{event}/estado/activar', [PreventiveEventController::class, 'activate'])->name('admin.preventivas.status.activate');
             Route::post('/admin/preventivas/{event}/estado/cerrar', [PreventiveEventController::class, 'close'])->name('admin.preventivas.status.close');
             Route::post('/admin/preventivas/{event}/estado/borrador', [PreventiveEventController::class, 'setDraft'])->name('admin.preventivas.status.draft');
+            Route::delete('/admin/preventivas/{event}', [PreventiveEventController::class, 'destroy'])->name('admin.preventivas.destroy');
         });
 
         Route::resource('admin/users', App\Http\Controllers\Admin\SystemUserController::class, ['as' => 'admin']);
