@@ -210,14 +210,15 @@
                                             </button>
                                             
                                             {{-- Dropdown con buscador --}}
-                                            <div x-show="open" x-transition class="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-72 overflow-hidden">
+                                            <div x-show="open" x-transition @click.outside="open = false" 
+                                                 class="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-72 overflow-hidden">
                                                 {{-- Input de búsqueda --}}
                                                 <div class="p-2 border-b border-slate-100">
                                                     <div class="relative">
                                                         <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                                                        <input type="text" x-model="search" placeholder="Buscar bombero..." 
+                                                        <input type="text" x-ref="searchInput" x-model="search" placeholder="Buscar bombero..." 
                                                                class="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-md focus:outline-none focus:border-slate-400"
-                                                               @click.stop>
+                                                               @click.stop @keydown.stop>
                                                     </div>
                                                 </div>
                                                 
@@ -228,9 +229,8 @@
                                                             $rut = trim((string) ($f->rut ?? ''));
                                                             $label = trim((string) $f->apellido_paterno . ' ' . (string) $f->nombres);
                                                             $full = trim($label . ($rut !== '' ? ' · ' . $rut : ''));
-                                                            $searchText = strtolower($full);
                                                         @endphp
-                                                        <div x-show="!search || '{{ $searchText }}'.includes(search.toLowerCase())" 
+                                                        <div x-show="!search || '{{ strtolower($full) }}'.includes(search.toLowerCase())" 
                                                              @click="selectedId = '{{ $f->id }}'; selectedText = '{{ $full }}'; open = false"
                                                              class="px-3 py-2 text-sm hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-0 {{ $status === 'closed' ? 'opacity-50 pointer-events-none' : '' }}">
                                                             <div class="font-semibold text-slate-800">{{ $f->apellido_paterno }}, {{ $f->nombres }}</div>
@@ -242,7 +242,7 @@
                                                 </div>
                                                 
                                                 {{-- Mensaje si no hay resultados --}}
-                                                <div x-show="search && [...$el.querySelectorAll('[x-show]:not([x-show=\\'open\\'])')].every(el => el.style.display === 'none')" 
+                                                <div x-show="search && [...$el.querySelectorAll('[x-show]:not([x-show*=open])')].every(el => el.style.display === 'none')" 
                                                      class="px-3 py-4 text-sm text-slate-500 text-center">
                                                     No se encontraron resultados
                                                 </div>
@@ -270,9 +270,11 @@
                                                 @php
                                                     $esReemplazo = (bool) $a->reemplaza_a_bombero_id;
                                                     $reemplazaA = $a->replacedFirefighter;
+                                                    // Verificar si este bombero fue reemplazado por otro
+                                                    $fueReemplazado = !$a->es_refuerzo && !$esReemplazo && !$a->attendance && \App\Models\PreventiveShiftAssignment::where('preventive_shift_id', $shift->id)->where('reemplaza_a_bombero_id', $a->bombero_id)->exists();
                                                 @endphp
-                                                <tr>
-                                                    <td class="py-2 font-bold text-slate-900">{{ $a->firefighter?->apellido_paterno }} {{ $a->firefighter?->nombres }}</td>
+                                                <tr class="{{ $fueReemplazado ? 'bg-rose-50/50' : '' }}">
+                                                    <td class="py-2 font-bold {{ $fueReemplazado ? 'text-slate-400 line-through' : 'text-slate-900' }}">{{ $a->firefighter?->apellido_paterno }} {{ $a->firefighter?->nombres }}</td>
                                                     <td class="py-2">
                                                         <div class="flex items-center gap-1">
                                                             @if($a->es_refuerzo)
@@ -296,6 +298,12 @@
                                                                     @csrf
                                                                     <button type="submit" class="px-2.5 py-1 rounded-lg border border-slate-200 bg-white text-slate-700 font-black text-[10px] uppercase tracking-widest {{ $status === 'closed' ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-50' }}" {{ $status === 'closed' ? 'disabled' : '' }}>Quitar</button>
                                                                 </form>
+                                                            </div>
+                                                        @elseif($fueReemplazado)
+                                                            <div class="flex items-center gap-2">
+                                                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-widest bg-rose-50 text-rose-700 border border-rose-200">
+                                                                    <i class="fas fa-exchange-alt mr-1"></i>Reemplazado
+                                                                </span>
                                                             </div>
                                                         @else
                                                             <div class="flex items-center gap-2">

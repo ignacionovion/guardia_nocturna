@@ -352,13 +352,21 @@ class PreventivePublicController extends Controller
                 $needsTipoIngreso = !$existingAssignment;
 
                 if ($needsTipoIngreso) {
-                    // Obtener bomberos disponibles para reemplazo (los que están asignados al turno actual pero SIN asistencia confirmada y NO son refuerzos)
+                    // Obtener IDs de bomberos que YA fueron reemplazados en este turno (tienen reemplazante asignado)
+                    $alreadyReplacedIds = PreventiveShiftAssignment::query()
+                        ->where('preventive_shift_id', $shift->id)
+                        ->whereNotNull('reemplaza_a_bombero_id')
+                        ->pluck('reemplaza_a_bombero_id')
+                        ->toArray();
+
+                    // Obtener bomberos disponibles para reemplazo (los que están asignados al turno actual pero SIN asistencia confirmada, NO son refuerzos, y NO han sido reemplazados)
                     $assignedWithNoAttendance = PreventiveShiftAssignment::query()
                         ->where('preventive_shift_id', $shift->id)
                         ->where(function ($q) {
                             $q->whereNull('es_refuerzo')->orWhere('es_refuerzo', false);
                         })
                         ->whereDoesntHave('attendance')
+                        ->whereNotIn('bombero_id', $alreadyReplacedIds)
                         ->pluck('bombero_id')
                         ->toArray();
 
@@ -374,6 +382,13 @@ class PreventivePublicController extends Controller
             }
         }
 
+        // Obtener IDs de bomberos que YA fueron reemplazados en este turno (para mostrarlos diferente en la vista)
+        $replacedFirefighterIds = PreventiveShiftAssignment::query()
+            ->where('preventive_shift_id', $shift->id)
+            ->whereNotNull('reemplaza_a_bombero_id')
+            ->pluck('reemplaza_a_bombero_id')
+            ->toArray();
+
         return view('preventivas.public', [
             'event' => $event,
             'shift' => $shift,
@@ -382,6 +397,7 @@ class PreventivePublicController extends Controller
             'identifiedBombero' => $identifiedBombero,
             'needsTipoIngreso' => $needsTipoIngreso,
             'availableForReplacement' => $availableForReplacement,
+            'replacedFirefighterIds' => $replacedFirefighterIds,
         ]);
     }
 

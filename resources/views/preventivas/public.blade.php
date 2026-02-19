@@ -37,9 +37,94 @@
                     <div class="text-sm text-slate-300 mt-1">Fecha: {{ $shift->shift_date?->format('d-m-Y') }}</div>
                 </div>
 
-                @if($needsTipoIngreso && $identifiedBombero)
-                    {{-- Modal de selección de tipo de ingreso --}}
-                    <div id="tipoIngresoModal" class="p-6">
+                {{-- Siempre mostrar el formulario de RUT --}}
+                <form method="POST" action="{{ route('preventivas.public.rut', $event->public_token) }}" class="p-6">
+                    @csrf
+                    @if(session('success'))
+                        <div class="mb-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-emerald-100">
+                            <div class="text-sm font-extrabold"><i class="fas fa-check-circle mr-2"></i>{{ session('success') }}</div>
+                        </div>
+                    @endif
+                    @if(session('warning'))
+                        <div class="mb-4 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-amber-100">
+                            <div class="text-sm font-extrabold"><i class="fas fa-exclamation-triangle mr-2"></i>{{ session('warning') }}</div>
+                        </div>
+                    @endif
+                    @if(session('error'))
+                        <div class="mb-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-rose-100">
+                            <div class="text-sm font-extrabold"><i class="fas fa-times-circle mr-2"></i>{{ session('error') }}</div>
+                        </div>
+                    @endif
+                    @if($errors->any())
+                        <div class="mb-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-rose-100">
+                            @foreach($errors->all() as $error)
+                                <div class="text-sm font-extrabold"><i class="fas fa-times-circle mr-2"></i>{{ $error }}</div>
+                            @endforeach
+                        </div>
+                    @endif
+
+                    {{-- Si hay bombero identificado que necesita tipo de ingreso, mostrar info y bloquear RUT --}}
+                    @if($needsTipoIngreso && $identifiedBombero)
+                        <div class="mb-4 p-4 rounded-xl bg-slate-700/50 border border-slate-600">
+                            <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Bombero identificado</div>
+                            <div class="text-lg font-extrabold text-white uppercase">{{ $identifiedBombero->apellido_paterno }}</div>
+                            <div class="text-sm text-slate-300">{{ $identifiedBombero->nombres }}</div>
+                            @if($identifiedBombero->cargo_texto)
+                                <div class="mt-1 text-xs font-semibold text-slate-500">{{ $identifiedBombero->cargo_texto }}</div>
+                            @endif
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-xs font-black uppercase tracking-widest text-slate-300 mb-2">RUT</label>
+                            <input type="text" disabled value="{{ session('last_rut', '') }}" 
+                                class="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-slate-400 font-semibold uppercase">
+                        </div>
+                        
+                        {{-- Botón que activa el modal --}}
+                        <button type="button" onclick="document.getElementById('tipoIngresoModal').classList.remove('hidden'); document.body.style.overflow = 'hidden';" 
+                                class="w-full inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 px-6 rounded-xl text-[12px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest">
+                            <i class="fas fa-check-circle"></i>
+                            Continuar
+                        </button>
+                    @else
+                        {{-- Formulario normal de RUT --}}
+                        <label class="block text-xs font-black uppercase tracking-widest text-slate-300 mb-2">Ingresa tu RUT</label>
+                        <input type="text" name="rut" id="rutInput" required placeholder="Ej: 12345678-9" 
+                            class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 font-semibold uppercase placeholder-slate-500"
+                            pattern="[0-9]{7,8}-[0-9kK]" title="Formato: 12345678-5" maxlength="10">
+                        <div class="text-xs text-slate-500 mt-1">Formato: 12345678-5</div>
+
+                        <script>
+                            (function() {
+                                const input = document.getElementById('rutInput');
+                                if (!input) return;
+                                
+                                input.addEventListener('input', function(e) {
+                                    let value = e.target.value.replace(/[^0-9kK]/g, '');
+                                    
+                                    if (value.length > 1) {
+                                        const body = value.slice(0, -1);
+                                        const dv = value.slice(-1);
+                                        value = body + '-' + dv;
+                                    }
+                                    
+                                    e.target.value = value.toUpperCase();
+                                });
+                            })();
+                        </script>
+
+                        <div class="mt-4">
+                            <button type="submit" class="w-full inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 px-6 rounded-xl text-[12px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest">
+                                <i class="fas fa-fingerprint"></i>
+                                Confirmar Asistencia
+                            </button>
+                        </div>
+                    @endif
+                </form>
+
+                {{-- Modal de selección de tipo de ingreso --}}
+                <div id="tipoIngresoModal" class="fixed top-0 left-0 w-full h-full bg-black/50 flex items-center justify-center hidden">
+                    <div class="bg-white/5 rounded-2xl overflow-hidden shadow-2xl w-full max-w-md mx-auto p-6">
                         @if(session('error') || $errors->any())
                             <div class="mb-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-rose-100">
                                 @if(session('error'))
@@ -124,92 +209,17 @@
                                 Volver e ingresar otro RUT
                             </a>
                         </div>
-                    </div>
 
-                    <script>
-                        (function() {
-                            const radioButtons = document.querySelectorAll('input[name="tipo"]');
-                            const reemplazoSection = document.getElementById('reemplazoSection');
-                            const select = document.getElementById('bomberoReemplazoId');
-
-                            radioButtons.forEach(radio => {
-                                radio.addEventListener('change', function() {
-                                    if (this.value === 'reemplazo') {
-                                        reemplazoSection.classList.remove('hidden');
-                                        select.setAttribute('required', 'required');
-                                    } else {
-                                        reemplazoSection.classList.add('hidden');
-                                        select.removeAttribute('required');
-                                        select.value = '';
-                                    }
-                                });
-                            });
-                        })();
-                    </script>
-                @else
-                    {{-- Formulario normal de RUT --}}
-                    <form method="POST" action="{{ route('preventivas.public.rut', $event->public_token) }}" class="p-6">
-                    @csrf
-                    @if(session('success'))
-                        <div class="mb-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-emerald-100">
-                            <div class="text-sm font-extrabold"><i class="fas fa-check-circle mr-2"></i>{{ session('success') }}</div>
-                        </div>
-                    @endif
-                    @if(session('warning'))
-                        <div class="mb-4 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-amber-100">
-                            <div class="text-sm font-extrabold"><i class="fas fa-exclamation-triangle mr-2"></i>{{ session('warning') }}</div>
-                        </div>
-                    @endif
-                    @if(session('error'))
-                        <div class="mb-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-rose-100">
-                            <div class="text-sm font-extrabold"><i class="fas fa-times-circle mr-2"></i>{{ session('error') }}</div>
-                        </div>
-                    @endif
-                    @if($errors->any())
-                        <div class="mb-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-rose-100">
-                            @foreach($errors->all() as $error)
-                                <div class="text-sm font-extrabold"><i class="fas fa-times-circle mr-2"></i>{{ $error }}</div>
-                            @endforeach
-                        </div>
-                    @endif
-
-                    <label class="block text-xs font-black uppercase tracking-widest text-slate-300 mb-2">Ingresa tu RUT</label>
-                    <input type="text" name="rut" id="rutInput" required placeholder="Ej: 12345678-9" 
-                        class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 font-semibold uppercase placeholder-slate-500"
-                        pattern="[0-9]{7,8}-[0-9kK]" title="Formato: 12345678-5" maxlength="10">
-                    <div class="text-xs text-slate-500 mt-1">Formato: 12345678-5</div>
-
-                    <script>
-                        (function() {
-                            const input = document.getElementById('rutInput');
-                            if (!input) return;
-                            
-                            input.addEventListener('input', function(e) {
-                                let value = e.target.value.replace(/[^0-9kK]/g, '');
-                                
-                                if (value.length > 1) {
-                                    const body = value.slice(0, -1);
-                                    const dv = value.slice(-1);
-                                    value = body + '-' + dv;
-                                }
-                                
-                                e.target.value = value.toUpperCase();
-                            });
-                        })();
-                    </script>
-
-                    <div class="mt-4">
-                        <button type="submit" class="w-full inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 px-6 rounded-xl text-[12px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest">
-                            <i class="fas fa-fingerprint"></i>
-                            Confirmar Asistencia
+                        {{-- Botón que cierra el modal --}}
+                        <button type="button" onclick="document.getElementById('tipoIngresoModal').classList.add('hidden'); document.body.style.overflow = 'auto';" 
+                                class="absolute top-4 right-4 text-slate-500 hover:text-slate-300 transition-colors">
+                            <i class="fas fa-times-circle"></i>
                         </button>
                     </div>
+                </div>
 
-                    <div class="text-xs text-slate-400 mt-4">
-                        Una vez confirmado, el registro queda bloqueado.
-                    </div>
-
-                <div class="mt-6">
+                {{-- Lista de asignados --}}
+                <div class="px-6 pb-6">
                     <div class="text-xs font-black uppercase tracking-widest text-slate-300">Asignados a este turno</div>
                     <div class="mt-3 space-y-2">
                         @foreach($assignments as $a)
@@ -219,10 +229,11 @@
                                 $entrada = $a->entrada_hora ? $a->entrada_hora->format('H:i') : null;
                                 $esReemplazo = (bool) $a->reemplaza_a_bombero_id;
                                 $reemplazaA = $a->replacedFirefighter;
+                                $fueReemplazado = !$a->es_refuerzo && !$esReemplazo && !$locked && !$a->attendance && in_array($a->bombero_id, $replacedFirefighterIds ?? []);
                             @endphp
-                            <div class="flex items-center justify-between rounded-xl border {{ $locked ? 'border-emerald-500/30 bg-emerald-500/10' : 'border-white/10 bg-white/5' }} px-4 py-3">
+                            <div class="flex items-center justify-between rounded-xl border {{ $locked ? 'border-emerald-500/30 bg-emerald-500/10' : ($fueReemplazado ? 'border-rose-500/30 bg-rose-500/10' : 'border-white/10 bg-white/5') }} px-4 py-3">
                                 <div class="flex items-center gap-2 flex-wrap">
-                                    <div class="text-sm font-extrabold text-white">{{ $label }}</div>
+                                    <div class="text-sm font-extrabold {{ $fueReemplazado ? 'text-slate-400 line-through' : 'text-white' }}">{{ $label }}</div>
                                     @if($a->es_refuerzo)
                                         <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-sky-500/20 text-sky-200 border border-sky-500/30">
                                             <i class="fas fa-user-plus mr-1"></i>REFUERZO
@@ -233,6 +244,11 @@
                                             <i class="fas fa-exchange-alt mr-1"></i>REEMPLAZA A: {{ $reemplazaA->apellido_paterno }}
                                         </span>
                                     @endif
+                                    @if($fueReemplazado)
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-500/20 text-rose-200 border border-rose-500/30">
+                                            <i class="fas fa-times-circle mr-1"></i>REEMPLAZADO
+                                        </span>
+                                    @endif
                                 </div>
                                 <div class="flex items-center gap-2">
                                     @if($entrada)
@@ -241,6 +257,10 @@
                                     @if($locked)
                                         <div class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-widest bg-emerald-500/20 text-emerald-100 border border-emerald-500/30">
                                             <i class="fas fa-check-circle mr-1"></i>Confirmado
+                                        </div>
+                                    @elseif($fueReemplazado)
+                                        <div class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-widest bg-rose-500/20 text-rose-100 border border-rose-500/30">
+                                            <i class="fas fa-exchange-alt mr-1"></i>Reemplazado
                                         </div>
                                     @else
                                         <div class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-widest bg-slate-100/10 text-slate-300 border border-white/10">Pendiente</div>
