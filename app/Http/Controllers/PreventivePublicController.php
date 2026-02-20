@@ -68,11 +68,11 @@ class PreventivePublicController extends Controller
             return back()->with('success', '¡Asistencia registrada correctamente!');
         }
 
-        // El bombero NO está asignado - guardar en sesión y redirigir a selección de tipo de ingreso
+        // El bombero NO está asignado - guardar en sesión y VOLVER a la misma página (mostrará el modal)
         $request->session()->put('preventiva_bombero_id', (int) $bombero->id);
         $request->session()->put('preventiva_event_token', $token);
 
-        return redirect()->route('preventivas.public.tipo_ingreso.form', ['token' => $token]);
+        return redirect()->route('preventivas.public.show', ['token' => $token]);
     }
 
     /**
@@ -145,8 +145,8 @@ class PreventivePublicController extends Controller
                 ->with('success', '¡Asistencia registrada correctamente!');
         }
 
-        // El bombero NO está asignado - redirigir a selección de tipo de ingreso
-        return redirect()->route('preventivas.public.tipo_ingreso.form', ['token' => $token]);
+        // El bombero NO está asignado - guardar en sesión y VOLVER a la misma página (mostrará el modal)
+        return redirect()->route('preventivas.public.show', ['token' => $token]);
     }
 
     /**
