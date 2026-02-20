@@ -419,21 +419,49 @@ class PreventiveEventController extends Controller
         $totalAttendance = 0;
         $totalRefuerzos = 0;
         $totalReemplazos = 0;
+        $assignmentIdsWithAttendance = [];
+        $replacedAssignmentIds = [];
 
         foreach ($shifts as $shift) {
             foreach ($shift->assignments as $assignment) {
                 $totalAssignments++;
                 if ($assignment->attendance) {
                     $totalAttendance++;
+                    $assignmentIdsWithAttendance[] = $assignment->id;
                 }
                 if ($assignment->es_refuerzo) {
                     $totalRefuerzos++;
                 }
                 if ($assignment->reemplaza_a_bombero_id) {
                     $totalReemplazos++;
+                    // Marcar al titular reemplazado como "cubierto"
+                    $replacedAssignmentIds[] = $assignment->reemplaza_a_bombero_id;
                 }
             }
         }
+
+        // Contar titulares reemplazados como asistencia cubierta
+        $coveredReplacements = 0;
+        foreach ($shifts as $shift) {
+            foreach ($shift->assignments as $assignment) {
+                // Si es un titular que fue reemplazado y el reemplazo tiene asistencia
+                if (in_array($assignment->id, $replacedAssignmentIds)) {
+                    // Buscar si el reemplazo tiene asistencia
+                    foreach ($shifts as $s) {
+                        foreach ($s->assignments as $a) {
+                            if ($a->reemplaza_a_bombero_id === $assignment->id && $a->attendance) {
+                                $coveredReplacements++;
+                                break 3; // Salir de los 3 loops
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Asistencia efectiva = confirmadas + titulares cubiertos por reemplazo
+        $effectiveAttendance = $totalAttendance + $coveredReplacements;
+        $attendanceRate = $totalAssignments > 0 ? round(($effectiveAttendance / $totalAssignments) * 100) : 0;
 
         return view('admin.preventivas.report', compact(
             'event',
@@ -441,7 +469,9 @@ class PreventiveEventController extends Controller
             'totalAssignments',
             'totalAttendance',
             'totalRefuerzos',
-            'totalReemplazos'
+            'totalReemplazos',
+            'effectiveAttendance',
+            'attendanceRate'
         ));
     }
 
@@ -454,7 +484,7 @@ class PreventiveEventController extends Controller
 
         $shifts = PreventiveShift::query()
             ->where('preventive_event_id', $event->id)
-            ->with(['assignments.firefighter', 'shifts.assignments.attendance', 'shifts.assignments.replacedFirefighter'])
+            ->with(['assignments.firefighter', 'assignments.attendance', 'assignments.replacedFirefighter'])
             ->orderBy('shift_date')
             ->orderBy('sort_order')
             ->get();

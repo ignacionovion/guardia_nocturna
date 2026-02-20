@@ -43,8 +43,8 @@
         </div>
         <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
             <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Tasa de Asistencia</div>
-            <div class="text-2xl font-black {{ $totalAssignments > 0 ? ($totalAttendance/$totalAssignments >= 0.8 ? 'text-emerald-600' : 'text-amber-600') : 'text-slate-400' }}">
-                {{ $totalAssignments > 0 ? round(($totalAttendance / $totalAssignments) * 100, 1) : 0 }}%
+            <div class="text-2xl font-black {{ $totalAssignments > 0 ? ($effectiveAttendance/$totalAssignments >= 0.8 ? 'text-emerald-600' : 'text-amber-600') : 'text-slate-400' }}">
+                {{ $totalAssignments > 0 ? round(($effectiveAttendance / $totalAssignments) * 100, 1) : 0 }}%
             </div>
         </div>
     </div>
@@ -137,9 +137,9 @@
                                             </td>
                                             <td class="py-3 px-3 {{ $fueReemplazado ? 'text-slate-400' : 'text-slate-600' }}">
                                                 @if($assignment->entrada_hora)
-                                                    {{ $assignment->entrada_hora->format('H:i:s') }}
+                                                    {{ $assignment->entrada_hora->timezone($event->timezone)->format('H:i:s') }}
                                                 @elseif($assignment->attendance?->confirmed_at)
-                                                    {{ $assignment->attendance->confirmed_at->format('H:i:s') }}
+                                                    {{ $assignment->attendance->confirmed_at->timezone($event->timezone)->format('H:i:s') }}
                                                 @else
                                                     <span class="text-slate-400">-</span>
                                                 @endif
@@ -148,7 +148,7 @@
                                                 @if($hasAttendance)
                                                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-black bg-emerald-100 text-emerald-700 border border-emerald-200">
                                                         <i class="fas fa-check-circle"></i>
-                                                        {{ $assignment->attendance->confirmed_at->format('H:i') }}
+                                                        {{ $assignment->attendance->confirmed_at->timezone($event->timezone)->format('H:i') }}
                                                     </span>
                                                 @elseif($fueReemplazado)
                                                     <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-black bg-rose-100 text-rose-700 border border-rose-200">
