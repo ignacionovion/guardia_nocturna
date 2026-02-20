@@ -197,56 +197,41 @@
                                         @csrf
                                         <input type="hidden" name="preventive_shift_id" value="{{ $shift->id }}">
                                         
-                                        {{-- Select con buscador integrado --}}
-                                        <div class="relative w-full sm:w-72" 
-                                             x-data="dropdownBombero()" 
-                                             x-init="init()">
-                                            
-                                            <input type="hidden" name="bombero_id" x-model="selectedId" required>
+                                        {{-- Select simple con buscador --}}
+                                        <div class="relative w-full sm:w-72 js-bombero-dropdown">
+                                            <input type="hidden" name="bombero_id" class="js-selected-id" required>
                                             
                                             {{-- Botón que abre el dropdown --}}
                                             <button type="button" 
-                                                    @click.prevent="toggle()"
-                                                    class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white text-slate-800 font-semibold text-sm text-left flex items-center justify-between {{ $status === 'closed' ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                                    class="js-dropdown-toggle w-full px-3 py-2 border border-slate-200 rounded-lg bg-white text-slate-800 font-semibold text-sm text-left flex items-center justify-between {{ $status === 'closed' ? 'opacity-50 cursor-not-allowed' : '' }}"
                                                     {{ $status === 'closed' ? 'disabled' : '' }}>
-                                                <span x-text="selectedText" :class="selectedId ? 'text-slate-800' : 'text-slate-400'"></span>
-                                                <i class="fas fa-chevron-down text-slate-400 text-xs" :class="{ 'rotate-180': open }"></i>
+                                                <span class="js-dropdown-text text-slate-400">Seleccionar bombero...</span>
+                                                <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
                                             </button>
                                             
                                             {{-- Dropdown con buscador --}}
-                                            <div x-show="open" 
-                                                 x-transition:enter="transition ease-out duration-150"
-                                                 x-transition:enter-start="opacity-0 scale-95"
-                                                 x-transition:enter-end="opacity-100 scale-100"
-                                                 x-transition:leave="transition ease-in duration-100"
-                                                 x-transition:leave-start="opacity-100 scale-100"
-                                                 x-transition:leave-end="opacity-0 scale-95"
-                                                 @click.outside="close()"
-                                                 class="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg overflow-hidden"
-                                                 style="display: none;">
-                                                {{-- Input de búsqueda SIEMPRE visible --}}
+                                            <div class="js-dropdown-menu absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg overflow-hidden hidden">
+                                                {{-- Input de búsqueda --}}
                                                 <div class="p-2 border-b border-slate-100 bg-white">
                                                     <div class="relative">
                                                         <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                                                         <input type="text" 
-                                                               x-ref="searchInput" 
-                                                               x-model="search" 
-                                                               placeholder="Buscar bombero..." 
-                                                               class="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-md focus:outline-none focus:border-slate-400 bg-white"
-                                                               @click.stop>
+                                                               class="js-search-input w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-md focus:outline-none focus:border-slate-400 bg-white"
+                                                               placeholder="Buscar bombero...">
                                                     </div>
                                                 </div>
                                                 
                                                 {{-- Lista de opciones --}}
-                                                <div class="overflow-y-auto max-h-60">
+                                                <div class="js-options-list overflow-y-auto max-h-60">
                                                     @foreach($firefighters as $f)
                                                         @php
                                                             $rut = trim((string) ($f->rut ?? ''));
                                                             $searchText = strtolower(trim($f->apellido_paterno . ' ' . $f->nombres . ' ' . $rut));
                                                         @endphp
-                                                        <div x-show="isVisible('{{ $searchText }}')"
-                                                             @click="select('{{ $f->id }}', '{{ $f->apellido_paterno }}, {{ $f->nombres }}')"
-                                                             class="px-3 py-2 text-sm hover:bg-slate-100 cursor-pointer border-b border-slate-50 last:border-0 {{ $status === 'closed' ? 'opacity-50 pointer-events-none' : '' }}">
+                                                        <div class="js-option px-3 py-2 text-sm hover:bg-slate-100 cursor-pointer border-b border-slate-50 last:border-0 {{ $status === 'closed' ? 'opacity-50 pointer-events-none' : '' }}"
+                                                             data-id="{{ $f->id }}"
+                                                             data-text="{{ $f->apellido_paterno }}, {{ $f->nombres }}"
+                                                             data-search="{{ $searchText }}">
                                                             <div class="font-semibold text-slate-800">{{ $f->apellido_paterno }}, {{ $f->nombres }}</div>
                                                             @if($rut)
                                                                 <div class="text-xs text-slate-500">{{ $rut }}</div>
@@ -256,8 +241,7 @@
                                                 </div>
                                                 
                                                 {{-- Mensaje si no hay resultados --}}
-                                                <div x-show="noResults" 
-                                                     class="px-3 py-4 text-sm text-slate-500 text-center bg-white">
+                                                <div class="js-no-results hidden px-3 py-4 text-sm text-slate-500 text-center bg-white">
                                                     No se encontraron resultados
                                                 </div>
                                             </div>
@@ -363,72 +347,87 @@
 </div>
 
 <script>
-    function dropdownBombero() {
-        return {
-            open: false,
-            search: '',
-            selectedId: '',
-            selectedText: 'Seleccionar bombero...',
-            init() {
-                // Inicializar si es necesario
-            },
-            toggle() {
-                this.open = !this.open;
-                if (this.open) {
-                    this.$nextTick(() => {
-                        if (this.$refs.searchInput) {
-                            this.$refs.searchInput.focus();
-                        }
-                    });
+    // Dropdown functionality for bombero selection
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.js-bombero-dropdown').forEach(function(dropdown) {
+            const toggle = dropdown.querySelector('.js-dropdown-toggle');
+            const menu = dropdown.querySelector('.js-dropdown-menu');
+            const searchInput = dropdown.querySelector('.js-search-input');
+            const options = dropdown.querySelectorAll('.js-option');
+            const noResults = dropdown.querySelector('.js-no-results');
+            const hiddenInput = dropdown.querySelector('.js-selected-id');
+            const textDisplay = dropdown.querySelector('.js-dropdown-text');
+
+            // Toggle dropdown
+            toggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                const isHidden = menu.classList.contains('hidden');
+                
+                // Close all other dropdowns
+                document.querySelectorAll('.js-dropdown-menu').forEach(function(m) {
+                    m.classList.add('hidden');
+                });
+                
+                if (isHidden) {
+                    menu.classList.remove('hidden');
+                    searchInput.focus();
+                } else {
+                    menu.classList.add('hidden');
                 }
-            },
-            close() {
-                this.open = false;
-            },
-            select(id, text) {
-                this.selectedId = id;
-                this.selectedText = text;
-                this.open = false;
-                this.search = '';
-            },
-            isVisible(searchText) {
-                if (this.search === '') return true;
-                return searchText.toLowerCase().includes(this.search.toLowerCase());
-            },
-            get noResults() {
-                return this.search !== '';
-            }
-        }
-    }
-</script>
-    (function () {
-        const rows = document.querySelectorAll('form .js-bombero-search');
-        rows.forEach((searchInput) => {
-            const form = searchInput.closest('form');
-            if (!form) return;
-            const select = form.querySelector('.js-bombero-select');
-            if (!select) return;
+            });
 
-            const options = Array.from(select.querySelectorAll('option'));
+            // Search functionality
+            searchInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase().trim();
+                let visibleCount = 0;
 
-            function applyFilter() {
-                const q = (searchInput.value || '').trim().toLowerCase();
-                options.forEach((opt) => {
-                    if (!opt.value) {
-                        opt.hidden = false;
-                        return;
+                options.forEach(function(option) {
+                    const searchText = option.getAttribute('data-search') || '';
+                    if (searchText.includes(query)) {
+                        option.classList.remove('hidden');
+                        visibleCount++;
+                    } else {
+                        option.classList.add('hidden');
                     }
-                    const hay = (opt.getAttribute('data-search') || '').toLowerCase();
-                    opt.hidden = q !== '' && !hay.includes(q);
                 });
 
-                if (select.selectedOptions.length && select.selectedOptions[0].hidden) {
-                    select.value = '';
+                // Show/hide no results message
+                if (visibleCount === 0 && query !== '') {
+                    noResults.classList.remove('hidden');
+                } else {
+                    noResults.classList.add('hidden');
                 }
-            }
+            });
 
-            searchInput.addEventListener('input', applyFilter);
+            // Select option
+            options.forEach(function(option) {
+                option.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    const text = this.getAttribute('data-text');
+                    
+                    hiddenInput.value = id;
+                    textDisplay.textContent = text;
+                    textDisplay.classList.remove('text-slate-400');
+                    textDisplay.classList.add('text-slate-800');
+                    
+                    menu.classList.add('hidden');
+                    searchInput.value = '';
+                    
+                    // Reset all options visibility
+                    options.forEach(function(opt) {
+                        opt.classList.remove('hidden');
+                    });
+                    noResults.classList.add('hidden');
+                });
+            });
+
+            // Close when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!dropdown.contains(e.target)) {
+                    menu.classList.add('hidden');
+                }
+            });
         });
-    })();
+    });
 </script>
 @endsection
