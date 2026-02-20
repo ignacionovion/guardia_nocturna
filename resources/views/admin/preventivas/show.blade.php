@@ -198,41 +198,62 @@
                                         <input type="hidden" name="preventive_shift_id" value="{{ $shift->id }}">
                                         
                                         {{-- Select con buscador integrado --}}
-                                        <div class="relative w-full sm:w-72" x-data="{ open: false, search: '', selectedId: '', selectedText: 'Seleccionar bombero...' }" @click.away="open = false">
-                                            <input type="hidden" name="bombero_id" x-model="selectedId" required>
+                                        <div class="relative w-full sm:w-72" 
+                                             x-data="{ 
+                                                 open: false, 
+                                                 search: '', 
+                                                 selectedId: '', 
+                                                 selectedText: 'Seleccionar bombero...',
+                                                 selectBombero(id, text) {
+                                                     this.selectedId = id;
+                                                     this.selectedText = text;
+                                                     this.open = false;
+                                                     this.search = '';
+                                                 }
+                                             }" 
+                                             @click.away="open = false">
+                                            
+                                            <input type="hidden" name="bombero_id" :value="selectedId" required>
                                             
                                             {{-- Botón que abre el dropdown --}}
-                                            <button type="button" @click="open = !open" 
+                                            <button type="button" 
+                                                    @click="open = !open; if(open) { $nextTick(() => $refs.searchInput.focus()) }" 
                                                     class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white text-slate-800 font-semibold text-sm text-left flex items-center justify-between {{ $status === 'closed' ? 'opacity-50 cursor-not-allowed' : '' }}"
                                                     {{ $status === 'closed' ? 'disabled' : '' }}>
-                                                <span x-text="selectedText" :class="selectedId ? 'text-slate-800' : 'text-slate-400'"></span>
-                                                <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
+                                                <span :class="selectedId ? 'text-slate-800' : 'text-slate-400'" x-text="selectedText"></span>
+                                                <i class="fas fa-chevron-down text-slate-400 text-xs" :class="open ? 'rotate-180' : ''"></i>
                                             </button>
                                             
                                             {{-- Dropdown con buscador --}}
-                                            <div x-show="open" x-transition @click.outside="open = false" 
-                                                 class="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-72 overflow-hidden">
-                                                {{-- Input de búsqueda --}}
-                                                <div class="p-2 border-b border-slate-100">
+                                            <div x-show="open" 
+                                                 x-transition:enter="transition ease-out duration-200" 
+                                                 x-transition:enter-start="opacity-0 scale-95" 
+                                                 x-transition:enter-end="opacity-100 scale-100"
+                                                 class="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg overflow-hidden"
+                                                 style="display: none;">
+                                                {{-- Input de búsqueda SIEMPRE visible --}}
+                                                <div class="p-2 border-b border-slate-100 bg-white">
                                                     <div class="relative">
                                                         <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                                                        <input type="text" x-ref="searchInput" x-model="search" placeholder="Buscar bombero..." 
-                                                               class="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-md focus:outline-none focus:border-slate-400"
-                                                               @click.stop @keydown.stop>
+                                                        <input type="text" 
+                                                               x-ref="searchInput" 
+                                                               x-model="search" 
+                                                               placeholder="Buscar bombero..." 
+                                                               class="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-md focus:outline-none focus:border-slate-400 bg-white"
+                                                               @click.stop>
                                                     </div>
                                                 </div>
                                                 
                                                 {{-- Lista de opciones --}}
-                                                <div class="overflow-y-auto max-h-52">
+                                                <div class="overflow-y-auto max-h-60">
                                                     @foreach($firefighters as $f)
                                                         @php
                                                             $rut = trim((string) ($f->rut ?? ''));
-                                                            $label = trim((string) $f->apellido_paterno . ' ' . (string) $f->nombres);
-                                                            $full = trim($label . ($rut !== '' ? ' · ' . $rut : ''));
+                                                            $searchText = strtolower(trim($f->apellido_paterno . ' ' . $f->nombres . ' ' . $rut));
                                                         @endphp
-                                                        <div x-show="!search || '{{ strtolower($full) }}'.includes(search.toLowerCase())" 
-                                                             @click="selectedId = '{{ $f->id }}'; selectedText = '{{ $full }}'; open = false"
-                                                             class="px-3 py-2 text-sm hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-0 {{ $status === 'closed' ? 'opacity-50 pointer-events-none' : '' }}">
+                                                        <div x-show="search === '' || '{{ $searchText }}'.includes(search.toLowerCase())" 
+                                                             @click="selectBombero('{{ $f->id }}', '{{ $f->apellido_paterno }}, {{ $f->nombres }}')"
+                                                             class="px-3 py-2 text-sm hover:bg-slate-100 cursor-pointer border-b border-slate-50 last:border-0 {{ $status === 'closed' ? 'opacity-50 pointer-events-none' : '' }}">
                                                             <div class="font-semibold text-slate-800">{{ $f->apellido_paterno }}, {{ $f->nombres }}</div>
                                                             @if($rut)
                                                                 <div class="text-xs text-slate-500">{{ $rut }}</div>
@@ -242,8 +263,8 @@
                                                 </div>
                                                 
                                                 {{-- Mensaje si no hay resultados --}}
-                                                <div x-show="search && [...$el.querySelectorAll('[x-show]:not([x-show*=open])')].every(el => el.style.display === 'none')" 
-                                                     class="px-3 py-4 text-sm text-slate-500 text-center">
+                                                <div x-show="search !== '' && [...$el.querySelectorAll('[x-show]:not([x-show*=open])')].filter(el => el.offsetParent !== null).length === 0" 
+                                                     class="px-3 py-4 text-sm text-slate-500 text-center bg-white">
                                                     No se encontraron resultados
                                                 </div>
                                             </div>
