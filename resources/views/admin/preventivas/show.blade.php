@@ -199,36 +199,29 @@
                                         
                                         {{-- Select con buscador integrado --}}
                                         <div class="relative w-full sm:w-72" 
-                                             x-data="{ 
-                                                 open: false, 
-                                                 search: '', 
-                                                 selectedId: '', 
-                                                 selectedText: 'Seleccionar bombero...',
-                                                 selectBombero(id, text) {
-                                                     this.selectedId = id;
-                                                     this.selectedText = text;
-                                                     this.open = false;
-                                                     this.search = '';
-                                                 }
-                                             }" 
-                                             @click.away="open = false">
+                                             x-data="dropdownBombero()" 
+                                             x-init="init()">
                                             
-                                            <input type="hidden" name="bombero_id" :value="selectedId" required>
+                                            <input type="hidden" name="bombero_id" x-model="selectedId" required>
                                             
                                             {{-- Botón que abre el dropdown --}}
                                             <button type="button" 
-                                                    @click="open = !open; if(open) { $nextTick(() => $refs.searchInput.focus()) }" 
+                                                    @click.prevent="toggle()"
                                                     class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white text-slate-800 font-semibold text-sm text-left flex items-center justify-between {{ $status === 'closed' ? 'opacity-50 cursor-not-allowed' : '' }}"
                                                     {{ $status === 'closed' ? 'disabled' : '' }}>
-                                                <span :class="selectedId ? 'text-slate-800' : 'text-slate-400'" x-text="selectedText"></span>
-                                                <i class="fas fa-chevron-down text-slate-400 text-xs" :class="open ? 'rotate-180' : ''"></i>
+                                                <span x-text="selectedText" :class="selectedId ? 'text-slate-800' : 'text-slate-400'"></span>
+                                                <i class="fas fa-chevron-down text-slate-400 text-xs" :class="{ 'rotate-180': open }"></i>
                                             </button>
                                             
                                             {{-- Dropdown con buscador --}}
                                             <div x-show="open" 
-                                                 x-transition:enter="transition ease-out duration-200" 
-                                                 x-transition:enter-start="opacity-0 scale-95" 
+                                                 x-transition:enter="transition ease-out duration-150"
+                                                 x-transition:enter-start="opacity-0 scale-95"
                                                  x-transition:enter-end="opacity-100 scale-100"
+                                                 x-transition:leave="transition ease-in duration-100"
+                                                 x-transition:leave-start="opacity-100 scale-100"
+                                                 x-transition:leave-end="opacity-0 scale-95"
+                                                 @click.outside="close()"
                                                  class="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg overflow-hidden"
                                                  style="display: none;">
                                                 {{-- Input de búsqueda SIEMPRE visible --}}
@@ -251,8 +244,8 @@
                                                             $rut = trim((string) ($f->rut ?? ''));
                                                             $searchText = strtolower(trim($f->apellido_paterno . ' ' . $f->nombres . ' ' . $rut));
                                                         @endphp
-                                                        <div x-show="search === '' || '{{ $searchText }}'.includes(search.toLowerCase())" 
-                                                             @click="selectBombero('{{ $f->id }}', '{{ $f->apellido_paterno }}, {{ $f->nombres }}')"
+                                                        <div x-show="isVisible('{{ $searchText }}')"
+                                                             @click="select('{{ $f->id }}', '{{ $f->apellido_paterno }}, {{ $f->nombres }}')"
                                                              class="px-3 py-2 text-sm hover:bg-slate-100 cursor-pointer border-b border-slate-50 last:border-0 {{ $status === 'closed' ? 'opacity-50 pointer-events-none' : '' }}">
                                                             <div class="font-semibold text-slate-800">{{ $f->apellido_paterno }}, {{ $f->nombres }}</div>
                                                             @if($rut)
@@ -263,7 +256,7 @@
                                                 </div>
                                                 
                                                 {{-- Mensaje si no hay resultados --}}
-                                                <div x-show="search !== '' && [...$el.querySelectorAll('[x-show]:not([x-show*=open])')].filter(el => el.offsetParent !== null).length === 0" 
+                                                <div x-show="noResults" 
                                                      class="px-3 py-4 text-sm text-slate-500 text-center bg-white">
                                                     No se encontraron resultados
                                                 </div>
@@ -370,6 +363,44 @@
 </div>
 
 <script>
+    function dropdownBombero() {
+        return {
+            open: false,
+            search: '',
+            selectedId: '',
+            selectedText: 'Seleccionar bombero...',
+            init() {
+                // Inicializar si es necesario
+            },
+            toggle() {
+                this.open = !this.open;
+                if (this.open) {
+                    this.$nextTick(() => {
+                        if (this.$refs.searchInput) {
+                            this.$refs.searchInput.focus();
+                        }
+                    });
+                }
+            },
+            close() {
+                this.open = false;
+            },
+            select(id, text) {
+                this.selectedId = id;
+                this.selectedText = text;
+                this.open = false;
+                this.search = '';
+            },
+            isVisible(searchText) {
+                if (this.search === '') return true;
+                return searchText.toLowerCase().includes(this.search.toLowerCase());
+            },
+            get noResults() {
+                return this.search !== '';
+            }
+        }
+    }
+</script>
     (function () {
         const rows = document.querySelectorAll('form .js-bombero-search');
         rows.forEach((searchInput) => {
