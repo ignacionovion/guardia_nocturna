@@ -1,0 +1,246 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="container mx-auto px-4 py-6 max-w-7xl">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800 flex items-center uppercase">
+                <i class="fas fa-chart-line mr-3 text-red-600"></i> Reporte de Asistencia
+            </h1>
+            <p class="text-slate-500 mt-1 text-sm">Estadísticas de cumplimiento, ausencias y permisos</p>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 mb-6">
+        <form action="{{ route('admin.reports.index') }}" method="GET" class="flex flex-wrap items-end gap-3">
+            <input type="hidden" name="view" value="{{ $currentView }}">
+            
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Guardia</label>
+                <select name="guardia_id" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-md text-sm w-40">
+                    <option value="">Todas</option>
+                    @foreach($guardias as $g)
+                        <option value="{{ $g->id }}" {{ $guardiaId == $g->id ? 'selected' : '' }}>{{ $g->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Desde</label>
+                <input type="date" name="from" value="{{ $from->format('Y-m-d') }}" 
+                       class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-md text-sm w-36">
+            </div>
+            
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Hasta</label>
+                <input type="date" name="to" value="{{ $to->format('Y-m-d') }}" 
+                       class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-md text-sm w-36">
+            </div>
+
+            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-md text-sm">
+                <i class="fas fa-filter mr-1"></i> Filtrar
+            </button>
+        </form>
+    </div>
+
+    <!-- Tabs -->
+    <div class="bg-white rounded-t-lg border-b border-slate-200 mb-6">
+        <div class="flex">
+            <a href="{{ route('admin.reports.index', ['view' => 'guardias'] + request()->except('view')) }}" 
+               class="px-6 py-3 text-sm font-semibold {{ $currentView == 'guardias' ? 'text-red-600 border-b-2 border-red-600 bg-red-50' : 'text-slate-600 hover:text-slate-800' }}">
+                <i class="fas fa-users mr-2"></i>Por Guardia
+            </a>
+            <a href="{{ route('admin.reports.index', ['view' => 'general'] + request()->except('view')) }}" 
+               class="px-6 py-3 text-sm font-semibold {{ $currentView == 'general' ? 'text-red-600 border-b-2 border-red-600 bg-red-50' : 'text-slate-600 hover:text-slate-800' }}">
+                <i class="fas fa-globe mr-2"></i>General
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+        @php
+            $cards = [
+                ['label' => 'Cumplidos', 'value' => $stats['fulfilled'] ?? 0, 'color' => 'emerald', 'icon' => 'check'],
+                ['label' => 'Ausencias', 'value' => $stats['absences'] ?? 0, 'color' => 'rose', 'icon' => 'times'],
+                ['label' => 'Permisos', 'value' => $stats['permissions'] ?? 0, 'color' => 'amber', 'icon' => 'calendar-check'],
+                ['label' => 'Licencias', 'value' => $stats['licenses'] ?? 0, 'color' => 'blue', 'icon' => 'file-medical'],
+                ['label' => 'Inhabilitados', 'value' => $stats['disabled'] ?? 0, 'color' => 'slate', 'icon' => 'ban'],
+            ];
+        @endphp
+        @foreach($cards as $card)
+        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-slate-500 uppercase">{{ $card['label'] }}</p>
+                    <p class="text-2xl font-bold text-{{ $card['color'] }}-600">{{ $card['value'] }}</p>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-{{ $card['color'] }}-100 flex items-center justify-center">
+                    <i class="fas fa-{{ $card['icon'] }} text-{{ $card['color'] }}-600"></i>
+                </div>
+            </div>
+        </div>
+        @endforeach
+    </div>
+
+    <!-- Main Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <!-- Left: Guardia Info or General Stats -->
+        <div class="lg:col-span-2 bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+            <h3 class="text-lg font-bold text-slate-800 mb-4 uppercase">
+                @if($currentView == 'general')
+                    Estadísticas Generales
+                @else
+                    {{ $activeGuardia ? $activeGuardia->name : 'Sin Guardia' }}
+                @endif
+            </h3>
+            
+            @if($currentView == 'guardias' && $activeGuardia)
+            <div class="mb-4 p-3 bg-slate-50 rounded-lg">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-red-600 rounded-lg flex items-center justify-center text-white font-bold">
+                        G{{ $activeGuardia->id }}
+                    </div>
+                    <div>
+                        <p class="font-semibold text-slate-800">{{ $activeGuardia->name }}</p>
+                        <p class="text-sm text-slate-500">
+                            {{ $activeGuardia->bomberos->where('fuera_de_servicio', false)->count() }} / {{ $activeGuardia->bomberos->count() }} activos
+                        </p>
+                    </div>
+                </div>
+            </div>
+            @endif
+
+            <!-- Progress Bars -->
+            <div class="space-y-3">
+                @foreach($guardiaStats as $stat)
+                <div class="flex items-center gap-3">
+                    <div class="w-24 text-xs font-semibold text-slate-600">{{ $stat['label'] }}</div>
+                    <div class="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden">
+                        <div class="h-full bg-{{ $stat['color'] }}-500 rounded-full" style="width: {{ min($stat['value'], 100) }}%"></div>
+                    </div>
+                    <div class="w-16 text-right">
+                        <span class="text-xs font-bold text-{{ $stat['color'] }}-600">{{ $stat['value'] }}%</span>
+                    </div>
+                    <div class="w-8 text-right text-xs text-slate-400">{{ $stat['count'] }}</div>
+                </div>
+                @endforeach
+            </div>
+
+            <!-- Weekly Stats -->
+            <div class="mt-6 pt-6 border-t border-slate-200">
+                <h4 class="text-sm font-bold text-slate-700 mb-3 uppercase">Últimas 8 Semanas</h4>
+                <div class="grid grid-cols-8 gap-2">
+                    @foreach($weeklyStats as $week)
+                    <div class="text-center">
+                        <div class="text-xs text-slate-500 mb-1">{{ $week['week'] }}</div>
+                        <div class="h-16 bg-slate-100 rounded relative overflow-hidden">
+                            <div class="absolute bottom-0 left-0 right-0 bg-emerald-500 transition-all" 
+                                 style="height: {{ $week['percentage'] }}%"></div>
+                        </div>
+                        <div class="text-xs font-semibold {{ $week['active'] ? 'text-red-600' : 'text-slate-600' }} mt-1">
+                            {{ $week['percentage'] }}%
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Summary -->
+        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+            <h3 class="text-lg font-bold text-slate-800 mb-4 uppercase">Resumen</h3>
+            
+            <div class="text-center mb-6">
+                <div class="text-4xl font-bold text-slate-800">{{ $generalPercentage }}%</div>
+                <div class="text-sm text-slate-500">Cumplimiento General</div>
+            </div>
+
+            <div class="space-y-4">
+                <div class="flex justify-between items-center py-2 border-b border-slate-100">
+                    <span class="text-sm text-slate-600">Total Personal</span>
+                    <span class="font-bold text-slate-800">{{ $totalPersonnel }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-slate-100">
+                    <span class="text-sm text-slate-600">Índice Estabilidad</span>
+                    <span class="font-bold {{ $stabilityIndex >= 80 ? 'text-emerald-600' : 'text-amber-600' }}">{{ $stabilityIndex }}%</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-slate-100">
+                    <span class="text-sm text-slate-600">Periodo</span>
+                    <span class="font-bold text-slate-800 text-xs">{{ $from->format('d/m') }} - {{ $to->format('d/m') }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firefighter Table -->
+    <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-4 border-b border-slate-200">
+            <h3 class="text-lg font-bold text-slate-800 uppercase">Detalle por Bombero</h3>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-slate-50">
+                    <tr>
+                        <th class="text-left py-3 px-4 font-semibold text-slate-600">Voluntario</th>
+                        <th class="text-center py-3 px-2 font-semibold text-slate-600">Turnos</th>
+                        <th class="text-center py-3 px-2 font-semibold text-slate-600 text-emerald-600">Cumplidos</th>
+                        <th class="text-center py-3 px-2 font-semibold text-slate-600 text-rose-600">Ausencias</th>
+                        <th class="text-center py-3 px-2 font-semibold text-slate-600 text-amber-600">Permisos</th>
+                        <th class="text-center py-3 px-2 font-semibold text-slate-600 text-blue-600">Licencias</th>
+                        <th class="text-center py-3 px-2 font-semibold text-slate-600 text-purple-600">Reemplazos</th>
+                        <th class="text-center py-3 px-3 font-semibold text-slate-600">% Cumpl.</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @forelse($firefighterStats as $ff)
+                    <tr class="hover:bg-slate-50">
+                        <td class="py-3 px-4">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center text-red-700 font-bold text-xs">
+                                    {{ $ff['code'] }}
+                                </div>
+                                <span class="font-medium text-slate-800">{{ $ff['name'] }}</span>
+                            </div>
+                        </td>
+                        <td class="py-3 px-2 text-center font-semibold">{{ $ff['shift'] }}</td>
+                        <td class="py-3 px-2 text-center">
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded bg-emerald-100 text-emerald-700 font-bold text-xs">{{ $ff['fulfilled'] }}</span>
+                        </td>
+                        <td class="py-3 px-2 text-center">
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded {{ $ff['absences'] > 0 ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-400' }} font-bold text-xs">{{ $ff['absences'] }}</span>
+                        </td>
+                        <td class="py-3 px-2 text-center">
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded {{ $ff['permissions'] > 0 ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-400' }} font-bold text-xs">{{ $ff['permissions'] }}</span>
+                        </td>
+                        <td class="py-3 px-2 text-center">
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded {{ $ff['licenses'] > 0 ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-400' }} font-bold text-xs">{{ $ff['licenses'] }}</span>
+                        </td>
+                        <td class="py-3 px-2 text-center">
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded {{ $ff['replacements'] > 0 ? 'bg-purple-100 text-purple-700' : 'bg-slate-100 text-slate-400' }} font-bold text-xs">{{ $ff['replacements'] }}</span>
+                        </td>
+                        <td class="py-3 px-3">
+                            <div class="flex items-center gap-2">
+                                <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                                    <div class="h-full rounded-full {{ $ff['percentage'] >= 90 ? 'bg-emerald-500' : ($ff['percentage'] >= 75 ? 'bg-amber-500' : 'bg-rose-500') }}" style="width: {{ $ff['percentage'] }}%"></div>
+                                </div>
+                                <span class="text-xs font-bold {{ $ff['percentage'] >= 90 ? 'text-emerald-600' : ($ff['percentage'] >= 75 ? 'text-amber-600' : 'text-rose-600') }} w-8">{{ $ff['percentage'] }}%</span>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="8" class="py-8 text-center text-slate-500">
+                            No hay datos para el periodo seleccionado
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@endsection

@@ -430,6 +430,322 @@ class ReportController extends Controller
         ));
     }
 
+    /**
+     * Reporte de Asistencia - Dashboard con estadísticas por guardia y general
+     */
+    public function attendance(Request $request)
+    {
+        $user = auth()->user();
+        if ($user->role !== 'super_admin') {
+            abort(403, 'No autorizado.');
+        }
+
+        $guardiaId   = $request->input('guardia_id');
+        $currentView = $request->input('view', 'guardias');
+
+        try {
+            $from = $request->input('from') ? Carbon::parse($request->input('from'))->startOfDay() : now()->subDays(30)->startOfDay();
+        } catch (\Exception $e) {
+            $from = now()->subDays(30)->startOfDay();
+        }
+        try {
+            $to = $request->input('to') ? Carbon::parse($request->input('to'))->endOfDay() : now()->endOfDay();
+        } catch (\Exception $e) {
+            $to = now()->endOfDay();
+        }
+
+        if ($currentView === 'general') {
+            $guardiaId = null;
+        }
+
+        $guardias      = Guardia::orderBy('name')->get();
+        $activeGuardia = $guardiaId ? Guardia::find($guardiaId) : $this->resolveActiveGuardia(now());
+        $filterGid     = $currentView === 'general' ? null : $activeGuardia?->id;
+
+        // Últimas 8 semanas reales (Dom 22:00 → Dom 07:00)
+        $weeklyStats = [];
+        for ($i = 7; $i >= 0; $i--) {
+            $wStart = now()->subWeeks($i)->startOfWeek(Carbon::SUNDAY)->setTime(22, 0);
+            $wEnd   = $wStart->copy()->addDays(7)->setTime(7, 0);
+            $wData  = $this->calculateWeekStats($wStart, $wEnd, $filterGid);
+            $weeklyStats[] = [
+                'week'       => 'S' . $wStart->format('W'),
+                'year'       => $wStart->year,
+                'percentage' => $wData['percentage'],
+                'shifts'     => $wData['total_shifts'],
+                'active'     => $i === 0,
+            ];
+        }
+
+        $generalStats     = $this->calculateGeneralStats($from, $to, $filterGid);
+        $firefighterStats = collect($this->calculateFirefighterStats($from, $to, $filterGid));
+        $rankings         = $this->calculateRankings($firefighterStats);
+        $dailyHistory     = $this->calculateDailyHistory($from, $to, $filterGid);
+
+        $guardiaComparison = [];
+        if ($currentView === 'general') {
+            foreach ($guardias as $g) {
+                $gs = $this->calculateGeneralStats($from, $to, $g->id);
+                if ($gs['total_personnel'] > 0 || $gs['fulfilled'] > 0) {
+                    $guardiaComparison[] = [
+                        'name'       => $g->name,
+                        'percentage' => $gs['percentage'],
+                        'fulfilled'  => $gs['fulfilled'],
+                        'total'      => $gs['fulfilled'] + $gs['absences'] + $gs['permissions'] + $gs['licenses'],
+                        'personnel'  => $gs['total_personnel'],
+                    ];
+                }
+            }
+            usort($guardiaComparison, fn ($a, $b) => $b['percentage'] <=> $a['percentage']);
+        }
+
+        return view('admin.reports.attendance', [
+            'guardias'          => $guardias,
+            'guardiaId'         => $guardiaId,
+            'activeGuardia'     => $activeGuardia,
+            'currentView'       => $currentView,
+            'from'              => $from,
+            'to'                => $to,
+            'stats'             => [
+                'fulfilled'      => $generalStats['fulfilled'] ?? 0,
+                'absences'       => $generalStats['absences'] ?? 0,
+                'permissions'    => $generalStats['permissions'] ?? 0,
+                'licenses'       => $generalStats['licenses'] ?? 0,
+                'disabled'       => $generalStats['disabled'] ?? 0,
+                'replacements'   => $generalStats['replacements'] ?? 0,
+                'reinforcements' => $generalStats['reinforcements'] ?? 0,
+            ],
+            'generalPercentage' => $generalStats['percentage'] ?? 0,
+            'totalPersonnel'    => $generalStats['total_personnel'] ?? 0,
+            'stabilityIndex'    => $generalStats['stability_index'] ?? 0,
+            'guardiaStats'      => $generalStats['by_status'] ?? [],
+            'weeklyStats'       => $weeklyStats,
+            'firefighterStats'  => $firefighterStats,
+            'rankings'          => $rankings,
+            'dailyHistory'      => $dailyHistory,
+            'guardiaComparison' => $guardiaComparison,
+        ]);
+    }
+    private function calculateWeekStats(Carbon $weekStart, Carbon $weekEnd, ?int $guardiaId): array
+    {
+        $query = ShiftUser::query()
+            ->whereBetween('start_time', [$weekStart, $weekEnd])
+            ->when($guardiaId, fn ($q) => $q->whereHas('firefighter', fn ($q2) => $q2->where('guardia_id', $guardiaId)));
+
+        $total = $query->count();
+        if ($total === 0) {
+            return ['percentage' => 0, 'total_shifts' => 0];
+        }
+
+        $fulfilled = (clone $query)->whereIn('attendance_status', ['constituye', 'reemplazo'])->count();
+
+        return [
+            'percentage'   => round(($fulfilled / $total) * 100),
+            'total_shifts' => $total,
+        ];
+    }
+
+    private function calculateGeneralStats(Carbon $from, Carbon $to, ?int $guardiaId): array
+    {
+        $empty = [
+            'fulfilled' => 0, 'absences' => 0, 'permissions' => 0, 'licenses' => 0,
+            'replacements' => 0, 'reinforcements' => 0, 'disabled' => 0,
+            'percentage' => 0, 'total_personnel' => 0, 'stability_index' => 0, 'by_status' => [],
+        ];
+
+        $query = ShiftUser::query()
+            ->whereBetween('start_time', [$from, $to])
+            ->when($guardiaId, fn ($q) => $q->whereHas('firefighter', fn ($q2) => $q2->where('guardia_id', $guardiaId)));
+
+        $total = $query->count();
+        if ($total === 0) {
+            return $empty;
+        }
+
+        $fulfilled    = (clone $query)->whereIn('attendance_status', ['constituye', 'reemplazo'])->count();
+        $absences     = (clone $query)->where('attendance_status', 'ausente')->count();
+        $permissions  = (clone $query)->where('attendance_status', 'permiso')->count();
+        $licenses     = (clone $query)->where('attendance_status', 'licencia')->count();
+        $replacements = (clone $query)->where('attendance_status', 'reemplazo')->count();
+        $disabled     = (clone $query)->where('attendance_status', 'inhabilitado')->count();
+
+        $reinforcements = (clone $query)->where(function ($q) {
+            $q->where('assignment_type', 'refuerzo')
+              ->orWhereHas('firefighter', fn ($q2) => $q2->where('es_refuerzo', true));
+        })->count();
+
+        $byStatus = [
+            ['label' => 'Cumplidos',    'value' => round(($fulfilled   / $total) * 100, 1), 'color' => 'emerald', 'count' => $fulfilled],
+            ['label' => 'Ausencias',    'value' => round(($absences    / $total) * 100, 1), 'color' => 'rose',    'count' => $absences],
+            ['label' => 'Permisos',     'value' => round(($permissions / $total) * 100, 1), 'color' => 'amber',   'count' => $permissions],
+            ['label' => 'Licencias',    'value' => round(($licenses    / $total) * 100, 1), 'color' => 'blue',    'count' => $licenses],
+            ['label' => 'Inhabilitados','value' => round(($disabled    / $total) * 100, 1), 'color' => 'slate',   'count' => $disabled],
+        ];
+
+        $totalPersonnel = Bombero::query()
+            ->when($guardiaId, fn ($q) => $q->where('guardia_id', $guardiaId))
+            ->where(fn ($q) => $q->whereNull('fuera_de_servicio')->orWhere('fuera_de_servicio', false))
+            ->count();
+
+        $titularFulfilled = $fulfilled - $replacements;
+        $stabilityIndex   = $fulfilled > 0
+            ? max(0, round(($titularFulfilled / $fulfilled) * 100))
+            : 0;
+
+        return [
+            'fulfilled'       => $fulfilled,
+            'absences'        => $absences,
+            'permissions'     => $permissions,
+            'licenses'        => $licenses,
+            'replacements'    => $replacements,
+            'reinforcements'  => $reinforcements,
+            'disabled'        => $disabled,
+            'percentage'      => round(($fulfilled / $total) * 100),
+            'total_personnel' => $totalPersonnel,
+            'stability_index' => $stabilityIndex,
+            'by_status'       => $byStatus,
+        ];
+    }
+
+    private function calculateFirefighterStats(Carbon $from, Carbon $to, ?int $guardiaId): array
+    {
+        $firefighters = Bombero::query()
+            ->when($guardiaId, fn ($q) => $q->where('guardia_id', $guardiaId))
+            ->with([
+                'guardia',
+                'shiftUsers' => fn ($q) => $q->whereBetween('start_time', [$from, $to]),
+            ])
+            ->get();
+
+        // Reemplazos hechos: turnos donde este bombero actuó como reemplazante
+        $replacementsMadeMap = ShiftUser::query()
+            ->whereBetween('start_time', [$from, $to])
+            ->where('attendance_status', 'reemplazo')
+            ->whereNotNull('firefighter_id')
+            ->selectRaw('firefighter_id, COUNT(*) as cnt')
+            ->groupBy('firefighter_id')
+            ->pluck('cnt', 'firefighter_id');
+
+        // Reemplazos recibidos: turnos donde este bombero fue reemplazado
+        $replacementsReceivedMap = ShiftUser::query()
+            ->whereBetween('start_time', [$from, $to])
+            ->whereNotNull('replaced_firefighter_id')
+            ->selectRaw('replaced_firefighter_id, COUNT(*) as cnt')
+            ->groupBy('replaced_firefighter_id')
+            ->pluck('cnt', 'replaced_firefighter_id');
+
+        // Refuerzos: turnos con assignment_type = 'refuerzo'
+        $reinforcementsMap = ShiftUser::query()
+            ->whereBetween('start_time', [$from, $to])
+            ->where('assignment_type', 'refuerzo')
+            ->whereNotNull('firefighter_id')
+            ->selectRaw('firefighter_id, COUNT(*) as cnt')
+            ->groupBy('firefighter_id')
+            ->pluck('cnt', 'firefighter_id');
+
+        $stats = [];
+        foreach ($firefighters as $ff) {
+            $shiftUsers = $ff->shiftUsers;
+            $total      = $shiftUsers->count();
+            if ($total === 0) continue;
+
+            $fulfilled   = $shiftUsers->whereIn('attendance_status', ['constituye', 'reemplazo'])->count();
+            $absences    = $shiftUsers->where('attendance_status', 'ausente')->count();
+            $permissions = $shiftUsers->where('attendance_status', 'permiso')->count();
+            $licenses    = $shiftUsers->where('attendance_status', 'licencia')->count();
+            $disabled    = $shiftUsers->where('attendance_status', 'inhabilitado')->count();
+
+            $stats[] = [
+                'code'                  => strtoupper(substr($ff->nombres ?? '', 0, 1) . substr($ff->apellido_paterno ?? '', 0, 1)),
+                'name'                  => strtoupper(trim(($ff->nombres ?? '') . ' ' . ($ff->apellido_paterno ?? ''))),
+                'guardia_name'          => $ff->guardia?->name ?? '',
+                'shift'                 => $total,
+                'fulfilled'             => $fulfilled,
+                'absences'              => $absences,
+                'permissions'           => $permissions,
+                'licenses'              => $licenses,
+                'disabled'              => $disabled,
+                'replacements_made'     => (int) ($replacementsMadeMap[$ff->id] ?? 0),
+                'replacements_received' => (int) ($replacementsReceivedMap[$ff->id] ?? 0),
+                'reinforcements'        => (int) ($reinforcementsMap[$ff->id] ?? 0),
+                'percentage'            => round(($fulfilled / $total) * 100),
+            ];
+        }
+
+        return collect($stats)->sortByDesc('percentage')->values()->all();
+    }
+
+    private function calculateRankings(\Illuminate\Support\Collection $firefighterStats): array
+    {
+        $defs = [
+            ['key' => 'replacements_made',    'emoji' => '🥇', 'label' => 'Más reemplaza',    'unit' => 'reemplazos'],
+            ['key' => 'absences',             'emoji' => '🚨', 'label' => 'Más ausente',       'unit' => 'ausencias'],
+            ['key' => 'permissions',          'emoji' => '📄', 'label' => 'Más permisos',      'unit' => 'permisos'],
+            ['key' => 'licenses',             'emoji' => '🏥', 'label' => 'Más licencias',     'unit' => 'licencias'],
+            ['key' => 'disabled',             'emoji' => '🚫', 'label' => 'Más inhabilitado',  'unit' => 'veces'],
+        ];
+
+        return array_map(function ($def) use ($firefighterStats) {
+            $top = $firefighterStats->sortByDesc($def['key'])->first();
+            $val = $top ? (int) ($top[$def['key']] ?? 0) : 0;
+            return [
+                'emoji' => $def['emoji'],
+                'label' => $def['label'],
+                'name'  => ($top && $val > 0) ? $top['name'] : null,
+                'value' => $val,
+                'unit'  => $def['unit'],
+            ];
+        }, $defs);
+    }
+
+    private function calculateDailyHistory(Carbon $from, Carbon $to, ?int $guardiaId): array
+    {
+        $records = ShiftUser::query()
+            ->whereBetween('start_time', [$from, $to])
+            ->when($guardiaId, fn ($q) => $q->whereHas('firefighter', fn ($q2) => $q2->where('guardia_id', $guardiaId)))
+            ->with(['firefighter.guardia'])
+            ->orderBy('start_time')
+            ->get();
+
+        $byDay = [];
+        foreach ($records as $r) {
+            if (!$r->start_time) continue;
+            $day = $this->resolveShiftDay($r->start_time)->toDateString();
+            $byDay[$day][] = $r;
+        }
+
+        $history = [];
+        foreach ($byDay as $date => $items) {
+            $items       = collect($items);
+            $constituyen = $items->whereIn('attendance_status', ['constituye', 'reemplazo'])->count();
+            $total       = $items->count();
+            $coverage    = $total > 0 ? round(($constituyen / $total) * 100) : 0;
+
+            $absentNames = $items->where('attendance_status', 'ausente')
+                ->map(fn ($r) => trim(($r->firefighter?->nombres ?? '') . ' ' . ($r->firefighter?->apellido_paterno ?? '')))
+                ->filter()
+                ->implode(', ');
+
+            $replacementNames = $items->where('attendance_status', 'reemplazo')
+                ->map(fn ($r) => trim(($r->firefighter?->nombres ?? '') . ' ' . ($r->firefighter?->apellido_paterno ?? '')))
+                ->filter()
+                ->implode(', ');
+
+            $guardiaName = $items->first()?->firefighter?->guardia?->name ?? '—';
+
+            $history[] = [
+                'date'             => \Carbon\Carbon::parse($date)->locale('es')->isoFormat('ddd D MMM'),
+                'guardia'          => $guardiaName,
+                'constituyen'      => $constituyen,
+                'coverage'         => $coverage,
+                'absent_names'     => $absentNames,
+                'replacement_names'=> $replacementNames,
+            ];
+        }
+
+        return array_reverse($history);
+    }
+
     public function drivers(Request $request)
     {
         $user = auth()->user();

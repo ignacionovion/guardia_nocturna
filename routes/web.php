@@ -205,7 +205,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/bomberos/{id}/toggle-fuera-servicio', [AdministradorController::class, 'toggleFueraDeServicio'])->name('admin.bomberos.toggle_fuera_servicio');
 
     // Rutas de Reportes
-    Route::get('/admin/reports', [App\Http\Controllers\ReportController::class, 'index'])->name('admin.reports.index');
+    Route::get('/admin/reports', [App\Http\Controllers\ReportController::class, 'attendance'])->name('admin.reports.index');
+    Route::get('/admin/reports/attendance', [App\Http\Controllers\ReportController::class, 'attendance'])->name('admin.reports.attendance');
     Route::get('/admin/reports/preventivas', [App\Http\Controllers\ReportController::class, 'preventivas'])->name('admin.reports.preventivas');
     Route::get('/admin/reports/reemplazos', [App\Http\Controllers\ReportController::class, 'replacements'])->name('admin.reports.replacements');
     Route::get('/admin/reports/conductores', [App\Http\Controllers\ReportController::class, 'drivers'])->name('admin.reports.drivers');

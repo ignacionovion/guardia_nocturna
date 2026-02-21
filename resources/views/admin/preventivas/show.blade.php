@@ -11,106 +11,128 @@
             </div>
         </div>
 
-        <div class="flex flex-col gap-3">
-            <!-- Fila 1: Estado y Acciones principales -->
-            <div class="flex flex-wrap items-center gap-2">
-                @php
-                    $status = strtolower((string) ($event->status ?? 'draft'));
-                    if (!in_array($status, ['draft', 'active', 'closed'], true)) {
-                        $status = 'draft';
-                    }
-                    $statusLabel = $status === 'active' ? 'Activa' : ($status === 'closed' ? 'Cerrada' : 'Borrador');
-                    $statusCls = $status === 'active'
-                        ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                        : ($status === 'closed' ? 'bg-red-100 text-red-800 border border-red-300' : 'bg-slate-100 text-slate-700 border border-slate-300');
-                @endphp
-
-                <span class="inline-flex items-center px-3 py-2 rounded-lg text-xs font-black uppercase tracking-wider border {{ $statusCls }}">
-                    <i class="fas fa-circle text-[8px] mr-2 {{ $status === 'active' ? 'text-emerald-500' : ($status === 'closed' ? 'text-red-500' : 'text-slate-400') }}"></i>
-                    {{ $statusLabel }}
-                </span>
-
-                <div class="h-6 w-px bg-slate-300 mx-1"></div>
-
-                <a href="{{ route('admin.preventivas.index') }}" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs transition-all">
+        <!-- Panel de Acciones Rediseñado -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+            <!-- Header con Estado y Acciones Principales -->
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                    @php
+                        $status = strtolower((string) ($event->status ?? 'draft'));
+                        if (!in_array($status, ['draft', 'active', 'closed'], true)) {
+                            $status = 'draft';
+                        }
+                        $statusConfig = [
+                            'active' => ['label' => 'Activa', 'bg' => 'bg-emerald-100', 'text' => 'text-emerald-800', 'border' => 'border-emerald-300', 'dot' => 'text-emerald-500'],
+                            'closed' => ['label' => 'Cerrada', 'bg' => 'bg-red-100', 'text' => 'text-red-800', 'border' => 'border-red-300', 'dot' => 'text-red-500'],
+                            'draft' => ['label' => 'Borrador', 'bg' => 'bg-slate-100', 'text' => 'text-slate-700', 'border' => 'border-slate-300', 'dot' => 'text-slate-400'],
+                        ];
+                        $cfg = $statusConfig[$status];
+                    @endphp
+                    <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider border {{ $cfg['bg'] }} {{ $cfg['text'] }} {{ $cfg['border'] }}">
+                        <i class="fas fa-circle text-[8px] mr-2 {{ $cfg['dot'] }}"></i>
+                        {{ $cfg['label'] }}
+                    </span>
+                    <span class="text-xs text-slate-400">{{ $event->start_date?->format('d/m/Y') }} - {{ $event->end_date?->format('d/m/Y') }}</span>
+                </div>
+                <a href="{{ route('admin.preventivas.index') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors">
                     <i class="fas fa-arrow-left"></i>
                     Volver
                 </a>
+            </div>
 
-                <a href="{{ route('admin.preventivas.report', $event) }}" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg text-xs transition-all shadow-sm hover:shadow">
-                    <i class="fas fa-chart-pie"></i>
-                    Reporte
+            <!-- Grid de Acciones -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                <!-- Reporte -->
+                <a href="{{ route('admin.preventivas.report', $event) }}" class="flex items-center gap-3 p-3 rounded-lg bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition-all group">
+                    <div class="w-10 h-10 rounded-lg bg-indigo-600 text-white flex items-center justify-center shadow-sm">
+                        <i class="fas fa-chart-pie text-sm"></i>
+                    </div>
+                    <div>
+                        <div class="text-sm font-bold text-indigo-900">Reporte</div>
+                        <div class="text-xs text-indigo-600">Ver estadísticas</div>
+                    </div>
+                </a>
+
+                <!-- Exportar Excel -->
+                <a href="{{ route('admin.preventivas.report.excel', $event) }}" class="flex items-center gap-3 p-3 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-all group">
+                    <div class="w-10 h-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-sm">
+                        <i class="fas fa-file-excel text-sm"></i>
+                    </div>
+                    <div>
+                        <div class="text-sm font-bold text-emerald-900">Excel</div>
+                        <div class="text-xs text-emerald-600">Descargar datos</div>
+                    </div>
+                </a>
+
+                <!-- Exportar PDF -->
+                <a href="{{ route('admin.preventivas.pdf', $event) }}" class="flex items-center gap-3 p-3 rounded-lg bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-all group">
+                    <div class="w-10 h-10 rounded-lg bg-rose-600 text-white flex items-center justify-center shadow-sm">
+                        <i class="fas fa-file-pdf text-sm"></i>
+                    </div>
+                    <div>
+                        <div class="text-sm font-bold text-rose-900">PDF</div>
+                        <div class="text-xs text-rose-600">Generar reporte</div>
+                    </div>
+                </a>
+
+                <!-- Código QR -->
+                <a href="{{ $status === 'active' ? route('admin.preventivas.qr', $event) : '#' }}" class="flex items-center gap-3 p-3 rounded-lg {{ $status === 'active' ? 'bg-slate-50 hover:bg-slate-100 border-slate-200' : 'bg-slate-50 border-slate-200 opacity-50 cursor-not-allowed' }} border transition-all group" {{ $status === 'active' ? '' : 'onclick="return false;"' }}>
+                    <div class="w-10 h-10 rounded-lg {{ $status === 'active' ? 'bg-slate-800' : 'bg-slate-400' }} text-white flex items-center justify-center shadow-sm">
+                        <i class="fas fa-qrcode text-sm"></i>
+                    </div>
+                    <div>
+                        <div class="text-sm font-bold {{ $status === 'active' ? 'text-slate-900' : 'text-slate-500' }}">QR</div>
+                        <div class="text-xs {{ $status === 'active' ? 'text-slate-600' : 'text-slate-400' }}">{{ $status === 'active' ? 'Acceso público' : 'Solo guardia activa' }}</div>
+                    </div>
                 </a>
             </div>
 
-            <!-- Fila 2: Exportaciones -->
-            <div class="flex flex-wrap items-center gap-2">
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider mr-1">Exportar:</span>
-                
-                <a href="{{ route('admin.preventivas.report.excel', $event) }}" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-3 rounded-lg text-xs transition-all shadow-sm hover:shadow">
-                    <i class="fas fa-file-excel"></i>
-                    Excel
-                </a>
-                <a href="{{ route('admin.preventivas.pdf', $event) }}" class="inline-flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white font-bold py-2 px-3 rounded-lg text-xs transition-all shadow-sm hover:shadow">
-                    <i class="fas fa-file-pdf"></i>
-                    PDF
-                </a>
-                <a href="{{ $status === 'active' ? route('admin.preventivas.qr', $event) : '#' }}" class="inline-flex items-center gap-2 {{ $status === 'active' ? 'bg-slate-800 hover:bg-slate-900 text-white' : 'bg-slate-100 text-slate-400 cursor-not-allowed' }} font-bold py-2 px-3 rounded-lg text-xs transition-all shadow-sm {{ $status === 'active' ? 'hover:shadow' : '' }}" {{ $status === 'active' ? '' : 'aria-disabled=true tabindex=-1' }}>
-                    <i class="fas fa-qrcode"></i>
-                    QR
-                </a>
-            </div>
-
-            <!-- Fila 3: Gestión de estado -->
-            <div class="flex flex-wrap items-center gap-2">
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider mr-1">Estado:</span>
-                
-                @if($status !== 'active' && $status !== 'closed')
-                    <form method="POST" action="{{ route('admin.preventivas.status.activate', $event) }}" onsubmit="return confirm('¿Activar esta preventiva?');" class="inline">
-                        @csrf
-                        <button type="submit" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-3 rounded-lg text-xs transition-all shadow-sm hover:shadow">
-                            <i class="fas fa-bolt"></i>
-                            Activar
-                        </button>
-                    </form>
-                @endif
-                
-                @if($status !== 'closed')
-                    <form method="POST" action="{{ route('admin.preventivas.status.close', $event) }}" onsubmit="return confirm('¿Cerrar esta preventiva? Quedará en solo lectura.');" class="inline">
-                        @csrf
-                        <button type="submit" class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg text-xs transition-all shadow-sm hover:shadow">
-                            <i class="fas fa-lock"></i>
-                            Cerrar
-                        </button>
-                    </form>
-                @endif
-                
-                @if($status === 'closed')
-                    <form method="POST" action="{{ route('admin.preventivas.status.draft', $event) }}" onsubmit="return confirm('¿Reabrir esta preventiva en modo Borrador?');" class="inline">
-                        @csrf
-                        <button type="submit" class="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-3 rounded-lg text-xs transition-all shadow-sm hover:shadow">
-                            <i class="fas fa-rotate"></i>
-                            Reabrir
-                        </button>
-                    </form>
-                @endif
-            </div>
-
-            <!-- Fila 4: Zona peligro (eliminar) -->
-            @if($status !== 'active')
-                <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-200 mt-1">
-                    <span class="text-xs font-bold text-red-400 uppercase tracking-wider mr-1">Zona peligro:</span>
+            <!-- Acciones de Estado -->
+            <div class="mt-4 pt-4 border-t border-slate-100">
+                <div class="flex flex-wrap items-center gap-2">
+                    @if($status !== 'active' && $status !== 'closed')
+                        <form method="POST" action="{{ route('admin.preventivas.status.activate', $event) }}" onsubmit="return confirm('¿Activar esta preventiva?');" class="inline">
+                            @csrf
+                            <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-all shadow-sm">
+                                <i class="fas fa-bolt"></i>
+                                Activar Guardia
+                            </button>
+                        </form>
+                    @endif
                     
-                    <form method="POST" action="{{ route('admin.preventivas.destroy', $event) }}" onsubmit="return confirm('¿ELIMINAR permanentemente esta preventiva? Esta acción no se puede deshacer.');" class="inline">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="inline-flex items-center gap-2 bg-white border border-red-300 hover:bg-red-50 text-red-600 font-bold py-2 px-3 rounded-lg text-xs transition-all">
-                            <i class="fas fa-trash-can"></i>
-                            Eliminar Evento
-                        </button>
-                    </form>
+                    @if($status !== 'closed')
+                        <form method="POST" action="{{ route('admin.preventivas.status.close', $event) }}" onsubmit="return confirm('¿Cerrar esta preventiva? Quedará en solo lectura.');" class="inline">
+                            @csrf
+                            <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold text-xs transition-all shadow-sm">
+                                <i class="fas fa-lock"></i>
+                                Cerrar
+                            </button>
+                        </form>
+                    @endif
+                    
+                    @if($status === 'closed')
+                        <form method="POST" action="{{ route('admin.preventivas.status.draft', $event) }}" onsubmit="return confirm('¿Reabrir esta preventiva en modo Borrador?');" class="inline">
+                            @csrf
+                            <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs transition-all shadow-sm">
+                                <i class="fas fa-rotate"></i>
+                                Reabrir
+                            </button>
+                        </form>
+                    @endif
+                    
+                    @if($status !== 'active')
+                        <div class="flex-1"></div>
+                        <form method="POST" action="{{ route('admin.preventivas.destroy', $event) }}" onsubmit="return confirm('¿ELIMINAR permanentemente esta preventiva? Esta acción no se puede deshacer.');" class="inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-red-300 hover:bg-red-50 text-red-600 font-bold text-xs transition-all">
+                                <i class="fas fa-trash-can"></i>
+                                Eliminar
+                            </button>
+                        </form>
+                    @endif
                 </div>
-            @endif
+            </div>
         </div>
     </div>
 

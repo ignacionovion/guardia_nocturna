@@ -1,0 +1,103 @@
+
+    {{-- INFORME GENERAL --}}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <div class="lg:col-span-2 bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-base font-bold text-slate-800 uppercase tracking-wide">
+                    <i class="fas fa-chart-bar mr-2 text-red-500"></i>
+                    {{ $currentView === 'general' ? 'Consolidado General' : ($activeGuardia ? $activeGuardia->name : 'Sin Guardia') }}
+                </h3>
+                <span class="text-xs text-slate-400">{{ $from->format('d/m/Y') }} — {{ $to->format('d/m/Y') }}</span>
+            </div>
+            <div class="space-y-3 mb-6">
+                @foreach($guardiaStats as $stat)
+                <div class="flex items-center gap-3">
+                    <div class="w-24 text-xs font-semibold text-slate-600 truncate">{{ $stat['label'] }}</div>
+                    <div class="flex-1 h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                        <div class="h-full bg-{{ $stat['color'] }}-500 rounded-full" style="width: {{ min($stat['value'], 100) }}%"></div>
+                    </div>
+                    <div class="w-12 text-right">
+                        <span class="text-xs font-bold text-{{ $stat['color'] }}-600">{{ $stat['value'] }}%</span>
+                    </div>
+                    <div class="w-6 text-right text-xs text-slate-400 font-semibold">{{ $stat['count'] }}</div>
+                </div>
+                @endforeach
+            </div>
+            <div class="pt-4 border-t border-slate-100">
+                <h4 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">
+                    Últimas 8 Semanas <span class="normal-case font-normal text-slate-400">(Dom 22:00 → Dom 07:00)</span>
+                </h4>
+                <div class="grid grid-cols-8 gap-1.5">
+                    @foreach($weeklyStats as $week)
+                    <div class="text-center">
+                        <div class="text-[10px] text-slate-400 mb-1 truncate">{{ $week['week'] }}</div>
+                        <div class="h-14 bg-slate-100 rounded relative overflow-hidden">
+                            <div class="absolute bottom-0 left-0 right-0 rounded transition-all
+                                        {{ $week['percentage'] >= 80 ? 'bg-emerald-500' : ($week['percentage'] >= 60 ? 'bg-amber-400' : 'bg-rose-400') }}"
+                                 style="height: {{ $week['percentage'] }}%"></div>
+                        </div>
+                        <div class="text-[10px] font-bold mt-1 {{ $week['active'] ? 'text-red-600' : 'text-slate-500' }}">
+                            {{ $week['percentage'] }}%
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-4">
+            <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-5">
+                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Resumen</h3>
+                <div class="text-center mb-4">
+                    <div class="text-5xl font-black text-slate-800">{{ $generalPercentage }}%</div>
+                    <div class="text-xs text-slate-500 mt-1 uppercase tracking-wide">Cumplimiento General</div>
+                </div>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between py-1.5 border-b border-slate-100">
+                        <span class="text-slate-500">Total Personal</span>
+                        <span class="font-bold text-slate-800">{{ $totalPersonnel }}</span>
+                    </div>
+                    <div class="flex justify-between py-1.5 border-b border-slate-100">
+                        <span class="text-slate-500">Índice Estabilidad</span>
+                        <span class="font-bold {{ $stabilityIndex >= 80 ? 'text-emerald-600' : ($stabilityIndex >= 60 ? 'text-amber-600' : 'text-rose-600') }}">{{ $stabilityIndex }}%</span>
+                    </div>
+                    <div class="flex justify-between py-1.5 border-b border-slate-100">
+                        <span class="text-slate-500">Periodo</span>
+                        <span class="font-bold text-slate-800 text-xs">{{ $from->format('d/m') }} — {{ $to->format('d/m') }}</span>
+                    </div>
+                    <div class="flex justify-between py-1.5 border-b border-slate-100">
+                        <span class="text-slate-500">Total Turnos</span>
+                        <span class="font-bold text-slate-800">{{ ($stats['fulfilled'] ?? 0) + ($stats['absences'] ?? 0) + ($stats['permissions'] ?? 0) + ($stats['licenses'] ?? 0) }}</span>
+                    </div>
+                    <div class="flex justify-between py-1.5">
+                        <span class="text-slate-500">Refuerzos</span>
+                        <span class="font-bold text-teal-600">{{ $stats['reinforcements'] ?? 0 }}</span>
+                    </div>
+                </div>
+            </div>
+
+            @if($currentView === 'general' && !empty($guardiaComparison))
+            <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-5">
+                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Comparativa Guardias</h3>
+                <div class="space-y-3">
+                    @foreach($guardiaComparison as $gc)
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="font-semibold text-slate-700">{{ $gc['name'] }}</span>
+                            <span class="font-bold {{ $gc['percentage'] >= 80 ? 'text-emerald-600' : ($gc['percentage'] >= 60 ? 'text-amber-600' : 'text-rose-600') }}">{{ $gc['percentage'] }}%</span>
+                        </div>
+                        <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+                            <div class="h-full rounded-full {{ $gc['percentage'] >= 80 ? 'bg-emerald-500' : ($gc['percentage'] >= 60 ? 'bg-amber-400' : 'bg-rose-400') }}"
+                                 style="width: {{ $gc['percentage'] }}%"></div>
+                        </div>
+                        <div class="flex justify-between text-[10px] text-slate-400 mt-0.5">
+                            <span>{{ $gc['fulfilled'] }} cumplidos / {{ $gc['total'] }} turnos</span>
+                            <span>{{ $gc['personnel'] }} pers.</span>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+        </div>
+    </div>

@@ -59,6 +59,11 @@ class Bombero extends Model
         return $this->belongsTo(Guardia::class);
     }
 
+    public function shiftUsers()
+    {
+        return $this->hasMany(ShiftUser::class, 'firefighter_id');
+    }
+
     public function legacyUserMap()
     {
         return $this->hasOne(MapaBomberoUsuarioLegacy::class, 'firefighter_id');

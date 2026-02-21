@@ -180,10 +180,19 @@ class TableroController extends Controller
             [$endH, $endM] = array_map('intval', explode(':', (string) $dailyEndTime));
             $endAt = $localNow->copy()->setTime($endH, $endM, 0);
 
+            // Auto-reset de reemplazos/refuerzos no titulares al pasar la hora de cierre (07:00).
+            // Solo se resetean los que fueron asignados ANTES del inicio del turno actual,
+            // para no borrar refuerzos/reemplazos agregados durante el turno de hoy.
             if ($localNow->greaterThanOrEqualTo($endAt)) {
+                // El turno actual empezó ayer a las 23:00 (o 22:00 domingo).
+                // Cualquier no-titular cuyo updated_at sea anterior a endAt de hoy
+                // pertenece al turno anterior y debe resetearse.
+                $cutoffForReset = $endAt->copy();
+
                 Bombero::query()
                     ->where('guardia_id', $guardiaIdForGuardiaUser)
                     ->where('es_titular', false)
+                    ->where('updated_at', '<', $cutoffForReset)
                     ->get()
                     ->each(function (Bombero $b) {
                         $restoreGuardiaId = null;

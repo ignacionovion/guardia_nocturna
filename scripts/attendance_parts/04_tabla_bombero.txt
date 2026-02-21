@@ -1,0 +1,89 @@
+
+    {{-- TABLA POR BOMBERO --}}
+    <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden mb-6">
+        <div class="p-4 border-b border-slate-200 flex items-center justify-between">
+            <h3 class="text-base font-bold text-slate-800 uppercase tracking-wide flex items-center gap-2">
+                <i class="fas fa-users text-slate-400"></i> Informe por Bombero
+            </h3>
+            <span class="text-xs text-slate-400">{{ count($firefighterStats) }} voluntarios</span>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-slate-50 border-b border-slate-200">
+                    <tr>
+                        <th class="text-left py-3 px-4 font-semibold text-slate-600 text-xs uppercase">Voluntario</th>
+                        <th class="text-center py-3 px-2 font-semibold text-slate-500 text-xs uppercase">Turnos</th>
+                        <th class="text-center py-3 px-2 font-semibold text-emerald-600 text-xs uppercase">Cumpl.</th>
+                        <th class="text-center py-3 px-2 font-semibold text-rose-600 text-xs uppercase">Aus.</th>
+                        <th class="text-center py-3 px-2 font-semibold text-amber-600 text-xs uppercase">Perm.</th>
+                        <th class="text-center py-3 px-2 font-semibold text-blue-600 text-xs uppercase">Lic.</th>
+                        <th class="text-center py-3 px-2 font-semibold text-slate-500 text-xs uppercase">Inhab.</th>
+                        <th class="text-center py-3 px-2 font-semibold text-purple-600 text-xs uppercase">Reempl. Hechos</th>
+                        <th class="text-center py-3 px-2 font-semibold text-indigo-600 text-xs uppercase">Reempl. Recib.</th>
+                        <th class="text-center py-3 px-2 font-semibold text-teal-600 text-xs uppercase">Refuerzos</th>
+                        <th class="text-center py-3 px-3 font-semibold text-slate-600 text-xs uppercase">% Cumpl.</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @forelse($firefighterStats as $ff)
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="py-3 px-4">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center text-red-700 font-bold text-xs flex-shrink-0">
+                                    {{ $ff['code'] }}
+                                </div>
+                                <div>
+                                    <span class="font-medium text-slate-800 text-xs block">{{ $ff['name'] }}</span>
+                                    @if(!empty($ff['guardia_name']))
+                                    <span class="text-[10px] text-slate-400">{{ $ff['guardia_name'] }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-3 px-2 text-center font-bold text-slate-700">{{ $ff['shift'] }}</td>
+                        <td class="py-3 px-2 text-center">
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded bg-emerald-100 text-emerald-700 font-bold text-xs">{{ $ff['fulfilled'] }}</span>
+                        </td>
+                        <td class="py-3 px-2 text-center">
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded {{ $ff['absences'] > 0 ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-400' }} font-bold text-xs">{{ $ff['absences'] }}</span>
+                        </td>
+                        <td class="py-3 px-2 text-center">
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded {{ $ff['permissions'] > 0 ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-400' }} font-bold text-xs">{{ $ff['permissions'] }}</span>
+                        </td>
+                        <td class="py-3 px-2 text-center">
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded {{ $ff['licenses'] > 0 ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-400' }} font-bold text-xs">{{ $ff['licenses'] }}</span>
+                        </td>
+                        <td class="py-3 px-2 text-center">
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded {{ $ff['disabled'] > 0 ? 'bg-slate-200 text-slate-600' : 'bg-slate-100 text-slate-400' }} font-bold text-xs">{{ $ff['disabled'] }}</span>
+                        </td>
+                        <td class="py-3 px-2 text-center">
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded {{ ($ff['replacements_made'] ?? 0) > 0 ? 'bg-purple-100 text-purple-700' : 'bg-slate-100 text-slate-400' }} font-bold text-xs">{{ $ff['replacements_made'] ?? 0 }}</span>
+                        </td>
+                        <td class="py-3 px-2 text-center">
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded {{ ($ff['replacements_received'] ?? 0) > 0 ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-400' }} font-bold text-xs">{{ $ff['replacements_received'] ?? 0 }}</span>
+                        </td>
+                        <td class="py-3 px-2 text-center">
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded {{ ($ff['reinforcements'] ?? 0) > 0 ? 'bg-teal-100 text-teal-700' : 'bg-slate-100 text-slate-400' }} font-bold text-xs">{{ $ff['reinforcements'] ?? 0 }}</span>
+                        </td>
+                        <td class="py-3 px-3">
+                            <div class="flex items-center gap-2">
+                                <div class="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden min-w-[40px]">
+                                    <div class="h-full rounded-full {{ $ff['percentage'] >= 90 ? 'bg-emerald-500' : ($ff['percentage'] >= 75 ? 'bg-amber-500' : 'bg-rose-500') }}"
+                                         style="width: {{ $ff['percentage'] }}%"></div>
+                                </div>
+                                <span class="text-xs font-bold {{ $ff['percentage'] >= 90 ? 'text-emerald-600' : ($ff['percentage'] >= 75 ? 'text-amber-600' : 'text-rose-600') }} w-8 text-right">{{ $ff['percentage'] }}%</span>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="11" class="py-10 text-center text-slate-400">
+                            <i class="fas fa-inbox text-2xl mb-2 block"></i>
+                            No hay datos para el periodo seleccionado
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>

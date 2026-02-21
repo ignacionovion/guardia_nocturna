@@ -186,7 +186,7 @@
                                 <input type="hidden" name="users[{{ $staff->id }}][estado_asistencia]" id="attendance-status-{{ $staff->id }}" value="{{ $status }}">
                                 <input type="hidden" name="users[{{ $staff->id }}][confirm_token]" id="confirm-token-{{ $staff->id }}" value="">
 
-                                <div id="guardia-card-{{ $staff->id }}" class="bg-slate-900 rounded-xl shadow-sm border border-slate-800 overflow-hidden flex flex-col h-[420px]" data-card-user="{{ $staff->id }}" data-requires-confirmation="{{ (in_array($status, ['constituye','reemplazo'], true) || $staff->es_refuerzo || $repAsReplacement) ? '1' : '0' }}" data-is-confirmed="0">
+                                <div id="guardia-card-{{ $staff->id }}" class="bg-slate-900 rounded-xl shadow-sm border border-slate-800 overflow-hidden flex flex-col h-full min-h-[420px]" data-card-user="{{ $staff->id }}" data-requires-confirmation="{{ (in_array($status, ['constituye','reemplazo'], true) || $staff->es_refuerzo || $repAsReplacement) ? '1' : '0' }}" data-is-confirmed="0">
                                     <div id="card-header-{{ $staff->id }}" class="{{ $statusHeaderClass }} text-white px-2 py-1.5 flex items-center justify-between">
                                         <div class="min-w-0">
                                             <div class="text-[12px] font-black truncate" title="{{ $staff->nombres }} {{ $staff->apellido_paterno }}">
@@ -1758,19 +1758,51 @@
                     <div class="space-y-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Voluntario Reemplazante</label>
-                            <div class="relative">
-                                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                                <input list="modal_volunteers_list" name="replacement_firefighter_id_display" autocomplete="off"
-                                class="w-full text-sm border-slate-800 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-slate-700 pl-9 py-2.5 bg-slate-950 text-slate-100 placeholder:text-slate-500"
-                                placeholder="Buscar voluntario..." required
-                                oninput="updateModalReplacementUserId(this)">
-                            <input type="hidden" name="replacement_firefighter_id" id="modal_replacement_firefighter_id" required>
+                            <!-- Custom Professional Dropdown -->
+                            <div class="relative" id="replacement-select-container">
+                                <input type="hidden" name="replacement_firefighter_id" id="modal_replacement_firefighter_id" required>
+                                
+                                <!-- Search Input -->
+                                <div class="relative">
+                                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                    <input type="text" id="replacement-search-input"
+                                        class="w-full text-sm border-slate-800 rounded-lg shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 pl-9 pr-10 py-2.5 bg-slate-950 text-slate-100 placeholder:text-slate-500 cursor-pointer"
+                                        placeholder="Buscar voluntario..." autocomplete="off" readonly>
+                                    <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                                </div>
+                                
+                                <!-- Dropdown Menu -->
+                                <div id="replacement-dropdown" class="hidden absolute top-full left-0 right-0 mt-1 bg-slate-900 border border-slate-700 rounded-lg shadow-xl z-50 max-h-64 overflow-y-auto">
+                                    <div class="p-2 sticky top-0 bg-slate-900 border-b border-slate-800">
+                                        <input type="text" id="replacement-filter-input" 
+                                            class="w-full text-xs bg-slate-800 border-slate-700 rounded px-2 py-1.5 text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-blue-500"
+                                            placeholder="Filtrar por nombre o RUT...">
+                                    </div>
+                                    <div id="replacement-options-list" class="py-1">
+                                        @foreach($replacementCandidates as $cand)
+                                            <div class="replacement-option px-3 py-2 hover:bg-slate-800 cursor-pointer transition-colors flex items-center gap-3"
+                                                 data-value="{{ $cand->id }}"
+                                                 data-search="{{ strtolower(trim($cand->nombres . ' ' . $cand->apellido_paterno . ' ' . ($cand->apellido_materno ?? '') . ' ' . ($cand->rut ?? ''))) }}">
+                                                <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 text-xs font-bold">
+                                                    {{ strtoupper(substr($cand->nombres, 0, 1)) }}
+                                                </div>
+                                                <div class="flex-1 min-w-0">
+                                                    <div class="text-sm font-medium text-slate-200 truncate">
+                                                        {{ trim($cand->nombres . ' ' . $cand->apellido_paterno) }}
+                                                    </div>
+                                                    @if($cand->rut)
+                                                        <div class="text-xs text-slate-500">{{ $cand->rut }}</div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                    <div id="replacement-no-results" class="hidden px-3 py-4 text-center text-xs text-slate-500">
+                                        No se encontraron resultados
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                            <datalist id="modal_volunteers_list">
-                                @foreach($replacementCandidates as $cand)
-                                    <option data-value="{{ $cand->id }}" value="{{ trim($cand->nombres . ' ' . $cand->apellido_paterno . ' ' . ($cand->apellido_materno ?? '') . ($cand->rut ? ' - ' . $cand->rut : '')) }}"></option>
-                                @endforeach
-                            </datalist>
 
                         <div class="flex gap-3 pt-2">
                             <button type="button" onclick="closeReplacementModal()" class="w-1/2 py-2.5 px-4 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 font-bold text-sm hover:bg-slate-900 transition-colors uppercase">
@@ -1799,5 +1831,97 @@
                 // No-op
             }
         }
+
+        // Custom Replacement Dropdown
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('replacement-search-input');
+            const dropdown = document.getElementById('replacement-dropdown');
+            const filterInput = document.getElementById('replacement-filter-input');
+            const optionsList = document.getElementById('replacement-options-list');
+            const noResults = document.getElementById('replacement-no-results');
+            const hiddenInput = document.getElementById('modal_replacement_firefighter_id');
+            const container = document.getElementById('replacement-select-container');
+            
+            if (!searchInput || !dropdown) return;
+
+            let isOpen = false;
+
+            // Toggle dropdown
+            searchInput.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (!isOpen) {
+                    openDropdown();
+                }
+            });
+
+            function openDropdown() {
+                isOpen = true;
+                dropdown.classList.remove('hidden');
+                filterInput.focus();
+                filterInput.value = '';
+                filterOptions('');
+            }
+
+            function closeDropdown() {
+                isOpen = false;
+                dropdown.classList.add('hidden');
+            }
+
+            // Close on click outside
+            document.addEventListener('click', function(e) {
+                if (!container.contains(e.target)) {
+                    closeDropdown();
+                }
+            });
+
+            // Filter functionality
+            if (filterInput) {
+                filterInput.addEventListener('input', function() {
+                    filterOptions(this.value.toLowerCase());
+                });
+            }
+
+            function filterOptions(query) {
+                const options = optionsList.querySelectorAll('.replacement-option');
+                let visibleCount = 0;
+
+                options.forEach(function(option) {
+                    const searchData = option.getAttribute('data-search') || '';
+                    if (searchData.includes(query)) {
+                        option.classList.remove('hidden');
+                        visibleCount++;
+                    } else {
+                        option.classList.add('hidden');
+                    }
+                });
+
+                if (visibleCount === 0) {
+                    noResults.classList.remove('hidden');
+                } else {
+                    noResults.classList.add('hidden');
+                }
+            }
+
+            // Option selection
+            optionsList.addEventListener('click', function(e) {
+                const option = e.target.closest('.replacement-option');
+                if (!option) return;
+
+                const value = option.getAttribute('data-value');
+                const text = option.querySelector('.text-sm').textContent.trim();
+
+                hiddenInput.value = value;
+                searchInput.value = text;
+                closeDropdown();
+            });
+
+            // Keyboard navigation
+            filterInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeDropdown();
+                    searchInput.focus();
+                }
+            });
+        });
     </script>
 @endsection
