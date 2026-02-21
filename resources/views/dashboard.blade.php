@@ -30,17 +30,12 @@
 
                 return $now->greaterThanOrEqualTo($enableAt) || $now->lessThan($disableAt);
             })();
-            // Filtrar personal activo (excluyendo los que están siendo reemplazados)
-            $activeStaff = $myStaff->filter(function ($u) use ($replacementByOriginal) {
-                return !($replacementByOriginal && $replacementByOriginal->has($u->id));
-            });
-
-            $outOfServiceStaff = $activeStaff->filter(function ($u) {
+            // Filtrar personal activo (todos los de la guardia excepto fuera de servicio)
+            $outOfServiceStaff = $myStaff->filter(function ($u) {
                 return (bool) ($u->fuera_de_servicio ?? false);
             });
 
-            // Excluir fuera de servicio de la operación diaria
-            $activeStaff = $activeStaff->reject(function ($u) {
+            $activeStaff = $myStaff->reject(function ($u) {
                 return (bool) ($u->fuera_de_servicio ?? false);
             });
 
