@@ -156,8 +156,9 @@
                             @forelse($activeStaff as $staff)
                                 @php
                                     $repAsReplacement = isset($replacementByReplacement) ? $replacementByReplacement->get($staff->id) : null;
+                                    $repAsOriginal = isset($replacementByOriginal) ? $replacementByOriginal->get($staff->id) : null;
                                     $status = $repAsReplacement ? 'reemplazo' : $staff->estado_asistencia;
-                                    $lockAttendanceStatus = (bool) ($repAsReplacement || $staff->es_refuerzo);
+                                    $lockAttendanceStatus = (bool) ($repAsReplacement || $staff->es_refuerzo || $repAsOriginal);
                                     $statusDotClass = match ($status) {
                                         'constituye' => 'bg-emerald-400',
                                         'reemplazo' => 'bg-purple-400',
@@ -285,6 +286,20 @@
                                         </div>
                                     @endif
 
+                                    @if($repAsOriginal)
+                                        <div class="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-2 text-amber-800">
+                                            <div class="text-[11px] font-black uppercase tracking-widest">Reemplazado por</div>
+                                            <div class="text-sm font-black leading-tight truncate">
+                                                {{ explode(' ', trim((string) ($repAsOriginal->replacementFirefighter?->nombres ?? '')))[0] ?? '' }} {{ explode(' ', trim((string) ($repAsOriginal->replacementFirefighter?->apellido_paterno ?? '')))[0] ?? '' }}
+                                            </div>
+                                            <div class="mt-1">
+                                                <button type="button" onclick="openUndoReplacementModal('{{ route('admin.guardias.replacement.undo', $repAsOriginal->id) }}')" class="w-full bg-white hover:bg-amber-100 text-amber-800 font-black uppercase tracking-widest text-[10px] py-1.5 rounded-lg border border-amber-200">
+                                                    Deshacer reemplazo
+                                                </button>
+                                            </div>
+                                        </div>
+                                    @endif
+
                                     <div class="mt-1.5">
                                         <div id="confirm-box-wrap-{{ $staff->id }}" class="{{ (in_array($status, ['constituye','reemplazo'], true) || $staff->es_refuerzo || $repAsReplacement) ? '' : 'hidden' }}">
                                             <div id="confirm-box-{{ $staff->id }}" class="mb-2 rounded-xl border border-slate-800 bg-slate-950 px-2.5 py-2">
@@ -337,8 +352,8 @@
                                         @endif
                                     </div>
 
-                                    <div class="mt-1.5 {{ ($repAsReplacement || $staff->es_refuerzo) ? 'min-h-0' : 'min-h-[72px]' }}">
-                                        @if(!($repAsReplacement || $staff->es_refuerzo))
+                                    <div class="mt-1.5 {{ ($repAsReplacement || $staff->es_refuerzo || $repAsOriginal) ? 'min-h-0' : 'min-h-[72px]' }}">
+                                        @if(!($repAsReplacement || $staff->es_refuerzo || $repAsOriginal))
                                             <button
                                                 type="button"
                                                 data-open-replacement="1"
