@@ -189,6 +189,26 @@ class TableroController extends Controller
                 // pertenece al turno anterior y debe resetearse.
                 $cutoffForReset = $endAt->copy();
 
+                // Obtener IDs de bomberos no titulares que serán reseteados
+                $resetBomberoIds = Bombero::query()
+                    ->where('guardia_id', $guardiaIdForGuardiaUser)
+                    ->where('es_titular', false)
+                    ->where('updated_at', '<', $cutoffForReset)
+                    ->pluck('id')
+                    ->toArray();
+
+                // Marcar reemplazos como completados para estos bomberos
+                if (!empty($resetBomberoIds)) {
+                    ReemplazoBombero::query()
+                        ->where('estado', 'activo')
+                        ->where('guardia_id', $guardiaIdForGuardiaUser)
+                        ->whereIn('bombero_reemplazante_id', $resetBomberoIds)
+                        ->update([
+                            'estado' => 'completado',
+                            'fin' => $localNow,
+                        ]);
+                }
+
                 Bombero::query()
                     ->where('guardia_id', $guardiaIdForGuardiaUser)
                     ->where('es_titular', false)
