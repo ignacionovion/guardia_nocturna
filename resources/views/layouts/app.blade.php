@@ -39,9 +39,6 @@
                         <a href="{{ route('camas') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('camas') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
                             <i class="fas fa-bed mr-1.5 opacity-70"></i> Camas
                         </a>
-                        <a href="{{ route('admin.dotaciones') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('admin.dotaciones*') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-                            <i class="fas fa-users-gear mr-1.5 opacity-70"></i> Mi Dotación
-                        </a>
                     @elseif(Auth::user()->role === 'inventario')
                         <a href="{{ route('inventario.index') }}" class="px-3 py-2 rounded-md text-sm font-semibold transition-colors {{ request()->routeIs('inventario.*') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                             <i class="fas fa-boxes-stacked mr-1.5 opacity-80"></i> Inventario
@@ -85,9 +82,6 @@
                                 </a>
                                 <a href="{{ route('admin.guardias') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                                     <i class="fas fa-shield mr-2 text-slate-500"></i> Guardias
-                                </a>
-                                <a href="{{ route('admin.dotaciones') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
-                                    <i class="fas fa-users-gear mr-2 text-slate-500"></i> Dotaciones
                                 </a>
                                 <a href="{{ route('camas') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                                     <i class="fas fa-bed mr-2 text-slate-500"></i> Camas
@@ -149,9 +143,6 @@
                         
                         <a href="{{ route('admin.guardias') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('admin.guardias*') ? 'bg-red-900/50 text-red-100 shadow-inner' : 'text-slate-300 hover:bg-red-900/30 hover:text-red-100' }}">
                             <i class="fas fa-shield mr-1.5 text-red-400"></i> Guardias
-                        </a>
-                        <a href="{{ route('admin.dotaciones') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('admin.dotaciones*') ? 'bg-red-900/50 text-red-100 shadow-inner' : 'text-slate-300 hover:bg-red-900/30 hover:text-red-100' }}">
-                            <i class="fas fa-users-gear mr-1.5 text-red-400"></i> Dotaciones
                         </a>
                         <a href="{{ route('admin.calendario') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('admin.calendario*') ? 'bg-red-900/50 text-red-100 shadow-inner' : 'text-slate-300 hover:bg-red-900/30 hover:text-red-100' }}">
                             <i class="fas fa-calendar-alt mr-1.5 text-red-400"></i> Calendario
@@ -225,9 +216,6 @@
                                 <a href="{{ route('camas') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('camas') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                                     <i class="fas fa-bed mr-2 opacity-80"></i> Camas
                                 </a>
-                                <a href="{{ route('admin.dotaciones') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('admin.dotaciones*') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
-                                    <i class="fas fa-users-gear mr-2 opacity-80"></i> Mi Dotación
-                                </a>
                             @elseif(Auth::user()->role === 'inventario')
                                 <a href="{{ route('inventario.index') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('inventario.*') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                                     <i class="fas fa-boxes-stacked mr-2 opacity-80"></i> Inventario
@@ -256,9 +244,6 @@
                                 </a>
                                 <a href="{{ route('admin.guardias') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:bg-slate-800 hover:text-white">
                                     <i class="fas fa-shield mr-2 opacity-80"></i> Guardias
-                                </a>
-                                <a href="{{ route('admin.dotaciones') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:bg-slate-800 hover:text-white">
-                                    <i class="fas fa-users-gear mr-2 opacity-80"></i> Dotaciones
                                 </a>
                                 <a href="{{ route('camas') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:bg-slate-800 hover:text-white">
                                     <i class="fas fa-bed mr-2 opacity-80"></i> Camas

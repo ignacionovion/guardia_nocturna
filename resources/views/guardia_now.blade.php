@@ -23,7 +23,7 @@
     <div class="mt-6">
         <div id="now-shift" class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
             <div class="p-6 border-b border-slate-200 bg-slate-50">
-                <div class="text-xs font-black uppercase tracking-widest text-slate-600">Guardia constituida</div>
+                <div class="text-xs font-black uppercase tracking-widest text-slate-600">Asistencia Registrada</div>
                 <div class="text-sm text-slate-600 mt-1">Información del turno activo.</div>
             </div>
             <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">

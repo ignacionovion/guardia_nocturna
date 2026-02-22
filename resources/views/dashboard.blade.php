@@ -128,7 +128,7 @@
                         <span id="attendance-saved-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-amber-200 bg-amber-50 text-amber-800 shrink-0">RECORDAR REGISTRAR GUARDIA A LAS 23:00</span>
                     @else
                         @if(isset($hasAttendanceSavedToday) && $hasAttendanceSavedToday)
-                            <span id="attendance-saved-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 shrink-0">GUARDIA CONSTITUIDA</span>
+                            <span id="attendance-saved-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 shrink-0">ASISTENCIA REGISTRADA</span>
                         @else
                             <span id="attendance-saved-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-red-200 bg-red-50 text-red-700 shrink-0">SIN REGISTRAR ASISTENCIA</span>
                         @endif
@@ -706,11 +706,27 @@
                 @else
                     <div class="relative border-l-2 border-slate-200 ml-3 space-y-6 max-h-[320px] overflow-auto pr-1">
                         @foreach($novelties->take(5) as $novelty)
-                            <div class="ml-6 relative">
+                            <div class="ml-6 relative group">
                                 <span class="absolute -left-[31px] top-0 flex items-center justify-center w-4 h-4 bg-white rounded-full ring-4 ring-white">
-                                    <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                                    <span class="w-2 h-2 {{ $novelty->is_permanent ? 'bg-red-500' : 'bg-blue-500' }} rounded-full"></span>
                                 </span>
-                                <h3 class="text-sm font-bold text-slate-800">{{ $novelty->title }}</h3>
+                                <div class="flex items-start justify-between gap-2">
+                                    <div class="flex-1 min-w-0">
+                                        <h3 class="text-sm font-bold text-slate-800">{{ $novelty->title }}</h3>
+                                        @if($novelty->is_permanent)
+                                            <span class="inline-block mt-1 text-[10px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100">PERMANENTE</span>
+                                        @endif
+                                    </div>
+                                    @if($novelty->is_permanent && in_array(Auth::user()->role, ['super_admin', 'capitania'], true))
+                                        <form action="{{ route('novelties.destroy', $novelty->id) }}" method="POST" onsubmit="return confirm('¿Eliminar esta novedad permanente?');" class="opacity-0 group-hover:opacity-100 transition-opacity">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-red-400 hover:text-red-600 p-1" title="Eliminar novedad permanente">
+                                                <i class="fas fa-trash-alt text-xs"></i>
+                                            </button>
+                                        </form>
+                                    @endif
+                                </div>
                                 <p class="text-sm text-slate-600 mt-1 leading-relaxed">{{ $novelty->description }}</p>
                                 <div class="mt-2 flex items-center justify-between gap-3">
                                     <span class="text-xs text-slate-400 font-medium">
@@ -756,7 +772,11 @@
                         <option value="Incidente" {{ old('type') == 'Incidente' ? 'selected' : '' }}>Incidente</option>
                         <option value="Mantención" {{ old('type') == 'Mantención' ? 'selected' : '' }}>Mantención</option>
                         <option value="Urgente" {{ old('type') == 'Urgente' ? 'selected' : '' }}>Urgente</option>
+                        <option value="Permanente" {{ old('type') == 'Permanente' ? 'selected' : '' }}>Permanente (Todas las Guardias)</option>
                     </select>
+                    <div class="mt-1 text-[10px] text-slate-500">
+                        <i class="fas fa-info-circle mr-1"></i> Las novedades "Permanentes" son visibles para todas las guardias. Solo admin/capitán pueden eliminarlas.
+                    </div>
                     @error('type')
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                     @enderror

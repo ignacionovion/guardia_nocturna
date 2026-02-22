@@ -48,17 +48,91 @@
                     <input
                         type="text"
                         name="rut"
+                        id="rut-input"
                         value="{{ old('rut') }}"
                         required
                         placeholder="11222333-4"
-                        class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 font-semibold font-mono"
+                        class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 font-semibold font-mono uppercase"
                         autocomplete="off"
-                        inputmode="text"
+                        inputmode="numeric"
                     />
                     @error('rut')
                         <div class="mt-2 text-sm text-rose-200 font-semibold">{{ $message }}</div>
                     @enderror
                 </div>
+
+                <script>
+                    (function() {
+                        const rutInput = document.getElementById('rut-input');
+                        if (!rutInput) return;
+
+                        function formatRUT(value) {
+                            // Remove all non-alphanumeric characters
+                            value = value.replace(/[^a-zA-Z0-9]/g, '');
+                            
+                            // Convert to uppercase
+                            value = value.toUpperCase();
+                            
+                            // Limit to 9 characters (8 digits + 1 check digit)
+                            if (value.length > 9) {
+                                value = value.substring(0, 9);
+                            }
+                            
+                            // Format with hyphen
+                            if (value.length > 1) {
+                                const body = value.substring(0, value.length - 1);
+                                const checkDigit = value.substring(value.length - 1);
+                                value = body + '-' + checkDigit;
+                            }
+                            
+                            return value;
+                        }
+
+                        rutInput.addEventListener('input', function(e) {
+                            const cursorPosition = this.selectionStart;
+                            const oldValue = this.value;
+                            const newValue = formatRUT(this.value);
+                            
+                            this.value = newValue;
+                            
+                            // Adjust cursor position
+                            if (cursorPosition === oldValue.length) {
+                                this.setSelectionRange(newValue.length, newValue.length);
+                            } else {
+                                // Keep cursor at same relative position
+                                const diff = newValue.length - oldValue.length;
+                                const newPosition = Math.max(0, cursorPosition + diff);
+                                this.setSelectionRange(newPosition, newPosition);
+                            }
+                        });
+
+                        rutInput.addEventListener('blur', function() {
+                            // Final format on blur
+                            this.value = formatRUT(this.value);
+                        });
+
+                        rutInput.addEventListener('keydown', function(e) {
+                            // Allow: backspace, delete, tab, escape, enter
+                            if ([46, 8, 9, 27, 13].indexOf(e.keyCode) !== -1 ||
+                                // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+                                (e.keyCode === 65 && e.ctrlKey === true) ||
+                                (e.keyCode === 67 && e.ctrlKey === true) ||
+                                (e.keyCode === 86 && e.ctrlKey === true) ||
+                                (e.keyCode === 88 && e.ctrlKey === true) ||
+                                // Allow: home, end, left, right
+                                (e.keyCode >= 35 && e.keyCode <= 39)) {
+                                return;
+                            }
+                            
+                            // Ensure that it is a number or K/k
+                            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && 
+                                (e.keyCode < 96 || e.keyCode > 105) && 
+                                e.keyCode !== 75 && e.keyCode !== 107) {
+                                e.preventDefault();
+                            }
+                        });
+                    })();
+                </script>
 
                 <button type="submit" class="mt-2 w-full inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 px-6 rounded-xl text-[12px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest">
                     <i class="fas fa-arrow-right"></i>

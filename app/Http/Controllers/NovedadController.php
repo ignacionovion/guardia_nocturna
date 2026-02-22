@@ -31,10 +31,14 @@ class NovedadController extends Controller
             'user_id' => 'nullable|exists:users,id',
             'firefighter_id' => 'nullable|exists:bomberos,id',
             'date' => 'nullable|date',
+            'guardia_id' => 'nullable|exists:guardias,id',
+            'is_permanent' => 'nullable|boolean',
         ]);
 
         try {
             $novelty = new Novelty($validated);
+            
+            // Si es Academia, manejar los campos específicos
             if (($validated['type'] ?? null) === 'Academia') {
                 $userId = $validated['user_id'] ?? null;
                 $firefighterId = $validated['firefighter_id'] ?? null;
@@ -48,10 +52,26 @@ class NovedadController extends Controller
                     $novelty->firefighter_id = (int) $firefighterId;
                 }
                 $novelty->date = isset($validated['date']) ? \Carbon\Carbon::parse($validated['date']) : now();
+                // Las academias NO van en la bitácora de novedades, se manejan aparte
             } else {
+                // Es una novedad regular (no academia)
                 $novelty->user_id = auth()->id();
                 $novelty->date = now();
+                
+                // Asignar guardia_id si es una cuenta de guardia
+                $authUser = auth()->user();
+                if ($authUser->role === 'guardia' && $authUser->guardia_id) {
+                    $novelty->guardia_id = $authUser->guardia_id;
+                }
+                
+                // Si es novedad permanente, cualquier usuario puede crearla pero solo admin/capitán pueden eliminarla
+                if (!empty($validated['is_permanent']) || ($validated['type'] ?? null) === 'Permanente') {
+                    $novelty->is_permanent = true;
+                    // Las novedades permanentes no tienen guardia específica (son para todas)
+                    $novelty->guardia_id = null;
+                }
             }
+            
             $novelty->save();
 
             $isAcademy = (($validated['type'] ?? null) === 'Academia');
@@ -68,7 +88,7 @@ class NovedadController extends Controller
                 actorEmail: auth()->user()?->email
             );
 
-            return back()->with('success', 'Novedad registrada correctamente.');
+            return back()->with('success', $isAcademy ? 'Academia registrada correctamente.' : 'Novedad registrada correctamente.');
         } catch (\Exception $e) {
             return back()->withErrors(['msg' => 'Error al guardar la novedad: ' . $e->getMessage()]);
         }
@@ -107,6 +127,20 @@ class NovedadController extends Controller
     public function destroy(string $id)
     {
         $novelty = Novelty::findOrFail($id);
+        
+        // Solo admin/capitán pueden eliminar novedades permanentes
+        if ($novelty->is_permanent && !in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
+            return response()->json(['error' => 'Solo administradores o capitanía pueden eliminar novedades permanentes.'], 403);
+        }
+        
+        // Solo admin/capitán o el creador pueden eliminar novedades de su guardia
+        $authUser = auth()->user();
+        if (!in_array($authUser->role, ['super_admin', 'capitania'], true)) {
+            if ($novelty->guardia_id && $novelty->guardia_id !== $authUser->guardia_id) {
+                return response()->json(['error' => 'No puedes eliminar novedades de otra guardia.'], 403);
+            }
+        }
+        
         $novelty->delete();
         return response()->noContent();
     }

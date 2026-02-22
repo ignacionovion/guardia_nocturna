@@ -93,9 +93,39 @@ class TableroController extends Controller
             ? $globalCurrentShift->users->whereNull('end_time')->pluck('firefighter_id')->filter()->values()->toArray()
             : [];
 
-        $novelties = Novelty::with('user')->latest()->take(5)->get();
+        // Novedades filtradas por guardia (o permanentes) - excluyendo academias
+        $noveltiesQuery = Novelty::with(['user', 'guardia'])
+            ->notAcademy() // Excluir academias de la bitácora
+            ->latest();
+        
+        // Filtrar por guardia si el usuario tiene una guardia asignada y no es admin/capitán
+        if ($user->guardia_id && !in_array($user->role, ['super_admin', 'capitania'], true)) {
+            $noveltiesQuery->byGuardia($user->guardia_id);
+        }
+        
+        $novelties = $noveltiesQuery->take(5)->get();
+        
+        // Novedades específicas de la guardia (para vista de guardia)
         $guardiaNovelties = null;
-        $academies = Novelty::with('user')->where('type', 'Academia')->latest()->take(5)->get();
+        if ($user->guardia_id) {
+            $guardiaNovelties = Novelty::with(['user', 'guardia'])
+                ->notAcademy()
+                ->byGuardia($user->guardia_id)
+                ->latest()
+                ->paginate(10);
+        }
+        
+        // Academias - separadas de la bitácora de novedades
+        $academiesQuery = Novelty::with(['user', 'firefighter'])
+            ->academy() // Solo academias
+            ->latest();
+        
+        // Filtrar academias por guardia si corresponde
+        if ($user->guardia_id && !in_array($user->role, ['super_admin', 'capitania'], true)) {
+            $academiesQuery->where('guardia_id', $user->guardia_id);
+        }
+        
+        $academies = $academiesQuery->take(5)->get();
         $academyLeaders = collect();
         $academyLeadersFirefighters = collect();
         $isMyGuardiaOnDuty = false;

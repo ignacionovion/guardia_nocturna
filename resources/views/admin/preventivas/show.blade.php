@@ -220,52 +220,34 @@
                                         <input type="hidden" name="preventive_shift_id" value="{{ $shift->id }}">
                                         
                                         {{-- Select simple con buscador --}}
-                                        <div class="relative w-full sm:w-72 js-bombero-dropdown">
+                                        <div class="relative w-full sm:w-96 js-bombero-dropdown">
                                             <input type="hidden" name="bombero_id" class="js-selected-id">
                                             
                                             {{-- Botón que abre el dropdown --}}
                                             <button type="button" 
-                                                    class="js-dropdown-toggle w-full px-3 py-2 border border-slate-200 rounded-lg bg-white text-slate-800 font-semibold text-sm text-left flex items-center justify-between {{ $status === 'closed' ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                                    class="js-dropdown-toggle w-full px-3 py-2.5 border border-slate-200 rounded-lg bg-white text-slate-800 font-semibold text-sm text-left flex items-center justify-between {{ $status === 'closed' ? 'opacity-50 cursor-not-allowed' : '' }}"
                                                     {{ $status === 'closed' ? 'disabled' : '' }}>
                                                 <span class="js-dropdown-text text-slate-400">Seleccionar bombero...</span>
                                                 <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
                                             </button>
                                             
-                                            {{-- Dropdown con buscador --}}
-                                            <div class="js-dropdown-menu absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg overflow-hidden hidden">
-                                                {{-- Input de búsqueda --}}
-                                                <div class="p-2 border-b border-slate-100 bg-white">
-                                                    <div class="relative">
-                                                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                                                        <input type="text" 
-                                                               class="js-search-input w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-md focus:outline-none focus:border-slate-400 bg-white"
-                                                               placeholder="Buscar bombero...">
+                                            {{-- Dropdown placeholder - content moved to portal via JS --}}
+                                            <div class="js-dropdown-options-data hidden">
+                                                @foreach($firefighters as $f)
+                                                    @php
+                                                        $rut = trim((string) ($f->rut ?? ''));
+                                                        $searchText = strtolower(trim($f->apellido_paterno . ' ' . $f->nombres . ' ' . $rut));
+                                                    @endphp
+                                                    <div class="js-option px-3 py-2 text-sm hover:bg-slate-100 cursor-pointer border-b border-slate-50 last:border-0 {{ $status === 'closed' ? 'opacity-50 pointer-events-none' : '' }}"
+                                                         data-id="{{ $f->id }}"
+                                                         data-text="{{ $f->apellido_paterno }}, {{ $f->nombres }}"
+                                                         data-search="{{ $searchText }}">
+                                                        <div class="font-semibold text-slate-800">{{ $f->apellido_paterno }}, {{ $f->nombres }}</div>
+                                                        @if($rut)
+                                                            <div class="text-xs text-slate-500">{{ $rut }}</div>
+                                                        @endif
                                                     </div>
-                                                </div>
-                                                
-                                                {{-- Lista de opciones --}}
-                                                <div class="js-options-list overflow-y-auto max-h-60">
-                                                    @foreach($firefighters as $f)
-                                                        @php
-                                                            $rut = trim((string) ($f->rut ?? ''));
-                                                            $searchText = strtolower(trim($f->apellido_paterno . ' ' . $f->nombres . ' ' . $rut));
-                                                        @endphp
-                                                        <div class="js-option px-3 py-2 text-sm hover:bg-slate-100 cursor-pointer border-b border-slate-50 last:border-0 {{ $status === 'closed' ? 'opacity-50 pointer-events-none' : '' }}"
-                                                             data-id="{{ $f->id }}"
-                                                             data-text="{{ $f->apellido_paterno }}, {{ $f->nombres }}"
-                                                             data-search="{{ $searchText }}">
-                                                            <div class="font-semibold text-slate-800">{{ $f->apellido_paterno }}, {{ $f->nombres }}</div>
-                                                            @if($rut)
-                                                                <div class="text-xs text-slate-500">{{ $rut }}</div>
-                                                            @endif
-                                                        </div>
-                                                    @endforeach
-                                                </div>
-                                                
-                                                {{-- Mensaje si no hay resultados --}}
-                                                <div class="js-no-results hidden px-3 py-4 text-sm text-slate-500 text-center bg-white">
-                                                    No se encontraron resultados
-                                                </div>
+                                                @endforeach
                                             </div>
                                         </div>
                                         
@@ -369,7 +351,7 @@
 </div>
 
 <script>
-    // Dropdown functionality for bombero selection
+    // Dropdown functionality for bombero selection - Portal pattern
     document.addEventListener('DOMContentLoaded', function() {
         // Form validation - prevent submit if no bombero selected
         document.querySelectorAll('.js-assignment-form').forEach(function(form) {
@@ -383,84 +365,129 @@
             });
         });
 
+        // Global dropdown state
+        let activeDropdown = null;
+
         document.querySelectorAll('.js-bombero-dropdown').forEach(function(dropdown) {
             const toggle = dropdown.querySelector('.js-dropdown-toggle');
-            const menu = dropdown.querySelector('.js-dropdown-menu');
-            const searchInput = dropdown.querySelector('.js-search-input');
-            const options = dropdown.querySelectorAll('.js-option');
-            const noResults = dropdown.querySelector('.js-no-results');
             const hiddenInput = dropdown.querySelector('.js-selected-id');
             const textDisplay = dropdown.querySelector('.js-dropdown-text');
+            const firefightersData = Array.from(dropdown.querySelectorAll('.js-option')).map(opt => ({
+                id: opt.getAttribute('data-id'),
+                text: opt.getAttribute('data-text'),
+                html: opt.innerHTML
+            }));
+            const isClosed = dropdown.querySelector('.js-option')?.classList.contains('pointer-events-none');
 
             // Toggle dropdown
             toggle.addEventListener('click', function(e) {
                 e.preventDefault();
-                const isHidden = menu.classList.contains('hidden');
-                
-                // Close all other dropdowns
-                document.querySelectorAll('.js-dropdown-menu').forEach(function(m) {
-                    m.classList.add('hidden');
-                });
-                
-                if (isHidden) {
-                    menu.classList.remove('hidden');
-                    searchInput.focus();
-                } else {
-                    menu.classList.add('hidden');
+                e.stopPropagation();
+
+                // Close existing dropdown
+                if (activeDropdown) {
+                    activeDropdown.remove();
+                    activeDropdown = null;
                 }
-            });
 
-            // Search functionality
-            searchInput.addEventListener('input', function() {
-                const query = this.value.toLowerCase().trim();
-                let visibleCount = 0;
+                // Create portal dropdown
+                const portalDropdown = document.createElement('div');
+                portalDropdown.className = 'js-portal-dropdown fixed z-[99999] w-96 bg-white border border-slate-200 rounded-lg shadow-2xl overflow-hidden';
+                portalDropdown.style.minWidth = '384px';
+                
+                // Position below the toggle button
+                const rect = toggle.getBoundingClientRect();
+                portalDropdown.style.top = (rect.bottom + 4) + 'px';
+                portalDropdown.style.left = rect.left + 'px';
 
-                options.forEach(function(option) {
-                    const searchText = option.getAttribute('data-search') || '';
-                    if (searchText.includes(query)) {
-                        option.classList.remove('hidden');
-                        visibleCount++;
+                // Build dropdown content
+                portalDropdown.innerHTML = `
+                    <div class="p-2 border-b border-slate-100 bg-white">
+                        <div class="relative">
+                            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                            <input type="text" 
+                                   class="js-portal-search w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-md focus:outline-none focus:border-slate-400 bg-white"
+                                   placeholder="Buscar bombero...">
+                        </div>
+                    </div>
+                    <div class="js-portal-options overflow-y-auto" style="max-height: 260px;">
+                        ${firefightersData.map(f => `
+                            <div class="js-portal-option px-3 py-2 text-sm hover:bg-slate-100 cursor-pointer border-b border-slate-50 last:border-0 ${isClosed ? 'opacity-50 pointer-events-none' : ''}"
+                                 data-id="${f.id}"
+                                 data-text="${f.text}">
+                                ${f.html}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="js-portal-no-results hidden px-3 py-4 text-sm text-slate-500 text-center bg-white">
+                        No se encontraron resultados
+                    </div>
+                `;
+
+                document.body.appendChild(portalDropdown);
+                activeDropdown = portalDropdown;
+
+                // Focus search input
+                const searchInput = portalDropdown.querySelector('.js-portal-search');
+                searchInput.focus();
+
+                // Search functionality
+                const options = portalDropdown.querySelectorAll('.js-portal-option');
+                const noResults = portalDropdown.querySelector('.js-portal-no-results');
+
+                searchInput.addEventListener('input', function() {
+                    const query = this.value.toLowerCase().trim();
+                    let visibleCount = 0;
+
+                    options.forEach(function(option) {
+                        const searchText = option.textContent.toLowerCase();
+                        if (searchText.includes(query)) {
+                            option.classList.remove('hidden');
+                            visibleCount++;
+                        } else {
+                            option.classList.add('hidden');
+                        }
+                    });
+
+                    if (visibleCount === 0 && query !== '') {
+                        noResults.classList.remove('hidden');
                     } else {
-                        option.classList.add('hidden');
+                        noResults.classList.add('hidden');
                     }
                 });
 
-                // Show/hide no results message
-                if (visibleCount === 0 && query !== '') {
-                    noResults.classList.remove('hidden');
-                } else {
-                    noResults.classList.add('hidden');
-                }
-            });
-
-            // Select option
-            options.forEach(function(option) {
-                option.addEventListener('click', function() {
-                    const id = this.getAttribute('data-id');
-                    const text = this.getAttribute('data-text');
-                    
-                    hiddenInput.value = id;
-                    textDisplay.textContent = text;
-                    textDisplay.classList.remove('text-slate-400');
-                    textDisplay.classList.add('text-slate-800');
-                    
-                    menu.classList.add('hidden');
-                    searchInput.value = '';
-                    
-                    // Reset all options visibility
-                    options.forEach(function(opt) {
-                        opt.classList.remove('hidden');
+                // Select option
+                options.forEach(function(option) {
+                    option.addEventListener('click', function() {
+                        const id = this.getAttribute('data-id');
+                        const text = this.getAttribute('data-text');
+                        
+                        hiddenInput.value = id;
+                        textDisplay.textContent = text;
+                        textDisplay.classList.remove('text-slate-400');
+                        textDisplay.classList.add('text-slate-800');
+                        
+                        portalDropdown.remove();
+                        activeDropdown = null;
                     });
-                    noResults.classList.add('hidden');
                 });
             });
+        });
 
-            // Close when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!dropdown.contains(e.target)) {
-                    menu.classList.add('hidden');
-                }
-            });
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (activeDropdown && !e.target.closest('.js-bombero-dropdown') && !e.target.closest('.js-portal-dropdown')) {
+                activeDropdown.remove();
+                activeDropdown = null;
+            }
+        });
+
+        // Close on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && activeDropdown) {
+                activeDropdown.remove();
+                activeDropdown = null;
+            }
         });
     });
 </script>

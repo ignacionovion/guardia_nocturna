@@ -32,7 +32,7 @@
                             <option value="" disabled selected>Seleccionar...</option>
                             <option value="novelties">Eliminar Novedades + Academias</option>
                             <option value="shifts">Reiniciar Turnos (Shift + ShiftUsers)</option>
-                            <option value="attendance_records">Reiniciar Estado "Guardia Constituida"</option>
+                            <option value="attendance_records">Reiniciar Estado "Asistencia Registrada"</option>
                             <option value="emergencies">Eliminar Emergencias</option>
                             <option value="cleaning">Eliminar Asignaciones de Aseo</option>
                             <option value="staff_events">Eliminar Eventos de Personal</option>
