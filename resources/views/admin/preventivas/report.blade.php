@@ -28,23 +28,46 @@
     </div>
 
     <!-- Resumen del Evento -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-6">
         <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
             <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Período</div>
-            <div class="text-lg font-bold text-slate-900">{{ $event->start_date->format('d/m/Y') }} - {{ $event->end_date->format('d/m/Y') }}</div>
+            <div class="text-sm font-bold text-slate-900">{{ $event->start_date->format('d/m/Y') }}</div>
         </div>
         <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
             <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Total Asignaciones</div>
             <div class="text-2xl font-black text-slate-900">{{ $totalAssignments }}</div>
         </div>
         <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
-            <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Asistencias Confirmadas</div>
+            <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Asistencias Directas</div>
             <div class="text-2xl font-black text-emerald-600">{{ $totalAttendance }}</div>
         </div>
         <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
             <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Tasa de Asistencia</div>
-            <div class="text-2xl font-black {{ $totalAssignments > 0 ? ($effectiveAttendance/$totalAssignments >= 0.8 ? 'text-emerald-600' : 'text-amber-600') : 'text-slate-400' }}">
-                {{ $totalAssignments > 0 ? round(($effectiveAttendance / $totalAssignments) * 100, 1) : 0 }}%
+            <div class="text-2xl font-black {{ $attendanceRate >= 80 ? 'text-emerald-600' : ($attendanceRate >= 50 ? 'text-amber-600' : 'text-rose-600') }}">
+                {{ $attendanceRate }}%
+            </div>
+        </div>
+        
+        <!-- Tarjetas de Tipos -->
+        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm border-l-4 border-l-slate-500">
+            <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Titulares</div>
+            <div class="flex items-baseline gap-2">
+                <div class="text-xl font-black text-emerald-600">{{ $titularesCubiertos }}</div>
+                <div class="text-xs text-slate-400">/ {{ $totalTitulares }}</div>
+            </div>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm border-l-4 border-l-purple-500">
+            <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Reemplazos</div>
+            <div class="flex items-baseline gap-2">
+                <div class="text-xl font-black text-purple-600">{{ $reemplazosEfectivos }}</div>
+                <div class="text-xs text-slate-400">/ {{ $totalReemplazos }}</div>
+            </div>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm border-l-4 border-l-sky-500">
+            <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Refuerzos</div>
+            <div class="flex items-baseline gap-2">
+                <div class="text-xl font-black text-sky-600">{{ $refuerzosPresentes }}</div>
+                <div class="text-xs text-slate-400">/ {{ $totalRefuerzos }}</div>
             </div>
         </div>
     </div>

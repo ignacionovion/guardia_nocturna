@@ -414,74 +414,116 @@ class PreventiveEventController extends Controller
             ->orderBy('sort_order')
             ->get();
 
-        // Estadísticas corregidas
-        $totalAssignments = 0;          // Todas las asignaciones incluyendo reemplazos
-        $totalRequiredPositions = 0;   // Posiciones requeridas (titulares + refuerzos, excluyendo reemplazos)
-        $totalAttendance = 0;          // Asistencias directas confirmadas
-        $totalRefuerzos = 0;
-        $totalReemplazos = 0;
-        $assignmentIdsWithAttendance = [];
-        $replacedAssignmentIds = [];   // IDs de asignaciones titulares que fueron reemplazadas
-        $replacementWithAttendance = []; // IDs de titulares cuyo reemplazo tiene asistencia
-
+        // Estadísticas corregidas - Calcular cobertura efectiva incluyendo reemplazos
+        $totalTitulares = 0;            // Solo titulares (no reemplazos, no refuerzos)
+        $totalReemplazos = 0;           // Solo reemplazantes
+        $totalRefuerzos = 0;            // Solo refuerzos
+        $totalAttendance = 0;             // Asistencias directas confirmadas
+        
+        // Mapeo: ID de titular -> ID de asignación del reemplazo que lo cubre
+        $reemplazoPorTitular = [];
+        // Mapeo: ID de asignación del reemplazo -> asistió?
+        $reemplazoAsistio = [];
+        
         foreach ($shifts as $shift) {
             foreach ($shift->assignments as $assignment) {
-                $totalAssignments++;
-                
                 if ($assignment->attendance) {
                     $totalAttendance++;
-                    $assignmentIdsWithAttendance[] = $assignment->id;
                 }
                 
                 if ($assignment->es_refuerzo) {
                     $totalRefuerzos++;
-                    $totalRequiredPositions++; // Los refuerzos son posiciones adicionales requeridas
                 } elseif ($assignment->reemplaza_a_bombero_id) {
                     $totalReemplazos++;
-                    // Este es un reemplazante - no cuenta como posición requerida adicional
-                    // pero marcamos al titular como "tiene reemplazo"
-                    $replacedAssignmentIds[] = $assignment->reemplaza_a_bombero_id;
-                    
-                    // Si el reemplazo tiene asistencia, marcar al titular como cubierto
-                    if ($assignment->attendance) {
-                        $replacementWithAttendance[] = $assignment->reemplaza_a_bombero_id;
-                    }
+                    // Guardar que este reemplazo cubre al titular
+                    $reemplazoPorTitular[$assignment->reemplaza_a_bombero_id] = $assignment->id;
+                    $reemplazoAsistio[$assignment->id] = (bool) $assignment->attendance;
                 } else {
-                    // Es un titular normal
-                    $totalRequiredPositions++;
+                    // Es titular normal
+                    $totalTitulares++;
                 }
             }
         }
-
+        
         // Calcular asistencia efectiva:
-        // 1. Titulares que asistieron directamente
-        // 2. Titulares reemplazados cuyo reemplazo asistió
+        // 1. Refuerzos que asistieron
+        // 2. Reemplazantes que asistieron (cubren al titular)
+        // 3. Titulares que asistieron directamente y no fueron reemplazados
         $effectiveAttendance = 0;
         
         foreach ($shifts as $shift) {
             foreach ($shift->assignments as $assignment) {
-                // Saltar reemplazos (ya los contamos indirectamente a través del titular)
-                if ($assignment->reemplaza_a_bombero_id) {
-                    continue;
-                }
-                
-                // Es titular o refuerzo
-                if ($assignment->attendance) {
-                    // Asistió directamente
-                    $effectiveAttendance++;
-                } elseif (in_array($assignment->id, $replacedAssignmentIds)) {
-                    // Fue reemplazado - verificar si el reemplazo asistió
-                    if (in_array($assignment->id, $replacementWithAttendance)) {
-                        // El reemplazo asistió, cuenta como cubierto
+                if ($assignment->es_refuerzo) {
+                    // Refuerzo: cuenta si asistió
+                    if ($assignment->attendance) {
                         $effectiveAttendance++;
+                    }
+                } elseif ($assignment->reemplaza_a_bombero_id) {
+                    // Reemplazante: cuenta si asistió (cubre al titular)
+                    if ($assignment->attendance) {
+                        $effectiveAttendance++;
+                    }
+                } else {
+                    // Titular: cuenta si asistió directamente O si fue reemplazado y el reemplazo asistió
+                    $fueReemplazado = isset($reemplazoPorTitular[$assignment->bombero_id]);
+                    if ($assignment->attendance) {
+                        $effectiveAttendance++;
+                    } elseif ($fueReemplazado) {
+                        $reemplazoId = $reemplazoPorTitular[$assignment->bombero_id];
+                        if ($reemplazoAsistio[$reemplazoId] ?? false) {
+                            $effectiveAttendance++;
+                        }
                     }
                 }
             }
         }
-
-        // La tasa se calcula sobre las posiciones requeridas (titulares + refuerzos)
-        // No sobre el total de asignaciones (que incluye reemplazos)
-        $attendanceRate = $totalRequiredPositions > 0 ? round(($effectiveAttendance / $totalRequiredPositions) * 100) : 0;
+        
+        $totalAssignments = $totalTitulares + $totalReemplazos + $totalRefuerzos;
+        
+        // La tasa se calcula sobre el total de asignaciones
+        // porque cada posición (titular/reemplazo/refuerzo) debe estar cubierta
+        $attendanceRate = $totalAssignments > 0 ? round(($effectiveAttendance / $totalAssignments) * 100, 1) : 0;
+        
+        // Estadísticas adicionales para las tarjetas
+        $titularesCubiertos = 0;
+        $titularesPendientes = 0;
+        $reemplazosEfectivos = 0;
+        $reemplazosPendientes = 0;
+        $refuerzosPresentes = 0;
+        $refuerzosPendientes = 0;
+        
+        foreach ($shifts as $shift) {
+            foreach ($shift->assignments as $assignment) {
+                if ($assignment->es_refuerzo) {
+                    if ($assignment->attendance) {
+                        $refuerzosPresentes++;
+                    } else {
+                        $refuerzosPendientes++;
+                    }
+                } elseif ($assignment->reemplaza_a_bombero_id) {
+                    if ($assignment->attendance) {
+                        $reemplazosEfectivos++;
+                    } else {
+                        $reemplazosPendientes++;
+                    }
+                } else {
+                    // Titular
+                    $fueReemplazado = isset($reemplazoPorTitular[$assignment->bombero_id]);
+                    if ($assignment->attendance) {
+                        $titularesCubiertos++;
+                    } elseif ($fueReemplazado) {
+                        $reemplazoId = $reemplazoPorTitular[$assignment->bombero_id];
+                        if ($reemplazoAsistio[$reemplazoId] ?? false) {
+                            $titularesCubiertos++;
+                        } else {
+                            $titularesPendientes++;
+                        }
+                    } else {
+                        $titularesPendientes++;
+                    }
+                }
+            }
+        }
 
         // Para compatibilidad con la vista, mantener totalAssignments como el total real
         // pero mostrar la tasa correcta
@@ -493,8 +535,15 @@ class PreventiveEventController extends Controller
             'totalAttendance',
             'totalRefuerzos',
             'totalReemplazos',
+            'totalTitulares',
             'effectiveAttendance',
-            'attendanceRate'
+            'attendanceRate',
+            'titularesCubiertos',
+            'titularesPendientes',
+            'reemplazosEfectivos',
+            'reemplazosPendientes',
+            'refuerzosPresentes',
+            'refuerzosPendientes'
         ));
     }
 
@@ -586,34 +635,77 @@ class PreventiveEventController extends Controller
 
         $shifts = PreventiveShift::query()
             ->where('preventive_event_id', $event->id)
-            ->with(['assignments.firefighter', 'assignments.attendance'])
+            ->with(['assignments.firefighter', 'shifts.assignments.replacedFirefighter'])
             ->orderBy('shift_date')
             ->orderBy('sort_order')
             ->get();
 
-        // Estadísticas
-        $totalAssignments = 0;
-        $totalAttendance = 0;
+        // Estadísticas corregidas - mismo cálculo que en report()
+        $totalTitulares = 0;
+        $totalReemplazos = 0;
         $totalRefuerzos = 0;
-
+        $totalAttendance = 0;
+        
+        $reemplazoPorTitular = [];
+        $reemplazoAsistio = [];
+        
         foreach ($shifts as $shift) {
             foreach ($shift->assignments as $assignment) {
-                $totalAssignments++;
                 if ($assignment->attendance) {
                     $totalAttendance++;
                 }
+                
                 if ($assignment->es_refuerzo) {
                     $totalRefuerzos++;
+                } elseif ($assignment->reemplaza_a_bombero_id) {
+                    $totalReemplazos++;
+                    $reemplazoPorTitular[$assignment->reemplaza_a_bombero_id] = $assignment->id;
+                    $reemplazoAsistio[$assignment->id] = (bool) $assignment->attendance;
+                } else {
+                    $totalTitulares++;
                 }
             }
         }
+        
+        $effectiveAttendance = 0;
+        
+        foreach ($shifts as $shift) {
+            foreach ($shift->assignments as $assignment) {
+                if ($assignment->es_refuerzo) {
+                    if ($assignment->attendance) {
+                        $effectiveAttendance++;
+                    }
+                } elseif ($assignment->reemplaza_a_bombero_id) {
+                    if ($assignment->attendance) {
+                        $effectiveAttendance++;
+                    }
+                } else {
+                    $fueReemplazado = isset($reemplazoPorTitular[$assignment->bombero_id]);
+                    if ($assignment->attendance) {
+                        $effectiveAttendance++;
+                    } elseif ($fueReemplazado) {
+                        $reemplazoId = $reemplazoPorTitular[$assignment->bombero_id];
+                        if ($reemplazoAsistio[$reemplazoId] ?? false) {
+                            $effectiveAttendance++;
+                        }
+                    }
+                }
+            }
+        }
+        
+        $totalAssignments = $totalTitulares + $totalReemplazos + $totalRefuerzos;
+        $attendanceRate = $totalAssignments > 0 ? round(($effectiveAttendance / $totalAssignments) * 100, 1) : 0;
 
         $pdf = Pdf::loadView('admin.preventivas.report_pdf', compact(
             'event',
             'shifts',
             'totalAssignments',
             'totalAttendance',
-            'totalRefuerzos'
+            'totalRefuerzos',
+            'totalReemplazos',
+            'totalTitulares',
+            'effectiveAttendance',
+            'attendanceRate'
         ))->setPaper('a4', 'landscape');
 
         return $pdf->download('reporte_preventiva_' . $event->id . '.pdf');

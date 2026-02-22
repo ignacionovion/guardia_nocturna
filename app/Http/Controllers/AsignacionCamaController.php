@@ -78,6 +78,7 @@ class AsignacionCamaController extends Controller
                     'bed_id' => $validated['bed_id'],
                     'firefighter_id' => $validated['firefighter_id'],
                     'notes' => $validated['notes'] ?? null,
+                    'assigned_at' => now(),
                 ];
 
                 if ($legacyUserId) {

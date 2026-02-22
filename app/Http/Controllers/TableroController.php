@@ -170,6 +170,12 @@ class TableroController extends Controller
                 $guardiaIdForGuardiaUser = Guardia::whereRaw('lower(name) = ?', [strtolower($emailLocal)])->value('id');
             }
 
+            // Fallback: si aún no se determina la guardia, usar la activa de la semana
+            if (!$guardiaIdForGuardiaUser) {
+                $activeGuardiaForUser = Guardia::where('is_active_week', true)->first();
+                $guardiaIdForGuardiaUser = $activeGuardiaForUser?->id;
+            }
+
             if (!$guardiaIdForGuardiaUser) {
                 abort(403, 'Cuenta de guardia sin guardia asignada.');
             }

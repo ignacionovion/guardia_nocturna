@@ -57,19 +57,23 @@
 
     <div class="stats">
         <div class="stat-box">
-            <div class="number">{{ $totalAssignments }}</div>
-            <div class="label">Total Asignaciones</div>
+            <div class="number">{{ $totalTitulares }}</div>
+            <div class="label">Titulares</div>
         </div>
         <div class="stat-box">
-            <div class="number">{{ $totalAttendance }}</div>
-            <div class="label">Asistencias</div>
+            <div class="number">{{ $totalReemplazos }}</div>
+            <div class="label">Reemplazos</div>
         </div>
         <div class="stat-box">
             <div class="number">{{ $totalRefuerzos }}</div>
             <div class="label">Refuerzos</div>
         </div>
         <div class="stat-box">
-            <div class="number">{{ $totalAssignments > 0 ? round(($totalAttendance / $totalAssignments) * 100, 1) : 0 }}%</div>
+            <div class="number">{{ $effectiveAttendance }}</div>
+            <div class="label">Asist. Efectiva</div>
+        </div>
+        <div class="stat-box">
+            <div class="number">{{ $attendanceRate }}%</div>
             <div class="label">Tasa Asistencia</div>
         </div>
     </div>

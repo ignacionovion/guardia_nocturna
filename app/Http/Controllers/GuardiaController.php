@@ -172,6 +172,13 @@ class GuardiaController extends Controller
 
         // Obtener guardia activa para cargar TODOS sus bomberos
         $guardiaId = $shift?->leader?->guardia_id ?? $user->guardia_id;
+        
+        // Fallback: si no hay guardia determinada, usar la guardia activa de la semana
+        if (!$guardiaId) {
+            $activeGuardia = \App\Models\Guardia::where('is_active_week', true)->first();
+            $guardiaId = $activeGuardia?->id;
+        }
+        
         $guardia = $guardiaId ? Guardia::find($guardiaId) : null;
 
         // Cargar reemplazos activos de esta guardia
