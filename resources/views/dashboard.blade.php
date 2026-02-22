@@ -31,12 +31,9 @@
                 return $now->greaterThanOrEqualTo($enableAt) || $now->lessThan($disableAt);
             })();
             // Filtrar personal activo (todos los de la guardia excepto fuera de servicio)
-            $outOfServiceStaff = $myStaff->filter(function ($u) {
-                return (bool) ($u->fuera_de_servicio ?? false);
-            });
-
-            $activeStaff = $myStaff->reject(function ($u) {
-                return (bool) ($u->fuera_de_servicio ?? false);
+            $activeStaff = $myStaff->reject(function ($u) use ($replacementByOriginal) {
+                $isReplaced = (bool) ($replacementByOriginal && $replacementByOriginal->has($u->id));
+                return (bool) ($u->fuera_de_servicio ?? false) || $isReplaced;
             });
 
             $activeStaff = $activeStaff
@@ -841,14 +838,16 @@
     </div>
 
     @if(Auth::check() && Auth::user()->role === 'guardia' && isset($myGuardia) && $myGuardia)
-        <div id="refuerzoModal" class="fixed inset-0 bg-slate-900 bg-opacity-75 hidden overflow-y-auto h-full w-full z-50 flex items-center justify-center backdrop-blur-sm">
-            <div class="relative p-6 border w-full max-w-lg shadow-2xl rounded-xl bg-slate-900 border-slate-800">
-                <div class="text-center mb-6">
-                    <div class="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-slate-950 border border-slate-800 mb-4">
-                        <i class="fas fa-user-plus text-slate-100 text-2xl"></i>
+        <div id="refuerzoModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-50 flex items-center justify-center opacity-0 transition-opacity duration-300">
+            <div class="bg-slate-900 text-slate-100 rounded-xl shadow-2xl w-full max-w-md mx-4 transform scale-95 transition-transform duration-300 p-6 border border-slate-800">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-lg font-black text-slate-100 uppercase tracking-tight">Agregar Refuerzo</h3>
+                        <p class="text-sm text-slate-400 mt-1">El refuerzo se libera automáticamente a las 10:00 AM del día siguiente.</p>
                     </div>
-                    <h3 class="text-2xl font-bold text-slate-100">Agregar Refuerzo</h3>
-                    <p class="text-slate-400 text-sm mt-1">El refuerzo se libera automáticamente a las 10:00 AM del día siguiente.</p>
+                    <button type="button" onclick="closeRefuerzoModal()" class="text-slate-400 hover:text-slate-200 transition-colors">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
                 </div>
 
                 <form method="POST" action="{{ route('admin.guardias.refuerzo') }}">
@@ -857,27 +856,60 @@
 
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Voluntario</label>
-                            <div class="relative">
-                                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                                <input list="refuerzo_volunteers_list" name="firefighter_id_display" required autocomplete="off"
-                                    class="w-full pl-9 pr-3 py-3 border border-slate-800 bg-slate-950 text-slate-100 rounded-lg focus:ring-2 focus:ring-slate-700 focus:border-slate-500"
-                                    placeholder="Buscar por nombre o RUT..." oninput="updateRefuerzoUserId(this)">
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Voluntario</label>
+                            <!-- Custom Professional Dropdown -->
+                            <div class="relative" id="refuerzo-select-container">
                                 <input type="hidden" name="firefighter_id" id="refuerzo_firefighter_id" required>
+                                
+                                <!-- Search Input -->
+                                <div class="relative">
+                                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                    <input type="text" id="refuerzo-search-input"
+                                        class="w-full text-sm border-slate-800 rounded-lg shadow-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 pl-9 pr-10 py-2.5 bg-slate-950 text-slate-100 placeholder:text-slate-500 cursor-pointer"
+                                        placeholder="Buscar voluntario..." autocomplete="off" readonly>
+                                    <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                                </div>
+                                
+                                <!-- Dropdown Menu -->
+                                <div id="refuerzo-dropdown" class="hidden absolute top-full left-0 right-0 mt-1 bg-slate-900 border border-slate-700 rounded-lg shadow-xl z-50 max-h-64 overflow-y-auto">
+                                    <div class="p-2 sticky top-0 bg-slate-900 border-b border-slate-800">
+                                        <input type="text" id="refuerzo-filter-input" 
+                                            class="w-full text-xs bg-slate-800 border-slate-700 rounded px-2 py-1.5 text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-sky-500"
+                                            placeholder="Filtrar por nombre o RUT...">
+                                    </div>
+                                    <div id="refuerzo-options-list" class="py-1">
+                                        @foreach($replacementCandidates as $cand)
+                                            <div class="refuerzo-option px-3 py-2 hover:bg-slate-800 cursor-pointer transition-colors flex items-center gap-3"
+                                                 data-value="{{ $cand->id }}"
+                                                 data-search="{{ strtolower(trim($cand->nombres . ' ' . $cand->apellido_paterno . ' ' . ($cand->apellido_materno ?? '') . ' ' . ($cand->rut ?? ''))) }}">
+                                                <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 text-xs font-bold">
+                                                    {{ strtoupper(substr($cand->nombres, 0, 1)) }}
+                                                </div>
+                                                <div class="flex-1 min-w-0">
+                                                    <div class="text-sm font-medium text-slate-200 truncate">
+                                                        {{ trim($cand->nombres . ' ' . $cand->apellido_paterno) }}
+                                                    </div>
+                                                    @if($cand->rut)
+                                                        <div class="text-xs text-slate-500">{{ $cand->rut }}</div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                    <div id="refuerzo-no-results" class="hidden px-3 py-4 text-center text-xs text-slate-500">
+                                        No se encontraron resultados
+                                    </div>
+                                </div>
                             </div>
-                            <datalist id="refuerzo_volunteers_list">
-                                @foreach($replacementCandidates as $c)
-                                    <option data-value="{{ $c->id }}" value="{{ trim($c->nombres . ' ' . $c->apellido_paterno . ' ' . ($c->apellido_materno ?? '') . ($c->rut ? ' - ' . $c->rut : '')) }}"></option>
-                                @endforeach
-                            </datalist>
                         </div>
 
-                        <div class="flex gap-3">
-                            <button type="button" onclick="closeRefuerzoModal()" class="w-1/2 px-4 py-2.5 bg-slate-950 text-slate-100 font-bold rounded-lg hover:bg-slate-900 transition-colors uppercase text-sm border border-slate-800">
+                        <div class="flex gap-3 pt-2">
+                            <button type="button" onclick="closeRefuerzoModal()" class="w-1/2 py-2.5 px-4 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 font-bold text-sm hover:bg-slate-900 transition-colors uppercase">
                                 Cancelar
                             </button>
-                            <button type="submit" class="w-1/2 px-4 py-2.5 bg-slate-900 text-white font-bold rounded-lg hover:bg-black transition-colors shadow-md uppercase text-sm">
-                                Confirmar
+                            <button type="submit" class="w-1/2 py-2.5 px-4 rounded-lg bg-sky-600 text-white font-bold text-sm hover:bg-sky-700 shadow-md hover:shadow-lg transition-all uppercase flex items-center justify-center gap-2">
+                                <span>Confirmar</span>
+                                <i class="fas fa-check"></i>
                             </button>
                         </div>
                     </div>
@@ -988,12 +1020,34 @@
 
         window.openRefuerzoModal = function() {
             const modal = document.getElementById('refuerzoModal');
-            if (modal) modal.classList.remove('hidden');
+            if (!modal) return;
+            
+            const content = modal.firstElementChild;
+            modal.classList.remove('hidden');
+            
+            requestAnimationFrame(() => {
+                modal.classList.remove('opacity-0');
+                if (content) {
+                    content.classList.remove('scale-95');
+                    content.classList.add('scale-100');
+                }
+            });
         }
 
         window.closeRefuerzoModal = function() {
             const modal = document.getElementById('refuerzoModal');
-            if (modal) modal.classList.add('hidden');
+            if (!modal) return;
+
+            const content = modal.firstElementChild;
+            modal.classList.add('opacity-0');
+            if (content) {
+                content.classList.remove('scale-100');
+                content.classList.add('scale-95');
+            }
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
         }
 
         function syncDatalistHiddenId(displayInput, datalistEl, hiddenInput) {
@@ -1011,14 +1065,6 @@
                     break;
                 }
             }
-        }
-
-        window.updateRefuerzoUserId = function(input) {
-            const list = document.getElementById('refuerzo_volunteers_list');
-            const hiddenInput = document.getElementById('refuerzo_firefighter_id');
-            if (!list || !hiddenInput) return;
-
-            syncDatalistHiddenId(input, list, hiddenInput);
         }
 
         window.removeRefuerzo = function(guardiaId, firefighterId) {
@@ -1221,23 +1267,6 @@
             const refuerzoDisplay = document.querySelector('input[list="refuerzo_volunteers_list"]');
             const refuerzoList = document.getElementById('refuerzo_volunteers_list');
             const refuerzoHidden = document.getElementById('refuerzo_firefighter_id');
-
-            if (refuerzoDisplay && refuerzoList && refuerzoHidden) {
-                ['change', 'blur'].forEach(evt => {
-                    refuerzoDisplay.addEventListener(evt, () => syncDatalistHiddenId(refuerzoDisplay, refuerzoList, refuerzoHidden));
-                });
-
-                const refuerzoForm = refuerzoDisplay.closest('form');
-                if (refuerzoForm) {
-                    refuerzoForm.addEventListener('submit', (e) => {
-                        syncDatalistHiddenId(refuerzoDisplay, refuerzoList, refuerzoHidden);
-                        if ((refuerzoHidden.value || '').trim() === '') {
-                            e.preventDefault();
-                            alert('Debes seleccionar un voluntario de la lista.');
-                        }
-                    });
-                }
-            }
 
             const replDisplay = document.querySelector('#replacementModal input[list="modal_volunteers_list"]');
             const replList = document.getElementById('modal_volunteers_list');
@@ -1932,6 +1961,109 @@
                     searchInput.focus();
                 }
             });
+        });
+
+        // Custom Refuerzo Dropdown
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('refuerzo-search-input');
+            const dropdown = document.getElementById('refuerzo-dropdown');
+            const filterInput = document.getElementById('refuerzo-filter-input');
+            const optionsList = document.getElementById('refuerzo-options-list');
+            const noResults = document.getElementById('refuerzo-no-results');
+            const hiddenInput = document.getElementById('refuerzo_firefighter_id');
+            const container = document.getElementById('refuerzo-select-container');
+            
+            if (!searchInput || !dropdown) return;
+
+            let isOpen = false;
+
+            // Toggle dropdown
+            searchInput.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (!isOpen) {
+                    openDropdown();
+                }
+            });
+
+            function openDropdown() {
+                isOpen = true;
+                dropdown.classList.remove('hidden');
+                filterInput.focus();
+                filterInput.value = '';
+                filterOptions('');
+            }
+
+            function closeDropdown() {
+                isOpen = false;
+                dropdown.classList.add('hidden');
+            }
+
+            // Close on click outside
+            document.addEventListener('click', function(e) {
+                if (!container.contains(e.target)) {
+                    closeDropdown();
+                }
+            });
+
+            // Filter functionality
+            if (filterInput) {
+                filterInput.addEventListener('input', function() {
+                    filterOptions(this.value.toLowerCase());
+                });
+            }
+
+            function filterOptions(query) {
+                const options = optionsList.querySelectorAll('.refuerzo-option');
+                let visibleCount = 0;
+
+                options.forEach(function(option) {
+                    const searchData = option.getAttribute('data-search') || '';
+                    if (searchData.includes(query)) {
+                        option.classList.remove('hidden');
+                        visibleCount++;
+                    } else {
+                        option.classList.add('hidden');
+                    }
+                });
+
+                if (visibleCount === 0) {
+                    noResults.classList.remove('hidden');
+                } else {
+                    noResults.classList.add('hidden');
+                }
+            }
+
+            // Option selection
+            optionsList.addEventListener('click', function(e) {
+                const option = e.target.closest('.refuerzo-option');
+                if (!option) return;
+
+                const value = option.getAttribute('data-value');
+                const text = option.querySelector('.text-sm').textContent.trim();
+
+                hiddenInput.value = value;
+                searchInput.value = text;
+                closeDropdown();
+            });
+
+            // Keyboard navigation
+            filterInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeDropdown();
+                    searchInput.focus();
+                }
+            });
+
+            // Form validation
+            const refuerzoForm = searchInput.closest('form');
+            if (refuerzoForm) {
+                refuerzoForm.addEventListener('submit', (e) => {
+                    if ((hiddenInput.value || '').trim() === '') {
+                        e.preventDefault();
+                        alert('Debes seleccionar un voluntario.');
+                    }
+                });
+            }
         });
     </script>
 @endsection

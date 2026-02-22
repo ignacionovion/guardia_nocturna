@@ -215,13 +215,13 @@
                                         <div class="text-xs text-slate-500 mt-1">Asignados: {{ $shift->assignments->count() }}</div>
                                     </div>
 
-                                    <form method="POST" action="{{ route('admin.preventivas.assignments.add', $event) }}" class="flex flex-col sm:flex-row sm:items-center gap-2">
+                                    <form method="POST" action="{{ route('admin.preventivas.assignments.add', $event) }}" class="flex flex-col sm:flex-row sm:items-center gap-2 js-assignment-form">
                                         @csrf
                                         <input type="hidden" name="preventive_shift_id" value="{{ $shift->id }}">
                                         
                                         {{-- Select simple con buscador --}}
                                         <div class="relative w-full sm:w-72 js-bombero-dropdown">
-                                            <input type="hidden" name="bombero_id" class="js-selected-id" required>
+                                            <input type="hidden" name="bombero_id" class="js-selected-id">
                                             
                                             {{-- Botón que abre el dropdown --}}
                                             <button type="button" 
@@ -371,6 +371,18 @@
 <script>
     // Dropdown functionality for bombero selection
     document.addEventListener('DOMContentLoaded', function() {
+        // Form validation - prevent submit if no bombero selected
+        document.querySelectorAll('.js-assignment-form').forEach(function(form) {
+            form.addEventListener('submit', function(e) {
+                const bomberoId = form.querySelector('.js-selected-id').value;
+                if (!bomberoId) {
+                    e.preventDefault();
+                    alert('Por favor selecciona un bombero antes de agregar.');
+                    return false;
+                }
+            });
+        });
+
         document.querySelectorAll('.js-bombero-dropdown').forEach(function(dropdown) {
             const toggle = dropdown.querySelector('.js-dropdown-toggle');
             const menu = dropdown.querySelector('.js-dropdown-menu');
