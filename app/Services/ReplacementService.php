@@ -21,7 +21,7 @@ class ReplacementService
         if ($atLocal->greaterThanOrEqualTo($todayStart)) {
             $shiftStart = $todayStart;
         } else {
-            if ($atLocal->hour < 7) {
+            if ($atLocal->hour < 7) {  // Entre 00:00 y 07:00 (post-medianoche)
                 $yesterday = $atLocal->copy()->subDay();
                 $scheduleHourYesterday = $yesterday->isSunday() ? 22 : 23;
                 $shiftStart = $yesterday->copy()->startOfDay()->addHours($scheduleHourYesterday);
@@ -30,11 +30,8 @@ class ReplacementService
             }
         }
 
+        // FIN: Día siguiente a las 07:00 AM (los bomberos trabajan 365 días del año)
         $expiresAtLocal = $shiftStart->copy()->addDay()->startOfDay()->addHours(7);
-
-        while ($expiresAtLocal->isWeekend()) {
-            $expiresAtLocal->addDay();
-        }
 
         return $expiresAtLocal->setTimezone(config('app.timezone'));
     }
