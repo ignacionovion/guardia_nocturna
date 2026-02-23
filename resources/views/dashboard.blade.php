@@ -125,7 +125,7 @@
 
                 <div class="flex items-center justify-between md:justify-end gap-3 shrink-0">
                     @if($shiftClosedForToday)
-                        <span id="attendance-saved-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-amber-200 bg-amber-50 text-amber-800 shrink-0">RECORDAR REGISTRAR GUARDIA A LAS 23:00</span>
+                        <span id="attendance-saved-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-amber-200 bg-amber-50 text-amber-800 shrink-0">RECORDAR REGISTRAR GUARDIA A LAS 22:00</span>
                     @else
                         @if(isset($hasAttendanceSavedToday) && $hasAttendanceSavedToday)
                             <span id="attendance-saved-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 shrink-0">ASISTENCIA REGISTRADA</span>

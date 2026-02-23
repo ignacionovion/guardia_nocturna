@@ -80,7 +80,7 @@ class PlanillasQrController extends Controller
             $unidad = null;
         }
 
-        $unidades = ['BR-3', 'B-3', 'RX-3'];
+        $unidades = ['B-R', 'BR-3', 'RX-3'];
         if ($unidad !== null && !in_array($unidad, $unidades, true)) {
             $unidad = $unidades[0];
         }
@@ -108,7 +108,7 @@ class PlanillasQrController extends Controller
             abort(404);
         }
 
-        $unidades = ['BR-3', 'B-3', 'RX-3'];
+        $unidades = ['B-3', 'BR-3', 'RX-3'];
 
         $validated = $request->validate([
             'unidad' => ['required', 'string', 'max:20', 'in:' . implode(',', $unidades)],
