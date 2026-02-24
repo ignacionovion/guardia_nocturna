@@ -32,6 +32,10 @@
                class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 hover:text-slate-800 transition-colors">
                 <i class="fas fa-truck"></i> Conductores
             </a>
+            <a href="{{ route('admin.reports.emergencies') }}"
+               class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 hover:text-slate-800 transition-colors">
+                <i class="fas fa-ambulance text-red-600"></i> Emergencias
+            </a>
         </div>
     </div>
 

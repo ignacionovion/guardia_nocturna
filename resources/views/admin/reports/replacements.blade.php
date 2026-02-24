@@ -64,6 +64,9 @@
         <a href="{{ route('admin.reports.drivers') }}" class="px-4 py-2 rounded-lg text-sm font-bold border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition flex items-center">
             <i class="fas fa-id-card mr-2 text-slate-400"></i> Conductores
         </a>
+        <a href="{{ route('admin.reports.emergencies') }}" class="px-4 py-2 rounded-lg text-sm font-bold border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition flex items-center">
+            <i class="fas fa-ambulance mr-2 text-red-600"></i> Emergencias
+        </a>
     </div>
 
     @isset($topReplacersByGuardia)

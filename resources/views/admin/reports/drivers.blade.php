@@ -51,8 +51,11 @@
         <a href="{{ route('admin.reports.replacements') }}" class="px-4 py-2 rounded-lg text-sm font-bold border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition">
             <i class="fas fa-right-left mr-2 text-slate-400"></i> Reemplazos
         </a>
-        <a href="{{ route('admin.reports.drivers') }}" class="px-4 py-2 rounded-lg text-sm font-bold border border-red-200 bg-red-50 text-red-800 hover:bg-red-100 transition">
-            <i class="fas fa-id-card mr-2 text-red-500"></i> Conductores
+        <a href="{{ route('admin.reports.drivers') }}" class="px-4 py-2 rounded-lg text-sm font-bold bg-slate-800 text-white border border-slate-800 shadow-sm">
+            <i class="fas fa-truck mr-2"></i> Conductores
+        </a>
+        <a href="{{ route('admin.reports.emergencies') }}" class="px-4 py-2 rounded-lg text-sm font-bold border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition">
+            <i class="fas fa-ambulance mr-2 text-red-600"></i> Emergencias
         </a>
     </div>
 

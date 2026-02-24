@@ -14,6 +14,7 @@ use App\Models\PreventiveEvent;
 use App\Models\PreventiveShift;
 use App\Models\PreventiveShiftAssignment;
 use App\Models\PreventiveShiftAttendance;
+use App\Models\Emergency;
 use App\Services\ReplacementService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -632,6 +633,17 @@ class ReportController extends Controller
             ->groupBy('firefighter_id')
             ->pluck('cnt', 'firefighter_id');
 
+        // También buscar reemplazos legacy en reemplazos_bomberos
+        $legacyReplacementsMadeMap = collect([]);
+        if (Schema::hasTable('reemplazos_bomberos')) {
+            $legacyReplacementsMadeMap = \App\Models\ReemplazoBombero::query()
+                ->whereBetween('inicio', [$from, $to])
+                ->whereNotNull('bombero_reemplazante_id')
+                ->selectRaw('bombero_reemplazante_id as firefighter_id, COUNT(*) as cnt')
+                ->groupBy('bombero_reemplazante_id')
+                ->pluck('cnt', 'firefighter_id');
+        }
+
         // Reemplazos recibidos: turnos donde este bombero fue reemplazado
         $replacementsReceivedMap = ShiftUser::query()
             ->whereBetween('start_time', [$from, $to])
@@ -639,6 +651,17 @@ class ReportController extends Controller
             ->selectRaw('replaced_firefighter_id, COUNT(*) as cnt')
             ->groupBy('replaced_firefighter_id')
             ->pluck('cnt', 'replaced_firefighter_id');
+
+        // También buscar reemplazos recibidos legacy en reemplazos_bomberos
+        $legacyReplacementsReceivedMap = collect([]);
+        if (Schema::hasTable('reemplazos_bomberos')) {
+            $legacyReplacementsReceivedMap = \App\Models\ReemplazoBombero::query()
+                ->whereBetween('inicio', [$from, $to])
+                ->whereNotNull('bombero_titular_id')
+                ->selectRaw('bombero_titular_id as firefighter_id, COUNT(*) as cnt')
+                ->groupBy('bombero_titular_id')
+                ->pluck('cnt', 'firefighter_id');
+        }
 
         // Refuerzos: turnos con assignment_type = 'refuerzo' o es_refuerzo = true
         $reinforcementsMap = ShiftUser::query()
@@ -668,7 +691,9 @@ class ReportController extends Controller
             $isTitular = $ff->es_titular ?? false;
             $isReemplazo = ($ff->estado_asistencia === 'reemplazo') || 
                            ($replacementsMadeMap[$ff->id] ?? 0) > 0 ||
-                           ($replacementsReceivedMap[$ff->id] ?? 0) > 0;
+                           ($replacementsReceivedMap[$ff->id] ?? 0) > 0 ||
+                           ($legacyReplacementsMadeMap[$ff->id] ?? 0) > 0 ||
+                           ($legacyReplacementsReceivedMap[$ff->id] ?? 0) > 0;
             $isRefuerzo = $ff->es_refuerzo ?? false;
 
             $stats[] = [
@@ -682,8 +707,8 @@ class ReportController extends Controller
                 'permissions'           => $permissions,
                 'licenses'              => $licenses,
                 'disabled'              => $disabled,
-                'replacements_made'     => (int) ($replacementsMadeMap[$ff->id] ?? 0),
-                'replacements_received' => (int) ($replacementsReceivedMap[$ff->id] ?? 0),
+                'replacements_made'     => (int) (($replacementsMadeMap[$ff->id] ?? 0) + ($legacyReplacementsMadeMap[$ff->id] ?? 0)),
+                'replacements_received' => (int) (($replacementsReceivedMap[$ff->id] ?? 0) + ($legacyReplacementsReceivedMap[$ff->id] ?? 0)),
                 'reinforcements'        => (int) ($reinforcementsMap[$ff->id] ?? 0),
                 'percentage'            => round(($fulfilled / $total) * 100),
                 'is_titular'            => $isTitular,
@@ -888,6 +913,165 @@ class ReportController extends Controller
             ->take(20);
 
         return view('admin.reports.drivers', compact('month', 'year', 'topDrivers'));
+    }
+
+    public function emergencies(Request $request)
+    {
+        $user = auth()->user();
+        if ($user->role !== 'super_admin') {
+            abort(403, 'No autorizado.');
+        }
+
+        $month = (int) $request->input('month', now()->month);
+        $year = (int) $request->input('year', now()->year);
+        $guardiaId = $request->input('guardia_id');
+
+        $guardias = Guardia::orderBy('name')->get();
+
+        // Base query para emergencias
+        $emergenciesQuery = Emergency::query()
+            ->with(['guardia', 'emergencyKey', 'vehicle'])
+            ->whereYear('created_at', $year)
+            ->whereMonth('created_at', $month);
+
+        if ($guardiaId) {
+            $emergenciesQuery->where('guardia_id', $guardiaId);
+        }
+
+        $emergencies = $emergenciesQuery->get();
+
+        // Estadísticas generales
+        $totalEmergencies = $emergencies->count();
+
+        // Vehículos más utilizados (ordenado de menor a mayor)
+        $vehiclesUsed = $emergencies->groupBy('vehicle_id')
+            ->map(function ($items) {
+                $vehicle = $items->first()?->vehicle;
+                return [
+                    'vehicle' => $vehicle?->name ?? 'Sin vehículo',
+                    'total' => $items->count(),
+                ];
+            })
+            ->sortBy('total') // Ordenado de menor a mayor como pidió
+            ->values();
+
+        // Claves más concurridas (top 5)
+        $topKeys = $emergencies->groupBy('emergency_key_id')
+            ->map(function ($items) {
+                $key = $items->first()?->emergencyKey;
+                return [
+                    'key' => $key?->code ?? 'Sin clave',
+                    'description' => $key?->description ?? '',
+                    'total' => $items->count(),
+                ];
+            })
+            ->sortByDesc('total')
+            ->take(5)
+            ->values();
+
+        // Sistema de puntos por tipo de emergencia
+        // 10-0-1 = 1 punto, 10-4-1 = 2 puntos, etc.
+        $pointsMap = [
+            '10-0-1' => 1,
+            '10-4-1' => 2,
+            // Puedes agregar más mapeos aquí
+        ];
+
+        $pointsByKey = $emergencies->groupBy(function ($e) {
+            return $e->emergencyKey?->code ?? 'Sin clave';
+        })->map(function ($items) use ($pointsMap) {
+            $key = $items->first()?->emergencyKey;
+            $keyCode = $key?->code ?? 'Sin clave';
+            $points = $pointsMap[$keyCode] ?? 1; // Default 1 punto si no está mapeado
+            return [
+                'key' => $keyCode,
+                'description' => $key?->description ?? '',
+                'total' => $items->count(),
+                'points_per_emergency' => $points,
+                'total_points' => $items->count() * $points,
+            ];
+        })->sortByDesc('total_points')->values();
+
+        // Horarios que más salen emergencias (agrupado por hora)
+        $emergenciesByHour = $emergencies->groupBy(function ($e) {
+            return $e->created_at?->format('H:00') ?? '00:00';
+        })->map(function ($items, $hour) {
+            return [
+                'hour' => $hour,
+                'total' => $items->count(),
+            ];
+        })->sortBy('hour')->values();
+
+        // Estadísticas por guardia
+        $statsByGuardia = $emergencies->groupBy(function ($e) {
+            return $e->guardia?->name ?? 'Sin Guardia';
+        })->map(function ($items, $guardiaName) {
+            return [
+                'guardia' => $guardiaName,
+                'total' => $items->count(),
+            ];
+        })->sortByDesc('total')->values();
+
+        // Estadísticas mensuales (para el año seleccionado)
+        $monthlyStats = [];
+        for ($m = 1; $m <= 12; $m++) {
+            $monthQuery = Emergency::query()
+                ->whereYear('created_at', $year)
+                ->whereMonth('created_at', $m);
+
+            if ($guardiaId) {
+                $monthQuery->where('guardia_id', $guardiaId);
+            }
+
+            $monthlyStats[] = [
+                'month' => $m,
+                'month_name' => \Carbon\Carbon::create()->month($m)->locale('es')->monthName,
+                'total' => $monthQuery->count(),
+            ];
+        }
+
+        // Charts data
+        $charts = [
+            'by_hour' => [
+                'labels' => $emergenciesByHour->pluck('hour')->values(),
+                'data' => $emergenciesByHour->pluck('total')->map(fn ($v) => (int) $v)->values(),
+            ],
+            'by_guardia' => [
+                'labels' => $statsByGuardia->pluck('guardia')->values(),
+                'data' => $statsByGuardia->pluck('total')->map(fn ($v) => (int) $v)->values(),
+            ],
+            'monthly' => [
+                'labels' => collect($monthlyStats)->pluck('month_name')->values(),
+                'data' => collect($monthlyStats)->pluck('total')->map(fn ($v) => (int) $v)->values(),
+            ],
+            'top_keys' => [
+                'labels' => $topKeys->pluck('key')->values(),
+                'data' => $topKeys->pluck('total')->map(fn ($v) => (int) $v)->values(),
+            ],
+        ];
+
+        $kpis = [
+            'total_emergencies' => $totalEmergencies,
+            'month' => $month,
+            'year' => $year,
+            'guardia_filter' => $guardiaId ? Guardia::find($guardiaId)?->name : 'Todas',
+        ];
+
+        return view('admin.reports.emergencies', compact(
+            'month',
+            'year',
+            'guardiaId',
+            'guardias',
+            'emergencies',
+            'vehiclesUsed',
+            'topKeys',
+            'pointsByKey',
+            'emergenciesByHour',
+            'statsByGuardia',
+            'monthlyStats',
+            'charts',
+            'kpis'
+        ));
     }
 
     public function replacements(Request $request)
