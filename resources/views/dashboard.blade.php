@@ -125,7 +125,7 @@
 
                 <div class="flex items-center justify-between md:justify-end gap-3 shrink-0">
                     @if($shiftClosedForToday)
-                        <span id="attendance-saved-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-amber-200 bg-amber-50 text-amber-800 shrink-0">RECORDAR REGISTRAR GUARDIA A LAS 22:00</span>
+                        <span id="attendance-saved-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-amber-200 bg-amber-50 text-amber-800 shrink-0">RECORDAR REGISTRAR GUARDIA A LAS 22:00 - POSTERIOR A ESTA HORA EL BOTÓN APARECERÁ EN EL DASHBOARD</span>
                     @else
                         @if(isset($hasAttendanceSavedToday) && $hasAttendanceSavedToday)
                             <span id="attendance-saved-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 shrink-0">ASISTENCIA REGISTRADA</span>
@@ -536,211 +536,323 @@
         </div>
 
     @else
-        <!-- VISTA ADMIN / GENERAL (DASHBOARD ORIGINAL) -->
-        <!-- Header del Dashboard -->
-        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 border-b border-slate-200 pb-6">
-        <div>
-            <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight flex items-center uppercase">
-                <i class="fas fa-gauge-high mr-3 text-red-700"></i> Panel de Control
-            </h1>
-            <p class="text-slate-500 mt-1 font-medium">Resumen operativo de la unidad</p>
-        </div>
+        <!-- VISTA ADMIN / GENERAL - DASHBOARD PROFESIONAL -->
         
-        <!-- Reloj Digital Estilo Panel -->
-        <div class="flex items-center gap-3">
+        <!-- Header Profesional -->
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4 pb-6 border-b border-slate-200">
+            <div>
+                <h1 class="text-2xl font-black text-slate-900 tracking-tight uppercase flex items-center gap-3">
+                    <i class="fas fa-gauge-high text-red-700"></i>
+                    Centro de Operaciones
+                </h1>
+                <p class="text-slate-500 mt-1 font-medium text-sm">Panel de control operativo del sistema</p>
+            </div>
             
-
-            <div class="bg-slate-900 text-white px-6 py-3 rounded-lg shadow-lg border-2 border-slate-700 flex items-center gap-4">
-                <div class="flex flex-col items-end border-r border-slate-600 pr-4">
-                    <span class="text-xs text-slate-400 uppercase tracking-wider font-bold">Hora Local</span>
-                    <span class="text-xs text-red-500 font-bold animate-pulse">EN LÍNEA</span>
+            <div class="flex items-center gap-4">
+                <!-- Estado del Sistema -->
+                <div class="flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 rounded-lg">
+                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                    <span class="text-xs font-black text-green-700 uppercase tracking-wider">Sistema Operativo</span>
                 </div>
-                <div class="flex items-center">
-                    <span id="digital-clock" class="text-3xl font-mono font-bold tracking-widest text-white drop-shadow-md">--:--:--</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Grid de KPIs (Tarjetas Principales) -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-        <!-- Tarjeta Camas -->
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 relative overflow-hidden group hover:shadow-md transition-all">
-            <div class="absolute top-0 left-0 w-1 h-full bg-blue-600"></div>
-            <div class="flex justify-between items-start">
-                <div>
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Disponibilidad</p>
-                    <h3 class="text-slate-700 font-bold text-lg">Camas Guardia</h3>
-                    <p class="text-3xl font-extrabold text-slate-800 mt-2">{{ $availableBeds }} <span class="text-lg text-slate-400 font-normal">/ {{ $totalBeds }}</span></p>
-                </div>
-                <div class="bg-blue-50 p-3 rounded-lg text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                    <i class="fas fa-bed text-2xl"></i>
+                
+                <!-- Reloj -->
+                <div class="bg-slate-900 text-white px-5 py-2.5 rounded-lg border border-slate-700 flex items-center gap-3">
+                    <i class="fas fa-clock text-slate-400 text-sm"></i>
+                    <span id="digital-clock" class="text-xl font-mono font-bold tracking-wider">--:--:--</span>
                 </div>
             </div>
         </div>
 
-        <!-- Tarjeta Estado Guardia -->
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 relative overflow-hidden group hover:shadow-md transition-all">
-            <div class="absolute top-0 left-0 w-1 h-full bg-red-600"></div>
-            <div class="flex justify-between items-start">
-                <div>
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Estado Operativo</p>
-                    <h3 class="text-slate-700 font-bold text-lg">Guardia Nocturna</h3>
-                    
-                    @if(isset($activeGuardia))
-                        <div class="mt-1">
-                            <span class="text-xs font-bold bg-red-100 text-red-700 px-2 py-0.5 rounded uppercase tracking-wide border border-red-200">
-                                <i class="fas fa-calendar-week mr-1"></i> {{ $activeGuardia->name }}
-                            </span>
-                        </div>
-                    @endif
-
-                    <p class="text-xl font-bold mt-2">
-                        @if($currentShift)
-                            <span class="text-green-600 flex items-center gap-2">
-                                CONSTITUIDA
-                            </span>
-                        @else
-                            <!-- <span class="text-slate-400 italic font-normal text-base">Sin constituir</span> -->
-                        @endif
-                    </p>
-                </div>
-                <div class="bg-red-50 p-3 rounded-lg text-red-600 group-hover:bg-red-600 group-hover:text-white transition-colors">
-                    <i class="fas fa-calendar-week text-2xl"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tarjeta Cumpleaños -->
-        <div class="{{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200' }} rounded-xl shadow-sm border p-6 relative overflow-hidden group hover:shadow-md transition-all">
-            <div class="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
-            <div class="flex justify-between items-start">
-                <div>
-                    <p class="text-xs font-bold {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-400' : 'text-slate-400' }} uppercase tracking-wider mb-1">Efemérides</p>
-                    <h3 class="font-bold text-lg {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-200' : 'text-slate-700' }}">Cumpleaños Mes</h3>
-                    <p class="text-3xl font-extrabold mt-2 {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-100' : 'text-slate-800' }}">{{ $birthdaysMonthCount ?? $birthdays->count() }}</p>
-                </div>
-                <div class="bg-amber-50 p-3 rounded-lg text-amber-600 group-hover:bg-amber-500 group-hover:text-white transition-colors">
-                    <i class="fas fa-birthday-cake text-2xl"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tarjeta Novedades -->
-        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6 relative overflow-hidden group hover:shadow-md transition-all">
-            <div class="absolute top-0 left-0 w-1 h-full bg-slate-600"></div>
-            <div class="flex justify-between items-start">
-                <div>
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Bitácora</p>
-                    <h3 class="text-slate-700 font-bold text-lg">Novedades</h3>
-                    <p class="text-3xl font-extrabold text-slate-800 mt-2">{{ $novelties->count() }}</p>
-                </div>
-                <div class="bg-slate-100 p-3 rounded-lg text-slate-600 group-hover:bg-slate-600 group-hover:text-white transition-colors">
-                    <i class="fas fa-clipboard-check text-2xl"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Contenido Inferior -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <!-- Lista de Cumpleaños -->
-        <div class="{{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200' }} rounded-xl shadow-sm border overflow-hidden">
-            <div class="px-6 py-4 border-b flex justify-between items-center {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200' }}">
-                <h2 class="font-bold flex items-center {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-200' : 'text-slate-700' }}">
-                    <i class="fas fa-calendar-days text-amber-500 mr-2"></i> Próximos Cumpleaños
-                </h2>
-                <span class="text-xs font-bold px-2 py-1 rounded {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-800 text-slate-200' : 'bg-slate-200 text-slate-600' }}">{{ date('F') }}</span>
-            </div>
-            <div class="p-4">
-                @php
-                    $birthdaysList = $birthdaysThisMonth ?? $birthdays;
-                @endphp
-                @if($birthdaysList->isEmpty())
-                    <div class="text-center py-8 {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-400' : 'text-slate-400' }}">
-                        <i class="fas fa-calendar-xmark text-4xl mb-3 opacity-50"></i>
-                        <p>No hay cumpleaños registrados para este mes.</p>
-                    </div>
-                @else
-                    <ul class="space-y-3 max-h-[320px] overflow-auto pr-1">
-                        @foreach($birthdaysList->take(5) as $user)
-                            <li class="flex items-center justify-between p-3 rounded-lg border border-transparent transition-all {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'hover:bg-slate-950 hover:border-slate-800' : 'hover:bg-slate-50 hover:border-slate-100' }}">
-                                <div class="flex items-center gap-3">
-                                    @if($user->photo_path)
-                                        <img src="{{ url('media/' . ltrim($user->photo_path, '/')) }}" class="w-10 h-10 rounded-full object-cover border border-amber-200 shadow-sm" alt="Foto">
-                                    @else
-                                        <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center font-bold text-sm">
-                                            {{ substr($user->nombres, 0, 1) }}{{ substr($user->apellido_paterno, 0, 1) }}
-                                        </div>
-                                    @endif
-                                    <div>
-                                        <div class="font-medium {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-100' : 'text-slate-900' }}">{{ $user->nombres }} {{ $user->apellido_paterno }}</div>
-                                        <div class="text-xs {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-400' : 'text-slate-500' }}">{{ $user->fecha_nacimiento ? $user->fecha_nacimiento->format('d/m') : '' }}</div>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <span class="block font-bold {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-200' : 'text-slate-700' }}">{{ \Carbon\Carbon::parse($user->fecha_nacimiento)->format('d') }}</span>
-                                    <span class="text-xs uppercase {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-500' : 'text-slate-400' }}">{{ \Carbon\Carbon::parse($user->fecha_nacimiento)->format('M') }}</span>
-                                </div>
-                            </li>
-                        @endforeach
-                    </ul>
-                @endif
-            </div>
-        </div>
-
-        <!-- Últimas Novedades -->
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-            <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
-                <h2 class="font-bold text-slate-700 flex items-center">
-                    <i class="fas fa-bullhorn text-slate-600 mr-2"></i> Bitácora de Novedades
-                </h2>
-                <button type="button" onclick="openNoveltyModal()" class="text-xs font-bold text-blue-600 hover:text-blue-800">Registrar</button>
-            </div>
-            <div class="p-4">
-                @if($novelties->isEmpty())
-                     <div class="text-center py-8 text-slate-400">
-                        <i class="fas fa-clipboard-list text-4xl mb-3 opacity-50"></i>
-                        <p>No se han registrado novedades recientes.</p>
-                    </div>
-                @else
-                    <div class="relative border-l-2 border-slate-200 ml-3 space-y-6 max-h-[320px] overflow-auto pr-1">
-                        @foreach($novelties->take(5) as $novelty)
-                            <div class="ml-6 relative group">
-                                <span class="absolute -left-[31px] top-0 flex items-center justify-center w-4 h-4 bg-white rounded-full ring-4 ring-white">
-                                    <span class="w-2 h-2 {{ $novelty->is_permanent ? 'bg-red-500' : 'bg-blue-500' }} rounded-full"></span>
-                                </span>
-                                <div class="flex items-start justify-between gap-2">
-                                    <div class="flex-1 min-w-0">
-                                        <h3 class="text-sm font-bold text-slate-800">{{ $novelty->title }}</h3>
-                                        @if($novelty->is_permanent)
-                                            <span class="inline-block mt-1 text-[10px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100">PERMANENTE</span>
-                                        @endif
-                                    </div>
-                                    @if($novelty->is_permanent && in_array(Auth::user()->role, ['super_admin', 'capitania'], true))
-                                        <form action="{{ route('novelties.destroy', $novelty->id) }}" method="POST" onsubmit="return confirm('¿Eliminar esta novedad permanente?');" class="opacity-0 group-hover:opacity-100 transition-opacity">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-400 hover:text-red-600 p-1" title="Eliminar novedad permanente">
-                                                <i class="fas fa-trash-alt text-xs"></i>
-                                            </button>
-                                        </form>
-                                    @endif
-                                </div>
-                                <p class="text-sm text-slate-600 mt-1 leading-relaxed">{{ $novelty->description }}</p>
-                                <div class="mt-2 flex items-center justify-between gap-3">
-                                    <span class="text-xs text-slate-400 font-medium">
-                                        <i class="fas fa-clock mr-1"></i> {{ $novelty->created_at->diffForHumans() }}
-                                    </span>
-                                    <span class="text-xs text-slate-600 font-bold truncate">{{ $novelty->user?->name ?? 'Sistema' }}</span>
-                                </div>
+        <!-- Grid Principal: KPIs y Accesos -->
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
+            
+            <!-- Columna Izquierda: Estado Operativo -->
+            <div class="xl:col-span-2 space-y-6">
+                
+                <!-- Tarjetas KPI Principales -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <!-- Guardia Activa -->
+                    <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-all">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="text-xs font-black text-slate-400 uppercase tracking-wider mb-1">Guardia en Servicio</p>
+                                <h3 class="text-lg font-black text-slate-900">
+                                    {{ $guardiaEnServicio?->name ?? 'Sin asignar' }}
+                                </h3>
                             </div>
-                        @endforeach
+                            <div class="bg-red-100 p-2 rounded-lg text-red-700">
+                                <i class="fas fa-shield text-lg"></i>
+                            </div>
+                        </div>
+                        @if($guardiaEnServicio)
+                            <div class="mt-3 flex items-center gap-2">
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                <span class="text-xs font-bold text-slate-600">Operativa</span>
+                            </div>
+                        @endif
                     </div>
-                @endif
+
+                    <!-- Personal en Turno -->
+                    <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-all">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="text-xs font-black text-slate-400 uppercase tracking-wider mb-1">Personal en Turno</p>
+                                <h3 class="text-2xl font-black text-slate-900">{{ $onDutyCount }}</h3>
+                            </div>
+                            <div class="bg-blue-100 p-2 rounded-lg text-blue-700">
+                                <i class="fas fa-users text-lg"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-2">Bomberos activos</p>
+                    </div>
+
+                    <!-- Camas Disponibles -->
+                    <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-all">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="text-xs font-black text-slate-400 uppercase tracking-wider mb-1">Camas Libres</p>
+                                <h3 class="text-2xl font-black text-slate-900">{{ $availableBeds }}<span class="text-sm text-slate-400 font-normal">/{{ $totalBeds }}</span></h3>
+                            </div>
+                            <div class="bg-emerald-100 p-2 rounded-lg text-emerald-700">
+                                <i class="fas fa-bed text-lg"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-2">{{ $occupiedBeds }} ocupadas</p>
+                    </div>
+
+                    <!-- Novedades -->
+                    <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-all">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="text-xs font-black text-slate-400 uppercase tracking-wider mb-1">Novedades</p>
+                                <h3 class="text-2xl font-black text-slate-900">{{ $novelties->count() }}</h3>
+                            </div>
+                            <div class="bg-amber-100 p-2 rounded-lg text-amber-700">
+                                <i class="fas fa-clipboard-list text-lg"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-2">Últimas 24 horas</p>
+                    </div>
+                </div>
+
+                <!-- Panel de Movimientos -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Reemplazos Activos -->
+                    <div class="bg-white rounded-xl border-l-4 border-purple-500 border-y border-r border-slate-200 p-4 shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-black text-slate-400 uppercase tracking-wider">Reemplazos Activos</p>
+                                <p class="text-xl font-black text-slate-900 mt-1">{{ $activeReplacementsCount }}</p>
+                            </div>
+                            <div class="bg-purple-100 p-2 rounded-lg text-purple-700">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Refuerzos -->
+                    <div class="bg-white rounded-xl border-l-4 border-sky-500 border-y border-r border-slate-200 p-4 shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-black text-slate-400 uppercase tracking-wider">Refuerzos</p>
+                                <p class="text-xl font-black text-slate-900 mt-1">{{ $activeRefuerzosCount }}</p>
+                            </div>
+                            <div class="bg-sky-100 p-2 rounded-lg text-sky-700">
+                                <i class="fas fa-user-friends"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Personal Fuera de Servicio -->
+                    <div class="bg-white rounded-xl border-l-4 border-red-500 border-y border-r border-slate-200 p-4 shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-black text-slate-400 uppercase tracking-wider">Fuera de Servicio</p>
+                                <p class="text-xl font-black text-slate-900 mt-1">{{ $outOfServiceFirefighters }}</p>
+                            </div>
+                            <div class="bg-red-100 p-2 rounded-lg text-red-700">
+                                <i class="fas fa-user-slash"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resumen de Personal -->
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-200 bg-slate-50">
+                        <h2 class="font-black text-slate-800 uppercase tracking-wider text-sm flex items-center gap-2">
+                            <i class="fas fa-users text-slate-500"></i>
+                            Resumen de Personal
+                        </h2>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                            <div class="text-center">
+                                <p class="text-3xl font-black text-slate-900">{{ $totalFirefighters }}</p>
+                                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">Total Bomberos</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-3xl font-black text-emerald-600">{{ $activeFirefighters }}</p>
+                                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">Activos</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-3xl font-black text-slate-900">{{ $totalGuardias }}</p>
+                                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">Guardias</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-3xl font-black text-amber-600">{{ $birthdaysMonthCount }}</p>
+                                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">Cumpleaños Mes</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Accesos Directos -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <a href="{{ route('admin.guardias') }}" class="group bg-slate-900 hover:bg-slate-800 text-white rounded-xl p-4 shadow-sm transition-all flex items-center gap-3">
+                        <div class="bg-white/10 p-2 rounded-lg">
+                            <i class="fas fa-shield"></i>
+                        </div>
+                        <div>
+                            <p class="font-black text-sm uppercase">Guardias</p>
+                            <p class="text-xs text-slate-400">Administrar equipos</p>
+                        </div>
+                    </a>
+                    
+                    <a href="{{ route('admin.dotaciones') }}" class="group bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 rounded-xl p-4 shadow-sm transition-all flex items-center gap-3">
+                        <div class="bg-slate-100 p-2 rounded-lg text-slate-600">
+                            <i class="fas fa-users-gear"></i>
+                        </div>
+                        <div>
+                            <p class="font-black text-sm uppercase">Dotaciones</p>
+                            <p class="text-xs text-slate-500">Asignar personal</p>
+                        </div>
+                    </a>
+                    
+                    <a href="{{ route('camas') }}" class="group bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 rounded-xl p-4 shadow-sm transition-all flex items-center gap-3">
+                        <div class="bg-emerald-100 p-2 rounded-lg text-emerald-600">
+                            <i class="fas fa-bed"></i>
+                        </div>
+                        <div>
+                            <p class="font-black text-sm uppercase">Camas</p>
+                            <p class="text-xs text-slate-500">{{ $availableBeds }} disponibles</p>
+                        </div>
+                    </a>
+                    
+                    <a href="{{ route('admin.emergencies.index') }}" class="group bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 rounded-xl p-4 shadow-sm transition-all flex items-center gap-3">
+                        <div class="bg-amber-100 p-2 rounded-lg text-amber-600">
+                            <i class="fas fa-truck-medical"></i>
+                        </div>
+                        <div>
+                            <p class="font-black text-sm uppercase">Emergencias</p>
+                            <p class="text-xs text-slate-500">Ver historial</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Columna Derecha: Información y Alertas -->
+            <div class="space-y-6">
+                
+                <!-- Estado del Turno -->
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="px-5 py-4 border-b border-slate-200 bg-slate-50">
+                        <h2 class="font-black text-slate-800 uppercase tracking-wider text-xs flex items-center gap-2">
+                            <i class="fas fa-info-circle text-slate-500"></i>
+                            Estado del Turno
+                        </h2>
+                    </div>
+                    <div class="p-5">
+                        @if($currentShift)
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                                <p class="font-black text-slate-900">TURNO ACTIVO</p>
+                            </div>
+                            <p class="text-sm text-slate-600 mb-1">Guardia constituida y operativa</p>
+                            <p class="text-xs text-slate-400">Inicio: {{ $currentShift->created_at?->format('H:i') ?? '--:--' }}</p>
+                        @else
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-3 h-3 bg-amber-500 rounded-full"></div>
+                                <p class="font-black text-amber-700">SIN CONSTITUIR</p>
+                            </div>
+                            <p class="text-sm text-slate-600">La guardia aún no ha sido constituida</p>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Próximos Cumpleaños -->
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="px-5 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+                        <h2 class="font-black text-slate-800 uppercase tracking-wider text-xs flex items-center gap-2">
+                            <i class="fas fa-cake-candles text-amber-500"></i>
+                            Cumpleaños
+                        </h2>
+                        <span class="text-xs font-bold text-slate-500">{{ $birthdaysMonthCount }} este mes</span>
+                    </div>
+                    <div class="p-5">
+                        @if($upcomingBirthdaysAll->isEmpty())
+                            <p class="text-sm text-slate-500 text-center">No hay cumpleaños próximos</p>
+                        @else
+                            <div class="space-y-3">
+                                @foreach($upcomingBirthdaysAll as $b)
+                                    <div class="flex items-center gap-3 p-2 rounded-lg bg-slate-50">
+                                        <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-xs">
+                                            {{ substr($b->nombres, 0, 1) }}{{ substr($b->apellido_paterno, 0, 1) }}
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="font-bold text-slate-900 text-sm truncate">{{ $b->nombres }} {{ $b->apellido_paterno }}</p>
+                                            <p class="text-xs text-slate-500">{{ $b->next_birthday->format('d') }} de {{ $b->next_birthday->locale('es')->monthName }}</p>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Últimas Novedades -->
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="px-5 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+                        <h2 class="font-black text-slate-800 uppercase tracking-wider text-xs flex items-center gap-2">
+                            <i class="fas fa-bullhorn text-slate-500"></i>
+                            Novedades Recientes
+                        </h2>
+                        <button onclick="openNoveltyModal()" class="text-xs font-black text-blue-600 hover:text-blue-800 uppercase">Registrar</button>
+                    </div>
+                    <div class="p-5">
+                        @if($novelties->isEmpty())
+                            <p class="text-sm text-slate-500 text-center">Sin novedades recientes</p>
+                        @else
+                            <div class="space-y-4">
+                                @foreach($novelties->take(3) as $novelty)
+                                    @php
+                                        $noveltyColors = [
+                                            'Informativa' => ['bg' => 'bg-blue-500', 'text' => 'text-blue-700', 'bgLight' => 'bg-blue-50', 'border' => 'border-blue-100'],
+                                            'Incidente' => ['bg' => 'bg-amber-500', 'text' => 'text-amber-700', 'bgLight' => 'bg-amber-50', 'border' => 'border-amber-100'],
+                                            'Mantención' => ['bg' => 'bg-emerald-500', 'text' => 'text-emerald-700', 'bgLight' => 'bg-emerald-50', 'border' => 'border-emerald-100'],
+                                            'Urgente' => ['bg' => 'bg-red-500', 'text' => 'text-red-700', 'bgLight' => 'bg-red-50', 'border' => 'border-red-100'],
+                                            'Permanente' => ['bg' => 'bg-purple-500', 'text' => 'text-purple-700', 'bgLight' => 'bg-purple-50', 'border' => 'border-purple-100'],
+                                        ];
+                                        $colors = $noveltyColors[$novelty->type] ?? $noveltyColors['Informativa'];
+                                    @endphp
+                                    <div class="border-l-2 {{ $colors['bg'] }} pl-3 py-1">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span class="text-xs font-bold {{ $colors['text'] }} {{ $colors['bgLight'] }} px-1.5 py-0.5 rounded border {{ $colors['border'] }}">{{ $novelty->type }}</span>
+                                            @if($novelty->is_permanent)
+                                                <span class="text-[10px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-100">PERMANENTE</span>
+                                            @endif
+                                        </div>
+                                        <p class="font-bold text-slate-900 text-sm">{{ $novelty->title }}</p>
+                                        <p class="text-xs text-slate-500 mt-1">{{ $novelty->created_at->diffForHumans() }}</p>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
             </div>
         </div>
-    </div>
 
     @endif
 

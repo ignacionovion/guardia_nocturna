@@ -9,10 +9,6 @@
             <p class="text-slate-500 mt-1 font-medium">Gestión de equipos</p>
         </div>
 
-        <button type="button" onclick="toggleFullscreen()" class="inline-flex items-center justify-center w-11 h-11 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 shadow-sm transition" title="Pantalla completa">
-            <i class="fas fa-expand"></i>
-        </button>
-
         <!-- Formulario Crear Guardia -->
         @if(auth()->user()->role === 'super_admin')
             <form action="{{ route('admin.guardias.store') }}" method="POST" class="flex gap-2 w-full md:w-auto">
@@ -354,10 +350,7 @@
 
                 <!-- Formulario Agregar / Asignar (Colapsable) -->
                 <div class="bg-white border-t border-slate-200 mt-auto shadow-[0_-4px_20px_-5px_rgba(0,0,0,0.1)] z-10 relative">
-                    <div class="grid grid-cols-2">
-                        <button type="button" onclick="openRefuerzoModal('{{ $guardia->id }}')" class="w-full p-3 flex items-center justify-center text-[10px] font-black text-slate-500 uppercase tracking-widest hover:bg-slate-50 transition-colors group outline-none focus:bg-slate-50 border-r border-slate-200">
-                            <i class="fas fa-user-plus mr-2 text-slate-400"></i> Agregar Refuerzo
-                        </button>
+                    <div class="grid grid-cols-1">
                         <a href="{{ route('admin.dotaciones') }}" class="w-full p-3 flex items-center justify-center text-[10px] font-black text-slate-500 uppercase tracking-widest hover:bg-slate-50 transition-colors group outline-none focus:bg-slate-50">
                             <i class="fas fa-users-gear mr-2 text-slate-400"></i> Gestionar Dotación
                         </a>

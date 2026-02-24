@@ -148,6 +148,31 @@ class TableroController extends Controller
                 ->take(5);
         };
 
+        // Estadísticas adicionales para dashboard profesional
+        $totalFirefighters = Bombero::count();
+        $activeFirefighters = Bombero::where(function ($q) {
+            $q->whereNull('fuera_de_servicio')->orWhere('fuera_de_servicio', false);
+        })->count();
+        $outOfServiceFirefighters = Bombero::where('fuera_de_servicio', true)->count();
+        $totalGuardias = Guardia::count();
+        
+        // Personal en turno actual
+        $onDutyCount = $globalCurrentShift 
+            ? $globalCurrentShift->users->whereNull('end_time')->count()
+            : 0;
+            
+        // Reemplazos activos totales
+        $activeReplacementsCount = ReemplazoBombero::where('estado', 'activo')->count();
+        
+        // Refuerzos activos totales
+        $activeRefuerzosCount = Bombero::where('es_refuerzo', true)->count();
+        
+        // Última emergencia (si existe modelo Emergency)
+        $lastEmergency = null;
+        if (class_exists('\App\Models\Emergency')) {
+            $lastEmergency = \App\Models\Emergency::latest()->first();
+        }
+        
         // Próximos cumpleaños (Bomberos)
         $birthdaysSource = Bombero::query()
             ->whereNotNull('fecha_nacimiento')
@@ -157,6 +182,12 @@ class TableroController extends Controller
             ->get();
 
         $birthdays = $computeUpcomingBirthdays($birthdaysSource);
+
+        // Próximos cumpleaños (todos los bomberos)
+        $upcomingBirthdaysAll = $birthdays->take(3);
+        
+        // Guardia en servicio actual
+        $guardiaEnServicio = $activeGuardia;
 
         $birthdaysMonthCount = $birthdaysSource
             ->filter(function ($b) {
@@ -434,8 +465,15 @@ class TableroController extends Controller
                 ->orderBy('name')
                 ->get();
 
-            $guardiaNovelties = Novelty::with('user')->latest()->paginate(3);
-            $academies = Novelty::with('user')->where('type', 'Academia')->latest()->take(5)->get();
+            $guardiaNovelties = Novelty::with(['user', 'guardia'])
+                ->notAcademy()
+                ->latest()
+                ->paginate(3);
+            $academies = Novelty::with(['user', 'firefighter'])
+                ->academy()
+                ->latest()
+                ->take(5)
+                ->get();
 
             $birthdays = $computeUpcomingBirthdays(
                 $myStaff->filter(function ($b) {
@@ -489,7 +527,17 @@ class TableroController extends Controller
             'hasAttendanceSavedToday',
             'academyLeaders',
             'academyLeadersFirefighters',
-            'guardiaTz'
+            'guardiaTz',
+            'totalFirefighters',
+            'activeFirefighters',
+            'outOfServiceFirefighters',
+            'totalGuardias',
+            'onDutyCount',
+            'activeReplacementsCount',
+            'activeRefuerzosCount',
+            'lastEmergency',
+            'upcomingBirthdaysAll',
+            'guardiaEnServicio'
         ));
     }
 

@@ -635,7 +635,7 @@ class PreventiveEventController extends Controller
 
         $shifts = PreventiveShift::query()
             ->where('preventive_event_id', $event->id)
-            ->with(['assignments.firefighter', 'shifts.assignments.replacedFirefighter'])
+            ->with(['assignments.firefighter', 'assignments.replacedFirefighter'])
             ->orderBy('shift_date')
             ->orderBy('sort_order')
             ->get();

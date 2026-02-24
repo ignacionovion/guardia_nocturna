@@ -39,30 +39,85 @@
 
     @if($activeTab === 'asistencia')
 
-    {{-- FILTROS --}}
-    <div class="bg-white p-4 border border-t-0 border-slate-200 mb-6">
-        <form action="{{ route('admin.reports.attendance') }}" method="GET" class="flex flex-wrap items-end gap-3">
+    {{-- FILTROS PROFESIONALES --}}
+    <div class="bg-white p-5 border border-t-0 border-slate-200 mb-6 rounded-b-lg shadow-sm">
+        <form action="{{ route('admin.reports.attendance') }}" method="GET" class="flex flex-wrap items-end gap-4">
             <input type="hidden" name="tab" value="asistencia">
-            <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Guardia</label>
-                <select name="guardia_id" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-md text-sm w-44">
-                    <option value="">Todas</option>
-                    @foreach($guardias as $g)
-                        <option value="{{ $g->id }}" {{ $guardiaId == $g->id ? 'selected' : '' }}>{{ $g->name }}</option>
-                    @endforeach
-                </select>
+            
+            {{-- Filtro por Guardia --}}
+            <div class="min-w-[180px]">
+                <label class="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Guardia</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-shield-alt text-slate-400 text-xs"></i>
+                    </div>
+                    <select name="guardia_id" class="pl-9 pr-8 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 w-full appearance-none cursor-pointer hover:bg-slate-100 transition-colors">
+                        <option value="">Todas las Guardias</option>
+                        @foreach($guardias as $g)
+                            <option value="{{ $g->id }}" {{ $guardiaId == $g->id ? 'selected' : '' }}>{{ $g->name }}</option>
+                        @endforeach
+                    </select>
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                        <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
+                    </div>
+                </div>
             </div>
-            <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Desde</label>
-                <input type="date" name="from" value="{{ $from->format('Y-m-d') }}" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-md text-sm w-36">
+
+            {{-- Filtro por Semana --}}
+            <div class="min-w-[180px]">
+                <label class="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Semana</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-calendar-week text-slate-400 text-xs"></i>
+                    </div>
+                    <select name="week" class="pl-9 pr-8 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 w-full appearance-none cursor-pointer hover:bg-slate-100 transition-colors">
+                        <option value="">Todas las semanas</option>
+                        @php
+                            $currentWeek = now()->weekOfYear;
+                            for($w = $currentWeek - 8; $w <= $currentWeek; $w++) {
+                                $weekStart = \Carbon\Carbon::now()->setISODate(now()->year, $w, 1);
+                                $weekLabel = 'Semana ' . $w . ' (' . $weekStart->format('d/m') . ' - ' . $weekStart->copy()->addDays(6)->format('d/m') . ')';
+                                echo '<option value="' . $w . '">' . $weekLabel . '</option>';
+                            }
+                        @endphp
+                    </select>
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                        <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
+                    </div>
+                </div>
             </div>
-            <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Hasta</label>
-                <input type="date" name="to" value="{{ $to->format('Y-m-d') }}" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-md text-sm w-36">
+
+            {{-- Fecha Desde --}}
+            <div class="min-w-[150px]">
+                <label class="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Desde</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-calendar text-slate-400 text-xs"></i>
+                    </div>
+                    <input type="date" name="from" value="{{ $from->format('Y-m-d') }}" class="pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 w-full hover:bg-slate-100 transition-colors">
+                </div>
             </div>
-            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-md text-sm flex items-center gap-2">
-                <i class="fas fa-filter"></i> Filtrar
-            </button>
+
+            {{-- Fecha Hasta --}}
+            <div class="min-w-[150px]">
+                <label class="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Hasta</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-calendar text-slate-400 text-xs"></i>
+                    </div>
+                    <input type="date" name="to" value="{{ $to->format('Y-m-d') }}" class="pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 w-full hover:bg-slate-100 transition-colors">
+                </div>
+            </div>
+
+            {{-- Botón Filtrar --}}
+            <div class="flex gap-2">
+                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-black py-2.5 px-5 rounded-lg text-sm transition-all shadow-sm hover:shadow-md flex items-center gap-2 uppercase tracking-wider">
+                    <i class="fas fa-filter"></i> Filtrar
+                </button>
+                <a href="{{ route('admin.reports.attendance') }}" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-black py-2.5 px-4 rounded-lg text-sm transition-all flex items-center gap-2 uppercase tracking-wider" title="Limpiar filtros">
+                    <i class="fas fa-undo"></i>
+                </a>
+            </div>
         </form>
     </div>
 
@@ -208,38 +263,52 @@
         </div>
     </div>
 
-    {{-- RANKINGS --}}
+    {{-- RANKINGS MEJORADOS --}}
     @if(!empty($rankings))
     <div class="mb-6">
-        <h3 class="text-sm font-bold text-slate-700 uppercase tracking-widest mb-3 flex items-center gap-2">
+        <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest mb-4 flex items-center gap-2">
             <i class="fas fa-trophy text-amber-500"></i> Rankings del Período
         </h3>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             @foreach($rankings as $rank)
-            <div class="bg-white rounded-lg border border-slate-200 p-4 shadow-sm">
-                <div class="flex items-center gap-2 mb-2">
-                    <span class="text-xl">{{ $rank['emoji'] }}</span>
-                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wide leading-tight">{{ $rank['label'] }}</span>
+            <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm hover:shadow-md transition-all">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-lg bg-{{ $rank['color'] }}-100 flex items-center justify-center text-{{ $rank['color'] }}-600">
+                        <span class="text-lg">{{ $rank['emoji'] }}</span>
+                    </div>
+                    <span class="text-xs font-black text-slate-500 uppercase tracking-wide leading-tight">{{ $rank['label'] }}</span>
                 </div>
-                @if($rank['name'])
-                    <p class="font-bold text-slate-800 text-sm truncate">{{ $rank['name'] }}</p>
-                    <p class="text-xs text-slate-500 mt-0.5">{{ $rank['value'] }} {{ $rank['unit'] }}</p>
-                @else
-                    <p class="text-xs text-slate-400 italic">Sin datos</p>
-                @endif
+                <p class="font-bold text-slate-800 text-sm truncate">{{ $rank['name'] }}</p>
+                <div class="flex items-center gap-2 mt-2">
+                    <span class="text-lg font-black text-{{ $rank['color'] }}-600">{{ $rank['value'] }}</span>
+                    <span class="text-xs text-slate-400">{{ $rank['unit'] }}</span>
+                </div>
             </div>
             @endforeach
         </div>
     </div>
     @endif
 
-    {{-- TABLA POR BOMBERO --}}
-    <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden mb-6">
-        <div class="p-4 border-b border-slate-200 flex items-center justify-between">
-            <h3 class="text-base font-bold text-slate-800 uppercase tracking-wide flex items-center gap-2">
-                <i class="fas fa-users text-slate-400"></i> Informe por Bombero
-            </h3>
-            <span class="text-xs text-slate-400">{{ count($firefighterStats) }} voluntarios</span>
+    {{-- INFORME POR BOMBERO - DIVIDIDO EN 3 SECCIONES --}}
+    @php
+        $titulares = collect($firefighterStats)->where('tipo', 'titular')->values();
+        $reemplazos = collect($firefighterStats)->where('tipo', 'reemplazo')->values();
+        $refuerzos = collect($firefighterStats)->where('tipo', 'refuerzo')->values();
+    @endphp
+
+    {{-- SECCIÓN 1: TITULARES --}}
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-6">
+        <div class="p-4 border-b border-slate-200 bg-emerald-50 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-black text-slate-800 uppercase tracking-wide">Titulares</h3>
+                    <p class="text-xs text-slate-500">Voluntarios de plantilla</p>
+                </div>
+            </div>
+            <span class="text-sm font-black text-emerald-700 bg-white px-3 py-1 rounded-full border border-emerald-200">{{ $titulares->count() }} voluntarios</span>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
@@ -254,20 +323,19 @@
                         <th class="text-center py-3 px-2 font-semibold text-slate-500 text-xs uppercase">Inhab.</th>
                         <th class="text-center py-3 px-2 font-semibold text-purple-600 text-xs uppercase">Reempl. Hechos</th>
                         <th class="text-center py-3 px-2 font-semibold text-indigo-600 text-xs uppercase">Reempl. Recib.</th>
-                        <th class="text-center py-3 px-2 font-semibold text-teal-600 text-xs uppercase">Refuerzos</th>
                         <th class="text-center py-3 px-3 font-semibold text-slate-600 text-xs uppercase">% Cumpl.</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
-                    @forelse($firefighterStats as $ff)
+                    @forelse($titulares as $ff)
                     <tr class="hover:bg-slate-50 transition-colors">
                         <td class="py-3 px-4">
                             <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center text-red-700 font-bold text-xs flex-shrink-0">
+                                <div class="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-700 font-bold text-xs flex-shrink-0">
                                     {{ $ff['code'] }}
                                 </div>
                                 <div>
-                                    <span class="font-medium text-slate-800 text-xs block">{{ $ff['name'] }}</span>
+                                    <span class="font-bold text-slate-800 text-xs block">{{ $ff['name'] }}</span>
                                     @if(!empty($ff['guardia_name']))
                                     <span class="text-[10px] text-slate-400">{{ $ff['guardia_name'] }}</span>
                                     @endif
@@ -296,6 +364,181 @@
                         <td class="py-3 px-2 text-center">
                             <span class="inline-flex items-center justify-center w-6 h-6 rounded {{ ($ff['replacements_received'] ?? 0) > 0 ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-400' }} font-bold text-xs">{{ $ff['replacements_received'] ?? 0 }}</span>
                         </td>
+                        <td class="py-3 px-3">
+                            <div class="flex items-center gap-2">
+                                <div class="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden min-w-[40px]">
+                                    <div class="h-full rounded-full {{ $ff['percentage'] >= 90 ? 'bg-emerald-500' : ($ff['percentage'] >= 75 ? 'bg-amber-500' : 'bg-rose-500') }}"
+                                         style="width: {{ $ff['percentage'] }}%"></div>
+                                </div>
+                                <span class="text-xs font-bold {{ $ff['percentage'] >= 90 ? 'text-emerald-600' : ($ff['percentage'] >= 75 ? 'text-amber-600' : 'text-rose-600') }} w-8 text-right">{{ $ff['percentage'] }}%</span>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="10" class="py-10 text-center text-slate-400">
+                            <i class="fas fa-inbox text-2xl mb-2 block"></i>
+                            No hay titulares registrados
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {{-- SECCIÓN 2: REEMPLAZOS --}}
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-6">
+        <div class="p-4 border-b border-slate-200 bg-purple-50 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-purple-600 text-white flex items-center justify-center">
+                    <i class="fas fa-exchange-alt"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-black text-slate-800 uppercase tracking-wide">Reemplazos</h3>
+                    <p class="text-xs text-slate-500">Voluntarios que han reemplazado o sido reemplazados</p>
+                </div>
+            </div>
+            <span class="text-sm font-black text-purple-700 bg-white px-3 py-1 rounded-full border border-purple-200">{{ $reemplazos->count() }} voluntarios</span>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-slate-50 border-b border-slate-200">
+                    <tr>
+                        <th class="text-left py-3 px-4 font-semibold text-slate-600 text-xs uppercase">Voluntario</th>
+                        <th class="text-center py-3 px-2 font-semibold text-slate-500 text-xs uppercase">Turnos</th>
+                        <th class="text-center py-3 px-2 font-semibold text-emerald-600 text-xs uppercase">Cumpl.</th>
+                        <th class="text-center py-3 px-2 font-semibold text-rose-600 text-xs uppercase">Aus.</th>
+                        <th class="text-center py-3 px-2 font-semibold text-amber-600 text-xs uppercase">Perm.</th>
+                        <th class="text-center py-3 px-2 font-semibold text-blue-600 text-xs uppercase">Lic.</th>
+                        <th class="text-center py-3 px-2 font-semibold text-slate-500 text-xs uppercase">Inhab.</th>
+                        <th class="text-center py-3 px-2 font-semibold text-purple-600 text-xs uppercase">Reempl. Hechos</th>
+                        <th class="text-center py-3 px-2 font-semibold text-indigo-600 text-xs uppercase">Reempl. Recib.</th>
+                        <th class="text-center py-3 px-3 font-semibold text-slate-600 text-xs uppercase">% Cumpl.</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @forelse($reemplazos as $ff)
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="py-3 px-4">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-700 font-bold text-xs flex-shrink-0">
+                                    {{ $ff['code'] }}
+                                </div>
+                                <div>
+                                    <span class="font-bold text-slate-800 text-xs block">{{ $ff['name'] }}</span>
+                                    @if(!empty($ff['guardia_name']))
+                                    <span class="text-[10px] text-slate-400">{{ $ff['guardia_name'] }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-3 px-2 text-center font-bold text-slate-700">{{ $ff['shift'] }}</td>
+                        <td class="py-3 px-2 text-center">
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded bg-emerald-100 text-emerald-700 font-bold text-xs">{{ $ff['fulfilled'] }}</span>
+                        </td>
+                        <td class="py-3 px-2 text-center">
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded {{ $ff['absences'] > 0 ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-400' }} font-bold text-xs">{{ $ff['absences'] }}</span>
+                        </td>
+                        <td class="py-3 px-2 text-center">
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded {{ $ff['permissions'] > 0 ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-400' }} font-bold text-xs">{{ $ff['permissions'] }}</span>
+                        </td>
+                        <td class="py-3 px-2 text-center">
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded {{ $ff['licenses'] > 0 ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-400' }} font-bold text-xs">{{ $ff['licenses'] }}</span>
+                        </td>
+                        <td class="py-3 px-2 text-center">
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded {{ $ff['disabled'] > 0 ? 'bg-slate-200 text-slate-600' : 'bg-slate-100 text-slate-400' }} font-bold text-xs">{{ $ff['disabled'] }}</span>
+                        </td>
+                        <td class="py-3 px-2 text-center">
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded {{ ($ff['replacements_made'] ?? 0) > 0 ? 'bg-purple-100 text-purple-700' : 'bg-slate-100 text-slate-400' }} font-bold text-xs">{{ $ff['replacements_made'] ?? 0 }}</span>
+                        </td>
+                        <td class="py-3 px-2 text-center">
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded {{ ($ff['replacements_received'] ?? 0) > 0 ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-400' }} font-bold text-xs">{{ $ff['replacements_received'] ?? 0 }}</span>
+                        </td>
+                        <td class="py-3 px-3">
+                            <div class="flex items-center gap-2">
+                                <div class="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden min-w-[40px]">
+                                    <div class="h-full rounded-full {{ $ff['percentage'] >= 90 ? 'bg-emerald-500' : ($ff['percentage'] >= 75 ? 'bg-amber-500' : 'bg-rose-500') }}"
+                                         style="width: {{ $ff['percentage'] }}%"></div>
+                                </div>
+                                <span class="text-xs font-bold {{ $ff['percentage'] >= 90 ? 'text-emerald-600' : ($ff['percentage'] >= 75 ? 'text-amber-600' : 'text-rose-600') }} w-8 text-right">{{ $ff['percentage'] }}%</span>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="10" class="py-10 text-center text-slate-400">
+                            <i class="fas fa-inbox text-2xl mb-2 block"></i>
+                            No hay reemplazos registrados
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {{-- SECCIÓN 3: REFUERZOS --}}
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-6">
+        <div class="p-4 border-b border-slate-200 bg-sky-50 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-sky-600 text-white flex items-center justify-center">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-black text-slate-800 uppercase tracking-wide">Refuerzos</h3>
+                    <p class="text-xs text-slate-500">Voluntarios que han venido como refuerzo</p>
+                </div>
+            </div>
+            <span class="text-sm font-black text-sky-700 bg-white px-3 py-1 rounded-full border border-sky-200">{{ $refuerzos->count() }} voluntarios</span>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-slate-50 border-b border-slate-200">
+                    <tr>
+                        <th class="text-left py-3 px-4 font-semibold text-slate-600 text-xs uppercase">Voluntario</th>
+                        <th class="text-center py-3 px-2 font-semibold text-slate-500 text-xs uppercase">Turnos</th>
+                        <th class="text-center py-3 px-2 font-semibold text-emerald-600 text-xs uppercase">Cumpl.</th>
+                        <th class="text-center py-3 px-2 font-semibold text-rose-600 text-xs uppercase">Aus.</th>
+                        <th class="text-center py-3 px-2 font-semibold text-amber-600 text-xs uppercase">Perm.</th>
+                        <th class="text-center py-3 px-2 font-semibold text-blue-600 text-xs uppercase">Lic.</th>
+                        <th class="text-center py-3 px-2 font-semibold text-slate-500 text-xs uppercase">Inhab.</th>
+                        <th class="text-center py-3 px-2 font-semibold text-teal-600 text-xs uppercase">Refuerzos</th>
+                        <th class="text-center py-3 px-3 font-semibold text-slate-600 text-xs uppercase">% Cumpl.</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @forelse($refuerzos as $ff)
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="py-3 px-4">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 bg-sky-100 rounded-full flex items-center justify-center text-sky-700 font-bold text-xs flex-shrink-0">
+                                    {{ $ff['code'] }}
+                                </div>
+                                <div>
+                                    <span class="font-bold text-slate-800 text-xs block">{{ $ff['name'] }}</span>
+                                    @if(!empty($ff['guardia_name']))
+                                    <span class="text-[10px] text-slate-400">{{ $ff['guardia_name'] }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-3 px-2 text-center font-bold text-slate-700">{{ $ff['shift'] }}</td>
+                        <td class="py-3 px-2 text-center">
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded bg-emerald-100 text-emerald-700 font-bold text-xs">{{ $ff['fulfilled'] }}</span>
+                        </td>
+                        <td class="py-3 px-2 text-center">
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded {{ $ff['absences'] > 0 ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-400' }} font-bold text-xs">{{ $ff['absences'] }}</span>
+                        </td>
+                        <td class="py-3 px-2 text-center">
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded {{ $ff['permissions'] > 0 ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-400' }} font-bold text-xs">{{ $ff['permissions'] }}</span>
+                        </td>
+                        <td class="py-3 px-2 text-center">
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded {{ $ff['licenses'] > 0 ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-400' }} font-bold text-xs">{{ $ff['licenses'] }}</span>
+                        </td>
+                        <td class="py-3 px-2 text-center">
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded {{ $ff['disabled'] > 0 ? 'bg-slate-200 text-slate-600' : 'bg-slate-100 text-slate-400' }} font-bold text-xs">{{ $ff['disabled'] }}</span>
+                        </td>
                         <td class="py-3 px-2 text-center">
                             <span class="inline-flex items-center justify-center w-6 h-6 rounded {{ ($ff['reinforcements'] ?? 0) > 0 ? 'bg-teal-100 text-teal-700' : 'bg-slate-100 text-slate-400' }} font-bold text-xs">{{ $ff['reinforcements'] ?? 0 }}</span>
                         </td>
@@ -311,9 +554,9 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="11" class="py-10 text-center text-slate-400">
+                        <td colspan="9" class="py-10 text-center text-slate-400">
                             <i class="fas fa-inbox text-2xl mb-2 block"></i>
-                            No hay datos para el periodo seleccionado
+                            No hay refuerzos registrados
                         </td>
                     </tr>
                     @endforelse

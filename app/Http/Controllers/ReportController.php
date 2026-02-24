@@ -609,6 +609,7 @@ class ReportController extends Controller
 
     private function calculateFirefighterStats(Carbon $from, Carbon $to, ?int $guardiaId): array
     {
+        // Obtener bomberos con sus flags de tipo
         $firefighters = Bombero::query()
             ->when($guardiaId, fn ($q) => $q->where('guardia_id', $guardiaId))
             ->with([
@@ -618,9 +619,14 @@ class ReportController extends Controller
             ->get();
 
         // Reemplazos hechos: turnos donde este bombero actuó como reemplazante
+        // Ahora buscamos por attendance_status = 'reemplazo' O por assignment_type = 'reemplazo'
         $replacementsMadeMap = ShiftUser::query()
             ->whereBetween('start_time', [$from, $to])
-            ->where('attendance_status', 'reemplazo')
+            ->where(function($q) {
+                $q->where('attendance_status', 'reemplazo')
+                  ->orWhere('assignment_type', 'reemplazo')
+                  ->orWhereHas('firefighter', fn($q2) => $q2->where('estado_asistencia', 'reemplazo'));
+            })
             ->whereNotNull('firefighter_id')
             ->selectRaw('firefighter_id, COUNT(*) as cnt')
             ->groupBy('firefighter_id')
@@ -634,10 +640,13 @@ class ReportController extends Controller
             ->groupBy('replaced_firefighter_id')
             ->pluck('cnt', 'replaced_firefighter_id');
 
-        // Refuerzos: turnos con assignment_type = 'refuerzo'
+        // Refuerzos: turnos con assignment_type = 'refuerzo' o es_refuerzo = true
         $reinforcementsMap = ShiftUser::query()
             ->whereBetween('start_time', [$from, $to])
-            ->where('assignment_type', 'refuerzo')
+            ->where(function($q) {
+                $q->where('assignment_type', 'refuerzo')
+                  ->orWhereHas('firefighter', fn($q2) => $q2->where('es_refuerzo', true));
+            })
             ->whereNotNull('firefighter_id')
             ->selectRaw('firefighter_id, COUNT(*) as cnt')
             ->groupBy('firefighter_id')
@@ -655,7 +664,15 @@ class ReportController extends Controller
             $licenses    = $shiftUsers->where('attendance_status', 'licencia')->count();
             $disabled    = $shiftUsers->where('attendance_status', 'inhabilitado')->count();
 
+            // Determinar tipo de bombero basado en flags
+            $isTitular = $ff->es_titular ?? false;
+            $isReemplazo = ($ff->estado_asistencia === 'reemplazo') || 
+                           ($replacementsMadeMap[$ff->id] ?? 0) > 0 ||
+                           ($replacementsReceivedMap[$ff->id] ?? 0) > 0;
+            $isRefuerzo = $ff->es_refuerzo ?? false;
+
             $stats[] = [
+                'id'                    => $ff->id,
                 'code'                  => strtoupper(substr($ff->nombres ?? '', 0, 1) . substr($ff->apellido_paterno ?? '', 0, 1)),
                 'name'                  => strtoupper(trim(($ff->nombres ?? '') . ' ' . ($ff->apellido_paterno ?? ''))),
                 'guardia_name'          => $ff->guardia?->name ?? '',
@@ -669,6 +686,10 @@ class ReportController extends Controller
                 'replacements_received' => (int) ($replacementsReceivedMap[$ff->id] ?? 0),
                 'reinforcements'        => (int) ($reinforcementsMap[$ff->id] ?? 0),
                 'percentage'            => round(($fulfilled / $total) * 100),
+                'is_titular'            => $isTitular,
+                'is_reemplazo'          => $isReemplazo,
+                'is_refuerzo'           => $isRefuerzo,
+                'tipo'                  => $isRefuerzo ? 'refuerzo' : ($isReemplazo ? 'reemplazo' : 'titular'),
             ];
         }
 
@@ -677,25 +698,73 @@ class ReportController extends Controller
 
     private function calculateRankings(\Illuminate\Support\Collection $firefighterStats): array
     {
-        $defs = [
-            ['key' => 'replacements_made',    'emoji' => '🥇', 'label' => 'Más reemplaza',    'unit' => 'reemplazos'],
-            ['key' => 'absences',             'emoji' => '🚨', 'label' => 'Más ausente',       'unit' => 'ausencias'],
-            ['key' => 'permissions',          'emoji' => '📄', 'label' => 'Más permisos',      'unit' => 'permisos'],
-            ['key' => 'licenses',             'emoji' => '🏥', 'label' => 'Más licencias',     'unit' => 'licencias'],
-            ['key' => 'disabled',             'emoji' => '🚫', 'label' => 'Más inhabilitado',  'unit' => 'veces'],
+        // Si no hay datos, retornar array vacío
+        if ($firefighterStats->isEmpty()) {
+            return [];
+        }
+
+        $rankings = [];
+
+        // 1. Más cumplidor (mejor porcentaje de asistencia)
+        $topCumplidor = $firefighterStats->sortByDesc('percentage')->first();
+        $rankings[] = [
+            'emoji' => '🏆',
+            'label' => 'Más cumplidor',
+            'name'  => $topCumplidor['name'] ?? '—',
+            'value' => ($topCumplidor['percentage'] ?? 0) . '%',
+            'unit'  => 'asistencia',
+            'color' => 'emerald',
         ];
 
-        return array_map(function ($def) use ($firefighterStats) {
-            $top = $firefighterStats->sortByDesc($def['key'])->first();
-            $val = $top ? (int) ($top[$def['key']] ?? 0) : 0;
-            return [
-                'emoji' => $def['emoji'],
-                'label' => $def['label'],
-                'name'  => ($top && $val > 0) ? $top['name'] : null,
-                'value' => $val,
-                'unit'  => $def['unit'],
-            ];
-        }, $defs);
+        // 2. Más reemplazos hechos
+        $topReemplazante = $firefighterStats->sortByDesc('replacements_made')->first();
+        $val = $topReemplazante['replacements_made'] ?? 0;
+        $rankings[] = [
+            'emoji' => '�',
+            'label' => 'Más reemplazos',
+            'name'  => $val > 0 ? ($topReemplazante['name'] ?? '—') : 'Sin reemplazos',
+            'value' => $val,
+            'unit'  => 'reemplazos',
+            'color' => 'purple',
+        ];
+
+        // 3. Más ausencias
+        $topAusente = $firefighterStats->sortByDesc('absences')->first();
+        $val = $topAusente['absences'] ?? 0;
+        $rankings[] = [
+            'emoji' => '⚠️',
+            'label' => 'Más ausencias',
+            'name'  => $val > 0 ? ($topAusente['name'] ?? '—') : 'Sin ausencias',
+            'value' => $val,
+            'unit'  => 'ausencias',
+            'color' => 'rose',
+        ];
+
+        // 4. Más permisos
+        $topPermisos = $firefighterStats->sortByDesc('permissions')->first();
+        $val = $topPermisos['permissions'] ?? 0;
+        $rankings[] = [
+            'emoji' => '�',
+            'label' => 'Más permisos',
+            'name'  => $val > 0 ? ($topPermisos['name'] ?? '—') : 'Sin permisos',
+            'value' => $val,
+            'unit'  => 'permisos',
+            'color' => 'amber',
+        ];
+
+        // 5. Mejor refuerzo
+        $topRefuerzo = $firefighterStats->where('reinforcements', '>', 0)->sortByDesc('reinforcements')->first();
+        $val = $topRefuerzo['reinforcements'] ?? 0;
+        $rankings[] = [
+            'emoji' => '💪',
+            'label' => 'Mejor refuerzo',
+            'name'  => $val > 0 ? ($topRefuerzo['name'] ?? '—') : 'Sin refuerzos',
+            'value' => $val,
+            'unit'  => 'refuerzos',
+            'color' => 'sky',
+        ];
+
+        return $rankings;
     }
 
     private function calculateDailyHistory(Carbon $from, Carbon $to, ?int $guardiaId): array

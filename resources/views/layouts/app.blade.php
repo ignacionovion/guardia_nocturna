@@ -63,6 +63,9 @@
                                 <a href="{{ route('admin.emergencies.index') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                                     <i class="fas fa-truck-medical mr-2 text-slate-500"></i> Emergencias
                                 </a>
+                                <a href="{{ route('admin.dotaciones') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                                    <i class="fas fa-users-gear mr-2 text-slate-500"></i> Dotaciones
+                                </a>
                                 <a href="{{ route('admin.calendario') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                                     <i class="fas fa-calendar-alt mr-2 text-slate-500"></i> Calendario
                                 </a>
