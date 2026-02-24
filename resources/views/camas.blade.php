@@ -182,16 +182,24 @@
                                 </button>
 
                                 @if(auth()->user()->role === 'super_admin')
-                                    <form action="{{ route('beds.maintenance', $bed->id) }}" method="POST" onsubmit="return confirm('¿Marcar cama #{{ $bed->number }} en mantención?');" class="m-0">
-                                        @csrf
-                                        @method('PUT')
-                                        <button type="submit" class="group/btn w-full bg-white hover:bg-slate-100 text-slate-500 border border-slate-200 font-bold py-3 px-4 rounded-xl text-xs transition-all shadow-sm hover:shadow flex items-center justify-center uppercase tracking-wider">
-                                            <i class="fas fa-tools mr-2 text-slate-400 group-hover/btn:text-slate-600 transition-colors"></i>
-                                            <span>Mantención</span>
-                                        </button>
-                                    </form>
+                                    <button onclick="openQrModal('{{ $bed->id }}', '{{ $bed->number }}')" 
+                                        class="group/btn w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-4 rounded-xl text-xs transition-all shadow-md hover:shadow-lg flex items-center justify-center uppercase tracking-wider">
+                                        <i class="fas fa-qrcode mr-2 group-hover/btn:scale-110 transition-transform"></i>
+                                        <span>Ver QR</span>
+                                    </button>
                                 @endif
                             </div>
+                            
+                            @if(auth()->user()->role === 'super_admin')
+                                <form action="{{ route('beds.maintenance', $bed->id) }}" method="POST" onsubmit="return confirm('¿Marcar cama #{{ $bed->number }} en mantención?');" class="m-0 mt-2">
+                                    @csrf
+                                    @method('PUT')
+                                    <button type="submit" class="group/btn w-full bg-white hover:bg-slate-100 text-slate-500 border border-slate-200 font-bold py-3 px-4 rounded-xl text-xs transition-all shadow-sm hover:shadow flex items-center justify-center uppercase tracking-wider">
+                                        <i class="fas fa-tools mr-2 text-slate-400 group-hover/btn:text-slate-600 transition-colors"></i>
+                                        <span>Mantención</span>
+                                    </button>
+                                </form>
+                            @endif
                         @elseif($isOccupied)
                             @if($bed->currentAssignment)
                                 <form action="{{ route('beds.release', $bed->currentAssignment->id) }}" method="POST" onsubmit="return confirm('¿Liberar esta cama?');">
@@ -284,6 +292,46 @@
         </div>
     </div>
 
+    <!-- Modal QR -->
+    <div id="qrModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center transition-all duration-300 opacity-0">
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden transform scale-95 transition-all duration-300">
+            <!-- Modal Header -->
+            <div class="bg-slate-900 px-6 py-4 flex justify-between items-center">
+                <h3 class="text-white font-bold text-sm uppercase tracking-wide flex items-center">
+                    <i class="fas fa-qrcode mr-2 text-cyan-400"></i> QR Cama <span id="qrBedNumber" class="ml-1 text-white"></span>
+                </h3>
+                <button onclick="closeQrModal()" class="text-slate-400 hover:text-white transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6 text-center">
+                <p class="text-sm text-slate-600 mb-4">Escanea este código con tu teléfono para asignarte esta cama</p>
+                
+                <!-- QR Code Container -->
+                <div class="bg-slate-100 rounded-xl p-6 mb-4 inline-block">
+                    <div id="qrCodeContainer" class="flex justify-center"></div>
+                </div>
+                
+                <!-- URL -->
+                <div class="bg-slate-50 rounded-lg p-3 mb-4">
+                    <p class="text-xs text-slate-500 uppercase tracking-wider font-bold mb-1">URL</p>
+                    <a id="qrUrl" href="#" target="_blank" class="text-sm text-cyan-600 font-mono break-all hover:text-cyan-500 transition-colors"></a>
+                </div>
+
+                <a id="qrPrintLink" href="#" target="_blank" class="w-full inline-flex items-center justify-center gap-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-6 rounded-xl text-xs transition-all uppercase tracking-wide mb-3">
+                    <i class="fas fa-print"></i>
+                    Imprimir
+                </a>
+
+                <button onclick="closeQrModal()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-6 rounded-xl text-xs transition-all uppercase tracking-wide">
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         function openAssignModal(bedId, bedNumber) {
             document.getElementById('modalBedId').value = bedId;
@@ -309,12 +357,58 @@
                 modal.classList.add('hidden');
             }, 300);
         }
+
+        // Modal QR
+        function openQrModal(bedId, bedNumber) {
+            const qrUrl = `{{ url('/camas/scan') }}/${bedId}`;
+            const printUrl = `{{ url('/camas') }}/${bedId}/qr/imprimir`;
+            document.getElementById('qrBedNumber').innerText = '#' + bedNumber;
+            document.getElementById('qrCodeContainer').innerHTML = '';
+            
+            // Generar QR con QRCode.js
+            new QRCode(document.getElementById('qrCodeContainer'), {
+                text: qrUrl,
+                width: 200,
+                height: 200,
+                colorDark: '#0f172a',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.M
+            });
+            
+            document.getElementById('qrUrl').innerText = qrUrl;
+            document.getElementById('qrUrl').href = qrUrl;
+
+            document.getElementById('qrPrintLink').href = printUrl;
+            
+            const modal = document.getElementById('qrModal');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.querySelector('div').classList.remove('scale-95');
+                modal.querySelector('div').classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeQrModal() {
+            const modal = document.getElementById('qrModal');
+            modal.classList.add('opacity-0');
+            modal.querySelector('div').classList.remove('scale-100');
+            modal.querySelector('div').classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
         
         // Cerrar modal al hacer clic fuera
         window.onclick = function(event) {
-            const modal = document.getElementById('assignModal');
-            if (event.target == modal) {
+            const assignModal = document.getElementById('assignModal');
+            const qrModal = document.getElementById('qrModal');
+            if (event.target == assignModal) {
                 closeAssignModal();
+            }
+            if (event.target == qrModal) {
+                closeQrModal();
             }
         }
         
@@ -322,7 +416,11 @@
         document.addEventListener('keydown', function(event) {
             if (event.key === "Escape") {
                 closeAssignModal();
+                closeQrModal();
             }
         });
     </script>
+    
+    <!-- QR Code Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 @endsection

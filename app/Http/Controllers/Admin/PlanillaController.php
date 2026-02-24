@@ -41,9 +41,19 @@ class PlanillaController extends Controller
             $unidad = self::UNIDADES[0];
         }
 
+        $customItems = [];
+        if ($unidad) {
+            $customItems = \App\Models\PlanillaListItem::where('unidad', $unidad)
+                ->where('is_active', true)
+                ->orderBy('sort_order')
+                ->get()
+                ->groupBy('section');
+        }
+
         return view('admin.planillas.create', [
             'unidad' => $unidad,
             'unidades' => self::UNIDADES,
+            'customItems' => $customItems,
         ]);
     }
 
@@ -84,9 +94,16 @@ class PlanillaController extends Controller
 
         $planilla->load('creador');
 
+        $customItems = \App\Models\PlanillaListItem::where('unidad', $planilla->unidad)
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get()
+            ->groupBy('section');
+
         return view('admin.planillas.edit', [
             'planilla' => $planilla,
             'unidades' => self::UNIDADES,
+            'customItems' => $customItems,
         ]);
     }
 

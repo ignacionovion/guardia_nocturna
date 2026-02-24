@@ -136,7 +136,7 @@
                         $attendanceBadgeClass = '';
                         
                         if ($shiftClosedForToday) {
-                            $attendanceMessage = 'RECORDAR REGISTRAR GUARDIA A LAS 22:00 - POSTERIOR A ESTA HORA EL BOTÓN APARECERÁ EN EL DASHBOARD';
+                            $attendanceMessage = 'RECORDAR REGISTRAR GUARDIA A LAS 22:00';
                             $attendanceBadgeClass = 'border-amber-200 bg-amber-50 text-amber-800';
                         } elseif (isset($hasAttendanceSavedToday) && $hasAttendanceSavedToday) {
                             if ($isAfter702 && !$isAfter2200) {
@@ -513,7 +513,7 @@
                                         <div class="border-l-2 border-slate-700 pl-4 py-2">
                                             <div class="flex items-center gap-2 mb-2">
                                                 <span class="text-xs font-black {{ $colors['text'] }} uppercase tracking-wider">{{ $novelty->type }}</span>
-                                                @if($novelty->is_permanent && $novelty->type !== 'Permanente')
+                                                @if($novelty->is_permanent && mb_strtolower((string) $novelty->type) !== 'permanente')
                                                     <span class="text-[10px] font-bold text-purple-400 uppercase tracking-wider">PERMANENTE</span>
                                                 @endif
                                             </div>
@@ -880,7 +880,7 @@
                                     <div class="border-l-2 border-slate-300 pl-3 py-2">
                                         <div class="flex items-center gap-2 mb-1">
                                             <span class="text-xs font-bold {{ $colors['text'] }} {{ $colors['bgLight'] }} px-2 py-0.5 rounded border {{ $colors['border'] }}">{{ $novelty->type }}</span>
-                                            @if($novelty->is_permanent)
+                                            @if($novelty->is_permanent && mb_strtolower((string) $novelty->type) !== 'permanente')
                                                 <span class="text-[10px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-200">PERMANENTE</span>
                                             @endif
                                         </div>

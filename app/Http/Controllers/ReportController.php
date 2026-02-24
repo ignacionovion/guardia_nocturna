@@ -930,7 +930,7 @@ class ReportController extends Controller
 
         // Base query para emergencias
         $emergenciesQuery = Emergency::query()
-            ->with(['guardia', 'emergencyKey', 'vehicle'])
+            ->with(['guardia', 'key', 'units'])
             ->whereYear('created_at', $year)
             ->whereMonth('created_at', $month);
 
@@ -943,22 +943,25 @@ class ReportController extends Controller
         // Estadísticas generales
         $totalEmergencies = $emergencies->count();
 
-        // Vehículos más utilizados (ordenado de menor a mayor)
-        $vehiclesUsed = $emergencies->groupBy('vehicle_id')
-            ->map(function ($items) {
-                $vehicle = $items->first()?->vehicle;
-                return [
-                    'vehicle' => $vehicle?->name ?? 'Sin vehículo',
-                    'total' => $items->count(),
-                ];
+        // Unidades/Vehículos más utilizados (ordenado de menor a mayor)
+        // En el modelo actual, las unidades están en la relación many-to-many `units`.
+        $vehiclesUsed = $emergencies
+            ->flatMap(function ($e) {
+                $units = $e->units;
+                if (!$units || $units->isEmpty()) {
+                    return [['unit_name' => 'Sin unidad']];
+                }
+                return $units->map(fn ($u) => ['unit_name' => $u?->name ?? 'Sin unidad'])->all();
             })
-            ->sortBy('total') // Ordenado de menor a mayor como pidió
+            ->groupBy('unit_name')
+            ->map(fn ($items, $name) => ['vehicle' => $name, 'total' => $items->count()])
+            ->sortBy('total')
             ->values();
 
         // Claves más concurridas (top 5)
         $topKeys = $emergencies->groupBy('emergency_key_id')
             ->map(function ($items) {
-                $key = $items->first()?->emergencyKey;
+                $key = $items->first()?->key;
                 return [
                     'key' => $key?->code ?? 'Sin clave',
                     'description' => $key?->description ?? '',
@@ -978,9 +981,9 @@ class ReportController extends Controller
         ];
 
         $pointsByKey = $emergencies->groupBy(function ($e) {
-            return $e->emergencyKey?->code ?? 'Sin clave';
+            return $e->key?->code ?? 'Sin clave';
         })->map(function ($items) use ($pointsMap) {
-            $key = $items->first()?->emergencyKey;
+            $key = $items->first()?->key;
             $keyCode = $key?->code ?? 'Sin clave';
             $points = $pointsMap[$keyCode] ?? 1; // Default 1 punto si no está mapeado
             return [

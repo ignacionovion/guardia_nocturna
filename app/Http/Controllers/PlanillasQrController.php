@@ -80,15 +80,25 @@ class PlanillasQrController extends Controller
             $unidad = null;
         }
 
-        $unidades = ['B-R', 'BR-3', 'RX-3'];
+        $unidades = ['B-3', 'BR-3', 'RX-3'];
         if ($unidad !== null && !in_array($unidad, $unidades, true)) {
             $unidad = $unidades[0];
+        }
+
+        $customItems = [];
+        if ($unidad) {
+            $customItems = \App\Models\PlanillaListItem::where('unidad', $unidad)
+                ->where('is_active', true)
+                ->orderBy('sort_order')
+                ->get()
+                ->groupBy('section');
         }
 
         return view('admin.planillas.create_public', [
             'token' => $token,
             'unidad' => $unidad,
             'unidades' => $unidades,
+            'customItems' => $customItems,
         ]);
     }
 

@@ -8,7 +8,17 @@ use App\Models\User;
 
 class BedAssignment extends Model
 {
-    protected $fillable = ['bed_id', 'user_id', 'firefighter_id', 'assigned_at', 'released_at', 'notes'];
+    protected $fillable = [
+        'bed_id',
+        'user_id',
+        'firefighter_id',
+        'assigned_at',
+        'released_at',
+        'notes',
+        'assigned_source',
+        'assigned_ip',
+        'assigned_user_agent',
+    ];
 
     protected $casts = [
         'assigned_at' => 'datetime',

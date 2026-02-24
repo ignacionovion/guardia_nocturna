@@ -15,6 +15,10 @@
                 Nueva planilla
             </a>
             @if(auth()->check() && auth()->user()->role === 'super_admin')
+                <a href="{{ route('admin.planillas.listados.index') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-extrabold text-[11px] uppercase tracking-widest">
+                    <i class="fas fa-list-check"></i>
+                    Editar listados
+                </a>
                 <a href="{{ route('admin.planillas.qr_fijo') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-extrabold text-[11px] uppercase tracking-widest">
                     <i class="fas fa-qrcode"></i>
                     QR fijo

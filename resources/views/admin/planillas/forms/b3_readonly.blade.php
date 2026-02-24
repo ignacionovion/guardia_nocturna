@@ -28,6 +28,12 @@
         'cabina' => $cabinaChecklist,
     ];
 
+    // Cargar etiquetas dinámicas
+    $customItems = \App\Models\PlanillaListItem::where('unidad', 'B-3')->where('is_active', true)->get();
+    foreach($customItems as $ci) {
+        $labels[$ci->section][$ci->item_key] = $ci->label;
+    }
+
     $boolLabel = function ($v) {
         if ($v === 'si') return 'Sí';
         if ($v === 'no') return 'No';

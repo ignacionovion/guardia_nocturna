@@ -23,6 +23,8 @@ use App\Http\Controllers\PlanillasQrController;
 use App\Http\Controllers\Admin\InventarioQrAdminController;
 use App\Http\Controllers\Admin\PlanillaQrFijoController;
 use App\Http\Controllers\Admin\InventarioImportController;
+use App\Http\Controllers\BedQrController;
+use App\Http\Controllers\Admin\PlanillaListItemController;
 
 Route::get('/preventivas/{token}', [PreventivePublicController::class, 'show'])->name('preventivas.public.show');
 Route::post('/preventivas/{token}/confirmar', [PreventivePublicController::class, 'confirm'])->name('preventivas.public.confirm');
@@ -63,6 +65,14 @@ Route::get('/planillas/qr/{token}/crear', [PlanillasQrController::class, 'create
 Route::post('/planillas/qr/{token}/guardar', [PlanillasQrController::class, 'store'])
     ->where('token', '[A-Za-z0-9]{40}')
     ->name('planillas.qr.store');
+
+// Rutas QR para Camas (públicas, sin login)
+Route::get('/camas/scan/{bedId}', [BedQrController::class, 'scanForm'])->name('camas.scan.form');
+Route::post('/camas/scan/{bedId}/rut', [BedQrController::class, 'processRut'])->name('camas.scan.rut');
+Route::get('/camas/scan/{bedId}/no-guardia', [BedQrController::class, 'notInGuardia'])->name('camas.scan.not_in_guardia');
+Route::get('/camas/scan/{bedId}/asignar', [BedQrController::class, 'assignForm'])->name('camas.scan.assign');
+Route::post('/camas/scan/{bedId}/asignar', [BedQrController::class, 'assignStore'])->name('camas.scan.assign.store');
+Route::get('/camas/scan/{bedId}/exito', [BedQrController::class, 'success'])->name('camas.scan.success');
 
 // Rutas de Autenticación
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login')->middleware('guest');
@@ -156,6 +166,9 @@ Route::middleware('auth')->group(function () {
     Route::put('/camas/{bed}/mantencion', [AsignacionCamaController::class, 'markMaintenance'])->name('beds.maintenance');
     Route::put('/camas/{bed}/habilitar', [AsignacionCamaController::class, 'markAvailable'])->name('beds.available');
 
+    // Imprimir QR por cama (requiere login)
+    Route::get('/camas/{bedId}/qr/imprimir', [BedQrController::class, 'printQr'])->name('camas.qr.print');
+
     // Rutas Admin - Guardias
     Route::post('/admin/guardias', [AdministradorController::class, 'storeGuardia'])->name('admin.guardias.store');
     Route::get('/admin/guardias/{id}/edit', [AdministradorController::class, 'editGuardia'])->name('admin.guardias.edit');
@@ -246,6 +259,11 @@ Route::middleware('auth')->group(function () {
         Route::put('/admin/planillas/{planilla}', [PlanillaController::class, 'update'])->whereNumber('planilla')->name('admin.planillas.update');
         Route::put('/admin/planillas/{planilla}/estado', [PlanillaController::class, 'updateEstado'])->whereNumber('planilla')->name('admin.planillas.estado.update');
         Route::delete('/admin/planillas/{planilla}', [PlanillaController::class, 'destroy'])->whereNumber('planilla')->name('admin.planillas.destroy');
+
+        Route::get('/admin/planillas/listados', [PlanillaListItemController::class, 'index'])->name('admin.planillas.listados.index');
+        Route::post('/admin/planillas/listados', [PlanillaListItemController::class, 'store'])->name('admin.planillas.listados.store');
+        Route::put('/admin/planillas/listados/{item}', [PlanillaListItemController::class, 'update'])->whereNumber('item')->name('admin.planillas.listados.update');
+        Route::delete('/admin/planillas/listados/{item}', [PlanillaListItemController::class, 'destroy'])->whereNumber('item')->name('admin.planillas.listados.destroy');
 
         Route::get('/admin/planillas/qr-fijo', [PlanillaQrFijoController::class, 'show'])->name('admin.planillas.qr_fijo');
         Route::get('/admin/planillas/qr-fijo/imprimir', [PlanillaQrFijoController::class, 'print'])->name('admin.planillas.qr_fijo.print');
