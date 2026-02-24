@@ -453,6 +453,18 @@ class AdministradorController extends Controller
         $prevGuardiaId = $firefighter->refuerzo_guardia_anterior_id;
 
         DB::transaction(function () use ($firefighter, $prevGuardiaId) {
+            // Liberar cama automáticamente si está asignada
+            $bedAssignment = \App\Models\BedAssignment::where('firefighter_id', $firefighter->id)
+                ->whereNull('released_at')
+                ->first();
+            
+            if ($bedAssignment) {
+                $bedAssignment->update([
+                    'released_at' => now(),
+                    'released_by_user_id' => auth()->id(),
+                ]);
+            }
+
             $firefighter->update([
                 'guardia_id' => $prevGuardiaId,
                 'estado_asistencia' => 'constituye',
@@ -464,7 +476,7 @@ class AdministradorController extends Controller
             ]);
         });
 
-        return back()->with('success', 'Refuerzo quitado correctamente.');
+        return back()->with('success', 'Refuerzo quitado correctamente. Cama liberada automáticamente.');
     }
 
     public function toggleTitular($id)

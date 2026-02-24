@@ -124,15 +124,41 @@
                 </div>
 
                 <div class="flex items-center justify-between md:justify-end gap-3 shrink-0">
-                    @if($shiftClosedForToday)
-                        <span id="attendance-saved-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-amber-200 bg-amber-50 text-amber-800 shrink-0">RECORDAR REGISTRAR GUARDIA A LAS 22:00 - POSTERIOR A ESTA HORA EL BOTÓN APARECERÁ EN EL DASHBOARD</span>
-                    @else
-                        @if(isset($hasAttendanceSavedToday) && $hasAttendanceSavedToday)
-                            <span id="attendance-saved-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 shrink-0">ASISTENCIA REGISTRADA</span>
-                        @else
-                            <span id="attendance-saved-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-red-200 bg-red-50 text-red-700 shrink-0">SIN REGISTRAR ASISTENCIA</span>
-                        @endif
-                    @endif
+                    @php
+                        $guardiaTz = \App\Models\SystemSetting::getValue('guardia_schedule_tz', env('GUARDIA_SCHEDULE_TZ', config('app.timezone')));
+                        $localNow = now()->copy()->setTimezone($guardiaTz);
+                        $currentTime = $localNow->format('H:i');
+                        $isAfter702 = $localNow->hour > 7 || ($localNow->hour === 7 && $localNow->minute >= 2);
+                        $isAfter2200 = $localNow->hour >= 22;
+                        
+                        // Determinar mensaje apropiado
+                        $attendanceMessage = '';
+                        $attendanceBadgeClass = '';
+                        
+                        if ($shiftClosedForToday) {
+                            $attendanceMessage = 'RECORDAR REGISTRAR GUARDIA A LAS 22:00 - POSTERIOR A ESTA HORA EL BOTÓN APARECERÁ EN EL DASHBOARD';
+                            $attendanceBadgeClass = 'border-amber-200 bg-amber-50 text-amber-800';
+                        } elseif (isset($hasAttendanceSavedToday) && $hasAttendanceSavedToday) {
+                            if ($isAfter702 && !$isAfter2200) {
+                                // Después de 07:02, antes de 22:00 - mostrar recordatorio para guardia nocturna
+                                $attendanceMessage = 'RECORDAR REGISTRAR GUARDIA A LAS 22:00';
+                                $attendanceBadgeClass = 'border-amber-200 bg-amber-50 text-amber-800';
+                            } else {
+                                // Asistencia guardada correctamente
+                                $attendanceMessage = 'ASISTENCIA REGISTRADA CORRECTAMENTE';
+                                $attendanceBadgeClass = 'border-emerald-200 bg-emerald-50 text-emerald-700';
+                            }
+                        } else {
+                            if ($isAfter2200) {
+                                $attendanceMessage = 'GUARDA LA ASISTENCIA ANTES DE IRTE';
+                                $attendanceBadgeClass = 'border-red-200 bg-red-50 text-red-700';
+                            } else {
+                                $attendanceMessage = 'SIN REGISTRAR ASISTENCIA';
+                                $attendanceBadgeClass = 'border-red-200 bg-red-50 text-red-700';
+                            }
+                        }
+                    @endphp
+                    <span id="attendance-saved-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border {{ $attendanceBadgeClass }} shrink-0">{{ $attendanceMessage }}</span>
 
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
@@ -474,13 +500,29 @@
                             @else
                                 <div class="space-y-4">
                                     @foreach($guardiaNoveltiesList as $novelty)
-                                        <div class="border-l-2 border-slate-800 pl-4">
+                                        @php
+                                            $noveltyColors = [
+                                                'Informativa' => ['bg' => 'bg-blue-500', 'text' => 'text-blue-400', 'border' => 'border-blue-500'],
+                                                'Incidente' => ['bg' => 'bg-amber-500', 'text' => 'text-amber-400', 'border' => 'border-amber-500'],
+                                                'Mantención' => ['bg' => 'bg-emerald-500', 'text' => 'text-emerald-400', 'border' => 'border-emerald-500'],
+                                                'Urgente' => ['bg' => 'bg-red-500', 'text' => 'text-red-400', 'border' => 'border-red-500'],
+                                                'Permanente' => ['bg' => 'bg-purple-500', 'text' => 'text-purple-400', 'border' => 'border-purple-500'],
+                                            ];
+                                            $colors = $noveltyColors[$novelty->type] ?? $noveltyColors['Informativa'];
+                                        @endphp
+                                        <div class="border-l-2 border-slate-700 pl-4 py-2">
+                                            <div class="flex items-center gap-2 mb-2">
+                                                <span class="text-xs font-black {{ $colors['text'] }} uppercase tracking-wider">{{ $novelty->type }}</span>
+                                                @if($novelty->is_permanent && $novelty->type !== 'Permanente')
+                                                    <span class="text-[10px] font-bold text-purple-400 uppercase tracking-wider">PERMANENTE</span>
+                                                @endif
+                                            </div>
                                             <div class="text-sm font-black text-slate-100">{{ $novelty->title }}</div>
                                             <div class="text-xs text-slate-400 mt-1 line-clamp-2">{{ $novelty->description }}</div>
-                                            <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">
+                                            <div class="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-2">
                                                 {{ $novelty->created_at->locale('es')->diffForHumans() }}
                                                 @if($novelty->user)
-                                                    <span class="text-slate-300">|</span>
+                                                    <span class="text-slate-600">|</span>
                                                     {{ $novelty->user->name ?? '-' }}
                                                 @endif
                                             </div>
@@ -827,19 +869,19 @@
                                 @foreach($novelties->take(3) as $novelty)
                                     @php
                                         $noveltyColors = [
-                                            'Informativa' => ['bg' => 'bg-blue-500', 'text' => 'text-blue-700', 'bgLight' => 'bg-blue-50', 'border' => 'border-blue-100'],
-                                            'Incidente' => ['bg' => 'bg-amber-500', 'text' => 'text-amber-700', 'bgLight' => 'bg-amber-50', 'border' => 'border-amber-100'],
-                                            'Mantención' => ['bg' => 'bg-emerald-500', 'text' => 'text-emerald-700', 'bgLight' => 'bg-emerald-50', 'border' => 'border-emerald-100'],
-                                            'Urgente' => ['bg' => 'bg-red-500', 'text' => 'text-red-700', 'bgLight' => 'bg-red-50', 'border' => 'border-red-100'],
-                                            'Permanente' => ['bg' => 'bg-purple-500', 'text' => 'text-purple-700', 'bgLight' => 'bg-purple-50', 'border' => 'border-purple-100'],
+                                            'Informativa' => ['text' => 'text-blue-600', 'bgLight' => 'bg-blue-50', 'border' => 'border-blue-200'],
+                                            'Incidente' => ['text' => 'text-amber-600', 'bgLight' => 'bg-amber-50', 'border' => 'border-amber-200'],
+                                            'Mantención' => ['text' => 'text-emerald-600', 'bgLight' => 'bg-emerald-50', 'border' => 'border-emerald-200'],
+                                            'Urgente' => ['text' => 'text-red-600', 'bgLight' => 'bg-red-50', 'border' => 'border-red-200'],
+                                            'Permanente' => ['text' => 'text-purple-600', 'bgLight' => 'bg-purple-50', 'border' => 'border-purple-200'],
                                         ];
                                         $colors = $noveltyColors[$novelty->type] ?? $noveltyColors['Informativa'];
                                     @endphp
-                                    <div class="border-l-2 {{ $colors['bg'] }} pl-3 py-1">
+                                    <div class="border-l-2 border-slate-300 pl-3 py-2">
                                         <div class="flex items-center gap-2 mb-1">
-                                            <span class="text-xs font-bold {{ $colors['text'] }} {{ $colors['bgLight'] }} px-1.5 py-0.5 rounded border {{ $colors['border'] }}">{{ $novelty->type }}</span>
+                                            <span class="text-xs font-bold {{ $colors['text'] }} {{ $colors['bgLight'] }} px-2 py-0.5 rounded border {{ $colors['border'] }}">{{ $novelty->type }}</span>
                                             @if($novelty->is_permanent)
-                                                <span class="text-[10px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-100">PERMANENTE</span>
+                                                <span class="text-[10px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-200">PERMANENTE</span>
                                             @endif
                                         </div>
                                         <p class="font-bold text-slate-900 text-sm">{{ $novelty->title }}</p>
@@ -1330,6 +1372,16 @@
             window.addEventListener('pageshow', function() {
                 resetAllConfirmations();
                 restoreConfirmations();
+            });
+
+            // Restaurar confirmaciones cuando la pestaña vuelve a estar visible (después de suspensión)
+            document.addEventListener('visibilitychange', function() {
+                if (document.visibilityState === 'visible') {
+                    // Pequeño delay para asegurar que el DOM está listo
+                    setTimeout(function() {
+                        restoreConfirmations();
+                    }, 100);
+                }
             });
         });
 

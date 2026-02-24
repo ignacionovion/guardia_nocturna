@@ -113,9 +113,13 @@
                             <!-- Occupant Card -->
                             <div class="bg-white rounded-xl p-4 border border-red-100 shadow-sm mb-3">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-red-600 text-white flex items-center justify-center font-black text-sm shadow-md">
-                                        {{ $initials ?: '?' }}
-                                    </div>
+                                    @if($firefighter?->photo_path)
+                                        <img src="{{ url('media/' . ltrim($firefighter->photo_path, '/')) }}" class="w-12 h-12 rounded-xl object-cover border border-red-200 shadow-md" alt="{{ $fullName }}">
+                                    @else
+                                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-red-600 text-white flex items-center justify-center font-black text-sm shadow-md">
+                                            {{ $initials ?: '?' }}
+                                        </div>
+                                    @endif
                                     <div class="flex-1 min-w-0">
                                         <p class="text-[10px] font-black text-red-400 uppercase tracking-wide mb-0.5">Ocupante</p>
                                         <p class="font-bold text-slate-800 text-sm truncate leading-tight">{{ $fullName }}</p>

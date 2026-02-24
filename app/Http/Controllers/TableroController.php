@@ -161,11 +161,21 @@ class TableroController extends Controller
             ? $globalCurrentShift->users->whereNull('end_time')->count()
             : 0;
             
-        // Reemplazos activos totales
-        $activeReplacementsCount = ReemplazoBombero::where('estado', 'activo')->count();
+        // Reemplazos activos totales (solo de la guardia activa)
+        $activeReplacementsCount = ReemplazoBombero::where('estado', 'activo')
+            ->whereHas('originalFirefighter', function ($q) use ($activeGuardia) {
+                if ($activeGuardia) {
+                    $q->where('guardia_id', $activeGuardia->id);
+                }
+            })
+            ->count();
         
-        // Refuerzos activos totales
-        $activeRefuerzosCount = Bombero::where('es_refuerzo', true)->count();
+        // Refuerzos activos totales (solo de la guardia activa)
+        $activeRefuerzosCount = Bombero::where('es_refuerzo', true)
+            ->when($activeGuardia, function ($q) use ($activeGuardia) {
+                return $q->where('guardia_id', $activeGuardia->id);
+            })
+            ->count();
         
         // Última emergencia (si existe modelo Emergency)
         $lastEmergency = null;
