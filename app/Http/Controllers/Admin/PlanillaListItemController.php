@@ -100,4 +100,21 @@ class PlanillaListItemController extends Controller
 
         return redirect()->back()->with('success', 'Ítem eliminado.');
     }
+
+    public function reorder(Request $request)
+    {
+        $validated = $request->validate([
+            'items' => ['required', 'array'],
+            'items.*' => ['integer', 'exists:planilla_list_items,id'],
+        ]);
+
+        $ids = $validated['items'];
+        
+        // Update sort_order based on array position
+        foreach ($ids as $index => $id) {
+            PlanillaListItem::where('id', $id)->update(['sort_order' => $index]);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Orden actualizado.']);
+    }
 }

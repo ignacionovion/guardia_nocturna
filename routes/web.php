@@ -264,6 +264,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/admin/planillas/listados', [PlanillaListItemController::class, 'store'])->name('admin.planillas.listados.store');
         Route::put('/admin/planillas/listados/{item}', [PlanillaListItemController::class, 'update'])->whereNumber('item')->name('admin.planillas.listados.update');
         Route::delete('/admin/planillas/listados/{item}', [PlanillaListItemController::class, 'destroy'])->whereNumber('item')->name('admin.planillas.listados.destroy');
+        Route::post('/admin/planillas/listados/reorder', [PlanillaListItemController::class, 'reorder'])->name('admin.planillas.listados.reorder');
 
         Route::get('/admin/planillas/qr-fijo', [PlanillaQrFijoController::class, 'show'])->name('admin.planillas.qr_fijo');
         Route::get('/admin/planillas/qr-fijo/imprimir', [PlanillaQrFijoController::class, 'print'])->name('admin.planillas.qr_fijo.print');
