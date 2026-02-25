@@ -9,35 +9,16 @@
             <p class="text-slate-500 mt-1 font-medium">Ranking de conductores por asistencias (día de turno)</p>
         </div>
 
-        <div class="bg-white p-1.5 rounded-lg shadow-sm border border-slate-200">
-            <form action="{{ route('admin.reports.drivers') }}" method="GET" class="flex items-center space-x-2">
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="fas fa-calendar-days text-slate-400"></i>
-                    </div>
-                    <select name="month" class="pl-10 pr-8 py-2 bg-slate-50 border-transparent focus:border-blue-500 focus:bg-white focus:ring-0 rounded-md text-sm font-medium text-slate-700 cursor-pointer hover:bg-slate-100 transition-colors">
-                        @foreach(range(1, 12) as $m)
-                            <option value="{{ $m }}" {{ $month == $m ? 'selected' : '' }}>
-                                {{ ucfirst(\Carbon\Carbon::create()->month($m)->locale('es')->monthName) }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="relative">
-                    <select name="year" class="pl-4 pr-8 py-2 bg-slate-50 border-transparent focus:border-blue-500 focus:bg-white focus:ring-0 rounded-md text-sm font-medium text-slate-700 cursor-pointer hover:bg-slate-100 transition-colors">
-                        @foreach(range(now()->year - 2, now()->year) as $y)
-                            <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>
-                                {{ $y }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <button type="submit" class="bg-slate-800 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded-md text-sm transition shadow-sm flex items-center">
-                    <i class="fas fa-filter mr-2"></i> Filtrar
-                </button>
-            </form>
+        <div class="flex items-center gap-2">
+            {{-- Botones de Exportación --}}
+            <a href="{{ route('admin.reports.drivers.export', ['format' => 'excel'] + request()->all()) }}" 
+               class="bg-emerald-600 hover:bg-emerald-700 text-white font-black py-2.5 px-4 rounded-lg text-sm transition-all shadow-md hover:shadow-lg flex items-center gap-2">
+                <i class="fas fa-file-excel"></i> Excel
+            </a>
+            <a href="{{ route('admin.reports.drivers.export', ['format' => 'pdf'] + request()->all()) }}" target="_blank"
+               class="bg-rose-600 hover:bg-rose-700 text-white font-black py-2.5 px-4 rounded-lg text-sm transition-all shadow-md hover:shadow-lg flex items-center gap-2">
+                <i class="fas fa-file-pdf"></i> PDF
+            </a>
         </div>
     </div>
 

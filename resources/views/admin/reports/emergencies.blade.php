@@ -48,6 +48,20 @@
                 </h2>
                 <p class="text-slate-500 mt-1 text-sm">Estadísticas de emergencias atendidas por las guardias</p>
             </div>
+            
+            {{-- Botones de Exportación --}}
+            <div class="flex items-center gap-2">
+                <a href="{{ route('admin.reports.emergencies.export', ['format' => 'excel'] + request()->all()) }}" 
+                   class="bg-emerald-600 hover:bg-emerald-700 text-white font-black py-2.5 px-4 rounded-lg text-sm transition-all shadow-md hover:shadow-lg flex items-center gap-2">
+                    <i class="fas fa-file-excel"></i> Excel
+                </a>
+                <a href="{{ route('admin.reports.emergencies.export', ['format' => 'pdf'] + request()->all()) }}" target="_blank"
+                   class="bg-rose-600 hover:bg-rose-700 text-white font-black py-2.5 px-4 rounded-lg text-sm transition-all shadow-md hover:shadow-lg flex items-center gap-2">
+                    <i class="fas fa-file-pdf"></i> PDF
+                </a>
+            </div>
+        </div>
+    </div>
             <form method="GET" class="flex flex-wrap items-center gap-3">
                 <select name="month" onchange="this.form.submit()" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500">
                     @foreach(range(1, 12) as $m)

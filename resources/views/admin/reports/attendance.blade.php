@@ -4,11 +4,25 @@
 <div class="container mx-auto px-4 py-6 max-w-7xl">
 
     {{-- HEADER --}}
-    <div class="mb-6">
-        <h1 class="text-2xl font-bold text-slate-800 flex items-center uppercase">
-            <i class="fas fa-chart-line mr-3 text-red-600"></i> Reportes
-        </h1>
-        <p class="text-slate-500 mt-1 text-sm">Estadísticas de asistencia, permisos, reemplazos y conductores</p>
+    <div class="mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800 flex items-center uppercase">
+                <i class="fas fa-chart-line mr-3 text-red-600"></i> Reportes
+            </h1>
+            <p class="text-slate-500 mt-1 text-sm">Estadísticas de asistencia, permisos, reemplazos y conductores</p>
+        </div>
+        
+        {{-- Botones de Exportación --}}
+        <div class="flex items-center gap-2">
+            <a href="{{ route('admin.reports.attendance.export', ['format' => 'excel'] + request()->all()) }}" 
+               class="bg-emerald-600 hover:bg-emerald-700 text-white font-black py-2.5 px-4 rounded-lg text-sm transition-all shadow-md hover:shadow-lg flex items-center gap-2">
+                <i class="fas fa-file-excel"></i> Excel
+            </a>
+            <a href="{{ route('admin.reports.attendance.export', ['format' => 'pdf'] + request()->all()) }}" target="_blank"
+               class="bg-rose-600 hover:bg-rose-700 text-white font-black py-2.5 px-4 rounded-lg text-sm transition-all shadow-md hover:shadow-lg flex items-center gap-2">
+                <i class="fas fa-file-pdf"></i> PDF
+            </a>
+        </div>
     </div>
 
     {{-- NAVEGACIÓN PRINCIPAL --}}
@@ -43,38 +57,40 @@
 
     @if($activeTab === 'asistencia')
 
-    {{-- FILTROS PROFESIONALES --}}
+    {{-- FILTROS CON SELECTS ESTANDARIZADOS --}}
     <div class="bg-white p-5 border border-t-0 border-slate-200 mb-6 rounded-b-lg shadow-sm">
         <form action="{{ route('admin.reports.attendance') }}" method="GET" class="flex flex-wrap items-end gap-4">
             <input type="hidden" name="tab" value="asistencia">
             
-            {{-- Filtro por Guardia --}}
-            <div class="min-w-[180px]">
+            {{-- Select Guardia - ESTANDARIZADO --}}
+            <div class="min-w-[220px]">
                 <label class="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Guardia</label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="fas fa-shield-alt text-slate-400 text-xs"></i>
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
+                        <i class="fas fa-shield-alt text-slate-400 group-focus-within:text-red-500 transition-colors"></i>
                     </div>
-                    <select name="guardia_id" class="pl-9 pr-8 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 w-full appearance-none cursor-pointer hover:bg-slate-100 transition-colors">
+                    <select name="guardia_id" class="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 appearance-none cursor-pointer hover:bg-white hover:border-slate-300 transition-all shadow-sm">
                         <option value="">Todas las Guardias</option>
                         @foreach($guardias as $g)
                             <option value="{{ $g->id }}" {{ $guardiaId == $g->id ? 'selected' : '' }}>{{ $g->name }}</option>
                         @endforeach
                     </select>
-                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                        <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
+                    <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
+                        <div class="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center">
+                            <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {{-- Filtro por Semana --}}
-            <div class="min-w-[180px]">
+            {{-- Select Semana - ESTANDARIZADO --}}
+            <div class="min-w-[220px]">
                 <label class="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Semana</label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="fas fa-calendar-week text-slate-400 text-xs"></i>
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
+                        <i class="fas fa-calendar-week text-slate-400 group-focus-within:text-red-500 transition-colors"></i>
                     </div>
-                    <select name="week" class="pl-9 pr-8 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 w-full appearance-none cursor-pointer hover:bg-slate-100 transition-colors">
+                    <select name="week" class="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 appearance-none cursor-pointer hover:bg-white hover:border-slate-300 transition-all shadow-sm">
                         <option value="">Todas las semanas</option>
                         @php
                             $currentWeek = now()->weekOfYear;
@@ -85,41 +101,53 @@
                             }
                         @endphp
                     </select>
-                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                        <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
+                    <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
+                        <div class="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center">
+                            <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {{-- Fecha Desde --}}
-            <div class="min-w-[150px]">
+            {{-- Fecha Desde - ESTANDARIZADO --}}
+            <div class="min-w-[160px]">
                 <label class="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Desde</label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="fas fa-calendar text-slate-400 text-xs"></i>
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
+                        <i class="fas fa-calendar text-slate-400 group-focus-within:text-red-500 transition-colors"></i>
                     </div>
-                    <input type="date" name="from" value="{{ $from->format('Y-m-d') }}" class="pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 w-full hover:bg-slate-100 transition-colors">
+                    <input type="date" name="from" value="{{ $from->format('Y-m-d') }}" class="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 hover:bg-white hover:border-slate-300 transition-all shadow-sm">
                 </div>
             </div>
 
-            {{-- Fecha Hasta --}}
-            <div class="min-w-[150px]">
+            {{-- Fecha Hasta - ESTANDARIZADO --}}
+            <div class="min-w-[160px]">
                 <label class="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Hasta</label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="fas fa-calendar text-slate-400 text-xs"></i>
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
+                        <i class="fas fa-calendar text-slate-400 group-focus-within:text-red-500 transition-colors"></i>
                     </div>
-                    <input type="date" name="to" value="{{ $to->format('Y-m-d') }}" class="pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 w-full hover:bg-slate-100 transition-colors">
+                    <input type="date" name="to" value="{{ $to->format('Y-m-d') }}" class="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 hover:bg-white hover:border-slate-300 transition-all shadow-sm">
                 </div>
             </div>
 
             {{-- Botón Filtrar --}}
             <div class="flex gap-2">
-                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-black py-2.5 px-5 rounded-lg text-sm transition-all shadow-sm hover:shadow-md flex items-center gap-2 uppercase tracking-wider">
+                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-black py-2.5 px-5 rounded-xl text-sm transition-all shadow-lg shadow-red-500/30 hover:shadow-red-500/50 flex items-center gap-2 uppercase tracking-wider">
                     <i class="fas fa-filter"></i> Filtrar
                 </button>
-                <a href="{{ route('admin.reports.attendance') }}" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-black py-2.5 px-4 rounded-lg text-sm transition-all flex items-center gap-2 uppercase tracking-wider" title="Limpiar filtros">
+                <a href="{{ route('admin.reports.attendance') }}" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-black py-2.5 px-4 rounded-xl text-sm transition-all flex items-center gap-2 uppercase tracking-wider" title="Limpiar filtros">
                     <i class="fas fa-undo"></i>
+                </a>
+            </div>
+
+            {{-- Botones de Exportación --}}
+            <div class="ml-auto flex gap-2">
+                <a href="{{ route('admin.reports.attendance', ['export' => 'excel'] + request()->all()) }}" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black py-2.5 px-4 rounded-xl text-sm transition-all shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 flex items-center gap-2">
+                    <i class="fas fa-file-excel"></i> Excel
+                </a>
+                <a href="{{ route('admin.reports.attendance', ['export' => 'pdf'] + request()->all()) }}" target="_blank" class="bg-rose-600 hover:bg-rose-700 text-white font-black py-2.5 px-4 rounded-xl text-sm transition-all shadow-lg shadow-rose-500/30 hover:shadow-rose-500/50 flex items-center gap-2">
+                    <i class="fas fa-file-pdf"></i> PDF
                 </a>
             </div>
         </form>

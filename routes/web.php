@@ -220,10 +220,15 @@ Route::middleware('auth')->group(function () {
     // Rutas de Reportes
     Route::get('/admin/reports', [App\Http\Controllers\ReportController::class, 'attendance'])->name('admin.reports.index');
     Route::get('/admin/reports/attendance', [App\Http\Controllers\ReportController::class, 'attendance'])->name('admin.reports.attendance');
+    Route::get('/admin/reports/attendance/export', [App\Http\Controllers\ReportController::class, 'attendanceExport'])->name('admin.reports.attendance.export');
     Route::get('/admin/reports/preventivas', [App\Http\Controllers\ReportController::class, 'preventivas'])->name('admin.reports.preventivas');
     Route::get('/admin/reports/reemplazos', [App\Http\Controllers\ReportController::class, 'replacements'])->name('admin.reports.replacements');
+    Route::get('/admin/reports/refuerzos', [App\Http\Controllers\ReportController::class, 'refuerzos'])->name('admin.reports.refuerzos');
+    Route::get('/admin/reports/refuerzos/export', [App\Http\Controllers\ReportController::class, 'refuerzosExport'])->name('admin.reports.refuerzos.export');
     Route::get('/admin/reports/conductores', [App\Http\Controllers\ReportController::class, 'drivers'])->name('admin.reports.drivers');
+    Route::get('/admin/reports/conductores/export', [App\Http\Controllers\ReportController::class, 'driversExport'])->name('admin.reports.drivers.export');
     Route::get('/admin/reports/emergencias', [App\Http\Controllers\ReportController::class, 'emergencies'])->name('admin.reports.emergencies');
+    Route::get('/admin/reports/emergencias/export', [App\Http\Controllers\ReportController::class, 'emergenciesExport'])->name('admin.reports.emergencies.export');
     Route::get('/admin/reports/reemplazos/export', [App\Http\Controllers\ReportController::class, 'replacementsExport'])->name('admin.reports.replacements.export');
     Route::get('/admin/reports/reemplazos/print', [App\Http\Controllers\ReportController::class, 'replacementsPrint'])->name('admin.reports.replacements.print');
 
@@ -265,6 +270,7 @@ Route::middleware('auth')->group(function () {
         Route::put('/admin/planillas/listados/{item}', [PlanillaListItemController::class, 'update'])->whereNumber('item')->name('admin.planillas.listados.update');
         Route::delete('/admin/planillas/listados/{item}', [PlanillaListItemController::class, 'destroy'])->whereNumber('item')->name('admin.planillas.listados.destroy');
         Route::post('/admin/planillas/listados/reorder', [PlanillaListItemController::class, 'reorder'])->name('admin.planillas.listados.reorder');
+        Route::post('/admin/planillas/listados/reset', [PlanillaListItemController::class, 'reset'])->name('admin.planillas.listados.reset');
 
         Route::get('/admin/planillas/qr-fijo', [PlanillaQrFijoController::class, 'show'])->name('admin.planillas.qr_fijo');
         Route::get('/admin/planillas/qr-fijo/imprimir', [PlanillaQrFijoController::class, 'print'])->name('admin.planillas.qr_fijo.print');

@@ -52,16 +52,32 @@
         </form>
     </div>
 
-    {{-- Agregar nuevo ítem (al estilo planilla) --}}
+    {{-- Agregar nuevo ítem + Restaurar estándar (al estilo planilla) --}}
     @if($unidadSeleccionada && $sectionSeleccionada)
     <div class="mb-6 bg-white rounded-2xl border border-teal-900/20 overflow-hidden shadow-sm">
-        <button type="button" class="w-full px-4 py-3 flex items-center justify-between bg-teal-800 border-b border-teal-900" onclick="toggleSection('secNuevoItem')">
+        <div class="px-4 py-3 bg-teal-800 border-b border-teal-900 flex items-center justify-between">
             <div class="text-xs font-black uppercase tracking-widest text-white flex items-center gap-2">
-                <i class="fas fa-plus-circle"></i>
-                Agregar nuevo ítem a {{ $sections[$sectionSeleccionada] ?? $sectionSeleccionada }} - {{ $unidadSeleccionada }}
+                <i class="fas fa-cog"></i>
+                Administrar {{ $sections[$sectionSeleccionada] ?? $sectionSeleccionada }} - {{ $unidadSeleccionada }}
             </div>
-            <i class="fas fa-chevron-down text-white/80" id="iconNuevoItem"></i>
-        </button>
+            <div class="flex items-center gap-2">
+                {{-- Botón Restaurar Estándar --}}
+                <form method="POST" action="{{ route('admin.planillas.listados.reset') }}" class="inline" onsubmit="return confirm('¿Restaurar todos los ítems al estado estándar? Esto eliminará los ítems personalizados y restaurará la configuración original.');">
+                    @csrf
+                    <input type="hidden" name="unidad" value="{{ $unidadSeleccionada }}">
+                    <input type="hidden" name="section" value="{{ $sectionSeleccionada }}">
+                    <button type="submit" class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white font-black py-2 px-4 rounded-lg text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest">
+                        <i class="fas fa-rotate-left"></i>
+                        Restaurar Estándar
+                    </button>
+                </form>
+                <button type="button" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-2 px-4 rounded-lg text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest" onclick="toggleSection('secNuevoItem')">
+                    <i class="fas fa-plus-circle"></i>
+                    Agregar Ítem
+                    <i class="fas fa-chevron-down text-white/80" id="iconNuevoItem"></i>
+                </button>
+            </div>
+        </div>
         <div id="secNuevoItem" class="hidden p-4 bg-sky-50">
             <form method="POST" action="{{ route('admin.planillas.listados.store') }}" class="space-y-4">
                 @csrf

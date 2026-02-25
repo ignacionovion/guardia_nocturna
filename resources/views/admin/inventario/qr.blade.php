@@ -28,17 +28,49 @@
         </div>
     </div>
 
-    <div class="mt-6 bg-white rounded-2xl border border-teal-900/20 shadow-sm overflow-hidden">
-        <div class="p-6 border-b border-teal-900/20 bg-sky-100">
+    <div class="mt-6 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100">
             <div class="text-xs font-black uppercase tracking-widest text-slate-600">Enlace</div>
-            <div class="text-sm text-slate-700 mt-1 break-all">{{ $url }}</div>
+            <div class="text-sm text-slate-700 mt-1 break-all font-mono">{{ $url }}</div>
         </div>
 
-        <div class="p-6 flex flex-col items-center">
-            <div class="bg-white p-4 rounded-2xl border border-slate-200">
-                {!! $qrSvg !!}
+        <div class="p-10 flex flex-col items-center bg-slate-50">
+            {{-- QR Container --}}
+            <div class="relative">
+                {{-- Main QR Card --}}
+                <div class="relative bg-white p-8 rounded-3xl border-2 border-slate-800 shadow-xl">
+                    <div class="relative">
+                        {!! $qrSvg !!}
+                        
+                        {{-- Logo Overlay --}}
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div class="w-20 h-20 bg-white rounded-xl shadow-lg p-2 flex items-center justify-center border-2 border-slate-200">
+                                <img src="{{ asset('brand/Logo png Alta Def.png') }}" alt="Logo" class="w-14 h-14 object-contain">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {{-- QR Badge --}}
+                <div class="absolute -top-3 -right-3 w-10 h-10 bg-slate-800 rounded-full shadow-lg flex items-center justify-center border-2 border-white">
+                    <i class="fas fa-qrcode text-white text-sm"></i>
+                </div>
             </div>
-            <div class="mt-4 text-sm text-slate-600">Token: <span class="font-mono text-xs">{{ $link->token }}</span></div>
+            
+            {{-- Token Badge --}}
+            <div class="mt-8 flex items-center gap-2 bg-slate-800 text-white rounded-full px-5 py-2.5 shadow-md">
+                <i class="fas fa-fingerprint text-slate-400"></i>
+                <span class="text-xs font-mono tracking-wider">{{ substr($link->token, 0, 16) }}...</span>
+            </div>
+            
+            {{-- Instructions --}}
+            <div class="mt-6 text-center">
+                <p class="text-lg font-bold text-slate-800">Escanea para acceder al retiro</p>
+                <p class="text-sm text-slate-500 mt-1 font-medium">Inventario • Guardia Nocturna</p>
+            </div>
+            
+            {{-- Decorative Line --}}
+            <div class="mt-6 w-24 h-0.5 bg-slate-400 rounded-full"></div>
         </div>
     </div>
 </div>

@@ -677,45 +677,153 @@
                     </div>
                 </div>
 
-                <!-- Panel de Movimientos -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <!-- Reemplazos Activos -->
-                    <div class="bg-white rounded-xl border-l-4 border-purple-500 border-y border-r border-slate-200 p-4 shadow-sm">
+                <!-- Panel de Movimientos - Estilo Reporte Profesional -->
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-200 bg-slate-900">
                         <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-xs font-black text-slate-400 uppercase tracking-wider">Reemplazos Activos</p>
-                                <p class="text-xl font-black text-slate-900 mt-1">{{ $activeReplacementsCount }}</p>
+                            <div class="flex items-center gap-3">
+                                <div class="bg-purple-500/20 p-2 rounded-lg text-purple-400">
+                                    <i class="fas fa-exchange-alt text-lg"></i>
+                                </div>
+                                <div>
+                                    <h2 class="font-black text-white uppercase tracking-wider text-sm">Reporte de Movimientos</h2>
+                                    <p class="text-xs text-slate-400">Reemplazos, refuerzos y personal fuera de servicio</p>
+                                </div>
                             </div>
-                            <div class="bg-purple-100 p-2 rounded-lg text-purple-700">
-                                <i class="fas fa-user-plus"></i>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold text-slate-400 uppercase">Total reemplazos:</span>
+                                <span class="text-xl font-black text-purple-400">{{ $activeReplacementsCount }}</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Refuerzos -->
-                    <div class="bg-white rounded-xl border-l-4 border-sky-500 border-y border-r border-slate-200 p-4 shadow-sm">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-xs font-black text-slate-400 uppercase tracking-wider">Refuerzos</p>
-                                <p class="text-xl font-black text-slate-900 mt-1">{{ $activeRefuerzosCount }}</p>
+                    <div class="p-6">
+                        <!-- Estadísticas Rápidas -->
+                        <div class="grid grid-cols-3 gap-4 mb-6">
+                            <div class="bg-purple-50 rounded-xl border border-purple-200 p-4 text-center">
+                                <div class="text-2xl font-black text-purple-700">{{ $activeReplacementsCount }}</div>
+                                <div class="text-xs font-bold text-purple-600 uppercase tracking-wider">Reemplazos Activos</div>
                             </div>
-                            <div class="bg-sky-100 p-2 rounded-lg text-sky-700">
-                                <i class="fas fa-user-friends"></i>
+                            <div class="bg-sky-50 rounded-xl border border-sky-200 p-4 text-center">
+                                <div class="text-2xl font-black text-sky-700">{{ $activeRefuerzosCount }}</div>
+                                <div class="text-xs font-bold text-sky-600 uppercase tracking-wider">Refuerzos</div>
+                            </div>
+                            <div class="bg-red-50 rounded-xl border border-red-200 p-4 text-center">
+                                <div class="text-2xl font-black text-red-700">{{ $outOfServiceFirefighters }}</div>
+                                <div class="text-xs font-bold text-red-600 uppercase tracking-wider">Fuera de Servicio</div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Personal Fuera de Servicio -->
-                    <div class="bg-white rounded-xl border-l-4 border-red-500 border-y border-r border-slate-200 p-4 shadow-sm">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-xs font-black text-slate-400 uppercase tracking-wider">Fuera de Servicio</p>
-                                <p class="text-xl font-black text-slate-900 mt-1">{{ $outOfServiceFirefighters }}</p>
+                        <!-- Lista Detallada de Reemplazos Activos -->
+                        @if(isset($replacementByOriginal) && $replacementByOriginal->isNotEmpty())
+                            <div class="mb-6">
+                                <h3 class="text-xs font-black text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                    <i class="fas fa-list-ul"></i>
+                                    Detalle de Reemplazos Activos
+                                </h3>
+                                <div class="space-y-3">
+                                    @foreach($replacementByOriginal as $replacement)
+                                        <div class="bg-slate-50 rounded-xl border border-slate-200 p-4">
+                                            <div class="flex items-start gap-4">
+                                                <!-- Reemplazado -->
+                                                <div class="flex-1">
+                                                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Titular Reemplazado</div>
+                                                    <div class="flex items-center gap-3">
+                                                        <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-sm">
+                                                            {{ substr($replacement->originalFirefighter?->nombres, 0, 1) }}{{ substr($replacement->originalFirefighter?->apellido_paterno, 0, 1) }}
+                                                        </div>
+                                                        <div>
+                                                            <div class="font-bold text-slate-900">{{ $replacement->originalFirefighter?->nombres }} {{ $replacement->originalFirefighter?->apellido_paterno }}</div>
+                                                            <div class="text-xs text-slate-500">{{ $replacement->originalFirefighter?->rut ?? 'Sin RUT' }}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Flecha -->
+                                                <div class="pt-4">
+                                                    <div class="bg-purple-100 p-2 rounded-full">
+                                                        <i class="fas fa-arrow-right text-purple-600"></i>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Reemplazante -->
+                                                <div class="flex-1">
+                                                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Reemplazante</div>
+                                                    <div class="flex items-center gap-3">
+                                                        <div class="w-10 h-10 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-sm">
+                                                            {{ substr($replacement->replacementFirefighter?->nombres, 0, 1) }}{{ substr($replacement->replacementFirefighter?->apellido_paterno, 0, 1) }}
+                                                        </div>
+                                                        <div>
+                                                            <div class="font-bold text-slate-900">{{ $replacement->replacementFirefighter?->nombres }} {{ $replacement->replacementFirefighter?->apellido_paterno }}</div>
+                                                            <div class="text-xs text-slate-500">{{ $replacement->replacementFirefighter?->rut ?? 'Sin RUT' }}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Info adicional -->
+                                                <div class="text-right">
+                                                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Inicio</div>
+                                                    <div class="text-sm font-bold text-slate-700">{{ $replacement->inicio?->format('d/m/Y H:i') ?? 'N/A' }}</div>
+                                                    <button type="button" onclick="openUndoReplacementModal('{{ route('admin.guardias.replacement.undo', $replacement->id) }}')" class="mt-2 text-xs font-bold text-purple-600 hover:text-purple-800 underline">
+                                                        Deshacer
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
                             </div>
-                            <div class="bg-red-100 p-2 rounded-lg text-red-700">
-                                <i class="fas fa-user-slash"></i>
+                        @endif
+
+                        <!-- Lista Detallada de Refuerzos Activos -->
+                        @if(isset($myStaff) && $myStaff->where('es_refuerzo', true)->isNotEmpty())
+                            <div class="mb-6">
+                                <h3 class="text-xs font-black text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                    <i class="fas fa-user-friends"></i>
+                                    Detalle de Refuerzos Activos
+                                </h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    @foreach($myStaff->where('es_refuerzo', true) as $refuerzo)
+                                        <div class="bg-sky-50 rounded-xl border border-sky-200 p-4">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-sm">
+                                                    {{ substr($refuerzo->nombres, 0, 1) }}{{ substr($refuerzo->apellido_paterno, 0, 1) }}
+                                                </div>
+                                                <div class="flex-1 min-w-0">
+                                                    <div class="font-bold text-slate-900 truncate">{{ $refuerzo->nombres }} {{ $refuerzo->apellido_paterno }}</div>
+                                                    <div class="text-xs text-slate-500">{{ $refuerzo->rut ?? 'Sin RUT' }}</div>
+                                                </div>
+                                                <span class="text-[10px] font-black uppercase tracking-widest text-sky-700 bg-sky-100 px-2 py-1 rounded">REFUERZO</span>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
                             </div>
-                        </div>
+                        @endif
+
+                        @if((!isset($replacementByOriginal) || $replacementByOriginal->isEmpty()) && (!isset($myStaff) || $myStaff->where('es_refuerzo', true)->isEmpty()))
+                            <div class="text-center py-8 bg-slate-50 rounded-xl border border-slate-200">
+                                <div class="inline-flex items-center justify-center w-12 h-12 bg-slate-200 rounded-full mb-3">
+                                    <i class="fas fa-check text-slate-500"></i>
+                                </div>
+                                <p class="text-sm font-bold text-slate-600">Sin movimientos activos</p>
+                                <p class="text-xs text-slate-400 mt-1">No hay reemplazos ni refuerzos registrados</p>
+                            </div>
+                        @endif
+
+                        <!-- Acciones Rápidas -->
+                        @if(Auth::check() && Auth::user()->role === 'guardia' && isset($myGuardia) && $myGuardia)
+                            <div class="flex gap-3 pt-4 border-t border-slate-200">
+                                <button onclick="openReplacementModal()" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 px-4 rounded-lg text-xs uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-2">
+                                    <i class="fas fa-plus"></i>
+                                    Nuevo Reemplazo
+                                </button>
+                                <button onclick="openRefuerzoModal()" class="flex-1 bg-sky-600 hover:bg-sky-700 text-white font-bold py-2.5 px-4 rounded-lg text-xs uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-2">
+                                    <i class="fas fa-user-plus"></i>
+                                    Agregar Refuerzo
+                                </button>
+                            </div>
+                        @endif
                     </div>
                 </div>
 

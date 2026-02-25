@@ -1752,4 +1752,217 @@ class ReportController extends Controller
         $mins = $minutes % 60;
         return sprintf('%dh %02dm', $hours, $mins);
     }
+
+    /**
+     * Reporte de Refuerzos - Nueva implementación creativa
+     */
+    public function refuerzos(Request $request)
+    {
+        $user = auth()->user();
+        if (!in_array($user->role, ['super_admin', 'admin', 'capitan'])) {
+            abort(403, 'No autorizado.');
+        }
+
+        // Período
+        $periodo = (int) $request->input('periodo', 30);
+        $fromStr = (string) $request->input('from', now()->subDays($periodo)->toDateString());
+        $toStr = (string) $request->input('to', now()->toDateString());
+
+        try {
+            $from = Carbon::parse($fromStr)->startOfDay();
+        } catch (\Throwable $e) {
+            $from = now()->subDays($periodo)->startOfDay();
+        }
+        try {
+            $to = Carbon::parse($toStr)->endOfDay();
+        } catch (\Throwable $e) {
+            $to = now()->endOfDay();
+        }
+
+        $guardiaId = $request->input('guardia_id');
+        $guardiaId = $guardiaId !== null && $guardiaId !== '' ? (int) $guardiaId : null;
+
+        $guardias = Guardia::query()->orderBy('name')->get(['id', 'name']);
+
+        // Query base para refuerzos
+        $refuerzosQuery = ShiftUser::query()
+            ->whereBetween('start_time', [$from, $to])
+            ->where(function($q) {
+                $q->where('assignment_type', 'refuerzo')
+                  ->orWhereHas('firefighter', fn($q2) => $q2->where('es_refuerzo', true));
+            })
+            ->whereNotNull('firefighter_id')
+            ->with(['firefighter.guardia', 'shift']);
+
+        if ($guardiaId) {
+            $refuerzosQuery->whereHas('firefighter', fn($q) => $q->where('guardia_id', $guardiaId));
+        }
+
+        $refuerzos = $refuerzosQuery->get();
+
+        // Stats cards
+        $totalRefuerzos = $refuerzos->count();
+        $guardiasActivas = $refuerzos->pluck('firefighter.guardia_id')->unique()->count();
+        $voluntariosUnicos = $refuerzos->pluck('firefighter_id')->unique()->count();
+        $promedioPorGuardia = $guardiasActivas > 0 ? round($totalRefuerzos / $guardiasActivas, 1) : 0;
+
+        // Tendencia diaria
+        $tendencia = $refuerzos->groupBy(fn($r) => $r->start_time->format('Y-m-d'))
+            ->map(fn($group) => $group->count())
+            ->sortKeys();
+
+        $trendLabels = [];
+        $trendData = [];
+        $trendAvg = [];
+        $current = $from->copy();
+        $sum = 0;
+        $count = 0;
+        while ($current <= $to) {
+            $dateStr = $current->format('Y-m-d');
+            $value = $tendencia[$dateStr] ?? 0;
+            $trendLabels[] = $current->format('d/m');
+            $trendData[] = $value;
+            $sum += $value;
+            $count++;
+            $trendAvg[] = $count > 0 ? round($sum / $count, 1) : 0;
+            $current->addDay();
+        }
+
+        // Por guardia (para gráfico)
+        $porGuardia = $refuerzos->groupBy(fn($r) => $r->firefighter?->guardia?->name ?? 'Sin Guardia')
+            ->map(fn($group) => $group->count())
+            ->sortDesc();
+        $guardiaLabels = $porGuardia->keys()->toArray();
+        $guardiaData = $porGuardia->values()->toArray();
+
+        // Top refuerzos
+        $topRefuerzos = $refuerzos->groupBy('firefighter_id')
+            ->map(function($group) {
+                $first = $group->first();
+                return [
+                    'nombre' => $first->firefighter?->full_name ?? 'Sin nombre',
+                    'nombres' => $first->firefighter?->nombres ?? '',
+                    'apellido' => $first->firefighter?->apellido_paterno ?? '',
+                    'guardia' => $first->firefighter?->guardia?->name ?? 'Sin guardia',
+                    'total' => $group->count(),
+                    'rut' => $first->firefighter?->rut ?? '',
+                ];
+            })
+            ->sortByDesc('total')
+            ->take(10)
+            ->values()
+            ->toArray();
+
+        // Detalle por día
+        $detallePorDia = $refuerzos->map(function($r) {
+            return [
+                'fecha' => $r->start_time->format('d/m/Y'),
+                'dia_semana' => $r->start_time->locale('es')->dayName,
+                'guardia' => $r->firefighter?->guardia?->name ?? 'N/A',
+                'nombre' => $r->firefighter?->full_name ?? 'Sin nombre',
+                'nombres' => $r->firefighter?->nombres ?? '',
+                'apellido' => $r->firefighter?->apellido_paterno ?? '',
+                'rut' => $r->firefighter?->rut ?? '',
+                'turno' => $r->shift?->name ?? 'N/A',
+                'asistencia' => $r->attendance_status ?? 'pendiente',
+            ];
+        })->toArray();
+
+        // Insights
+        $diaPeak = $tendencia->sortDesc()->first();
+        $diaPeakFecha = $tendencia->sortDesc()->keys()->first();
+        $guardiaTop = $porGuardia->first();
+        $guardiaTopNombre = $porGuardia->keys()->first();
+        
+        // Eficiencia (asistencias cumplidas)
+        $asistenciasCumplidas = $refuerzos->where('attendance_status', 'cumplido')->count();
+        $eficiencia = $totalRefuerzos > 0 ? round(($asistenciasCumplidas / $totalRefuerzos) * 100, 1) : 0;
+
+        return view('admin.reports.refuerzos', compact(
+            'guardias',
+            'from',
+            'to',
+            'guardiaId',
+            'periodo',
+            'totalRefuerzos',
+            'guardiasActivas',
+            'voluntariosUnicos',
+            'promedioPorGuardia',
+            'trendLabels',
+            'trendData',
+            'trendAvg',
+            'guardiaLabels',
+            'guardiaData',
+            'topRefuerzos',
+            'detallePorDia',
+            'diaPeak',
+            'diaPeakFecha',
+            'guardiaTop',
+            'guardiaTopNombre',
+            'eficiencia'
+        ));
+    }
+
+    /**
+     * Exportar reporte de refuerzos (Excel/PDF)
+     */
+    public function refuerzosExport(Request $request)
+    {
+        $user = auth()->user();
+        if (!in_array($user->role, ['super_admin', 'admin', 'capitan'])) {
+            abort(403, 'No autorizado.');
+        }
+
+        $format = $request->input('format', 'excel');
+        $periodo = (int) $request->input('periodo', 30);
+        $from = Carbon::parse($request->input('from', now()->subDays($periodo)->toDateString()))->startOfDay();
+        $to = Carbon::parse($request->input('to', now()->toDateString()))->endOfDay();
+        $guardiaId = $request->input('guardia_id');
+        $guardiaId = $guardiaId !== null && $guardiaId !== '' ? (int) $guardiaId : null;
+
+        if ($format === 'pdf') {
+            return $this->refuerzosPdf($from, $to, $guardiaId);
+        }
+
+        return Excel::download(
+            new \App\Exports\RefuerzosReportExport($from, $to, $guardiaId),
+            'reporte_refuerzos_' . $from->format('Y-m-d') . '_' . $to->format('Y-m-d') . '.xlsx'
+        );
+    }
+
+    /**
+     * Generar PDF de refuerzos
+     */
+    private function refuerzosPdf(Carbon $from, Carbon $to, ?int $guardiaId)
+    {
+        $refuerzosQuery = ShiftUser::query()
+            ->whereBetween('start_time', [$from, $to])
+            ->where(function($q) {
+                $q->where('assignment_type', 'refuerzo')
+                  ->orWhereHas('firefighter', fn($q2) => $q2->where('es_refuerzo', true));
+            })
+            ->whereNotNull('firefighter_id')
+            ->with(['firefighter.guardia', 'shift']);
+
+        if ($guardiaId) {
+            $refuerzosQuery->whereHas('firefighter', fn($q) => $q->where('guardia_id', $guardiaId));
+        }
+
+        $refuerzos = $refuerzosQuery->get();
+
+        $data = [
+            'refuerzos' => $refuerzos,
+            'from' => $from,
+            'to' => $to,
+            'guardiaId' => $guardiaId,
+            'guardiaNombre' => $guardiaId ? Guardia::find($guardiaId)?->name : 'Todas',
+            'total' => $refuerzos->count(),
+            'generatedAt' => now(),
+        ];
+
+        $pdf = \PDF::loadView('admin.reports.refuerzos_pdf', $data);
+        $pdf->setPaper('a4', 'landscape');
+        
+        return $pdf->download('reporte_refuerzos_' . $from->format('Y-m-d') . '.pdf');
+    }
 }
