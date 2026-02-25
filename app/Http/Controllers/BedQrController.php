@@ -7,6 +7,7 @@ use App\Models\BedAssignment;
 use App\Models\Bombero;
 use App\Models\Guardia;
 use App\Models\ShiftUser;
+use App\Models\SystemSetting;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -19,6 +20,9 @@ class BedQrController extends Controller
     public function scanForm(Request $request, int $bedId)
     {
         $bed = Bed::query()->findOrFail($bedId);
+
+        // Verificar si estamos dentro del horario de guardia
+        $withinHours = $this->isWithinGuardiaHours();
 
         // Si ya hay un bombero identificado en sesión, mostrar info
         $bombero = null;
@@ -33,6 +37,7 @@ class BedQrController extends Controller
         return view('camas.scan', [
             'bed' => $bed,
             'bombero' => $bombero,
+            'withinGuardiaHours' => $withinHours,
         ]);
     }
 
@@ -272,5 +277,44 @@ class BedQrController extends Controller
                     });
             })
             ->exists();
+    }
+
+    /**
+     * Verifica si la hora actual está dentro del horario de guardia
+     * Domingo-Jueves: 23:00 a 07:00
+     * Viernes-Sábado: 22:00 a 07:00
+     */
+    private function isWithinGuardiaHours(): bool
+    {
+        $scheduleTz = SystemSetting::getValue('guardia_schedule_tz', env('GUARDIA_SCHEDULE_TZ', config('app.timezone')));
+        $now = Carbon::now($scheduleTz);
+
+        // Horarios de inicio según día de la semana
+        // 0=Domingo, 5=Viernes, 6=Sábado
+        $isWeekendStart = $now->isFriday() || $now->isSaturday();
+        
+        $startTime = $isWeekendStart 
+            ? SystemSetting::getValue('guardia_constitution_sunday_time', '22:00')  // Viernes y sábado inician a las 22:00
+            : SystemSetting::getValue('guardia_constitution_weekday_time', '23:00');  // Domingo a jueves inician a las 23:00
+
+        $endTime = SystemSetting::getValue('guardia_daily_end_time', '07:00');
+
+        [$startH, $startM] = array_map('intval', explode(':', (string) $startTime));
+        [$endH, $endM] = array_map('intval', explode(':', (string) $endTime));
+
+        $startAt = $now->copy()->startOfDay()->addHours($startH)->addMinutes($startM);
+        $endAt = $now->copy()->startOfDay()->addHours($endH)->addMinutes($endM);
+
+        // Si estamos después de la hora de inicio HOY
+        if ($now->greaterThanOrEqualTo($startAt)) {
+            return true;
+        }
+
+        // Si estamos antes de la hora de fin HOY (significa que la guardia de AYER sigue activa)
+        if ($now->lessThan($endAt)) {
+            return true;
+        }
+
+        return false;
     }
 }

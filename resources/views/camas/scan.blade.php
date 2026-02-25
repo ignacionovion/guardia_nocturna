@@ -50,9 +50,27 @@
                 </div>
             </div>
 
-            {{-- Formulario RUT --}}
+            {{-- Formulario RUT o Mensaje fuera de horario --}}
             <div class="p-6">
-                @if($bombero)
+                @if(!$withinGuardiaHours)
+                    {{-- Fuera de horario --}}
+                    <div class="text-center">
+                        <div class="inline-flex items-center justify-center w-14 h-14 bg-amber-500/10 rounded-full mb-3">
+                            <i class="fas fa-clock text-2xl text-amber-400"></i>
+                        </div>
+                        <p class="text-lg font-bold text-slate-100 mb-2">Horario no disponible</p>
+                        <p class="text-sm text-slate-400 mb-4">Las asignaciones de camas solo están disponibles durante el horario de guardia.</p>
+                        <div class="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
+                            <p class="text-xs text-slate-500 uppercase tracking-wider font-bold mb-2">Horario de guardia</p>
+                            <p class="text-sm text-slate-300">
+                                <span class="text-amber-400 font-bold">Domingo a Jueves:</span> 23:00 - 07:00
+                            </p>
+                            <p class="text-sm text-slate-300 mt-1">
+                                <span class="text-amber-400 font-bold">Viernes y Sábado:</span> 22:00 - 07:00
+                            </p>
+                        </div>
+                    </div>
+                @elseif($bombero)
                     {{-- Ya identificado --}}
                     <div class="text-center mb-6">
                         <div class="inline-flex items-center justify-center w-14 h-14 bg-green-500/10 rounded-full mb-3">

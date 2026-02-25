@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             CleaningTaskSeeder::class,
             GuardiaSeeder::class,
             GuardiaAssignmentsSnapshotSeeder::class,
+            PlanillaListItemSeeder::class,
         ]);
     }
 }
