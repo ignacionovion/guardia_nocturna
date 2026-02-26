@@ -264,9 +264,13 @@ class BedQrController extends Controller
         $scheduleTz = SystemSetting::getValue('guardia_schedule_tz', env('GUARDIA_SCHEDULE_TZ', config('app.timezone')));
         $now = Carbon::now($scheduleTz);
         
-        // Primero buscar guardias que iniciaron hoy
+        // Calcular el rango de tiempo para HOY (00:00 a 23:59 en zona horaria local)
+        $todayStart = Carbon::parse($date, $scheduleTz)->startOfDay()->setTimezone('UTC');
+        $todayEnd = Carbon::parse($date, $scheduleTz)->endOfDay()->setTimezone('UTC');
+        
+        // Buscar guardias que iniciaron hoy (comparando en UTC que es como se guarda en DB)
         $shiftUser = ShiftUser::query()
-            ->whereDate('start_time', $date)
+            ->whereBetween('start_time', [$todayStart, $todayEnd])
             ->whereNotNull('guardia_id')
             ->first();
 
@@ -275,13 +279,14 @@ class BedQrController extends Controller
         }
 
         // Si no hay guardia hoy y estamos antes de las 07:00, buscar la de ayer
-        // (la guardia de ayer podría estar activa hasta las 07:00)
-        $yesterday = Carbon::parse($date)->subDay()->toDateString();
         $currentHour = (int) $now->format('H');
         
         if ($currentHour < 7) {
+            $yesterdayStart = Carbon::parse($date, $scheduleTz)->subDay()->startOfDay()->setTimezone('UTC');
+            $yesterdayEnd = Carbon::parse($date, $scheduleTz)->subDay()->endOfDay()->setTimezone('UTC');
+            
             $shiftUser = ShiftUser::query()
-                ->whereDate('start_time', $yesterday)
+                ->whereBetween('start_time', [$yesterdayStart, $yesterdayEnd])
                 ->whereNotNull('guardia_id')
                 ->first();
 
@@ -302,9 +307,13 @@ class BedQrController extends Controller
         $now = Carbon::now($scheduleTz);
         $currentHour = (int) $now->format('H');
         
+        // Calcular rango para hoy en UTC
+        $todayStart = Carbon::parse($date, $scheduleTz)->startOfDay()->setTimezone('UTC');
+        $todayEnd = Carbon::parse($date, $scheduleTz)->endOfDay()->setTimezone('UTC');
+        
         // Buscar en el día actual
         $existsToday = ShiftUser::query()
-            ->whereDate('start_time', $date)
+            ->whereBetween('start_time', [$todayStart, $todayEnd])
             ->where('guardia_id', $guardiaId)
             ->where(function ($query) use ($bomberoId) {
                 $query->where('firefighter_id', $bomberoId)
@@ -320,9 +329,11 @@ class BedQrController extends Controller
         
         // Si no está hoy y es antes de las 07:00, buscar en la guardia de ayer
         if ($currentHour < 7) {
-            $yesterday = Carbon::parse($date)->subDay()->toDateString();
+            $yesterdayStart = Carbon::parse($date, $scheduleTz)->subDay()->startOfDay()->setTimezone('UTC');
+            $yesterdayEnd = Carbon::parse($date, $scheduleTz)->subDay()->endOfDay()->setTimezone('UTC');
+            
             $existsYesterday = ShiftUser::query()
-                ->whereDate('start_time', $yesterday)
+                ->whereBetween('start_time', [$yesterdayStart, $yesterdayEnd])
                 ->where('guardia_id', $guardiaId)
                 ->where(function ($query) use ($bomberoId) {
                     $query->where('firefighter_id', $bomberoId)
