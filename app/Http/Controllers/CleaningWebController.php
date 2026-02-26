@@ -149,19 +149,27 @@ class CleaningWebController extends Controller
 
         $firefighterIdsForMail = collect($validated['assignments'])->filter()->map(fn ($v) => (int) $v)->unique()->values();
         $fighters = $firefighterIdsForMail->isNotEmpty()
-            ? Bombero::query()->whereIn('id', $firefighterIdsForMail)->get(['id', 'nombres', 'apellido_paterno'])
+            ? Bombero::query()->whereIn('id', $firefighterIdsForMail)->get(['id', 'nombres', 'apellido_paterno', 'rut'])
             : collect();
 
         $lines = [];
-        $lines[] = 'Guardia: ' . (Guardia::find($guardiaId)?->name ?? '—');
-        $lines[] = 'Fecha: ' . $date->toDateString();
-        $lines[] = 'Asignaciones: ' . $fighters->map(fn ($f) => trim((string) $f->nombres . ' ' . (string) $f->apellido_paterno))->implode(', ');
+        $lines[] = 'Fecha de aseo: ' . $date->format('d \d\e F \d\e Y');
+        $lines[] = 'Guardia asignada: ' . (Guardia::find($guardiaId)?->name ?? '—');
+        $lines[] = '';
+        $lines[] = 'Bomberos asignados al aseo (' . $fighters->count() . '):';
+        
+        foreach ($fighters as $fighter) {
+            $lines[] = '• ' . trim((string) $fighter->nombres . ' ' . (string) $fighter->apellido_paterno) . ' (RUT: ' . ($fighter->rut ?? 'N/A') . ')';
+        }
 
         SystemEmailService::send(
             type: 'cleaning',
-            subject: 'Asignación de aseo registrada',
+            subject: '🧹 Asignación de aseo - ' . (Guardia::find($guardiaId)?->name ?? 'Guardia') . ' - ' . $date->format('d/m/Y'),
             lines: $lines,
-            actorEmail: $user->email ?? null
+            actorEmail: $user->email ?? null,
+            senderName: $user->name ?? null,
+            senderRole: $user->role ?? null,
+            sourceLabel: 'Sistema de Gestión de Aseo'
         );
 
         return redirect()->route('guardia.aseo', ['date' => $date->toDateString()])->with('success', 'Asignación de aseo guardada correctamente.');

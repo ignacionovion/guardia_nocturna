@@ -80,12 +80,31 @@ class NovedadController extends Controller
             $lines[] = 'Tipo: ' . (string) ($novelty->type ?? '');
             $lines[] = 'Descripción: ' . (string) ($novelty->description ?? '');
             $lines[] = 'Fecha: ' . optional($novelty->date)->format('Y-m-d H:i');
+            
+            // Determinar origen
+            $authUser = auth()->user();
+            $sourceLabel = 'Sistema';
+            if ($authUser) {
+                $guardiaName = $authUser->guardia?->name ?? null;
+                if ($authUser->role === 'guardia' && $guardiaName) {
+                    $sourceLabel = 'Guardia: ' . $guardiaName;
+                } elseif ($authUser->role === 'super_admin') {
+                    $sourceLabel = 'Administración General';
+                } elseif ($authUser->role === 'capitania') {
+                    $sourceLabel = 'Capitanía' . ($guardiaName ? ' - ' . $guardiaName : '');
+                } elseif (in_array($authUser->role, ['admin', 'user'], true)) {
+                    $sourceLabel = 'Usuario: ' . $authUser->name . ($guardiaName ? ' (' . $guardiaName . ')' : '');
+                }
+            }
 
             SystemEmailService::send(
                 type: $isAcademy ? 'academy' : 'novelty',
-                subject: $isAcademy ? 'Academia registrada' : 'Novedad registrada',
+                subject: $isAcademy ? '🎓 Academia registrada: ' . ($novelty->title ?? '') : '🚨 NOVEDAD: ' . ($novelty->title ?? ''),
                 lines: $lines,
-                actorEmail: auth()->user()?->email
+                actorEmail: auth()->user()?->email,
+                senderName: auth()->user()?->name,
+                senderRole: auth()->user()?->role,
+                sourceLabel: $sourceLabel
             );
 
             return back()->with('success', $isAcademy ? 'Academia registrada correctamente.' : 'Novedad registrada correctamente.');

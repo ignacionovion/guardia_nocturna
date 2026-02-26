@@ -65,7 +65,15 @@ class SystemEmailService
         ];
     }
 
-    public static function send(string $type, string $subject, array $lines, ?string $actorEmail = null): void
+    public static function send(
+        string $type, 
+        string $subject, 
+        array $lines, 
+        ?string $actorEmail = null,
+        ?string $senderName = null,
+        ?string $senderRole = null,
+        ?string $sourceLabel = null
+    ): void
     {
         if (!static::shouldSend($type, $actorEmail)) {
             Log::info('System email skipped (disabled or unauthorized)', [
@@ -98,7 +106,12 @@ class SystemEmailService
                 fromAddress: (string) ($from['address'] ?? ''),
                 fromName: (string) ($from['name'] ?? ''),
                 mailSubject: $subject,
-                lines: $lines
+                lines: $lines,
+                notificationType: $type,
+                sourceLabel: $sourceLabel,
+                senderName: $senderName ?? (auth()->user()?->name ?? 'Sistema'),
+                senderEmail: $actorEmail ?? auth()->user()?->email,
+                senderRole: $senderRole ?? auth()->user()?->role,
             ));
         } catch (\Throwable $e) {
             Log::error('System email send failed', [

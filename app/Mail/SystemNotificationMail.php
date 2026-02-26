@@ -15,6 +15,11 @@ class SystemNotificationMail extends Mailable
         public string $fromName,
         public string $mailSubject,
         public array $lines,
+        public ?string $notificationType = null,
+        public ?string $sourceLabel = null,
+        public ?string $senderName = null,
+        public ?string $senderEmail = null,
+        public ?string $senderRole = null,
     ) {}
 
     public function build(): self

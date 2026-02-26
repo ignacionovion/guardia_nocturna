@@ -99,17 +99,29 @@ class AsignacionCamaController extends Controller
             DB::afterCommit(function () use ($assignment) {
                 try {
                     $bed = $assignment->bed;
+                    $firefighter = $assignment->firefighter;
+                    $user = auth()->user();
 
                     $lines = [];
-                    $lines[] = 'Cama: #' . (string) ($bed->number ?? $bed->id);
-                    $lines[] = 'Voluntario: ' . trim((string) ($assignment->firefighter?->nombres ?? '') . ' ' . (string) ($assignment->firefighter?->apellido_paterno ?? ''));
-                    $lines[] = 'Notas: ' . (string) ($assignment->notes ?? '');
+                    $lines[] = 'Número de cama: #' . (string) ($bed->number ?? $bed->id);
+                    $lines[] = 'Ubicación: ' . (string) ($bed->location ?? 'No especificada');
+                    $lines[] = 'Estado: Asignada';
+                    $lines[] = '';
+                    $lines[] = 'Bombero asignado: ' . trim((string) ($firefighter?->nombres ?? '') . ' ' . (string) ($firefighter?->apellido_paterno ?? ''));
+                    $lines[] = 'RUT: ' . (string) ($firefighter?->rut ?? 'No disponible');
+                    $lines[] = 'Grado: ' . (string) ($firefighter?->grado ?? 'No especificado');
+                    if ($assignment->notes) {
+                        $lines[] = 'Notas: ' . (string) $assignment->notes;
+                    }
 
                     SystemEmailService::send(
                         type: 'beds',
-                        subject: 'Cama asignada',
+                        subject: '🛏️ Cama #' . ($bed->number ?? $bed->id) . ' asignada a ' . trim((string) ($firefighter?->nombres ?? '') . ' ' . (string) ($firefighter?->apellido_paterno ?? '')),
                         lines: $lines,
-                        actorEmail: auth()->user()?->email
+                        actorEmail: $user?->email,
+                        senderName: $user?->name,
+                        senderRole: $user?->role,
+                        sourceLabel: 'Sistema de Asignación de Camas'
                     );
                 } catch (\Throwable $e) {
                     // No fallar la asignación por un problema de correo
@@ -157,15 +169,23 @@ class AsignacionCamaController extends Controller
              $assignment->load(['bed', 'firefighter']);
              $assignment->bed->update(['status' => 'available']);
 
+             $user = auth()->user();
              $lines = [];
-             $lines[] = 'Cama: #' . (string) ($assignment->bed?->number ?? $assignment->bed_id);
-             $lines[] = 'Voluntario: ' . trim((string) ($assignment->firefighter?->nombres ?? '') . ' ' . (string) ($assignment->firefighter?->apellido_paterno ?? ''));
+             $lines[] = 'Número de cama: #' . (string) ($assignment->bed?->number ?? $assignment->bed_id);
+             $lines[] = 'Ubicación: ' . (string) ($assignment->bed?->location ?? 'No especificada');
+             $lines[] = 'Estado: Liberada / Disponible';
+             $lines[] = '';
+             $lines[] = 'Bombero que ocupaba: ' . trim((string) ($assignment->firefighter?->nombres ?? '') . ' ' . (string) ($assignment->firefighter?->apellido_paterno ?? ''));
+             $lines[] = 'RUT: ' . (string) ($assignment->firefighter?->rut ?? 'No disponible');
 
              SystemEmailService::send(
                  type: 'beds',
-                 subject: 'Cama liberada',
+                 subject: '🛏️ Cama #' . ($assignment->bed?->number ?? $assignment->bed_id) . ' liberada',
                  lines: $lines,
-                 actorEmail: auth()->user()?->email
+                 actorEmail: $user?->email,
+                 senderName: $user?->name,
+                 senderRole: $user?->role,
+                 sourceLabel: 'Sistema de Asignación de Camas'
              );
              
              return redirect()->route('camas')->with('success', 'Cama liberada correctamente.');
