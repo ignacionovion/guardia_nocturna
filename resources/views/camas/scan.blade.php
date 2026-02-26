@@ -69,6 +69,12 @@
                                 <span class="text-amber-400 font-bold">Viernes y Sábado:</span> 22:00 - 07:00
                             </p>
                         </div>
+                        
+                        @if($bombero)
+                        <a href="{{ route('camas.scan.form', ['bedId' => $bed->id, 'reset' => 1]) }}" class="block mt-6 text-sm text-slate-500 hover:text-slate-300 transition-colors">
+                            <i class="fas fa-rotate-left mr-1"></i> Cambiar bombero
+                        </a>
+                        @endif
                     </div>
                 @elseif($bombero)
                     {{-- Ya identificado --}}
@@ -130,14 +136,6 @@
                         </button>
                     </form>
                 @endif
-            </div>
-
-            {{-- Footer --}}
-            <div class="bg-slate-800/30 px-6 py-4 border-t border-slate-800">
-                <a href="{{ route('camas') }}" class="flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-slate-300 transition-colors">
-                    <i class="fas fa-arrow-left"></i>
-                    Volver al Dashboard de Camas
-                </a>
             </div>
         </div>
 

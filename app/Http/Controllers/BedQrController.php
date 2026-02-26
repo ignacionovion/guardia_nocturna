@@ -21,6 +21,11 @@ class BedQrController extends Controller
     {
         $bed = Bed::query()->findOrFail($bedId);
 
+        // Si viene el parámetro reset, limpiar la sesión del bombero
+        if ($request->has('reset')) {
+            $request->session()->forget('bed_qr_bombero_id');
+        }
+
         // Verificar si estamos dentro del horario de guardia
         $withinHours = $this->isWithinGuardiaHours();
 
@@ -75,13 +80,16 @@ class BedQrController extends Controller
         $activeGuardia = $this->getActiveGuardiaForToday($today);
 
         if (!$activeGuardia) {
+            $request->session()->forget('bed_qr_bombero_id');
             return back()->with('warning', 'No hay guardia activa en este momento.');
         }
 
         // Verificar si el bombero está en la guardia activa
         $isInActiveGuardia = $this->isBomberoInGuardia($bombero->id, $activeGuardia->id, $today);
 
+        // Si no está en la guardia activa, limpiar sesión y redirigir
         if (!$isInActiveGuardia) {
+            $request->session()->forget('bed_qr_bombero_id');
             return redirect()->route('camas.scan.not_in_guardia', ['bedId' => $bedId])
                 ->with('info', 'No estás registrado en la guardia de hoy.');
         }
@@ -201,6 +209,9 @@ class BedQrController extends Controller
             'assigned_ip' => (string) ($request->ip() ?? ''),
             'assigned_user_agent' => (string) $request->userAgent(),
         ]);
+
+        // Limpiar sesión del bombero después de asignar
+        $request->session()->forget('bed_qr_bombero_id');
 
         return redirect()->route('camas.scan.success', ['bedId' => $bedId])
             ->with('success', '¡Cama asignada correctamente!');
