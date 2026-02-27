@@ -131,97 +131,114 @@
             </div>
             
             @if($items->count() > 0)
+                @if($isStatic)
+                    <div class="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                        <div class="flex items-center gap-2 text-amber-800 text-sm font-semibold">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Esta sección tiene una estructura fija definida en el formulario. Los ítems no pueden modificarse individualmente.</span>
+                        </div>
+                    </div>
+                @endif
+                
                 <div id="sortable-list" class="grid grid-cols-1 gap-3">
                     @foreach($items as $item)
-                        <div class="sortable-item {{ $item->is_active ? '' : 'opacity-50' }}" data-id="{{ $item->id }}">
+                        <div class="sortable-item {{ $item['is_active'] ? '' : 'opacity-50' }}" data-id="{{ $item['id'] }}">
                             <div class="grid grid-cols-12 gap-2 items-center rounded-xl border border-slate-200 bg-white px-3 py-2 hover:border-teal-400 transition-colors group">
                                 {{-- Handle para arrastrar --}}
-                                <div class="col-span-12 md:col-span-5 flex items-center gap-2">
-                                    <div class="drag-handle cursor-move p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 shrink-0" title="Arrastrar para reordenar">
-                                        <i class="fas fa-grip-vertical"></i>
-                                    </div>
+                                <div class="col-span-12 {{ $isStatic ? 'md:col-span-9' : 'md:col-span-5' }} flex items-center gap-2">
+                                    @if(!$isStatic)
+                                        <div class="drag-handle cursor-move p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 shrink-0" title="Arrastrar para reordenar">
+                                            <i class="fas fa-grip-vertical"></i>
+                                        </div>
+                                    @endif
                                     <div class="order-badge shrink-0 w-6 h-6 rounded bg-slate-800 text-white flex items-center justify-center text-xs font-black">
                                         {{ $loop->iteration }}
                                     </div>
-                                    <div class="flex-1 rounded-lg {{ $item->is_active ? 'bg-yellow-50' : 'bg-slate-100' }} px-3 py-2 border {{ $item->is_active ? 'border-yellow-100' : 'border-slate-200' }}">
-                                        <div class="text-sm font-extrabold {{ $item->is_active ? 'text-slate-900' : 'text-slate-500' }}">{{ $item->label }}</div>
-                                        @if(!$item->is_active)
+                                    <div class="flex-1 rounded-lg {{ $item['is_active'] ? 'bg-yellow-50' : 'bg-slate-100' }} px-3 py-2 border {{ $item['is_active'] ? 'border-yellow-100' : 'border-slate-200' }}">
+                                        <div class="text-sm font-extrabold {{ $item['is_active'] ? 'text-slate-900' : 'text-slate-500' }}">{{ $item['label'] }}</div>
+                                        @if(!$item['is_active'])
                                             <div class="text-[9px] font-bold text-red-500 uppercase tracking-tight">Inactivo</div>
                                         @endif
                                     </div>
                                 </div>
                                 
                                 {{-- Campos del formulario (solo visual, no funcionan en edición) --}}
-                                <div class="col-span-6 md:col-span-2">
-                                    <select disabled class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 text-slate-400 font-semibold text-sm cursor-not-allowed">
-                                        <option>¿Funciona?</option>
-                                        <option>Sí</option>
-                                        <option>No</option>
-                                    </select>
-                                </div>
-                                <div class="col-span-6 md:col-span-2">
-                                    <input type="text" disabled placeholder="Cant." class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 text-slate-400 font-semibold text-sm cursor-not-allowed">
-                                </div>
-                                <div class="col-span-12 md:col-span-3 flex items-center gap-2">
-                                    <input type="text" disabled placeholder="Novedades" class="flex-1 px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 text-slate-400 font-semibold text-sm cursor-not-allowed">
-                                    
-                                    {{-- Acciones --}}
-                                    <div class="flex items-center gap-1">
-                                        {{-- Toggle activo --}}
-                                        <form method="POST" action="{{ route('admin.planillas.listados.update', $item) }}" class="inline">
-                                            @csrf
-                                            @method('PUT')
-                                            <input type="hidden" name="label" value="{{ $item->label }}">
-                                            <input type="hidden" name="is_active" value="0">
-                                            <button type="submit" name="is_active" value="1" class="p-1.5 rounded {{ $item->is_active ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400' }} hover:bg-emerald-200" title="{{ $item->is_active ? 'Activo' : 'Inactivo' }}">
-                                                <i class="fas {{ $item->is_active ? 'fa-eye' : 'fa-eye-slash' }} text-xs"></i>
-                                            </button>
-                                        </form>
-                                        
-                                        {{-- Editar --}}
-                                        <button type="button" onclick="toggleEditItem({{ $item->id }})" class="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100" title="Editar">
-                                            <i class="fas fa-edit text-xs"></i>
-                                        </button>
-                                        
-                                        {{-- Eliminar --}}
-                                        <form method="POST" action="{{ route('admin.planillas.listados.destroy', $item) }}" class="inline" onsubmit="return confirm('¿Eliminar este ítem?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="p-1.5 rounded bg-rose-50 text-rose-600 hover:bg-rose-100" title="Eliminar">
-                                                <i class="fas fa-trash text-xs"></i>
-                                            </button>
-                                        </form>
+                                @if($isStatic)
+                                    <div class="col-span-12 md:col-span-3 flex justify-end items-center gap-2">
+                                        <span class="text-xs text-slate-500 font-semibold px-2 py-1 bg-teal-100 rounded">Item fijo</span>
                                     </div>
-                                </div>
-                            </div>
-                            
-                            {{-- Formulario de edición inline --}}
-                            <div id="edit-form-{{ $item->id }}" class="hidden mt-2 p-3 bg-slate-50 rounded-xl border border-slate-200">
-                                <form method="POST" action="{{ route('admin.planillas.listados.update', $item) }}" class="grid grid-cols-12 gap-3 items-end">
-                                    @csrf
-                                    @method('PUT')
-                                    <div class="col-span-12 md:col-span-4">
-                                        <label class="text-xs font-black uppercase tracking-widest text-slate-500 mb-1 block">Nombre</label>
-                                        <input name="label" value="{{ $item->label }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white text-slate-800 font-semibold text-sm">
-                                    </div>
-                                    <div class="col-span-6 md:col-span-3">
-                                        <label class="text-xs font-black uppercase tracking-widest text-slate-500 mb-1 block">Key</label>
-                                        <input name="item_key" value="{{ $item->item_key }}" disabled class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-100 text-slate-500 font-mono text-sm cursor-not-allowed">
+                                @else
+                                    <div class="col-span-6 md:col-span-2">
+                                        <select disabled class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 text-slate-400 font-semibold text-sm cursor-not-allowed">
+                                            <option>¿Funciona?</option>
+                                            <option>Sí</option>
+                                            <option>No</option>
+                                        </select>
                                     </div>
                                     <div class="col-span-6 md:col-span-2">
-                                        <label class="text-xs font-black uppercase tracking-widest text-slate-500 mb-1 block">Orden</label>
-                                        <input type="number" name="sort_order" value="{{ $item->sort_order }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white text-slate-800 font-semibold text-sm">
+                                        <input type="text" disabled placeholder="Cant." class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 text-slate-400 font-semibold text-sm cursor-not-allowed">
                                     </div>
-                                    <div class="col-span-12 md:col-span-3 flex gap-2">
-                                        <input type="hidden" name="is_active" value="{{ $item->is_active ? '1' : '0' }}">
-                                        <button type="submit" class="flex-1 px-4 py-2 rounded-lg bg-slate-900 text-white font-bold text-xs">
-                                            <i class="fas fa-save mr-1"></i> Guardar
-                                        </button>
-                                        <button type="button" onclick="toggleEditItem({{ $item->id }})" class="px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 font-bold text-xs">
-                                            Cancelar
-                                        </button>
+                                    <div class="col-span-12 md:col-span-3 flex items-center gap-2">
+                                        <input type="text" disabled placeholder="Novedades" class="flex-1 px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 text-slate-400 font-semibold text-sm cursor-not-allowed">
+                                        
+                                        {{-- Acciones --}}
+                                        <div class="flex items-center gap-1">
+                                            {{-- Toggle activo --}}
+                                            <form method="POST" action="{{ route('admin.planillas.listados.update', $item['id']) }}" class="inline">
+                                                @csrf
+                                                @method('PUT')
+                                                <input type="hidden" name="label" value="{{ $item['label'] }}">
+                                                <input type="hidden" name="is_active" value="0">
+                                                <button type="submit" name="is_active" value="1" class="p-1.5 rounded {{ $item['is_active'] ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400' }} hover:bg-emerald-200" title="{{ $item['is_active'] ? 'Activo' : 'Inactivo' }}">
+                                                    <i class="fas {{ $item['is_active'] ? 'fa-eye' : 'fa-eye-slash' }} text-xs"></i>
+                                                </button>
+                                            </form>
+                                            
+                                            {{-- Editar --}}
+                                            <button type="button" onclick="toggleEditItem({{ $item['id'] }})" class="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100" title="Editar">
+                                                <i class="fas fa-edit text-xs"></i>
+                                            </button>
+                                            
+                                            {{-- Eliminar --}}
+                                            <form method="POST" action="{{ route('admin.planillas.listados.destroy', $item['id']) }}" class="inline" onsubmit="return confirm('¿Eliminar este ítem?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="p-1.5 rounded bg-rose-50 text-rose-600 hover:bg-rose-100" title="Eliminar">
+                                                    <i class="fas fa-trash text-xs"></i>
+                                                </button>
+                                            </form>
+                                        </div>
                                     </div>
-                                </form>
+                                    
+                                    {{-- Formulario de edición inline --}}
+                                    <div id="edit-form-{{ $item['id'] }}" class="hidden mt-2 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                                        <form method="POST" action="{{ route('admin.planillas.listados.update', $item['id']) }}" class="grid grid-cols-12 gap-3 items-end">
+                                            @csrf
+                                            @method('PUT')
+                                            <div class="col-span-12 md:col-span-4">
+                                                <label class="text-xs font-black uppercase tracking-widest text-slate-500 mb-1 block">Nombre</label>
+                                                <input name="label" value="{{ $item['label'] }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white text-slate-800 font-semibold text-sm">
+                                            </div>
+                                            <div class="col-span-6 md:col-span-3">
+                                                <label class="text-xs font-black uppercase tracking-widest text-slate-500 mb-1 block">Key</label>
+                                                <input name="item_key" value="{{ $item['item_key'] }}" disabled class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-100 text-slate-500 font-mono text-sm cursor-not-allowed">
+                                            </div>
+                                            <div class="col-span-6 md:col-span-2">
+                                                <label class="text-xs font-black uppercase tracking-widest text-slate-500 mb-1 block">Orden</label>
+                                                <input type="number" name="sort_order" value="{{ $item['sort_order'] }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white text-slate-800 font-semibold text-sm">
+                                            </div>
+                                            <div class="col-span-12 md:col-span-3 flex gap-2">
+                                                <input type="hidden" name="is_active" value="{{ $item['is_active'] ? '1' : '0' }}">
+                                                <button type="submit" class="flex-1 px-4 py-2 rounded-lg bg-slate-900 text-white font-bold text-xs">
+                                                    <i class="fas fa-save mr-1"></i> Guardar
+                                                </button>
+                                                <button type="button" onclick="toggleEditItem({{ $item['id'] }})" class="px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 font-bold text-xs">
+                                                    Cancelar
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     @endforeach

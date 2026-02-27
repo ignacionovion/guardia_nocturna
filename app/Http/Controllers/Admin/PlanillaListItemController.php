@@ -30,15 +30,19 @@ class PlanillaListItemController extends Controller
             $section = array_key_first(self::SECTIONS);
         }
 
-        $itemsQuery = PlanillaListItem::query()
-            ->when($unidad, fn ($q) => $q->where('unidad', $unidad))
-            ->when($section, fn ($q) => $q->where('section', $section))
-            ->orderBy('unidad')
-            ->orderBy('section')
-            ->orderBy('sort_order')
-            ->orderBy('label');
-
-        $items = $itemsQuery->get();
+        // For BR-3, B-3, RX-3: use static items from form definitions instead of DB
+        if (in_array($unidad, ['BR-3', 'B-3', 'RX-3'], true)) {
+            $items = $this->getStaticItems($unidad, $section);
+        } else {
+            $itemsQuery = PlanillaListItem::query()
+                ->when($unidad, fn ($q) => $q->where('unidad', $unidad))
+                ->when($section, fn ($q) => $q->where('section', $section))
+                ->orderBy('unidad')
+                ->orderBy('section')
+                ->orderBy('sort_order')
+                ->orderBy('label');
+            $items = $itemsQuery->get();
+        }
 
         return view('admin.planillas.listados.index', [
             'items' => $items,
@@ -46,7 +50,107 @@ class PlanillaListItemController extends Controller
             'sections' => self::SECTIONS,
             'unidadSeleccionada' => $unidad,
             'sectionSeleccionada' => $section,
+            'isStatic' => in_array($unidad, ['BR-3', 'B-3', 'RX-3'], true),
         ]);
+    }
+
+    /**
+     * Get static items from form definitions for BR-3, B-3, RX-3
+     */
+    private function getStaticItems(string $unidad, string $section): array
+    {
+        $staticItems = [
+            // BR-3 - Cabina
+            'BR-3_cabina' => [
+                ['id' => 'static_1', 'label' => 'Linterna NIGHTSTICK', 'item_key' => 'linterna_nightstick', 'sort_order' => 0, 'is_active' => true, 'section' => 'cabina', 'unidad' => 'BR-3'],
+                ['id' => 'static_2', 'label' => 'ERA SCOTT 4.5', 'item_key' => 'era_scott_4_5', 'sort_order' => 1, 'is_active' => true, 'section' => 'cabina', 'unidad' => 'BR-3'],
+                ['id' => 'static_3', 'label' => 'Chaquetillas STEX', 'item_key' => 'chaquetillas_stex', 'sort_order' => 2, 'is_active' => true, 'section' => 'cabina', 'unidad' => 'BR-3'],
+                ['id' => 'static_4', 'label' => 'Tablet unidad BR-3 y Cargador', 'item_key' => 'tablet_br3', 'sort_order' => 3, 'is_active' => true, 'section' => 'cabina', 'unidad' => 'BR-3'],
+            ],
+            'BR-3_trauma' => [
+                ['id' => 'static_1', 'label' => 'Collares cervicales', 'item_key' => 'collares_cervicales', 'sort_order' => 0, 'is_active' => true, 'section' => 'trauma', 'unidad' => 'BR-3'],
+                ['id' => 'static_2', 'label' => 'DEA', 'item_key' => 'dea', 'sort_order' => 1, 'is_active' => true, 'section' => 'trauma', 'unidad' => 'BR-3'],
+                ['id' => 'static_3', 'label' => 'Bolso Oxigenoterapia', 'item_key' => 'bolso_oxigenoterapia', 'sort_order' => 2, 'is_active' => true, 'section' => 'trauma', 'unidad' => 'BR-3'],
+                ['id' => 'static_4', 'label' => 'Chalecos de extricación', 'item_key' => 'chalecos_extricacion', 'sort_order' => 3, 'is_active' => true, 'section' => 'trauma', 'unidad' => 'BR-3'],
+                ['id' => 'static_5', 'label' => 'Tablas Largas', 'item_key' => 'tablas_largas', 'sort_order' => 4, 'is_active' => true, 'section' => 'trauma', 'unidad' => 'BR-3'],
+                ['id' => 'static_6', 'label' => 'Tabla pediátrica', 'item_key' => 'tabla_pediatrica', 'sort_order' => 5, 'is_active' => true, 'section' => 'trauma', 'unidad' => 'BR-3'],
+                ['id' => 'static_7', 'label' => 'Mochila Trauma', 'item_key' => 'mochila_trauma', 'sort_order' => 6, 'is_active' => true, 'section' => 'trauma', 'unidad' => 'BR-3'],
+                ['id' => 'static_8', 'label' => 'Cajas de guantes', 'item_key' => 'cajas_guantes', 'sort_order' => 7, 'is_active' => true, 'section' => 'trauma', 'unidad' => 'BR-3'],
+                ['id' => 'static_9', 'label' => 'Férulas', 'item_key' => 'ferulas', 'sort_order' => 8, 'is_active' => true, 'section' => 'trauma', 'unidad' => 'BR-3'],
+                ['id' => 'static_10', 'label' => 'Tabla Scoop', 'item_key' => 'tabla_scoop', 'sort_order' => 9, 'is_active' => true, 'section' => 'trauma', 'unidad' => 'BR-3'],
+                ['id' => 'static_11', 'label' => 'Laterales', 'item_key' => 'laterales', 'sort_order' => 10, 'is_active' => true, 'section' => 'trauma', 'unidad' => 'BR-3'],
+                ['id' => 'static_12', 'label' => 'Pulpos', 'item_key' => 'pulpos', 'sort_order' => 11, 'is_active' => true, 'section' => 'trauma', 'unidad' => 'BR-3'],
+                ['id' => 'static_13', 'label' => 'Bolso TRIAGE', 'item_key' => 'bolso_triage', 'sort_order' => 12, 'is_active' => true, 'section' => 'trauma', 'unidad' => 'BR-3'],
+            ],
+            'BR-3_cantidades' => [
+                ['id' => 'static_1', 'label' => 'MANGUERAS (38mm, 52mm, 75mm, LDH, Armada Base)', 'item_key' => 'mangueras', 'sort_order' => 0, 'is_active' => true, 'section' => 'cantidades', 'unidad' => 'BR-3'],
+                ['id' => 'static_2', 'label' => 'HERRADURAS', 'item_key' => 'herraduras', 'sort_order' => 1, 'is_active' => true, 'section' => 'cantidades', 'unidad' => 'BR-3'],
+                ['id' => 'static_3', 'label' => 'ATAQUES (52mm, 75mm, Manguera LDH)', 'item_key' => 'ataques', 'sort_order' => 2, 'is_active' => true, 'section' => 'cantidades', 'unidad' => 'BR-3'],
+                ['id' => 'static_4', 'label' => 'TRASPASOS', 'item_key' => 'traspasos', 'sort_order' => 3, 'is_active' => true, 'section' => 'cantidades', 'unidad' => 'BR-3'],
+                ['id' => 'static_5', 'label' => 'Protecciones duras para paciente / Cojines VETTER / Eslings', 'item_key' => 'protecciones', 'sort_order' => 4, 'is_active' => true, 'section' => 'cantidades', 'unidad' => 'BR-3'],
+                ['id' => 'static_6', 'label' => 'CUÑAS (Biseladas, Bloques, Escalonadas, Planas, Combos 2l)', 'item_key' => 'cunas', 'sort_order' => 5, 'is_active' => true, 'section' => 'cantidades', 'unidad' => 'BR-3'],
+                ['id' => 'static_7', 'label' => 'CAJONERAS LATERALES (Barretilla, Napoleón, Stab Fast XL, Jack)', 'item_key' => 'cajoneras', 'sort_order' => 6, 'is_active' => true, 'section' => 'cantidades', 'unidad' => 'BR-3'],
+                ['id' => 'static_8', 'label' => 'ESCALAS (2c 12m, 2c 8m, Plegable)', 'item_key' => 'escalas', 'sort_order' => 7, 'is_active' => true, 'section' => 'cantidades', 'unidad' => 'BR-3'],
+                ['id' => 'static_9', 'label' => 'Material del Techo (4 palas, 2 pasatiras, 2 McLeod, 3 rastrillos, 2 Chorizos, 1 Filtro)', 'item_key' => 'material_techo', 'sort_order' => 8, 'is_active' => true, 'section' => 'cantidades', 'unidad' => 'BR-3'],
+            ],
+            // B-3 - Cabina
+            'B-3_cabina' => [
+                ['id' => 'static_1', 'label' => 'ERA MSA G 1 (7 unidades + OBAC + Radios)', 'item_key' => 'era_msa_g1', 'sort_order' => 0, 'is_active' => true, 'section' => 'cabina', 'unidad' => 'B-3'],
+                ['id' => 'static_2', 'label' => 'Linterna NIGHTSTICK XPR-5568', 'item_key' => 'linterna_nightstick', 'sort_order' => 1, 'is_active' => true, 'section' => 'cabina', 'unidad' => 'B-3'],
+                ['id' => 'static_3', 'label' => 'Tablet unidad B-3 y Cargador', 'item_key' => 'tablet_b3', 'sort_order' => 2, 'is_active' => true, 'section' => 'cabina', 'unidad' => 'B-3'],
+                ['id' => 'static_4', 'label' => 'Maleta SCI', 'item_key' => 'maleta_sci', 'sort_order' => 3, 'is_active' => true, 'section' => 'cabina', 'unidad' => 'B-3'],
+            ],
+            'B-3_cantidades' => [
+                ['id' => 'static_1', 'label' => 'Mochila de Trauma y Cilindro O2', 'item_key' => 'mochila_trauma', 'sort_order' => 0, 'is_active' => true, 'section' => 'cantidades', 'unidad' => 'B-3'],
+                ['id' => 'static_2', 'label' => 'MANGUERAS (52, 75, LDH, Armada Base)', 'item_key' => 'mangueras', 'sort_order' => 1, 'is_active' => true, 'section' => 'cantidades', 'unidad' => 'B-3'],
+                ['id' => 'static_3', 'label' => 'Paquete Circular / Herraduras / Carretes', 'item_key' => 'paquete_circular', 'sort_order' => 2, 'is_active' => true, 'section' => 'cantidades', 'unidad' => 'B-3'],
+                ['id' => 'static_4', 'label' => 'ATAQUES (52, 75, Cilindros MSA)', 'item_key' => 'ataques', 'sort_order' => 3, 'is_active' => true, 'section' => 'cantidades', 'unidad' => 'B-3'],
+                ['id' => 'static_5', 'label' => 'TRASPASOS / Llaves de grifo', 'item_key' => 'traspasos', 'sort_order' => 4, 'is_active' => true, 'section' => 'cantidades', 'unidad' => 'B-3'],
+                ['id' => 'static_6', 'label' => 'Escalas de Techo / Puntas Taladro / Napoleón 30"', 'item_key' => 'escalas_techo', 'sort_order' => 5, 'is_active' => true, 'section' => 'cantidades', 'unidad' => 'B-3'],
+                ['id' => 'static_7', 'label' => 'Combo de 8 libras / Bidón Motosierra / Hacha bombero', 'item_key' => 'combo_8l', 'sort_order' => 6, 'is_active' => true, 'section' => 'cantidades', 'unidad' => 'B-3'],
+                ['id' => 'static_8', 'label' => 'Bicheros / Barretilla / Halligan', 'item_key' => 'bicheros', 'sort_order' => 7, 'is_active' => true, 'section' => 'cantidades', 'unidad' => 'B-3'],
+                ['id' => 'static_9', 'label' => 'Material Forestal (1 pala, 1 rozón, 2 rastrillos, 1 McLeod, 2 bombas)', 'item_key' => 'material_forestal', 'sort_order' => 8, 'is_active' => true, 'section' => 'cantidades', 'unidad' => 'B-3'],
+                ['id' => 'static_10', 'label' => 'Bolso de altura (Tira 38mm 3m, Pitón POK, gemelo, reducción, cuerda)', 'item_key' => 'bolso_altura', 'sort_order' => 9, 'is_active' => true, 'section' => 'cantidades', 'unidad' => 'B-3'],
+            ],
+            // RX-3 - Cabina
+            'RX-3_cabina' => [
+                ['id' => 'static_1', 'label' => 'Bastón Tastik', 'item_key' => 'baston_tastik', 'sort_order' => 0, 'is_active' => true, 'section' => 'cabina', 'unidad' => 'RX-3'],
+                ['id' => 'static_2', 'label' => 'ERA MSA G1', 'item_key' => 'era_msa_g1', 'sort_order' => 1, 'is_active' => true, 'section' => 'cabina', 'unidad' => 'RX-3'],
+                ['id' => 'static_3', 'label' => 'Chaquetillas STEX', 'item_key' => 'chaquetillas_stex', 'sort_order' => 2, 'is_active' => true, 'section' => 'cabina', 'unidad' => 'RX-3'],
+                ['id' => 'static_4', 'label' => 'Tablet unidad RX-3 y Cargador', 'item_key' => 'tablet_rx3', 'sort_order' => 3, 'is_active' => true, 'section' => 'cabina', 'unidad' => 'RX-3'],
+                ['id' => 'static_5', 'label' => 'Linternas APASO L3000', 'item_key' => 'linternas_apaso', 'sort_order' => 4, 'is_active' => true, 'section' => 'cabina', 'unidad' => 'RX-3'],
+            ],
+            'RX-3_trauma' => [
+                ['id' => 'static_1', 'label' => 'Collares cervicales', 'item_key' => 'collares_cervicales', 'sort_order' => 0, 'is_active' => true, 'section' => 'trauma', 'unidad' => 'RX-3'],
+                ['id' => 'static_2', 'label' => 'DEA', 'item_key' => 'dea', 'sort_order' => 1, 'is_active' => true, 'section' => 'trauma', 'unidad' => 'RX-3'],
+                ['id' => 'static_3', 'label' => '2 Bolsos Oxigenoterapia', 'item_key' => 'bolsos_oxigenoterapia', 'sort_order' => 2, 'is_active' => true, 'section' => 'trauma', 'unidad' => 'RX-3'],
+                ['id' => 'static_4', 'label' => 'Chalecos de extricación / Bolso TRIAGE / Tabla corta', 'item_key' => 'chalecos_extricacion', 'sort_order' => 3, 'is_active' => true, 'section' => 'trauma', 'unidad' => 'RX-3'],
+                ['id' => 'static_5', 'label' => 'Maleta Primeros Auxilios Quemados', 'item_key' => 'maleta_quemados', 'sort_order' => 4, 'is_active' => true, 'section' => 'trauma', 'unidad' => 'RX-3'],
+                ['id' => 'static_6', 'label' => 'Mochila Trauma', 'item_key' => 'mochila_trauma', 'sort_order' => 5, 'is_active' => true, 'section' => 'trauma', 'unidad' => 'RX-3'],
+                ['id' => 'static_7', 'label' => 'Cajas de guantes', 'item_key' => 'cajas_guantes', 'sort_order' => 6, 'is_active' => true, 'section' => 'trauma', 'unidad' => 'RX-3'],
+                ['id' => 'static_8', 'label' => 'Férulas', 'item_key' => 'ferulas', 'sort_order' => 7, 'is_active' => true, 'section' => 'trauma', 'unidad' => 'RX-3'],
+                ['id' => 'static_9', 'label' => 'Tablas Largas', 'item_key' => 'tablas_largas', 'sort_order' => 8, 'is_active' => true, 'section' => 'trauma', 'unidad' => 'RX-3'],
+                ['id' => 'static_10', 'label' => 'Laterales', 'item_key' => 'laterales', 'sort_order' => 9, 'is_active' => true, 'section' => 'trauma', 'unidad' => 'RX-3'],
+                ['id' => 'static_11', 'label' => 'Pulpos', 'item_key' => 'pulpos', 'sort_order' => 10, 'is_active' => true, 'section' => 'trauma', 'unidad' => 'RX-3'],
+            ],
+            'RX-3_cantidades' => [
+                ['id' => 'static_1', 'label' => 'Cilindros para cojines de levante / Cojines Paratech / Tirfor', 'item_key' => 'cilindros_cojines', 'sort_order' => 0, 'is_active' => true, 'section' => 'cantidades', 'unidad' => 'RX-3'],
+                ['id' => 'static_2', 'label' => 'Focos de 1000W y trípode / Caja Herramientas / Cubre Airbag', 'item_key' => 'focos_1000w', 'sort_order' => 1, 'is_active' => true, 'section' => 'cantidades', 'unidad' => 'RX-3'],
+                ['id' => 'static_3', 'label' => 'CUÑAS (Biseladas, Bloques, Escalonadas, Planas, Combos 2l)', 'item_key' => 'cunas', 'sort_order' => 2, 'is_active' => true, 'section' => 'cantidades', 'unidad' => 'RX-3'],
+                ['id' => 'static_4', 'label' => 'Set lona cubre pilares / Force / Combo 8l', 'item_key' => 'lona_pilares', 'sort_order' => 3, 'is_active' => true, 'section' => 'cantidades', 'unidad' => 'RX-3'],
+                ['id' => 'static_5', 'label' => 'Eslings Naranjas / Barretilla / Halligan', 'item_key' => 'eslings_naranjas', 'sort_order' => 4, 'is_active' => true, 'section' => 'cantidades', 'unidad' => 'RX-3'],
+                ['id' => 'static_6', 'label' => 'Eslings Azules / Napoleón 24" / TNT', 'item_key' => 'eslings_azules', 'sort_order' => 5, 'is_active' => true, 'section' => 'cantidades', 'unidad' => 'RX-3'],
+                ['id' => 'static_7', 'label' => 'Eslings Ojo a ojo / Hacha bombero / Estacas fierro', 'item_key' => 'eslings_ojo', 'sort_order' => 6, 'is_active' => true, 'section' => 'cantidades', 'unidad' => 'RX-3'],
+                ['id' => 'static_8', 'label' => 'Cadenas WEBER / Soporte RAM / Muela RAM Lukas', 'item_key' => 'cadenas_weber', 'sort_order' => 7, 'is_active' => true, 'section' => 'cantidades', 'unidad' => 'RX-3'],
+                ['id' => 'static_9', 'label' => 'Estabilizadores PARATECH / Extensiones / Bases', 'item_key' => 'estabilizadores_paratech', 'sort_order' => 8, 'is_active' => true, 'section' => 'cantidades', 'unidad' => 'RX-3'],
+                ['id' => 'static_10', 'label' => 'Plataforma de Rescate / Escalas / Conos', 'item_key' => 'plataforma_rescate', 'sort_order' => 9, 'is_active' => true, 'section' => 'cantidades', 'unidad' => 'RX-3'],
+                ['id' => 'static_11', 'label' => 'Maleta Sistema Paratech (mando dual, regulador, mangueras 10m, válvulas)', 'item_key' => 'maleta_paratech', 'sort_order' => 10, 'is_active' => true, 'section' => 'cantidades', 'unidad' => 'RX-3'],
+                ['id' => 'static_12', 'label' => 'Material de cuerdas (Jumar, mosquetones, poleas, ascensores Buddy, freno, plato, descendedor)', 'item_key' => 'material_cuerdas', 'sort_order' => 11, 'is_active' => true, 'section' => 'cantidades', 'unidad' => 'RX-3'],
+            ],
+        ];
+
+        $key = $unidad . '_' . $section;
+        return $staticItems[$key] ?? [];
     }
 
     public function store(Request $request)
