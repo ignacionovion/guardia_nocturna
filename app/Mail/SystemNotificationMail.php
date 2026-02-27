@@ -10,18 +10,22 @@ class SystemNotificationMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public array $fileAttachments = [];
+
     public function __construct(
         public string $fromAddress,
         public string $fromName,
         public string $mailSubject,
         public array $lines,
-        public array $attachments = [],
+        array $fileAttachments = [],
         public ?string $notificationType = null,
         public ?string $sourceLabel = null,
         public ?string $senderName = null,
         public ?string $senderEmail = null,
         public ?string $senderRole = null,
-    ) {}
+    ) {
+        $this->fileAttachments = $fileAttachments;
+    }
 
     public function build(): self
     {
@@ -30,7 +34,7 @@ class SystemNotificationMail extends Mailable
             ->subject($this->mailSubject)
             ->view('emails.system_notification');
 
-        foreach ($this->attachments as $att) {
+        foreach ($this->fileAttachments as $att) {
             if (!is_array($att)) {
                 continue;
             }

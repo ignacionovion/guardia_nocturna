@@ -193,7 +193,7 @@ class AdminCalendarController extends Controller
                 fromName: (string) (\App\Services\SystemEmailService::from()['name'] ?? ''),
                 mailSubject: $subject,
                 lines: $lines,
-                attachments: [],
+                fileAttachments: [],
                 notificationType: 'rotation',
                 sourceLabel: 'Calendario',
                 senderName: auth()->user()?->name,

@@ -157,12 +157,14 @@ class BedQrController extends Controller
             $currentAssignment->update([
                 'released_at' => now(),
             ]);
+            $bed->update(['status' => 'available']);
         }
 
         // Verificar si el bombero ya tiene otra cama asignada
         $existingAssignment = BedAssignment::query()
             ->where('firefighter_id', $bombero->id)
             ->whereNull('released_at')
+            ->with('bed')
             ->first();
 
         if ($existingAssignment) {
@@ -170,6 +172,9 @@ class BedQrController extends Controller
             $existingAssignment->update([
                 'released_at' => now(),
             ]);
+            if ($existingAssignment->bed) {
+                $existingAssignment->bed->update(['status' => 'available']);
+            }
         }
 
         // Crear nueva asignación
@@ -182,6 +187,9 @@ class BedQrController extends Controller
             'assigned_ip' => (string) ($request->ip() ?? ''),
             'assigned_user_agent' => (string) $request->userAgent(),
         ]);
+
+        // Marcar la cama como ocupada
+        $bed->update(['status' => 'occupied']);
 
         // Limpiar sesión del bombero después de asignar
         $request->session()->forget('bed_qr_bombero_id');

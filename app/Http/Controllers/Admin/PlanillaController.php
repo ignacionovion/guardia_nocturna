@@ -148,7 +148,16 @@ class PlanillaController extends Controller
             $data = [];
         }
 
+        // Limpiar valores null de arrays anidados (middleware ConvertEmptyStringsToNull)
+        $data = $this->cleanNullValues($data);
+
         $estado = $request->has('guardar_finalizar') ? self::ESTADO_FINALIZADO : self::ESTADO_EN_EDICION;
+
+        \Illuminate\Support\Facades\Log::info('Planilla store data', [
+            'unidad' => $validated['unidad'],
+            'data_keys' => array_keys($data),
+            'data_sample' => array_map(fn($v) => is_array($v) ? count($v) . ' items' : $v, $data),
+        ]);
 
         $planilla = Planilla::create([
             'unidad' => $validated['unidad'],
@@ -212,7 +221,16 @@ class PlanillaController extends Controller
             $data = [];
         }
 
+        // Limpiar valores null de arrays anidados (middleware ConvertEmptyStringsToNull)
+        $data = $this->cleanNullValues($data);
+
         $estado = $request->has('guardar_finalizar') ? self::ESTADO_FINALIZADO : self::ESTADO_EN_EDICION;
+
+        \Illuminate\Support\Facades\Log::info('Planilla update data', [
+            'planilla_id' => $planilla->id,
+            'data_keys' => array_keys($data),
+            'data_sample' => array_map(fn($v) => is_array($v) ? count($v) . ' items' : $v, $data),
+        ]);
 
         $planilla->update([
             'unidad' => $validated['unidad'],
@@ -311,7 +329,7 @@ class PlanillaController extends Controller
                 subject: $subject,
                 lines: $lines,
                 sourceLabel: 'Planillas',
-                attachments: [
+                fileAttachments: [
                     [
                         'name' => 'planilla-' . $planilla->unidad . '-' . $planilla->fecha_revision->format('Y-m-d') . '.pdf',
                         'mime' => 'application/pdf',
@@ -360,6 +378,21 @@ class PlanillaController extends Controller
         ]);
     }
     
+    private function cleanNullValues(array $data): array
+    {
+        $cleaned = [];
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                $cleaned[$key] = $this->cleanNullValues($value);
+            } elseif (is_null($value)) {
+                $cleaned[$key] = '';
+            } else {
+                $cleaned[$key] = $value;
+            }
+        }
+        return $cleaned;
+    }
+
     private function calcularDiferencias(array $actual, array $anterior): array
     {
         $diferencias = [];
