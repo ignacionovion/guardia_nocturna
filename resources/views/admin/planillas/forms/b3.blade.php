@@ -1,88 +1,202 @@
 @php
     $data = $data ?? [];
 
-    // Get custom item keys to avoid duplicates
-    $customCabinaKeys = isset($customItems['cabina']) 
-        ? $customItems['cabina']->pluck('item_key')->toArray() 
-        : [];
+    // CABINA - primera fila con estructura compleja
+    $cabinaPrincipal = [
+        'era_msa_g1' => [
+            'label' => 'ERA MSA G 1',
+            'tipo' => 'numeros_1_7_obac_radios',
+            'numeros' => ['1', '2', '3', '4', '5', '6', '7'],
+            'extra' => ['OBAC (M7)', 'Radios', '1', '2', 'Motorola']
+        ],
+        'linterna_nightstick' => [
+            'label' => 'Linterna NIGHTSTICK XPR-5568',
+            'tipo' => 'funcionamiento_cantidad_linea'
+        ],
+        'tablet_cargador' => [
+            'label' => 'Tablet unidad B-3 y Cargador',
+            'tipo' => 'maleta_sci'
+        ],
+    ];
 
-    $cabinaChecklist = [
-        'era_msa_g1' => 'ERA MSA G 1',
-        'linterna_nightstick_xpp_5568' => 'Linterna NIGHTSTICK XPP-5568',
-        'tablet_unidad_b3_y_cargador' => 'Tablet unidad B-3 y Cargador',
+    // Check list Herramientas
+    $herramientasChecklist = [
         'camara_termal' => 'Cámara Termal',
         'baston_tastik' => 'Bastón Tastik',
-        'detector_gas_tif8900' => 'Detector de Gas TIF8900',
-        'motosierra_cutter_edge' => 'Motosierra "CUTTER EDGE"',
-        'taladro_inalambrico_makita' => 'Taladro Inalámbrico MAKITA',
+        'detector_gas' => 'Detector de Gas TIF8900',
+        'motosierra_cutter' => 'Motosierra "CUTTER EDGE"',
+        'taladro_makita' => 'Taladro Inalámbrico MAKITA',
         'motobomba_rosenbauer' => 'Motobomba Rosenbauer',
-        'aspirador_nautilus_8_1' => 'Aspirador NAUTILUS 8/1',
-        'motoamoladora_makita_m14' => 'Motoamoladora M14 MAKITA',
-        'motosierra_stihl' => 'Motosierra STIHL',
-        'motor_electrogeno_rs14' => 'Motor electrógeno RS 14',
-        'focos_led_1000w' => 'Focos LED 1000 watt',
-        'foco_inalambrico_makita_tripode' => 'Foco inalámbrico Makita & trípode',
-        'winche_unidad_b3' => 'Winche unidad B-3',
+        'aspirador_nautilus' => 'Aspirador NAUTILUS 8/1',
+        'motoamoladora_m14' => 'Motoamoladora M14 MAKITA',
+        'motosierra_stihl' => 'MOTOSIERRA STIHL',
+        'motor_electrogeno' => 'Motor electrógeno RS 14',
+        'focos_led' => 'Focos LED 100 watt',
+        'foco_inalambrico' => 'Foco inalámbrico Makita & trípode',
+        'winche_b3' => 'Winche unidad B-3',
         'ventilador_rosenbauer' => 'Ventilador Rosenbauer',
     ];
 
-    // Filter out items that exist in customItems to avoid duplicates
-    $filteredCabinaChecklist = array_diff_key($cabinaChecklist, array_flip($customCabinaKeys));
+    // Indique la cantidad - estructura compleja de la foto
+    $cantidadesSecciones = [
+        'mochila_trauma' => [
+            'titulo' => 'Mochila de Trauma y Cilindro O2',
+            'columnas' => ['NIVEL O.', 'Kit Inmovilización completo', 'Conos']
+        ],
+        'mangueras' => [
+            'titulo' => 'MANGUERAS',
+            'columnas' => ['52', '75', 'L D H', 'Armada Base']
+        ],
+        'paquete_circular' => [
+            'titulo' => 'Paquete Circular',
+            'columnas' => ['Herraduras', 'Carretes alimentación (cantidad tiras)']
+        ],
+        'ataques' => [
+            'titulo' => 'ATAQUES',
+            'columnas' => ['52', '75', 'Cilindros de recambio MSA']
+        ],
+        'traspasos' => [
+            'titulo' => 'TRASPASOS',
+            'columnas' => ['Llave de grifo', 'Traspaso de grifo']
+        ],
+        'llaves_copla' => [
+            'titulo' => 'LLAVES DE COPLA',
+            'columnas' => ['Llave de piso', 'Manguera 75 alimentación']
+        ],
+        'escalas_techo' => [
+            'titulo' => 'Escalas de Techo',
+            'columnas' => ['Puntas Taladro', 'Napoleón 30"']
+        ],
+        'combo_8l' => [
+            'titulo' => 'Combo de 8 libras',
+            'columnas' => ['Bidón Motosierra', 'Hacha bombero']
+        ],
+        'bicheros' => [
+            'titulo' => 'Bicheros',
+            'columnas' => ['Barretilla', 'Halligan']
+        ],
+        'caja_herramientas' => [
+            'titulo' => 'Caja de Herramientas',
+            'columnas' => ['Hacha suela', 'TNT']
+        ],
+        'gremio' => [
+            'titulo' => 'Gremio',
+            'columnas' => ['Kit Entrada Forzada', 'Trifurca']
+        ],
+        'filtro_aspiracion' => [
+            'titulo' => 'Filtro de Aspiración',
+            'columnas' => ['Siamesa', 'Pitones de 50']
+        ],
+        'kit_quemados' => [
+            'titulo' => 'Kit quemados / Asistente de Trauma',
+            'columnas' => ['Pitón DIN 50', 'Pitones de 70']
+        ],
+        'bidon_bencina' => [
+            'titulo' => 'Bidón de bencina Verde 10L',
+            'columnas' => ['Chorizos', 'Pasatiras']
+        ],
+        'extintor_agua' => [
+            'titulo' => 'Extintor de agua',
+            'columnas' => ['Carretes de extensión', 'Pitón de espuma']
+        ],
+    ];
 
-    $cantidades = [
-        'mangueras' => 'Mangueras',
-        'paquete_circular' => 'Paquete Circular',
-        'ataques' => 'Ataques',
-        'traspasos' => 'Traspasos',
-        'llaves_de_copla' => 'Llaves de copla',
-        'escalas_de_techo' => 'Escalas de techo',
-        'combo_8_libras' => 'Combo de 8 libras',
-        'bicheros' => 'Bicheros',
-        'caja_de_herramientas' => 'Caja de Herramientas',
-        'grembio' => 'Grembio',
-        'filtro_de_aspiracion' => 'Filtro de Aspiración',
-        'kit_quemados_asistente_trauma' => 'Kit quemados / Asistente de Trauma',
-        'bidon_emergencia_verde_10l' => 'Bidón de emergencia Verde 10L',
-        'extintor_de_agua' => 'Extintor de agua',
+    // Material Forestal
+    $materialForestal = 'Material Forestal (1 pala, 1 rozón, 2 rastrillos cegadores, 1 McLeod, 2 bombas de espalda)';
+
+    // Bolso de altura
+    $bolsoAltura = 'Bolso de altura (Tira de 38mm 3 metros, Pitón POK, gemelo, reducción, cuerda utilitaria)';
+
+    // General Unidad
+    $generalUnidad = [
+        ['label' => 'Alarmas Sonoras y Visuales', 'sub' => 'Aseo Interior Cabina Aseo Gavetas y Herramientas'],
+        ['label' => 'Nivel Combustible Bidón (Naranjo)', 'sub' => 'Nivel Aceite para mezcla (Jeringa)'],
+        ['label' => 'Nivel Combustible de la Unidad', 'sub' => 'Nivel de agua de la unidad'],
+        ['label' => 'Nivel de aceite para cadena', 'sub' => ''],
     ];
 @endphp
 
-<div class="space-y-6">
-    <div class="rounded-2xl border border-teal-900/30 bg-sky-100 p-4">
-        <div class="text-sm font-black uppercase tracking-widest text-slate-900">PLANILLA DE REVISIÓN DE NIVELES</div>
-        <div class="text-sm font-black uppercase tracking-widest text-slate-900 mt-1">B-3</div>
-        <div class="text-xs text-slate-700 mt-2 font-semibold">Marca funcionamiento (Sí/No), agrega novedades y completa cantidades cuando aplique.</div>
-    </div>
+<div class="space-y-4">
 
+    {{-- CABINA --}}
     <div class="bg-white rounded-2xl border border-teal-900/20 overflow-hidden">
-        <button type="button" class="w-full px-4 py-3 flex items-center justify-between bg-teal-800 border-b border-teal-900" onclick="toggleSection('secCabinaB3')">
+        <div class="w-full px-4 py-3 bg-teal-800 border-b border-teal-900">
             <div class="text-xs font-black uppercase tracking-widest text-white">CABINA</div>
-            <i class="fas fa-chevron-down text-white/80"></i>
-        </button>
-        <div id="secCabinaB3" class="p-4 bg-sky-50">
-            <div class="rounded-xl border border-teal-900/20 bg-sky-100 px-4 py-2 mb-4">
-                <div class="text-xs font-black uppercase tracking-widest text-slate-900">Check list herramientas</div>
+        </div>
+        <div class="p-4 bg-sky-50">
+            {{-- ERA MSA G 1 con columnas 1-7 --}}
+            <div class="mb-4 rounded-xl border border-slate-200 bg-white p-3">
+                <div class="font-bold text-sm mb-3">ERA MSA G 1</div>
+                <div class="grid grid-cols-11 gap-1 text-center text-xs">
+                    @foreach(['1', '2', '3', '4', '5', '6', '7', 'OBAC (M7)', 'Radios', '1', '2'] as $col)
+                        <div class="bg-teal-100 py-1 rounded font-semibold">{{ $col }}</div>
+                    @endforeach
+                </div>
+                <div class="grid grid-cols-11 gap-1 mt-2">
+                    @foreach(['1', '2', '3', '4', '5', '6', '7', 'obac_m7', 'radios', 'radio_1', 'radio_2'] as $field)
+                        <input type="text" name="data[cabina][era_msa_g1][{{ $field }}]" value="{{ $data['cabina']['era_msa_g1'][$field] ?? '' }}" class="w-full px-1 py-1 text-sm border border-slate-200 rounded text-center">
+                    @endforeach
+                </div>
+                <div class="text-right text-xs mt-1 text-slate-500">Motorola</div>
             </div>
 
-            <div class="grid grid-cols-1 gap-3">
-                @foreach($filteredCabinaChecklist as $key => $label)
-                    @php($row = $data['cabina'][$key] ?? [])
-                    <div class="grid grid-cols-12 gap-2 items-center rounded-xl border border-slate-200 bg-white px-3 py-2">
-                        <div class="col-span-12 md:col-span-5 rounded-lg bg-yellow-50 px-3 py-2 border border-yellow-100">
-                            <div class="text-sm font-extrabold text-slate-900">{{ $label }}</div>
+            {{-- Linterna NIGHTSTICK --}}
+            <div class="mb-4 rounded-xl border border-slate-200 bg-white p-3">
+                <div class="grid grid-cols-12 gap-2 items-center">
+                    <div class="col-span-4 font-bold text-sm">Linterna NIGHTSTICK XPR-5568</div>
+                    <div class="col-span-3">
+                        <div class="text-xs text-slate-500 mb-1">Funcionamiento</div>
+                        <select name="data[cabina][linterna][funcionamiento]" class="w-full px-2 py-1 text-sm border border-slate-200 rounded">
+                            <option value=""></option>
+                            <option value="si" {{ ($data['cabina']['linterna']['funcionamiento'] ?? '') === 'si' ? 'selected' : '' }}>Sí</option>
+                            <option value="no" {{ ($data['cabina']['linterna']['funcionamiento'] ?? '') === 'no' ? 'selected' : '' }}>No</option>
+                        </select>
+                    </div>
+                    <div class="col-span-2">
+                        <div class="text-xs text-slate-500 mb-1">Cantidad:</div>
+                        <input type="text" name="data[cabina][linterna][cantidad]" value="{{ $data['cabina']['linterna']['cantidad'] ?? '' }}" class="w-full px-2 py-1 text-sm border border-slate-200 rounded">
+                    </div>
+                    <div class="col-span-3">
+                        <div class="text-xs text-slate-500 mb-1">Línea de vida B & R</div>
+                        <input type="text" name="data[cabina][linterna][linea_vida]" value="{{ $data['cabina']['linterna']['linea_vida'] ?? '' }}" class="w-full px-2 py-1 text-sm border border-slate-200 rounded">
+                    </div>
+                </div>
+            </div>
+
+            {{-- Tablet y Cargador / Maleta SCI --}}
+            <div class="mb-4 rounded-xl border border-slate-200 bg-white p-3">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="font-bold text-sm">Tablet unidad B-3 y Cargador</div>
+                    <div class="font-bold text-sm">Maleta SCI</div>
+                </div>
+            </div>
+
+            {{-- Check list Herramientas --}}
+            <div class="rounded-xl border border-teal-900/20 bg-sky-100 px-4 py-2 mb-4">
+                <div class="text-xs font-black uppercase tracking-widest text-slate-900">Check list Herramientas</div>
+            </div>
+            
+            <div class="grid grid-cols-12 gap-2 mb-2 text-center text-xs font-bold">
+                <div class="col-span-6"></div>
+                <div class="col-span-2 bg-teal-700 text-white py-1 rounded">Sí</div>
+                <div class="col-span-2 bg-teal-700 text-white py-1 rounded">NO</div>
+                <div class="col-span-2 bg-teal-700 text-white py-1 rounded">Novedades</div>
+            </div>
+            
+            <div class="space-y-1">
+                @foreach($herramientasChecklist as $key => $label)
+                    @php($row = $data['herramientas'][$key] ?? [])
+                    @php($yellowBg = in_array($key, ['detector_gas', 'motosierra_cutter', 'taladro_makita', 'motobomba_rosenbauer', 'aspirador_nautilus', 'motoamoladora_m14']) ? 'bg-yellow-50' : '')
+                    <div class="grid grid-cols-12 gap-2 items-center bg-white rounded border border-slate-200 {{ $yellowBg }}">
+                        <div class="col-span-6 px-3 py-2 text-sm font-semibold {{ $yellowBg }}">{{ $label }}</div>
+                        <div class="col-span-2 text-center py-2">
+                            <input type="radio" name="data[herramientas][{{ $key }}][funciona]" value="si" {{ ($row['funciona'] ?? '') === 'si' ? 'checked' : '' }} class="w-4 h-4 text-teal-600">
                         </div>
-                        <div class="col-span-6 md:col-span-2">
-                            <select name="data[cabina][{{ $key }}][funciona]" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm">
-                                <option value="" {{ ($row['funciona'] ?? '') === '' ? 'selected' : '' }}>¿Funciona?</option>
-                                <option value="si" {{ ($row['funciona'] ?? '') === 'si' ? 'selected' : '' }}>Sí</option>
-                                <option value="no" {{ ($row['funciona'] ?? '') === 'no' ? 'selected' : '' }}>No</option>
-                            </select>
+                        <div class="col-span-2 text-center py-2">
+                            <input type="radio" name="data[herramientas][{{ $key }}][funciona]" value="no" {{ ($row['funciona'] ?? '') === 'no' ? 'checked' : '' }} class="w-4 h-4 text-red-600">
                         </div>
-                        <div class="col-span-6 md:col-span-2">
-                            <input type="text" name="data[cabina][{{ $key }}][cantidad]" value="{{ $row['cantidad'] ?? '' }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm" placeholder="Cant.">
-                        </div>
-                        <div class="col-span-12 md:col-span-3">
-                            <input type="text" name="data[cabina][{{ $key }}][novedades]" value="{{ $row['novedades'] ?? '' }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm" placeholder="Novedades">
+                        <div class="col-span-2 px-2 py-1">
+                            <input type="text" name="data[herramientas][{{ $key }}][novedades]" value="{{ $row['novedades'] ?? '' }}" class="w-full px-2 py-1 text-sm border border-slate-200 rounded">
                         </div>
                     </div>
                 @endforeach
@@ -90,33 +204,60 @@
         </div>
     </div>
 
+    {{-- INDIQUE LA CANTIDAD --}}
     <div class="bg-white rounded-2xl border border-teal-900/20 overflow-hidden">
-        <button type="button" class="w-full px-4 py-3 flex items-center justify-between bg-teal-800 border-b border-teal-900" onclick="toggleSection('secCantidadesB3')">
+        <div class="w-full px-4 py-3 bg-teal-800 border-b border-teal-900">
             <div class="text-xs font-black uppercase tracking-widest text-white">INDIQUE LA CANTIDAD</div>
-            <i class="fas fa-chevron-down text-white/80"></i>
-        </button>
-        <div id="secCantidadesB3" class="p-4 hidden bg-sky-50">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                @foreach($cantidades as $key => $label)
-                    <div class="grid grid-cols-12 gap-2 items-center rounded-xl border border-slate-200 bg-white px-3 py-2">
-                        <div class="col-span-7 rounded-lg bg-sky-100 px-3 py-2 border border-sky-200">
-                            <div class="text-sm font-extrabold text-slate-900">{{ $label }}</div>
-                        </div>
-                        <div class="col-span-5">
-                            <input type="text" name="data[cantidades][{{ $key }}]" value="{{ $data['cantidades'][$key] ?? '' }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm" placeholder="Cantidad" data-cantidad-item="{{ $key }}">
-                        </div>
-
-                        <div class="col-span-12 hidden" data-cantidad-novedad-row="{{ $key }}">
-                            <input type="text" name="data[cantidades_novedades][{{ $key }}]" value="{{ $data['cantidades_novedades'][$key] ?? '' }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm" placeholder="Novedad">
-                        </div>
+        </div>
+        <div class="p-4 bg-sky-50">
+            @foreach($cantidadesSecciones as $key => $seccion)
+                <div class="mb-3 rounded-lg border border-slate-200 bg-white p-2">
+                    <div class="font-bold text-sm mb-2 {{ $seccion['titulo'] == 'MANGUERAS' ? 'bg-teal-100 px-2 py-1 rounded' : '' }}">{{ $seccion['titulo'] }}</div>
+                    <div class="grid grid-cols-{{ count($seccion['columnas']) }} gap-2">
+                        @foreach($seccion['columnas'] as $col)
+                            <div>
+                                <div class="text-xs text-slate-500 mb-1">{{ $col }}</div>
+                                <input type="text" name="data[cantidades][{{ $key }}][{{ Str::slug($col, '_') }}]" value="{{ $data['cantidades'][$key][Str::slug($col, '_')] ?? '' }}" class="w-full px-2 py-1 text-sm border border-slate-200 rounded">
+                            </div>
+                        @endforeach
                     </div>
-                @endforeach
+                </div>
+            @endforeach
+
+            {{-- Material Forestal --}}
+            <div class="mb-3 rounded-lg border border-slate-200 bg-yellow-50 p-2 border-l-4 border-l-yellow-400">
+                <div class="font-bold text-sm">{{ $materialForestal }}</div>
             </div>
 
-            <div class="mt-4">
-                <div class="text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Observaciones generales</div>
-                <textarea name="data[observaciones_generales]" rows="3" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm" placeholder="Observaciones...">{{ $data['observaciones_generales'] ?? '' }}</textarea>
+            {{-- Bolso de altura --}}
+            <div class="mb-3 rounded-lg border border-slate-200 bg-yellow-50 p-2 border-l-4 border-l-yellow-400">
+                <div class="font-bold text-sm">{{ $bolsoAltura }}</div>
             </div>
+        </div>
+    </div>
+
+    {{-- General Unidad --}}
+    <div class="bg-white rounded-2xl border border-teal-900/20 overflow-hidden">
+        <div class="w-full px-4 py-3 bg-teal-800 border-b border-teal-900">
+            <div class="text-xs font-black uppercase tracking-widest text-white">General Unidad</div>
+        </div>
+        <div class="p-4 bg-sky-50">
+            @foreach($generalUnidad as $idx => $item)
+                <div class="mb-3 rounded-lg border border-slate-200 bg-white p-3">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <div class="font-bold text-sm mb-2">{{ $item['label'] }}</div>
+                            <input type="text" name="data[general][{{ $idx }}][label_valor]" value="{{ $data['general'][$idx]['label_valor'] ?? '' }}" class="w-full px-2 py-1 text-sm border border-slate-200 rounded">
+                        </div>
+                        @if($item['sub'])
+                            <div>
+                                <div class="font-bold text-sm mb-2">{{ $item['sub'] }}</div>
+                                <input type="text" name="data[general][{{ $idx }}][sub_valor]" value="{{ $data['general'][$idx]['sub_valor'] ?? '' }}" class="w-full px-2 py-1 text-sm border border-slate-200 rounded">
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @endforeach
         </div>
     </div>
 </div>
@@ -127,30 +268,4 @@
         if (!el) return;
         el.classList.toggle('hidden');
     }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        function syncCantidadNovedad(key) {
-            const cantidad = document.querySelector('[data-cantidad-item="' + key + '"]');
-            const row = document.querySelector('[data-cantidad-novedad-row="' + key + '"]');
-            if (!cantidad || !row) return;
-
-            const v = String(cantidad.value ?? '').trim();
-            if (v === '0') {
-                row.classList.remove('hidden');
-            } else {
-                row.classList.add('hidden');
-                const input = row.querySelector('input');
-                if (input) input.value = '';
-            }
-        }
-
-        document.querySelectorAll('[data-cantidad-item]').forEach(function (input) {
-            const key = input.getAttribute('data-cantidad-item');
-            if (!key) return;
-            syncCantidadNovedad(key);
-            input.addEventListener('input', function () {
-                syncCantidadNovedad(key);
-            });
-        });
-    });
 </script>
