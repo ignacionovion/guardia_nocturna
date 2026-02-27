@@ -95,6 +95,29 @@
         });
     })();
 
+    // DEBUG: Interceptar submit para ver qué datos se envían
+    (function () {
+        const form = document.querySelector('form[action*="planillas"]');
+        if (!form) return;
+        form.addEventListener('submit', function (e) {
+            const fd = new FormData(form);
+            const debugData = {};
+            for (const [key, value] of fd.entries()) {
+                if (key.startsWith('data[cabina]')) {
+                    debugData[key] = value;
+                }
+            }
+            console.log('=== FORM SUBMIT DEBUG ===');
+            console.log('Cabina fields in FormData:', debugData);
+            console.log('Total form fields:', [...fd.entries()].length);
+            // Check specific field
+            const sel = form.querySelector('select[name="data[cabina][era_msa_g1][funciona]"]');
+            console.log('ERA MSA G1 select value at submit:', sel ? sel.value : 'NOT FOUND');
+            console.log('ERA MSA G1 select disabled:', sel ? sel.disabled : 'NOT FOUND');
+            console.log('ERA MSA G1 select name:', sel ? sel.name : 'NOT FOUND');
+        });
+    })();
+
     (function () {
         const display = document.getElementById('fechaRevisionDisplay');
         const hidden = document.getElementById('fechaRevisionHidden');
