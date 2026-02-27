@@ -136,6 +136,9 @@ class PlanillaController extends Controller
             'unidad' => ['required', 'string', 'max:20', 'in:' . implode(',', self::UNIDADES)],
             'fecha_revision' => ['required', 'date'],
             'data' => ['nullable', 'array'],
+            'data.cabina' => ['nullable', 'array'],
+            'data.trauma' => ['nullable', 'array'],
+            'data.cantidades' => ['nullable', 'array'],
         ]);
 
         $estado = $request->has('guardar_finalizar') ? self::ESTADO_FINALIZADO : self::ESTADO_EN_EDICION;
@@ -190,6 +193,9 @@ class PlanillaController extends Controller
             'unidad' => ['required', 'string', 'max:20', 'in:' . implode(',', self::UNIDADES)],
             'fecha_revision' => ['required', 'date'],
             'data' => ['nullable', 'array'],
+            'data.cabina' => ['nullable', 'array'],
+            'data.trauma' => ['nullable', 'array'],
+            'data.cantidades' => ['nullable', 'array'],
         ]);
 
         $estado = $request->has('guardar_finalizar') ? self::ESTADO_FINALIZADO : self::ESTADO_EN_EDICION;

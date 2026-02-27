@@ -76,8 +76,7 @@ class BedQrController extends Controller
         $request->session()->put('bed_qr_bombero_id', (int) $bombero->id);
 
         // Verificar si está en guardia activa hoy
-        $today = Carbon::now('America/Santiago')->toDateString();
-        $activeGuardia = $this->getActiveGuardiaForToday($today);
+        $activeGuardia = $this->getActiveGuardiaForToday();
 
         if (!$activeGuardia) {
             $request->session()->forget('bed_qr_bombero_id');
@@ -85,7 +84,7 @@ class BedQrController extends Controller
         }
 
         // Verificar si el bombero está en la guardia activa
-        $isInActiveGuardia = $this->isBomberoInGuardia($bombero->id, $activeGuardia->id, $today);
+        $isInActiveGuardia = $this->isBomberoInGuardia($bombero->id, $activeGuardia->id);
 
         // Si no está en la guardia activa, limpiar sesión y redirigir
         if (!$isInActiveGuardia) {
@@ -167,10 +166,9 @@ class BedQrController extends Controller
         }
 
         // Verificar nuevamente si está en guardia activa
-        $today = Carbon::now('America/Santiago')->toDateString();
-        $activeGuardia = $this->getActiveGuardiaForToday($today);
+        $activeGuardia = $this->getActiveGuardiaForToday();
 
-        if (!$activeGuardia || !$this->isBomberoInGuardia($bombero->id, $activeGuardia->id, $today)) {
+        if (!$activeGuardia || !$this->isBomberoInGuardia($bombero->id, $activeGuardia->id)) {
             return redirect()->route('camas.scan.not_in_guardia', ['bedId' => $bedId]);
         }
 
@@ -257,38 +255,20 @@ class BedQrController extends Controller
     }
 
     /**
-     * Obtiene la guardia activa para hoy (o la de ayer si aún está en horario de guardia)
+     * Obtiene la guardia activa buscando shift_users sin end_time (activos)
      */
-    private function getActiveGuardiaForToday(string $date): ?Guardia
+    private function getActiveGuardiaForToday(): ?Guardia
     {
         $scheduleTz = SystemSetting::getValue('guardia_schedule_tz', env('GUARDIA_SCHEDULE_TZ', 'America/Santiago'));
+        $now = Carbon::now($scheduleTz);
         
-        // Usar zona horaria de Santiago para todo
-        $today = Carbon::parse($date, $scheduleTz);
-        $twoDaysAgo = $today->copy()->subDay()->startOfDay();
-        $tomorrow = $today->copy()->addDay()->endOfDay();
+        // Buscar cualquier shift_user activo (sin end_time) en últimas 48 horas
+        $twoDaysAgo = $now->copy()->subDays(2)->startOfDay();
         
-        // Primero verificar si estamos dentro del horario de guardia
-        if (!$this->isWithinGuardiaHours()) {
-            return null;
-        }
-        
-        // Buscar cualquier guardia en los últimos 2 días
         $shiftUser = ShiftUser::query()
-            ->whereBetween('start_time', [$twoDaysAgo, $tomorrow])
+            ->where('start_time', '>=', $twoDaysAgo)
             ->whereNotNull('guardia_id')
-            ->whereNull('end_time')  // Solo guardias activas (no cerradas)
-            ->orderBy('start_time', 'desc')
-            ->first();
-
-        if ($shiftUser && $shiftUser->guardia) {
-            return $shiftUser->guardia;
-        }
-
-        // Si no hay guardia activa, buscar la más reciente (por si acaso)
-        $shiftUser = ShiftUser::query()
-            ->whereBetween('start_time', [$twoDaysAgo, $tomorrow])
-            ->whereNotNull('guardia_id')
+            ->whereNull('end_time')  // Solo activos
             ->orderBy('start_time', 'desc')
             ->first();
 
@@ -302,17 +282,9 @@ class BedQrController extends Controller
     /**
      * Verifica si un bombero está en una guardia específica
      */
-    private function isBomberoInGuardia(int $bomberoId, int $guardiaId, string $date): bool
+    private function isBomberoInGuardia(int $bomberoId, int $guardiaId): bool
     {
-        $scheduleTz = SystemSetting::getValue('guardia_schedule_tz', env('GUARDIA_SCHEDULE_TZ', 'America/Santiago'));
-        
-        // Usar zona horaria de Santiago para todo
-        $today = Carbon::parse($date, $scheduleTz);
-        $twoDaysAgo = $today->copy()->subDay()->startOfDay();
-        $tomorrow = $today->copy()->addDay()->endOfDay();
-        
-        $exists = ShiftUser::query()
-            ->whereBetween('start_time', [$twoDaysAgo, $tomorrow])
+        return ShiftUser::query()
             ->where('guardia_id', $guardiaId)
             ->where(function ($query) use ($bomberoId) {
                 $query->where('firefighter_id', $bomberoId)
@@ -321,8 +293,6 @@ class BedQrController extends Controller
                     });
             })
             ->exists();
-            
-        return $exists;
     }
 
     /**
