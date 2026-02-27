@@ -54,7 +54,10 @@
                         placeholder="11222333-4"
                         class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 font-semibold font-mono uppercase"
                         autocomplete="off"
-                        inputmode="numeric"
+                        inputmode="text"
+                        autocapitalize="characters"
+                        autocorrect="off"
+                        spellcheck="false"
                     />
                     @error('rut')
                         <div class="mt-2 text-sm text-rose-200 font-semibold">{{ $message }}</div>

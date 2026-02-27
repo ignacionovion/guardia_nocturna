@@ -144,8 +144,20 @@ class AdminCalendarController extends Controller
         }
 
         // Send email if requested
-        if (!empty($data['send_email']) && !empty($data['email_recipients'])) {
-            $this->sendRotationEmail($rotationSummary, $data['email_recipients'], $startSunday, $endDate);
+        if (!empty($data['send_email'])) {
+            $recipients = trim((string) ($data['email_recipients'] ?? ''));
+
+            if ($recipients === '' && class_exists(\App\Services\SystemEmailService::class)) {
+                $recipients = implode(', ', \App\Services\SystemEmailService::recipients());
+            }
+
+            if ($recipients === '') {
+                return back()
+                    ->withErrors(['email_recipients' => 'No hay destinatarios configurados para el correo. Ingresa emails o configura los destinatarios en el sistema.'])
+                    ->withInput();
+            }
+
+            $this->sendRotationEmail($rotationSummary, $recipients, $startSunday, $endDate);
         }
 
         return redirect()->route('admin.calendario', ['month' => $startSunday->month, 'year' => $startSunday->year])
