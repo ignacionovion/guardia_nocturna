@@ -152,6 +152,14 @@ class PlanillaController extends Controller
         $data = $this->cleanNullValues($data);
 
         // DEBUG: Log todo el request para ver qué llega del formulario
+        // Log datos CRUDOS sin procesar
+        $rawInput = $request->all();
+        \Illuminate\Support\Facades\Log::info('Planilla store RAW REQUEST', [
+            'raw_data' => $rawInput['data'] ?? 'NO DATA KEY',
+            'raw_cabina' => $rawInput['data']['cabina'] ?? 'NO CABINA',
+            'first_item_raw' => $rawInput['data']['cabina']['era_msa_g1'] ?? 'NO ERA_MSA_G1',
+        ]);
+        
         $dataFromRequest = $request->input('data', []);
         $cabinaData = $dataFromRequest['cabina'] ?? [];
         $firstCabinaKey = array_key_first($cabinaData) ?? 'none';
