@@ -100,21 +100,34 @@
         const form = document.querySelector('form[action*="planillas"]');
         if (!form) return;
         form.addEventListener('submit', function (e) {
+            console.log('=== FORM SUBMIT DEBUG ===');
+            
+            // Check all selects with cabina in name
+            const allCabinaSelects = form.querySelectorAll('select[name*="cabina"]');
+            console.log('Total cabina selects found:', allCabinaSelects.length);
+            allCabinaSelects.forEach((sel, idx) => {
+                console.log(`Select ${idx}: name="${sel.name}", value="${sel.value}", selectedIndex=${sel.selectedIndex}`);
+            });
+            
+            // Check for duplicate names
+            const allSelects = form.querySelectorAll('select');
+            const nameCounts = {};
+            allSelects.forEach(sel => {
+                nameCounts[sel.name] = (nameCounts[sel.name] || 0) + 1;
+            });
+            const duplicates = Object.entries(nameCounts).filter(([name, count]) => count > 1);
+            if (duplicates.length > 0) {
+                console.log('DUPLICATE NAMES FOUND:', duplicates);
+            }
+            
             const fd = new FormData(form);
-            const debugData = {};
+            const cabinaData = {};
             for (const [key, value] of fd.entries()) {
-                if (key.startsWith('data[cabina]')) {
-                    debugData[key] = value;
+                if (key.includes('cabina') && key.includes('funciona')) {
+                    cabinaData[key] = value;
                 }
             }
-            console.log('=== FORM SUBMIT DEBUG ===');
-            console.log('Cabina fields in FormData:', debugData);
-            console.log('Total form fields:', [...fd.entries()].length);
-            // Check specific field
-            const sel = form.querySelector('select[name="data[cabina][era_msa_g1][funciona]"]');
-            console.log('ERA MSA G1 select value at submit:', sel ? sel.value : 'NOT FOUND');
-            console.log('ERA MSA G1 select disabled:', sel ? sel.disabled : 'NOT FOUND');
-            console.log('ERA MSA G1 select name:', sel ? sel.name : 'NOT FOUND');
+            console.log('Cabina funciona in FormData:', cabinaData);
         });
     })();
 
