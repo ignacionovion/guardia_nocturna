@@ -1,6 +1,11 @@
 @php
     $data = $data ?? [];
 
+    // Get custom item keys to avoid duplicates
+    $customCabinaKeys = isset($customItems['cabina']) 
+        ? $customItems['cabina']->pluck('item_key')->toArray() 
+        : [];
+
     $cabinaChecklist = [
         'era_msa_g1' => 'ERA MSA G 1',
         'linterna_nightstick_xpp_5568' => 'Linterna NIGHTSTICK XPP-5568',
@@ -20,6 +25,9 @@
         'winche_unidad_b3' => 'Winche unidad B-3',
         'ventilador_rosenbauer' => 'Ventilador Rosenbauer',
     ];
+
+    // Filter out items that exist in customItems to avoid duplicates
+    $filteredCabinaChecklist = array_diff_key($cabinaChecklist, array_flip($customCabinaKeys));
 
     $cantidades = [
         'mangueras' => 'Mangueras',
@@ -57,7 +65,7 @@
             </div>
 
             <div class="grid grid-cols-1 gap-3">
-                @foreach($cabinaChecklist as $key => $label)
+                @foreach($filteredCabinaChecklist as $key => $label)
                     @php($row = $data['cabina'][$key] ?? [])
                     <div class="grid grid-cols-12 gap-2 items-center rounded-xl border border-slate-200 bg-white px-3 py-2">
                         <div class="col-span-12 md:col-span-5 rounded-lg bg-yellow-50 px-3 py-2 border border-yellow-100">
