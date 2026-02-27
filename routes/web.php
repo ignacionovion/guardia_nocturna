@@ -62,9 +62,17 @@ Route::post('/planillas/qr/{token}/identificar', [PlanillasQrController::class, 
 Route::get('/planillas/qr/{token}/crear', [PlanillasQrController::class, 'createForm'])
     ->where('token', '[A-Za-z0-9]{40}')
     ->name('planillas.qr.create.form');
+Route::get('/planillas/qr/{token}/editar/{planilla}', [PlanillasQrController::class, 'editForm'])
+    ->where('token', '[A-Za-z0-9]{40}')
+    ->whereNumber('planilla')
+    ->name('planillas.qr.edit.form');
 Route::post('/planillas/qr/{token}/guardar', [PlanillasQrController::class, 'store'])
     ->where('token', '[A-Za-z0-9]{40}')
     ->name('planillas.qr.store');
+Route::put('/planillas/qr/{token}/actualizar/{planilla}', [PlanillasQrController::class, 'update'])
+    ->where('token', '[A-Za-z0-9]{40}')
+    ->whereNumber('planilla')
+    ->name('planillas.qr.update');
 
 // Rutas QR para Camas (públicas, sin login)
 Route::get('/camas/scan/{bedId}', [BedQrController::class, 'scanForm'])->name('camas.scan.form');
@@ -269,6 +277,9 @@ Route::middleware('auth')->group(function () {
         Route::put('/admin/planillas/{planilla}', [PlanillaController::class, 'update'])->whereNumber('planilla')->name('admin.planillas.update');
         Route::put('/admin/planillas/{planilla}/estado', [PlanillaController::class, 'updateEstado'])->whereNumber('planilla')->name('admin.planillas.estado.update');
         Route::delete('/admin/planillas/{planilla}', [PlanillaController::class, 'destroy'])->whereNumber('planilla')->name('admin.planillas.destroy');
+        Route::get('/admin/planillas/{planilla}/pdf', [PlanillaController::class, 'pdf'])->whereNumber('planilla')->name('admin.planillas.pdf');
+        Route::get('/admin/planillas/{planilla}/email', [PlanillaController::class, 'email'])->whereNumber('planilla')->name('admin.planillas.email');
+        Route::get('/admin/planillas/{planilla}/compare', [PlanillaController::class, 'compare'])->whereNumber('planilla')->name('admin.planillas.compare');
 
         Route::get('/admin/planillas/listados', [PlanillaListItemController::class, 'index'])->name('admin.planillas.listados.index');
         Route::post('/admin/planillas/listados', [PlanillaListItemController::class, 'store'])->name('admin.planillas.listados.store');

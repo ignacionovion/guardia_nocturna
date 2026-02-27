@@ -17,28 +17,28 @@
 
         @if($bodega)
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                <a href="{{ route('inventario.snapshot.pdf') }}" target="_blank" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-800 font-extrabold text-[11px] uppercase tracking-widest">
-                    <i class="fas fa-file-pdf"></i>
+                <a href="{{ route('inventario.snapshot.pdf') }}" target="_blank" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm">
+                    <i class="fas fa-file-pdf text-blue-600"></i>
                     Descargar PDF
                 </a>
-                <button type="button" onclick="sendBodegaSnapshotEmail()" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-extrabold text-[11px] uppercase tracking-widest">
-                    <i class="fas fa-envelope"></i>
+                <button type="button" onclick="sendBodegaSnapshotEmail()" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm">
+                    <i class="fas fa-envelope text-emerald-600"></i>
                     Enviar por Email
                 </button>
-                <a href="{{ route('inventario.qr.admin') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-extrabold text-[11px] uppercase tracking-widest">
-                    <i class="fas fa-qrcode"></i>
+                <a href="{{ route('inventario.qr.admin') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm">
+                    <i class="fas fa-qrcode text-purple-600"></i>
                     Ver QR
                 </a>
-                <a href="{{ route('inventario.movimientos.index') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-extrabold text-[11px] uppercase tracking-widest">
-                    <i class="fas fa-list"></i>
+                <a href="{{ route('inventario.movimientos.index') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm">
+                    <i class="fas fa-list text-slate-600"></i>
                     Historial
                 </a>
-                <a href="{{ route('inventario.import.form') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-extrabold text-[11px] uppercase tracking-widest">
-                    <i class="fas fa-file-import"></i>
+                <a href="{{ route('inventario.import.form') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm">
+                    <i class="fas fa-file-import text-amber-600"></i>
                     Importar
                 </a>
-                <a href="{{ route('inventario.retiro.access') }}" class="inline-flex items-center justify-center gap-2 bg-slate-950 hover:bg-black text-white font-black py-3 px-5 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest border border-slate-800">
-                    <i class="fas fa-arrow-right"></i>
+                <a href="{{ route('inventario.retiro.access') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm">
+                    <i class="fas fa-arrow-right text-slate-600"></i>
                     Ir a retiro
                 </a>
             </div>

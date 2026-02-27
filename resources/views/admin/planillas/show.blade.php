@@ -23,6 +23,10 @@
                     Continuar
                 </a>
             @endif
+            <a href="{{ route('admin.planillas.compare', $planilla) }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-purple-200 bg-purple-50 hover:bg-purple-100 text-purple-800 font-extrabold text-xs" title="Comparar con versiones anteriores">
+                <i class="fas fa-exchange-alt"></i>
+                Comparar
+            </a>
             <form method="POST" action="{{ route('admin.planillas.destroy', $planilla) }}" class="inline" onsubmit="return confirm('¿Eliminar esta planilla? Esta acción no se puede deshacer.')">
                 @csrf
                 @method('DELETE')

@@ -95,6 +95,12 @@
                                         <i class="fas fa-eye"></i>
                                         Ver
                                     </a>
+                                    <a href="{{ route('admin.planillas.email', $p) }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-800 font-extrabold text-xs" title="Enviar por email">
+                                        <i class="fas fa-envelope"></i>
+                                    </a>
+                                    <a href="{{ route('admin.planillas.pdf', $p) }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-red-200 bg-red-50 hover:bg-red-100 text-red-800 font-extrabold text-xs" title="Descargar PDF" target="_blank">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </a>
                                     <form method="POST" action="{{ route('admin.planillas.destroy', $p) }}" class="inline" onsubmit="return confirm('¿Eliminar esta planilla? Esta acción no se puede deshacer.')">
                                         @csrf
                                         @method('DELETE')

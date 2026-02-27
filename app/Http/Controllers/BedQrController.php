@@ -268,6 +268,11 @@ class BedQrController extends Controller
         $twoDaysAgo = $today->copy()->subDay()->startOfDay();
         $tomorrow = $today->copy()->addDay()->endOfDay();
         
+        // Primero verificar si estamos dentro del horario de guardia
+        if (!$this->isWithinGuardiaHours()) {
+            return null;
+        }
+        
         // Buscar cualquier guardia en los últimos 2 días
         $shiftUser = ShiftUser::query()
             ->whereBetween('start_time', [$twoDaysAgo, $tomorrow])
@@ -343,16 +348,18 @@ class BedQrController extends Controller
         [$startH, $startM] = array_map('intval', explode(':', (string) $startTime));
         [$endH, $endM] = array_map('intval', explode(':', (string) $endTime));
 
-        $startAt = $now->copy()->startOfDay()->addHours($startH)->addMinutes($startM);
-        $endAt = $now->copy()->startOfDay()->addHours($endH)->addMinutes($endM);
+        // Calcular hora de inicio y fin para HOY
+        $startAtToday = $now->copy()->startOfDay()->addHours($startH)->addMinutes($startM);
+        $endAtToday = $now->copy()->startOfDay()->addHours($endH)->addMinutes($endM);
 
-        // Si estamos después de la hora de inicio HOY
-        if ($now->greaterThanOrEqualTo($startAt)) {
+        // Si estamos después de la hora de inicio HOY → estamos en guardia
+        if ($now->greaterThanOrEqualTo($startAtToday)) {
             return true;
         }
 
-        // Si estamos antes de la hora de fin HOY (significa que la guardia de AYER sigue activa)
-        if ($now->lessThan($endAt)) {
+        // Si estamos antes de la hora de fin HOY (ej: 01:23 < 07:00)
+        // significa que la guardia de AYER sigue activa
+        if ($now->lessThan($endAtToday)) {
             return true;
         }
 

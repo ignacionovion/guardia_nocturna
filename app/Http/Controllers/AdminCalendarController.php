@@ -186,10 +186,12 @@ class AdminCalendarController extends Controller
 
         // Use SystemEmailService if available
         if (class_exists(\App\Services\SystemEmailService::class)) {
-            \App\Services\SystemEmailService::send([
-                'subject' => $subject,
-                'lines' => $lines,
-            ]);
+            \App\Services\SystemEmailService::send(
+                type: 'rotation',
+                subject: $subject,
+                lines: $lines,
+                sourceLabel: 'Calendario'
+            );
         } else {
             // Fallback to direct mail
             $mailBody = implode("\n", $lines);

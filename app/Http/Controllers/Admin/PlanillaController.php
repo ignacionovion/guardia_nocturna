@@ -240,4 +240,147 @@ class PlanillaController extends Controller
 
         return redirect()->route('admin.planillas.index')->with('success', 'Planilla eliminada.');
     }
+
+    public function pdf(Planilla $planilla)
+    {
+        $planilla->load(['creador', 'bombero']);
+        
+        // Load custom items for the PDF to display checklist data properly
+        $customItems = \App\Models\PlanillaListItem::where('unidad', $planilla->unidad)
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get()
+            ->groupBy('section');
+        
+        $pdf = \PDF::loadView('admin.planillas.pdf', [
+            'planilla' => $planilla,
+            'customItems' => $customItems,
+        ]);
+        
+        return $pdf->download('planilla-' . $planilla->unidad . '-' . $planilla->fecha_revision->format('Y-m-d') . '.pdf');
+    }
+
+    public function email(Planilla $planilla)
+    {
+        $planilla->load(['creador', 'bombero']);
+        
+        // Generate PDF
+        $pdf = \PDF::loadView('admin.planillas.pdf', [
+            'planilla' => $planilla,
+        ]);
+        
+        // Send email with PDF attachment
+        $subject = 'Planilla de revisión ' . $planilla->unidad . ' - ' . $planilla->fecha_revision->format('d/m/Y');
+        $lines = [
+            'Planilla de revisión de niveles',
+            'Unidad: ' . $planilla->unidad,
+            'Fecha: ' . $planilla->fecha_revision->format('d/m/Y H:i'),
+            'Registrada por: ' . ($planilla->creador?->name ?? trim((string)($planilla->bombero?->nombres ?? '') . ' ' . (string)($planilla->bombero?->apellido_paterno ?? '')) ?: '—'),
+        ];
+        
+        if (class_exists(\App\Services\SystemEmailService::class)) {
+            \App\Services\SystemEmailService::send(
+                type: 'planilla',
+                subject: $subject,
+                lines: $lines,
+                sourceLabel: 'Planillas'
+            );
+        }
+        
+        return redirect()->back()->with('success', 'Planilla enviada por email correctamente.');
+    }
+
+    public function compare(Request $request, Planilla $planilla)
+    {
+        $planilla->load(['creador', 'bombero']);
+        
+        // Obtener planillas anteriores de la misma unidad para comparar
+        $historial = Planilla::query()
+            ->where('unidad', $planilla->unidad)
+            ->where('id', '!=', $planilla->id)
+            ->where('estado', self::ESTADO_FINALIZADO)
+            ->latest('fecha_revision')
+            ->limit(5)
+            ->get();
+        
+        // Si se seleccionó una planilla para comparar
+        $compararCon = null;
+        $diferencias = [];
+        
+        if ($request->has('comparar_con')) {
+            $compararCon = Planilla::query()
+                ->where('id', $request->input('comparar_con'))
+                ->where('unidad', $planilla->unidad)
+                ->first();
+            
+            if ($compararCon) {
+                $diferencias = $this->calcularDiferencias($planilla->data ?? [], $compararCon->data ?? []);
+            }
+        }
+        
+        return view('admin.planillas.compare', [
+            'planilla' => $planilla,
+            'historial' => $historial,
+            'compararCon' => $compararCon,
+            'diferencias' => $diferencias,
+        ]);
+    }
+    
+    private function calcularDiferencias(array $actual, array $anterior): array
+    {
+        $diferencias = [];
+        
+        foreach (['cabina', 'trauma', 'cantidades'] as $seccion) {
+            if (!isset($actual[$seccion]) && !isset($anterior[$seccion])) {
+                continue;
+            }
+            
+            $actualItems = $actual[$seccion] ?? [];
+            $anteriorItems = $anterior[$seccion] ?? [];
+            
+            foreach ($actualItems as $key => $item) {
+                $itemAnterior = $anteriorItems[$key] ?? [];
+                
+                // Detectar cambios en funcionamiento
+                if (($item['funciona'] ?? '') !== ($itemAnterior['funciona'] ?? '')) {
+                    $diferencias[$seccion][$key]['funciona'] = [
+                        'antes' => $itemAnterior['funciona'] ?? '—',
+                        'despues' => $item['funciona'] ?? '—',
+                    ];
+                }
+                
+                // Detectar cambios en cantidad
+                if (($item['cantidad'] ?? '') !== ($itemAnterior['cantidad'] ?? '')) {
+                    $diferencias[$seccion][$key]['cantidad'] = [
+                        'antes' => $itemAnterior['cantidad'] ?? '—',
+                        'despues' => $item['cantidad'] ?? '—',
+                    ];
+                }
+                
+                // Detectar cambios en novedades
+                if (($item['novedades'] ?? '') !== ($itemAnterior['novedades'] ?? '')) {
+                    $diferencias[$seccion][$key]['novedades'] = [
+                        'antes' => $itemAnterior['novedades'] ?? '—',
+                        'despues' => $item['novedades'] ?? '—',
+                    ];
+                }
+            }
+            
+            // Detectar ítems eliminados
+            foreach ($anteriorItems as $key => $item) {
+                if (!isset($actualItems[$key])) {
+                    $diferencias[$seccion][$key]['eliminado'] = true;
+                }
+            }
+            
+            // Detectar ítems nuevos
+            foreach ($actualItems as $key => $item) {
+                if (!isset($anteriorItems[$key])) {
+                    $diferencias[$seccion][$key]['nuevo'] = true;
+                }
+            }
+        }
+        
+        return $diferencias;
+    }
 }

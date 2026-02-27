@@ -24,6 +24,22 @@ class PlanillasQrController extends Controller
             abort(404);
         }
 
+        // Buscar planillas en edición de este bombero
+        $planillasEnEdicion = Planilla::query()
+            ->where('bombero_id', $bomberoId)
+            ->where('estado', 'en_edicion')
+            ->latest('created_at')
+            ->get();
+
+        // Si hay planillas en edición, mostrar selector
+        if ($planillasEnEdicion->isNotEmpty()) {
+            return view('admin.planillas.qr_selector', [
+                'token' => $token,
+                'planillas' => $planillasEnEdicion,
+            ]);
+        }
+
+        // Si no hay, ir directo a crear nueva
         return redirect()->route('planillas.qr.create.form', ['token' => $token]);
     }
 
@@ -141,5 +157,91 @@ class PlanillasQrController extends Controller
 
         return redirect()->route('planillas.qr.identificar.form', ['token' => $token])
             ->with('success', 'Planilla guardada correctamente.');
+    }
+
+    public function editForm(Request $request, string $token, Planilla $planilla)
+    {
+        $bomberoId = $request->session()->get('planillas_qr_bombero_id');
+        if (!$bomberoId) {
+            return redirect()->route('planillas.qr.identificar.form', ['token' => $token]);
+        }
+
+        // Verificar que la planilla pertenezca al bombero y esté en edición
+        if ($planilla->bombero_id !== $bomberoId || $planilla->estado !== 'en_edicion') {
+            return redirect()->route('planillas.qr.show', ['token' => $token])
+                ->with('error', 'No puedes editar esta planilla.');
+        }
+
+        $link = InventoryQrLink::query()
+            ->where('token', $token)
+            ->where('activo', true)
+            ->firstOrFail();
+
+        if ($link->tipo !== 'planillas') {
+            abort(404);
+        }
+
+        $customItems = \App\Models\PlanillaListItem::where('unidad', $planilla->unidad)
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get()
+            ->groupBy('section');
+
+        return view('admin.planillas.edit_public', [
+            'token' => $token,
+            'planilla' => $planilla,
+            'unidad' => $planilla->unidad,
+            'unidades' => ['B-3', 'BR-3', 'RX-3'],
+            'customItems' => $customItems,
+        ]);
+    }
+
+    public function update(Request $request, string $token, Planilla $planilla)
+    {
+        $bomberoId = $request->session()->get('planillas_qr_bombero_id');
+        if (!$bomberoId) {
+            return redirect()->route('planillas.qr.identificar.form', ['token' => $token]);
+        }
+
+        // Verificar que la planilla pertenezca al bombero y esté en edición
+        if ($planilla->bombero_id !== $bomberoId || $planilla->estado !== 'en_edicion') {
+            return redirect()->route('planillas.qr.show', ['token' => $token])
+                ->with('error', 'No puedes editar esta planilla.');
+        }
+
+        $link = InventoryQrLink::query()
+            ->where('token', $token)
+            ->where('activo', true)
+            ->firstOrFail();
+
+        if ($link->tipo !== 'planillas') {
+            abort(404);
+        }
+
+        $unidades = ['B-3', 'BR-3', 'RX-3'];
+
+        $validated = $request->validate([
+            'unidad' => ['required', 'string', 'max:20', 'in:' . implode(',', $unidades)],
+            'fecha_revision' => ['required', 'date'],
+            'data' => ['nullable', 'array'],
+        ]);
+
+        $estado = $request->has('guardar_finalizar') ? 'finalizado' : 'en_edicion';
+
+        $planilla->update([
+            'unidad' => $validated['unidad'],
+            'fecha_revision' => $validated['fecha_revision'],
+            'data' => $validated['data'] ?? [],
+            'estado' => $estado,
+        ]);
+
+        if ($estado === 'finalizado') {
+            $request->session()->forget('planillas_qr_bombero_id');
+            return redirect()->route('planillas.qr.identificar.form', ['token' => $token])
+                ->with('success', 'Planilla finalizada correctamente.');
+        }
+
+        return redirect()->route('planillas.qr.edit.form', ['token' => $token, 'planilla' => $planilla])
+            ->with('success', 'Cambios guardados. Puedes continuar editando.');
     }
 }
