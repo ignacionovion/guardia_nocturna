@@ -112,33 +112,6 @@
 						</div>
 					</div>
 				@endforeach
-
-				{{-- Ítems dinámicos de Cabina --}}
-				@if(isset($customItems['cabina']))
-					@foreach($customItems['cabina'] as $item)
-						@php($key = $item->item_key)
-						@php($row = $data['cabina'][$key] ?? [])
-						<div class="grid grid-cols-12 gap-2 items-center rounded-xl border border-slate-300 bg-white px-3 py-2">
-							<div class="col-span-12 md:col-span-5 rounded-lg bg-cyan-50 px-3 py-2 border border-cyan-100">
-								<div class="text-sm font-extrabold text-slate-900">{{ $item->label }}</div>
-								<div class="text-[9px] font-bold text-cyan-600 uppercase tracking-tight">Nuevo Item</div>
-							</div>
-							<div class="col-span-6 md:col-span-2">
-								<select name="data[cabina][{{ $key }}][funciona]" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm">
-									<option value="" {{ ($row['funciona'] ?? '') === '' ? 'selected' : '' }}>¿Funciona?</option>
-									<option value="si" {{ ($row['funciona'] ?? '') === 'si' ? 'selected' : '' }}>Sí</option>
-									<option value="no" {{ ($row['funciona'] ?? '') === 'no' ? 'selected' : '' }}>No</option>
-								</select>
-							</div>
-							<div class="col-span-6 md:col-span-2">
-								<input type="text" name="data[cabina][{{ $key }}][cantidad]" value="{{ $row['cantidad'] ?? '' }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm" placeholder="Cant.">
-							</div>
-							<div class="col-span-12 md:col-span-3">
-								<input type="text" name="data[cabina][{{ $key }}][novedades]" value="{{ $row['novedades'] ?? '' }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm" placeholder="Novedades">
-							</div>
-						</div>
-					@endforeach
-				@endif
 			</div>
 		</div>
 	</div>
@@ -171,33 +144,6 @@
 						</div>
 					</div>
 				@endforeach
-
-				{{-- Ítems dinámicos de Trauma --}}
-				@if(isset($customItems['trauma']))
-					@foreach($customItems['trauma'] as $item)
-						@php($key = $item->item_key)
-						@php($row = $data['trauma'][$key] ?? [])
-						<div class="grid grid-cols-12 gap-2 items-center rounded-xl border border-slate-300 bg-white px-3 py-2">
-							<div class="col-span-12 md:col-span-5 rounded-lg bg-cyan-50 px-3 py-2 border border-cyan-100">
-								<div class="text-sm font-extrabold text-slate-900">{{ $item->label }}</div>
-								<div class="text-[9px] font-bold text-cyan-600 uppercase tracking-tight">Nuevo Item</div>
-							</div>
-							<div class="col-span-6 md:col-span-2">
-								<select name="data[trauma][{{ $key }}][funciona]" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm">
-									<option value="" {{ ($row['funciona'] ?? '') === '' ? 'selected' : '' }}>¿Funciona?</option>
-									<option value="si" {{ ($row['funciona'] ?? '') === 'si' ? 'selected' : '' }}>Sí</option>
-									<option value="no" {{ ($row['funciona'] ?? '') === 'no' ? 'selected' : '' }}>No</option>
-								</select>
-							</div>
-							<div class="col-span-6 md:col-span-2">
-								<input type="text" name="data[trauma][{{ $key }}][cantidad]" value="{{ $row['cantidad'] ?? '' }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm" placeholder="Cant.">
-							</div>
-							<div class="col-span-12 md:col-span-3">
-								<input type="text" name="data[trauma][{{ $key }}][novedades]" value="{{ $row['novedades'] ?? '' }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm" placeholder="Novedades">
-							</div>
-						</div>
-					@endforeach
-				@endif
 			</div>
 		</div>
 	</div>
@@ -219,22 +165,6 @@
 						</div>
 					</div>
 				@endforeach
-
-				{{-- Ítems dinámicos de Cantidades --}}
-				@if(isset($customItems['cantidades']))
-					@foreach($customItems['cantidades'] as $item)
-						@php($key = $item->item_key)
-						<div class="grid grid-cols-12 gap-2 items-center rounded-xl border border-slate-300 bg-white px-3 py-2">
-							<div class="col-span-7 rounded-lg bg-cyan-50 px-3 py-2 border border-cyan-100">
-								<div class="text-sm font-extrabold text-slate-900">{{ $item->label }}</div>
-								<div class="text-[9px] font-bold text-cyan-600 uppercase tracking-tight">Nuevo Item</div>
-							</div>
-							<div class="col-span-5">
-								<input type="text" name="data[cantidades][{{ $key }}]" value="{{ $data['cantidades'][$key] ?? '' }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm" placeholder="Cantidad">
-							</div>
-						</div>
-					@endforeach
-				@endif
 			</div>
 
 			<div class="mt-4">
