@@ -152,11 +152,18 @@ class PlanillaController extends Controller
         $data = $this->cleanNullValues($data);
 
         // DEBUG: Log todo el request para ver qué llega del formulario
+        $dataFromRequest = $request->input('data', []);
+        $cabinaData = $dataFromRequest['cabina'] ?? [];
+        $firstCabinaKey = array_key_first($cabinaData) ?? 'none';
+        $firstCabinaValue = $firstCabinaKey !== 'none' ? ($cabinaData[$firstCabinaKey] ?? null) : null;
+        
         \Illuminate\Support\Facades\Log::info('Planilla store REQUEST DATA', [
-            'request_all_data_keys' => array_keys($request->input('data', [])),
-            'cabina_count' => count($request->input('data.cabina', [])),
-            'sample_linterna' => $request->input('data.cabina.linterna_nightstick'),
-            'post_max_size' => ini_get('post_max_size'),
+            'unidad' => $validated['unidad'],
+            'request_all_data_keys' => array_keys($dataFromRequest),
+            'cabina_count' => count($cabinaData),
+            'first_cabina_key' => $firstCabinaKey,
+            'first_cabina_value' => $firstCabinaValue,
+            'cabina_all_keys' => array_keys($cabinaData),
         ]);
 
         $estado = $request->has('guardar_finalizar') ? self::ESTADO_FINALIZADO : self::ESTADO_EN_EDICION;
