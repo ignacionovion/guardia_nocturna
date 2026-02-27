@@ -72,7 +72,8 @@ class SystemEmailService
         ?string $actorEmail = null,
         ?string $senderName = null,
         ?string $senderRole = null,
-        ?string $sourceLabel = null
+        ?string $sourceLabel = null,
+        array $attachments = []
     ): void
     {
         if (!static::shouldSend($type, $actorEmail)) {
@@ -107,6 +108,7 @@ class SystemEmailService
                 fromName: (string) ($from['name'] ?? ''),
                 mailSubject: $subject,
                 lines: $lines,
+                attachments: $attachments,
                 notificationType: $type,
                 sourceLabel: $sourceLabel,
                 senderName: $senderName ?? (auth()->user()?->name ?? 'Sistema'),

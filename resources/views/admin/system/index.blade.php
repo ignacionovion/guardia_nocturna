@@ -190,6 +190,22 @@
                             <div class="text-xs text-slate-500">Enviar al asignar o liberar cama.</div>
                         </div>
                     </label>
+
+                    <label class="flex items-center gap-3 p-4 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100 transition">
+                        <input type="checkbox" name="mail_enabled_planilla" value="1" {{ old('mail_enabled_planilla', ($settings['mail_enabled_planilla'] ?? '0')) === '1' ? 'checked' : '' }} class="rounded text-sky-600 focus:ring-sky-500 h-5 w-5 border-slate-300">
+                        <div class="min-w-0">
+                            <div class="text-sm font-black text-slate-800 uppercase tracking-wide">Planillas</div>
+                            <div class="text-xs text-slate-500">Enviar al presionar "Enviar correo" en planillas.</div>
+                        </div>
+                    </label>
+
+                    <label class="flex items-center gap-3 p-4 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100 transition">
+                        <input type="checkbox" name="mail_enabled_rotation" value="1" {{ old('mail_enabled_rotation', ($settings['mail_enabled_rotation'] ?? '0')) === '1' ? 'checked' : '' }} class="rounded text-purple-600 focus:ring-purple-500 h-5 w-5 border-slate-300">
+                        <div class="min-w-0">
+                            <div class="text-sm font-black text-slate-800 uppercase tracking-wide">Rotación</div>
+                            <div class="text-xs text-slate-500">Enviar resumen al generar rotación semanal.</div>
+                        </div>
+                    </label>
                 </div>
 
                 <div class="mt-6 flex items-center justify-end">

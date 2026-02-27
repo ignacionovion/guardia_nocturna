@@ -68,32 +68,14 @@ class BedQrController extends Controller
 
         if (!$bombero) {
             return back()->withInput()->withErrors([
-                'rut' => 'Bombero no existe en nuestra base de datos.',
+                'rut' => 'El RUT no es válido',
             ]);
         }
 
         // Guardar bombero en sesión
         $request->session()->put('bed_qr_bombero_id', (int) $bombero->id);
 
-        // Verificar si está en guardia activa hoy
-        $activeGuardia = $this->getActiveGuardiaForToday();
-
-        if (!$activeGuardia) {
-            $request->session()->forget('bed_qr_bombero_id');
-            return back()->with('warning', 'No hay guardia activa en este momento.');
-        }
-
-        // Verificar si el bombero está en la guardia activa
-        $isInActiveGuardia = $this->isBomberoInGuardia($bombero->id, $activeGuardia->id);
-
-        // Si no está en la guardia activa, limpiar sesión y redirigir
-        if (!$isInActiveGuardia) {
-            $request->session()->forget('bed_qr_bombero_id');
-            return redirect()->route('camas.scan.not_in_guardia', ['bedId' => $bedId])
-                ->with('info', 'No estás registrado en la guardia de hoy.');
-        }
-
-        // El bombero está en guardia - proceder a asignar cama
+        // Sin restricciones por ahora: proceder directo a asignar cama
         return redirect()->route('camas.scan.assign', ['bedId' => $bedId]);
     }
 
@@ -163,13 +145,6 @@ class BedQrController extends Controller
         if (!$bombero) {
             $request->session()->forget('bed_qr_bombero_id');
             return redirect()->route('camas.scan.form', ['bedId' => $bedId]);
-        }
-
-        // Verificar nuevamente si está en guardia activa
-        $activeGuardia = $this->getActiveGuardiaForToday();
-
-        if (!$activeGuardia || !$this->isBomberoInGuardia($bombero->id, $activeGuardia->id)) {
-            return redirect()->route('camas.scan.not_in_guardia', ['bedId' => $bedId]);
         }
 
         // Liberar cama si está ocupada

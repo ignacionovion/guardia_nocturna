@@ -184,26 +184,33 @@ class AdminCalendarController extends Controller
         $lines[] = '';
         $lines[] = 'Para ver el calendario completo, ingresa al sistema.';
 
-        // Use SystemEmailService if available
+        $mailBody = implode("\n", $lines);
+
+        // Prefer SystemEmailService (respeta mail_enabled_rotation). Si está disponible, se envía a los destinatarios ingresados.
         if (class_exists(\App\Services\SystemEmailService::class)) {
-            \App\Services\SystemEmailService::send(
-                type: 'rotation',
-                subject: $subject,
+            \Illuminate\Support\Facades\Mail::to($emails)->send(new \App\Mail\SystemNotificationMail(
+                fromAddress: (string) (\App\Services\SystemEmailService::from()['address'] ?? ''),
+                fromName: (string) (\App\Services\SystemEmailService::from()['name'] ?? ''),
+                mailSubject: $subject,
                 lines: $lines,
-                sourceLabel: 'Calendario'
-            );
-        } else {
-            // Fallback to direct mail
-            $mailBody = implode("\n", $lines);
-            foreach ($emails as $email) {
-                try {
-                    \Illuminate\Support\Facades\Mail::raw($mailBody, function($message) use ($email, $subject) {
-                        $message->to($email)->subject($subject);
-                    });
-                } catch (\Exception $e) {
-                    // Log error but don't stop execution
-                    \Illuminate\Support\Facades\Log::error('Error enviando email de rotación: ' . $e->getMessage());
-                }
+                attachments: [],
+                notificationType: 'rotation',
+                sourceLabel: 'Calendario',
+                senderName: auth()->user()?->name,
+                senderEmail: auth()->user()?->email,
+                senderRole: auth()->user()?->role,
+            ));
+            return;
+        }
+
+        // Fallback a mail raw
+        foreach ($emails as $email) {
+            try {
+                \Illuminate\Support\Facades\Mail::raw($mailBody, function($message) use ($email, $subject) {
+                    $message->to($email)->subject($subject);
+                });
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Error enviando email de rotación: ' . $e->getMessage());
             }
         }
     }

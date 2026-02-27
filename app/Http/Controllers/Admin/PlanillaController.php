@@ -139,7 +139,14 @@ class PlanillaController extends Controller
             'data.cabina' => ['nullable', 'array'],
             'data.trauma' => ['nullable', 'array'],
             'data.cantidades' => ['nullable', 'array'],
+            'data.cantidades_novedades' => ['nullable', 'array'],
+            'data.observaciones_generales' => ['nullable', 'string'],
         ]);
+
+        $data = $request->input('data');
+        if (!is_array($data)) {
+            $data = [];
+        }
 
         $estado = $request->has('guardar_finalizar') ? self::ESTADO_FINALIZADO : self::ESTADO_EN_EDICION;
 
@@ -147,7 +154,7 @@ class PlanillaController extends Controller
             'unidad' => $validated['unidad'],
             'fecha_revision' => $validated['fecha_revision'],
             'created_by' => (int) $request->user()->id,
-            'data' => $validated['data'] ?? [],
+            'data' => $data,
             'estado' => $estado,
         ]);
 
@@ -196,14 +203,21 @@ class PlanillaController extends Controller
             'data.cabina' => ['nullable', 'array'],
             'data.trauma' => ['nullable', 'array'],
             'data.cantidades' => ['nullable', 'array'],
+            'data.cantidades_novedades' => ['nullable', 'array'],
+            'data.observaciones_generales' => ['nullable', 'string'],
         ]);
+
+        $data = $request->input('data');
+        if (!is_array($data)) {
+            $data = [];
+        }
 
         $estado = $request->has('guardar_finalizar') ? self::ESTADO_FINALIZADO : self::ESTADO_EN_EDICION;
 
         $planilla->update([
             'unidad' => $validated['unidad'],
             'fecha_revision' => $validated['fecha_revision'],
-            'data' => $validated['data'] ?? [],
+            'data' => $data,
             'estado' => $estado,
         ]);
 
@@ -269,10 +283,17 @@ class PlanillaController extends Controller
     public function email(Planilla $planilla)
     {
         $planilla->load(['creador', 'bombero']);
+
+        $customItems = \App\Models\PlanillaListItem::where('unidad', $planilla->unidad)
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get()
+            ->groupBy('section');
         
         // Generate PDF
         $pdf = \PDF::loadView('admin.planillas.pdf', [
             'planilla' => $planilla,
+            'customItems' => $customItems,
         ]);
         
         // Send email with PDF attachment
@@ -289,7 +310,14 @@ class PlanillaController extends Controller
                 type: 'planilla',
                 subject: $subject,
                 lines: $lines,
-                sourceLabel: 'Planillas'
+                sourceLabel: 'Planillas',
+                attachments: [
+                    [
+                        'name' => 'planilla-' . $planilla->unidad . '-' . $planilla->fecha_revision->format('Y-m-d') . '.pdf',
+                        'mime' => 'application/pdf',
+                        'data' => $pdf->output(),
+                    ],
+                ]
             );
         }
         
