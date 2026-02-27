@@ -132,6 +132,12 @@ class PlanillaController extends Controller
 
     public function store(Request $request)
     {
+        // DEBUG: Log raw POST data before any Laravel processing
+        \Illuminate\Support\Facades\Log::info('Planilla store RAW POST', [
+            'post_data' => $_POST['data'] ?? 'NO POST DATA',
+            'content_type' => $_SERVER['CONTENT_TYPE'] ?? 'unknown',
+            'request_method' => $_SERVER['REQUEST_METHOD'] ?? 'unknown',
+        ]);
         $validated = $request->validate([
             'unidad' => ['required', 'string', 'max:20', 'in:' . implode(',', self::UNIDADES)],
             'fecha_revision' => ['required', 'date'],
