@@ -70,19 +70,21 @@
             </div>
             <div class="p-4 bg-sky-50">
                 @if($sec === 'cantidades')
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <div class="grid grid-cols-1 gap-2">
                         @foreach(($data['cantidades'] ?? []) as $k => $v)
                             <div class="rounded-xl border border-slate-200 bg-white px-4 py-2">
                                 <div class="flex items-center justify-between">
                                     <div class="text-sm font-extrabold text-slate-900">{{ $k }}</div>
-                                    <div class="text-sm font-extrabold text-slate-700">{{ $v !== '' ? $v : '—' }}</div>
+                                    @if(is_array($v))
+                                        <div class="text-sm font-extrabold text-slate-700">
+                                            @foreach($v as $subK => $subV)
+                                                {{ $subK }}: {{ $subV }}@if(!$loop->last), @endif
+                                            @endforeach
+                                        </div>
+                                    @else
+                                        <div class="text-sm font-extrabold text-slate-700">{{ $v !== '' ? $v : '—' }}</div>
+                                    @endif
                                 </div>
-                                @php($nov = $data['cantidades_novedades'][$k] ?? '')
-                                @if((string) $v === '0' && trim((string) $nov) !== '')
-                                    <div class="mt-2 text-xs font-semibold text-slate-600">
-                                        Novedad: {{ $nov }}
-                                    </div>
-                                @endif
                             </div>
                         @endforeach
                     </div>
