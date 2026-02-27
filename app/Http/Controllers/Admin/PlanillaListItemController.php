@@ -26,6 +26,9 @@ class PlanillaListItemController extends Controller
 
         $section = $request->string('section')->toString();
         $section = $section !== '' ? $section : null;
+        if ($section === null) {
+            $section = array_key_first(self::SECTIONS);
+        }
         if ($section !== null && !array_key_exists($section, self::SECTIONS)) {
             $section = array_key_first(self::SECTIONS);
         }

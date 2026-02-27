@@ -121,16 +121,18 @@
     </div>
 
     {{-- Lista de items estilo planilla QR --}}
+    @php($itemsCount = is_countable($items) ? count($items) : $items->count())
+
     <div class="bg-white rounded-2xl border border-teal-900/20 overflow-hidden shadow-sm">
         <div class="p-4 bg-sky-50">
             <div class="rounded-xl border border-teal-900/20 bg-sky-100 px-4 py-2 mb-4">
                 <div class="text-xs font-black uppercase tracking-widest text-slate-900 flex items-center gap-2">
                     <i class="fas fa-list-check"></i>
-                    {{ $sections[$sectionSeleccionada] ?? $sectionSeleccionada }} - {{ $items->count() }} ítems
+                    {{ $sections[$sectionSeleccionada] ?? $sectionSeleccionada }} - {{ $itemsCount }} ítems
                 </div>
             </div>
             
-            @if($items->count() > 0)
+            @if($itemsCount > 0)
                 @if($isStatic)
                     <div class="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
                         <div class="flex items-center gap-2 text-amber-800 text-sm font-semibold">
