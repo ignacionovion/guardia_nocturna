@@ -26,8 +26,8 @@ class BedQrController extends Controller
             $request->session()->forget('bed_qr_bombero_id');
         }
 
-        // Verificar si estamos dentro del horario de guardia
-        $withinHours = $this->isWithinGuardiaHours();
+        // Sin restricciones por ahora: siempre permitir el flujo de asignación
+        $withinHours = true;
 
         // Si ya hay un bombero identificado en sesión, mostrar info
         $bombero = null;
