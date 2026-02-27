@@ -109,21 +109,23 @@
 
             {{-- Botones de Acción --}}
             <div class="flex gap-2">
-                <button type="submit" class="bg-sky-600 hover:bg-sky-700 text-white font-black py-3 px-6 rounded-xl text-sm transition-all shadow-lg shadow-sky-500/30 hover:shadow-sky-500/50 flex items-center gap-2 uppercase tracking-wider">
+                <button type="submit" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-900 text-white font-extrabold text-xs uppercase tracking-widest transition-all shadow-md hover:shadow-lg">
                     <i class="fas fa-filter"></i> Filtrar
                 </button>
-                <a href="{{ route('admin.reports.refuerzos') }}" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-black py-3 px-4 rounded-xl text-sm transition-all flex items-center gap-2" title="Limpiar filtros">
+                <a href="{{ route('admin.reports.refuerzos') }}" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs uppercase tracking-widest transition-all" title="Limpiar filtros">
                     <i class="fas fa-rotate-left"></i>
                 </a>
             </div>
 
-            {{-- Botones de Exportación --}}
+            {{-- Botones de Exportación Profesionales --}}
             <div class="ml-auto flex gap-2">
-                <a href="{{ route('admin.reports.refuerzos.export', ['format' => 'excel'] + request()->all()) }}" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 px-4 rounded-xl text-sm transition-all shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 flex items-center gap-2">
-                    <i class="fas fa-file-excel"></i> Excel
+                <a href="{{ route('admin.reports.refuerzos.export', ['format' => 'excel'] + request()->all()) }}" 
+                   class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-extrabold text-xs uppercase tracking-widest transition-all shadow-sm hover:shadow-md">
+                    <i class="fas fa-file-excel text-emerald-600"></i> Excel
                 </a>
-                <a href="{{ route('admin.reports.refuerzos.export', ['format' => 'pdf'] + request()->all()) }}" target="_blank" class="bg-rose-600 hover:bg-rose-700 text-white font-black py-3 px-4 rounded-xl text-sm transition-all shadow-lg shadow-rose-500/30 hover:shadow-rose-500/50 flex items-center gap-2">
-                    <i class="fas fa-file-pdf"></i> PDF
+                <a href="{{ route('admin.reports.refuerzos.export', ['format' => 'pdf'] + request()->all()) }}" target="_blank"
+                   class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-extrabold text-xs uppercase tracking-widest transition-all shadow-sm hover:shadow-md">
+                    <i class="fas fa-file-pdf text-rose-600"></i> PDF
                 </a>
             </div>
         </form>

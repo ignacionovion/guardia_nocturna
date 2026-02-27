@@ -12,15 +12,15 @@
             <p class="text-slate-500 mt-1 text-sm">Estadísticas de asistencia, permisos, reemplazos y conductores</p>
         </div>
         
-        {{-- Botones de Exportación --}}
+        {{-- Botones de Exportación Profesionales --}}
         <div class="flex items-center gap-2">
             <a href="{{ route('admin.reports.attendance.export', ['format' => 'excel'] + request()->all()) }}" 
-               class="bg-emerald-600 hover:bg-emerald-700 text-white font-black py-2.5 px-4 rounded-lg text-sm transition-all shadow-md hover:shadow-lg flex items-center gap-2">
-                <i class="fas fa-file-excel"></i> Excel
+               class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-extrabold text-xs uppercase tracking-widest transition-all shadow-sm hover:shadow-md">
+                <i class="fas fa-file-excel text-emerald-600"></i> Excel
             </a>
             <a href="{{ route('admin.reports.attendance.export', ['format' => 'pdf'] + request()->all()) }}" target="_blank"
-               class="bg-rose-600 hover:bg-rose-700 text-white font-black py-2.5 px-4 rounded-lg text-sm transition-all shadow-md hover:shadow-lg flex items-center gap-2">
-                <i class="fas fa-file-pdf"></i> PDF
+               class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-extrabold text-xs uppercase tracking-widest transition-all shadow-sm hover:shadow-md">
+                <i class="fas fa-file-pdf text-rose-600"></i> PDF
             </a>
         </div>
     </div>
@@ -133,21 +133,23 @@
 
             {{-- Botón Filtrar --}}
             <div class="flex gap-2">
-                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-black py-2.5 px-5 rounded-xl text-sm transition-all shadow-lg shadow-red-500/30 hover:shadow-red-500/50 flex items-center gap-2 uppercase tracking-wider">
+                <button type="submit" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-900 text-white font-extrabold text-xs uppercase tracking-widest transition-all shadow-md hover:shadow-lg">
                     <i class="fas fa-filter"></i> Filtrar
                 </button>
-                <a href="{{ route('admin.reports.attendance') }}" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-black py-2.5 px-4 rounded-xl text-sm transition-all flex items-center gap-2 uppercase tracking-wider" title="Limpiar filtros">
+                <a href="{{ route('admin.reports.attendance') }}" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs uppercase tracking-widest transition-all" title="Limpiar filtros">
                     <i class="fas fa-undo"></i>
                 </a>
             </div>
 
-            {{-- Botones de Exportación --}}
+            {{-- Botones de Exportación Profesionales --}}
             <div class="ml-auto flex gap-2">
-                <a href="{{ route('admin.reports.attendance', ['export' => 'excel'] + request()->all()) }}" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black py-2.5 px-4 rounded-xl text-sm transition-all shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 flex items-center gap-2">
-                    <i class="fas fa-file-excel"></i> Excel
+                <a href="{{ route('admin.reports.attendance.export', ['format' => 'excel'] + request()->all()) }}" 
+                   class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-extrabold text-xs uppercase tracking-widest transition-all shadow-sm hover:shadow-md">
+                    <i class="fas fa-file-excel text-emerald-600"></i> Excel
                 </a>
-                <a href="{{ route('admin.reports.attendance', ['export' => 'pdf'] + request()->all()) }}" target="_blank" class="bg-rose-600 hover:bg-rose-700 text-white font-black py-2.5 px-4 rounded-xl text-sm transition-all shadow-lg shadow-rose-500/30 hover:shadow-rose-500/50 flex items-center gap-2">
-                    <i class="fas fa-file-pdf"></i> PDF
+                <a href="{{ route('admin.reports.attendance.export', ['format' => 'pdf'] + request()->all()) }}" target="_blank"
+                   class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-extrabold text-xs uppercase tracking-widest transition-all shadow-sm hover:shadow-md">
+                    <i class="fas fa-file-pdf text-rose-600"></i> PDF
                 </a>
             </div>
         </form>

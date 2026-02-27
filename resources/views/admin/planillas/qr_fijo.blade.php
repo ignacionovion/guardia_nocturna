@@ -41,13 +41,6 @@
                 <div class="relative bg-white p-8 rounded-3xl border-2 border-slate-800 shadow-xl">
                     <div class="relative">
                         {!! $qrSvg !!}
-                        
-                        {{-- Logo Overlay --}}
-                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                            <div class="w-20 h-20 bg-white rounded-xl shadow-lg p-2 flex items-center justify-center border-2 border-slate-200">
-                                <img src="{{ asset('brand/Logo png Alta Def.png') }}" alt="Logo" class="w-14 h-14 object-contain">
-                            </div>
-                        </div>
                     </div>
                 </div>
                 

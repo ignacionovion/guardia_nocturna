@@ -83,7 +83,7 @@
                             </th>
                             <th scope="col" class="px-3 md:px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Identificación</th>
                             <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider hidden md:table-cell">Cargo / Rol</th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider hidden lg:table-cell">Contacto</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider hidden lg:table-cell">N° Registro</th>
                             <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider hidden lg:table-cell">Especialidades</th>
                             <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider hidden md:table-cell">Guardia</th>
                             <th scope="col" class="px-3 md:px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Acciones</th>
@@ -161,8 +161,10 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap hidden lg:table-cell">
                                     <div class="text-sm text-slate-600 flex flex-col gap-1">
-                                        @if($volunteer->numero_portatil)
-                                            <span class="flex items-center"><i class="fas fa-walkie-talkie text-slate-400 mr-2 w-4"></i> {{ Str::limit($volunteer->numero_portatil, 20) }}</span>
+                                        @if($volunteer->numero_registro)
+                                            <span class="flex items-center"><i class="fas fa-id-card text-slate-400 mr-2 w-4"></i> {{ $volunteer->numero_registro }}</span>
+                                        @else
+                                            <span class="text-slate-400">-</span>
                                         @endif
                                     </div>
                                 </td>

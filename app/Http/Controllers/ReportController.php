@@ -527,6 +527,95 @@ class ReportController extends Controller
             'guardiaComparison' => $guardiaComparison,
         ]);
     }
+
+    /**
+     * Exportar reporte de asistencia (Excel/PDF)
+     */
+    public function attendanceExport(Request $request)
+    {
+        $user = auth()->user();
+        if ($user->role !== 'super_admin') {
+            abort(403, 'No autorizado.');
+        }
+
+        $format = $request->input('format', 'excel');
+        $guardiaId = $request->input('guardia_id');
+        $guardiaId = $guardiaId !== null && $guardiaId !== '' ? (int) $guardiaId : null;
+
+        try {
+            $from = $request->input('from') ? Carbon::parse($request->input('from'))->startOfDay() : now()->subDays(30)->startOfDay();
+        } catch (\Exception $e) {
+            $from = now()->subDays(30)->startOfDay();
+        }
+        try {
+            $to = $request->input('to') ? Carbon::parse($request->input('to'))->endOfDay() : now()->endOfDay();
+        } catch (\Exception $e) {
+            $to = now()->endOfDay();
+        }
+
+        $currentView = $request->input('view', 'guardias');
+        if ($currentView === 'general') {
+            $guardiaId = null;
+        }
+
+        if ($format === 'pdf') {
+            return $this->attendancePdf($from, $to, $guardiaId, $currentView);
+        }
+
+        // Excel export
+        $firefighterStats = collect($this->calculateFirefighterStats($from, $to, $guardiaId));
+        
+        $headings = ['Código', 'Nombre', 'Guardia', 'Turnos', 'Cumplidos', 'Ausencias', 'Permisos', 'Licencias', '% Cumplimiento'];
+        
+        $rows = $firefighterStats->map(function ($s) {
+            return [
+                $s['code'],
+                $s['name'],
+                $s['guardia_name'],
+                $s['shift'],
+                $s['fulfilled'],
+                $s['absences'],
+                $s['permissions'],
+                $s['licenses'],
+                $s['percentage'] . '%',
+            ];
+        })->toArray();
+
+        $suffix = $guardiaId ? ('_guardia_' . $guardiaId) : '';
+        $filename = 'reporte_asistencia_' . $from->format('Ymd') . '_' . $to->format('Ymd') . $suffix . '.xlsx';
+
+        return Excel::download(new \App\Exports\GenericReportExport($rows, $headings), $filename);
+    }
+
+    /**
+     * Generar PDF de asistencia
+     */
+    private function attendancePdf(Carbon $from, Carbon $to, ?int $guardiaId, string $view)
+    {
+        $firefighterStats = collect($this->calculateFirefighterStats($from, $to, $guardiaId));
+        $generalStats = $this->calculateGeneralStats($from, $to, $guardiaId);
+        $guardias = Guardia::orderBy('name')->get();
+        $activeGuardia = $guardiaId ? Guardia::find($guardiaId) : null;
+
+        $data = [
+            'stats' => $firefighterStats,
+            'from' => $from,
+            'to' => $to,
+            'guardiaId' => $guardiaId,
+            'guardias' => $guardias,
+            'activeGuardia' => $activeGuardia,
+            'generalStats' => $generalStats,
+            'generalPercentage' => $generalStats['percentage'] ?? 0,
+            'view' => $view,
+            'generatedAt' => now(),
+        ];
+
+        $pdf = \PDF::loadView('admin.reports.attendance_pdf', $data);
+        $pdf->setPaper('a4', 'landscape');
+        
+        $suffix = $guardiaId ? '_guardia_' . $guardiaId : '';
+        return $pdf->download('reporte_asistencia_' . $from->format('Y-m-d') . $suffix . '.pdf');
+    }
     private function calculateWeekStats(Carbon $weekStart, Carbon $weekEnd, ?int $guardiaId): array
     {
         $query = ShiftUser::query()
@@ -1075,6 +1164,172 @@ class ReportController extends Controller
             'charts',
             'kpis'
         ));
+    }
+
+    /**
+     * Exportar reporte de emergencias (Excel/PDF)
+     */
+    public function emergenciesExport(Request $request)
+    {
+        $user = auth()->user();
+        if ($user->role !== 'super_admin') {
+            abort(403, 'No autorizado.');
+        }
+
+        $format = $request->input('format', 'excel');
+        $month = (int) $request->input('month', now()->month);
+        $year = (int) $request->input('year', now()->year);
+        $guardiaId = $request->input('guardia_id');
+
+        // Base query para emergencias
+        $emergenciesQuery = Emergency::query()
+            ->with(['guardia', 'key', 'units'])
+            ->whereYear('created_at', $year)
+            ->whereMonth('created_at', $month);
+
+        if ($guardiaId) {
+            $emergenciesQuery->where('guardia_id', $guardiaId);
+        }
+
+        $emergencies = $emergenciesQuery->get();
+
+        if ($format === 'pdf') {
+            $data = [
+                'emergencies' => $emergencies,
+                'month' => $month,
+                'year' => $year,
+                'guardiaId' => $guardiaId,
+                'guardiaNombre' => $guardiaId ? Guardia::find($guardiaId)?->name : 'Todas',
+                'total' => $emergencies->count(),
+                'generatedAt' => now(),
+            ];
+
+            $pdf = \PDF::loadView('admin.reports.emergencies_pdf', $data);
+            $pdf->setPaper('a4', 'landscape');
+            
+            $suffix = $guardiaId ? '_guardia_' . $guardiaId : '';
+            return $pdf->download('reporte_emergencias_' . $year . '_' . $month . $suffix . '.pdf');
+        }
+
+        // Excel export
+        $headings = ['Fecha', 'Hora', 'Clave', 'Descripción', 'Guardia', 'Unidades', 'Oficial a Cargo', 'Detalles'];
+        
+        $rows = $emergencies->map(function ($e) {
+            $units = $e->units->pluck('name')->implode(', ');
+            $officer = $e->officerInCharge ? trim($e->officerInCharge->nombres . ' ' . $e->officerInCharge->apellido_paterno) : 'Sin asignar';
+            
+            return [
+                $e->created_at?->format('d/m/Y'),
+                $e->created_at?->format('H:i'),
+                $e->key?->code ?? 'Sin clave',
+                $e->key?->description ?? '',
+                $e->guardia?->name ?? 'Sin guardia',
+                $units ?: 'Sin unidades',
+                $officer,
+                \Illuminate\Support\Str::limit($e->details, 100),
+            ];
+        })->toArray();
+
+        $suffix = $guardiaId ? '_guardia_' . $guardiaId : '';
+        $filename = 'reporte_emergencias_' . $year . '_' . $month . $suffix . '.xlsx';
+
+        return Excel::download(new \App\Exports\GenericReportExport($rows, $headings), $filename);
+    }
+
+    /**
+     * Exportar reporte de conductores (Excel/PDF)
+     */
+    public function driversExport(Request $request)
+    {
+        $user = auth()->user();
+        if ($user->role !== 'super_admin') {
+            abort(403, 'No autorizado.');
+        }
+
+        $format = $request->input('format', 'excel');
+        $month = (int) $request->input('month', now()->month);
+        $year = (int) $request->input('year', now()->year);
+
+        $hasShiftUsersAttendanceStatus = Schema::hasColumn('shift_users', 'attendance_status');
+        $hasShiftUsersFirefighterId = Schema::hasColumn('shift_users', 'firefighter_id');
+
+        $drivers = Bombero::query()
+            ->with('guardia')
+            ->where('es_conductor', true)
+            ->orderBy('apellido_paterno')
+            ->orderBy('nombres')
+            ->get();
+
+        $driverIds = $drivers->pluck('id')->map(fn ($v) => (int) $v)->values()->toArray();
+        $rows = [];
+
+        if (!empty($driverIds) && $hasShiftUsersFirefighterId) {
+            $shiftUsers = ShiftUser::query()
+                ->whereYear('start_time', $year)
+                ->whereNotNull('start_time')
+                ->whereIn('firefighter_id', $driverIds)
+                ->get(['firefighter_id', 'start_time', 'attendance_status', 'present']);
+
+            $resolved = $shiftUsers
+                ->map(function ($r) use ($hasShiftUsersAttendanceStatus) {
+                    if (!$r->start_time) return null;
+                    $r->shift_day = $this->resolveShiftDay($r->start_time);
+                    $r->resolved_present = $hasShiftUsersAttendanceStatus
+                        ? in_array($r->attendance_status, ['constituye', 'reemplazo'], true)
+                        : (bool) $r->present;
+                    return $r;
+                })
+                ->filter()
+                ->filter(fn ($r) => (int) $r->shift_day->month === (int) $month)
+                ->values();
+
+            $byDriver = $resolved->groupBy(fn ($r) => (int) $r->firefighter_id);
+
+            foreach ($drivers as $d) {
+                $items = $byDriver->get((int) $d->id, collect());
+                $present = $items->filter(fn ($r) => (bool) $r->resolved_present)->count();
+                $days = $items->map(fn ($r) => $r->shift_day->toDateString())->unique()->count();
+
+                $rows[] = [
+                    'firefighter_id' => (int) $d->id,
+                    'name' => trim((string) ($d->nombres ?? '') . ' ' . (string) ($d->apellido_paterno ?? '')),
+                    'guardia' => $d->guardia?->name ?? 'Sin Asignar',
+                    'present_shifts' => (int) $present,
+                    'unique_days' => (int) $days,
+                ];
+            }
+        }
+
+        if ($format === 'pdf') {
+            $data = [
+                'drivers' => $rows,
+                'month' => $month,
+                'year' => $year,
+                'total' => count($rows),
+                'generatedAt' => now(),
+            ];
+
+            $pdf = \PDF::loadView('admin.reports.drivers_pdf', $data);
+            $pdf->setPaper('a4', 'portrait');
+            
+            return $pdf->download('reporte_conductores_' . $year . '_' . $month . '.pdf');
+        }
+
+        // Excel export
+        $headings = ['Nombre', 'Guardia', 'Turnos Presente', 'Días Únicos'];
+        
+        $exportRows = collect($rows)->map(function ($r) {
+            return [
+                $r['name'],
+                $r['guardia'],
+                $r['present_shifts'],
+                $r['unique_days'],
+            ];
+        })->toArray();
+
+        $filename = 'reporte_conductores_' . $year . '_' . $month . '.xlsx';
+
+        return Excel::download(new \App\Exports\GenericReportExport($exportRows, $headings), $filename);
     }
 
     public function replacements(Request $request)

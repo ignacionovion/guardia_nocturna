@@ -15,6 +15,7 @@ class ShiftUser extends Model
         'role', 
         'present',
         'attendance_status',
+        'confirmed_at',
         'assignment_type',
         'replaced_user_id',
         'replaced_firefighter_id',
@@ -26,6 +27,7 @@ class ShiftUser extends Model
         'present' => 'boolean',
         'start_time' => 'datetime',
         'end_time' => 'datetime',
+        'confirmed_at' => 'datetime',
     ];
 
     public function shift()

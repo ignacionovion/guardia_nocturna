@@ -1132,7 +1132,7 @@ class AdministradorController extends Controller
             ]);
         }
 
-        DB::transaction(function () use ($data, $guardia, $shift, $tz) {
+        DB::transaction(function () use ($data, $guardia, $shift, $tz, $tokensById) {
             $lockedReplacementIds = ReemplazoBombero::query()
                 ->where('estado', 'activo')
                 ->pluck('bombero_reemplazante_id')
@@ -1177,6 +1177,14 @@ class AdministradorController extends Controller
                 }
                 if (Schema::hasColumn('shift_users', 'attendance_status')) {
                     $shiftUserPayload['attendance_status'] = $attendanceStatus;
+                }
+                // Store confirmed_at if token is valid (for present statuses)
+                $presentStatuses = ['constituye', 'reemplazo', 'falta'];
+                if (in_array($attendanceStatus, $presentStatuses, true)) {
+                    $token = $tokensById->get((int) $firefighterId);
+                    if ($this->validateAttendanceConfirmToken((int) $guardia->id, (int) $firefighter->id, $token)) {
+                        $shiftUserPayload['confirmed_at'] = Carbon::now($tz);
+                    }
                 }
 
                 ShiftUser::updateOrCreate(

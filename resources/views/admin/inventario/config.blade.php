@@ -17,6 +17,14 @@
 
         @if($bodega)
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                <a href="{{ route('inventario.snapshot.pdf') }}" target="_blank" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-800 font-extrabold text-[11px] uppercase tracking-widest">
+                    <i class="fas fa-file-pdf"></i>
+                    Descargar PDF
+                </a>
+                <button type="button" onclick="sendBodegaSnapshotEmail()" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-extrabold text-[11px] uppercase tracking-widest">
+                    <i class="fas fa-envelope"></i>
+                    Enviar por Email
+                </button>
                 <a href="{{ route('inventario.qr.admin') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-extrabold text-[11px] uppercase tracking-widest">
                     <i class="fas fa-qrcode"></i>
                     Ver QR
@@ -247,6 +255,38 @@
 
 @push('scripts')
 <script>
+    // Send snapshot email function
+    async function sendBodegaSnapshotEmail() {
+        const btn = document.querySelector('button[onclick="sendBodegaSnapshotEmail()"]');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+        btn.disabled = true;
+
+        try {
+            const res = await fetch('{{ route('inventario.snapshot.email') }}', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                },
+                credentials: 'same-origin'
+            });
+
+            const json = await res.json();
+
+            if (json.success) {
+                alert('✓ ' + json.message);
+            } else {
+                alert('✗ ' + (json.error || 'Error al enviar'));
+            }
+        } catch (e) {
+            alert('✗ Error de conexión al enviar email');
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    }
+
     (function () {
         const input = document.getElementById('invStockSearch');
         const grid = document.getElementById('invStockGrid');

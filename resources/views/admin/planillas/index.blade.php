@@ -119,5 +119,120 @@
             {{ $planillas->links() }}
         </div>
     </div>
+
+    {{-- Sección Historial --}}
+    <div class="mt-8">
+        <div class="text-xs font-black uppercase tracking-widest text-slate-500 mb-4">Historial de Actividad</div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {{-- Grid 1: Cambios de Guardias --}}
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-slate-200 bg-slate-50">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-users text-slate-600"></i>
+                        <div class="text-sm font-extrabold text-slate-900">Cambios de Guardias (Últimos 7 días)</div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto max-h-96 overflow-y-auto">
+                    <table class="min-w-full text-sm">
+                        <thead class="bg-slate-50 border-b border-slate-200 sticky top-0">
+                            <tr class="text-xs font-black uppercase tracking-widest text-slate-600">
+                                <th class="text-left px-4 py-2">Fecha</th>
+                                <th class="text-left px-4 py-2">Guardia</th>
+                                <th class="text-left px-4 py-2">Bombero</th>
+                                <th class="text-left px-4 py-2">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            @forelse($guardiaChanges as $change)
+                                @php
+                                    $badgeClass = fn($status) => match($status) {
+                                        'constituye' => 'bg-emerald-100 text-emerald-800',
+                                        'reemplazo' => 'bg-blue-100 text-blue-800',
+                                        'refuerzo' => 'bg-purple-100 text-purple-800',
+                                        'permiso' => 'bg-amber-100 text-amber-800',
+                                        'ausente' => 'bg-rose-100 text-rose-800',
+                                        'licencia' => 'bg-indigo-100 text-indigo-800',
+                                        'falta' => 'bg-red-100 text-red-800',
+                                        default => 'bg-slate-100 text-slate-800',
+                                    };
+                                @endphp
+                                <tr class="hover:bg-slate-50">
+                                    <td class="px-4 py-3 text-xs text-slate-600">{{ $change['fecha']?->format('d/m H:i') }}</td>
+                                    <td class="px-4 py-3 text-xs font-bold">{{ $change['guardia']?->name ?? '—' }}</td>
+                                    <td class="px-4 py-3 text-xs">{{ $change['firefighter']?->full_name ?? '—' }}</td>
+                                    <td class="px-4 py-3">
+                                        <div class="flex items-center gap-1 text-xs">
+                                            <span class="px-2 py-1 rounded font-bold uppercase {{ $badgeClass($change['estado_anterior']) }}">
+                                                {{ strtoupper($change['estado_anterior']) }}
+                                            </span>
+                                            <i class="fas fa-arrow-right text-slate-400"></i>
+                                            <span class="px-2 py-1 rounded font-bold uppercase {{ $badgeClass($change['estado_nuevo']) }}">
+                                                {{ strtoupper($change['estado_nuevo']) }}
+                                            </span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="px-4 py-8 text-center text-slate-500 text-sm">No hay cambios de estado registrados</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {{-- Grid 2: Bitácora / Nuevos Items --}}
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-slate-200 bg-slate-50">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-clipboard-list text-slate-600"></i>
+                        <div class="text-sm font-extrabold text-slate-900">Bitácora - Novedades (Últimos 7 días)</div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto max-h-96 overflow-y-auto">
+                    <table class="min-w-full text-sm">
+                        <thead class="bg-slate-50 border-b border-slate-200 sticky top-0">
+                            <tr class="text-xs font-black uppercase tracking-widest text-slate-600">
+                                <th class="text-left px-4 py-2">Fecha</th>
+                                <th class="text-left px-4 py-2">Tipo</th>
+                                <th class="text-left px-4 py-2">Descripción</th>
+                                <th class="text-left px-4 py-2">Usuario</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            @forelse($bitacora as $item)
+                                <tr class="hover:bg-slate-50">
+                                    <td class="px-4 py-3 text-xs text-slate-600">{{ $item['fecha']?->format('d/m H:i') }}</td>
+                                    <td class="px-4 py-3">
+                                        <span class="px-2 py-1 rounded text-xs font-bold uppercase
+                                            {{ $item['tipo'] === 'Planilla' ? 'bg-purple-100 text-purple-800' : '' }}
+                                            {{ $item['tipo'] === 'Inventario' ? 'bg-orange-100 text-orange-800' : '' }}
+                                            {{ $item['tipo'] === 'Novedad' ? 'bg-cyan-100 text-cyan-800' : '' }}
+                                        ">
+                                            {{ $item['tipo'] }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 text-xs">
+                                        @if($item['link'])
+                                            <a href="{{ $item['link'] }}" class="text-blue-600 hover:underline">{{ $item['descripcion'] }}</a>
+                                        @else
+                                            {{ $item['descripcion'] }}
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 text-xs text-slate-600">{{ $item['usuario'] }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="px-4 py-8 text-center text-slate-500 text-sm">No hay registros nuevos</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection

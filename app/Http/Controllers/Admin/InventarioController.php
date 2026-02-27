@@ -394,4 +394,136 @@ class InventarioController extends Controller
             'movimientos' => $movimientos,
         ]);
     }
+
+    /**
+     * Generar PDF snapshot del inventario actual
+     */
+    public function snapshotPdf(Request $request)
+    {
+        $user = $request->user();
+        if (!$user) {
+            abort(403);
+        }
+
+        $bodega = InventoryWarehouse::query()
+            ->where('activo', true)
+            ->orderBy('id')
+            ->first();
+
+        if (!$bodega) {
+            abort(404, 'No hay bodega configurada.');
+        }
+
+        $items = InventoryItem::query()
+            ->where('bodega_id', $bodega->id)
+            ->where('activo', true)
+            ->orderBy('categoria')
+            ->orderBy('titulo')
+            ->orderBy('variante')
+            ->get();
+
+        // Obtener movimientos del día
+        $movimientosHoy = InventoryMovement::query()
+            ->with(['item', 'firefighter'])
+            ->where('bodega_id', $bodega->id)
+            ->whereDate('created_at', today())
+            ->orderByDesc('created_at')
+            ->get();
+
+        $data = [
+            'bodega' => $bodega,
+            'items' => $items,
+            'movimientosHoy' => $movimientosHoy,
+            'generatedAt' => now(),
+            'generatedBy' => $user->name,
+        ];
+
+        $pdf = \PDF::loadView('admin.inventario.snapshot_pdf', $data);
+        $pdf->setPaper('a4', 'portrait');
+
+        $filename = 'snapshot_bodega_' . now()->format('Y-m-d_H-i') . '.pdf';
+
+        return $pdf->download($filename);
+    }
+
+    /**
+     * Enviar por email el PDF snapshot del inventario
+     */
+    public function snapshotEmail(Request $request)
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['error' => 'No autorizado'], 403);
+        }
+
+        $bodega = InventoryWarehouse::query()
+            ->where('activo', true)
+            ->orderBy('id')
+            ->first();
+
+        if (!$bodega) {
+            return response()->json(['error' => 'No hay bodega configurada'], 400);
+        }
+
+        $items = InventoryItem::query()
+            ->where('bodega_id', $bodega->id)
+            ->where('activo', true)
+            ->orderBy('categoria')
+            ->orderBy('titulo')
+            ->orderBy('variante')
+            ->get();
+
+        // Obtener movimientos del día
+        $movimientosHoy = InventoryMovement::query()
+            ->with(['item', 'firefighter'])
+            ->where('bodega_id', $bodega->id)
+            ->whereDate('created_at', today())
+            ->orderByDesc('created_at')
+            ->get();
+
+        $data = [
+            'bodega' => $bodega,
+            'items' => $items,
+            'movimientosHoy' => $movimientosHoy,
+            'generatedAt' => now(),
+            'generatedBy' => $user->name,
+        ];
+
+        // Generar PDF en memoria
+        $pdf = \PDF::loadView('admin.inventario.snapshot_pdf', $data);
+        $pdf->setPaper('a4', 'portrait');
+        $pdfContent = $pdf->output();
+
+        $filename = 'snapshot_bodega_' . now()->format('Y-m-d_H-i') . '.pdf';
+
+        // Obtener destinatarios desde settings
+        $recipients = \App\Models\SystemSetting::getValue('mail_recipients', '');
+        $emails = array_map('trim', explode(',', $recipients));
+        $emails = array_filter($emails, fn($e) => filter_var($e, FILTER_VALIDATE_EMAIL));
+
+        if (empty($emails)) {
+            return response()->json(['error' => 'No hay destinatarios configurados'], 400);
+        }
+
+        // Enviar email
+        try {
+            $subject = 'Snapshot Bodega - ' . $bodega->nombre . ' - ' . now()->format('d/m/Y H:i');
+            
+            \Illuminate\Support\Facades\Mail::send('emails.snapshot_bodega', [
+                'bodega' => $bodega,
+                'generatedAt' => now(),
+                'generatedBy' => $user->name,
+                'itemsCount' => $items->count(),
+                'movimientosCount' => $movimientosHoy->count(),
+            ], function ($message) use ($emails, $subject, $pdfContent, $filename) {
+                $message->to($emails)
+                    ->subject($subject)
+                    ->attachData($pdfContent, $filename, ['mime' => 'application/pdf']);
+            });
+
+            return response()->json(['success' => true, 'message' => 'Snapshot enviado correctamente a ' . count($emails) . ' destinatario(s)']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al enviar: ' . $e->getMessage()], 500);
+        }
+    }
 }

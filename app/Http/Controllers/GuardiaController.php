@@ -289,6 +289,217 @@ class GuardiaController extends Controller
         return response()->json($payload);
     }
 
+    /**
+     * Generar PDF snapshot del estado actual NOW
+     */
+    public function nowSnapshotPdf(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            abort(403);
+        }
+
+        $now = Carbon::now();
+        ReplacementService::expire($now);
+
+        // Obtener datos del turno activo
+        $query = Shift::with(['leader', 'users.firefighter', 'users.replacedFirefighter'])
+            ->where('status', 'active');
+
+        if ($user->role === 'guardia' && $user->guardia_id) {
+            $query->whereHas('leader', function ($q) use ($user) {
+                $q->where('guardia_id', $user->guardia_id);
+            });
+        }
+
+        $shift = $query->latest()->first();
+
+        if ($shift) {
+            $shift->setRelation(
+                'users',
+                $shift->users->filter(function ($shiftUser) use ($now) {
+                    return !$shiftUser->user
+                        || !$shiftUser->user->replacement_until
+                        || $shiftUser->user->replacement_until->greaterThan($now);
+                })->values()
+            );
+        }
+
+        // Obtener novedades del día
+        $novedades = \App\Models\Novelty::with('creator')
+            ->whereDate('created_at', today())
+            ->orderByDesc('created_at')
+            ->get();
+
+        // Obtener emergencias del día
+        $emergencias = \App\Models\Emergency::with(['key', 'guardia'])
+            ->whereDate('created_at', today())
+            ->orderByDesc('created_at')
+            ->get();
+
+        // Obtener academias del día
+        $academias = \App\Models\StaffEvent::with('firefighter')
+            ->where('type', 'academy')
+            ->whereDate('start_date', '<=', today())
+            ->whereDate('end_date', '>=', today())
+            ->where('status', 'approved')
+            ->get();
+
+        $guardiaId = $shift?->leader?->guardia_id ?? $user->guardia_id;
+        $guardia = $guardiaId ? Guardia::find($guardiaId) : null;
+
+        // Contar estados de bomberos
+        $bomberos = $shift?->users ?? collect();
+        $stats = [
+            'total' => $bomberos->count(),
+            'constituye' => $bomberos->whereIn('attendance_status', ['constituye', null])->count(),
+            'reemplazo' => $bomberos->where('attendance_status', 'reemplazo')->count(),
+            'permiso' => $bomberos->where('attendance_status', 'permiso')->count(),
+            'ausente' => $bomberos->where('attendance_status', 'ausente')->count(),
+            'licencia' => $bomberos->where('attendance_status', 'licencia')->count(),
+            'falta' => $bomberos->where('attendance_status', 'falta')->count(),
+            'inhabilitado' => $bomberos->where('attendance_status', 'inhabilitado')->count(),
+        ];
+
+        $data = [
+            'shift' => $shift,
+            'guardia' => $guardia,
+            'bomberos' => $bomberos,
+            'stats' => $stats,
+            'novedades' => $novedades,
+            'emergencias' => $emergencias,
+            'academias' => $academias,
+            'generatedAt' => $now,
+            'generatedBy' => $user->name,
+        ];
+
+        $pdf = \PDF::loadView('guardia.snapshot_pdf', $data);
+        $pdf->setPaper('a4', 'portrait');
+
+        $filename = 'snapshot_guardia_' . $now->format('Y-m-d_H-i') . '.pdf';
+
+        return $pdf->download($filename);
+    }
+
+    /**
+     * Enviar por email el PDF snapshot del estado actual NOW
+     */
+    public function nowSnapshotEmail(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'No autorizado'], 403);
+        }
+
+        $now = Carbon::now();
+        ReplacementService::expire($now);
+
+        // Obtener datos del turno activo
+        $query = Shift::with(['leader', 'users.firefighter', 'users.replacedFirefighter'])
+            ->where('status', 'active');
+
+        if ($user->role === 'guardia' && $user->guardia_id) {
+            $query->whereHas('leader', function ($q) use ($user) {
+                $q->where('guardia_id', $user->guardia_id);
+            });
+        }
+
+        $shift = $query->latest()->first();
+
+        if ($shift) {
+            $shift->setRelation(
+                'users',
+                $shift->users->filter(function ($shiftUser) use ($now) {
+                    return !$shiftUser->user
+                        || !$shiftUser->user->replacement_until
+                        || $shiftUser->user->replacement_until->greaterThan($now);
+                })->values()
+            );
+        }
+
+        // Obtener novedades, emergencias, academias
+        $novedades = \App\Models\Novelty::with('creator')
+            ->whereDate('created_at', today())
+            ->orderByDesc('created_at')
+            ->get();
+
+        $emergencias = \App\Models\Emergency::with(['key', 'guardia'])
+            ->whereDate('created_at', today())
+            ->orderByDesc('created_at')
+            ->get();
+
+        $academias = \App\Models\StaffEvent::with('firefighter')
+            ->where('type', 'academy')
+            ->whereDate('start_date', '<=', today())
+            ->whereDate('end_date', '>=', today())
+            ->where('status', 'approved')
+            ->get();
+
+        $guardiaId = $shift?->leader?->guardia_id ?? $user->guardia_id;
+        $guardia = $guardiaId ? Guardia::find($guardiaId) : null;
+
+        $bomberos = $shift?->users ?? collect();
+        $stats = [
+            'total' => $bomberos->count(),
+            'constituye' => $bomberos->whereIn('attendance_status', ['constituye', null])->count(),
+            'reemplazo' => $bomberos->where('attendance_status', 'reemplazo')->count(),
+            'permiso' => $bomberos->where('attendance_status', 'permiso')->count(),
+            'ausente' => $bomberos->where('attendance_status', 'ausente')->count(),
+            'licencia' => $bomberos->where('attendance_status', 'licencia')->count(),
+        ];
+
+        $data = [
+            'shift' => $shift,
+            'guardia' => $guardia,
+            'bomberos' => $bomberos,
+            'stats' => $stats,
+            'novedades' => $novedades,
+            'emergencias' => $emergencias,
+            'academias' => $academias,
+            'generatedAt' => $now,
+            'generatedBy' => $user->name,
+        ];
+
+        // Generar PDF en memoria
+        $pdf = \PDF::loadView('guardia.snapshot_pdf', $data);
+        $pdf->setPaper('a4', 'portrait');
+        $pdfContent = $pdf->output();
+
+        $filename = 'snapshot_guardia_' . $now->format('Y-m-d_H-i') . '.pdf';
+
+        // Obtener destinatarios desde settings
+        $recipients = \App\Models\SystemSetting::getValue('mail_recipients', '');
+        $emails = array_map('trim', explode(',', $recipients));
+        $emails = array_filter($emails, fn($e) => filter_var($e, FILTER_VALIDATE_EMAIL));
+
+        if (empty($emails)) {
+            return response()->json(['error' => 'No hay destinatarios configurados'], 400);
+        }
+
+        // Enviar email
+        try {
+            $subject = 'Snapshot Guardia - ' . $guardia?->name . ' - ' . $now->format('d/m/Y H:i');
+            
+            \Illuminate\Support\Facades\Mail::send('emails.snapshot', [
+                'guardia' => $guardia,
+                'generatedAt' => $now,
+                'generatedBy' => $user->name,
+                'stats' => $stats,
+                'novedadesCount' => $novedades->count(),
+                'emergenciasCount' => $emergencias->count(),
+                'academiasCount' => $academias->count(),
+            ], function ($message) use ($emails, $subject, $pdfContent, $filename) {
+                $message->to($emails)
+                    ->subject($subject)
+                    ->attachData($pdfContent, $filename, ['mime' => 'application/pdf']);
+            });
+
+            return response()->json(['success' => true, 'message' => 'Snapshot enviado correctamente a ' . count($emails) . ' destinatario(s)']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al enviar: ' . $e->getMessage()], 500);
+        }
+    }
+
     public function start(Request $request)
     {
         $authUser = Auth::user();

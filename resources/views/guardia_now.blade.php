@@ -17,6 +17,21 @@
                 <span class="w-2 h-2 rounded-full bg-emerald-600" id="now-live-dot"></span>
                 <span id="now-last-update">Actualizando...</span>
             </div>
+            
+            {{-- Snapshot buttons --}}
+            <a href="{{ route('guardia.now.snapshot.pdf') }}" 
+               class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 text-xs font-extrabold hover:bg-blue-100 transition-colors"
+               target="_blank">
+                <i class="fas fa-file-pdf"></i>
+                <span>Descargar PDF</span>
+            </a>
+            
+            <button type="button" 
+                    onclick="sendSnapshotEmail()"
+                    class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 text-xs font-extrabold hover:bg-emerald-100 transition-colors">
+                <i class="fas fa-envelope"></i>
+                <span>Enviar por Email</span>
+            </button>
         </div>
     </div>
 
@@ -258,6 +273,38 @@
 
         tick();
         setInterval(tick, 10000);
+
+        // Send snapshot email function
+        async function sendSnapshotEmail() {
+            const btn = document.querySelector('button[onclick="sendSnapshotEmail()"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('{{ route('guardia.now.snapshot.email') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    },
+                    credentials: 'same-origin'
+                });
+
+                const json = await res.json();
+
+                if (json.success) {
+                    alert('✓ ' + json.message);
+                } else {
+                    alert('✗ ' + (json.error || 'Error al enviar'));
+                }
+            } catch (e) {
+                alert('✗ Error de conexión al enviar email');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
     })();
 </script>
 @endpush

@@ -24,6 +24,30 @@
                class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 hover:text-slate-800 transition-colors">
                 <i class="fas fa-calendar-alt"></i> Permisos
             </a>
+            <div class="flex items-center gap-2">
+                <a href="{{ route('admin.reports.emergencies.export', ['format' => 'excel'] + request()->all()) }}" 
+                   class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-extrabold text-xs uppercase tracking-widest transition-all shadow-sm hover:shadow-md">
+                    <i class="fas fa-file-excel text-emerald-600"></i> Excel
+                </a>
+                <a href="{{ route('admin.reports.emergencies.export', ['format' => 'pdf'] + request()->all()) }}" target="_blank"
+                   class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-extrabold text-xs uppercase tracking-widest transition-all shadow-sm hover:shadow-md">
+                    <i class="fas fa-file-pdf text-rose-600"></i> PDF
+                </a>
+            </div>
+            <a href="{{ route('admin.reports.emergencies') }}"
+               class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-red-600 text-red-600 bg-red-50 transition-colors">
+                <i class="fas fa-ambulance"></i> Emergencias
+            </a>
+            <div class="flex items-center gap-2">
+                <a href="{{ route('admin.reports.replacements.export', request()->query()) }}" 
+                   class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-extrabold text-xs uppercase tracking-widest transition-all shadow-sm hover:shadow-md">
+                    <i class="fas fa-file-excel text-emerald-600"></i> Excel
+                </a>
+                <a href="{{ route('admin.reports.replacements.print', request()->query()) }}" target="_blank"
+                   class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-extrabold text-xs uppercase tracking-widest transition-all shadow-sm hover:shadow-md">
+                    <i class="fas fa-file-pdf text-rose-600"></i> PDF
+                </a>
+            </div>
             <a href="{{ route('admin.reports.replacements') }}"
                class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 hover:text-slate-800 transition-colors">
                 <i class="fas fa-exchange-alt"></i> Reemplazos
@@ -49,15 +73,15 @@
                 <p class="text-slate-500 mt-1 text-sm">Estadísticas de emergencias atendidas por las guardias</p>
             </div>
             
-            {{-- Botones de Exportación --}}
+            {{-- Botones de Exportación Profesionales --}}
             <div class="flex items-center gap-2">
                 <a href="{{ route('admin.reports.emergencies.export', ['format' => 'excel'] + request()->all()) }}" 
-                   class="bg-emerald-600 hover:bg-emerald-700 text-white font-black py-2.5 px-4 rounded-lg text-sm transition-all shadow-md hover:shadow-lg flex items-center gap-2">
-                    <i class="fas fa-file-excel"></i> Excel
+                   class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-extrabold text-xs uppercase tracking-widest transition-all shadow-sm hover:shadow-md">
+                    <i class="fas fa-file-excel text-emerald-600"></i> Excel
                 </a>
                 <a href="{{ route('admin.reports.emergencies.export', ['format' => 'pdf'] + request()->all()) }}" target="_blank"
-                   class="bg-rose-600 hover:bg-rose-700 text-white font-black py-2.5 px-4 rounded-lg text-sm transition-all shadow-md hover:shadow-lg flex items-center gap-2">
-                    <i class="fas fa-file-pdf"></i> PDF
+                   class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-extrabold text-xs uppercase tracking-widest transition-all shadow-sm hover:shadow-md">
+                    <i class="fas fa-file-pdf text-rose-600"></i> PDF
                 </a>
             </div>
         </div>

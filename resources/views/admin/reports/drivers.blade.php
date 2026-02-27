@@ -10,14 +10,14 @@
         </div>
 
         <div class="flex items-center gap-2">
-            {{-- Botones de Exportación --}}
+            {{-- Botones de Exportación Profesionales --}}
             <a href="{{ route('admin.reports.drivers.export', ['format' => 'excel'] + request()->all()) }}" 
-               class="bg-emerald-600 hover:bg-emerald-700 text-white font-black py-2.5 px-4 rounded-lg text-sm transition-all shadow-md hover:shadow-lg flex items-center gap-2">
-                <i class="fas fa-file-excel"></i> Excel
+               class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-extrabold text-xs uppercase tracking-widest transition-all shadow-sm hover:shadow-md">
+                <i class="fas fa-file-excel text-emerald-600"></i> Excel
             </a>
             <a href="{{ route('admin.reports.drivers.export', ['format' => 'pdf'] + request()->all()) }}" target="_blank"
-               class="bg-rose-600 hover:bg-rose-700 text-white font-black py-2.5 px-4 rounded-lg text-sm transition-all shadow-md hover:shadow-lg flex items-center gap-2">
-                <i class="fas fa-file-pdf"></i> PDF
+               class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-extrabold text-xs uppercase tracking-widest transition-all shadow-sm hover:shadow-md">
+                <i class="fas fa-file-pdf text-rose-600"></i> PDF
             </a>
         </div>
     </div>

@@ -88,16 +88,11 @@
         </div>
 
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-            <h2 class="text-sm font-black text-slate-800 uppercase tracking-wide mb-4">Generar rotación semanal (3 guardias)</h2>
+            <h2 class="text-sm font-black text-slate-800 uppercase tracking-wide mb-1">Generar rotación semanal</h2>
+            <p class="text-xs text-slate-500 mb-4">Detectadas {{ $guardias->count() }} guardias en el sistema</p>
 
             <form method="POST" action="{{ route('admin.calendario.generate_rotation') }}" class="space-y-4">
                 @csrf
-
-                @php
-                    $g1 = $guardias->get(0);
-                    $g2 = $guardias->get(1) ?: $g1;
-                    $g3 = $guardias->get(2) ?: $g2;
-                @endphp
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
@@ -111,35 +106,44 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-slate-700 text-xs font-bold mb-1 uppercase tracking-wide">Semana 1</label>
-                        <select name="guardia_ids[]" required class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 px-3 py-2 bg-white">
-                            @foreach($guardias as $g)
-                                <option value="{{ $g->id }}" {{ $g1 && $g->id === $g1->id ? 'selected' : '' }}>{{ $g->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-slate-700 text-xs font-bold mb-1 uppercase tracking-wide">Semana 2</label>
-                        <select name="guardia_ids[]" required class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 px-3 py-2 bg-white">
-                            @foreach($guardias as $g)
-                                <option value="{{ $g->id }}" {{ $g2 && $g->id === $g2->id ? 'selected' : '' }}>{{ $g->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-slate-700 text-xs font-bold mb-1 uppercase tracking-wide">Semana 3</label>
-                        <select name="guardia_ids[]" required class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 px-3 py-2 bg-white">
-                            @foreach($guardias as $g)
-                                <option value="{{ $g->id }}" {{ $g3 && $g->id === $g3->id ? 'selected' : '' }}>{{ $g->name }}</option>
-                            @endforeach
-                        </select>
+                @php
+                    $guardiaCount = $guardias->count();
+                    $defaultGuardias = $guardias->take($guardiaCount);
+                @endphp
+
+                <div class="grid grid-cols-1 {{ $guardiaCount == 2 ? 'sm:grid-cols-2' : ($guardiaCount == 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2 lg:grid-cols-' . min($guardiaCount, 4)) }} gap-4">
+                    @foreach($guardias as $index => $g)
+                        <div>
+                            <label class="block text-slate-700 text-xs font-bold mb-1 uppercase tracking-wide">Semana {{ $index + 1 }}</label>
+                            <select name="guardia_ids[]" required class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 px-3 py-2 bg-white">
+                                @foreach($guardias as $optionG)
+                                    <option value="{{ $optionG->id }}" {{ $g->id === $optionG->id ? 'selected' : '' }}>{{ $optionG->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endforeach
+                </div>
+
+                <!-- Email options -->
+                <div class="border-t border-slate-200 pt-4 mt-4">
+                    <label class="flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100 transition">
+                        <input type="checkbox" name="send_email" value="1" class="rounded text-blue-600 focus:ring-blue-500 h-5 w-5 border-slate-300">
+                        <div class="min-w-0">
+                            <div class="text-sm font-black text-slate-800 uppercase tracking-wide">Enviar resumen por correo</div>
+                            <div class="text-xs text-slate-500">Se enviará el detalle de la rotación generada.</div>
+                        </div>
+                    </label>
+
+                    <div class="mt-3">
+                        <label class="block text-slate-700 text-xs font-bold mb-1 uppercase tracking-wide">Destinatarios (emails separados por coma)</label>
+                        <input type="text" name="email_recipients" 
+                            class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 px-3 py-2"
+                            placeholder="ej: usuario@ejemplo.com, otro@ejemplo.com">
                     </div>
                 </div>
 
                 <button type="submit" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-2.5 px-4 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center uppercase text-sm tracking-wide">
-                    <i class="fas fa-wand-magic-sparkles mr-2"></i> Generar
+                    <i class="fas fa-wand-magic-sparkles mr-2"></i> Generar Rotación
                 </button>
             </form>
         </div>

@@ -1696,6 +1696,10 @@
             const msgEl = document.getElementById('confirm-msg-' + userId);
             if (msgEl) {
                 if (confirmed) {
+                    msgEl.textContent = 'CONFIRMADO';
+                    msgEl.classList.remove('text-rose-200','text-slate-400');
+                    msgEl.classList.add('text-emerald-200');
+                } else {
                     msgEl.textContent = '';
                     msgEl.classList.remove('text-emerald-200','text-rose-200');
                     msgEl.classList.add('text-slate-400');
@@ -1705,13 +1709,32 @@
             const statusEl = document.getElementById('confirm-status-' + userId);
             if (statusEl) {
                 if (confirmed) {
-                    statusEl.innerHTML = '<span class="flex items-center gap-1"><i class="fas fa-check-circle text-emerald-400"></i> CONFIRMADO</span>';
+                    statusEl.innerHTML = '<span class="flex items-center gap-1"><i class="fas fa-check-circle text-emerald-400"></i></span>';
                     statusEl.classList.remove('text-rose-200');
                     statusEl.classList.add('text-emerald-200');
                 } else {
                     statusEl.textContent = 'NO CONFIRMADO';
                     statusEl.classList.remove('text-emerald-200');
                     statusEl.classList.add('text-rose-200');
+                }
+            }
+
+            // Update status button to show confirmation state
+            const cycleBtn = document.getElementById('status-cycle-' + userId);
+            const cycleLbl = document.getElementById('status-cycle-label-' + userId);
+            if (cycleBtn && cycleLbl) {
+                const currentLabel = cycleLbl.textContent;
+                if (confirmed) {
+                    // Add checkmark to button when confirmed
+                    if (!currentLabel.includes('✓')) {
+                        cycleLbl.innerHTML = currentLabel + ' <i class="fas fa-check ml-1"></i>';
+                    }
+                    cycleBtn.classList.remove('opacity-60');
+                    cycleBtn.classList.add('ring-2', 'ring-emerald-400', 'ring-offset-2', 'ring-offset-slate-900');
+                } else {
+                    // Remove checkmark when not confirmed
+                    cycleLbl.textContent = currentLabel.replace(' ✓', '').replace(' <i class="fas fa-check ml-1"></i>', '');
+                    cycleBtn.classList.remove('ring-2', 'ring-emerald-400', 'ring-offset-2', 'ring-offset-slate-900');
                 }
             }
         }

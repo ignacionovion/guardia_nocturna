@@ -24,10 +24,83 @@ class PlanillaController extends Controller
 
         $planillas = $query->paginate(20)->withQueryString();
 
+        // Historial de cambios de guardias - mostrar solo cambios de estado reales
+        $shiftUsers = \App\Models\ShiftUser::query()
+            ->with(['firefighter.guardia', 'shift'])
+            ->where('created_at', '>=', now()->subDays(7))
+            ->orderBy('firefighter_id')
+            ->orderBy('created_at')
+            ->get();
+
+        // Detectar cambios reales (estado anterior diferente al actual)
+        $guardiaChanges = collect();
+        $groupedByFirefighter = $shiftUsers->groupBy('firefighter_id');
+
+        foreach ($groupedByFirefighter as $firefighterId => $records) {
+            $previousStatus = null;
+            foreach ($records as $record) {
+                $currentStatus = $record->attendance_status ?? 'constituye';
+                if ($previousStatus !== null && $previousStatus !== $currentStatus) {
+                    $guardiaChanges->push([
+                        'firefighter' => $record->firefighter,
+                        'guardia' => $record->firefighter?->guardia,
+                        'fecha' => $record->created_at,
+                        'estado_anterior' => $previousStatus,
+                        'estado_nuevo' => $currentStatus,
+                        'shift' => $record->shift,
+                    ]);
+                }
+                $previousStatus = $currentStatus;
+            }
+        }
+
+        $guardiaChanges = $guardiaChanges->sortByDesc('fecha')->take(50);
+
+        // Bitácora - SOLO elementos relacionados con Planillas (últimos 7 días)
+        // Nuevas planillas creadas
+        $nuevasPlanillas = Planilla::query()
+            ->with('creador')
+            ->where('created_at', '>=', now()->subDays(7))
+            ->latest()
+            ->limit(30)
+            ->get()
+            ->map(fn($p) => [
+                'tipo' => 'Planilla',
+                'descripcion' => "Nueva planilla {$p->unidad} - {$p->fecha_revision?->format('d/m/Y')}",
+                'usuario' => $p->creador?->name ?? 'Sistema',
+                'fecha' => $p->created_at,
+                'link' => route('admin.planillas.show', $p),
+            ]);
+
+        // Planillas finalizadas (cambio de estado a finalizado)
+        $planillasFinalizadas = Planilla::query()
+            ->with('creador')
+            ->where('estado', self::ESTADO_FINALIZADO)
+            ->where('updated_at', '>=', now()->subDays(7))
+            ->whereColumn('updated_at', '!=', 'created_at') // Solo si hubo cambio real
+            ->latest('updated_at')
+            ->limit(20)
+            ->get()
+            ->map(fn($p) => [
+                'tipo' => 'Finalizado',
+                'descripcion' => "Planilla {$p->unidad} finalizada - {$p->fecha_revision?->format('d/m/Y')}",
+                'usuario' => $p->creador?->name ?? 'Sistema',
+                'fecha' => $p->updated_at,
+                'link' => route('admin.planillas.show', $p),
+            ]);
+
+        $bitacora = $nuevasPlanillas
+            ->concat($planillasFinalizadas)
+            ->sortByDesc('fecha')
+            ->take(50)
+            ->values();
+
         return view('admin.planillas.index', [
             'planillas' => $planillas,
             'unidades' => self::UNIDADES,
             'unidadSeleccionada' => $unidad,
+            'guardiaChanges' => $guardiaChanges,
+            'bitacora' => $bitacora,
         ]);
     }
 

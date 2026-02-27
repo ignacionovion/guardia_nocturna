@@ -82,15 +82,63 @@
 
                     <div>
                         <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">A cargo</label>
-                        <select name="officer_in_charge_firefighter_id"
-                            class="w-full px-3 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-slate-700 bg-white">
-                            <option value="" {{ $selectedOfficerId ? '' : 'selected' }}>Sin asignar</option>
-                            @foreach($onDutyUsers as $u)
-                                <option value="{{ $u->id }}" {{ (string)$selectedOfficerId === (string)$u->id ? 'selected' : '' }}>
-                                    {{ $u->nombres ?? $u->name }} {{ $u->apellido_paterno ?? '' }}
-                                </option>
-                            @endforeach
-                        </select>
+                        
+                        <!-- Custom Searchable Dropdown -->
+                        <div class="relative" id="officer-select-container">
+                            <input type="hidden" name="officer_in_charge_firefighter_id" id="officer_in_charge_firefighter_id" value="{{ $selectedOfficerId }}">
+                            
+                            <!-- Search Input -->
+                            <div class="relative">
+                                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                <input type="text" id="officer-search-input"
+                                    class="w-full text-sm border-2 border-slate-200 rounded-xl shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 pl-9 pr-10 py-3 bg-white text-slate-700 placeholder:text-slate-500 cursor-pointer"
+                                    placeholder="Buscar oficial..." autocomplete="off" readonly
+                                    value="{{ $selectedOfficerId ? optional($onDutyUsers->firstWhere('id', $selectedOfficerId))->nombres . ' ' . optional($onDutyUsers->firstWhere('id', $selectedOfficerId))->apellido_paterno : 'Sin asignar' }}">
+                                <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                            </div>
+                            
+                            <!-- Dropdown Menu - Fixed position to escape grid overflow -->
+                            <div id="officer-dropdown" class="hidden fixed bg-white border border-slate-200 rounded-xl shadow-2xl z-[100] max-h-64 overflow-y-auto" style="width: inherit; min-width: 280px;">
+                                <div class="p-2 sticky top-0 bg-white border-b border-slate-100">
+                                    <input type="text" id="officer-filter-input" 
+                                        class="w-full text-xs bg-slate-50 border-slate-200 rounded-lg px-3 py-2 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Filtrar por nombre...">
+                                </div>
+                                <div id="officer-options-list" class="py-1">
+                                    <div class="officer-option px-3 py-2.5 hover:bg-slate-50 cursor-pointer transition-colors flex items-center gap-3 {{ !$selectedOfficerId ? 'bg-blue-50' : '' }}"
+                                         data-value=""
+                                         data-search="sin asignar">
+                                        <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 text-xs font-bold">
+                                            <i class="fas fa-minus"></i>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="text-sm font-medium text-slate-700">Sin asignar</div>
+                                        </div>
+                                    </div>
+                                    @foreach($onDutyUsers as $u)
+                                        <div class="officer-option px-3 py-2.5 hover:bg-slate-50 cursor-pointer transition-colors flex items-center gap-3 {{ (string)$selectedOfficerId === (string)$u->id ? 'bg-blue-50' : '' }}"
+                                             data-value="{{ $u->id }}"
+                                             data-search="{{ strtolower(trim($u->nombres . ' ' . $u->apellido_paterno . ' ' . ($u->rut ?? ''))) }}">
+                                            <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xs font-bold">
+                                                {{ strtoupper(substr($u->nombres, 0, 1)) }}
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <div class="text-sm font-medium text-slate-700 truncate">
+                                                    {{ $u->nombres }} {{ $u->apellido_paterno }}
+                                                </div>
+                                                @if($u->cargo_texto)
+                                                    <div class="text-xs text-slate-500">{{ $u->cargo_texto }}</div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <div id="officer-no-results" class="hidden px-3 py-4 text-center text-xs text-slate-500">
+                                    No se encontraron resultados
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class="text-[11px] text-slate-500 mt-1">Solo personal en servicio (turno activo).</div>
                     </div>
                 </div>
@@ -340,6 +388,101 @@
         if (emergencyForm) {
             const idsInit = Array.from(emergencyForm.querySelectorAll('input[name="unit_ids[]"]')).map(el => el.value);
             renderUnitChips(idsInit);
+        }
+
+        // Custom Officer Dropdown
+        const officerSearchInput = document.getElementById('officer-search-input');
+        const officerDropdown = document.getElementById('officer-dropdown');
+        const officerFilterInput = document.getElementById('officer-filter-input');
+        const officerOptionsList = document.getElementById('officer-options-list');
+        const officerNoResults = document.getElementById('officer-no-results');
+        const officerHiddenInput = document.getElementById('officer_in_charge_firefighter_id');
+        const officerContainer = document.getElementById('officer-select-container');
+        
+        if (officerSearchInput && officerDropdown) {
+            let isOfficerOpen = false;
+
+            function openOfficerDropdown() {
+                isOfficerOpen = true;
+                // Position dropdown below the input using fixed positioning
+                const rect = officerSearchInput.getBoundingClientRect();
+                officerDropdown.style.top = (rect.bottom + 4) + 'px';
+                officerDropdown.style.left = rect.left + 'px';
+                officerDropdown.style.width = rect.width + 'px';
+                officerDropdown.classList.remove('hidden');
+                officerFilterInput.focus();
+                officerFilterInput.value = '';
+                filterOfficerOptions('');
+            }
+
+            function closeOfficerDropdown() {
+                isOfficerOpen = false;
+                officerDropdown.classList.add('hidden');
+            }
+
+            officerSearchInput.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (!isOfficerOpen) {
+                    openOfficerDropdown();
+                }
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!officerContainer.contains(e.target)) {
+                    closeOfficerDropdown();
+                }
+            });
+
+            officerFilterInput.addEventListener('input', function() {
+                filterOfficerOptions(this.value.toLowerCase());
+            });
+
+            function filterOfficerOptions(query) {
+                const options = officerOptionsList.querySelectorAll('.officer-option');
+                let visibleCount = 0;
+
+                options.forEach(function(option) {
+                    const searchData = option.getAttribute('data-search') || '';
+                    if (searchData.includes(query)) {
+                        option.classList.remove('hidden');
+                        visibleCount++;
+                    } else {
+                        option.classList.add('hidden');
+                    }
+                });
+
+                if (visibleCount === 0) {
+                    officerNoResults.classList.remove('hidden');
+                } else {
+                    officerNoResults.classList.add('hidden');
+                }
+            }
+
+            officerOptionsList.addEventListener('click', function(e) {
+                const option = e.target.closest('.officer-option');
+                if (!option) return;
+
+                const value = option.getAttribute('data-value');
+                const text = option.querySelector('.text-sm').textContent.trim();
+
+                officerHiddenInput.value = value;
+                officerSearchInput.value = text;
+                
+                // Update visual selection
+                officerOptionsList.querySelectorAll('.officer-option').forEach(opt => {
+                    opt.classList.remove('bg-blue-50');
+                });
+                option.classList.add('bg-blue-50');
+                
+                closeOfficerDropdown();
+            });
+
+            officerFilterInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeOfficerDropdown();
+                    officerSearchInput.focus();
+                }
+            });
         }
     });
 </script>

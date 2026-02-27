@@ -115,8 +115,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/', [TableroController::class, 'index'])->name('dashboard');
     Route::get('/camas', [TableroController::class, 'camas'])->name('camas');
     Route::get('/guardia', [GuardiaController::class, 'index'])->name('guardia');
-    Route::get('/guardia/now', [GuardiaController::class, 'now'])->name('guardia.now');
-    Route::get('/guardia/now/data', [GuardiaController::class, 'nowData'])->name('guardia.now.data');
+    Route::get('/now', [GuardiaController::class, 'now'])->name('guardia.now');
+    Route::get('/now/data', [GuardiaController::class, 'nowData'])->name('guardia.now.data');
+    Route::get('/now/snapshot/pdf', [GuardiaController::class, 'nowSnapshotPdf'])->name('guardia.now.snapshot.pdf');
+    Route::post('/now/snapshot/email', [GuardiaController::class, 'nowSnapshotEmail'])->name('guardia.now.snapshot.email');
 
     Route::get('/inventario', function () {
         return redirect()->route('inventario.dashboard');
@@ -137,6 +139,9 @@ Route::middleware('auth')->group(function () {
         Route::delete('/inventario/config/items/{itemId}', [InventarioController::class, 'itemDestroy'])->name('inventario.config.items.destroy');
 
         Route::get('/inventario/movimientos', [InventarioController::class, 'movimientosIndex'])->name('inventario.movimientos.index');
+
+        Route::get('/inventario/snapshot/pdf', [InventarioController::class, 'snapshotPdf'])->name('inventario.snapshot.pdf');
+        Route::post('/inventario/snapshot/email', [InventarioController::class, 'snapshotEmail'])->name('inventario.snapshot.email');
 
         Route::get('/inventario/qr', [InventarioQrAdminController::class, 'show'])->name('inventario.qr.admin');
         Route::get('/inventario/qr/imprimir', [InventarioQrAdminController::class, 'print'])->name('inventario.qr.print');

@@ -18,6 +18,14 @@ class Novelty extends Model
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Alias for user relationship (for bitácora/creator consistency)
+     */
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
     public function firefighter()
     {
         return $this->belongsTo(Bombero::class, 'firefighter_id');

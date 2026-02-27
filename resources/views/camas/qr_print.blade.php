@@ -22,11 +22,6 @@
         .qrbox { position: relative; border: 2px solid #1e293b; border-radius: 24px; padding: 20px; display: flex; align-items: center; justify-content: center; background: #fff; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.15); }
         .qrbox svg { max-width: 100%; height: auto; max-height: 320px; }
         
-        {{-- Logo Overlay --}}
-        .logo-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
-        .logo-container { width: 80px; height: 80px; background: white; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); padding: 6px; display: flex; align-items: center; justify-content: center; border: 2px solid #e2e8f0; }
-        .logo-container img { width: 60px; height: 60px; object-fit: contain; }
-        
         {{-- QR Badge --}}
         .qr-badge { position: absolute; top: -12px; right: -12px; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.15); background: #1e293b; color: white; font-size: 14px; }
         
@@ -87,13 +82,6 @@
             <div class="qr-wrapper">
                 <div class="qrbox">
                     {!! $qrSvg !!}
-                    
-                    {{-- Logo Overlay --}}
-                    <div class="logo-overlay">
-                        <div class="logo-container">
-                            <img src="{{ asset('brand/Logo png Alta Def.png') }}" alt="Logo">
-                        </div>
-                    </div>
                     
                     <div class="qr-badge">⌗</div>
                 </div>
