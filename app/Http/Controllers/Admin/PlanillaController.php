@@ -151,6 +151,14 @@ class PlanillaController extends Controller
         // Limpiar valores null de arrays anidados (middleware ConvertEmptyStringsToNull)
         $data = $this->cleanNullValues($data);
 
+        // DEBUG: Log todo el request para ver qué llega del formulario
+        \Illuminate\Support\Facades\Log::info('Planilla store REQUEST DATA', [
+            'request_all_data_keys' => array_keys($request->input('data', [])),
+            'cabina_count' => count($request->input('data.cabina', [])),
+            'sample_linterna' => $request->input('data.cabina.linterna_nightstick'),
+            'post_max_size' => ini_get('post_max_size'),
+        ]);
+
         $estado = $request->has('guardar_finalizar') ? self::ESTADO_FINALIZADO : self::ESTADO_EN_EDICION;
 
         \Illuminate\Support\Facades\Log::info('Planilla store data', [
@@ -165,6 +173,24 @@ class PlanillaController extends Controller
             'created_by' => (int) $request->user()->id,
             'data' => $data,
             'estado' => $estado,
+        ]);
+
+        // Verificar persistencia: recargar desde DB
+        $planilla->refresh();
+        $savedData = $planilla->data;
+        \Illuminate\Support\Facades\Log::info('Planilla store AFTER save', [
+            'planilla_id' => $planilla->id,
+            'data_is_null' => is_null($savedData),
+            'data_type' => gettype($savedData),
+            'data_keys' => is_array($savedData) ? array_keys($savedData) : 'NOT_ARRAY',
+            'cabina_count' => is_array($savedData['cabina'] ?? null) ? count($savedData['cabina']) : 'N/A',
+        ]);
+
+        \Illuminate\Support\Facades\Log::info('Planilla store REDIRECT', [
+            'guardar_continuar' => $request->has('guardar_continuar'),
+            'guardar_finalizar' => $request->has('guardar_finalizar'),
+            'redirect_route' => $request->has('guardar_continuar') ? 'admin.planillas.edit' : ($request->has('guardar_finalizar') ? 'admin.planillas.show' : 'admin.planillas.show'),
+            'redirect_params' => [$planilla->id],
         ]);
 
         if ($request->has('guardar_continuar')) {
