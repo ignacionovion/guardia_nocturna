@@ -16,30 +16,30 @@
         </div>
 
         @if($bodega)
-            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                <a href="{{ route('inventario.snapshot.pdf') }}" target="_blank" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm">
-                    <i class="fas fa-file-pdf text-blue-600"></i>
-                    Descargar PDF
+            <div class="flex flex-wrap items-center justify-end gap-2">
+                <a href="{{ route('inventario.snapshot.pdf') }}" target="_blank" class="inline-flex flex-col items-center justify-center gap-1 px-4 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs w-24 h-16">
+                    <i class="fas fa-file-pdf text-blue-600 text-lg"></i>
+                    <span class="text-center leading-tight">Descargar<br>PDF</span>
                 </a>
-                <button type="button" onclick="sendBodegaSnapshotEmail()" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm">
-                    <i class="fas fa-envelope text-emerald-600"></i>
-                    Enviar por Email
+                <button type="button" onclick="sendBodegaSnapshotEmail()" class="inline-flex flex-col items-center justify-center gap-1 px-4 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs w-24 h-16">
+                    <i class="fas fa-envelope text-emerald-600 text-lg"></i>
+                    <span class="text-center leading-tight">Enviar<br>Email</span>
                 </button>
-                <a href="{{ route('inventario.qr.admin') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm">
-                    <i class="fas fa-qrcode text-purple-600"></i>
-                    Ver QR
+                <a href="{{ route('inventario.qr.admin') }}" class="inline-flex flex-col items-center justify-center gap-1 px-4 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs w-24 h-16">
+                    <i class="fas fa-qrcode text-purple-600 text-lg"></i>
+                    <span class="text-center leading-tight">Ver<br>QR</span>
                 </a>
-                <a href="{{ route('inventario.movimientos.index') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm">
-                    <i class="fas fa-list text-slate-600"></i>
-                    Historial
+                <a href="{{ route('inventario.movimientos.index') }}" class="inline-flex flex-col items-center justify-center gap-1 px-4 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs w-24 h-16">
+                    <i class="fas fa-list text-slate-600 text-lg"></i>
+                    <span class="text-center leading-tight">Historial</span>
                 </a>
-                <a href="{{ route('inventario.import.form') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm">
-                    <i class="fas fa-file-import text-amber-600"></i>
-                    Importar
+                <a href="{{ route('inventario.import.form') }}" class="inline-flex flex-col items-center justify-center gap-1 px-4 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs w-24 h-16">
+                    <i class="fas fa-file-import text-amber-600 text-lg"></i>
+                    <span class="text-center leading-tight">Importar</span>
                 </a>
-                <a href="{{ route('inventario.retiro.access') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm">
-                    <i class="fas fa-arrow-right text-slate-600"></i>
-                    Ir a retiro
+                <a href="{{ route('inventario.retiro.access') }}" class="inline-flex flex-col items-center justify-center gap-1 px-4 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs w-24 h-16">
+                    <i class="fas fa-arrow-right text-slate-600 text-lg"></i>
+                    <span class="text-center leading-tight">Ir a<br>retiro</span>
                 </a>
             </div>
         @endif

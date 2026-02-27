@@ -11,7 +11,9 @@ class PlanillasQrController extends Controller
 {
     public function show(Request $request, string $token)
     {
-        if (!$request->session()->get('planillas_qr_bombero_id')) {
+        $bomberoId = $request->session()->get('planillas_qr_bombero_id');
+        
+        if (!$bomberoId) {
             return redirect()->route('planillas.qr.identificar.form', ['token' => $token]);
         }
 

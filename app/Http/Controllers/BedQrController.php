@@ -335,31 +335,46 @@ class BedQrController extends Controller
         $scheduleTz = SystemSetting::getValue('guardia_schedule_tz', env('GUARDIA_SCHEDULE_TZ', config('app.timezone')));
         $now = Carbon::now($scheduleTz);
 
-        // Horarios de inicio según día de la semana
-        // 0=Domingo, 5=Viernes, 6=Sábado
+        $endTime = SystemSetting::getValue('guardia_daily_end_time', '07:00');
+        [$endH, $endM] = array_map('intval', explode(':', (string) $endTime));
+        $endAtToday = $now->copy()->startOfDay()->addHours($endH)->addMinutes($endM);
+
+        // Si estamos antes de la hora de fin (ej: 01:23 < 07:00)
+        // significa que estamos en la guardia de AYER
+        if ($now->lessThan($endAtToday)) {
+            // La guardia vigente empezó AYER, determinar horario según el día de ayer
+            $yesterday = $now->copy()->subDay();
+            $wasWeekendStart = $yesterday->isFriday() || $yesterday->isSaturday();
+            
+            $startTime = $wasWeekendStart 
+                ? SystemSetting::getValue('guardia_constitution_sunday_time', '22:00')  // Viernes y sábado inician a las 22:00
+                : SystemSetting::getValue('guardia_constitution_weekday_time', '23:00');  // Domingo a jueves inician a las 23:00
+            
+            [$startH, $startM] = array_map('intval', explode(':', (string) $startTime));
+            $startAtYesterday = $yesterday->copy()->startOfDay()->addHours($startH)->addMinutes($startM);
+            
+            // Si estamos después del inicio de ayer → estamos en guardia
+            // (a las 01:23 siempre estaremos después del inicio de ayer)
+            if ($now->greaterThanOrEqualTo($startAtYesterday) || $now->lessThan($endAtToday)) {
+                return true;
+            }
+            
+            return false;
+        }
+
+        // Si estamos DESPUÉS de la hora de fin (07:00), estamos en horario normal
+        // La guardia de hoy empieza según el día de hoy
         $isWeekendStart = $now->isFriday() || $now->isSaturday();
         
         $startTime = $isWeekendStart 
             ? SystemSetting::getValue('guardia_constitution_sunday_time', '22:00')  // Viernes y sábado inician a las 22:00
             : SystemSetting::getValue('guardia_constitution_weekday_time', '23:00');  // Domingo a jueves inician a las 23:00
 
-        $endTime = SystemSetting::getValue('guardia_daily_end_time', '07:00');
-
         [$startH, $startM] = array_map('intval', explode(':', (string) $startTime));
-        [$endH, $endM] = array_map('intval', explode(':', (string) $endTime));
-
-        // Calcular hora de inicio y fin para HOY
         $startAtToday = $now->copy()->startOfDay()->addHours($startH)->addMinutes($startM);
-        $endAtToday = $now->copy()->startOfDay()->addHours($endH)->addMinutes($endM);
 
         // Si estamos después de la hora de inicio HOY → estamos en guardia
         if ($now->greaterThanOrEqualTo($startAtToday)) {
-            return true;
-        }
-
-        // Si estamos antes de la hora de fin HOY (ej: 01:23 < 07:00)
-        // significa que la guardia de AYER sigue activa
-        if ($now->lessThan($endAtToday)) {
             return true;
         }
 
