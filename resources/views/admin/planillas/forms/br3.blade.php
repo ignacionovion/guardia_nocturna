@@ -1,9 +1,20 @@
 @php
-    $cabinaChecklist = [
-        'linterna_nightstick' => 'Linterna NIGHTSTICK',
-        'era_scott_4_5' => 'ERA SCOTT 4.5',
-        'chaquetillas_stex' => 'Chaquetillas STEX',
-        'tablet_br3_y_cargador' => 'Tablet unidad BR-3 y Cargador',
+    $data = $data ?? [];
+    $readonly = $readonly ?? false;
+
+    // CABINA items - primera fila especial (de la foto BR-3)
+    $cabinaPrincipal = [
+        'linterna_nightstick' => ['label' => 'Linterna NIGHTSTICK', 'tipo' => 'funcionamiento'],
+        'era_scott_4_5' => ['label' => 'ERA SCOTT 4.5', 'tipo' => 'cantidad_funcionamiento'],
+        'radios_baofeng' => ['label' => 'Radios Baofeng', 'tipo' => 'numero_bat'],
+        'chaquetillas_stex' => ['label' => 'Chaquetillas STEX', 'tipo' => 'cantidad'],
+        'tablet_br3_y_cargador' => ['label' => 'Tablet unidad BR-3 y Cargador', 'tipo' => 'bateria'],
+        'lona_organizadora' => ['label' => 'Lona organizadora material', 'tipo' => 'simple'],
+        'maleta_sci' => ['label' => 'Maleta SCI', 'tipo' => 'simple'],
+    ];
+
+    // Check list Herramientas
+    $herramientasChecklist = [
         'ripper_corta_parabrisas' => 'RIPPER (corta parabrisas)',
         'baston_tastik' => 'Bastón Tastik',
         'generador_electrico_honda' => 'Generador eléctrico Honda',
@@ -19,6 +30,7 @@
         'esmeril_angular' => 'Esmeril angular',
     ];
 
+    // Trauma items
     $traumaChecklist = [
         'collares_cervicales' => 'Collares cervicales',
         'dea' => 'DEA',
@@ -84,17 +96,31 @@
                             <div class="text-sm font-extrabold text-slate-900">{{ $label }}</div>
                         </div>
                         <div class="col-span-6 md:col-span-2">
-                            <select name="data[cabina][{{ $key }}][funciona]" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm">
-                                <option value="" {{ ($row['funciona'] ?? '') === '' ? 'selected' : '' }}>¿Funciona?</option>
-                                <option value="si" {{ ($row['funciona'] ?? '') === 'si' ? 'selected' : '' }}>Sí</option>
-                                <option value="no" {{ ($row['funciona'] ?? '') === 'no' ? 'selected' : '' }}>No</option>
-                            </select>
+                            @if($readonly)
+                                <div class="px-3 py-2 text-sm font-semibold {{ ($row['funciona'] ?? '') === 'si' ? 'text-emerald-600' : (($row['funciona'] ?? '') === 'no' ? 'text-red-600' : 'text-slate-400') }}">
+                                    {{ ($row['funciona'] ?? '') === 'si' ? 'Sí' : (($row['funciona'] ?? '') === 'no' ? 'No' : '—') }}
+                                </div>
+                            @else
+                                <select name="data[cabina][{{ $key }}][funciona]" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm">
+                                    <option value="" {{ ($row['funciona'] ?? '') === '' ? 'selected' : '' }}>¿Funciona?</option>
+                                    <option value="si" {{ ($row['funciona'] ?? '') === 'si' ? 'selected' : '' }}>Sí</option>
+                                    <option value="no" {{ ($row['funciona'] ?? '') === 'no' ? 'selected' : '' }}>No</option>
+                                </select>
+                            @endif
                         </div>
                         <div class="col-span-6 md:col-span-2">
-                            <input type="text" name="data[cabina][{{ $key }}][cantidad]" value="{{ $row['cantidad'] ?? '' }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm" placeholder="Cant.">
+                            @if($readonly)
+                                <div class="px-3 py-2 text-sm font-semibold text-slate-700">{{ ($row['cantidad'] ?? '') !== '' ? $row['cantidad'] : '—' }}</div>
+                            @else
+                                <input type="text" name="data[cabina][{{ $key }}][cantidad]" value="{{ $row['cantidad'] ?? '' }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm" placeholder="Cant.">
+                            @endif
                         </div>
                         <div class="col-span-12 md:col-span-3">
-                            <input type="text" name="data[cabina][{{ $key }}][novedades]" value="{{ $row['novedades'] ?? '' }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm" placeholder="Novedades">
+                            @if($readonly)
+                                <div class="px-3 py-2 text-sm font-semibold text-slate-700">{{ ($row['novedades'] ?? '') !== '' ? $row['novedades'] : '—' }}</div>
+                            @else
+                                <input type="text" name="data[cabina][{{ $key }}][novedades]" value="{{ $row['novedades'] ?? '' }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm" placeholder="Novedades">
+                            @endif
                         </div>
                     </div>
                 @endforeach
@@ -143,17 +169,31 @@
                             <div class="text-sm font-extrabold text-slate-900">{{ $label }}</div>
                         </div>
                         <div class="col-span-6 md:col-span-2">
-                            <select name="data[trauma][{{ $key }}][funciona]" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm">
-                                <option value="" {{ ($row['funciona'] ?? '') === '' ? 'selected' : '' }}>¿Funciona?</option>
-                                <option value="si" {{ ($row['funciona'] ?? '') === 'si' ? 'selected' : '' }}>Sí</option>
-                                <option value="no" {{ ($row['funciona'] ?? '') === 'no' ? 'selected' : '' }}>No</option>
-                            </select>
+                            @if($readonly)
+                                <div class="px-3 py-2 text-sm font-semibold {{ ($row['funciona'] ?? '') === 'si' ? 'text-emerald-600' : (($row['funciona'] ?? '') === 'no' ? 'text-red-600' : 'text-slate-400') }}">
+                                    {{ ($row['funciona'] ?? '') === 'si' ? 'Sí' : (($row['funciona'] ?? '') === 'no' ? 'No' : '—') }}
+                                </div>
+                            @else
+                                <select name="data[trauma][{{ $key }}][funciona]" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm">
+                                    <option value="" {{ ($row['funciona'] ?? '') === '' ? 'selected' : '' }}>¿Funciona?</option>
+                                    <option value="si" {{ ($row['funciona'] ?? '') === 'si' ? 'selected' : '' }}>Sí</option>
+                                    <option value="no" {{ ($row['funciona'] ?? '') === 'no' ? 'selected' : '' }}>No</option>
+                                </select>
+                            @endif
                         </div>
                         <div class="col-span-6 md:col-span-2">
-                            <input type="text" name="data[trauma][{{ $key }}][cantidad]" value="{{ $row['cantidad'] ?? '' }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm" placeholder="Cant.">
+                            @if($readonly)
+                                <div class="px-3 py-2 text-sm font-semibold text-slate-700">{{ ($row['cantidad'] ?? '') !== '' ? $row['cantidad'] : '—' }}</div>
+                            @else
+                                <input type="text" name="data[trauma][{{ $key }}][cantidad]" value="{{ $row['cantidad'] ?? '' }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm" placeholder="Cant.">
+                            @endif
                         </div>
                         <div class="col-span-12 md:col-span-3">
-                            <input type="text" name="data[trauma][{{ $key }}][novedades]" value="{{ $row['novedades'] ?? '' }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm" placeholder="Novedades">
+                            @if($readonly)
+                                <div class="px-3 py-2 text-sm font-semibold text-slate-700">{{ ($row['novedades'] ?? '') !== '' ? $row['novedades'] : '—' }}</div>
+                            @else
+                                <input type="text" name="data[trauma][{{ $key }}][novedades]" value="{{ $row['novedades'] ?? '' }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm" placeholder="Novedades">
+                            @endif
                         </div>
                     </div>
                 @endforeach
@@ -201,11 +241,21 @@
                             <div class="text-sm font-extrabold text-slate-900">{{ $label }}</div>
                         </div>
                         <div class="col-span-5">
-                            <input type="text" name="data[cantidades][{{ $key }}]" value="{{ $data['cantidades'][$key] ?? '' }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm" placeholder="Cantidad" data-cantidad-item="{{ $key }}">
+                            @if($readonly)
+                                <div class="px-3 py-2 text-sm font-semibold text-slate-700">{{ ($data['cantidades'][$key] ?? '') !== '' ? $data['cantidades'][$key] : '—' }}</div>
+                            @else
+                                <input type="text" name="data[cantidades][{{ $key }}]" value="{{ $data['cantidades'][$key] ?? '' }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm" placeholder="Cantidad" data-cantidad-item="{{ $key }}">
+                            @endif
                         </div>
 
-                        <div class="col-span-12 hidden" data-cantidad-novedad-row="{{ $key }}">
-                            <input type="text" name="data[cantidades_novedades][{{ $key }}]" value="{{ $data['cantidades_novedades'][$key] ?? '' }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm" placeholder="Novedad">
+                        <div class="col-span-12 {{ $readonly ? '' : 'hidden' }}" data-cantidad-novedad-row="{{ $key }}">
+                            @if($readonly)
+                                @if(($data['cantidades_novedades'][$key] ?? '') !== '')
+                                    <div class="mt-2 text-xs font-semibold text-slate-600">Novedad: {{ $data['cantidades_novedades'][$key] }}</div>
+                                @endif
+                            @else
+                                <input type="text" name="data[cantidades_novedades][{{ $key }}]" value="{{ $data['cantidades_novedades'][$key] ?? '' }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm" placeholder="Novedad">
+                            @endif
                         </div>
                     </div>
                 @endforeach
@@ -233,7 +283,11 @@
 
             <div class="mt-4">
                 <div class="text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Observaciones generales</div>
-                <textarea name="data[observaciones_generales]" rows="3" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm" placeholder="Observaciones...">{{ $data['observaciones_generales'] ?? '' }}</textarea>
+                @if($readonly)
+                    <div class="px-3 py-2 text-sm font-semibold text-slate-700 bg-slate-50 rounded-lg min-h-[60px]">{{ ($data['observaciones_generales'] ?? '') !== '' ? $data['observaciones_generales'] : '—' }}</div>
+                @else
+                    <textarea name="data[observaciones_generales]" rows="3" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold text-sm" placeholder="Observaciones...">{{ $data['observaciones_generales'] ?? '' }}</textarea>
+                @endif
             </div>
         </div>
     </div>

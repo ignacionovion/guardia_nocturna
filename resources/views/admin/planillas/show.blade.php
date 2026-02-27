@@ -60,12 +60,15 @@
             <div class="text-xs font-black uppercase tracking-widest text-slate-900 mt-1">{{ $planilla->unidad }}</div>
         </div>
         <div class="p-6">
+            @php($data = $planilla->data ?? [])
+            @php($readonly = true)
+            
             @if($planilla->unidad === 'BR-3')
-                @include('admin.planillas.forms.br3_readonly', ['data' => $planilla->data ?? []])
+                @include('admin.planillas.forms.br3', ['data' => $data, 'readonly' => true])
             @elseif($planilla->unidad === 'B-3')
-                @include('admin.planillas.forms.b3_readonly', ['data' => $planilla->data ?? []])
+                @include('admin.planillas.forms.b3', ['data' => $data, 'readonly' => true])
             @elseif($planilla->unidad === 'RX-3')
-                @include('admin.planillas.forms.rx3_readonly', ['data' => $planilla->data ?? []])
+                @include('admin.planillas.forms.rx3', ['data' => $data, 'readonly' => true])
             @else
                 <div class="text-slate-600 font-semibold">Detalle no disponible.</div>
             @endif
