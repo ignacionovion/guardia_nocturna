@@ -1,6 +1,14 @@
 @php
 	$data = $data ?? [];
 
+	// Get custom item keys to avoid duplicates
+	$customCabinaKeys = isset($customItems['cabina']) 
+		? $customItems['cabina']->pluck('item_key')->toArray() 
+		: [];
+	$customTraumaKeys = isset($customItems['trauma']) 
+		? $customItems['trauma']->pluck('item_key')->toArray() 
+		: [];
+
 	$cabinaChecklist = [
 		'baston_tastik' => 'Bastón Tastik',
 		'era_msa_g1' => 'ERA MSA G1',
@@ -25,6 +33,9 @@
 		'winche_unidad_rx3' => 'Winche de la unidad RX-3',
 	];
 
+	// Filter out items that exist in customItems to avoid duplicates
+	$filteredCabinaChecklist = array_diff_key($cabinaChecklist, array_flip($customCabinaKeys));
+
 	$traumaChecklist = [
 		'collares_cervicales' => 'Collares cervicales',
 		'dea' => 'DEA',
@@ -39,6 +50,9 @@
 		'laterales' => 'Laterales',
 		'pulpos' => 'Pulpos',
 	];
+
+	// Filter out items that exist in customItems to avoid duplicates
+	$filteredTraumaChecklist = array_diff_key($traumaChecklist, array_flip($customTraumaKeys));
 
 	$cantidades = [
 		'cilindros_para_cojines_de_levante' => 'Cilindros para cojines de levante',
@@ -77,7 +91,7 @@
 			</div>
 
 			<div class="grid grid-cols-1 gap-3">
-				@foreach($cabinaChecklist as $key => $label)
+				@foreach($filteredCabinaChecklist as $key => $label)
 					@php($row = $data['cabina'][$key] ?? [])
 					<div class="grid grid-cols-12 gap-2 items-center rounded-xl border border-slate-200 bg-white px-3 py-2">
 						<div class="col-span-12 md:col-span-5 rounded-lg bg-yellow-50 px-3 py-2 border border-yellow-100">
@@ -136,7 +150,7 @@
 		</button>
 		<div id="secTraumaRX3" class="p-4 hidden bg-sky-50">
 			<div class="grid grid-cols-1 gap-3">
-				@foreach($traumaChecklist as $key => $label)
+				@foreach($filteredTraumaChecklist as $key => $label)
 					@php($row = $data['trauma'][$key] ?? [])
 					<div class="grid grid-cols-12 gap-2 items-center rounded-xl border border-slate-200 bg-white px-3 py-2">
 						<div class="col-span-12 md:col-span-5 rounded-lg bg-yellow-50 px-3 py-2 border border-yellow-100">

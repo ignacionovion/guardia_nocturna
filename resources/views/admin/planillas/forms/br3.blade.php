@@ -1,4 +1,12 @@
 @php
+    // Get custom item keys to avoid duplicates
+    $customCabinaKeys = isset($customItems['cabina']) 
+        ? $customItems['cabina']->pluck('item_key')->toArray() 
+        : [];
+    $customTraumaKeys = isset($customItems['trauma']) 
+        ? $customItems['trauma']->pluck('item_key')->toArray() 
+        : [];
+
     $cabinaChecklist = [
         'linterna_nightstick' => 'Linterna NIGHTSTICK',
         'era_scott_4_5' => 'ERA SCOTT 4.5',
@@ -19,6 +27,9 @@
         'esmeril_angular' => 'Esmeril angular',
     ];
 
+    // Filter out items that exist in customItems to avoid duplicates
+    $filteredCabinaChecklist = array_diff_key($cabinaChecklist, array_flip($customCabinaKeys));
+
     $traumaChecklist = [
         'collares_cervicales' => 'Collares cervicales',
         'dea' => 'DEA',
@@ -34,6 +45,9 @@
         'pulpos' => 'Pulpos',
         'bolso_triage' => 'Bolso TRIAGE',
     ];
+
+    // Filter out items that exist in customItems to avoid duplicates
+    $filteredTraumaChecklist = array_diff_key($traumaChecklist, array_flip($customTraumaKeys));
 
     $cantidades = [
         'mangueras_38mm' => 'Mangueras 38mm',
@@ -77,7 +91,7 @@
                 <div class="text-xs font-black uppercase tracking-widest text-slate-900">Check list herramientas</div>
             </div>
             <div class="grid grid-cols-1 gap-3">
-                @foreach($cabinaChecklist as $key => $label)
+                @foreach($filteredCabinaChecklist as $key => $label)
                     @php($row = $data['cabina'][$key] ?? [])
                     <div class="grid grid-cols-12 gap-2 items-center rounded-xl border border-slate-200 bg-white px-3 py-2">
                         <div class="col-span-12 md:col-span-5 rounded-lg bg-yellow-50 px-3 py-2 border border-yellow-100">
@@ -136,7 +150,7 @@
         </button>
         <div id="secTrauma" class="p-4 hidden bg-sky-50">
             <div class="grid grid-cols-1 gap-3">
-                @foreach($traumaChecklist as $key => $label)
+                @foreach($filteredTraumaChecklist as $key => $label)
                     @php($row = $data['trauma'][$key] ?? [])
                     <div class="grid grid-cols-12 gap-2 items-center rounded-xl border border-slate-200 bg-white px-3 py-2">
                         <div class="col-span-12 md:col-span-5 rounded-lg bg-yellow-50 px-3 py-2 border border-yellow-100">
