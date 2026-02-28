@@ -14,7 +14,10 @@ use App\Models\GuardiaAttendanceRecord;
 use App\Models\MapaBomberoUsuarioLegacy;
 use App\Models\ReemplazoBombero;
 use App\Models\SystemSetting;
+use App\Models\TurnoSession;
+use App\Models\TurnoSessionItem;
 use App\Services\ReplacementService;
+use App\Services\TurnoDraftService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -1034,24 +1037,14 @@ class AdministradorController extends Controller
 
         $tz = SystemSetting::getValue('guardia_schedule_tz', env('GUARDIA_SCHEDULE_TZ', config('app.timezone')));
         $now = Carbon::now($tz);
-        $attendanceEnableTime = SystemSetting::getValue('attendance_enable_time', '21:00');
-        $attendanceDisableTime = SystemSetting::getValue('attendance_disable_time', '10:00');
-
-        [$enableH, $enableM] = array_map('intval', explode(':', (string) $attendanceEnableTime));
-        [$disableH, $disableM] = array_map('intval', explode(':', (string) $attendanceDisableTime));
-
-        $enableAt = $now->copy()->setTime($enableH, $enableM, 0);
-        $disableAt = $now->copy()->setTime($disableH, $disableM, 0);
-
-        $attendanceEnabled = (function () use ($now, $enableAt, $disableAt) {
-            if ($enableAt->lessThan($disableAt)) {
-                return $now->greaterThanOrEqualTo($enableAt) && $now->lessThan($disableAt);
-            }
-            return $now->greaterThanOrEqualTo($enableAt) || $now->lessThan($disableAt);
+        // Ventana fija de edición/guardado: 22:00 -> 07:00 (día siguiente)
+        $attendanceEnabled = (function () use ($now) {
+            $hour = (int) $now->hour;
+            return $hour >= 22 || $hour < 7;
         })();
 
         if (!$attendanceEnabled) {
-            return redirect()->back()->with('warning', 'Guardar asistencia está habilitado desde las ' . $attendanceEnableTime . '.');
+            return redirect()->back()->with('warning', 'Edición/guardado bloqueado fuera del horario 22:00 - 07:00.');
         }
 
         $guardia = Guardia::findOrFail($id);
@@ -1105,7 +1098,7 @@ class AdministradorController extends Controller
             $local = $now->copy()->setTimezone($tz);
 
             $day = $local->copy()->startOfDay();
-            $scheduleHour = $local->isSunday() ? 22 : 23;
+            $scheduleHour = 22;
             $hour = (int) $local->hour;
 
             if ($hour < 7) {
@@ -1133,6 +1126,25 @@ class AdministradorController extends Controller
         }
 
         DB::transaction(function () use ($data, $guardia, $shift, $tz, $tokensById) {
+            // Sincronizar draft persistente (quién pertenece al turno)
+            $draftService = app(TurnoDraftService::class);
+            $session = $draftService->getOrCreateDraftForGuardia($guardia, auth()->id());
+
+            $submittedIds = collect(array_keys($data['users'] ?? []))
+                ->map(fn ($v) => (int) $v)
+                ->filter(fn ($v) => $v > 0)
+                ->values();
+
+            if ($submittedIds->isNotEmpty()) {
+                TurnoSessionItem::query()
+                    ->where('turno_session_id', $session->id)
+                    ->whereNotIn('firefighter_id', $submittedIds->all())
+                    ->update([
+                        'included' => false,
+                        'removed_at' => Carbon::now($tz),
+                    ]);
+            }
+
             $lockedReplacementIds = ReemplazoBombero::query()
                 ->where('estado', 'activo')
                 ->pluck('bombero_reemplazante_id')
@@ -1141,11 +1153,56 @@ class AdministradorController extends Controller
                 ->values()
                 ->toArray();
 
+            // Cerrar del turno (shift_users) a los bomberos removidos de la dotación
+            if ($submittedIds->isNotEmpty()) {
+                $removedFromRosterIds = TurnoSessionItem::query()
+                    ->where('turno_session_id', $session->id)
+                    ->where('included', false)
+                    ->pluck('firefighter_id')
+                    ->map(fn ($v) => (int) $v)
+                    ->values()
+                    ->toArray();
+
+                if (!empty($removedFromRosterIds)) {
+                    $q = ShiftUser::query()
+                        ->where('shift_id', $shift->id)
+                        ->whereIn('firefighter_id', $removedFromRosterIds);
+
+                    if (Schema::hasColumn('shift_users', 'end_time')) {
+                        $q->whereNull('end_time')->update([
+                            'end_time' => Carbon::now($tz),
+                        ]);
+                    }
+
+                    if (Schema::hasColumn('shift_users', 'present')) {
+                        ShiftUser::query()
+                            ->where('shift_id', $shift->id)
+                            ->whereIn('firefighter_id', $removedFromRosterIds)
+                            ->update([
+                                'present' => false,
+                            ]);
+                    }
+                }
+            }
+
             foreach ($data['users'] as $firefighterId => $attributes) {
                 $firefighter = Bombero::find($firefighterId);
                 if (!$firefighter || (int) $firefighter->guardia_id !== (int) $guardia->id) {
                     continue;
                 }
+
+                // Marcar en draft que está incluido en la dotación
+                TurnoSessionItem::updateOrCreate(
+                    [
+                        'turno_session_id' => $session->id,
+                        'firefighter_id' => (int) $firefighter->id,
+                    ],
+                    [
+                        'included' => true,
+                        'removed_at' => null,
+                        'attendance_status' => strtolower((string) ($attributes['estado_asistencia'] ?? 'constituye')),
+                    ]
+                );
 
                 $attendanceStatus = $attributes['estado_asistencia'] ?? 'constituye';
 

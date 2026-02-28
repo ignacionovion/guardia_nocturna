@@ -14,6 +14,8 @@ use App\Models\GuardiaAttendanceRecord;
 use App\Models\SystemSetting;
 use App\Models\Bombero;
 use App\Models\ReemplazoBombero;
+use App\Models\TurnoSession;
+use App\Models\TurnoSessionItem;
 use App\Models\MapaBomberoUsuarioLegacy;
 use App\Models\ShiftUser;
 use App\Services\ReplacementService;
@@ -579,6 +581,20 @@ class TableroController extends Controller
             ->whereDate('date', Carbon::today()->toDateString())
             ->value('saved_at');
 
+        // Draft persistente (turno_sessions/items)
+        $draftSessionId = TurnoSession::query()
+            ->where('guardia_id', $guardiaId)
+            ->whereDate('operational_date', Carbon::today()->toDateString())
+            ->value('id');
+
+        $latestDraftAt = null;
+        if ($draftSessionId) {
+            $latestDraftAt = TurnoSessionItem::query()
+                ->where('turno_session_id', $draftSessionId)
+                ->latest('updated_at')
+                ->value('updated_at');
+        }
+
         return response()->json([
             'ok' => true,
             'guardia_id' => (int) $guardiaId,
@@ -586,6 +602,7 @@ class TableroController extends Controller
             'latest_bombero_at' => $latestBombero?->toISOString(),
             'latest_replacement_at' => $latestReplacement?->toISOString(),
             'attendance_saved_at' => $attendanceSavedAt?->toISOString(),
+            'latest_draft_at' => $latestDraftAt?->toISOString(),
             'ts' => now()->toISOString(),
         ]);
     }

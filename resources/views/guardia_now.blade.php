@@ -89,20 +89,20 @@
             return d.toLocaleString();
         }
 
-        function statusBadge(status, enTurno, esReemplazante) {
+        function statusBadge(status, enTurno, confirmado) {
             const s = (status || 'constituye').toLowerCase();
             
             // Colores más vibrantes y diferenciados
             const badges = {
                 'constituye': { 
                     label: 'CONSTITUYE', 
-                    cls: enTurno ? 'bg-emerald-500 text-white border-emerald-600' : 'bg-emerald-100 text-emerald-800 border-emerald-300',
-                    cardCls: enTurno ? 'border-emerald-300 bg-emerald-50/50' : 'border-slate-200 bg-white'
+                    cls: confirmado ? 'bg-emerald-600 text-white border-emerald-700' : (enTurno ? 'bg-emerald-500 text-white border-emerald-600' : 'bg-emerald-100 text-emerald-800 border-emerald-300'),
+                    cardCls: confirmado ? 'border-emerald-400 bg-emerald-50/50' : (enTurno ? 'border-emerald-300 bg-emerald-50/50' : 'border-slate-200 bg-white')
                 },
                 'reemplazo': { 
                     label: 'REEMPLAZO', 
                     cls: 'bg-purple-500 text-white border-purple-600',
-                    cardCls: 'border-purple-300 bg-purple-50/50'
+                    cardCls: confirmado ? 'border-emerald-400 bg-emerald-50/50' : 'border-purple-300 bg-purple-50/50'
                 },
                 'permiso': { 
                     label: 'PERMISO', 
@@ -158,13 +158,14 @@
 
             const bomberos = Array.isArray(payload.bomberos) ? payload.bomberos : [];
             grid.innerHTML = bomberos.map((b) => {
-                const badge = statusBadge(b.estado_asistencia, b.en_turno, b.es_reemplazante);
+                const badge = statusBadge(b.estado_asistencia, b.en_turno, b.confirmado);
 
                 const flags = [];
                 
-                // Badge de confirmación en turno (no es el mismo que "confirmado con código" del dashboard)
-                if (b.en_turno) {
-                    flags.push(pill('EN TURNO', 'bg-emerald-100 text-emerald-700 border-emerald-300'));
+                if (b.confirmado) {
+                    flags.push(pill('CONFIRMADO', 'bg-emerald-100 text-emerald-800 border-emerald-300'));
+                } else if (b.en_turno) {
+                    flags.push(pill('EN TURNO', 'bg-sky-100 text-sky-800 border-sky-300'));
                 } else {
                     flags.push(pill('PENDIENTE', 'bg-amber-100 text-amber-700 border-amber-300'));
                 }

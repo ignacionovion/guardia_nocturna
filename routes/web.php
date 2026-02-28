@@ -25,6 +25,7 @@ use App\Http\Controllers\Admin\PlanillaQrFijoController;
 use App\Http\Controllers\Admin\InventarioImportController;
 use App\Http\Controllers\BedQrController;
 use App\Http\Controllers\Admin\PlanillaListItemController;
+use App\Http\Controllers\TurnoDraftController;
 
 Route::get('/preventivas/{token}', [PreventivePublicController::class, 'show'])->name('preventivas.public.show');
 Route::post('/preventivas/{token}/confirmar', [PreventivePublicController::class, 'confirm'])->name('preventivas.public.confirm');
@@ -166,6 +167,13 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/aseo', [CleaningWebController::class, 'index'])->name('guardia.aseo');
     Route::post('/aseo', [CleaningWebController::class, 'store'])->name('guardia.aseo.store');
+
+    // Draft persistente de Turno (Dashboard) - ventana 22:00-07:00
+    Route::get('/draft/turno/current', [TurnoDraftController::class, 'current'])->name('draft.turno.current');
+    Route::post('/draft/turno/item', [TurnoDraftController::class, 'upsertItem'])->name('draft.turno.item');
+    Route::post('/draft/turno/confirm', [TurnoDraftController::class, 'persistConfirmation'])->name('draft.turno.confirm');
+    Route::post('/draft/turno/bed', [TurnoDraftController::class, 'assignBed'])->name('draft.turno.bed');
+    Route::post('/draft/turno/seed', [TurnoDraftController::class, 'seedItems'])->name('draft.turno.seed');
 
     // Rutas operativas de Guardia
     Route::post('/guardia', [GuardiaController::class, 'start'])->name('guardia.start');

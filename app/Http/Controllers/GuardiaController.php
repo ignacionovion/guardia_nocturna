@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use App\Models\MapaBomberoUsuarioLegacy;
 use App\Services\ReplacementService;
+use App\Services\TurnoDraftService;
+use App\Models\TurnoSession;
+use App\Models\TurnoSessionItem;
 use Carbon\Carbon;
 use App\Models\SystemSetting;
 
@@ -181,6 +184,28 @@ class GuardiaController extends Controller
         
         $guardia = $guardiaId ? Guardia::find($guardiaId) : null;
 
+        // Draft persistente: confirmaciones reales (con código) vienen desde turno_session_items
+        $draftConfirmMap = collect();
+        $draftStatusMap = collect();
+        if ($guardiaId) {
+            $draftService = app(TurnoDraftService::class);
+            $operationalDate = $draftService->resolveOperationalDate(Carbon::now($draftService->timezone()));
+
+            $draftSessionId = TurnoSession::query()
+                ->where('guardia_id', $guardiaId)
+                ->whereDate('operational_date', $operationalDate->toDateString())
+                ->value('id');
+
+            if ($draftSessionId) {
+                $draftItems = TurnoSessionItem::query()
+                    ->where('turno_session_id', $draftSessionId)
+                    ->get(['firefighter_id', 'attendance_status', 'confirmed_at']);
+
+                $draftConfirmMap = $draftItems->keyBy(fn ($it) => (int) $it->firefighter_id);
+                $draftStatusMap = $draftItems->keyBy(fn ($it) => (int) $it->firefighter_id);
+            }
+        }
+
         // Cargar reemplazos activos de esta guardia
         $activeReplacements = \App\Models\ReemplazoBombero::with(['originalFirefighter', 'replacementFirefighter'])
             ->where('estado', 'activo')
@@ -219,7 +244,8 @@ class GuardiaController extends Controller
                 'leader' => $shift->leader?->name,
                 'created_at' => optional($shift->created_at)->toIso8601String(),
             ] : null,
-            'bomberos' => $allBomberos->map(function ($b) use ($shiftFirefighterIds, $replacementByOriginal, $replacementByReplacement) {
+            'bomberos' => $allBomberos
+                ->map(function ($b) use ($shiftFirefighterIds, $replacementByOriginal, $replacementByReplacement, $draftStatusMap) {
                 $name = trim((string)($b->nombres ?? '') . ' ' . (string)($b->apellido_paterno ?? '') . ' ' . (string)($b->apellido_materno ?? ''));
 
                 // Calcular años de servicio
@@ -249,6 +275,14 @@ class GuardiaController extends Controller
                     $estado = 'reemplazo';
                 }
 
+                // Estado/confirmación desde draft (si existe)
+                $draftItem = $draftStatusMap->get((int) $b->id);
+                if ($draftItem && $draftItem->attendance_status) {
+                    $estado = (string) $draftItem->attendance_status;
+                }
+
+                $confirmadoDashboard = (bool) ($draftItem && (bool) ($draftItem->included ?? true) && $draftItem->confirmed_at);
+
                 return [
                     'id' => (int) $b->id,
                     'nombre' => $name,
@@ -258,7 +292,7 @@ class GuardiaController extends Controller
                     'portatil' => $b->numero_portatil,
                     'estado_asistencia' => $estado,
                     'en_turno' => $enTurno,
-                    'confirmado' => $enTurno,
+                    'confirmado' => $confirmadoDashboard,
                     'es_jefe_guardia' => (bool) ($b->es_jefe_guardia ?? false),
                     'es_refuerzo' => (bool) ($b->es_refuerzo ?? false),
                     'es_cambio' => (bool) ($b->es_cambio ?? false),
@@ -283,7 +317,8 @@ class GuardiaController extends Controller
                         'nombre' => trim(($repAsOriginal->replacementFirefighter?->nombres ?? '') . ' ' . ($repAsOriginal->replacementFirefighter?->apellido_paterno ?? '')),
                     ] : null,
                 ];
-            })->values(),
+            })
+            ->values(),
         ];
 
         return response()->json($payload);

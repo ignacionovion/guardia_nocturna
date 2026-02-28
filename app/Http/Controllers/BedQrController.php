@@ -6,6 +6,7 @@ use App\Models\Bed;
 use App\Models\BedAssignment;
 use App\Models\Bombero;
 use App\Models\Guardia;
+use App\Models\Shift;
 use App\Models\ShiftUser;
 use App\Models\SystemSetting;
 use Carbon\Carbon;
@@ -14,6 +15,55 @@ use Illuminate\Support\Str;
 
 class BedQrController extends Controller
 {
+    private function scheduleTimezone(): string
+    {
+        return SystemSetting::getValue('guardia_schedule_tz', env('GUARDIA_SCHEDULE_TZ', config('app.timezone')));
+    }
+
+    private function isWithinGuardiaHours(?Carbon $now = null): bool
+    {
+        $tz = $this->scheduleTimezone();
+        $now = ($now ?: Carbon::now($tz))->copy()->setTimezone($tz);
+
+        // Ventana fija todos los días: 22:00 -> 07:00
+        $startHour = 22;
+
+        // Si son las 00:00-06:59, pertenecemos a la ventana que empezó el día anterior
+        $startDay = $now->copy()->startOfDay();
+        if ((int) $now->hour < 7) {
+            $startDay->subDay();
+        }
+
+        $startAt = $startDay->copy()->setTime($startHour, 0, 0);
+        $endAt = $startDay->copy()->addDay()->setTime(7, 0, 0);
+
+        return $now->greaterThanOrEqualTo($startAt) && $now->lessThan($endAt);
+    }
+
+    private function isBomberoInActiveGuardiaShift(Bombero $bombero, ?Carbon $now = null): bool
+    {
+        $now = $now ?: now();
+
+        $shift = Shift::query()
+            ->with(['leader'])
+            ->where('status', 'active')
+            ->whereHas('leader', function ($q) use ($bombero) {
+                $q->where('guardia_id', $bombero->guardia_id);
+            })
+            ->latest()
+            ->first();
+
+        if (!$shift) {
+            return false;
+        }
+
+        return ShiftUser::query()
+            ->where('shift_id', $shift->id)
+            ->where('firefighter_id', $bombero->id)
+            ->whereNull('end_time')
+            ->exists();
+    }
+
     /**
      * Muestra el formulario para escanear QR de cama (pide RUT)
      */
@@ -26,8 +76,7 @@ class BedQrController extends Controller
             $request->session()->forget('bed_qr_bombero_id');
         }
 
-        // Sin restricciones por ahora: siempre permitir el flujo de asignación
-        $withinHours = true;
+        $withinHours = $this->isWithinGuardiaHours(Carbon::now($this->scheduleTimezone()));
 
         // Si ya hay un bombero identificado en sesión, mostrar info
         $bombero = null;
@@ -53,6 +102,10 @@ class BedQrController extends Controller
     {
         $bed = Bed::query()->findOrFail($bedId);
 
+        if (!$this->isWithinGuardiaHours(Carbon::now($this->scheduleTimezone()))) {
+            return redirect()->route('camas.scan.form', ['bedId' => $bedId]);
+        }
+
         $validated = $request->validate([
             'rut' => ['required', 'string', 'max:20', 'regex:/^\d{7,8}-[0-9kK]$/'],
         ], [
@@ -72,10 +125,14 @@ class BedQrController extends Controller
             ]);
         }
 
+        if (!$this->isBomberoInActiveGuardiaShift($bombero)) {
+            $request->session()->put('bed_qr_bombero_id', (int) $bombero->id);
+            return redirect()->route('camas.scan.not_in_guardia', ['bedId' => $bedId]);
+        }
+
         // Guardar bombero en sesión
         $request->session()->put('bed_qr_bombero_id', (int) $bombero->id);
 
-        // Sin restricciones por ahora: proceder directo a asignar cama
         return redirect()->route('camas.scan.assign', ['bedId' => $bedId]);
     }
 
@@ -105,6 +162,10 @@ class BedQrController extends Controller
     {
         $bed = Bed::query()->findOrFail($bedId);
 
+        if (!$this->isWithinGuardiaHours(Carbon::now($this->scheduleTimezone()))) {
+            return redirect()->route('camas.scan.form', ['bedId' => $bedId]);
+        }
+
         $bomberoId = $request->session()->get('bed_qr_bombero_id');
         if (!$bomberoId) {
             return redirect()->route('camas.scan.form', ['bedId' => $bedId]);
@@ -114,6 +175,10 @@ class BedQrController extends Controller
         if (!$bombero) {
             $request->session()->forget('bed_qr_bombero_id');
             return redirect()->route('camas.scan.form', ['bedId' => $bedId]);
+        }
+
+        if (!$this->isBomberoInActiveGuardiaShift($bombero)) {
+            return redirect()->route('camas.scan.not_in_guardia', ['bedId' => $bedId]);
         }
 
         // Verificar si la cama ya está ocupada
@@ -135,6 +200,10 @@ class BedQrController extends Controller
     public function assignStore(Request $request, int $bedId)
     {
         $bed = Bed::query()->findOrFail($bedId);
+
+        if (!$this->isWithinGuardiaHours(Carbon::now($this->scheduleTimezone()))) {
+            return redirect()->route('camas.scan.form', ['bedId' => $bedId]);
+        }
 
         $bomberoId = $request->session()->get('bed_qr_bombero_id');
         if (!$bomberoId) {
@@ -276,61 +345,5 @@ class BedQrController extends Controller
                     });
             })
             ->exists();
-    }
-
-    /**
-     * Verifica si la hora actual está dentro del horario de guardia
-     * Domingo-Jueves: 23:00 a 07:00
-     * Viernes-Sábado: 22:00 a 07:00
-     */
-    private function isWithinGuardiaHours(): bool
-    {
-        $scheduleTz = SystemSetting::getValue('guardia_schedule_tz', env('GUARDIA_SCHEDULE_TZ', config('app.timezone')));
-        $now = Carbon::now($scheduleTz);
-
-        $endTime = SystemSetting::getValue('guardia_daily_end_time', '07:00');
-        [$endH, $endM] = array_map('intval', explode(':', (string) $endTime));
-        $endAtToday = $now->copy()->startOfDay()->addHours($endH)->addMinutes($endM);
-
-        // Si estamos antes de la hora de fin (ej: 01:23 < 07:00)
-        // significa que estamos en la guardia de AYER
-        if ($now->lessThan($endAtToday)) {
-            // La guardia vigente empezó AYER, determinar horario según el día de ayer
-            $yesterday = $now->copy()->subDay();
-            $wasWeekendStart = $yesterday->isFriday() || $yesterday->isSaturday();
-            
-            $startTime = $wasWeekendStart 
-                ? SystemSetting::getValue('guardia_constitution_sunday_time', '22:00')  // Viernes y sábado inician a las 22:00
-                : SystemSetting::getValue('guardia_constitution_weekday_time', '23:00');  // Domingo a jueves inician a las 23:00
-            
-            [$startH, $startM] = array_map('intval', explode(':', (string) $startTime));
-            $startAtYesterday = $yesterday->copy()->startOfDay()->addHours($startH)->addMinutes($startM);
-            
-            // Si estamos después del inicio de ayer → estamos en guardia
-            // (a las 01:23 siempre estaremos después del inicio de ayer)
-            if ($now->greaterThanOrEqualTo($startAtYesterday) || $now->lessThan($endAtToday)) {
-                return true;
-            }
-            
-            return false;
-        }
-
-        // Si estamos DESPUÉS de la hora de fin (07:00), estamos en horario normal
-        // La guardia de hoy empieza según el día de hoy
-        $isWeekendStart = $now->isFriday() || $now->isSaturday();
-        
-        $startTime = $isWeekendStart 
-            ? SystemSetting::getValue('guardia_constitution_sunday_time', '22:00')  // Viernes y sábado inician a las 22:00
-            : SystemSetting::getValue('guardia_constitution_weekday_time', '23:00');  // Domingo a jueves inician a las 23:00
-
-        [$startH, $startM] = array_map('intval', explode(':', (string) $startTime));
-        $startAtToday = $now->copy()->startOfDay()->addHours($startH)->addMinutes($startM);
-
-        // Si estamos después de la hora de inicio HOY → estamos en guardia
-        if ($now->greaterThanOrEqualTo($startAtToday)) {
-            return true;
-        }
-
-        return false;
     }
 }

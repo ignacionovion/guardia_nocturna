@@ -3,8 +3,6 @@
 @section('content')
     @if(Auth::check() && Auth::user()->role === 'guardia' && isset($myGuardia) && $myGuardia)
         @php
-            $attendanceEnableTime = \App\Models\SystemSetting::getValue('attendance_enable_time', '21:00');
-            $attendanceDisableTime = \App\Models\SystemSetting::getValue('attendance_disable_time', '10:00');
             $guardiaTz = \App\Models\SystemSetting::getValue('guardia_schedule_tz', env('GUARDIA_SCHEDULE_TZ', config('app.timezone')));
             $guardiaDailyEndTime = \App\Models\SystemSetting::getValue('guardia_daily_end_time', '07:00');
 
@@ -13,22 +11,10 @@
             $dailyEndAt = $localNow->copy()->setTime($endH, $endM, 0);
             $shiftClosedForToday = $localNow->greaterThanOrEqualTo($dailyEndAt);
 
-            $attendanceEnabled = (function () use ($attendanceEnableTime, $attendanceDisableTime) {
-                $now = now();
-                [$enableH, $enableM] = array_map('intval', explode(':', (string) $attendanceEnableTime));
-                [$disableH, $disableM] = array_map('intval', explode(':', (string) $attendanceDisableTime));
-
-                $enableAt = $now->copy()->setTime($enableH, $enableM, 0);
-                $disableAt = $now->copy()->setTime($disableH, $disableM, 0);
-
-                // Ventana habilitada que puede cruzar medianoche: [enableAt, disableAt)
-                // Si enableAt < disableAt => habilitado entre enableAt y disableAt (mismo día)
-                // Si enableAt > disableAt => habilitado desde enableAt hasta disableAt del día siguiente
-                if ($enableAt->lessThan($disableAt)) {
-                    return $now->greaterThanOrEqualTo($enableAt) && $now->lessThan($disableAt);
-                }
-
-                return $now->greaterThanOrEqualTo($enableAt) || $now->lessThan($disableAt);
+            // Ventana fija: 22:00 -> 07:00 (sin override)
+            $attendanceEnabled = (function () use ($localNow) {
+                $hour = (int) $localNow->hour;
+                return $hour >= 22 || $hour < 7;
             })();
             // Filtrar personal activo (todos los de la guardia excepto fuera de servicio)
             $activeStaff = $myStaff->reject(function ($u) use ($replacementByOriginal) {
@@ -76,7 +62,7 @@
                         <div class="mt-0.5 flex items-center gap-3 min-w-0">
                             <div class="text-2xl md:text-3xl font-black tracking-tight text-slate-100 uppercase truncate">{{ $myGuardia->name }}</div>
                             @if(isset($isMyGuardiaOnDuty) && $isMyGuardiaOnDuty)
-                                <span class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-green-200 bg-green-50 text-green-700 shrink-0">EN TURNO</span>
+                                <span class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-green-200 bg-green-50 text-green-700 shrink-0">SEMANA DE GUARDIA</span>
                             @else
                                 <span class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-100 text-slate-700 shrink-0">FUERA DE TURNO</span>
                             @endif
@@ -638,7 +624,7 @@
                     <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-all">
                         <div class="flex items-start justify-between">
                             <div>
-                                <p class="text-xs font-black text-slate-400 uppercase tracking-wider mb-1">Personal en Turno</p>
+                                <p class="text-xs font-black text-slate-400 uppercase tracking-wider mb-1">Personal en Guardia Nocturna</p>
                                 <h3 class="text-2xl font-black text-slate-900">{{ $onDutyCount }}</h3>
                             </div>
                             <div class="bg-blue-100 p-2 rounded-lg text-blue-700">
@@ -1087,7 +1073,7 @@
                         @endforeach
                     </select>
                     @if(!isset($academyLeadersFirefighters) || ($academyLeadersFirefighters ?? collect())->isEmpty())
-                        <div class="text-[11px] text-slate-500 mt-1">No se detectó personal en turno para esta guardia.</div>
+                        <div class="text-[11px] text-slate-500 mt-1">No se detectó personal en la guardia nocturna.</div>
                     @endif
                 </div>
 
@@ -1235,6 +1221,7 @@
         window.__guardiaId = @json((int) ($myGuardia->id ?? 0));
         window.__attendanceSavedToday = @json((bool) ($hasAttendanceSavedToday ?? false));
         window.__attendanceDirty = false;
+        window.__attendanceSubmitting = false;
 
         function getLocalYmd() {
             try {
@@ -1249,6 +1236,7 @@
             latest_bombero_at: @json(optional(($myStaff ?? collect())->max('updated_at') ?? null)?->toISOString()),
             latest_replacement_at: @json(optional(($replacementByOriginal ?? collect())->max('updated_at') ?? null)?->toISOString()),
             attendance_saved_at: @json(optional(($hasAttendanceSavedToday ?? false) ? (\App\Models\GuardiaAttendanceRecord::where('guardia_id', $myGuardia->id ?? null)->whereDate('date', \Carbon\Carbon::today()->toDateString())->value('saved_at')) : null)?->toISOString()),
+            latest_draft_at: null,
         };
 
         function markAttendanceDirty() {
@@ -1271,10 +1259,53 @@
         }
 
         window.addEventListener('beforeunload', function (e) {
+            if (window.__attendanceSubmitting) return;
             if (!window.__attendanceDirty) return;
             e.preventDefault();
             e.returnValue = '';
         });
+
+        window.bindAttendanceFormHandlers = function() {
+            const form = document.getElementById('guardia-attendance-form');
+            const submitBtn = document.getElementById('guardia-attendance-submit');
+            if (!form || form.getAttribute('data-bound') === '1') return;
+            form.setAttribute('data-bound', '1');
+
+            const markSubmitting = function() {
+                window.__attendanceSubmitting = true;
+                window.__attendanceDirty = false;
+
+                // Defer UI mutations to avoid cancelling the native submit in some browsers.
+                setTimeout(function() {
+                    try {
+                        const banner = document.getElementById('attendance-stale-banner');
+                        if (banner) {
+                            banner.classList.add('hidden');
+                            banner.classList.remove('flex');
+                        }
+                    } catch (e) {}
+
+                    try {
+                        const badge = document.getElementById('attendance-saved-badge');
+                        if (badge) {
+                            badge.textContent = 'GUARDANDO ASISTENCIA...';
+                            badge.classList.remove('border-red-200', 'bg-red-50', 'text-red-700');
+                            badge.classList.add('border-amber-200', 'bg-amber-50', 'text-amber-800');
+                        }
+                    } catch (e) {}
+
+                    if (submitBtn) {
+                        submitBtn.setAttribute('disabled', 'disabled');
+                        submitBtn.classList.remove('bg-slate-800','hover:bg-slate-700','text-slate-100','border-slate-700');
+                        submitBtn.classList.add('bg-slate-200','text-slate-500','border-slate-300','cursor-not-allowed');
+                    }
+                }, 0);
+            };
+
+            form.addEventListener('submit', function() {
+                markSubmitting();
+            });
+        };
 
         window.openNoveltyModal = function() {
             const modal = document.getElementById('noveltyModal');
@@ -1431,37 +1462,9 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            const restoreConfirmations = function() {
-                if (!window.__guardiaId) return;
-                const ymd = getLocalYmd();
+            window.__draftEditable = false;
 
-                document.querySelectorAll('[data-card-user]').forEach(card => {
-                    const userId = card.getAttribute('data-card-user');
-                    if (!userId) return;
-
-                    const key = `guardia_confirm_${window.__guardiaId}_${ymd}_${userId}`;
-                    let raw = null;
-                    try {
-                        raw = sessionStorage.getItem(key);
-                    } catch (e) {
-                        raw = null;
-                    }
-                    if (!raw) return;
-
-                    let payload = null;
-                    try {
-                        payload = JSON.parse(raw);
-                    } catch (e) {
-                        payload = null;
-                    }
-
-                    if (!payload || !payload.token) return;
-
-                    const tokenEl = document.getElementById('confirm-token-' + userId);
-                    if (tokenEl) tokenEl.value = payload.token;
-                    setConfirmState(userId, true);
-                });
-            };
+            const csrf = () => (document.querySelector('meta[name="csrf-token"]')?.content || '');
 
             const resetAllConfirmations = function() {
                 document.querySelectorAll('[data-card-user]').forEach(card => {
@@ -1474,20 +1477,157 @@
                 refreshAttendanceSubmitButton();
             };
 
-            resetAllConfirmations();
-            restoreConfirmations();
+            const loadDraftState = async function() {
+                try {
+                    const res = await fetch('{{ route('draft.turno.current') }}', {
+                        headers: {
+                            'Accept': 'application/json',
+                        },
+                        credentials: 'same-origin',
+                    });
+
+                    if (!res.ok) return;
+                    const data = await res.json().catch(() => null);
+                    if (!data || !data.ok) return;
+
+                    // Solo resetear confirmaciones cuando el draft se cargó correctamente.
+                    // Esto evita perder el estado si el fetch falla (ej: luego de registrar una novedad).
+                    resetAllConfirmations();
+
+                    window.__draftEditable = !!data.editable;
+
+                    const items = Array.isArray(data.items) ? data.items : [];
+
+                    // Si el draft viene vacío, crear items base para todas las tarjetas visibles
+                    if (items.length === 0 && window.__draftEditable) {
+                        try {
+                            const payloadItems = [];
+                            document.querySelectorAll('[data-card-user]').forEach(card => {
+                                const userId = card.getAttribute('data-card-user');
+                                if (!userId) return;
+                                const input = document.getElementById('attendance-status-' + userId);
+                                const status = (input?.value || 'constituye').toLowerCase();
+                                payloadItems.push({
+                                    firefighter_id: parseInt(userId, 10),
+                                    attendance_status: status,
+                                });
+                            });
+
+                            if (payloadItems.length > 0) {
+                                await fetch('{{ route('draft.turno.seed') }}', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Accept': 'application/json',
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': csrf(),
+                                    },
+                                    credentials: 'same-origin',
+                                    body: JSON.stringify({ items: payloadItems }),
+                                });
+                            }
+                        } catch (e) {}
+
+                        // Re-cargar estado ya con items creados
+                        await loadDraftState();
+                        return;
+                    }
+
+                    items.forEach(it => {
+                        const userId = it.firefighter_id;
+                        if (!userId) return;
+
+                        // 1) Rehidratar estado (para colores/label) si viene desde el draft
+                        if (it.attendance_status) {
+                            const input = document.getElementById('attendance-status-' + userId);
+                            if (input) {
+                                input.value = String(it.attendance_status).toLowerCase();
+                            }
+                            updateGuardiaCardUI(userId, String(it.attendance_status).toLowerCase());
+                        }
+
+                        const tokenEl = document.getElementById('confirm-token-' + userId);
+                        if (tokenEl) tokenEl.value = it.confirm_token || '';
+
+                        // 2) Recalcular si requiere confirmación (constituye/reemplazo/refuerzo)
+                        const card = document.getElementById('guardia-card-' + userId);
+                        if (card) {
+                            const input = document.getElementById('attendance-status-' + userId);
+                            const status = (input?.value || 'constituye').toLowerCase();
+                            const isRefuerzo = card.textContent.includes('REFUERZO');
+                            const requires = (status === 'constituye' || status === 'reemplazo' || isRefuerzo);
+                            card.setAttribute('data-requires-confirmation', requires ? '1' : '0');
+                        }
+
+                        // 3) Rehidratar confirmación solo si la tarjeta la requiere
+                        const requiresConfirmation = (function() {
+                            const card = document.getElementById('guardia-card-' + userId);
+                            return card ? (card.getAttribute('data-requires-confirmation') === '1') : true;
+                        })();
+
+                        const confirmed = requiresConfirmation && !!(it.confirm_token && it.confirmed_at);
+                        setConfirmState(userId, confirmed);
+                    });
+
+                    refreshAttendanceSubmitButton();
+                } catch (e) {
+                }
+            };
+
+            window.__loadDraftState = loadDraftState;
+            window.__resetAllConfirmations = resetAllConfirmations;
+
+            window.__persistDraftConfirmation = async function(userId, token) {
+                if (!window.__draftEditable) return;
+
+                try {
+                    await fetch('{{ route('draft.turno.confirm') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrf(),
+                        },
+                        credentials: 'same-origin',
+                        body: JSON.stringify({
+                            firefighter_id: parseInt(userId, 10),
+                            confirm_token: token,
+                        }),
+                    });
+                } catch (e) {
+                }
+            };
+
+            window.__persistDraftItemStatus = async function(userId, status) {
+                if (!window.__draftEditable) return;
+
+                try {
+                    await fetch('{{ route('draft.turno.item') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrf(),
+                        },
+                        credentials: 'same-origin',
+                        body: JSON.stringify({
+                            firefighter_id: parseInt(userId, 10),
+                            attendance_status: String(status || 'constituye').toLowerCase(),
+                        }),
+                    });
+                } catch (e) {
+                }
+            };
+
+            loadDraftState();
 
             window.addEventListener('pageshow', function() {
-                resetAllConfirmations();
-                restoreConfirmations();
+                loadDraftState();
             });
 
-            // Restaurar confirmaciones cuando la pestaña vuelve a estar visible (después de suspensión)
             document.addEventListener('visibilitychange', function() {
                 if (document.visibilityState === 'visible') {
-                    // Pequeño delay para asegurar que el DOM está listo
                     setTimeout(function() {
-                        restoreConfirmations();
+                        loadDraftState();
                     }, 100);
                 }
             });
@@ -1625,6 +1765,17 @@
         });
 
         window.setGuardiaStatus = function(userId, status) {
+            if (!window.__draftEditable) {
+                const toast = document.getElementById('confirm-error-toast');
+                const toastText = document.getElementById('confirm-error-text');
+                if (toast && toastText) {
+                    toastText.textContent = 'EDICIÓN BLOQUEADA FUERA DEL HORARIO 22:00 - 07:00.';
+                    toast.classList.remove('hidden');
+                    toast.classList.add('flex');
+                }
+                return;
+            }
+
             if (status === 'falta') {
                 if (!confirm('¿Cambiar estado a FALTA?')) {
                     return;
@@ -1641,6 +1792,12 @@
             clearConfirmation(userId);
             updateGuardiaCardUI(userId, status);
             markAttendanceDirty();
+
+            try {
+                if (typeof window.__persistDraftItemStatus === 'function') {
+                    window.__persistDraftItemStatus(userId, status);
+                }
+            } catch (e) {}
         }
 
         window.cycleGuardiaStatus = function(userId) {
@@ -1658,6 +1815,14 @@
         function refreshAttendanceSubmitButton() {
             const submitBtn = document.getElementById('guardia-attendance-submit');
             if (!submitBtn) return;
+
+            // Si ya se guardó y no hay cambios nuevos, bloquear el botón
+            if (window.__attendanceSavedToday && !window.__attendanceDirty) {
+                submitBtn.setAttribute('disabled', 'disabled');
+                submitBtn.classList.remove('bg-slate-800','hover:bg-slate-700','text-slate-100','border-slate-700');
+                submitBtn.classList.add('bg-slate-200','text-slate-500','border-slate-300','cursor-not-allowed');
+                return;
+            }
 
             const cards = document.querySelectorAll('[data-card-user][data-requires-confirmation="1"]');
             let ok = true;
@@ -1744,9 +1909,10 @@
             if (tokenEl) tokenEl.value = '';
 
             try {
-                if (window.__guardiaId) {
-                    const ymd = getLocalYmd();
-                    sessionStorage.removeItem(`guardia_confirm_${window.__guardiaId}_${ymd}_${userId}`);
+                const input = document.getElementById('attendance-status-' + userId);
+                const current = (input?.value || 'constituye').toLowerCase();
+                if (typeof window.__persistDraftItemStatus === 'function') {
+                    window.__persistDraftItemStatus(userId, current);
                 }
             } catch (e) {}
 
@@ -1764,7 +1930,6 @@
             const codeEl = document.getElementById('confirm-code-' + bomberoId);
             const tokenEl = document.getElementById('confirm-token-' + bomberoId);
             const btnEl = document.getElementById('confirm-btn-' + bomberoId);
-            const msgEl = document.getElementById('confirm-msg-' + bomberoId);
 
             const numeroRegistro = (codeEl?.value || '').trim();
             if (!numeroRegistro) {
@@ -1772,6 +1937,17 @@
                 const toastText = document.getElementById('confirm-error-text');
                 if (toast && toastText) {
                     toastText.textContent = 'INGRESA EL CÓDIGO DEL BOMBERO';
+                    toast.classList.remove('hidden');
+                    toast.classList.add('flex');
+                }
+                return;
+            }
+
+            if (!window.__draftEditable) {
+                const toast = document.getElementById('confirm-error-toast');
+                const toastText = document.getElementById('confirm-error-text');
+                if (toast && toastText) {
+                    toastText.textContent = 'EDICIÓN BLOQUEADA FUERA DEL HORARIO 22:00 - 07:00.';
                     toast.classList.remove('hidden');
                     toast.classList.add('flex');
                 }
@@ -1825,12 +2001,8 @@
                 setConfirmState(bomberoId, true);
 
                 try {
-                    if (window.__guardiaId && data.token) {
-                        const ymd = getLocalYmd();
-                        sessionStorage.setItem(
-                            `guardia_confirm_${window.__guardiaId}_${ymd}_${bomberoId}`,
-                            JSON.stringify({ token: data.token, ts: data.ts || null })
-                        );
+                    if (data.token && typeof window.__persistDraftConfirmation === 'function') {
+                        await window.__persistDraftConfirmation(bomberoId, data.token);
                     }
                 } catch (e) {}
 
@@ -1959,6 +2131,12 @@
                 }
             }
 
+            document.addEventListener('DOMContentLoaded', function() {
+                if (typeof window.bindAttendanceFormHandlers === 'function') {
+                    window.bindAttendanceFormHandlers();
+                }
+            });
+
             kioskPing();
             setInterval(kioskPing, 60 * 1000);
 
@@ -1996,6 +2174,14 @@
 
                     root.innerHTML = nextRoot.innerHTML;
 
+                    if (typeof window.bindAttendanceFormHandlers === 'function') {
+                        window.bindAttendanceFormHandlers();
+                    }
+
+                    if (typeof window.__loadDraftState === 'function') {
+                        await window.__loadDraftState();
+                    }
+
                     window.scrollTo(0, scrollY);
 
                     if (activeId) {
@@ -2020,7 +2206,6 @@
                             'Accept': 'application/json',
                         },
                         credentials: 'same-origin',
-                        cache: 'no-store',
                     });
                     if (!res.ok) return;
 
@@ -2028,20 +2213,32 @@
                     if (!data || !data.ok) return;
 
                     const prev = window.__guardiaSnapshot || {};
+                    const rosterChanged = (
+                        (data.latest_bombero_at && data.latest_bombero_at !== prev.latest_bombero_at) ||
+                        (data.latest_replacement_at && data.latest_replacement_at !== prev.latest_replacement_at)
+                    );
                     const changed = (
                         (data.latest_novelty_at && data.latest_novelty_at !== prev.latest_novelty_at) ||
                         (data.latest_bombero_at && data.latest_bombero_at !== prev.latest_bombero_at) ||
                         (data.latest_replacement_at && data.latest_replacement_at !== prev.latest_replacement_at) ||
-                        (data.attendance_saved_at && data.attendance_saved_at !== prev.attendance_saved_at)
+                        (data.attendance_saved_at && data.attendance_saved_at !== prev.attendance_saved_at) ||
+                        (data.latest_draft_at && data.latest_draft_at !== prev.latest_draft_at)
                     );
 
                     if (changed) {
                         await softRefreshGuardiaDashboard();
+
+                        // Si cambió la dotación (refuerzos/reemplazos), permitir guardar nuevamente
+                        if (rosterChanged) {
+                            markAttendanceDirty();
+                        }
+
                         window.__guardiaSnapshot = {
                             latest_novelty_at: data.latest_novelty_at,
                             latest_bombero_at: data.latest_bombero_at,
                             latest_replacement_at: data.latest_replacement_at,
                             attendance_saved_at: data.attendance_saved_at,
+                            latest_draft_at: data.latest_draft_at,
                         };
                         return;
                     }
@@ -2051,6 +2248,7 @@
                         latest_bombero_at: data.latest_bombero_at,
                         latest_replacement_at: data.latest_replacement_at,
                         attendance_saved_at: data.attendance_saved_at,
+                        latest_draft_at: data.latest_draft_at,
                     };
                 } catch (e) {
                     // noop

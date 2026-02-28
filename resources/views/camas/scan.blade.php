@@ -63,10 +63,7 @@
                         <div class="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
                             <p class="text-xs text-slate-500 uppercase tracking-wider font-bold mb-2">Horario de guardia</p>
                             <p class="text-sm text-slate-300">
-                                <span class="text-amber-400 font-bold">Domingo a Jueves:</span> 23:00 - 07:00
-                            </p>
-                            <p class="text-sm text-slate-300 mt-1">
-                                <span class="text-amber-400 font-bold">Viernes y Sábado:</span> 22:00 - 07:00
+                                <span class="text-amber-400 font-bold">Todos los días:</span> 22:00 - 07:00
                             </p>
                         </div>
                         
