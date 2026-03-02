@@ -125,15 +125,9 @@
                             $attendanceMessage = 'RECORDAR REGISTRAR GUARDIA A LAS 22:00';
                             $attendanceBadgeClass = 'border-amber-200 bg-amber-50 text-amber-800';
                         } elseif (isset($hasAttendanceSavedToday) && $hasAttendanceSavedToday) {
-                            if ($isAfter702 && !$isAfter2200) {
-                                // Después de 07:02, antes de 22:00 - mostrar recordatorio para guardia nocturna
-                                $attendanceMessage = 'RECORDAR REGISTRAR GUARDIA A LAS 22:00';
-                                $attendanceBadgeClass = 'border-amber-200 bg-amber-50 text-amber-800';
-                            } else {
-                                // Asistencia guardada correctamente
-                                $attendanceMessage = 'ASISTENCIA REGISTRADA CORRECTAMENTE';
-                                $attendanceBadgeClass = 'border-emerald-200 bg-emerald-50 text-emerald-700';
-                            }
+                            // Asistencia guardada correctamente - SIEMPRE mostrar verde
+                            $attendanceMessage = 'ASISTENCIA REGISTRADA CORRECTAMENTE';
+                            $attendanceBadgeClass = 'border-emerald-200 bg-emerald-50 text-emerald-700';
                         } else {
                             if ($isAfter2200) {
                                 $attendanceMessage = 'GUARDA LA ASISTENCIA ANTES DE IRTE';

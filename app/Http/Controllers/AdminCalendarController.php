@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Guardia;
 use App\Models\GuardiaCalendarDay;
+use App\Exports\GenericReportExport;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AdminCalendarController extends Controller
 {
@@ -175,37 +177,36 @@ class AdminCalendarController extends Controller
 
         $subject = 'Rotación Semanal de Guardias Generada - ' . $startDate->format('d/m/Y');
         
-        // Build email body
+        // Build concise email body (without full list)
         $lines = [
             'Se ha generado una nueva rotación semanal de guardias.',
             '',
             '**Período:** ' . $startDate->format('d/m/Y') . ' hasta ' . $endDate->format('d/m/Y'),
             '**Total de semanas:** ' . count($rotationSummary),
             '',
-            '**Resumen de la rotación:**',
+            'Se adjunta archivo Excel con el detalle completo de la rotación.',
+            '',
+            'Para ver el calendario completo, ingresa al sistema.',
         ];
 
-        foreach (array_slice($rotationSummary, 0, 20) as $week) {
-            $lines[] = "• Semana {$week['week_number']} (desde {$week['week_start']}): {$week['guardia_name']}";
-        }
+        // Generate Excel with full rotation data
+        $excelData = $this->generateRotationExcel($rotationSummary);
+        $fileAttachments = [
+            [
+                'data' => $excelData,
+                'name' => 'rotacion_guardias_' . $startDate->format('Ymd') . '.xlsx',
+                'mime' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            ],
+        ];
 
-        if (count($rotationSummary) > 20) {
-            $lines[] = '... y ' . (count($rotationSummary) - 20) . ' semanas más';
-        }
-
-        $lines[] = '';
-        $lines[] = 'Para ver el calendario completo, ingresa al sistema.';
-
-        $mailBody = implode("\n", $lines);
-
-        // Prefer SystemEmailService (respeta mail_enabled_rotation). Si está disponible, se envía a los destinatarios ingresados.
+        // Prefer SystemEmailService (respeta mail_enabled_rotation)
         if (class_exists(\App\Services\SystemEmailService::class)) {
             \Illuminate\Support\Facades\Mail::to($emails)->send(new \App\Mail\SystemNotificationMail(
                 fromAddress: (string) (\App\Services\SystemEmailService::from()['address'] ?? ''),
                 fromName: (string) (\App\Services\SystemEmailService::from()['name'] ?? ''),
                 mailSubject: $subject,
                 lines: $lines,
-                fileAttachments: [],
+                fileAttachments: $fileAttachments,
                 notificationType: 'rotation',
                 sourceLabel: 'Calendario',
                 senderName: auth()->user()?->name,
@@ -215,15 +216,36 @@ class AdminCalendarController extends Controller
             return;
         }
 
-        // Fallback a mail raw
+        // Fallback: send with attachment using raw mail
+        $mailBody = implode("\n", $lines);
         foreach ($emails as $email) {
             try {
-                \Illuminate\Support\Facades\Mail::raw($mailBody, function($message) use ($email, $subject) {
+                \Illuminate\Support\Facades\Mail::raw($mailBody, function($message) use ($email, $subject, $excelData) {
                     $message->to($email)->subject($subject);
+                    $message->attachData($excelData, 'rotacion_guardias.xlsx', [
+                        'mime' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    ]);
                 });
             } catch (\Exception $e) {
                 \Illuminate\Support\Facades\Log::error('Error enviando email de rotación: ' . $e->getMessage());
             }
         }
+    }
+
+    private function generateRotationExcel(array $rotationSummary): string
+    {
+        $headings = ['N° Semana', 'Fecha Inicio', 'Guardia Asignada'];
+        
+        $rows = collect($rotationSummary)->map(function ($week) {
+            return [
+                $week['week_number'],
+                $week['week_start'],
+                $week['guardia_name'],
+            ];
+        })->toArray();
+
+        $export = new GenericReportExport($rows, $headings);
+        
+        return Excel::raw($export, \Maatwebsite\Excel\Excel::XLSX);
     }
 }

@@ -44,15 +44,15 @@
                     <ul class="text-sm text-slate-400 text-left space-y-2">
                         <li class="flex items-start gap-2">
                             <i class="fas fa-check-circle text-cyan-400 mt-0.5"></i>
-                            <span>Verifica que estés registrado en el <a href="{{ route('dashboard') }}" class="text-cyan-400 hover:text-cyan-300 underline">dashboard de guardia</a></span>
+                            <span>Verifica que estes ingresado en el sistema</span>
                         </li>
                         <li class="flex items-start gap-2">
                             <i class="fas fa-check-circle text-cyan-400 mt-0.5"></i>
-                            <span>Contacta al administrador de tu guardia</span>
+                            <span>Contacta a tu Jefe de Guardia</span>
                         </li>
                         <li class="flex items-start gap-2">
                             <i class="fas fa-check-circle text-cyan-400 mt-0.5"></i>
-                            <span>Usa el <a href="{{ route('camas') }}" class="text-cyan-400 hover:text-cyan-300 underline">sistema manual de camas</a> si tienes permisos</span>
+                            <span>Contacta a tu Cápitan</span>
                         </li>
                     </ul>
                 </div>

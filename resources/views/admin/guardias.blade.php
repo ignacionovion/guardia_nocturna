@@ -13,8 +13,9 @@
         @if(auth()->user()->role === 'super_admin')
             <form action="{{ route('admin.guardias.store') }}" method="POST" class="flex gap-2 w-full md:w-auto">
                 @csrf
-                <input type="text" name="name" placeholder="Nombre nueva guardia..." required
-                    class="rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 px-4 py-2.5 text-sm w-full md:w-64">
+                <input type="text" name="name" placeholder="NOMBRE NUEVA GUARDIA..." required
+                    class="rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 px-4 py-2.5 text-sm w-full md:w-64"
+                    style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase();">
                 <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-6 rounded-lg text-sm transition shadow-md flex items-center">
                     <i class="fas fa-plus mr-2"></i> Crear
                 </button>
