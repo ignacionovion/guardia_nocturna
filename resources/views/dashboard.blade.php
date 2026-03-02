@@ -1245,22 +1245,43 @@
             latest_draft_at: null,
         };
 
+        function isAttendanceWindowOpen() {
+            const now = new Date();
+            const hour = now.getHours();
+            return hour >= 22 || hour < 7;
+        }
+
         function markAttendanceDirty() {
             if (!window.__attendanceSavedToday) return;
             if (window.__attendanceDirty) return;
             window.__attendanceDirty = true;
 
             const banner = document.getElementById('attendance-stale-banner');
-            if (banner) {
-                banner.classList.remove('hidden');
-                banner.classList.add('flex');
-            }
-
             const badge = document.getElementById('attendance-saved-badge');
-            if (badge) {
-                badge.classList.remove('border-emerald-200', 'bg-emerald-50', 'text-emerald-700');
-                badge.classList.add('border-amber-200', 'bg-amber-50', 'text-amber-800');
-                badge.textContent = 'ASISTENCIA DESACTUALIZADA';
+
+            // Si está fuera del horario de registro (07:00-22:00), mostrar mensaje diferente
+            if (!isAttendanceWindowOpen()) {
+                if (badge) {
+                    badge.classList.remove('border-emerald-200', 'bg-emerald-50', 'text-emerald-700', 'border-amber-200', 'bg-amber-50', 'text-amber-800');
+                    badge.classList.add('border-slate-300', 'bg-slate-100', 'text-slate-500');
+                    badge.textContent = 'FUERA DE HORARIO DE REGISTRO';
+                }
+                // No mostrar el banner modal fuera de horario
+                if (banner) {
+                    banner.classList.add('hidden');
+                    banner.classList.remove('flex');
+                }
+            } else {
+                // Dentro del horario permitido (22:00-07:00): mostrar banner normal
+                if (banner) {
+                    banner.classList.remove('hidden');
+                    banner.classList.add('flex');
+                }
+                if (badge) {
+                    badge.classList.remove('border-emerald-200', 'bg-emerald-50', 'text-emerald-700');
+                    badge.classList.add('border-amber-200', 'bg-amber-50', 'text-amber-800');
+                    badge.textContent = 'ASISTENCIA DESACTUALIZADA';
+                }
             }
 
             // Re-evaluar el botón de guardar ahora que __attendanceDirty es true
