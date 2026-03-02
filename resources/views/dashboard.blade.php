@@ -12,7 +12,8 @@
             $shiftClosedForToday = $localNow->greaterThanOrEqualTo($dailyEndAt);
 
             // Ventana fija: 22:00 -> 07:00 (sin override)
-            $attendanceEnabled = (function () use ($localNow) {
+            $attendanceEnabled = (function () use ($guardiaTz) {
+                $localNow = now()->copy()->setTimezone($guardiaTz);
                 $hour = (int) $localNow->hour;
                 return $hour >= 22 || $hour < 7;
             })();
