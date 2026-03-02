@@ -545,9 +545,7 @@ class AdministradorController extends Controller
 
         $endsAt = ReplacementService::calculateReplacementUntil(Carbon::now());
 
-        $shift = Shift::where('status', 'active')->latest()->first();
-
-        DB::transaction(function () use ($guardia, $original, $replacement, $endsAt, $shift) {
+        DB::transaction(function () use ($guardia, $original, $replacement, $endsAt) {
             $replacementPreviousGuardiaId = $replacement->guardia_id;
             ReemplazoBombero::create([
                 'guardia_id' => $guardia->id,
@@ -577,28 +575,9 @@ class AdministradorController extends Controller
                 'es_sancion' => false,
             ]);
 
-            if ($shift) {
-                $replacementUserId = MapaBomberoUsuarioLegacy::where('firefighter_id', $replacement->id)->value('user_id');
-                $originalUserId = MapaBomberoUsuarioLegacy::where('firefighter_id', $original->id)->value('user_id');
-
-                ShiftUser::updateOrCreate(
-                    [
-                        'shift_id' => $shift->id,
-                        'firefighter_id' => $replacement->id,
-                    ],
-                    [
-                        'user_id' => $replacementUserId,
-                        'guardia_id' => $guardia->id,
-                        'attendance_status' => 'constituye',
-                        'assignment_type' => 'Reemplazo',
-                        'replaced_user_id' => $originalUserId,
-                        'replaced_firefighter_id' => $original->id,
-                        'present' => true,
-                        'start_time' => $shift->created_at,
-                        'end_time' => null,
-                    ]
-                );
-            }
+            // ShiftUser se crea al guardar asistencia (bulkUpdateGuardia), no aquí.
+            // Esto evita que el reemplazo aparezca en shift_users antes de que el usuario
+            // presione "Guardar asistencia".
         });
 
         return redirect()->back()->with('success', "Reemplazo asignado: {$replacement->nombres} reemplaza a {$original->nombres}.");
@@ -1145,13 +1124,19 @@ class AdministradorController extends Controller
                     ]);
             }
 
-            $lockedReplacementIds = ReemplazoBombero::query()
+            $activeReplacements = ReemplazoBombero::query()
                 ->where('estado', 'activo')
+                ->get();
+
+            $lockedReplacementIds = $activeReplacements
                 ->pluck('bombero_reemplazante_id')
                 ->filter()
                 ->map(fn ($v) => (int) $v)
                 ->values()
                 ->toArray();
+
+            // Mapa: bombero_reemplazante_id => ReemplazoBombero (para metadata en shift_users)
+            $replacementMap = $activeReplacements->keyBy(fn ($r) => (int) $r->bombero_reemplazante_id);
 
             // Cerrar del turno (shift_users) a los bomberos removidos de la dotación
             if ($submittedIds->isNotEmpty()) {
@@ -1217,13 +1202,34 @@ class AdministradorController extends Controller
 
                 $userId = MapaBomberoUsuarioLegacy::where('firefighter_id', $firefighter->id)->value('user_id');
 
+                // Determinar assignment_type y metadata de reemplazo
+                $assignmentType = $attendanceStatus;
+                $replacedFirefighterId = null;
+                $replacedUserId = null;
+
+                $activeRep = $replacementMap->get((int) $firefighter->id);
+                if ($activeRep) {
+                    $assignmentType = 'Reemplazo';
+                    $replacedFirefighterId = (int) $activeRep->bombero_titular_id;
+                    $replacedUserId = MapaBomberoUsuarioLegacy::where('firefighter_id', $replacedFirefighterId)->value('user_id');
+                } elseif ((bool) ($firefighter->es_refuerzo ?? false)) {
+                    $assignmentType = 'Refuerzo';
+                }
+
                 $shiftUserPayload = [
-                    'assignment_type' => $attendanceStatus,
+                    'assignment_type' => $assignmentType,
                     'present' => $attendanceStatus !== 'ausente' && $attendanceStatus !== 'permiso' && $attendanceStatus !== 'licencia',
                     'start_time' => Carbon::now($tz),
                     'end_time' => null,
                     'firefighter_id' => $firefighter->id,
                 ];
+
+                if ($replacedFirefighterId) {
+                    $shiftUserPayload['replaced_firefighter_id'] = $replacedFirefighterId;
+                }
+                if ($replacedUserId) {
+                    $shiftUserPayload['replaced_user_id'] = $replacedUserId;
+                }
 
                 if ($userId) {
                     $shiftUserPayload['user_id'] = $userId;
