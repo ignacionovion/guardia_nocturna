@@ -41,9 +41,11 @@ class TurnoDraftController extends Controller
         $session = $service->getOrCreateDraftForGuardia($guardia, auth()->id());
         $items = $session->items()->get()->keyBy('firefighter_id');
 
+        $editable = $service->isEditableNow();
+
         return response()->json([
             'ok' => true,
-            'editable' => $service->isEditableNow(),
+            'editable' => $editable,
             'session' => [
                 'id' => $session->id,
                 'guardia_id' => $session->guardia_id,
@@ -52,14 +54,14 @@ class TurnoDraftController extends Controller
                 'close_at' => optional($session->close_at)->toISOString(),
                 'status' => $session->status,
             ],
-            'items' => $items->map(function ($i) {
+            'items' => $items->map(function ($i) use ($editable) {
                 return [
                     'firefighter_id' => (int) $i->firefighter_id,
                     'included' => (bool) ($i->included ?? true),
                     'removed_at' => optional($i->removed_at)->toISOString(),
                     'attendance_status' => $i->attendance_status,
-                    'confirm_token' => $i->confirm_token,
-                    'confirmed_at' => optional($i->confirmed_at)->toISOString(),
+                    'confirm_token' => $editable ? $i->confirm_token : null,
+                    'confirmed_at' => $editable ? optional($i->confirmed_at)->toISOString() : null,
                     'bed_id' => $i->bed_id ? (int) $i->bed_id : null,
                 ];
             })->values(),

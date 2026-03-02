@@ -186,7 +186,7 @@ class EmergencyController extends Controller
     public function create(Request $request)
     {
         $keys = EmergencyKey::orderBy('code')->get();
-        $units = EmergencyUnit::orderBy('name')->get();
+        $units = EmergencyUnit::where('status', 'active')->orderBy('name')->get();
 
         $authUser = $request->user();
         $shift = $authUser ? $this->resolveActiveShiftForUser($authUser) : null;
@@ -255,7 +255,11 @@ class EmergencyController extends Controller
         $emergency = Emergency::with(['units'])->findOrFail($id);
 
         $keys = EmergencyKey::orderBy('code')->get();
-        $units = EmergencyUnit::orderBy('name')->get();
+        $selectedUnitIds = $emergency->units->pluck('id')->toArray();
+        $units = EmergencyUnit::where(function ($q) use ($selectedUnitIds) {
+            $q->where('status', 'active')
+              ->orWhereIn('id', $selectedUnitIds);
+        })->orderBy('name')->get();
 
         $authUser = $request->user();
         $shift = $authUser ? $this->resolveActiveShiftForUser($authUser) : null;

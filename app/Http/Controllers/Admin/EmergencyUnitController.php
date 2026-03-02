@@ -68,6 +68,31 @@ class EmergencyUnitController extends Controller
         return redirect()->route('admin.emergency-units.index')->with('success', 'Unidad actualizada correctamente.');
     }
 
+    public function toggleStatus(Request $request, string $id)
+    {
+        $unit = EmergencyUnit::findOrFail($id);
+
+        if ($unit->status === 'active') {
+            $validated = $request->validate([
+                'reason' => ['required', 'string', Rule::in(['6-11', 'mantencion'])],
+            ]);
+
+            $unit->update([
+                'status' => 'inactive',
+                'out_of_service_reason' => $validated['reason'],
+            ]);
+
+            return redirect()->route('admin.emergency-units.index')->with('success', 'Unidad puesta fuera de servicio.');
+        }
+
+        $unit->update([
+            'status' => 'active',
+            'out_of_service_reason' => null,
+        ]);
+
+        return redirect()->route('admin.emergency-units.index')->with('success', 'Unidad habilitada correctamente.');
+    }
+
     public function destroy(string $id)
     {
         $unit = EmergencyUnit::findOrFail($id);

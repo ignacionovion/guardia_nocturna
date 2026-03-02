@@ -238,13 +238,20 @@
         </div>
         <div class="max-h-[60vh] overflow-auto p-4" id="units-list">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                @foreach($units as $u)
-                    <label class="unit-item flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 transition" data-name="{{ strtolower($u->name) }}" data-desc="{{ strtolower($u->description ?? '') }}">
-                        <input type="checkbox" class="mt-1 unit-checkbox w-5 h-5 rounded border-slate-300 text-blue-600" value="{{ $u->id }}" {{ in_array($u->id, $selectedUnitIds) ? 'checked' : '' }}>
-                        <div>
+@foreach($units as $u)
+                    @php $unitActive = ($u->status ?? 'active') === 'active'; @endphp
+                    <label class="unit-item flex items-start gap-3 p-3 rounded-lg border {{ $unitActive ? 'border-slate-200 hover:bg-slate-50' : 'border-red-100 bg-red-50/40 opacity-60' }} transition" data-name="{{ strtolower($u->name) }}" data-desc="{{ strtolower($u->description ?? '') }}">
+                        <input type="checkbox" class="mt-1 unit-checkbox w-5 h-5 rounded border-slate-300 text-blue-600" value="{{ $u->id }}" {{ in_array($u->id, $selectedUnitIds) ? 'checked' : '' }} {{ !$unitActive ? 'disabled' : '' }}>
+                        <div class="flex-1">
                             <div class="font-bold text-slate-900">{{ $u->name }}</div>
                             @if($u->description)
                                 <div class="text-xs text-slate-500">{{ $u->description }}</div>
+                            @endif
+                            @if(!$unitActive)
+                                <div class="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700">
+                                    <i class="fas fa-ban text-[9px]"></i>
+                                    FUERA DE SERVICIO{{ $u->out_of_service_reason ? ' · ' . ($u->out_of_service_reason === '6-11' ? 'Cód. 6-11' : 'Mantención') : '' }}
+                                </div>
                             @endif
                         </div>
                     </label>

@@ -710,7 +710,8 @@ class TableroController extends Controller
             ->toArray();
 
         $usersQuery = Bombero::query()
-            ->whereNotIn('id', $assignedFirefighterIds);
+            ->whereNotIn('id', $assignedFirefighterIds)
+            ->whereIn('estado_asistencia', ['constituye', 'reemplazo', 'falta', 'refuerzo']);
 
         // Si el usuario tiene guardia asignada, filtrar voluntarios de su guardia
         if ($user->guardia_id) {

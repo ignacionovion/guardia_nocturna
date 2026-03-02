@@ -336,5 +336,6 @@ Route::middleware('auth')->group(function () {
 
         Route::resource('admin/emergency-keys', App\Http\Controllers\Admin\EmergencyKeyController::class, ['as' => 'admin']);
         Route::resource('admin/emergency-units', App\Http\Controllers\Admin\EmergencyUnitController::class, ['as' => 'admin']);
+        Route::post('admin/emergency-units/{id}/toggle-status', [App\Http\Controllers\Admin\EmergencyUnitController::class, 'toggleStatus'])->name('admin.emergency-units.toggle-status');
     });
 });

@@ -211,6 +211,34 @@ Artisan::command('guardia:daily-cleanup {--at=} {--tz=}', function () {
                 'estado_asistencia' => 'constituye',
             ]);
         }
+
+        // Liberar camas de refuerzos y reemplazos activos
+        $refuerzoIds = Bombero::query()
+            ->where('es_refuerzo', true)
+            ->pluck('id')
+            ->toArray();
+
+        $reemplazanteIds = ReemplazoBombero::query()
+            ->where('estado', 'activo')
+            ->pluck('bombero_reemplazante_id')
+            ->filter()
+            ->toArray();
+
+        $replacementAndRefuerzoBomberoIds = array_values(array_unique(array_merge($refuerzoIds, $reemplazanteIds)));
+
+        if (!empty($replacementAndRefuerzoBomberoIds)) {
+            $assignmentsToRelease = BedAssignment::query()
+                ->whereNull('released_at')
+                ->whereIn('firefighter_id', $replacementAndRefuerzoBomberoIds)
+                ->get();
+
+            foreach ($assignmentsToRelease as $assignment) {
+                $assignment->update(['released_at' => $nowApp]);
+                if ($assignment->bed_id) {
+                    Bed::where('id', $assignment->bed_id)->update(['status' => 'available']);
+                }
+            }
+        }
     });
 
     $this->info('Daily cleanup ejecutado (' . $nowLocal->toDateTimeString() . ')');
