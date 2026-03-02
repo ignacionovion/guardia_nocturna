@@ -269,7 +269,8 @@ class TableroController extends Controller
                 // El turno actual empezó ayer a las 23:00 (o 22:00 domingo).
                 // Cualquier no-titular cuyo updated_at sea anterior a endAt de hoy
                 // pertenece al turno anterior y debe resetearse.
-                $cutoffForReset = $endAt->copy();
+                // Convertir cutoff a UTC para comparar con updated_at (que está en UTC en la BD)
+                $cutoffForReset = $endAt->copy()->setTimezone('UTC');
 
                 // Obtener IDs de bomberos no titulares que serán reseteados
                 $resetBomberoIds = Bombero::query()
@@ -296,10 +297,20 @@ class TableroController extends Controller
                     ->where('es_titular', false)
                     ->where('updated_at', '<', $cutoffForReset)
                     ->get()
-                    ->each(function (Bombero $b) {
+                    ->each(function (Bombero $b) use ($guardiaIdForGuardiaUser) {
+                        // Para reemplazos: buscar el reemplazo activo para obtener la guardia original
                         $restoreGuardiaId = null;
                         if ((bool) ($b->es_refuerzo ?? false)) {
                             $restoreGuardiaId = $b->refuerzo_guardia_anterior_id;
+                        } else {
+                            // Es un reemplazo - buscar en reemplazos_bomberos la guardia original
+                            $reemplazo = ReemplazoBombero::where('bombero_reemplazante_id', $b->id)
+                                ->where('estado', 'activo')
+                                ->where('guardia_id', $guardiaIdForGuardiaUser)
+                                ->first();
+                            if ($reemplazo) {
+                                $restoreGuardiaId = $reemplazo->originalFirefighter?->guardia_id;
+                            }
                         }
 
                         $b->update([
@@ -377,7 +388,9 @@ class TableroController extends Controller
 
             $activeReplacements = ReemplazoBombero::with(['originalFirefighter', 'replacementFirefighter'])
                 ->where('estado', 'activo')
-                ->where('guardia_id', $guardiaIdForGuardiaUser)
+                ->whereHas('originalFirefighter', function ($q) use ($guardiaIdForGuardiaUser) {
+                    $q->where('guardia_id', $guardiaIdForGuardiaUser);
+                })
                 ->get();
             $replacementByOriginal = $activeReplacements->keyBy(fn (ReemplazoBombero $r) => (int) $r->bombero_titular_id);
             $replacementByReplacement = $activeReplacements->keyBy(fn (ReemplazoBombero $r) => (int) $r->bombero_reemplazante_id);
