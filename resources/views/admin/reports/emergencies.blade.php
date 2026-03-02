@@ -61,7 +61,9 @@
                 </a>
             </div>
         </div>
-    </div>
+
+        {{-- Filtros --}}
+        <div class="mt-4 pt-4 border-t border-slate-200">
             <form method="GET" class="flex flex-wrap items-center gap-3">
                 <select name="month" onchange="this.form.submit()" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500">
                     @foreach(range(1, 12) as $m)
@@ -151,8 +153,8 @@
                     <i class="fas fa-chart-bar mr-2 text-slate-500"></i> Emergencias por Guardia
                 </h3>
             </div>
-            <div class="p-5">
-                <canvas id="chartByGuardia" height="250"></canvas>
+            <div class="p-5" style="height: 280px; position: relative;">
+                <canvas id="chartByGuardia" style="max-height: 250px;"></canvas>
             </div>
         </div>
 
@@ -163,8 +165,8 @@
                     <i class="fas fa-chart-line mr-2 text-slate-500"></i> Emergencias Mensuales ({{ $year }})
                 </h3>
             </div>
-            <div class="p-5">
-                <canvas id="chartMonthly" height="250"></canvas>
+            <div class="p-5" style="height: 280px; position: relative;">
+                <canvas id="chartMonthly" style="max-height: 250px;"></canvas>
             </div>
         </div>
     </div>
@@ -178,8 +180,8 @@
                     <i class="fas fa-clock mr-2 text-slate-500"></i> Emergencias por Hora del Día
                 </h3>
             </div>
-            <div class="p-5">
-                <canvas id="chartByHour" height="250"></canvas>
+            <div class="p-5" style="height: 280px; position: relative;">
+                <canvas id="chartByHour" style="max-height: 250px;"></canvas>
             </div>
         </div>
 
@@ -190,8 +192,8 @@
                     <i class="fas fa-key mr-2 text-slate-500"></i> Top 5 Claves Más Concurridas
                 </h3>
             </div>
-            <div class="p-5">
-                <canvas id="chartTopKeys" height="250"></canvas>
+            <div class="p-5" style="height: 280px; position: relative;">
+                <canvas id="chartTopKeys" style="max-height: 250px;"></canvas>
             </div>
         </div>
     </div>
