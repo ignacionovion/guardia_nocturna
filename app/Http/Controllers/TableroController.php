@@ -51,6 +51,8 @@ class TableroController extends Controller
         $now = now();
 
         $guardiaTz = SystemSetting::getValue('guardia_schedule_tz', env('GUARDIA_SCHEDULE_TZ', config('app.timezone')));
+        $attendanceEnableTime = SystemSetting::getValue('attendance_enable_time', '21:00');
+        $attendanceDisableTime = SystemSetting::getValue('attendance_disable_time', '10:00');
 
         ReplacementService::expire($now);
         $totalBeds = Bed::count();
@@ -612,7 +614,9 @@ class TableroController extends Controller
             'activeRefuerzosCount',
             'lastEmergency',
             'upcomingBirthdaysAll',
-            'guardiaEnServicio'
+            'guardiaEnServicio',
+            'attendanceEnableTime',
+            'attendanceDisableTime'
         ));
     }
 
