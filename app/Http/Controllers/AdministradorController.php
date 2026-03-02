@@ -1176,7 +1176,14 @@ class AdministradorController extends Controller
                     continue;
                 }
 
-                // Marcar en draft que está incluido en la dotación
+                $attendanceStatus = $attributes['estado_asistencia'] ?? 'constituye';
+
+                // Enforce invariant: refuerzos y reemplazantes activos siempre constituyen
+                if ((bool) ($firefighter->es_refuerzo ?? false) || in_array((int) $firefighter->id, $lockedReplacementIds, true)) {
+                    $attendanceStatus = 'constituye';
+                }
+
+                // Marcar en draft que está incluido en la dotación (usar status FINAL post-override)
                 TurnoSessionItem::updateOrCreate(
                     [
                         'turno_session_id' => $session->id,
@@ -1185,16 +1192,9 @@ class AdministradorController extends Controller
                     [
                         'included' => true,
                         'removed_at' => null,
-                        'attendance_status' => strtolower((string) ($attributes['estado_asistencia'] ?? 'constituye')),
+                        'attendance_status' => strtolower((string) $attendanceStatus),
                     ]
                 );
-
-                $attendanceStatus = $attributes['estado_asistencia'] ?? 'constituye';
-
-                // Enforce invariant: refuerzos y reemplazantes activos siempre constituyen
-                if ((bool) ($firefighter->es_refuerzo ?? false) || in_array((int) $firefighter->id, $lockedReplacementIds, true)) {
-                    $attendanceStatus = 'constituye';
-                }
 
                 $firefighter->update([
                     'estado_asistencia' => $attendanceStatus,
