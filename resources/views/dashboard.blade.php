@@ -953,38 +953,6 @@
                         </h2>
                         <button onclick="openNoveltyModal()" class="text-xs font-black text-blue-600 hover:text-blue-800 uppercase">Registrar</button>
                     </div>
-                    <div class="p-5">
-                        @if($novelties->isEmpty())
-                            <p class="text-sm text-slate-500 text-center">Sin novedades recientes</p>
-                        @else
-                            <div class="space-y-4">
-                                @foreach($novelties->take(3) as $novelty)
-                                    @php
-                                        $noveltyColors = [
-                                            'Informativa' => ['text' => 'text-blue-600', 'bgLight' => 'bg-blue-50', 'border' => 'border-blue-200'],
-                                            'Incidente' => ['text' => 'text-amber-600', 'bgLight' => 'bg-amber-50', 'border' => 'border-amber-200'],
-                                            'Mantención' => ['text' => 'text-emerald-600', 'bgLight' => 'bg-emerald-50', 'border' => 'border-emerald-200'],
-                                            'Urgente' => ['text' => 'text-red-600', 'bgLight' => 'bg-red-50', 'border' => 'border-red-200'],
-                                            'Permanente' => ['text' => 'text-purple-600', 'bgLight' => 'bg-purple-50', 'border' => 'border-purple-200'],
-                                        ];
-                                        $colors = $noveltyColors[$novelty->type] ?? $noveltyColors['Informativa'];
-                                    @endphp
-                                    <div class="border-l-2 border-slate-300 pl-3 py-2">
-                                        <div class="flex items-center gap-2 mb-1">
-                                            <span class="text-xs font-bold {{ $colors['text'] }} {{ $colors['bgLight'] }} px-2 py-0.5 rounded border {{ $colors['border'] }}">{{ $novelty->type }}</span>
-                                            @if($novelty->is_permanent && mb_strtolower((string) $novelty->type) !== 'permanente')
-                                                <span class="text-[10px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-200">PERMANENTE</span>
-                                            @endif
-                                        </div>
-                                        <p class="font-bold text-slate-900 text-sm">{{ $novelty->title }}</p>
-                                        <p class="text-xs text-slate-500 mt-1">{{ $novelty->created_at->diffForHumans() }}</p>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @endif
-                    </div>
-                </div>
-
             </div>
         </div>
 
@@ -2617,5 +2585,31 @@
                 });
             }
         });
+
+        // Delete novelty function
+        window.deleteNovelty = async function(noveltyId) {
+            if (!confirm('¿Eliminar esta novedad?')) return;
+            
+            try {
+                const response = await fetch(`/novelties/${noveltyId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                        'Accept': 'application/json',
+                    },
+                    credentials: 'same-origin',
+                });
+                
+                if (response.ok) {
+                    // Refresh the page to show updated list
+                    window.location.reload();
+                } else {
+                    const data = await response.json();
+                    alert(data.error || 'No se pudo eliminar la novedad');
+                }
+            } catch (e) {
+                alert('Error al eliminar la novedad');
+            }
+        }
     </script>
 @endsection

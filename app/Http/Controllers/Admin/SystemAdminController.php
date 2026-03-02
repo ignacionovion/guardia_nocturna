@@ -35,7 +35,7 @@ class SystemAdminController extends Controller
             'guardia_week_cleanup_time' => SystemSetting::getValue('guardia_week_cleanup_time', '18:00'),
             'guardia_schedule_tz' => SystemSetting::getValue('guardia_schedule_tz', env('GUARDIA_SCHEDULE_TZ', config('app.timezone'))),
 
-            'mail_from_address' => SystemSetting::getValue('mail_from_address', 'app@germaniatemuco.cl'),
+            'mail_from_address' => SystemSetting::getValue('mail_from_address', 'no-responder@dev-app.cl'),
             'mail_from_name' => SystemSetting::getValue('mail_from_name', config('app.name', 'AppGuardia')),
             'mail_recipients' => SystemSetting::getValue('mail_recipients', 'ignacio.n12@gmail.com'),
             'mail_allowed_trigger_emails' => SystemSetting::getValue('mail_allowed_trigger_emails', ''),

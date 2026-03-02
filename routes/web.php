@@ -260,6 +260,7 @@ Route::middleware('auth')->group(function () {
 
     // Rutas de Novedades
     Route::post('/novedades', [NovedadController::class, 'store'])->name('novelties.store_web');
+    Route::delete('/novedades/{id}', [NovedadController::class, 'destroy'])->name('novelties.destroy');
 
     // Notificaciones in-app
     Route::post('/notifications/read', [App\Http\Controllers\InAppNotificationController::class, 'markRead'])->name('notifications.read');

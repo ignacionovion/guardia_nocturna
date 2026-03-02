@@ -245,6 +245,11 @@ class GuardiaController extends Controller
                 'created_at' => optional($shift->created_at)->toIso8601String(),
             ] : null,
             'bomberos' => $allBomberos
+                ->reject(function ($b) use ($replacementByOriginal) {
+                    // Excluir bomberos que están siendo reemplazados (no deben aparecer en NOW)
+                    $repAsOriginal = $replacementByOriginal->get((int) $b->id);
+                    return (bool) $repAsOriginal;
+                })
                 ->map(function ($b) use ($shiftFirefighterIds, $replacementByOriginal, $replacementByReplacement, $draftStatusMap) {
                 $name = trim((string)($b->nombres ?? '') . ' ' . (string)($b->apellido_paterno ?? '') . ' ' . (string)($b->apellido_materno ?? ''));
 
@@ -265,7 +270,7 @@ class GuardiaController extends Controller
                 $repAsReplacement = $replacementByReplacement->get((int) $b->id);
                 $esReemplazante = (bool) $repAsReplacement;
 
-                // Verificar si está siendo reemplazado
+                // Verificar si está siendo reemplazado (para metadata, aunque ya se filtraron)
                 $repAsOriginal = $replacementByOriginal->get((int) $b->id);
                 $esReemplazado = (bool) $repAsOriginal;
 

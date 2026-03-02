@@ -79,12 +79,12 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Habilitar Guardar Asistencia (HH:MM)</label>
-                        <input type="time" name="attendance_enable_time" value="{{ old('attendance_enable_time', ($settings['attendance_enable_time'] ?? '21:00')) }}" class="w-full px-4 py-3 border border-slate-200 rounded-lg bg-white text-slate-800 font-semibold" required>
+                        <input type="time" name="attendance_enable_time" value="{{ old('attendance_enable_time', ($settings['attendance_enable_time'] ?? '22:00')) }}" class="w-full px-4 py-3 border border-slate-200 rounded-lg bg-white text-slate-800 font-semibold" required>
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Deshabilitar Guardar Asistencia (HH:MM)</label>
-                        <input type="time" name="attendance_disable_time" value="{{ old('attendance_disable_time', ($settings['attendance_disable_time'] ?? '10:00')) }}" class="w-full px-4 py-3 border border-slate-200 rounded-lg bg-white text-slate-800 font-semibold" required>
+                        <input type="time" name="attendance_disable_time" value="{{ old('attendance_disable_time', ($settings['attendance_disable_time'] ?? '07:00')) }}" class="w-full px-4 py-3 border border-slate-200 rounded-lg bg-white text-slate-800 font-semibold" required>
                     </div>
 
                     <div>
@@ -139,7 +139,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Correo remitente</label>
-                        <input type="email" name="mail_from_address" value="{{ old('mail_from_address', ($settings['mail_from_address'] ?? 'app@germaniatemuco.cl')) }}" class="w-full px-4 py-3 border border-slate-200 rounded-lg bg-white text-slate-800 font-semibold" required>
+                        <input type="email" name="mail_from_address" value="{{ old('mail_from_address', ($settings['mail_from_address'] ?? 'no-responder@dev-app.cl')) }}" class="w-full px-4 py-3 border border-slate-200 rounded-lg bg-white text-slate-800 font-semibold" required>
                     </div>
 
                     <div>
