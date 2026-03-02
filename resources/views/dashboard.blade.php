@@ -124,8 +124,12 @@
                         if ($shiftClosedForToday) {
                             $attendanceMessage = 'RECORDAR REGISTRAR GUARDIA A LAS 22:00';
                             $attendanceBadgeClass = 'border-amber-200 bg-amber-50 text-amber-800';
+                        } elseif (isset($hasAttendanceSavedToday) && $hasAttendanceSavedToday && !empty($attendanceIsStale)) {
+                            // Asistencia guardada pero roster cambió (refuerzo/reemplazo agregado después)
+                            $attendanceMessage = 'ASISTENCIA DESACTUALIZADA';
+                            $attendanceBadgeClass = 'border-amber-200 bg-amber-50 text-amber-800';
                         } elseif (isset($hasAttendanceSavedToday) && $hasAttendanceSavedToday) {
-                            // Asistencia guardada correctamente - SIEMPRE mostrar verde
+                            // Asistencia guardada correctamente
                             $attendanceMessage = 'ASISTENCIA REGISTRADA CORRECTAMENTE';
                             $attendanceBadgeClass = 'border-emerald-200 bg-emerald-50 text-emerald-700';
                         } else {
@@ -1216,6 +1220,7 @@
         window.__attendanceSavedToday = @json((bool) ($hasAttendanceSavedToday ?? false));
         window.__attendanceDirty = false;
         window.__attendanceSubmitting = false;
+        window.__attendanceIsStale = @json((bool) ($attendanceIsStale ?? false));
 
         function getLocalYmd() {
             try {
@@ -1250,6 +1255,9 @@
                 badge.classList.add('border-amber-200', 'bg-amber-50', 'text-amber-800');
                 badge.textContent = 'ASISTENCIA DESACTUALIZADA';
             }
+
+            // Re-evaluar el botón de guardar ahora que __attendanceDirty es true
+            refreshAttendanceSubmitButton();
         }
 
         window.addEventListener('beforeunload', function (e) {
@@ -1268,6 +1276,7 @@
             const markSubmitting = function() {
                 window.__attendanceSubmitting = true;
                 window.__attendanceDirty = false;
+                window.__attendanceIsStale = false;
 
                 // Defer UI mutations to avoid cancelling the native submit in some browsers.
                 setTimeout(function() {
@@ -1562,7 +1571,41 @@
                         setConfirmState(userId, confirmed);
                     });
 
+                    // Sync: detectar tarjetas visibles que no están en el draft (ej: refuerzo nuevo)
+                    if (window.__draftEditable && items.length > 0) {
+                        const draftIds = new Set(items.map(it => String(it.firefighter_id)));
+                        const missingItems = [];
+                        document.querySelectorAll('[data-card-user]').forEach(card => {
+                            const uid = card.getAttribute('data-card-user');
+                            if (!uid || draftIds.has(uid)) return;
+                            const inp = document.getElementById('attendance-status-' + uid);
+                            const st = (inp?.value || 'constituye').toLowerCase();
+                            missingItems.push({ firefighter_id: parseInt(uid, 10), attendance_status: st });
+                        });
+
+                        if (missingItems.length > 0) {
+                            try {
+                                await fetch('{{ route('draft.turno.seed') }}', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Accept': 'application/json',
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': csrf(),
+                                    },
+                                    credentials: 'same-origin',
+                                    body: JSON.stringify({ items: missingItems }),
+                                });
+                            } catch (e) {}
+                        }
+                    }
+
                     refreshAttendanceSubmitButton();
+
+                    // Si el servidor detectó que el roster cambió desde el último guardado
+                    // (ej: refuerzo/reemplazo agregado después de guardar), marcar como desactualizado
+                    if (window.__attendanceIsStale && window.__attendanceSavedToday && !window.__attendanceDirty) {
+                        markAttendanceDirty();
+                    }
                 } catch (e) {
                 }
             };
