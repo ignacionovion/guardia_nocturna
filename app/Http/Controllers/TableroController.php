@@ -527,7 +527,10 @@ class TableroController extends Controller
                 ->mapWithKeys(fn ($su) => [(int) $su->firefighter_id => strtolower((string) ($su->attendance_status ?: 'constituye'))])
                 ->toArray();
 
+            // Usar misma lógica que activeStaff en blade: excluir reemplazados y fuera de servicio
+            $replacedOriginalIds = ($replacementByOriginal ?? collect())->keys()->map(fn ($v) => (int) $v)->toArray();
             $currentFirefighterIds = ($myStaff ?? collect())
+                ->reject(fn ($b) => (bool) ($b->fuera_de_servicio ?? false) || in_array((int) $b->id, $replacedOriginalIds, true))
                 ->pluck('id')
                 ->map(fn ($v) => (int) $v)
                 ->sort()
