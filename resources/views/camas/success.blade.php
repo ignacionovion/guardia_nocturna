@@ -40,6 +40,11 @@
             </div>
             @endif
 
+            {{-- Mensaje de ánimo --}}
+            <div class="px-6 py-3 bg-cyan-500/10 border-b border-cyan-500/20">
+                <p class="text-center text-sm font-bold text-cyan-400">Ten buena guardia, ¡Cuídate! 🚒</p>
+            </div>
+
             {{-- Detalles --}}
             <div class="p-6">
                 <div class="bg-slate-800/50 rounded-xl p-4 mb-6">

@@ -1816,21 +1816,23 @@
             const submitBtn = document.getElementById('guardia-attendance-submit');
             if (!submitBtn) return;
 
-            // Si ya se guardó y no hay cambios nuevos, bloquear el botón
-            if (window.__attendanceSavedToday && !window.__attendanceDirty) {
+            const cards = document.querySelectorAll('[data-card-user][data-requires-confirmation="1"]');
+            let hasUnconfirmed = false;
+            cards.forEach(card => {
+                if (card.getAttribute('data-is-confirmed') !== '1') hasUnconfirmed = true;
+            });
+
+            // Si ya se guardó y no hay cambios nuevos NI bomberos sin confirmar, bloquear el botón
+            // PERO si hay bomberos sin confirmar (ej: refuerzos nuevos), habilitar aunque se haya guardado antes
+            if (window.__attendanceSavedToday && !window.__attendanceDirty && !hasUnconfirmed) {
                 submitBtn.setAttribute('disabled', 'disabled');
                 submitBtn.classList.remove('bg-slate-800','hover:bg-slate-700','text-slate-100','border-slate-700');
                 submitBtn.classList.add('bg-slate-200','text-slate-500','border-slate-300','cursor-not-allowed');
                 return;
             }
 
-            const cards = document.querySelectorAll('[data-card-user][data-requires-confirmation="1"]');
-            let ok = true;
-            cards.forEach(card => {
-                if (card.getAttribute('data-is-confirmed') !== '1') ok = false;
-            });
-
-            if (ok) {
+            // Si todos los que requieren confirmación están confirmados, habilitar
+            if (!hasUnconfirmed) {
                 submitBtn.removeAttribute('disabled');
                 submitBtn.classList.remove('bg-slate-200','text-slate-500','border-slate-300','cursor-not-allowed');
                 submitBtn.classList.add('bg-slate-800','hover:bg-slate-700','text-slate-100','border-slate-700');
