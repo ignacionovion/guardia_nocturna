@@ -199,6 +199,7 @@ class AdministradorController extends Controller
 
         $query = Guardia::with(['bomberos' => function ($q) {
             $orderFechaIngreso = Schema::hasColumn('bomberos', 'fecha_ingreso') ? 'fecha_ingreso' : 'admission_date';
+            $q->where('es_titular', true); // Solo bomberos titulares (excluir refuerzos/reemplazos)
             $q->where(function ($q2) {
                 $q2->whereNull('fuera_de_servicio')->orWhere('fuera_de_servicio', false);
             });

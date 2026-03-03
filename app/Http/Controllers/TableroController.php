@@ -531,66 +531,31 @@ class TableroController extends Controller
                 ->values();
         }
 
-        // Detectar roster desactualizado comparando myStaff/draft con shift_users guardados
-        if ($hasAttendanceSavedToday && ($currentShift ?? null)) {
-            $savedShiftUsers = ShiftUser::where('shift_id', $currentShift->id)
-                ->whereNull('end_time')
-                ->get(['firefighter_id', 'attendance_status']);
+        // Calcular latestDraftAt para inicializar snapshot en JS (evita soft-refresh falso)
+        $latestDraftAt = null;
+        $draftOpDate = null;
+        $draftSession = null;
 
-            $savedMap = $savedShiftUsers
-                ->filter(fn ($su) => $su->firefighter_id)
-                ->mapWithKeys(fn ($su) => [(int) $su->firefighter_id => strtolower((string) ($su->attendance_status ?: 'constituye'))])
-                ->toArray();
+        if (isset($myGuardia)) {
+            $draftLocalNow = $now->copy()->setTimezone($guardiaTz);
+            $draftOpDate = $draftLocalNow->hour >= 22
+                ? $draftLocalNow->copy()->startOfDay()
+                : $draftLocalNow->copy()->startOfDay()->subDay();
 
-            // Usar misma lógica que activeStaff en blade: excluir reemplazados y fuera de servicio
-            $replacedOriginalIds = ($replacementByOriginal ?? collect())->keys()->map(fn ($v) => (int) $v)->toArray();
-            $currentFirefighterIds = ($myStaff ?? collect())
-                ->reject(fn ($b) => (bool) ($b->fuera_de_servicio ?? false) || in_array((int) $b->id, $replacedOriginalIds, true))
-                ->pluck('id')
-                ->map(fn ($v) => (int) $v)
-                ->sort()
-                ->values()
-                ->toArray();
+            $draftSession = TurnoSession::where('guardia_id', $myGuardia->id)
+                ->whereDate('operational_date', $draftOpDate->toDateString())
+                ->first();
 
-            $savedFirefighterIds = collect(array_keys($savedMap))->sort()->values()->toArray();
-
-            // 1) Roster cambió (refuerzo/reemplazo agregado o quitado)
-            if ($savedFirefighterIds !== $currentFirefighterIds) {
-                $attendanceIsStale = true;
-            }
-
-            // 2) Verificar si el draft tiene estados distintos a los guardados
-            if (!$attendanceIsStale && isset($myGuardia)) {
-                // Usar misma lógica de fecha operativa que TurnoDraftService
-                // (hora < 22 → día anterior, hora >= 22 → hoy)
-                $draftLocalNow = $now->copy()->setTimezone($guardiaTz);
-                $draftOpDate = $draftLocalNow->hour >= 22
-                    ? $draftLocalNow->copy()->startOfDay()
-                    : $draftLocalNow->copy()->startOfDay()->subDay();
-
-                $draftSession = TurnoSession::where('guardia_id', $myGuardia->id)
-                    ->whereDate('operational_date', $draftOpDate->toDateString())
-                    ->first();
-
-                if ($draftSession) {
-                    $draftItems = TurnoSessionItem::where('turno_session_id', $draftSession->id)
-                        ->where('included', true)
-                        ->whereNull('removed_at')
-                        ->get(['firefighter_id', 'attendance_status']);
-
-                    foreach ($draftItems as $di) {
-                        $fid = (int) $di->firefighter_id;
-                        $draftStatus = strtolower((string) ($di->attendance_status ?: 'constituye'));
-                        $savedStatus = $savedMap[$fid] ?? null;
-
-                        if ($savedStatus !== null && $savedStatus !== $draftStatus) {
-                            $attendanceIsStale = true;
-                            break;
-                        }
-                    }
-                }
+            if ($draftSession) {
+                $raw = TurnoSessionItem::where('turno_session_id', $draftSession->id)
+                    ->max('updated_at');
+                $latestDraftAt = $raw ? Carbon::parse($raw) : null;
             }
         }
+
+        // $attendanceIsStale se mantiene en false.
+        // El banner "DESACTUALIZADA" solo se activa desde el cliente
+        // cuando el usuario cambia manualmente un estado después de guardar.
 
         return view('dashboard', compact(
             'totalBeds',
@@ -615,6 +580,7 @@ class TableroController extends Controller
             'isMyGuardiaOnDuty',
             'hasAttendanceSavedToday',
             'attendanceIsStale',
+            'latestDraftAt',
             'academyLeaders',
             'academyLeadersFirefighters',
             'guardiaTz',

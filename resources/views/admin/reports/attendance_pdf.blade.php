@@ -130,7 +130,7 @@
     </div>
 
     {{-- Rankings --}}
-    @if(count($rankings) > 0)
+    @if(count($rankings ?? []) > 0)
     <div class="section">
         <div class="section-title">Rankings Destacados</div>
         <table>

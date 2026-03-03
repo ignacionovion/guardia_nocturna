@@ -130,62 +130,65 @@
     <div class="mt-8">
         <div class="text-xs font-black uppercase tracking-widest text-slate-500 mb-4">Historial de Actividad</div>
         
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {{-- Grid 1: Cambios de Guardias --}}
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {{-- Grid 1: Planillas Semanales por Guardia --}}
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div class="p-4 border-b border-slate-200 bg-slate-50">
-                    <div class="flex items-center gap-2">
-                        <i class="fas fa-users text-slate-600"></i>
-                        <div class="text-sm font-extrabold text-slate-900">Cambios de Guardias (Últimos 7 días)</div>
+                <div class="p-4 border-b border-slate-200 bg-emerald-50">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-clipboard-check text-emerald-600"></i>
+                            <div class="text-sm font-extrabold text-slate-900">Planillas Semanales</div>
+                        </div>
+                        <span class="text-xs text-slate-500">{{ $inicioSemana->format('d/m') }} - {{ $finSemana->format('d/m') }}</span>
                     </div>
                 </div>
-                <div class="overflow-x-auto max-h-96 overflow-y-auto">
-                    <table class="min-w-full text-sm">
-                        <thead class="bg-slate-50 border-b border-slate-200 sticky top-0">
-                            <tr class="text-xs font-black uppercase tracking-widest text-slate-600">
-                                <th class="text-left px-4 py-2">Fecha</th>
-                                <th class="text-left px-4 py-2">Guardia</th>
-                                <th class="text-left px-4 py-2">Bombero</th>
-                                <th class="text-left px-4 py-2">Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100">
-                            @forelse($guardiaChanges as $change)
-                                @php
-                                    $badgeClass = fn($status) => match($status) {
-                                        'constituye' => 'bg-emerald-100 text-emerald-800',
-                                        'reemplazo' => 'bg-blue-100 text-blue-800',
-                                        'refuerzo' => 'bg-purple-100 text-purple-800',
-                                        'permiso' => 'bg-amber-100 text-amber-800',
-                                        'ausente' => 'bg-rose-100 text-rose-800',
-                                        'licencia' => 'bg-indigo-100 text-indigo-800',
-                                        'falta' => 'bg-red-100 text-red-800',
-                                        default => 'bg-slate-100 text-slate-800',
-                                    };
-                                @endphp
-                                <tr class="hover:bg-slate-50">
-                                    <td class="px-4 py-3 text-xs text-slate-600">{{ $change['fecha']?->format('d/m H:i') }}</td>
-                                    <td class="px-4 py-3 text-xs font-bold">{{ $change['guardia']?->name ?? '—' }}</td>
-                                    <td class="px-4 py-3 text-xs">{{ $change['firefighter']?->full_name ?? '—' }}</td>
-                                    <td class="px-4 py-3">
-                                        <div class="flex items-center gap-1 text-xs">
-                                            <span class="px-2 py-1 rounded font-bold uppercase {{ $badgeClass($change['estado_anterior']) }}">
-                                                {{ strtoupper($change['estado_anterior']) }}
-                                            </span>
-                                            <i class="fas fa-arrow-right text-slate-400"></i>
-                                            <span class="px-2 py-1 rounded font-bold uppercase {{ $badgeClass($change['estado_nuevo']) }}">
-                                                {{ strtoupper($change['estado_nuevo']) }}
-                                            </span>
+                <div class="p-4">
+                    <div class="space-y-3">
+                        @foreach($planillasPorGuardia as $pg)
+                            <div class="flex items-center justify-between p-3 rounded-xl {{ $pg['completo'] ? 'bg-emerald-50 border border-emerald-100' : 'bg-slate-50 border border-slate-100' }}">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full {{ $pg['completo'] ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-500' }} flex items-center justify-center text-xs font-bold">
+                                        @if($pg['completo'])
+                                            <i class="fas fa-check"></i>
+                                        @else
+                                            <i class="fas fa-clock"></i>
+                                        @endif
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-bold text-slate-800">{{ $pg['guardia']->name }}</div>
+                                        <div class="text-xs {{ $pg['completo'] ? 'text-emerald-600' : 'text-amber-600' }}">
+                                            {{ $pg['completadas'] }}/{{ $pg['total'] }} planillas
                                         </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="px-4 py-8 text-center text-slate-500 text-sm">No hay cambios de estado registrados</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    @if($pg['completo'])
+                                        <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold">
+                                            <i class="fas fa-check-circle"></i>
+                                            Completo
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-bold">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            Pendiente
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100">
+                        <div class="flex items-center gap-4 text-xs text-slate-500">
+                            <div class="flex items-center gap-1">
+                                <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                                <span>Completado</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+                                <span>Pendiente</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 

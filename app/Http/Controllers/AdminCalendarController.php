@@ -234,12 +234,17 @@ class AdminCalendarController extends Controller
 
     private function generateRotationExcel(array $rotationSummary): string
     {
-        $headings = ['N° Semana', 'Fecha Inicio', 'Guardia Asignada'];
+        $headings = ['N° Semana', 'Fecha Inicio', 'Fecha Término', 'Guardia Asignada'];
         
         $rows = collect($rotationSummary)->map(function ($week) {
+            // Parse week_start (d/m/Y format) and calculate end date (Saturday)
+            $start = \Carbon\Carbon::createFromFormat('d/m/Y', $week['week_start']);
+            $end = $start->copy()->addDays(6); // Saturday (end of week)
+            
             return [
                 $week['week_number'],
                 $week['week_start'],
+                $end->format('d/m/Y'),
                 $week['guardia_name'],
             ];
         })->toArray();

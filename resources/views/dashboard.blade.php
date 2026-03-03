@@ -1251,7 +1251,7 @@
             latest_bombero_at: @json(optional(($myStaff ?? collect())->max('updated_at') ?? null)?->toISOString()),
             latest_replacement_at: @json(optional(($replacementByOriginal ?? collect())->max('updated_at') ?? null)?->toISOString()),
             attendance_saved_at: @json(optional(($hasAttendanceSavedToday ?? false) ? (\App\Models\GuardiaAttendanceRecord::where('guardia_id', $myGuardia->id ?? null)->whereDate('date', \Carbon\Carbon::today()->toDateString())->value('saved_at')) : null)?->toISOString()),
-            latest_draft_at: null,
+            latest_draft_at: @json(optional($latestDraftAt ?? null)?->toISOString()),
         };
 
         const __attendanceEnableTime  = @json(\App\Models\SystemSetting::getValue('attendance_enable_time', '22:00'));
@@ -1540,10 +1540,6 @@
                     const data = await res.json().catch(() => null);
                     if (!data || !data.ok) return;
 
-                    // Solo resetear confirmaciones cuando el draft se cargó correctamente.
-                    // Esto evita perder el estado si el fetch falla (ej: luego de registrar una novedad).
-                    resetAllConfirmations();
-
                     window.__draftEditable = !!data.editable;
 
                     const items = Array.isArray(data.items) ? data.items : [];
@@ -1581,6 +1577,15 @@
                         await loadDraftState();
                         return;
                     }
+
+                    // Limpiar estado solo de tarjetas que ya NO están en el draft
+                    const draftUserIds = new Set(items.map(it => String(it.firefighter_id)));
+                    document.querySelectorAll('[data-card-user]').forEach(card => {
+                        const uid = card.getAttribute('data-card-user');
+                        if (uid && !draftUserIds.has(uid)) {
+                            setConfirmState(uid, false);
+                        }
+                    });
 
                     items.forEach(it => {
                         const userId = it.firefighter_id;
@@ -1631,6 +1636,10 @@
                         });
 
                         if (missingItems.length > 0) {
+                            // Nuevo refuerzo/reemplazo agregado después de guardar → habilitar botón
+                            if (window.__attendanceSavedToday) {
+                                markAttendanceDirty();
+                            }
                             try {
                                 await fetch('{{ route('draft.turno.seed') }}', {
                                     method: 'POST',
@@ -1648,11 +1657,6 @@
 
                     refreshAttendanceSubmitButton();
 
-                    // Si el servidor detectó que el roster cambió desde el último guardado
-                    // (ej: refuerzo/reemplazo agregado después de guardar), marcar como desactualizado
-                    if (window.__attendanceIsStale && window.__attendanceSavedToday && !window.__attendanceDirty) {
-                        markAttendanceDirty();
-                    }
                 } catch (e) {
                 }
             };
@@ -1936,14 +1940,18 @@
 
         function setConfirmState(userId, confirmed) {
             const card = document.getElementById('guardia-card-' + userId);
-            if (card) {
-                card.setAttribute('data-is-confirmed', confirmed ? '1' : '0');
-                card.style.borderWidth = '';
-                card.style.borderColor = '';
-                if (confirmed) {
-                    card.style.borderWidth = '2px';
-                    card.style.borderColor = '#34d399';
-                }
+            if (!card) return;
+
+            // Guard: si el estado ya es el correcto, no tocar el DOM (evita pestañeo)
+            const currentState = card.getAttribute('data-is-confirmed') === '1';
+            if (currentState === confirmed) return;
+
+            card.setAttribute('data-is-confirmed', confirmed ? '1' : '0');
+            card.style.borderWidth = '';
+            card.style.borderColor = '';
+            if (confirmed) {
+                card.style.borderWidth = '2px';
+                card.style.borderColor = '#34d399';
             }
 
             const controls = document.getElementById('confirm-controls-' + userId);
@@ -2118,6 +2126,11 @@
         }
 
         function updateGuardiaCardUI(userId, status) {
+            // Guard: si el status no cambió, no tocar el DOM
+            const input = document.getElementById('attendance-status-' + userId);
+            if (input && input.getAttribute('data-last-ui-status') === status) return;
+            if (input) input.setAttribute('data-last-ui-status', status);
+
             const header = document.getElementById('card-header-' + userId);
             if (header) {
                 header.classList.remove('bg-emerald-950/40','bg-purple-950/40','bg-amber-950/35','bg-slate-950','bg-blue-950/40','bg-rose-950/40');
@@ -2242,6 +2255,19 @@
                 const activeName = activeEl?.getAttribute?.('name');
                 const scrollY = window.scrollY;
 
+                // Guardar estado de confirmación antes del swap
+                const savedConfirmState = {};
+                document.querySelectorAll('[data-card-user]').forEach(card => {
+                    const uid = card.getAttribute('data-card-user');
+                    if (!uid) return;
+                    const cardEl = document.getElementById('guardia-card-' + uid);
+                    const tokenEl = document.getElementById('confirm-token-' + uid);
+                    savedConfirmState[uid] = {
+                        confirmed: cardEl ? cardEl.getAttribute('data-is-confirmed') === '1' : false,
+                        token: tokenEl ? tokenEl.value : '',
+                    };
+                });
+
                 try {
                     const res = await fetch(window.location.href, {
                         method: 'GET',
@@ -2266,6 +2292,16 @@
                     if (!nextRoot) return;
 
                     root.innerHTML = nextRoot.innerHTML;
+
+                    // Restaurar estado de confirmación inmediatamente después del swap
+                    Object.keys(savedConfirmState).forEach(uid => {
+                        const state = savedConfirmState[uid];
+                        const tokenEl = document.getElementById('confirm-token-' + uid);
+                        if (tokenEl && state.token) tokenEl.value = state.token;
+                        if (state.confirmed) {
+                            setConfirmState(uid, true);
+                        }
+                    });
 
                     if (typeof window.bindAttendanceFormHandlers === 'function') {
                         window.bindAttendanceFormHandlers();
@@ -2321,10 +2357,6 @@
                     if (changed) {
                         await softRefreshGuardiaDashboard();
 
-                        // Si cambió la dotación (refuerzos/reemplazos), permitir guardar nuevamente
-                        if (rosterChanged) {
-                            markAttendanceDirty();
-                        }
 
                         window.__guardiaSnapshot = {
                             latest_novelty_at: data.latest_novelty_at,

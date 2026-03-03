@@ -227,7 +227,7 @@
             </div>
             
             <div class="space-y-3">
-                @foreach($topRefuerzos ?? [] as $index => $refuerzo)
+                @forelse($topRefuerzos ?? [] as $index => $refuerzo)
                 <div class="flex items-center gap-3 p-3 rounded-xl {{ $index < 3 ? 'bg-gradient-to-r from-amber-50 to-transparent border border-amber-100' : 'bg-slate-50' }}">
                     <div class="w-8 h-8 rounded-lg {{ $index == 0 ? 'bg-amber-400 text-white' : ($index == 1 ? 'bg-slate-300 text-white' : ($index == 2 ? 'bg-orange-400 text-white' : 'bg-slate-200 text-slate-600')) }} font-black text-sm flex items-center justify-center">
                         {{ $index + 1 }}
@@ -249,7 +249,7 @@
                     <i class="fas fa-inbox text-3xl mb-2"></i>
                     <p class="text-sm">No hay datos de refuerzos</p>
                 </div>
-                @endforeach
+                @endforelse
             </div>
         </div>
     </div>

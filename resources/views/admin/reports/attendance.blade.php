@@ -11,18 +11,6 @@
             </h1>
             <p class="text-slate-500 mt-1 text-sm">Estadísticas de asistencia, permisos, reemplazos y conductores</p>
         </div>
-        
-        {{-- Botones de Exportación Profesionales --}}
-        <div class="flex items-center gap-2">
-            <a href="{{ route('admin.reports.attendance.export', ['format' => 'excel'] + request()->all()) }}" 
-               class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-extrabold text-xs uppercase tracking-widest transition-all shadow-sm hover:shadow-md">
-                <i class="fas fa-file-excel text-emerald-600"></i> Excel
-            </a>
-            <a href="{{ route('admin.reports.attendance.export', ['format' => 'pdf'] + request()->all()) }}" target="_blank"
-               class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-extrabold text-xs uppercase tracking-widest transition-all shadow-sm hover:shadow-md">
-                <i class="fas fa-file-pdf text-rose-600"></i> PDF
-            </a>
-        </div>
     </div>
 
     {{-- NAVEGACIÓN PRINCIPAL --}}

@@ -186,7 +186,7 @@ class EmergencyController extends Controller
     public function create(Request $request)
     {
         $keys = EmergencyKey::orderBy('code')->get();
-        $units = EmergencyUnit::where('status', 'active')->orderBy('name')->get();
+        $units = EmergencyUnit::orderBy('name')->get(); // All units including disabled
 
         $authUser = $request->user();
         $shift = $authUser ? $this->resolveActiveShiftForUser($authUser) : null;

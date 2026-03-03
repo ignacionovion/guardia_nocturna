@@ -95,12 +95,37 @@ class PlanillaController extends Controller
             ->take(50)
             ->values();
 
+        // Semana actual - planillas por guardia
+        $inicioSemana = now()->startOfWeek();
+        $finSemana = now()->endOfWeek();
+        
+        $guardias = \App\Models\Guardia::orderBy('name')->get();
+        
+        $planillasPorGuardia = $guardias->map(function($guardia) use ($inicioSemana, $finSemana) {
+            // Contar planillas finalizadas de esta guardia en la semana actual
+            $completadas = Planilla::query()
+                ->where('estado', self::ESTADO_FINALIZADO)
+                ->whereBetween('fecha_revision', [$inicioSemana, $finSemana])
+                ->whereHas('bombero', fn($q) => $q->where('guardia_id', $guardia->id))
+                ->count();
+                
+            return [
+                'guardia' => $guardia,
+                'completadas' => $completadas,
+                'total' => 3, // Total esperado por semana
+                'completo' => $completadas >= 3,
+            ];
+        });
+
         return view('admin.planillas.index', [
             'planillas' => $planillas,
             'unidades' => self::UNIDADES,
             'unidadSeleccionada' => $unidad,
             'guardiaChanges' => $guardiaChanges,
             'bitacora' => $bitacora,
+            'planillasPorGuardia' => $planillasPorGuardia,
+            'inicioSemana' => $inicioSemana,
+            'finSemana' => $finSemana,
         ]);
     }
 

@@ -97,8 +97,8 @@
                                 <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
                             </div>
                             
-                            <!-- Dropdown Menu - Fixed position to escape grid overflow -->
-                            <div id="officer-dropdown" class="hidden fixed bg-white border border-slate-200 rounded-xl shadow-2xl z-[100] max-h-64 overflow-y-auto" style="width: inherit; min-width: 280px;">
+                            <!-- Dropdown Menu - Fixed position to escape overflow, closes on scroll -->
+                            <div id="officer-dropdown" class="hidden fixed bg-white border border-slate-200 rounded-xl shadow-2xl z-[9999] max-h-64 overflow-y-auto" style="min-width: 280px;">
                                 <div class="p-2 sticky top-0 bg-white border-b border-slate-100">
                                     <input type="text" id="officer-filter-input" 
                                         class="w-full text-xs bg-slate-50 border-slate-200 rounded-lg px-3 py-2 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
@@ -240,7 +240,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
 @foreach($units as $u)
                     @php $unitActive = ($u->status ?? 'active') === 'active'; @endphp
-                    <label class="unit-item flex items-start gap-3 p-3 rounded-lg border {{ $unitActive ? 'border-slate-200 hover:bg-slate-50' : 'border-red-100 bg-red-50/40 opacity-60' }} transition" data-name="{{ strtolower($u->name) }}" data-desc="{{ strtolower($u->description ?? '') }}">
+                    <label class="unit-item flex items-start gap-3 p-3 rounded-lg border {{ $unitActive ? 'border-slate-200 hover:bg-slate-50 cursor-pointer' : 'border-red-200 bg-red-50/60 opacity-70 cursor-not-allowed pointer-events-none' }} transition" data-name="{{ strtolower($u->name) }}" data-desc="{{ strtolower($u->description ?? '') }}">
                         <input type="checkbox" class="mt-1 unit-checkbox w-5 h-5 rounded border-slate-300 text-blue-600" value="{{ $u->id }}" {{ in_array($u->id, $selectedUnitIds) ? 'checked' : '' }} {{ !$unitActive ? 'disabled' : '' }}>
                         <div class="flex-1">
                             <div class="font-bold text-slate-900">{{ $u->name }}</div>
@@ -250,7 +250,7 @@
                             @if(!$unitActive)
                                 <div class="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700">
                                     <i class="fas fa-ban text-[9px]"></i>
-                                    FUERA DE SERVICIO{{ $u->out_of_service_reason ? ' · ' . ($u->out_of_service_reason === '6-11' ? 'Cód. 6-11' : 'Mantención') : '' }}
+                                    FUERA DE SERVICIO{{ $u->out_of_service_reason ? ' · ' . ($u->out_of_service_reason === '6-11' ? '6-11' : 'Mantención') : '' }}
                                 </div>
                             @endif
                         </div>
@@ -411,7 +411,6 @@
 
             function openOfficerDropdown() {
                 isOfficerOpen = true;
-                // Position dropdown below the input using fixed positioning
                 const rect = officerSearchInput.getBoundingClientRect();
                 officerDropdown.style.top = (rect.bottom + 4) + 'px';
                 officerDropdown.style.left = rect.left + 'px';
@@ -433,6 +432,13 @@
                     openOfficerDropdown();
                 }
             });
+
+            // Close dropdown on scroll
+            window.addEventListener('scroll', function() {
+                if (isOfficerOpen) {
+                    closeOfficerDropdown();
+                }
+            }, { passive: true });
 
             document.addEventListener('click', function(e) {
                 if (!officerContainer.contains(e.target)) {
