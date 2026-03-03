@@ -11,11 +11,20 @@
             $dailyEndAt = $localNow->copy()->setTime($endH, $endM, 0);
             $shiftClosedForToday = $localNow->greaterThanOrEqualTo($dailyEndAt);
 
-            // Ventana fija: 22:00 -> 07:00 (sin override)
+            // Ventana desde panel: attendance_enable_time -> attendance_disable_time
             $attendanceEnabled = (function () use ($guardiaTz) {
-                $localNow = now()->copy()->setTimezone($guardiaTz);
-                $hour = (int) $localNow->hour;
-                return $hour >= 22 || $hour < 7;
+                $enableTime  = \App\Models\SystemSetting::getValue('attendance_enable_time', '22:00');
+                $disableTime = \App\Models\SystemSetting::getValue('attendance_disable_time', '07:00');
+                [$eH, $eM] = array_map('intval', explode(':', (string) $enableTime));
+                [$dH, $dM] = array_map('intval', explode(':', (string) $disableTime));
+                $localNow    = now()->copy()->setTimezone($guardiaTz);
+                $nowMins     = $localNow->hour * 60 + $localNow->minute;
+                $enableMins  = $eH * 60 + $eM;
+                $disableMins = $dH * 60 + $dM;
+                if ($enableMins > $disableMins) {
+                    return $nowMins >= $enableMins || $nowMins < $disableMins;
+                }
+                return $nowMins >= $enableMins && $nowMins < $disableMins;
             })();
             // Filtrar personal activo (todos los de la guardia excepto fuera de servicio)
             $activeStaff = $myStaff->reject(function ($u) use ($replacementByOriginal) {
@@ -1245,10 +1254,20 @@
             latest_draft_at: null,
         };
 
+        const __attendanceEnableTime  = @json(\App\Models\SystemSetting::getValue('attendance_enable_time', '22:00'));
+        const __attendanceDisableTime = @json(\App\Models\SystemSetting::getValue('attendance_disable_time', '07:00'));
+
         function isAttendanceWindowOpen() {
             const now = new Date();
-            const hour = now.getHours();
-            return hour >= 22 || hour < 7;
+            const nowMins = now.getHours() * 60 + now.getMinutes();
+            const [eH, eM] = __attendanceEnableTime.split(':').map(Number);
+            const [dH, dM] = __attendanceDisableTime.split(':').map(Number);
+            const enableMins  = eH * 60 + eM;
+            const disableMins = dH * 60 + dM;
+            if (enableMins > disableMins) {
+                return nowMins >= enableMins || nowMins < disableMins;
+            }
+            return nowMins >= enableMins && nowMins < disableMins;
         }
 
         function markAttendanceDirty() {

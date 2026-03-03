@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
         // Llamar a los seeders
         $this->call([
             // SuperAdminSeeder::class,
+            SystemSettingsSeeder::class,
             BedSeeder::class,
             CleaningTaskSeeder::class,
             GuardiaSeeder::class,
