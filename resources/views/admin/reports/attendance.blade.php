@@ -21,14 +21,17 @@
                       {{ (!request('tab') || request('tab') === 'asistencia') ? 'text-red-600 border-red-600 bg-red-50' : 'text-slate-600 border-transparent hover:text-slate-800' }}">
                 <i class="fas fa-calendar-check"></i> Asistencia
             </a>
-            <a href="{{ route('admin.reports.attendance', array_merge(request()->all(), ['tab' => 'permisos'])) }}"
-               class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors
-                      {{ request('tab') === 'permisos' ? 'text-amber-600 border-amber-500 bg-amber-50' : 'text-slate-600 border-transparent hover:text-slate-800' }}">
-                <i class="fas fa-calendar-alt"></i> Permisos
+            <a href="{{ route('admin.reports.preventivas') }}"
+               class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 hover:text-slate-800 transition-colors">
+                <i class="fas fa-clipboard-list"></i> Preventivas
             </a>
             <a href="{{ route('admin.reports.replacements') }}"
                class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 hover:text-slate-800 transition-colors">
                 <i class="fas fa-exchange-alt"></i> Reemplazos
+            </a>
+            <a href="{{ route('admin.reports.refuerzos') }}"
+               class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 hover:text-slate-800 transition-colors">
+                <i class="fas fa-user-plus"></i> Refuerzos
             </a>
             <a href="{{ route('admin.reports.drivers') }}"
                class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 hover:text-slate-800 transition-colors">

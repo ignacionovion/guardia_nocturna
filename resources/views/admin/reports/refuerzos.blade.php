@@ -3,42 +3,42 @@
 @section('content')
 <div class="container mx-auto px-4 py-6 max-w-7xl">
 
-    {{-- HEADER MODERNO --}}
-    <div class="mb-8">
-        <div class="flex items-center gap-4 mb-2">
-            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 shadow-lg shadow-sky-500/30 flex items-center justify-center">
-                <i class="fas fa-user-plus text-white text-2xl"></i>
-            </div>
-            <div>
-                <h1 class="text-3xl font-black text-slate-800 uppercase tracking-tight">Reporte de Refuerzos</h1>
-                <p class="text-slate-500 text-sm font-medium">Análisis completo de refuerzos por guardia, período y voluntario</p>
-            </div>
+    {{-- HEADER --}}
+    <div class="mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800 flex items-center uppercase">
+                <i class="fas fa-chart-line mr-3 text-red-600"></i> Reportes
+            </h1>
+            <p class="text-slate-500 mt-1 text-sm">Estadísticas de asistencia, permisos, reemplazos y conductores</p>
         </div>
     </div>
 
-    {{-- NAVEGACIÓN TIPO TABS MODERNOS --}}
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
-        <div class="flex overflow-x-auto scrollbar-hide">
-            <a href="{{ route('admin.reports.attendance') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-bold whitespace-nowrap border-b-2 transition-all hover:bg-slate-50 text-slate-600 border-transparent">
+    {{-- NAVEGACIÓN PRINCIPAL --}}
+    <div class="bg-white rounded-t-lg border border-slate-200">
+        <div class="flex overflow-x-auto">
+            <a href="{{ route('admin.reports.attendance') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 hover:text-slate-800 transition-colors">
                 <i class="fas fa-calendar-check"></i> Asistencia
             </a>
-            <a href="{{ route('admin.reports.replacements') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-bold whitespace-nowrap border-b-2 transition-all hover:bg-slate-50 text-slate-600 border-transparent">
+            <a href="{{ route('admin.reports.preventivas') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 hover:text-slate-800 transition-colors">
+                <i class="fas fa-clipboard-list"></i> Preventivas
+            </a>
+            <a href="{{ route('admin.reports.replacements') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 hover:text-slate-800 transition-colors">
                 <i class="fas fa-exchange-alt"></i> Reemplazos
             </a>
-            <button class="flex items-center gap-2 px-6 py-4 text-sm font-bold whitespace-nowrap border-b-2 transition-all bg-sky-50 text-sky-600 border-sky-500 cursor-default">
+            <a href="{{ route('admin.reports.refuerzos') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors text-red-600 border-red-600 bg-red-50">
                 <i class="fas fa-user-plus"></i> Refuerzos
-            </button>
-            <a href="{{ route('admin.reports.drivers') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-bold whitespace-nowrap border-b-2 transition-all hover:bg-slate-50 text-slate-600 border-transparent">
+            </a>
+            <a href="{{ route('admin.reports.drivers') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 hover:text-slate-800 transition-colors">
                 <i class="fas fa-truck"></i> Conductores
             </a>
-            <a href="{{ route('admin.reports.emergencies') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-bold whitespace-nowrap border-b-2 transition-all hover:bg-slate-50 text-slate-600 border-transparent">
-                <i class="fas fa-ambulance text-red-500"></i> Emergencias
+            <a href="{{ route('admin.reports.emergencies') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 hover:text-slate-800 transition-colors">
+                <i class="fas fa-ambulance text-red-600"></i> Emergencias
             </a>
         </div>
     </div>
 
-    {{-- FILTROS PROFESIONALES CON SELECTS ESTANDARIZADOS --}}
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-6">
+    {{-- FILTROS CON SELECTS ESTANDARIZADOS --}}
+    <div class="bg-white p-5 border border-t-0 border-slate-200 mb-6 rounded-b-lg shadow-sm">
         <form action="{{ route('admin.reports.refuerzos') }}" method="GET" class="flex flex-wrap items-end gap-4">
             
             {{-- Select Guardia - ESTANDARIZADO --}}
@@ -46,16 +46,16 @@
                 <label class="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Guardia</label>
                 <div class="relative group">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                        <i class="fas fa-shield-alt text-slate-400 group-focus-within:text-sky-500 transition-colors"></i>
+                        <i class="fas fa-shield-alt text-slate-400 group-focus-within:text-red-500 transition-colors"></i>
                     </div>
-                    <select name="guardia_id" class="w-full pl-10 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 appearance-none cursor-pointer hover:bg-white hover:border-slate-300 transition-all shadow-sm">
+                    <select name="guardia_id" class="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 appearance-none cursor-pointer hover:bg-white hover:border-slate-300 transition-all shadow-sm">
                         <option value="">Todas las Guardias</option>
                         @foreach($guardias ?? [] as $g)
                             <option value="{{ $g->id }}" {{ ($guardiaId ?? '') == $g->id ? 'selected' : '' }}>{{ $g->name }}</option>
                         @endforeach
                     </select>
-                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                        <div class="w-6 h-6 rounded-lg bg-slate-100 flex items-center justify-center">
+                    <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
+                        <div class="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center">
                             <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
                         </div>
                     </div>
@@ -67,9 +67,9 @@
                 <label class="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Período</label>
                 <div class="relative group">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                        <i class="fas fa-calendar-alt text-slate-400 group-focus-within:text-sky-500 transition-colors"></i>
+                        <i class="fas fa-calendar-alt text-slate-400 group-focus-within:text-red-500 transition-colors"></i>
                     </div>
-                    <select name="periodo" class="w-full pl-10 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 appearance-none cursor-pointer hover:bg-white hover:border-slate-300 transition-all shadow-sm">
+                    <select name="periodo" class="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 appearance-none cursor-pointer hover:bg-white hover:border-slate-300 transition-all shadow-sm">
                         <option value="7" {{ ($periodo ?? 30) == 7 ? 'selected' : '' }}>Últimos 7 días</option>
                         <option value="14" {{ ($periodo ?? 30) == 14 ? 'selected' : '' }}>Últimos 14 días</option>
                         <option value="30" {{ ($periodo ?? 30) == 30 ? 'selected' : '' }}>Últimos 30 días</option>
@@ -77,8 +77,8 @@
                         <option value="180" {{ ($periodo ?? 30) == 180 ? 'selected' : '' }}>Últimos 6 meses</option>
                         <option value="365" {{ ($periodo ?? 30) == 365 ? 'selected' : '' }}>Último año</option>
                     </select>
-                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                        <div class="w-6 h-6 rounded-lg bg-slate-100 flex items-center justify-center">
+                    <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
+                        <div class="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center">
                             <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
                         </div>
                     </div>
@@ -90,9 +90,9 @@
                 <label class="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Desde</label>
                 <div class="relative group">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                        <i class="fas fa-calendar text-slate-400 group-focus-within:text-sky-500 transition-colors"></i>
+                        <i class="fas fa-calendar text-slate-400 group-focus-within:text-red-500 transition-colors"></i>
                     </div>
-                    <input type="date" name="from" value="{{ $from->format('Y-m-d') }}" class="w-full pl-10 pr-3 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 hover:bg-white hover:border-slate-300 transition-all shadow-sm">
+                    <input type="date" name="from" value="{{ $from->format('Y-m-d') }}" class="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 hover:bg-white hover:border-slate-300 transition-all shadow-sm">
                 </div>
             </div>
 
@@ -101,19 +101,19 @@
                 <label class="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Hasta</label>
                 <div class="relative group">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                        <i class="fas fa-calendar text-slate-400 group-focus-within:text-sky-500 transition-colors"></i>
+                        <i class="fas fa-calendar text-slate-400 group-focus-within:text-red-500 transition-colors"></i>
                     </div>
-                    <input type="date" name="to" value="{{ $to->format('Y-m-d') }}" class="w-full pl-10 pr-3 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 hover:bg-white hover:border-slate-300 transition-all shadow-sm">
+                    <input type="date" name="to" value="{{ $to->format('Y-m-d') }}" class="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 hover:bg-white hover:border-slate-300 transition-all shadow-sm">
                 </div>
             </div>
 
-            {{-- Botones de Acción --}}
+            {{-- Botón Filtrar --}}
             <div class="flex gap-2">
                 <button type="submit" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-900 text-white font-extrabold text-xs uppercase tracking-widest transition-all shadow-md hover:shadow-lg">
                     <i class="fas fa-filter"></i> Filtrar
                 </button>
                 <a href="{{ route('admin.reports.refuerzos') }}" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs uppercase tracking-widest transition-all" title="Limpiar filtros">
-                    <i class="fas fa-rotate-left"></i>
+                    <i class="fas fa-undo"></i>
                 </a>
             </div>
 

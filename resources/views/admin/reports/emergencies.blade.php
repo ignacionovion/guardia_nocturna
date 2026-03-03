@@ -1,16 +1,16 @@
 @extends('layouts.app')
 
-@section('title', 'Reporte de Emergencias')
-
 @section('content')
 <div class="container mx-auto px-4 py-6 max-w-7xl">
 
     {{-- HEADER --}}
-    <div class="mb-6">
-        <h1 class="text-2xl font-bold text-slate-800 flex items-center uppercase">
-            <i class="fas fa-chart-line mr-3 text-red-600"></i> Reportes
-        </h1>
-        <p class="text-slate-500 mt-1 text-sm">Estadísticas de asistencia, permisos, reemplazos y conductores</p>
+    <div class="mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800 flex items-center uppercase">
+                <i class="fas fa-chart-line mr-3 text-red-600"></i> Reportes
+            </h1>
+            <p class="text-slate-500 mt-1 text-sm">Estadísticas de asistencia, permisos, reemplazos y conductores</p>
+        </div>
     </div>
 
     {{-- NAVEGACIÓN PRINCIPAL --}}
@@ -20,37 +20,108 @@
                class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 hover:text-slate-800 transition-colors">
                 <i class="fas fa-calendar-check"></i> Asistencia
             </a>
-            <a href="{{ route('admin.reports.attendance', ['tab' => 'permisos']) }}"
+            <a href="{{ route('admin.reports.preventivas') }}"
                class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 hover:text-slate-800 transition-colors">
-                <i class="fas fa-calendar-alt"></i> Permisos
-            </a>
-            <a href="{{ route('admin.reports.emergencies') }}"
-               class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-red-600 text-red-600 bg-red-50 transition-colors">
-                <i class="fas fa-ambulance"></i> Emergencias
+                <i class="fas fa-clipboard-list"></i> Preventivas
             </a>
             <a href="{{ route('admin.reports.replacements') }}"
                class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 hover:text-slate-800 transition-colors">
                 <i class="fas fa-exchange-alt"></i> Reemplazos
             </a>
+            <a href="{{ route('admin.reports.refuerzos') }}"
+               class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 hover:text-slate-800 transition-colors">
+                <i class="fas fa-user-plus"></i> Refuerzos
+            </a>
             <a href="{{ route('admin.reports.drivers') }}"
                class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 hover:text-slate-800 transition-colors">
                 <i class="fas fa-truck"></i> Conductores
             </a>
+            <a href="{{ route('admin.reports.emergencies') }}"
+               class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-red-600 text-red-600 bg-red-50 transition-colors">
+                <i class="fas fa-ambulance"></i> Emergencias
+            </a>
         </div>
     </div>
 
-    {{-- HEADER DE EMERGENCIAS --}}
+    {{-- FILTROS CON SELECTS ESTANDARIZADOS --}}
     <div class="bg-white p-5 border border-t-0 border-slate-200 mb-6 rounded-b-lg shadow-sm">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-                <h2 class="text-xl font-bold text-slate-800 flex items-center">
-                    <i class="fas fa-ambulance mr-3 text-red-600"></i> Reporte de Emergencias
-                </h2>
-                <p class="text-slate-500 mt-1 text-sm">Estadísticas de emergencias atendidas por las guardias</p>
-            </div>
+        <form action="{{ route('admin.reports.emergencies') }}" method="GET" class="flex flex-wrap items-end gap-4">
             
+            {{-- Select Mes - ESTANDARIZADO --}}
+            <div class="min-w-[160px]">
+                <label class="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Mes</label>
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
+                        <i class="fas fa-calendar text-slate-400 group-focus-within:text-red-500 transition-colors"></i>
+                    </div>
+                    <select name="month" class="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 appearance-none cursor-pointer hover:bg-white hover:border-slate-300 transition-all shadow-sm">
+                        @foreach(range(1, 12) as $m)
+                            <option value="{{ $m }}" {{ $m == ($month ?? now()->month) ? 'selected' : '' }}>
+                                {{ Carbon\Carbon::create()->month($m)->locale('es')->monthName }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
+                        <div class="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center">
+                            <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Select Año - ESTANDARIZADO --}}
+            <div class="min-w-[140px]">
+                <label class="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Año</label>
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
+                        <i class="fas fa-calendar-alt text-slate-400 group-focus-within:text-red-500 transition-colors"></i>
+                    </div>
+                    <select name="year" class="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 appearance-none cursor-pointer hover:bg-white hover:border-slate-300 transition-all shadow-sm">
+                        @foreach(range(now()->year - 2, now()->year + 1) as $y)
+                            <option value="{{ $y }}" {{ $y == ($year ?? now()->year) ? 'selected' : '' }}>{{ $y }}</option>
+                        @endforeach
+                    </select>
+                    <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
+                        <div class="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center">
+                            <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Select Guardia - ESTANDARIZADO --}}
+            <div class="min-w-[220px]">
+                <label class="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Guardia</label>
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
+                        <i class="fas fa-shield-alt text-slate-400 group-focus-within:text-red-500 transition-colors"></i>
+                    </div>
+                    <select name="guardia_id" class="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 appearance-none cursor-pointer hover:bg-white hover:border-slate-300 transition-all shadow-sm">
+                        <option value="">Todas las Guardias</option>
+                        @foreach($guardias ?? [] as $g)
+                            <option value="{{ $g->id }}" {{ ($guardiaId ?? '') == $g->id ? 'selected' : '' }}>{{ $g->name }}</option>
+                        @endforeach
+                    </select>
+                    <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
+                        <div class="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center">
+                            <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Botón Filtrar --}}
+            <div class="flex gap-2">
+                <button type="submit" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-900 text-white font-extrabold text-xs uppercase tracking-widest transition-all shadow-md hover:shadow-lg">
+                    <i class="fas fa-filter"></i> Filtrar
+                </button>
+                <a href="{{ route('admin.reports.emergencies') }}" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs uppercase tracking-widest transition-all" title="Limpiar filtros">
+                    <i class="fas fa-undo"></i>
+                </a>
+            </div>
+
             {{-- Botones de Exportación Profesionales --}}
-            <div class="flex items-center gap-2">
+            <div class="ml-auto flex gap-2">
                 <a href="{{ route('admin.reports.emergencies.export', ['format' => 'excel'] + request()->all()) }}" 
                    class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-extrabold text-xs uppercase tracking-widest transition-all shadow-sm hover:shadow-md">
                     <i class="fas fa-file-excel text-emerald-600"></i> Excel
@@ -60,33 +131,7 @@
                     <i class="fas fa-file-pdf text-rose-600"></i> PDF
                 </a>
             </div>
-        </div>
-
-        {{-- Filtros --}}
-        <div class="mt-4 pt-4 border-t border-slate-200">
-            <form method="GET" class="flex flex-wrap items-center gap-3">
-                <select name="month" onchange="this.form.submit()" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500">
-                    @foreach(range(1, 12) as $m)
-                        <option value="{{ $m }}" {{ $m == $month ? 'selected' : '' }}>
-                            {{ Carbon\Carbon::create()->month($m)->locale('es')->monthName }}
-                        </option>
-                    @endforeach
-                </select>
-                <select name="year" onchange="this.form.submit()" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500">
-                    @foreach(range(now()->year - 2, now()->year + 1) as $y)
-                        <option value="{{ $y }}" {{ $y == $year ? 'selected' : '' }}>{{ $y }}</option>
-                    @endforeach
-                </select>
-                <select name="guardia_id" onchange="this.form.submit()" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500">
-                    <option value="">Todas las Guardias</option>
-                    @foreach($guardias as $guardia)
-                        <option value="{{ $guardia->id }}" {{ $guardiaId == $guardia->id ? 'selected' : '' }}>
-                            {{ $guardia->name }}
-                        </option>
-                    @endforeach
-                </select>
-            </form>
-        </div>
+        </form>
     </div>
 
     {{-- KPIs --}}

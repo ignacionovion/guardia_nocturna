@@ -7,21 +7,9 @@
     <div class="mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
             <h1 class="text-2xl font-bold text-slate-800 flex items-center uppercase">
-                <i class="fas fa-exchange-alt mr-3 text-violet-600"></i> Reporte de Reemplazos
+                <i class="fas fa-chart-line mr-3 text-red-600"></i> Reportes
             </h1>
-            <p class="text-slate-500 mt-1 text-sm">Análisis de reemplazos, top reemplazantes y estadísticas por guardia</p>
-        </div>
-        
-        {{-- Botones de Exportación Profesionales --}}
-        <div class="flex items-center gap-2">
-            <a href="{{ route('admin.reports.replacements.export', request()->query()) }}" 
-               class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-extrabold text-xs uppercase tracking-widest transition-all shadow-sm hover:shadow-md">
-                <i class="fas fa-file-excel text-emerald-600"></i> Excel
-            </a>
-            <a href="{{ route('admin.reports.replacements.print', request()->query()) }}" target="_blank"
-               class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-extrabold text-xs uppercase tracking-widest transition-all shadow-sm hover:shadow-md">
-                <i class="fas fa-file-pdf text-rose-600"></i> PDF
-            </a>
+            <p class="text-slate-500 mt-1 text-sm">Estadísticas de asistencia, permisos, reemplazos y conductores</p>
         </div>
     </div>
 
@@ -37,7 +25,7 @@
                 <i class="fas fa-clipboard-list"></i> Preventivas
             </a>
             <a href="{{ route('admin.reports.replacements') }}"
-               class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors text-violet-600 border-violet-600 bg-violet-50">
+               class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors text-red-600 border-red-600 bg-red-50">
                 <i class="fas fa-exchange-alt"></i> Reemplazos
             </a>
             <a href="{{ route('admin.reports.refuerzos') }}"
@@ -64,9 +52,9 @@
                 <label class="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Guardia</label>
                 <div class="relative group">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                        <i class="fas fa-shield-alt text-slate-400 group-focus-within:text-violet-500 transition-colors"></i>
+                        <i class="fas fa-shield-alt text-slate-400 group-focus-within:text-red-500 transition-colors"></i>
                     </div>
-                    <select name="guardia_id" class="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 appearance-none cursor-pointer hover:bg-white hover:border-slate-300 transition-all shadow-sm">
+                    <select name="guardia_id" class="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 appearance-none cursor-pointer hover:bg-white hover:border-slate-300 transition-all shadow-sm">
                         <option value="">Todas las Guardias</option>
                         @foreach($guardias as $g)
                             <option value="{{ $g->id }}" {{ ($guardiaId ?? '') == $g->id ? 'selected' : '' }}>{{ $g->name }}</option>
@@ -80,91 +68,71 @@
                 </div>
             </div>
 
-            {{-- Fecha Desde --}}
+            {{-- Fecha Desde - ESTANDARIZADO --}}
             <div class="min-w-[160px]">
                 <label class="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Desde</label>
                 <div class="relative group">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                        <i class="fas fa-calendar text-slate-400 group-focus-within:text-violet-500 transition-colors"></i>
+                        <i class="fas fa-calendar text-slate-400 group-focus-within:text-red-500 transition-colors"></i>
                     </div>
-                    <input type="date" name="from" value="{{ $from->format('Y-m-d') }}" class="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 hover:bg-white hover:border-slate-300 transition-all shadow-sm">
+                    <input type="date" name="from" value="{{ $from->format('Y-m-d') }}" class="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 hover:bg-white hover:border-slate-300 transition-all shadow-sm">
                 </div>
             </div>
 
-            {{-- Fecha Hasta --}}
+            {{-- Fecha Hasta - ESTANDARIZADO --}}
             <div class="min-w-[160px]">
                 <label class="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Hasta</label>
                 <div class="relative group">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                        <i class="fas fa-calendar text-slate-400 group-focus-within:text-violet-500 transition-colors"></i>
+                        <i class="fas fa-calendar text-slate-400 group-focus-within:text-red-500 transition-colors"></i>
                     </div>
-                    <input type="date" name="to" value="{{ $to->format('Y-m-d') }}" class="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 hover:bg-white hover:border-slate-300 transition-all shadow-sm">
+                    <input type="date" name="to" value="{{ $to->format('Y-m-d') }}" class="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 hover:bg-white hover:border-slate-300 transition-all shadow-sm">
                 </div>
             </div>
 
-            {{-- Botones de Acción --}}
+            {{-- Botón Filtrar --}}
             <div class="flex gap-2">
-                <button type="submit" class="bg-violet-600 hover:bg-violet-700 text-white font-black py-2.5 px-5 rounded-lg text-sm transition-all shadow-md hover:shadow-lg flex items-center gap-2">
+                <button type="submit" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-900 text-white font-extrabold text-xs uppercase tracking-widest transition-all shadow-md hover:shadow-lg">
                     <i class="fas fa-filter"></i> Filtrar
                 </button>
-                <a href="{{ route('admin.reports.replacements') }}" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-black py-2.5 px-4 rounded-lg text-sm transition-all flex items-center gap-2" title="Limpiar filtros">
-                    <i class="fas fa-rotate-left"></i>
+                <a href="{{ route('admin.reports.replacements') }}" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs uppercase tracking-widest transition-all" title="Limpiar filtros">
+                    <i class="fas fa-undo"></i>
+                </a>
+            </div>
+
+            {{-- Botones de Exportación Profesionales --}}
+            <div class="ml-auto flex gap-2">
+                <a href="{{ route('admin.reports.replacements.export', request()->query()) }}" 
+                   class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-extrabold text-xs uppercase tracking-widest transition-all shadow-sm hover:shadow-md">
+                    <i class="fas fa-file-excel text-emerald-600"></i> Excel
+                </a>
+                <a href="{{ route('admin.reports.replacements.print', request()->query()) }}" target="_blank"
+                   class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-extrabold text-xs uppercase tracking-widest transition-all shadow-sm hover:shadow-md">
+                    <i class="fas fa-file-pdf text-rose-600"></i> PDF
                 </a>
             </div>
         </form>
     </div>
 
-    {{-- STATS CARDS SIMPLES --}}
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
-            <div class="flex items-center justify-between">
-                <div>
-                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Reemplazos</div>
-                    <div class="text-2xl font-black text-slate-800 mt-1">{{ $kpis['total_replacements'] ?? 0 }}</div>
-                </div>
-                <div class="w-10 h-10 rounded-xl bg-violet-100 text-violet-600 flex items-center justify-center">
-                    <i class="fas fa-exchange-alt text-lg"></i>
-                </div>
+    {{-- STATS CARDS --}}
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 bg-white border border-slate-200 p-4 mb-6 rounded-lg">
+        @php
+            $statCards = [
+                ['label' => 'Total Reemplazos', 'value' => $kpis['total_replacements'] ?? 0, 'color' => 'purple', 'icon' => 'exchange-alt'],
+                ['label' => 'Reemplazantes', 'value' => $kpis['unique_replacers'] ?? 0, 'color' => 'emerald', 'icon' => 'users'],
+                ['label' => 'Reemplazados', 'value' => $kpis['unique_replaced'] ?? 0, 'color' => 'amber', 'icon' => 'user-clock'],
+                ['label' => 'Histórico', 'value' => $kpis['total_replacements_all_time'] ?? 0, 'color' => 'slate', 'icon' => 'infinity'],
+            ];
+        @endphp
+        @foreach($statCards as $card)
+        <div class="bg-slate-50 rounded-lg p-3 border border-slate-100">
+            <div class="flex items-center justify-between mb-1">
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">{{ $card['label'] }}</p>
+                <i class="fas fa-{{ $card['icon'] }} text-{{ $card['color'] }}-400 text-xs"></i>
             </div>
-            <div class="text-[10px] text-slate-400 mt-2 font-medium">{{ $kpis['range_label'] ?? '' }}</div>
+            <p class="text-2xl font-bold text-{{ $card['color'] }}-600">{{ $card['value'] }}</p>
         </div>
-
-        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
-            <div class="flex items-center justify-between">
-                <div>
-                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Reemplazantes Únicos</div>
-                    <div class="text-2xl font-black text-slate-800 mt-1">{{ $kpis['unique_replacers'] ?? 0 }}</div>
-                </div>
-                <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
-                    <i class="fas fa-users text-lg"></i>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
-            <div class="flex items-center justify-between">
-                <div>
-                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Reemplazados</div>
-                    <div class="text-2xl font-black text-slate-800 mt-1">{{ $kpis['unique_replaced'] ?? 0 }}</div>
-                </div>
-                <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center">
-                    <i class="fas fa-user-clock text-lg"></i>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
-            <div class="flex items-center justify-between">
-                <div>
-                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Histórico</div>
-                    <div class="text-2xl font-black text-slate-800 mt-1">{{ $kpis['total_replacements_all_time'] ?? 0 }}</div>
-                </div>
-                <div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center">
-                    <i class="fas fa-infinity text-lg"></i>
-                </div>
-            </div>
-            <div class="text-[10px] text-slate-400 mt-2 font-medium">Mismo filtro de guardia</div>
-        </div>
+        @endforeach
     </div>
 
     {{-- GRÁFICOS Y TOP --}}
