@@ -547,8 +547,14 @@
                                         <div class="border-l-2 border-slate-800 pl-4">
                                             <div class="text-sm font-black text-slate-100">{{ $academy->title }}</div>
                                             <div class="text-xs text-slate-400 mt-1 line-clamp-2">{{ $academy->description }}</div>
-                                            <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">
-                                                {{ ($academy->created_at ?? $academy->date)?->locale('es')->diffForHumans() }}
+                                            <div class="flex items-center gap-2 mt-2">
+                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                                                    <i class="fas fa-clock text-[9px]"></i>
+                                                    {{ ($academy->date ?? $academy->created_at)?->format('H:i') }}
+                                                </span>
+                                                <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                                                    {{ ($academy->date ?? $academy->created_at)?->locale('es')->diffForHumans() }}
+                                                </span>
                                             </div>
                                         </div>
                                     @endforeach
@@ -560,7 +566,12 @@
                     <div class="bg-slate-900 rounded-2xl shadow-sm border border-slate-800 overflow-hidden">
                         <div class="flex items-center justify-between px-5 py-4 border-b border-slate-800 bg-slate-950">
                             <div class="text-sm font-black text-slate-200 uppercase tracking-widest">Camas</div>
-                            <a href="{{ route('camas') }}" class="text-xs font-black text-blue-400 hover:text-blue-300 uppercase tracking-widest">Ver</a>
+                            <div class="flex items-center gap-2">
+                                <button type="button" onclick="sendBedReportEmail()" class="text-xs font-black text-emerald-400 hover:text-emerald-300 uppercase tracking-widest flex items-center gap-1" title="Enviar reporte por email">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                                <a href="{{ route('camas') }}" class="text-xs font-black text-blue-400 hover:text-blue-300 uppercase tracking-widest">Ver</a>
+                            </div>
                         </div>
                         <div class="p-5">
                             <div class="text-4xl font-black text-slate-100">{{ $availableBeds }}<span class="text-lg text-slate-400 font-black">/{{ $totalBeds }}</span></div>
@@ -2497,12 +2508,71 @@
     @endif
 
     <script>
+        // Auto-enable fullscreen for guardia users on page load
+        @if(Auth::check() && Auth::user()->role === 'guardia')
+        (function() {
+            function tryFullscreen() {
+                if (!document.fullscreenElement && !sessionStorage.getItem('fullscreenAutoEnabled')) {
+                    try {
+                        document.documentElement.requestFullscreen().then(function() {
+                            sessionStorage.setItem('fullscreenAutoEnabled', 'true');
+                            console.log('Fullscreen auto-enabled');
+                        }).catch(function(err) {
+                            console.log('Fullscreen auto-enable failed (will retry on interaction):', err);
+                            // Fallback: try on first user interaction
+                            enableFullscreenOnInteraction();
+                        });
+                    } catch (e) {
+                        console.log('Fullscreen error:', e);
+                        enableFullscreenOnInteraction();
+                    }
+                }
+            }
+
+            function enableFullscreenOnInteraction() {
+                var events = ['click', 'touchstart', 'keydown', 'mousemove'];
+                var handler = function() {
+                    if (!document.fullscreenElement && !sessionStorage.getItem('fullscreenAutoEnabled')) {
+                        try {
+                            document.documentElement.requestFullscreen().then(function() {
+                                sessionStorage.setItem('fullscreenAutoEnabled', 'true');
+                                console.log('Fullscreen enabled on interaction');
+                            }).catch(function() {
+                                // Silent fail
+                            });
+                        } catch (e) {
+                            // Silent fail
+                        }
+                    }
+                    // Remove all listeners after first attempt
+                    events.forEach(function(evt) {
+                        document.removeEventListener(evt, handler);
+                    });
+                };
+                events.forEach(function(evt) {
+                    document.addEventListener(evt, handler, { once: true });
+                });
+            }
+
+            // Try immediately if document is already ready
+            if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                setTimeout(tryFullscreen, 100);
+            } else {
+                document.addEventListener('DOMContentLoaded', function() {
+                    setTimeout(tryFullscreen, 100);
+                });
+            }
+        })();
+        @endif
+
         function toggleFullscreen() {
             try {
                 if (!document.fullscreenElement) {
                     document.documentElement.requestFullscreen();
+                    sessionStorage.setItem('fullscreenAutoEnabled', 'true');
                 } else {
                     document.exitFullscreen();
+                    sessionStorage.removeItem('fullscreenAutoEnabled');
                 }
             } catch (e) {
                 // No-op
@@ -2704,29 +2774,39 @@
             }
         });
 
-        // Delete novelty function
-        window.deleteNovelty = async function(noveltyId) {
-            if (!confirm('¿Eliminar esta novedad?')) return;
+        // Send bed report email function
+        window.sendBedReportEmail = async function() {
+            const btn = event.target.closest('button');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.disabled = true;
             
             try {
-                const response = await fetch(`/novelties/${noveltyId}`, {
-                    method: 'DELETE',
+                const response = await fetch('{{ route("camas.report.email") }}', {
+                    method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
                         'Accept': 'application/json',
+                        'Content-Type': 'application/json',
                     },
                     credentials: 'same-origin',
                 });
                 
+                const data = await response.json();
+                
                 if (response.ok) {
-                    // Refresh the page to show updated list
-                    window.location.reload();
+                    btn.innerHTML = '<i class="fas fa-check text-emerald-400"></i>';
+                    setTimeout(() => {
+                        btn.innerHTML = originalHtml;
+                        btn.disabled = false;
+                    }, 2000);
                 } else {
-                    const data = await response.json();
-                    alert(data.error || 'No se pudo eliminar la novedad');
+                    throw new Error(data.message || 'Error al enviar el reporte');
                 }
             } catch (e) {
-                alert('Error al eliminar la novedad');
+                alert(e.message || 'Error al enviar el reporte');
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
             }
         }
     </script>

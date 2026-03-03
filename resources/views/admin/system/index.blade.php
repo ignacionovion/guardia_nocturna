@@ -187,7 +187,7 @@
                         <input type="checkbox" name="mail_enabled_beds" value="1" {{ old('mail_enabled_beds', ($settings['mail_enabled_beds'] ?? '0')) === '1' ? 'checked' : '' }} class="rounded text-emerald-600 focus:ring-emerald-500 h-5 w-5 border-slate-300">
                         <div class="min-w-0">
                             <div class="text-sm font-black text-slate-800 uppercase tracking-wide">Camas</div>
-                            <div class="text-xs text-slate-500">Enviar al asignar o liberar cama.</div>
+                            <div class="text-xs text-slate-500">Habilitar envío manual de reporte PDF desde el dashboard.</div>
                         </div>
                     </label>
 

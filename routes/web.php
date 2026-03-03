@@ -186,6 +186,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/camas/liberar/{id}', [AsignacionCamaController::class, 'update'])->name('beds.release');
     Route::put('/camas/{bed}/mantencion', [AsignacionCamaController::class, 'markMaintenance'])->name('beds.maintenance');
     Route::put('/camas/{bed}/habilitar', [AsignacionCamaController::class, 'markAvailable'])->name('beds.available');
+    Route::post('/camas/reporte/email', [AsignacionCamaController::class, 'sendReportEmail'])->name('camas.report.email');
 
     // Imprimir QR por cama (requiere login)
     Route::get('/camas/{bedId}/qr/imprimir', [BedQrController::class, 'printQr'])->name('camas.qr.print');

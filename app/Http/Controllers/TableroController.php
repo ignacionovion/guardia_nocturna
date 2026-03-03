@@ -290,6 +290,20 @@ class TableroController extends Controller
                             'estado' => 'completado',
                             'fin' => $localNow,
                         ]);
+
+                    // Liberar las camas asignadas a estos bomberos (reemplazos/refuerzos)
+                    $assignmentsToRelease = \App\Models\BedAssignment::query()
+                        ->whereNull('released_at')
+                        ->whereIn('firefighter_id', $resetBomberoIds)
+                        ->with('bed')
+                        ->get();
+
+                    foreach ($assignmentsToRelease as $assignment) {
+                        $assignment->update(['released_at' => now()]);
+                        if ($assignment->bed) {
+                            $assignment->bed->update(['status' => 'available']);
+                        }
+                    }
                 }
 
                 Bombero::query()

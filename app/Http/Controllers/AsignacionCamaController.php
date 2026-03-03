@@ -95,43 +95,6 @@ class AsignacionCamaController extends Controller
                 return $assignment;
             }, 3); // 3 reintentos si hay deadlock
 
-            // Enviar email fuera de la transacción (si el SMTP se pega, no bloquea locks)
-            DB::afterCommit(function () use ($assignment) {
-                try {
-                    $bed = $assignment->bed;
-                    $firefighter = $assignment->firefighter;
-                    $user = auth()->user();
-
-                    $lines = [];
-                    $lines[] = 'Número de cama: #' . (string) ($bed->number ?? $bed->id);
-                    $lines[] = 'Ubicación: ' . (string) ($bed->location ?? 'No especificada');
-                    $lines[] = 'Estado: Asignada';
-                    $lines[] = '';
-                    $lines[] = 'Bombero asignado: ' . trim((string) ($firefighter?->nombres ?? '') . ' ' . (string) ($firefighter?->apellido_paterno ?? ''));
-                    $lines[] = 'RUT: ' . (string) ($firefighter?->rut ?? 'No disponible');
-                    $lines[] = 'Grado: ' . (string) ($firefighter?->grado ?? 'No especificado');
-                    if ($assignment->notes) {
-                        $lines[] = 'Notas: ' . (string) $assignment->notes;
-                    }
-
-                    SystemEmailService::send(
-                        type: 'beds',
-                        subject: '🛏️ Cama #' . ($bed->number ?? $bed->id) . ' asignada a ' . trim((string) ($firefighter?->nombres ?? '') . ' ' . (string) ($firefighter?->apellido_paterno ?? '')),
-                        lines: $lines,
-                        actorEmail: $user?->email,
-                        senderName: $user?->name,
-                        senderRole: $user?->role,
-                        sourceLabel: 'Sistema de Asignación de Camas'
-                    );
-                } catch (\Throwable $e) {
-                    // No fallar la asignación por un problema de correo
-                    Log::warning('Fallo envío correo (beds asignada): ' . $e->getMessage(), [
-                        'bed_id' => $assignment->bed_id,
-                        'firefighter_id' => $assignment->firefighter_id,
-                    ]);
-                }
-            });
-
             return redirect()->route('camas')->with('success', 'Cama asignada correctamente.');
         } catch (\RuntimeException $e) {
             return back()->withErrors(['msg' => $e->getMessage()]);
@@ -169,25 +132,6 @@ class AsignacionCamaController extends Controller
              $assignment->load(['bed', 'firefighter']);
              $assignment->bed->update(['status' => 'available']);
 
-             $user = auth()->user();
-             $lines = [];
-             $lines[] = 'Número de cama: #' . (string) ($assignment->bed?->number ?? $assignment->bed_id);
-             $lines[] = 'Ubicación: ' . (string) ($assignment->bed?->location ?? 'No especificada');
-             $lines[] = 'Estado: Liberada / Disponible';
-             $lines[] = '';
-             $lines[] = 'Bombero que ocupaba: ' . trim((string) ($assignment->firefighter?->nombres ?? '') . ' ' . (string) ($assignment->firefighter?->apellido_paterno ?? ''));
-             $lines[] = 'RUT: ' . (string) ($assignment->firefighter?->rut ?? 'No disponible');
-
-             SystemEmailService::send(
-                 type: 'beds',
-                 subject: '🛏️ Cama #' . ($assignment->bed?->number ?? $assignment->bed_id) . ' liberada',
-                 lines: $lines,
-                 actorEmail: $user?->email,
-                 senderName: $user?->name,
-                 senderRole: $user?->role,
-                 sourceLabel: 'Sistema de Asignación de Camas'
-             );
-             
              return redirect()->route('camas')->with('success', 'Cama liberada correctamente.');
         }
 
@@ -235,6 +179,87 @@ class AsignacionCamaController extends Controller
         ]);
 
         return redirect()->route('camas')->with('success', 'Cama habilitada como disponible.');
+    }
+
+    /**
+     * Send bed assignments report via email with PDF attachment
+     */
+    public function sendReportEmail(Request $request)
+    {
+        $user = auth()->user();
+        if (!$user || !in_array($user->role, ['super_admin', 'capitania', 'guardia'])) {
+            return response()->json(['ok' => false, 'message' => 'No autorizado'], 403);
+        }
+
+        try {
+            // Obtener todas las camas con sus asignaciones actuales
+            $beds = Bed::with(['currentAssignment.firefighter'])
+                ->orderBy('number')
+                ->get();
+
+            $availableCount = $beds->where('status', 'available')->count();
+            $occupiedCount = $beds->where('status', 'occupied')->count();
+            $maintenanceCount = $beds->where('status', 'maintenance')->count();
+
+            // Generar PDF usando dompdf
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.beds_report', [
+                'beds' => $beds,
+                'availableCount' => $availableCount,
+                'occupiedCount' => $occupiedCount,
+                'maintenanceCount' => $maintenanceCount,
+                'generatedAt' => now(),
+                'generatedBy' => $user->name ?? 'Sistema',
+            ]);
+
+            $pdf->setPaper('A4', 'portrait');
+            $pdfContent = $pdf->output();
+
+            // Preparar datos para el email
+            $subject = '📋 Reporte de Camas - ' . now()->format('d/m/Y H:i');
+            $lines = [
+                'Resumen de Camas:',
+                '',
+                '✅ Disponibles: ' . $availableCount,
+                '🛏️ Ocupadas: ' . $occupiedCount,
+                '🔧 En Mantención: ' . $maintenanceCount,
+                '',
+                'Total de camas: ' . $beds->count(),
+                '',
+                'Reporte generado por: ' . ($user->name ?? 'Sistema'),
+                'Fecha y hora: ' . now()->format('d/m/Y H:i'),
+            ];
+
+            // Enviar email con PDF adjunto
+            SystemEmailService::send(
+                type: 'beds',
+                subject: $subject,
+                lines: $lines,
+                actorEmail: $user?->email,
+                senderName: $user?->name,
+                senderRole: $user?->role,
+                sourceLabel: 'Sistema de Asignación de Camas',
+                fileAttachments: [
+                    [
+                        'content' => $pdfContent,
+                        'filename' => 'reporte_camas_' . now()->format('Y-m-d_H-i') . '.pdf',
+                        'mime' => 'application/pdf',
+                    ],
+                ]
+            );
+
+            return response()->json([
+                'ok' => true,
+                'message' => 'Reporte enviado correctamente',
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Error sending bed report email: ' . $e->getMessage(), [
+                'user_id' => $user?->id,
+            ]);
+            return response()->json([
+                'ok' => false,
+                'message' => 'Error al generar o enviar el reporte: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
