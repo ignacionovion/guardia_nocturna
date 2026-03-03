@@ -11,7 +11,8 @@
     </div>
 
     {{-- CABINA --}}
-    <table class="w-full border-collapse text-sm">
+    <div class="overflow-x-auto">
+        <table class="w-full border-collapse text-sm" style="min-width: 800px;">
         <tr class="bg-teal-800 text-white">
             <th colspan="12" class="p-2 text-xs font-black uppercase tracking-widest text-left border border-teal-900">CABINA</th>
         </tr>
@@ -103,18 +104,20 @@
             <td colspan="6" class="p-1 border border-slate-300 bg-sky-100 font-bold text-sm">Maleta SCI</td>
         </tr>
     </table>
+    </div>
 
     {{-- Check List Herramientas --}}
-    <table class="w-full border-collapse text-sm mt-2">
-        <tr class="bg-teal-800 text-white">
-            <th colspan="12" class="p-2 text-xs font-black uppercase tracking-widest text-center border border-teal-900">Check list Herramientas</th>
-        </tr>
-        <tr class="bg-teal-700 text-white">
-            <th colspan="5" class="p-1 text-xs font-bold text-center border border-teal-800">¿Funciona?</th>
-            <th class="p-1 text-xs font-bold text-center border border-teal-800">SÍ</th>
-            <th class="p-1 text-xs font-bold text-center border border-teal-800">NO</th>
-            <th colspan="5" class="p-1 text-xs font-bold text-center border border-teal-800">Novedades</th>
-        </tr>
+    <div class="overflow-x-auto">
+        <table class="w-full border-collapse text-sm mt-2" style="min-width: 600px;">
+            <tr class="bg-teal-800 text-white">
+                <th colspan="12" class="p-2 text-xs font-black uppercase tracking-widest text-center border border-teal-900">Check list Herramientas</th>
+            </tr>
+            <tr class="bg-teal-700 text-white">
+                <th colspan="5" class="p-1 text-xs font-bold text-center border border-teal-800">¿Funciona?</th>
+                <th class="p-1 text-xs font-bold text-center border border-teal-800 w-12">SÍ</th>
+                <th class="p-1 text-xs font-bold text-center border border-teal-800 w-12">NO</th>
+                <th colspan="5" class="p-1 text-xs font-bold text-center border border-teal-800">Novedades</th>
+            </tr>
 
         @php
             $herramientas = [
@@ -162,13 +165,15 @@
                 </td>
             </tr>
         @endforeach
-    </table>
+        </table>
+    </div>
 
     {{-- Indique la cantidad --}}
-    <table class="w-full border-collapse text-sm mt-2">
-        <tr class="bg-teal-800 text-white">
-            <th colspan="12" class="p-2 text-xs font-black uppercase tracking-widest text-center border border-teal-900">Indique la cantidad</th>
-        </tr>
+    <div class="overflow-x-auto">
+        <table class="w-full border-collapse text-sm mt-2" style="min-width: 800px;">
+            <tr class="bg-teal-800 text-white">
+                <th colspan="12" class="p-2 text-xs font-black uppercase tracking-widest text-center border border-teal-900">Indique la cantidad</th>
+            </tr>
 
         {{-- Mochila de Trauma --}}
         <tr class="bg-sky-100">
@@ -526,7 +531,8 @@
                 @endif
             </td>
         </tr>
-    </table>
+        </table>
+    </div>
 
     {{-- Material Forestal --}}
     <div class="bg-yellow-50 border-l-4 border-yellow-400 p-2 rounded mt-2">
@@ -541,10 +547,11 @@
     </div>
 
     {{-- General Unidad --}}
-    <table class="w-full border-collapse text-sm mt-2">
-        <tr class="bg-teal-800 text-white">
-            <th colspan="12" class="p-2 text-xs font-black uppercase tracking-widest text-left border border-teal-900">General Unidad</th>
-        </tr>
+    <div class="overflow-x-auto">
+        <table class="w-full border-collapse text-sm mt-2" style="min-width: 600px;">
+            <tr class="bg-teal-800 text-white">
+                <th colspan="12" class="p-2 text-xs font-black uppercase tracking-widest text-left border border-teal-900">General Unidad</th>
+            </tr>
 
         <tr class="bg-sky-100">
             <td colspan="6" class="p-1 border border-slate-300">
