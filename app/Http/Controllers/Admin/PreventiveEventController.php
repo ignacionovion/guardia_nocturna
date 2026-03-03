@@ -718,20 +718,62 @@ class PreventiveEventController extends Controller
             ->orderBy('sort_order')
             ->get();
 
+        if ($templates->isEmpty()) {
+            return;
+        }
+
+        $tz = $event->timezone ?: 'UTC';
         $start = $event->start_date->copy();
         $end = $event->end_date->copy();
-
-        for ($d = $start->copy(); $d->lte($end); $d->addDay()) {
-            foreach ($templates as $tpl) {
-                PreventiveShift::create([
-                    'preventive_event_id' => $event->id,
-                    'template_id' => $tpl->id,
-                    'shift_date' => $d->toDateString(),
-                    'start_time' => (string) $tpl->start_time,
-                    'end_time' => (string) $tpl->end_time,
-                    'sort_order' => (int) $tpl->sort_order,
-                    'label' => $tpl->label,
-                ]);
+        
+        // Crear turnos de forma continua (cronológica) en lugar de por día
+        $currentDate = $start->copy();
+        $tplIndex = 0;
+        $tplCount = $templates->count();
+        
+        while ($currentDate->lte($end)) {
+            $tpl = $templates[$tplIndex];
+            
+            // Parsear horas del template
+            $startTime = substr((string) $tpl->start_time, 0, 5);
+            $endTime = substr((string) $tpl->end_time, 0, 5);
+            
+            // Determinar la fecha del turno basado en la hora de inicio
+            // Si el turno empieza a las 00:00 o después de medianoche,
+            // pertenece al día siguiente
+            $shiftDate = $currentDate->copy();
+            
+            // Crear el turno
+            PreventiveShift::create([
+                'preventive_event_id' => $event->id,
+                'template_id' => $tpl->id,
+                'shift_date' => $shiftDate->toDateString(),
+                'start_time' => $tpl->start_time,
+                'end_time' => $tpl->end_time,
+                'sort_order' => (int) $tpl->sort_order,
+                'label' => $tpl->label,
+            ]);
+            
+            // Avanzar al siguiente template
+            $tplIndex = ($tplIndex + 1) % $tplCount;
+            
+            // Si volvimos al primer template, avanzamos un día
+            if ($tplIndex === 0) {
+                $currentDate->addDay();
+            } else {
+                // Si no, avanzamos a la siguiente fecha basado en el horario
+                // Si el siguiente turno empieza más temprano que el actual,
+                // significa que cruza la medianoche
+                $nextTpl = $templates[$tplIndex];
+                $nextStart = substr((string) $nextTpl->start_time, 0, 5);
+                $currStart = $startTime;
+                
+                if ($nextStart < $currStart) {
+                    // El siguiente turno empieza más temprano (ej: 00:00 vs 20:00)
+                    // Significa que es del día siguiente
+                    $currentDate->addDay();
+                }
+                // Si no, es el mismo día (ej: 07:00 después de 00:00)
             }
         }
     }
