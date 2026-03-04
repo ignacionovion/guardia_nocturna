@@ -402,7 +402,7 @@
     @endforeach
 
     <div class="footer">
-        GuardiaAPP - Sistema de Gestión de Cuerpo de Bomberos - Reporte generado el {{ now()->format('d/m/Y H:i:s') }}
+        GuardiAPP - Sistema de Gestión de Cuerpo de Bomberos - Reporte generado el {{ now()->format('d/m/Y H:i:s') }}
     </div>
 </body>
 </html>

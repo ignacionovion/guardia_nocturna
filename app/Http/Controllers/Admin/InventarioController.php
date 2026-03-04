@@ -122,7 +122,7 @@ class InventarioController extends Controller
         $validated = $request->validate([
             'rut' => ['required', 'string', 'max:20', 'regex:/^\d{7,8}-[0-9kK]$/'],
         ], [
-            'rut.regex' => 'Formato inválido. Debe ser como 18485962-9.',
+            'rut.regex' => 'Formato inválido. Debe ser como 11222333-4.',
         ]);
 
         $rut = mb_strtolower(trim((string) $validated['rut']));

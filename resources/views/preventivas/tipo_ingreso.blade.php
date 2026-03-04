@@ -5,7 +5,7 @@
     <div class="w-full max-w-lg">
         <div class="text-center mb-8">
             @if(file_exists(public_path('brand/guardiappcheck.png')))
-                <img src="{{ asset('brand/guardiappcheck.png') }}?v={{ filemtime(public_path('brand/guardiappcheck.png')) }}" alt="GuardiaAPP" class="mx-auto h-[80px] w-auto drop-shadow-sm">
+                <img src="{{ asset('brand/guardiappcheck.png') }}?v={{ filemtime(public_path('brand/guardiappcheck.png')) }}" alt="GuardiAPP" class="mx-auto h-[80px] w-auto drop-shadow-sm">
             @else
                 <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-600 text-white mb-4 shadow-2xl">
                     <i class="fas fa-shield-alt text-4xl"></i>

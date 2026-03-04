@@ -67,9 +67,9 @@
             </div>
             <div class="brand">
                 @if(file_exists(public_path('brand/Logo png Alta Def.png')))
-                    <img src="{{ asset('brand/Logo png Alta Def.png') }}" alt="GuardiaAPP">
+                    <img src="{{ asset('brand/Logo png Alta Def.png') }}" alt="GuardiAPP">
                 @elseif(file_exists(public_path('brand/guardiappcheck.png')))
-                    <img src="{{ asset('brand/guardiappcheck.png') }}?v={{ filemtime(public_path('brand/guardiappcheck.png')) }}" alt="GuardiaAPP">
+                    <img src="{{ asset('brand/guardiappcheck.png') }}?v={{ filemtime(public_path('brand/guardiappcheck.png')) }}" alt="GuardiAPP">
                 @endif
             </div>
         </div>

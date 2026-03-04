@@ -254,7 +254,7 @@
     </table>
     
     <div class="footer">
-        GuardiaAPP - Sistema de Gestión de Cuerpo de Bomberos
+        GuardiAPP - Sistema de Gestión de Cuerpo de Bomberos
     </div>
 </body>
 </html>

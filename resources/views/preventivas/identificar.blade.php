@@ -5,7 +5,7 @@
     <div class="w-full max-w-md">
         <div class="text-center mb-8">
             @if(file_exists(public_path('brand/guardiappcheck.png')))
-                <img src="{{ asset('brand/guardiappcheck.png') }}?v={{ filemtime(public_path('brand/guardiappcheck.png')) }}" alt="GuardiaAPP" class="mx-auto h-[80px] w-auto drop-shadow-sm">
+                <img src="{{ asset('brand/guardiappcheck.png') }}?v={{ filemtime(public_path('brand/guardiappcheck.png')) }}" alt="GuardiAPP" class="mx-auto h-[80px] w-auto drop-shadow-sm">
             @else
                 <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-600 text-white mb-4 shadow-2xl">
                     <i class="fas fa-shield-alt text-4xl"></i>
@@ -32,7 +32,7 @@
                            name="rut" 
                            id="rut" 
                            required 
-                           placeholder="Ej: 18485962-9"
+                           placeholder="Ej: 11222333-4"
                            value="{{ old('rut') }}"
                            class="w-full px-4 py-3 rounded-xl border-2 border-slate-600 bg-slate-700/50 text-white text-center font-bold text-lg tracking-wider placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 uppercase">
                     <p class="mt-2 text-[10px] text-slate-500 font-semibold">Formato: 12345678-9 (con guion y dígito verificador)</p>
