@@ -84,7 +84,7 @@ Route::post('/camas/scan/{bedId}/asignar', [BedQrController::class, 'assignStore
 Route::get('/camas/scan/{bedId}/exito', [BedQrController::class, 'success'])->name('camas.scan.success');
 
 // Rutas de Autenticación
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login')->middleware('guest');
+Route::get('/', [AuthController::class, 'showLoginForm'])->name('login')->middleware('guest');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
@@ -121,7 +121,7 @@ Route::get('/media/{path}', function (string $path) {
 
 // Rutas Protegidas (Dashboard)
 Route::middleware('auth')->group(function () {
-    Route::get('/', [TableroController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [TableroController::class, 'index'])->name('dashboard');
     Route::get('/camas', [TableroController::class, 'camas'])->name('camas');
     Route::get('/guardia', [GuardiaController::class, 'index'])->name('guardia');
     Route::get('/now', [GuardiaController::class, 'now'])->name('guardia.now');

@@ -1719,7 +1719,11 @@
 
             loadDraftState();
 
-            window.addEventListener('pageshow', function() {
+            window.addEventListener('pageshow', function(event) {
+                if (event.persisted) {
+                    window.location.reload();
+                    return;
+                }
                 loadDraftState();
             });
 
