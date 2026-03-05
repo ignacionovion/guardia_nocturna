@@ -95,7 +95,14 @@
                     @endif
                 </td>
                 <td colspan="1" class="p-1 border border-slate-300 bg-sky-100"></td>
-                <td colspan="6" class="p-1 border border-slate-300 font-bold text-sm">Lona organizadora material</td>
+                <td colspan="3" class="p-1 border border-slate-300 font-bold text-sm">Lona organizadora material</td>
+                <td colspan="3" class="p-1 border border-slate-300">
+                    @if($readonly)
+                        <div class="font-semibold">{{ $data['cabina']['lona_organizadora']['cantidad'] ?? '—' }}</div>
+                    @else
+                        <input type="text" name="data[cabina][lona_organizadora][cantidad]" value="{{ $data['cabina']['lona_organizadora']['cantidad'] ?? '' }}" class="w-full text-sm border rounded p-1" placeholder="Cantidad">
+                    @endif
+                </td>
             </tr>
             {{-- Tablet --}}
             <tr class="bg-sky-100">
@@ -113,7 +120,14 @@
                     @endif
                 </td>
                 <td colspan="1" class="p-1 border border-slate-300 bg-sky-100"></td>
-                <td colspan="6" class="p-1 border border-slate-300 font-bold text-sm">Maleta SCI</td>
+                <td colspan="3" class="p-1 border border-slate-300 font-bold text-sm">Maleta SCI</td>
+                <td colspan="3" class="p-1 border border-slate-300">
+                    @if($readonly)
+                        <div class="font-semibold">{{ $data['cabina']['maleta_sci']['cantidad'] ?? '—' }}</div>
+                    @else
+                        <input type="text" name="data[cabina][maleta_sci][cantidad]" value="{{ $data['cabina']['maleta_sci']['cantidad'] ?? '' }}" class="w-full text-sm border rounded p-1" placeholder="Cantidad">
+                    @endif
+                </td>
             </tr>
         </table>
     </div>
@@ -125,10 +139,8 @@
                 <th colspan="12" class="p-2 text-xs font-black uppercase tracking-widest text-center border border-teal-900">Check list Herramientas</th>
             </tr>
             <tr class="bg-teal-700 text-white">
-                <th colspan="4" class="p-1 text-xs font-bold text-center border border-teal-800"></th>
-                <th colspan="1" class="p-1 text-xs font-bold text-center border border-teal-800">¿Funciona?</th>
-                <th colspan="1" class="p-1 text-xs font-bold text-center border border-teal-800 w-12">SÍ</th>
-                <th colspan="1" class="p-1 text-xs font-bold text-center border border-teal-800 w-12">NO</th>
+                <th colspan="5" class="p-1 text-xs font-bold text-left border border-teal-800">Herramienta</th>
+                <th colspan="2" class="p-1 text-xs font-bold text-center border border-teal-800">¿Funciona?</th>
                 <th colspan="5" class="p-1 text-xs font-bold text-center border border-teal-800">Novedades</th>
             </tr>
 
@@ -153,20 +165,19 @@
 
         @foreach($herramientas as $key => $label)
             <tr class="{{ in_array($key, $highlightTools) ? 'bg-yellow-50' : 'bg-sky-50' }}">
-                <td colspan="4" class="p-1 border border-slate-300 font-semibold {{ in_array($key, $highlightTools) ? 'bg-yellow-100' : '' }}">{{ $label }}</td>
-                <td colspan="1" class="p-1 border border-slate-300 bg-sky-100"></td>
-                <td colspan="1" class="p-1 border border-slate-300 text-center">
+                <td colspan="5" class="p-1 border border-slate-300 font-semibold {{ in_array($key, $highlightTools) ? 'bg-yellow-100' : '' }}">{{ $label }}</td>
+                <td colspan="2" class="p-1 border border-slate-300 text-center">
                     @if($readonly)
-                        {{ ($data['herramientas'][$key]['funciona'] ?? '') === 'si' ? '✓' : '' }}
+                        @php $v = $data['herramientas'][$key]['funciona'] ?? ''; @endphp
+                        <span class="font-semibold {{ $v === 'si' ? 'text-teal-700' : ($v === 'no' ? 'text-red-600' : 'text-slate-400') }}">
+                            {{ $v === 'si' ? 'SÍ' : ($v === 'no' ? 'NO' : '—') }}
+                        </span>
                     @else
-                        <input type="radio" name="data[herramientas][{{ $key }}][funciona]" value="si" {{ ($data['herramientas'][$key]['funciona'] ?? '') === 'si' ? 'checked' : '' }} class="w-4 h-4 text-teal-600">
-                    @endif
-                </td>
-                <td colspan="1" class="p-1 border border-slate-300 text-center">
-                    @if($readonly)
-                        {{ ($data['herramientas'][$key]['funciona'] ?? '') === 'no' ? '✗' : '' }}
-                    @else
-                        <input type="radio" name="data[herramientas][{{ $key }}][funciona]" value="no" {{ ($data['herramientas'][$key]['funciona'] ?? '') === 'no' ? 'checked' : '' }} class="w-4 h-4 text-red-600">
+                        <select name="data[herramientas][{{ $key }}][funciona]" class="w-full text-sm border rounded p-1">
+                            <option value="">—</option>
+                            <option value="si" {{ ($data['herramientas'][$key]['funciona'] ?? '') === 'si' ? 'selected' : '' }}>SÍ</option>
+                            <option value="no" {{ ($data['herramientas'][$key]['funciona'] ?? '') === 'no' ? 'selected' : '' }}>NO</option>
+                        </select>
                     @endif
                 </td>
                 <td colspan="5" class="p-1 border border-slate-300">

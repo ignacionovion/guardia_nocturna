@@ -232,6 +232,12 @@
                                                     {{ strtoupper(substr($staff->nombres, 0, 1) . substr($staff->apellido_paterno, 0, 1)) }}
                                                 </div>
                                             @endif
+                                            @php $bedNum = isset($bedByFirefighter) ? ($bedByFirefighter[$staff->id] ?? null) : null; @endphp
+                                            @if($bedNum !== null)
+                                                <div class="absolute top-1 right-1 bg-slate-900/80 backdrop-blur-sm border border-slate-600 rounded-md px-1 py-0.5 text-[9px] font-black text-slate-100 leading-none whitespace-nowrap">
+                                                    🛏 #{{ $bedNum }}
+                                                </div>
+                                            @endif
 
                                             <div class="absolute bottom-1 left-1 right-1 flex items-center justify-center gap-1">
                                                 @if($staff->es_conductor)
@@ -704,18 +710,43 @@
 
                     <div class="p-6">
                         <!-- Estadísticas Rápidas -->
-                        <div class="grid grid-cols-3 gap-4 mb-6">
-                            <div class="bg-purple-50 rounded-xl border border-purple-200 p-4 text-center">
+                        @php
+                            $countPermiso    = isset($myStaff) ? $myStaff->where('estado_asistencia', 'permiso')->count() : 0;
+                            $countAusente    = isset($myStaff) ? $myStaff->where('estado_asistencia', 'ausente')->count() : 0;
+                            $countLicencia   = isset($myStaff) ? $myStaff->where('estado_asistencia', 'licencia')->count() : 0;
+                            $countFalta      = isset($myStaff) ? $myStaff->where('estado_asistencia', 'falta')->count() : 0;
+                            $countInhabilita = isset($myStaff) ? $myStaff->where('fuera_de_servicio', true)->count() : 0;
+                        @endphp
+                        <div class="grid grid-cols-3 gap-3 mb-4">
+                            <div class="bg-purple-50 rounded-xl border border-purple-200 p-3 text-center">
                                 <div class="text-2xl font-black text-purple-700">{{ $activeReplacementsCount }}</div>
-                                <div class="text-xs font-bold text-purple-600 uppercase tracking-wider">Reemplazos Activos</div>
+                                <div class="text-xs font-bold text-purple-600 uppercase tracking-wider">Reemplazos</div>
                             </div>
-                            <div class="bg-sky-50 rounded-xl border border-sky-200 p-4 text-center">
+                            <div class="bg-sky-50 rounded-xl border border-sky-200 p-3 text-center">
                                 <div class="text-2xl font-black text-sky-700">{{ $activeRefuerzosCount }}</div>
                                 <div class="text-xs font-bold text-sky-600 uppercase tracking-wider">Refuerzos</div>
                             </div>
-                            <div class="bg-red-50 rounded-xl border border-red-200 p-4 text-center">
+                            <div class="bg-red-50 rounded-xl border border-red-200 p-3 text-center">
                                 <div class="text-2xl font-black text-red-700">{{ $outOfServiceFirefighters }}</div>
-                                <div class="text-xs font-bold text-red-600 uppercase tracking-wider">Fuera de Servicio</div>
+                                <div class="text-xs font-bold text-red-600 uppercase tracking-wider">Fuera Servicio</div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-4 gap-3 mb-6">
+                            <div class="bg-amber-50 rounded-xl border border-amber-200 p-3 text-center">
+                                <div class="text-xl font-black text-amber-700">{{ $countPermiso }}</div>
+                                <div class="text-[10px] font-bold text-amber-600 uppercase tracking-wider">Permiso</div>
+                            </div>
+                            <div class="bg-slate-100 rounded-xl border border-slate-300 p-3 text-center">
+                                <div class="text-xl font-black text-slate-600">{{ $countAusente }}</div>
+                                <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Ausente</div>
+                            </div>
+                            <div class="bg-blue-50 rounded-xl border border-blue-200 p-3 text-center">
+                                <div class="text-xl font-black text-blue-700">{{ $countLicencia }}</div>
+                                <div class="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Licencia</div>
+                            </div>
+                            <div class="bg-rose-50 rounded-xl border border-rose-200 p-3 text-center">
+                                <div class="text-xl font-black text-rose-700">{{ $countFalta }}</div>
+                                <div class="text-[10px] font-bold text-rose-600 uppercase tracking-wider">Falta</div>
                             </div>
                         </div>
 
@@ -1005,7 +1036,7 @@
                                             @endif
                                         </div>
                                         <p class="font-bold text-slate-900 text-sm">{{ $novelty->title }}</p>
-                                        <p class="text-xs text-slate-500 mt-1">{{ $novelty->created_at->diffForHumans() }}</p>
+                                        <p class="text-xs text-slate-500 mt-1">{{ $novelty->created_at->locale('es')->diffForHumans() }}</p>
                                     </div>
                                 @endforeach
                             </div>

@@ -85,7 +85,7 @@ Route::get('/camas/scan/{bedId}/exito', [BedQrController::class, 'success'])->na
 
 // Rutas de Autenticación
 Route::get('/', [AuthController::class, 'showLoginForm'])->name('login')->middleware('guest');
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/', [AuthController::class, 'login'])->middleware('guest');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
 Route::get('/media/{path}', function (string $path) {

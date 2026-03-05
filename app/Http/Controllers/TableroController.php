@@ -585,6 +585,14 @@ class TableroController extends Controller
         // El banner "DESACTUALIZADA" solo se activa desde el cliente
         // cuando el usuario cambia manualmente un estado después de guardar.
 
+        // Mapa firefighter_id => bed number para mostrar badge en tarjetas
+        $bedByFirefighter = BedAssignment::whereNull('released_at')
+            ->whereNotNull('firefighter_id')
+            ->with('bed')
+            ->get()
+            ->keyBy('firefighter_id')
+            ->map(fn($a) => $a->bed?->number);
+
         return response()
             ->view('dashboard', compact(
                 'totalBeds',
@@ -624,7 +632,8 @@ class TableroController extends Controller
                 'upcomingBirthdaysAll',
                 'guardiaEnServicio',
                 'attendanceEnableTime',
-                'attendanceDisableTime'
+                'attendanceDisableTime',
+                'bedByFirefighter'
             ))
             ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
             ->header('Pragma', 'no-cache')

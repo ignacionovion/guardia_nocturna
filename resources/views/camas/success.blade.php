@@ -64,17 +64,6 @@
                     </div>
                 </div>
 
-                <div class="space-y-3">
-                    <a href="{{ route('dashboard') }}" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-4 px-6 rounded-xl transition-all shadow-lg shadow-cyan-500/20 flex items-center justify-center gap-2">
-                        <i class="fas fa-home"></i>
-                        Ir al Dashboard
-                    </a>
-
-                    <a href="{{ route('camas') }}" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-100 font-bold py-3 px-6 rounded-xl transition-all flex items-center justify-center gap-2">
-                        <i class="fas fa-bed"></i>
-                        Ver todas las camas
-                    </a>
-                </div>
             </div>
         </div>
 
