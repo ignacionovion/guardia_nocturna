@@ -362,12 +362,28 @@ class PlanillaController extends Controller
             ->get()
             ->groupBy('section');
         
-        $pdf = \PDF::loadView('admin.planillas.pdf', [
+        // Select PDF template based on unit
+        $pdfView = $this->getPdfViewForUnit($planilla->unidad);
+        
+        $pdf = \PDF::loadView($pdfView, [
             'planilla' => $planilla,
             'customItems' => $customItems,
         ]);
         
         return $pdf->download('planilla-' . $planilla->unidad . '-' . $planilla->fecha_revision->format('Y-m-d') . '.pdf');
+    }
+    
+    /**
+     * Get the appropriate PDF view for a given unit
+     */
+    private function getPdfViewForUnit(string $unidad): string
+    {
+        return match($unidad) {
+            'BR-3' => 'admin.planillas.pdf_br3',
+            'RX-3' => 'admin.planillas.pdf_rx3',
+            'B-3' => 'admin.planillas.pdf',
+            default => 'admin.planillas.pdf',
+        };
     }
 
     public function email(Planilla $planilla)
@@ -380,8 +396,11 @@ class PlanillaController extends Controller
             ->get()
             ->groupBy('section');
         
+        // Select PDF template based on unit
+        $pdfView = $this->getPdfViewForUnit($planilla->unidad);
+        
         // Generate PDF
-        $pdf = \PDF::loadView('admin.planillas.pdf', [
+        $pdf = \PDF::loadView($pdfView, [
             'planilla' => $planilla,
             'customItems' => $customItems,
         ]);
