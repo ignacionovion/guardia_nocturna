@@ -337,6 +337,20 @@ class TableroController extends Controller
                             'es_sancion' => false,
                         ]);
                     });
+
+                // Auto-reset de estado_asistencia para TITULARES al pasar la hora de cierre.
+                // Los titulares mantienen su guardia_id y es_titular, pero su estado
+                // de asistencia de la noche anterior debe volver a 'constituye'.
+                Bombero::query()
+                    ->where('guardia_id', $guardiaIdForGuardiaUser)
+                    ->where('es_titular', true)
+                    ->where('estado_asistencia', '!=', 'constituye')
+                    ->where('updated_at', '<', $cutoffForReset)
+                    ->update([
+                        'estado_asistencia' => 'constituye',
+                        'es_cambio' => false,
+                        'es_sancion' => false,
+                    ]);
             }
 
             $myGuardia = Guardia::find($guardiaIdForGuardiaUser);
