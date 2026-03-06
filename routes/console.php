@@ -19,9 +19,15 @@ use App\Models\ReemplazoBombero;
 use App\Models\Bombero;
 use App\Models\SystemSetting;
 
+use Illuminate\Support\Facades\Schedule;
+
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
+
+// Programar el cleanup diario para que se ejecute automáticamente a las 07:00
+// El comando tiene una ventana de 5 minutos (07:00-07:05) para ejecutar la lógica
+Schedule::command('guardia:daily-cleanup')->everyMinute();
 
 Artisan::command('guardia:expire-replacements', function () {
     $processed = ReplacementService::expire(Carbon::now());

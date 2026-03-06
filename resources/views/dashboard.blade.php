@@ -716,6 +716,7 @@
                             $countLicencia   = isset($myStaff) ? $myStaff->where('estado_asistencia', 'licencia')->count() : 0;
                             $countFalta      = isset($myStaff) ? $myStaff->where('estado_asistencia', 'falta')->count() : 0;
                             $countInhabilita = isset($myStaff) ? $myStaff->where('fuera_de_servicio', true)->count() : 0;
+                            $countConstituye = isset($myStaff) ? $myStaff->where('estado_asistencia', 'constituye')->count() : 0;
                         @endphp
                         <div class="grid grid-cols-3 gap-3 mb-4">
                             <div class="bg-purple-50 rounded-xl border border-purple-200 p-3 text-center">
@@ -731,7 +732,11 @@
                                 <div class="text-xs font-bold text-red-600 uppercase tracking-wider">Fuera Servicio</div>
                             </div>
                         </div>
-                        <div class="grid grid-cols-4 gap-3 mb-6">
+                        <div class="grid grid-cols-5 gap-3 mb-6">
+                            <div class="bg-emerald-50 rounded-xl border border-emerald-200 p-3 text-center">
+                                <div class="text-xl font-black text-emerald-700">{{ $countConstituye }}</div>
+                                <div class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Constituyen</div>
+                            </div>
                             <div class="bg-amber-50 rounded-xl border border-amber-200 p-3 text-center">
                                 <div class="text-xl font-black text-amber-700">{{ $countPermiso }}</div>
                                 <div class="text-[10px] font-bold text-amber-600 uppercase tracking-wider">Permiso</div>

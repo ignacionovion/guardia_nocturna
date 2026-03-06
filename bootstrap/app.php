@@ -29,6 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'inventory_access' => \App\Http\Middleware\EnsureInventoryAccess::class,
             'inventario_only' => \App\Http\Middleware\EnsureInventoryOnly::class,
             'preventivas_admin' => \App\Http\Middleware\EnsurePreventivasAdmin::class,
+            'role_permission' => \App\Http\Middleware\CheckRolePermission::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
