@@ -14,22 +14,27 @@
     <script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.15.0/dist/echo.iife.js"></script>
     <script>
         window.Pusher = Pusher;
-        window.Echo = new Echo({
-            broadcaster: 'pusher',
-            key: '{{ config('broadcasting.connections.reverb.key') }}',
-            cluster: 'mt1',
-            wsHost: window.location.hostname,
-            wsPort: {{ config('broadcasting.connections.reverb.port', 8080) }},
-            wssPort: {{ config('broadcasting.connections.reverb.port', 8080) }},
-            forceTLS: false,
-            enabledTransports: ['ws', 'wss'],
-            authEndpoint: '/broadcasting/auth',
-            auth: {
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+        (function() {
+            const scheme = '{{ config('broadcasting.connections.reverb.options.scheme', 'https') }}';
+            const useTLS = scheme === 'https';
+            const port = {{ config('broadcasting.connections.reverb.options.port', 6001) }};
+            window.Echo = new Echo({
+                broadcaster: 'pusher',
+                key: '{{ config('broadcasting.connections.reverb.key') }}',
+                cluster: 'mt1',
+                wsHost: '{{ config('broadcasting.connections.reverb.options.host', $_SERVER["HTTP_HOST"] ?? "localhost") }}',
+                wsPort: useTLS ? 443 : port,
+                wssPort: useTLS ? 443 : port,
+                forceTLS: useTLS,
+                enabledTransports: useTLS ? ['wss'] : ['ws'],
+                authEndpoint: '/broadcasting/auth',
+                auth: {
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                    }
                 }
-            }
-        });
+            });
+        })();
     </script>
     @endif
     
