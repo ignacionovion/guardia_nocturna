@@ -247,6 +247,15 @@ class EmergencyController extends Controller
 
         $emergency->units()->sync($validated['unit_ids'] ?? []);
 
+        // Enviar notificación de emergencia registrada
+        $emergencyKey = EmergencyKey::find($validated['emergency_key_id']);
+        \App\Services\NotificationService::emergencyCreated(
+            auth()->user(),
+            $emergencyKey?->code ?? 'Emergencia',
+            $emergencyKey?->description ?? 'Sin detalles',
+            $guardiaId ? Guardia::find($guardiaId) : null
+        );
+
         return redirect()->route('admin.emergencies.index')->with('success', 'Emergencia registrada correctamente.');
     }
 

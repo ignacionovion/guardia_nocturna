@@ -421,6 +421,9 @@ class AdministradorController extends Controller
             'es_sancion' => false,
         ]);
 
+        // Enviar notificación de refuerzo agregado
+        \App\Services\NotificationService::refuerzoCreated($user, $firefighter, $guardia);
+
         return back()->with('success', "Refuerzo agregado: {$firefighter->nombres} {$firefighter->apellido_paterno}.");
     }
 
@@ -579,6 +582,9 @@ class AdministradorController extends Controller
             // ShiftUser se crea al guardar asistencia (bulkUpdateGuardia), no aquí.
             // Esto evita que el reemplazo aparezca en shift_users antes de que el usuario
             // presione "Guardar asistencia".
+
+            // Enviar notificación de reemplazo efectuado
+            \App\Services\NotificationService::replacementCreated($user, $original, $replacement, $guardia);
         });
 
         return redirect()->back()->with('success', "Reemplazo asignado: {$replacement->nombres} reemplaza a {$original->nombres}.");
@@ -1270,6 +1276,10 @@ class AdministradorController extends Controller
                     'saved_at' => Carbon::now($tz),
                 ]
             );
+
+            // Enviar notificación de asistencia guardada
+            $confirmedCount = collect($data['users'])->count();
+            \App\Services\NotificationService::attendanceSaved(auth()->user(), $guardia, $confirmedCount);
         });
 
         return redirect()->back()->with('success', 'Asistencia guardada y registros históricos actualizados.');

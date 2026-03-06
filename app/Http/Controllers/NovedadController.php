@@ -74,6 +74,20 @@ class NovedadController extends Controller
             
             $novelty->save();
 
+            // Enviar notificación de novedad registrada (solo para novedades regulares, no academias)
+            if (($validated['type'] ?? null) !== 'Academia') {
+                $firefighter = null;
+                if ($novelty->firefighter_id) {
+                    $firefighter = \App\Models\Bombero::find($novelty->firefighter_id);
+                }
+                \App\Services\NotificationService::noveltyCreated(
+                    auth()->user(), 
+                    $firefighter, 
+                    $novelty->type ?? 'General', 
+                    $novelty->guardia_id ? \App\Models\Guardia::find($novelty->guardia_id) : null
+                );
+            }
+
             $isAcademy = (($validated['type'] ?? null) === 'Academia');
             $lines = [];
             $lines[] = 'Título: ' . (string) ($novelty->title ?? '');

@@ -200,6 +200,19 @@ class InventarioController extends Controller
             }
 
             InventoryMovement::create($movementData);
+
+            // Enviar notificación de movimiento de inventario (egreso)
+            $bomberoRetiro = null;
+            if ($bomberoId) {
+                $bomberoRetiro = Bombero::find($bomberoId);
+            }
+            \App\Services\NotificationService::inventoryMovement(
+                $request->user(),
+                $item->titulo,
+                'egreso',
+                $cantidad,
+                $bomberoRetiro?->guardia_id ? \App\Models\Guardia::find($bomberoRetiro->guardia_id) : null
+            );
         });
 
         $request->session()->forget('inventario_retiro_acceso');
@@ -346,6 +359,15 @@ class InventarioController extends Controller
             }
 
             InventoryMovement::create($movementData);
+
+            // Enviar notificación de movimiento de inventario (ingreso)
+            \App\Services\NotificationService::inventoryMovement(
+                $request->user(),
+                $item->titulo,
+                'ingreso',
+                $cantidad,
+                null
+            );
         });
 
         return redirect()->route('inventario.config.form')->with('success', 'Stock ingresado correctamente.');

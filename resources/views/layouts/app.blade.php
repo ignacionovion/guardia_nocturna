@@ -8,6 +8,31 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    @if(in_array(Auth::user()->role ?? '', ['super_admin', 'capitania'], true))
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.15.0/dist/echo.iife.js"></script>
+    <script>
+        window.Pusher = Pusher;
+        window.Echo = new Echo({
+            broadcaster: 'pusher',
+            key: '{{ config('broadcasting.connections.reverb.key') }}',
+            cluster: 'mt1',
+            wsHost: window.location.hostname,
+            wsPort: {{ config('broadcasting.connections.reverb.port', 8080) }},
+            wssPort: {{ config('broadcasting.connections.reverb.port', 8080) }},
+            forceTLS: false,
+            enabledTransports: ['ws', 'wss'],
+            authEndpoint: '/broadcasting/auth',
+            auth: {
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                }
+            }
+        });
+    </script>
+    @endif
+    
     <style>
         body { font-family: 'Inter', sans-serif; }
     </style>
@@ -172,6 +197,232 @@
                     <button type="button" id="mobile-menu-button" class="md:hidden shrink-0 bg-slate-800 text-slate-200 p-2 rounded-lg transition-all duration-200 border border-slate-700" aria-label="Abrir menú">
                         <i class="fas fa-bars"></i>
                     </button>
+
+                    @auth
+                        @if(in_array(Auth::user()->role, ['super_admin', 'capitania'], true))
+                            <!-- Campana de Notificaciones -->
+                            <div class="relative" id="notification-bell-root">
+                                <button type="button" id="notification-bell-btn" class="relative p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-all duration-200 border border-slate-700" title="Notificaciones">
+                                    <i class="fas fa-bell text-lg"></i>
+                                    <span id="notification-badge" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center hidden">0</span>
+                                </button>
+                                
+                                <!-- Dropdown de Notificaciones -->
+                                <div id="notification-dropdown" class="hidden absolute right-0 top-full w-80 sm:w-96 mt-2 bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden z-50">
+                                    <div class="flex items-center justify-between px-4 py-3 bg-slate-50 border-b border-slate-200">
+                                        <span class="text-sm font-bold text-slate-800">Notificaciones</span>
+                                        <button type="button" id="mark-all-read" class="text-xs text-blue-600 hover:text-blue-800 font-medium">
+                                            Marcar todas como leídas
+                                        </button>
+                                    </div>
+                                    <div id="notification-list" class="max-h-80 overflow-y-auto">
+                                        <div class="p-4 text-center text-sm text-slate-500">
+                                            <i class="fas fa-spinner fa-spin mr-2"></i> Cargando...
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <script>
+                                (function() {
+                                    const bellBtn = document.getElementById('notification-bell-btn');
+                                    const dropdown = document.getElementById('notification-dropdown');
+                                    const badge = document.getElementById('notification-badge');
+                                    const list = document.getElementById('notification-list');
+                                    const markAllBtn = document.getElementById('mark-all-read');
+                                    let notifications = [];
+
+                                    function toggleDropdown() {
+                                        dropdown.classList.toggle('hidden');
+                                        if (!dropdown.classList.contains('hidden')) {
+                                            loadNotifications();
+                                        }
+                                    }
+
+                                    function closeDropdown(e) {
+                                        if (!e.target.closest('#notification-bell-root')) {
+                                            dropdown.classList.add('hidden');
+                                        }
+                                    }
+
+                                    async function loadNotifications() {
+                                        try {
+                                            const response = await fetch('{{ route('notifications.index') }}');
+                                            const data = await response.json();
+                                            notifications = data.notifications || [];
+                                            updateBadge(data.unread_count || 0);
+                                            renderNotifications();
+                                        } catch (error) {
+                                            list.innerHTML = '<div class="p-4 text-center text-sm text-slate-500">Error al cargar notificaciones</div>';
+                                        }
+                                    }
+
+                                    function updateBadge(count) {
+                                        badge.dataset.count = count;
+                                        if (count > 0) {
+                                            badge.textContent = count > 99 ? '99+' : count;
+                                            badge.classList.remove('hidden');
+                                            // Animación cuando llega nueva notificación
+                                            badge.classList.add('animate-bounce');
+                                            setTimeout(() => badge.classList.remove('animate-bounce'), 1000);
+                                        } else {
+                                            badge.classList.add('hidden');
+                                        }
+                                    }
+
+                                    function renderNotifications() {
+                                        if (notifications.length === 0) {
+                                            list.innerHTML = '<div class="p-6 text-center text-sm text-slate-500"><i class="fas fa-bell-slash text-2xl mb-2 text-slate-300"></i><br>No hay notificaciones</div>';
+                                            return;
+                                        }
+
+                                        const typeIcons = {
+                                            'attendance_saved': 'fa-clipboard-check text-emerald-500',
+                                            'replacement': 'fa-people-arrows text-amber-500',
+                                            'refuerzo': 'fa-user-plus text-blue-500',
+                                            'novelty': 'fa-exclamation-circle text-purple-500',
+                                            'bed_assigned': 'fa-bed text-indigo-500',
+                                            'emergency': 'fa-truck-medical text-red-500',
+                                            'status_changed': 'fa-user-clock text-orange-500',
+                                            'inventory_movement': 'fa-boxes text-cyan-500',
+                                            'form_completed': 'fa-file-lines text-teal-500',
+                                            'preventive': 'fa-clipboard-list text-pink-500',
+                                        };
+
+                                        list.innerHTML = notifications.map(n => {
+                                            const iconClass = typeIcons[n.type] || 'fa-bell text-slate-500';
+                                            const timeAgo = new Date(n.created_at).toLocaleString('es-CL', { 
+                                                day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' 
+                                            });
+                                            const unreadClass = !n.read ? 'bg-blue-50/50' : '';
+                                            
+                                            return `
+                                                <div class="px-4 py-3 border-b border-slate-100 hover:bg-slate-50 transition-colors ${unreadClass}" data-id="${n.id}">
+                                                    <div class="flex items-start gap-3">
+                                                        <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
+                                                            <i class="fas ${iconClass}"></i>
+                                                        </div>
+                                                        <div class="flex-1 min-w-0">
+                                                            <p class="text-sm font-semibold text-slate-800 truncate">${n.title}</p>
+                                                            ${n.message ? `<p class="text-xs text-slate-600 mt-0.5">${n.message}</p>` : ''}
+                                                            <p class="text-[10px] text-slate-400 mt-1">${timeAgo}</p>
+                                                        </div>
+                                                        ${!n.read ? `<button type="button" class="mark-read-btn text-blue-500 hover:text-blue-700 text-xs" data-id="${n.id}"><i class="fas fa-check"></i></button>` : ''}
+                                                    </div>
+                                                </div>
+                                            `;
+                                        }).join('');
+
+                                        // Agregar event listeners a los botones de marcar como leída
+                                        list.querySelectorAll('.mark-read-btn').forEach(btn => {
+                                            btn.addEventListener('click', (e) => {
+                                                e.stopPropagation();
+                                                markAsRead(btn.dataset.id);
+                                            });
+                                        });
+                                    }
+
+                                    async function markAsRead(id) {
+                                        try {
+                                            const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                                            await fetch(`{{ url('/api/notifications') }}/${id}/read`, {
+                                                method: 'POST',
+                                                headers: {
+                                                    'X-CSRF-TOKEN': token,
+                                                    'Accept': 'application/json'
+                                                }
+                                            });
+                                            loadNotifications();
+                                        } catch (error) {
+                                            console.error('Error marking as read:', error);
+                                        }
+                                    }
+
+                                    async function markAllAsRead() {
+                                        try {
+                                            const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                                            await fetch('{{ route('notifications.mark_all_read') }}', {
+                                                method: 'POST',
+                                                headers: {
+                                                    'X-CSRF-TOKEN': token,
+                                                    'Accept': 'application/json'
+                                                }
+                                            });
+                                            loadNotifications();
+                                        } catch (error) {
+                                            console.error('Error marking all as read:', error);
+                                        }
+                                    }
+
+                                    bellBtn.addEventListener('click', toggleDropdown);
+                                    markAllBtn.addEventListener('click', markAllAsRead);
+                                    document.addEventListener('click', closeDropdown);
+
+                                    // Cargar contador inicial
+                                    fetch('{{ route('notifications.unread_count') }}')
+                                        .then(r => r.json())
+                                        .then(data => updateBadge(data.unread_count || 0))
+                                        .catch(() => {});
+
+                                    @if(in_array(Auth::user()->role, ['super_admin', 'capitania']))
+                                    // WebSocket real-time connection with Laravel Echo + Reverb
+                                    if (typeof window.Echo !== 'undefined') {
+                                        window.Echo.private('notifications')
+                                            .listen('.notification.created', (e) => {
+                                                // Update badge
+                                                const currentCount = parseInt(badge.dataset.count || '0') + 1;
+                                                updateBadge(currentCount);
+                                                
+                                                // Show toast notification
+                                                showNotificationToast(e.title, e.message, e.type);
+                                                
+                                                // Refresh notification list if dropdown is open
+                                                if (!dropdown.classList.contains('hidden')) {
+                                                    loadNotifications();
+                                                }
+                                            });
+                                    }
+                                    @endif
+
+                                    function showNotificationToast(title, message, type) {
+                                        const toast = document.createElement('div');
+                                        const typeColors = {
+                                            'emergency': 'bg-red-600 border-red-700',
+                                            'bed_assigned': 'bg-blue-600 border-blue-700',
+                                            'inventory_movement': 'bg-amber-600 border-amber-700',
+                                            'replacement': 'bg-purple-600 border-purple-700',
+                                            'refuerzo': 'bg-cyan-600 border-cyan-700',
+                                            'attendance_saved': 'bg-emerald-600 border-emerald-700',
+                                            'default': 'bg-slate-600 border-slate-700'
+                                        };
+                                        const color = typeColors[type] || typeColors.default;
+                                        
+                                        toast.className = `fixed bottom-5 right-5 z-[9999] max-w-md w-[calc(100vw-2.5rem)] animate-slide-in`;
+                                        toast.innerHTML = `
+                                            <div class="bg-white ${color} border shadow-2xl rounded-2xl overflow-hidden">
+                                                <div class="flex items-start gap-3 p-4">
+                                                    <div class="w-10 h-10 rounded-xl ${color.split(' ')[0]} text-white flex items-center justify-center shrink-0">
+                                                        <i class="fas fa-bell"></i>
+                                                    </div>
+                                                    <div class="min-w-0">
+                                                        <div class="text-xs font-black uppercase tracking-widest text-slate-700">${title}</div>
+                                                        ${message ? `<div class="text-sm font-semibold text-slate-800 mt-1 break-words">${message}</div>` : ''}
+                                                    </div>
+                                                    <button type="button" onclick="this.closest('.fixed')?.remove()" class="text-slate-400 hover:text-slate-700 transition-colors">
+                                                        <i class="fas fa-xmark"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="h-1 ${color.split(' ')[0]}"></div>
+                                            </div>
+                                        `;
+                                        document.body.appendChild(toast);
+                                        
+                                        setTimeout(() => toast.remove(), 6500);
+                                    }
+                                })();
+                            </script>
+                        @endif
+                    @endauth
 
                     <!-- Perfil de Usuario -->
                     @auth

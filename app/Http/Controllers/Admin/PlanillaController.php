@@ -207,6 +207,16 @@ class PlanillaController extends Controller
 
         $estado = $request->has('guardar_finalizar') ? self::ESTADO_FINALIZADO : self::ESTADO_EN_EDICION;
 
+        // Enviar notificación si se finaliza la planilla
+        if ($estado === self::ESTADO_FINALIZADO) {
+            \App\Services\NotificationService::formularioCompleted(
+                $request->user(),
+                'Planilla de Revisión',
+                $validated['unidad'] . ' - ' . $validated['fecha_revision'],
+                null
+            );
+        }
+
         \Illuminate\Support\Facades\Log::info('Planilla store data', [
             'unidad' => $validated['unidad'],
             'data_keys' => array_keys($data),

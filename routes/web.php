@@ -88,6 +88,9 @@ Route::get('/', [AuthController::class, 'showLoginForm'])->name('login')->middle
 Route::post('/', [AuthController::class, 'login'])->middleware('guest');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
+// Broadcasting authentication routes
+Illuminate\Support\Facades\Broadcast::routes(['middleware' => ['auth']]);
+
 Route::get('/media/{path}', function (string $path) {
     $path = str_replace(['%2F', '%2f'], '/', $path);
     $path = rawurldecode($path);
@@ -120,7 +123,15 @@ Route::get('/media/{path}', function (string $path) {
 })->where('path', '.*')->name('media');
 
 // Rutas Protegidas (Dashboard)
+use App\Http\Controllers\NotificationController;
+
 Route::middleware('auth')->group(function () {
+    // API de Notificaciones
+    Route::get('/api/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/api/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread_count');
+    Route::post('/api/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.mark_read');
+    Route::post('/api/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark_all_read');
+
     Route::get('/dashboard', [TableroController::class, 'index'])->name('dashboard');
     Route::get('/camas', [TableroController::class, 'camas'])->name('camas');
     Route::get('/guardia', [GuardiaController::class, 'index'])->name('guardia');

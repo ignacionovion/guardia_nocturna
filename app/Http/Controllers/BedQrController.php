@@ -300,6 +300,15 @@ class BedQrController extends Controller
         // Marcar la cama como ocupada
         $bed->update(['status' => 'occupied']);
 
+        // Enviar notificación de cama asignada vía QR
+        \App\Services\NotificationService::bedAssigned(
+            auth()->user(), 
+            $bombero, 
+            $bed->number ?? $bed->id, 
+            $bombero->guardia_id ? \App\Models\Guardia::find($bombero->guardia_id) : null, 
+            'QR'
+        );
+
         // Limpiar sesión del bombero después de asignar
         $request->session()->forget('bed_qr_bombero_id');
 

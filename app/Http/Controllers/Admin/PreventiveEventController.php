@@ -114,6 +114,13 @@ class PreventiveEventController extends Controller
             return $event;
         });
 
+        // Enviar notificación de preventiva creada
+        \App\Services\NotificationService::preventiveCreated(
+            $request->user(),
+            $event->title,
+            null
+        );
+
         return redirect()->route('admin.preventivas.show', $event)->with('success', 'Preventiva creada correctamente.');
     }
 

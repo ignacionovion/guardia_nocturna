@@ -172,6 +172,15 @@ class TurnoDraftController extends Controller
             'bed_id' => $bed->id,
         ]);
 
+        // Enviar notificación de cama asignada
+        \App\Services\NotificationService::bedAssigned(
+            auth()->user(), 
+            $firefighter, 
+            $bed->number ?? $bed->id, 
+            $guardia, 
+            'dashboard'
+        );
+
         return response()->json(['ok' => true]);
     }
 
