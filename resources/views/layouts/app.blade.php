@@ -363,41 +363,73 @@
                                     markAllBtn.addEventListener('click', markAllAsRead);
                                     document.addEventListener('click', closeDropdown);
 
-                                    // Cargar contador inicial
+                                    // Cargar contador inicial y luego arrancar todo
+                                    let lastUnreadCount = -1; // -1 = no inicializado todavía
+
+                                    function handleNewNotificationsFromApi(newCount, prevCount) {
+                                        if (prevCount < 0) return; // primera carga, no mostrar toasts
+                                        if (newCount <= prevCount) return;
+                                        // Hay nuevas - obtenerlas y mostrar toast
+                                        fetch('{{ route('notifications.index') }}')
+                                            .then(r => r.json())
+                                            .then(d => {
+                                                const allNotifs = d.notifications || [];
+                                                const diff = newCount - prevCount;
+                                                // Las diff primeras son las nuevas (vienen ordenadas desc)
+                                                for (let i = diff - 1; i >= 0; i--) {
+                                                    if (allNotifs[i] && !allNotifs[i].read) {
+                                                        showNotificationToast(allNotifs[i].title, allNotifs[i].message, allNotifs[i].type);
+                                                    }
+                                                }
+                                                notifications = allNotifs;
+                                                if (!dropdown.classList.contains('hidden')) {
+                                                    renderNotifications();
+                                                }
+                                            }).catch(() => {});
+                                    }
+
                                     fetch('{{ route('notifications.unread_count') }}')
                                         .then(r => r.json())
-                                        .then(data => updateBadge(data.unread_count || 0))
-                                        .catch(() => {});
+                                        .then(data => {
+                                            lastUnreadCount = data.unread_count || 0;
+                                            updateBadge(lastUnreadCount);
+                                        })
+                                        .catch(() => { lastUnreadCount = 0; });
 
                                     @if(in_array(Auth::user()->role, ['super_admin', 'capitania']))
-                                    // WebSocket real-time connection with Laravel Echo + Reverb
+                                    // WebSocket con Laravel Echo + Reverb (tiempo real)
                                     if (typeof window.Echo !== 'undefined') {
                                         window.Echo.private('notifications')
                                             .listen('.notification.created', (e) => {
-                                                // Update badge
-                                                const currentCount = parseInt(badge.dataset.count || '0') + 1;
-                                                updateBadge(currentCount);
-                                                
-                                                // Show toast notification immediately
+                                                const prev = lastUnreadCount;
+                                                lastUnreadCount = prev + 1;
+                                                updateBadge(lastUnreadCount);
                                                 showNotificationToast(e.title, e.message, e.type);
-                                                
-                                                // Add to local notifications array and render if dropdown is open
-                                                const newNotification = {
+                                                notifications.unshift({
                                                     id: e.id,
                                                     type: e.type,
                                                     title: e.title,
                                                     message: e.message,
                                                     created_at: e.created_at,
                                                     read: false
-                                                };
-                                                notifications.unshift(newNotification);
-                                                
-                                                // Refresh notification list if dropdown is open
+                                                });
                                                 if (!dropdown.classList.contains('hidden')) {
                                                     renderNotifications();
                                                 }
                                             });
                                     }
+
+                                    // Polling de respaldo cada 15s (cubre casos donde WebSocket falla)
+                                    setInterval(function() {
+                                        fetch('{{ route('notifications.unread_count') }}')
+                                            .then(r => r.json())
+                                            .then(data => {
+                                                const newCount = data.unread_count || 0;
+                                                handleNewNotificationsFromApi(newCount, lastUnreadCount);
+                                                lastUnreadCount = newCount;
+                                                updateBadge(newCount);
+                                            }).catch(() => {});
+                                    }, 15000);
                                     @endif
 
                                     function showNotificationToast(title, message, type) {

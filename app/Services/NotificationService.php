@@ -33,7 +33,7 @@ class NotificationService
         ]);
 
         // Broadcast the notification in real-time
-        broadcast(new NotificationCreated($notification))->toOthers();
+        broadcast(new NotificationCreated($notification));
     }
 
     public static function attendanceSaved(User $user, Guardia $guardia, int $confirmedCount): void
