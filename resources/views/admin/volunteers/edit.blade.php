@@ -411,9 +411,71 @@
                     return;
                 }
 
-                const ok = confirm('¿Eres conductor habilitado para manejar carros bomba?');
-                setAvailability(ok);
+                // Mostrar modal personalizado en lugar de confirm() nativo
+                showDriverModal();
             });
+
+            // Crear modal si no existe
+            let driverModal = document.getElementById('driverModal');
+            if (!driverModal) {
+                driverModal = document.createElement('div');
+                driverModal.id = 'driverModal';
+                driverModal.className = 'fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm';
+                driverModal.innerHTML = `
+                    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all scale-100">
+                        <div class="p-6">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-truck text-blue-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-slate-800">Confirmar Especialidad</h3>
+                                    <p class="text-sm text-slate-500">Conductor de carros bomba</p>
+                                </div>
+                            </div>
+                            <p class="text-slate-700 mb-6 leading-relaxed">
+                                ¿Este voluntario está <strong>habilitado para conducir carros bomba</strong> (unidades B-3, BR-3, RX-3)?
+                            </p>
+                            <div class="flex gap-3">
+                                <button type="button" id="driverModalNo" class="flex-1 px-4 py-2.5 rounded-xl border-2 border-slate-200 text-slate-700 font-semibold hover:bg-slate-50 transition-colors">
+                                    Solo comandancia
+                                </button>
+                                <button type="button" id="driverModalYes" class="flex-1 px-4 py-2.5 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200">
+                                    Sí, carros bomba
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(driverModal);
+
+                document.getElementById('driverModalYes').addEventListener('click', () => {
+                    setAvailability(true);
+                    hideDriverModal();
+                });
+                document.getElementById('driverModalNo').addEventListener('click', () => {
+                    setAvailability(false);
+                    hideDriverModal();
+                });
+                driverModal.addEventListener('click', (e) => {
+                    if (e.target === driverModal) {
+                        // Cancelar - desmarcar checkbox
+                        driverCheckbox.checked = false;
+                        clearAvailability();
+                        hideDriverModal();
+                    }
+                });
+            }
+
+            const showDriverModal = () => {
+                driverModal.classList.remove('hidden');
+                driverModal.classList.add('flex');
+            };
+
+            const hideDriverModal = () => {
+                driverModal.classList.add('hidden');
+                driverModal.classList.remove('flex');
+            };
 
             syncFromCurrent();
         })();
