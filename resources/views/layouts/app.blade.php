@@ -373,12 +373,23 @@
                                                 const currentCount = parseInt(badge.dataset.count || '0') + 1;
                                                 updateBadge(currentCount);
                                                 
-                                                // Show toast notification
+                                                // Show toast notification immediately
                                                 showNotificationToast(e.title, e.message, e.type);
+                                                
+                                                // Add to local notifications array and render if dropdown is open
+                                                const newNotification = {
+                                                    id: e.id,
+                                                    type: e.type,
+                                                    title: e.title,
+                                                    message: e.message,
+                                                    created_at: e.created_at,
+                                                    read: false
+                                                };
+                                                notifications.unshift(newNotification);
                                                 
                                                 // Refresh notification list if dropdown is open
                                                 if (!dropdown.classList.contains('hidden')) {
-                                                    loadNotifications();
+                                                    renderNotifications();
                                                 }
                                             });
                                     }
@@ -387,37 +398,50 @@
                                     function showNotificationToast(title, message, type) {
                                         const toast = document.createElement('div');
                                         const typeColors = {
-                                            'emergency': 'bg-red-600 border-red-700',
-                                            'bed_assigned': 'bg-blue-600 border-blue-700',
-                                            'inventory_movement': 'bg-amber-600 border-amber-700',
-                                            'replacement': 'bg-purple-600 border-purple-700',
-                                            'refuerzo': 'bg-cyan-600 border-cyan-700',
-                                            'attendance_saved': 'bg-emerald-600 border-emerald-700',
-                                            'default': 'bg-slate-600 border-slate-700'
+                                            'emergency': { bg: 'bg-red-600', border: 'border-red-700', label: 'Emergencia' },
+                                            'bed_assigned': { bg: 'bg-blue-600', border: 'border-blue-700', label: 'Cama Asignada' },
+                                            'inventory_movement': { bg: 'bg-amber-600', border: 'border-amber-700', label: 'Inventario' },
+                                            'replacement': { bg: 'bg-purple-600', border: 'border-purple-700', label: 'Reemplazo' },
+                                            'refuerzo': { bg: 'bg-cyan-600', border: 'border-cyan-700', label: 'Refuerzo' },
+                                            'attendance_saved': { bg: 'bg-emerald-600', border: 'border-emerald-700', label: 'Asistencia' },
+                                            'novelty': { bg: 'bg-indigo-600', border: 'border-indigo-700', label: 'Novedad' },
+                                            'default': { bg: 'bg-slate-600', border: 'border-slate-700', label: 'Notificación' }
                                         };
                                         const color = typeColors[type] || typeColors.default;
+                                        const timestamp = new Date().toLocaleString('es-CL', { 
+                                            day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' 
+                                        });
                                         
-                                        toast.className = `fixed bottom-5 right-5 z-[9999] max-w-md w-[calc(100vw-2.5rem)] animate-slide-in`;
+                                        toast.className = `fixed top-5 right-5 z-[9999] max-w-sm w-[calc(100vw-2.5rem)] animate-slide-in`;
                                         toast.innerHTML = `
-                                            <div class="bg-white ${color} border shadow-2xl rounded-2xl overflow-hidden">
+                                            <div class="bg-white ${color.border} border-2 shadow-2xl rounded-xl overflow-hidden">
                                                 <div class="flex items-start gap-3 p-4">
-                                                    <div class="w-10 h-10 rounded-xl ${color.split(' ')[0]} text-white flex items-center justify-center shrink-0">
+                                                    <div class="w-10 h-10 rounded-lg ${color.bg} text-white flex items-center justify-center shrink-0">
                                                         <i class="fas fa-bell"></i>
                                                     </div>
-                                                    <div class="min-w-0">
-                                                        <div class="text-xs font-black uppercase tracking-widest text-slate-700">${title}</div>
-                                                        ${message ? `<div class="text-sm font-semibold text-slate-800 mt-1 break-words">${message}</div>` : ''}
+                                                    <div class="flex-1 min-w-0">
+                                                        <div class="flex items-center gap-2">
+                                                            <span class="text-[10px] font-bold uppercase tracking-wider ${color.bg} text-white px-2 py-0.5 rounded">${color.label}</span>
+                                                            <span class="text-[10px] text-slate-400">${timestamp}</span>
+                                                        </div>
+                                                        <div class="text-sm font-bold text-slate-800 mt-1.5 break-words leading-tight">${title}</div>
+                                                        ${message ? `<div class="text-xs text-slate-600 mt-1 break-words">${message}</div>` : ''}
                                                     </div>
-                                                    <button type="button" onclick="this.closest('.fixed')?.remove()" class="text-slate-400 hover:text-slate-700 transition-colors">
+                                                    <button type="button" onclick="this.closest('.fixed')?.remove()" class="text-slate-400 hover:text-slate-700 transition-colors shrink-0">
                                                         <i class="fas fa-xmark"></i>
                                                     </button>
                                                 </div>
-                                                <div class="h-1 ${color.split(' ')[0]}"></div>
+                                                <div class="h-1 ${color.bg}"></div>
                                             </div>
                                         `;
                                         document.body.appendChild(toast);
                                         
-                                        setTimeout(() => toast.remove(), 6500);
+                                        // Auto-remove after 6 seconds
+                                        setTimeout(() => {
+                                            toast.style.opacity = '0';
+                                            toast.style.transition = 'opacity 0.3s ease';
+                                            setTimeout(() => toast.remove(), 300);
+                                        }, 6000);
                                     }
                                 })();
                             </script>
