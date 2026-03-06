@@ -199,7 +199,7 @@
                                 <input type="hidden" name="users[{{ $staff->id }}][estado_asistencia]" id="attendance-status-{{ $staff->id }}" value="{{ $status }}">
                                 <input type="hidden" name="users[{{ $staff->id }}][confirm_token]" id="confirm-token-{{ $staff->id }}" value="">
 
-                                <div id="guardia-card-{{ $staff->id }}" class="bg-slate-900 rounded-xl shadow-sm border border-slate-800 overflow-hidden flex flex-col h-full min-h-[420px]" data-card-user="{{ $staff->id }}" data-requires-confirmation="{{ (in_array($status, ['constituye','reemplazo'], true) || $staff->es_refuerzo || $repAsReplacement) ? '1' : '0' }}" data-is-confirmed="0">
+                                <div id="guardia-card-{{ $staff->id }}" class="bg-slate-900 rounded-xl shadow-sm border border-slate-800 overflow-hidden flex flex-col h-full" data-card-user="{{ $staff->id }}" data-requires-confirmation="{{ (in_array($status, ['constituye','reemplazo'], true) || $staff->es_refuerzo || $repAsReplacement) ? '1' : '0' }}" data-is-confirmed="0">
                                     <div id="card-header-{{ $staff->id }}" class="{{ $statusHeaderClass }} text-white px-2 py-1.5 flex items-center justify-between">
                                         <div class="min-w-0">
                                             <div class="text-[12px] font-black truncate" title="{{ $staff->nombres }} {{ $staff->apellido_paterno }}">
@@ -223,74 +223,71 @@
 
                                 <div class="p-1.5 flex-1 flex flex-col">
 
-                                    <div class="grid grid-cols-2 gap-1.5 flex-1">
-                                        <div class="relative bg-slate-950 rounded-xl border border-slate-800 overflow-hidden flex items-stretch justify-stretch h-[120px]">
-                                            @if($staff->photo_path)
-                                                <img src="{{ url('media/' . ltrim($staff->photo_path, '/')) }}" class="w-full h-full object-cover" alt="Foto">
-                                            @else
-                                                <div class="w-full h-full bg-slate-900 flex items-center justify-center text-slate-200 font-black text-[12px]">
-                                                    {{ strtoupper(substr($staff->nombres, 0, 1) . substr($staff->apellido_paterno, 0, 1)) }}
-                                                </div>
-                                            @endif
-                                            @php $bedNum = isset($bedByFirefighter) ? ($bedByFirefighter[$staff->id] ?? null) : null; @endphp
-                                            @if($bedNum !== null)
-                                                <div class="absolute top-1 right-1 bg-slate-900/80 backdrop-blur-sm border border-slate-600 rounded-md px-1 py-0.5 text-[9px] font-black text-slate-100 leading-none whitespace-nowrap">
-                                                    🛏 #{{ $bedNum }}
-                                                </div>
-                                            @endif
+                                    {{-- FOTO ancho completo con info overlay --}}
+                                    <div class="relative bg-slate-950 rounded-xl border border-slate-800 overflow-hidden w-full h-[200px] mb-2 shrink-0">
+                                        @if($staff->photo_path)
+                                            <img src="{{ url('media/' . ltrim($staff->photo_path, '/')) }}" class="w-full h-full object-cover object-center scale-100" alt="Foto">
+                                        @else
+                                            <div class="w-full h-full bg-slate-900 flex items-center justify-center text-slate-200 font-black text-3xl">
+                                                {{ strtoupper(substr($staff->nombres, 0, 1) . substr($staff->apellido_paterno, 0, 1)) }}
+                                            </div>
+                                        @endif
 
-                                            <div class="absolute bottom-1 left-1 right-1 flex items-center justify-center gap-1">
-                                                @if($staff->es_conductor)
-                                                    <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[9px] font-bold border border-blue-200" title="Conductor">
-                                                        <i class="fas fa-car text-[9px]"></i>
-                                                    </span>
+                                        {{-- Gradient overlay para legibilidad del texto --}}
+                                        <div class="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/90 via-black/60 to-transparent"></div>
+
+                                        {{-- INFO superpuesta en la foto --}}
+                                        @php
+                                            $ingreso = $staff->fecha_ingreso ? \Carbon\Carbon::parse($staff->fecha_ingreso) : null;
+                                            $diff = $ingreso ? $ingreso->diff(now()) : null;
+                                            $serviceYears = $diff ? (int) $diff->y : 0;
+                                            $serviceMonths = $diff ? (int) $diff->m : 0;
+                                            $yearsLabel = $serviceYears . ' ' . ($serviceYears === 1 ? 'año' : 'años');
+                                            $monthsLabel = $serviceMonths . ' ' . ($serviceMonths === 1 ? 'm' : 'm');
+                                            $serviceLabel = $diff ? trim($yearsLabel . ' ' . $monthsLabel) : '—';
+                                        @endphp
+                                        <div class="absolute inset-x-0 bottom-0 p-2">
+                                            <div class="text-xs font-black text-white leading-tight truncate drop-shadow-md">
+                                                {{ $staff->nombres }} {{ $staff->apellido_paterno }}
+                                            </div>
+                                            <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                                                <span class="text-[10px] font-black text-white/90 uppercase tracking-wider truncate drop-shadow">
+                                                    {{ $staff->cargo_texto ?: ($staff->es_jefe_guardia ? 'Jefe de Guardia' : 'Bombero') }}
+                                                </span>
+                                                @if($staff->es_permanente)
+                                                    <span class="text-[8px] font-black uppercase tracking-wider text-emerald-300 bg-emerald-500/30 border border-emerald-400/30 rounded px-1 py-0 leading-none">PERM</span>
                                                 @endif
-                                                @if($staff->es_operador_rescate)
-                                                    <span class="w-5 h-5 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-[9px] font-bold border border-orange-200" title="Operador de Rescate">R</span>
+                                                @if($staff->es_refuerzo)
+                                                    <span class="text-[8px] font-black uppercase tracking-wider text-emerald-300 bg-emerald-500/30 border border-emerald-400/30 rounded px-1 py-0 leading-none">REF</span>
                                                 @endif
-                                                @if($staff->es_asistente_trauma)
-                                                    <span class="w-7 h-5 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-[9px] font-bold border border-red-200" title="Asistente de Trauma">A.T</span>
-                                                @endif
+                                            </div>
+                                            <div class="flex items-center gap-1.5 mt-0.5">
+                                                <span class="text-[10px] font-black text-white/70 uppercase tracking-wider truncate">{{ $serviceLabel }}</span>
+                                                <span class="text-white/40 text-[10px]">·</span>
+                                                <span class="text-[10px] font-black text-white/70 uppercase tracking-wider truncate">{{ $staff->numero_portatil ?: '—' }}</span>
                                             </div>
                                         </div>
-                                        <div class="flex flex-col justify-start min-w-0">
-                                            <div class="min-h-[40px] flex flex-col justify-start min-w-0">
-                                                <div class="text-xs font-black text-slate-100 leading-tight truncate">
-                                                    {{ $staff->nombres }}
-                                                </div>
-                                                <div class="text-xs font-black text-slate-100 leading-tight truncate">
-                                                    {{ $staff->apellido_paterno }}
-                                                </div>
-                                            </div>
-                                            <div class="text-[10px] font-black text-slate-500 uppercase tracking-widest truncate">
-                                                {{ $staff->cargo_texto ?: ($staff->es_jefe_guardia ? 'Jefe de Guardia' : 'Bombero') }}
-                                            </div>
 
-                                            @if($staff->es_permanente)
-                                                <div class="mt-1 text-[9px] font-black uppercase tracking-widest text-emerald-200 bg-emerald-500/15 border border-emerald-500/25 rounded px-1.5 py-0.5 w-fit">
-                                                    PERMANENTE
-                                                </div>
+                                        {{-- Badge cama arriba derecha --}}
+                                        @php $bedNum = isset($bedByFirefighter) ? ($bedByFirefighter[$staff->id] ?? null) : null; @endphp
+                                        @if($bedNum !== null)
+                                            <div class="absolute top-1 right-1 bg-slate-900/80 backdrop-blur-sm border border-slate-600 rounded-md px-1.5 py-0.5 text-[9px] font-black text-slate-100 leading-none whitespace-nowrap">
+                                                🛏 #{{ $bedNum }}
+                                            </div>
+                                        @endif
+
+                                        {{-- Badges especialidades arriba izquierda --}}
+                                        <div class="absolute top-1 left-1 flex items-center gap-1">
+                                            @if($staff->es_conductor)
+                                                <span class="w-5 h-5 rounded-full bg-blue-500 text-white flex items-center justify-center text-[9px] font-bold border border-blue-400 shadow-sm" title="Conductor">
+                                                    <i class="fas fa-car text-[9px]"></i>
+                                                </span>
                                             @endif
-
-                                            @php
-                                                $ingreso = $staff->fecha_ingreso ? \Carbon\Carbon::parse($staff->fecha_ingreso) : null;
-                                                $diff = $ingreso ? $ingreso->diff(now()) : null;
-                                                $serviceYears = $diff ? (int) $diff->y : 0;
-                                                $serviceMonths = $diff ? (int) $diff->m : 0;
-                                                $yearsLabel = $serviceYears . ' ' . ($serviceYears === 1 ? 'año' : 'años');
-                                                $monthsLabel = $serviceMonths . ' ' . ($serviceMonths === 1 ? 'm' : 'm');
-                                                $serviceLabel = $diff ? trim($yearsLabel . ' ' . $monthsLabel) : '—';
-                                            @endphp
-                                            <div class="mt-1 text-[10px] font-black text-slate-400 uppercase tracking-widest truncate" title="Antigüedad">
-                                                {{ $serviceLabel }}
-                                            </div>
-                                            <div class="mt-0.5 text-[10px] font-black text-slate-400 uppercase tracking-widest truncate" title="Móvil">
-                                                Móvil: {{ $staff->numero_portatil ?: '—' }}
-                                            </div>
-                                            @if($staff->es_refuerzo)
-                                                <div class="mt-1.5 text-[10px] font-black uppercase tracking-widest text-emerald-200 bg-emerald-500/15 border border-emerald-500/25 rounded-md px-2 py-1 w-fit">
-                                                    REFUERZO
-                                                </div>
+                                            @if($staff->es_operador_rescate)
+                                                <span class="w-5 h-5 rounded-full bg-orange-500 text-white flex items-center justify-center text-[9px] font-bold border border-orange-400 shadow-sm" title="Operador de Rescate">R</span>
+                                            @endif
+                                            @if($staff->es_asistente_trauma)
+                                                <span class="w-7 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-[9px] font-bold border border-red-400 shadow-sm" title="Asistente de Trauma">A.T</span>
                                             @endif
                                         </div>
                                     </div>
@@ -323,7 +320,7 @@
                                         </div>
                                     @endif
 
-                                    <div class="mt-1.5">
+                                    <div class="mt-1.5 {{ $repAsReplacement ? 'hidden' : '' }}">
                                         <div id="confirm-box-wrap-{{ $staff->id }}" class="{{ (in_array($status, ['constituye','reemplazo'], true) || $staff->es_refuerzo || $repAsReplacement) ? '' : 'hidden' }}">
                                             <div id="confirm-box-{{ $staff->id }}" class="mb-2 rounded-xl border border-slate-800 bg-slate-950 px-2.5 py-2">
                                                 <div class="flex items-center justify-between gap-2">
@@ -375,7 +372,7 @@
                                         @endif
                                     </div>
 
-                                    <div class="mt-1.5 {{ ($repAsReplacement || $staff->es_refuerzo || $repAsOriginal) ? 'min-h-0' : 'min-h-[72px]' }}">
+                                    <div class="mt-1.5 flex flex-col gap-1.5">
                                         @if(!($repAsReplacement || $staff->es_refuerzo || $repAsOriginal))
                                             <button
                                                 type="button"
@@ -390,15 +387,9 @@
                                         @endif
 
                                         @if($staff->es_refuerzo)
-                                            <button type="button" onclick="removeRefuerzo('{{ $myGuardia->id }}', '{{ $staff->id }}')" class="mt-1.5 w-full bg-slate-950 hover:bg-slate-900 text-slate-100 font-black uppercase tracking-widest text-[10px] py-1.5 rounded-lg border border-slate-800">
+                                            <button type="button" onclick="removeRefuerzo('{{ $myGuardia->id }}', '{{ $staff->id }}')" class="w-full bg-slate-950 hover:bg-slate-900 text-slate-100 font-black uppercase tracking-widest text-[10px] py-1.5 rounded-lg border border-slate-800">
                                                 Quitar refuerzo
                                             </button>
-                                        @else
-                                            <div class="mt-1.5 opacity-0 select-none">
-                                                <button type="button" class="w-full bg-slate-950 text-slate-100 font-black uppercase tracking-widest text-[10px] py-1.5 rounded-lg border border-slate-800">
-                                                    Quitar refuerzo
-                                                </button>
-                                            </div>
                                         @endif
                                     </div>
                                 </div>
