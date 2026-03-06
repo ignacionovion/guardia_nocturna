@@ -44,7 +44,7 @@
                     <ul class="text-sm text-slate-400 text-left space-y-2">
                         <li class="flex items-start gap-2">
                             <i class="fas fa-check-circle text-cyan-400 mt-0.5"></i>
-                            <span>Verifica que estes ingresado en el sistema</span>
+                            <span>Por favor, revisa en el sistema que tu confirmación esté registrada</span>
                         </li>
                         <li class="flex items-start gap-2">
                             <i class="fas fa-check-circle text-cyan-400 mt-0.5"></i>

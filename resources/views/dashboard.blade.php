@@ -268,26 +268,26 @@
                                             </div>
                                         </div>
 
-                                        {{-- Badge cama arriba derecha --}}
+                                        {{-- Badge cama arriba izquierda --}}
                                         @php $bedNum = isset($bedByFirefighter) ? ($bedByFirefighter[$staff->id] ?? null) : null; @endphp
                                         @if($bedNum !== null)
-                                            <div class="absolute top-1 right-1 bg-slate-900/80 backdrop-blur-sm border border-slate-600 rounded-md px-1.5 py-0.5 text-[9px] font-black text-slate-100 leading-none whitespace-nowrap">
+                                            <div class="absolute top-1 left-1 bg-slate-900/80 backdrop-blur-sm border border-slate-600 rounded-md px-1.5 py-0.5 text-[9px] font-black text-slate-100 leading-none whitespace-nowrap">
                                                 🛏 #{{ $bedNum }}
                                             </div>
                                         @endif
 
-                                        {{-- Badges especialidades arriba izquierda --}}
-                                        <div class="absolute top-1 left-1 flex items-center gap-1">
+                                        {{-- Badges especialidades derecha, apilados --}}
+                                        <div class="absolute top-1 right-1 flex flex-col gap-1">
                                             @if($staff->es_conductor)
-                                                <span class="w-5 h-5 rounded-full bg-blue-500 text-white flex items-center justify-center text-[9px] font-bold border border-blue-400 shadow-sm" title="Conductor">
+                                                <span class="w-5 h-5 rounded-full bg-sky-400 text-slate-900 flex items-center justify-center text-[9px] font-bold border border-sky-300 shadow-sm" title="Conductor">
                                                     <i class="fas fa-car text-[9px]"></i>
                                                 </span>
                                             @endif
                                             @if($staff->es_operador_rescate)
-                                                <span class="w-5 h-5 rounded-full bg-orange-500 text-white flex items-center justify-center text-[9px] font-bold border border-orange-400 shadow-sm" title="Operador de Rescate">R</span>
+                                                <span class="w-5 h-5 rounded-full bg-amber-400 text-slate-900 flex items-center justify-center text-[9px] font-bold border border-amber-300 shadow-sm" title="Operador de Rescate">R</span>
                                             @endif
                                             @if($staff->es_asistente_trauma)
-                                                <span class="w-7 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-[9px] font-bold border border-red-400 shadow-sm" title="Asistente de Trauma">A.T</span>
+                                                <span class="w-5 h-5 rounded-full bg-rose-400 text-slate-900 flex items-center justify-center text-[9px] font-bold border border-rose-300 shadow-sm px-0.5" title="Asistente de Trauma">AT</span>
                                             @endif
                                         </div>
                                     </div>
@@ -320,7 +320,8 @@
                                         </div>
                                     @endif
 
-                                    <div class="mt-1.5 {{ $repAsReplacement ? 'hidden' : '' }}">
+                                    {{-- Confirmación - SIEMPRE visible cuando aplica --}}
+                                    <div class="mt-1.5">
                                         <div id="confirm-box-wrap-{{ $staff->id }}" class="{{ (in_array($status, ['constituye','reemplazo'], true) || $staff->es_refuerzo || $repAsReplacement) ? '' : 'hidden' }}">
                                             <div id="confirm-box-{{ $staff->id }}" class="mb-2 rounded-xl border border-slate-800 bg-slate-950 px-2.5 py-2">
                                                 <div class="flex items-center justify-between gap-2">
@@ -333,6 +334,10 @@
                                                 <div id="confirm-msg-{{ $staff->id }}" class="mt-1 text-[10px] font-black uppercase tracking-widest text-slate-400"></div>
                                             </div>
                                         </div>
+                                    </div>
+
+                                    {{-- Estado - OCULTO para reemplazos --}}
+                                    <div class="mt-1.5 {{ $repAsReplacement ? 'hidden' : '' }}">
                                         <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Estado</label>
                                         @if($lockAttendanceStatus)
                                             @if($repAsReplacement)
