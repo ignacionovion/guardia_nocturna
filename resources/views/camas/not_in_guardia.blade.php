@@ -48,11 +48,11 @@
                         </li>
                         <li class="flex items-start gap-2">
                             <i class="fas fa-check-circle text-cyan-400 mt-0.5"></i>
-                            <span>Contacta a tu Jefe de Guardia</span>
+                            <span>Comunícate con tu Jefe de Guardia</span>
                         </li>
                         <li class="flex items-start gap-2">
                             <i class="fas fa-check-circle text-cyan-400 mt-0.5"></i>
-                            <span>Contacta a tu Cápitan</span>
+                            <span>Comunícate con tu Capitán</span>
                         </li>
                     </ul>
                 </div>

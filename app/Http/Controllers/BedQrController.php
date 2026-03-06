@@ -9,6 +9,8 @@ use App\Models\Guardia;
 use App\Models\Shift;
 use App\Models\ShiftUser;
 use App\Models\SystemSetting;
+use App\Models\TurnoSession;
+use App\Models\TurnoSessionItem;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -57,11 +59,49 @@ class BedQrController extends Controller
             return false;
         }
 
-        return ShiftUser::query()
+        // Check ShiftUser (traditional way - after "Guardar asistencia")
+        $inShiftUser = ShiftUser::query()
             ->where('shift_id', $shift->id)
             ->where('firefighter_id', $bombero->id)
             ->whereNull('end_time')
             ->exists();
+
+        if ($inShiftUser) {
+            return true;
+        }
+
+        // Check turno_session_items (for confirmed but not yet saved)
+        // Find the active draft session for this guardia
+        $session = TurnoSession::query()
+            ->where('guardia_id', $bombero->guardia_id)
+            ->where('status', 'draft')
+            ->whereDate('operational_date', '=', $now->toDateString())
+            ->latest()
+            ->first();
+
+        if (!$session) {
+            // Try without date constraint
+            $session = TurnoSession::query()
+                ->where('guardia_id', $bombero->guardia_id)
+                ->where('status', 'draft')
+                ->latest()
+                ->first();
+        }
+
+        if ($session) {
+            $confirmedInDraft = TurnoSessionItem::query()
+                ->where('turno_session_id', $session->id)
+                ->where('firefighter_id', $bombero->id)
+                ->whereNotNull('confirmed_at')
+                ->whereNotNull('confirm_token')
+                ->exists();
+
+            if ($confirmedInDraft) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
