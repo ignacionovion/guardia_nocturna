@@ -37,7 +37,9 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">Rol</label>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">
+                            Perfil de Sistema <span class="text-red-500">*</span>
+                        </label>
                         <select name="role" required
                             class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-slate-700 bg-white">
                             <option value="super_admin" {{ old('role', $user->role) === 'super_admin' ? 'selected' : '' }}>Super Admin</option>
@@ -46,19 +48,23 @@
                             <option value="jefe_guardia" {{ old('role', $user->role) === 'jefe_guardia' ? 'selected' : '' }}>Jefe de Guardia</option>
                             <option value="inventario" {{ old('role', $user->role) === 'inventario' ? 'selected' : '' }}>Inventario</option>
                         </select>
+                        <p class="text-xs text-slate-500 mt-2">Perfiles predefinidos con permisos generales de acceso</p>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">Rol del sistema (opcional)</label>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">
+                            Rol Personalizado <span class="text-xs font-normal text-slate-400">(opcional)</span>
+                        </label>
                         <select name="role_id"
                             class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-slate-700 bg-white">
-                            <option value="" {{ old('role_id', $user->role_id) ? '' : 'selected' }}>Sin asignar</option>
+                            <option value="" {{ old('role_id', $user->role_id) ? '' : 'selected' }}>Sin rol personalizado</option>
                             @foreach(($roles ?? collect()) as $r)
                                 <option value="{{ $r->id }}" {{ (string)old('role_id', $user->role_id) === (string)$r->id ? 'selected' : '' }}>
-                                    {{ $r->name }} ({{ $r->slug }})
+                                    {{ $r->name }}
                                 </option>
                             @endforeach
                         </select>
+                        <p class="text-xs text-slate-500 mt-2">Roles creados en "Nuevo Rol" con permisos específicos por sección</p>
                     </div>
 
                     <div>
