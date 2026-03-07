@@ -1288,4 +1288,5 @@ class AdministradorController extends Controller
         });
 
         return redirect()->back()->with('success', 'Asistencia guardada y registros históricos actualizados.');
+    }
 }
