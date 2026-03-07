@@ -83,7 +83,7 @@
                     <div>
                         <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">A cargo</label>
                         
-                        <!-- Custom Searchable Dropdown -->
+                        <!-- Custom Searchable Dropdown - Mobile Optimized -->
                         <div class="relative" id="officer-select-container">
                             <input type="hidden" name="officer_in_charge_firefighter_id" id="officer_in_charge_firefighter_id" value="{{ $selectedOfficerId }}">
                             
@@ -91,14 +91,14 @@
                             <div class="relative">
                                 <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                                 <input type="text" id="officer-search-input"
-                                    class="w-full text-sm border-2 border-slate-200 rounded-xl shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 pl-9 pr-10 py-3 bg-white text-slate-700 placeholder:text-slate-500 cursor-pointer"
+                                    class="w-full text-sm border-2 border-slate-200 rounded-xl shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 pl-9 pr-10 py-3 bg-white text-slate-700 placeholder:text-slate-500 cursor-pointer touch-manipulation"
                                     placeholder="Buscar oficial..." autocomplete="off" readonly
                                     value="{{ $selectedOfficerId ? optional($onDutyUsers->firstWhere('id', $selectedOfficerId))->nombres . ' ' . optional($onDutyUsers->firstWhere('id', $selectedOfficerId))->apellido_paterno : 'Sin asignar' }}">
                                 <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
                             </div>
                             
-                            <!-- Dropdown Menu - Fixed position to escape overflow, closes on scroll -->
-                            <div id="officer-dropdown" class="hidden fixed bg-white border border-slate-200 rounded-xl shadow-2xl z-[9999] max-h-64 overflow-y-auto" style="min-width: 280px;">
+                            <!-- Dropdown Menu - Absolute positioning for mobile compatibility -->
+                            <div id="officer-dropdown" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-2xl z-50 max-h-64 overflow-y-auto">
                                 <div class="p-2 sticky top-0 bg-white border-b border-slate-100">
                                     <input type="text" id="officer-filter-input" 
                                         class="w-full text-xs bg-slate-50 border-slate-200 rounded-lg px-3 py-2 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
@@ -397,7 +397,7 @@
             renderUnitChips(idsInit);
         }
 
-        // Custom Officer Dropdown
+        // Custom Officer Dropdown - Mobile Optimized
         const officerSearchInput = document.getElementById('officer-search-input');
         const officerDropdown = document.getElementById('officer-dropdown');
         const officerFilterInput = document.getElementById('officer-filter-input');
@@ -411,10 +411,6 @@
 
             function openOfficerDropdown() {
                 isOfficerOpen = true;
-                const rect = officerSearchInput.getBoundingClientRect();
-                officerDropdown.style.top = (rect.bottom + 4) + 'px';
-                officerDropdown.style.left = rect.left + 'px';
-                officerDropdown.style.width = rect.width + 'px';
                 officerDropdown.classList.remove('hidden');
                 officerFilterInput.focus();
                 officerFilterInput.value = '';
@@ -426,6 +422,7 @@
                 officerDropdown.classList.add('hidden');
             }
 
+            // Click handler for input
             officerSearchInput.addEventListener('click', function(e) {
                 e.stopPropagation();
                 if (!isOfficerOpen) {
@@ -433,19 +430,22 @@
                 }
             });
 
-            // Close dropdown on scroll
-            window.addEventListener('scroll', function() {
-                if (isOfficerOpen) {
-                    closeOfficerDropdown();
+            // Touch handler for mobile
+            officerSearchInput.addEventListener('touchstart', function(e) {
+                e.stopPropagation();
+                if (!isOfficerOpen) {
+                    openOfficerDropdown();
                 }
             }, { passive: true });
 
+            // Close when clicking outside
             document.addEventListener('click', function(e) {
                 if (!officerContainer.contains(e.target)) {
                     closeOfficerDropdown();
                 }
             });
 
+            // Filter input
             officerFilterInput.addEventListener('input', function() {
                 filterOfficerOptions(this.value.toLowerCase());
             });
@@ -471,10 +471,8 @@
                 }
             }
 
-            officerOptionsList.addEventListener('click', function(e) {
-                const option = e.target.closest('.officer-option');
-                if (!option) return;
-
+            // Option selection - handle both click and touch
+            function selectOption(option) {
                 const value = option.getAttribute('data-value');
                 const text = option.querySelector('.text-sm').textContent.trim();
 
@@ -488,8 +486,23 @@
                 option.classList.add('bg-blue-50');
                 
                 closeOfficerDropdown();
+            }
+
+            officerOptionsList.addEventListener('click', function(e) {
+                const option = e.target.closest('.officer-option');
+                if (!option) return;
+                selectOption(option);
             });
 
+            // Touch support for mobile
+            officerOptionsList.addEventListener('touchstart', function(e) {
+                const option = e.target.closest('.officer-option');
+                if (!option) return;
+                e.preventDefault();
+                selectOption(option);
+            }, { passive: false });
+
+            // Escape key to close
             officerFilterInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
                     closeOfficerDropdown();

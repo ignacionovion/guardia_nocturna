@@ -101,13 +101,22 @@ class PlanillaController extends Controller
         
         $guardias = \App\Models\Guardia::orderBy('name')->get();
         
+        $guardiasPorFecha = \App\Models\GuardiaCalendarDay::query()
+            ->whereBetween('date', [$inicioSemana->toDateString(), $finSemana->toDateString()])
+            ->pluck('guardia_id', 'date');
+
+        $completadasPorGuardia = Planilla::query()
+            ->where('estado', self::ESTADO_FINALIZADO)
+            ->whereBetween('fecha_revision', [$inicioSemana, $finSemana])
+            ->get()
+            ->groupBy(function ($planilla) use ($guardiasPorFecha) {
+                $fecha = optional($planilla->fecha_revision)?->toDateString();
+                return $fecha ? ($guardiasPorFecha[$fecha] ?? 'sin_guardia') : 'sin_guardia';
+            })
+            ->map(fn ($items) => $items->count());
+        
         $planillasPorGuardia = $guardias->map(function($guardia) use ($inicioSemana, $finSemana) {
-            // Contar planillas finalizadas de esta guardia en la semana actual
-            $completadas = Planilla::query()
-                ->where('estado', self::ESTADO_FINALIZADO)
-                ->whereBetween('fecha_revision', [$inicioSemana, $finSemana])
-                ->whereHas('bombero', fn($q) => $q->where('guardia_id', $guardia->id))
-                ->count();
+            $completadas = 0;
                 
             return [
                 'guardia' => $guardia,
@@ -115,6 +124,12 @@ class PlanillaController extends Controller
                 'total' => 3, // Total esperado por semana
                 'completo' => $completadas >= 3,
             ];
+        })->map(function ($pg) use ($completadasPorGuardia) {
+            $guardiaId = $pg['guardia']->id;
+            $completadas = (int) ($completadasPorGuardia[$guardiaId] ?? 0);
+            $pg['completadas'] = $completadas;
+            $pg['completo'] = $completadas >= $pg['total'];
+            return $pg;
         });
 
         return view('admin.planillas.index', [

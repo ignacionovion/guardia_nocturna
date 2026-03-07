@@ -201,9 +201,9 @@
 
         {{-- Weekday Headers --}}
         <div class="grid grid-cols-7 bg-slate-50 border-b border-slate-200">
-            @foreach(['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'] as $dayName)
-                <div class="px-2 py-3 text-center border-r border-slate-200 last:border-r-0">
-                    <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">{{ $dayName }}</div>
+            @foreach(['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'] as $dayName)
+                <div class="px-1 py-2 sm:px-2 sm:py-3 text-center border-r border-slate-200 last:border-r-0">
+                    <div class="text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-wider">{{ $dayName }}</div>
                 </div>
             @endforeach
         </div>
@@ -224,24 +224,24 @@
                     $isCurrentMonth = $cursor->month === $startOfMonth->month;
                     $isToday = $cursor->toDateString() === now()->toDateString();
                 @endphp
-                <div class="bg-white min-h-[120px] p-3 relative {{ !$isCurrentMonth ? 'bg-slate-50/70' : '' }} {{ $isToday ? 'ring-2 ring-inset ring-red-500' : '' }}">
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="text-lg font-black {{ $isCurrentMonth ? 'text-slate-800' : 'text-slate-300' }} {{ $isToday ? 'w-8 h-8 bg-red-600 text-white rounded-lg flex items-center justify-center text-base' : '' }}">
+                <div class="bg-white min-h-[60px] sm:min-h-[120px] p-1.5 sm:p-3 relative {{ !$isCurrentMonth ? 'bg-slate-50/70' : '' }} {{ $isToday ? 'ring-2 ring-inset ring-red-500' : '' }}">
+                    <div class="flex justify-between items-start mb-1 sm:mb-2">
+                        <span class="text-sm sm:text-lg font-black {{ $isCurrentMonth ? 'text-slate-800' : 'text-slate-300' }} {{ $isToday ? 'w-6 h-6 sm:w-8 sm:h-8 bg-red-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-base' : '' }}">
                             {{ $cursor->day }}
                         </span>
                         @if($isToday)
-                            <span class="text-[10px] font-black text-red-600 bg-red-50 px-2 py-0.5 rounded uppercase">Hoy</span>
+                            <span class="text-[8px] sm:text-[10px] font-black text-red-600 bg-red-50 px-1.5 sm:px-2 py-0.5 rounded uppercase hidden sm:inline">Hoy</span>
                         @endif
                     </div>
                     @if($row && $row->guardia)
-                        <div class="mt-1">
-                            <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 shadow-sm">
-                                <i class="fas fa-shield-alt text-blue-600"></i>
-                                {{ $row->guardia->name }}
+                        <div class="mt-0.5 sm:mt-1">
+                            <div class="inline-flex items-center gap-1 px-1.5 sm:px-3 py-1 sm:py-1.5 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 shadow-sm">
+                                <i class="fas fa-shield-alt text-blue-600 text-[8px] sm:text-xs"></i>
+                                <span class="truncate max-w-[40px] sm:max-w-none">{{ $row->guardia->name }}</span>
                             </div>
                         </div>
                     @else
-                        <div class="mt-2 text-xs text-slate-300 italic">Sin asignar</div>
+                        <div class="mt-1 sm:mt-2 text-[9px] sm:text-xs text-slate-300 italic hidden sm:block">Sin asignar</div>
                     @endif
                 </div>
                 @php $cursor->addDay(); @endphp

@@ -107,6 +107,9 @@
                         <a href="{{ route('guardia.aseo') }}" class="w-9 h-9 sm:w-10 sm:h-10 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center" title="Asignación de Aseo">
                             <i class="fas fa-broom text-[14px] text-red-300"></i>
                         </a>
+                        <button type="button" onclick="openCalendarPopup()" class="w-9 h-9 sm:w-10 sm:h-10 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center" title="Calendario de Guardias">
+                            <i class="fas fa-calendar-days text-[14px] text-emerald-300"></i>
+                        </button>
                         <a href="{{ route('admin.emergencies.index') }}" class="w-9 h-9 sm:w-10 sm:h-10 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center" title="Emergencias">
                             <i class="fas fa-truck-medical text-[14px] text-amber-300"></i>
                         </a>
@@ -508,7 +511,7 @@
                                         @endphp
                                         <div class="border-l-2 border-slate-700 pl-4 py-2">
                                             <div class="flex items-center gap-2 mb-2">
-                                                <span class="text-xs font-black {{ $colors['text'] }} uppercase tracking-wider">{{ $novelty->type }}</span>
+                                                <span class="text-xs font-bold {{ $colors['text'] }} uppercase tracking-wider">{{ $novelty->type }}</span>
                                                 @if($novelty->is_permanent && mb_strtolower((string) $novelty->type) !== 'permanente')
                                                     <span class="text-[10px] font-bold text-purple-400 uppercase tracking-wider">PERMANENTE</span>
                                                 @endif
@@ -717,7 +720,7 @@
 
                 <!-- Panel de Movimientos - Estilo Reporte Profesional -->
                 <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="px-6 py-4 border-b border-slate-200 bg-slate-900">
+                    <div class="px-6 py-4 border-b border-slate-200 bg-slate-50">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
                                 <div class="bg-purple-500/20 p-2 rounded-lg text-purple-400">
@@ -1017,11 +1020,11 @@
                                 @foreach($upcomingBirthdaysAll as $b)
                                     <div class="flex items-center gap-3 p-2 rounded-lg bg-slate-50">
                                         <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-xs">
-                                            {{ substr($b->nombres, 0, 1) }}{{ substr($b->apellido_paterno, 0, 1) }}
+                                            {{ strtoupper(substr($b->nombres, 0, 1)) }}
                                         </div>
                                         <div class="flex-1 min-w-0">
-                                            <p class="font-bold text-slate-900 text-sm truncate">{{ $b->nombres }} {{ $b->apellido_paterno }}</p>
-                                            <p class="text-xs text-slate-500">{{ $b->next_birthday->format('d') }} de {{ $b->next_birthday->locale('es')->monthName }}</p>
+                                            <div class="text-sm font-medium text-slate-200 truncate">{{ $b->nombres }} {{ $b->apellido_paterno }}</div>
+                                            <div class="text-xs text-slate-500">{{ $b->next_birthday->format('d') }} de {{ $b->next_birthday->locale('es')->monthName }}</div>
                                         </div>
                                     </div>
                                 @endforeach
@@ -1137,6 +1140,74 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <div id="yearCalendarModal" class="fixed inset-0 bg-slate-900/85 backdrop-blur-sm hidden overflow-y-auto h-full w-full z-50 p-3 sm:p-6">
+        <div class="max-w-7xl mx-auto min-h-full flex items-start justify-center">
+            <div class="w-full rounded-3xl border border-slate-800 bg-slate-900 shadow-2xl overflow-hidden my-4">
+                <div class="sticky top-0 z-10 px-4 py-4 sm:px-6 bg-slate-900/95 backdrop-blur border-b border-slate-800 flex items-center justify-between gap-4">
+                    <div>
+                        <div class="text-[10px] font-black text-emerald-300 uppercase tracking-[0.25em]">Calendario anual</div>
+                        <div class="text-lg sm:text-2xl font-black text-slate-100">Guardias {{ now()->year }}</div>
+                    </div>
+                    <button type="button" onclick="closeCalendarPopup()" class="w-10 h-10 rounded-2xl border border-slate-700 bg-slate-950 text-slate-300 hover:bg-slate-800 hover:text-white transition-colors flex items-center justify-center">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                @php
+                    $yearCalendarDays = \App\Models\GuardiaCalendarDay::query()
+                        ->with('guardia:id,name')
+                        ->whereYear('date', now()->year)
+                        ->get()
+                        ->keyBy(fn ($day) => \Carbon\Carbon::parse($day->date)->toDateString());
+                @endphp
+                <div class="p-4 sm:p-6">
+                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                        @foreach(range(1, 12) as $monthNumber)
+                            @php
+                                $monthStart = now()->copy()->startOfYear()->month($monthNumber)->startOfMonth();
+                                $monthEnd = $monthStart->copy()->endOfMonth();
+                                $gridStart = $monthStart->copy()->startOfWeek(\Carbon\Carbon::SUNDAY);
+                                $gridEnd = $monthEnd->copy()->endOfWeek(\Carbon\Carbon::SATURDAY);
+                                $monthCursor = $gridStart->copy();
+                            @endphp
+                            <div class="rounded-2xl border border-slate-800 bg-slate-950 overflow-hidden">
+                                <div class="px-4 py-3 border-b border-slate-800 bg-slate-900">
+                                    <div class="text-sm sm:text-base font-black uppercase tracking-wide text-slate-100">{{ ucfirst($monthStart->translatedFormat('F')) }}</div>
+                                </div>
+                                <div class="grid grid-cols-7 bg-slate-900 border-b border-slate-800">
+                                    @foreach(['D', 'L', 'M', 'M', 'J', 'V', 'S'] as $weekDay)
+                                        <div class="px-1 py-2 text-center text-[10px] font-black text-slate-500 uppercase border-r border-slate-800 last:border-r-0">{{ $weekDay }}</div>
+                                    @endforeach
+                                </div>
+                                <div class="grid grid-cols-7 gap-px bg-slate-800">
+                                    @while($monthCursor->lessThanOrEqualTo($gridEnd))
+                                        @php
+                                            $calendarKey = $monthCursor->toDateString();
+                                            $calendarDay = $yearCalendarDays->get($calendarKey);
+                                            $isCurrentMonthCell = $monthCursor->month === $monthNumber;
+                                            $isTodayCell = $monthCursor->isToday();
+                                        @endphp
+                                        <div class="min-h-[74px] p-1.5 sm:p-2 {{ $isCurrentMonthCell ? 'bg-slate-950' : 'bg-slate-900/60' }} {{ $isTodayCell ? 'ring-1 ring-inset ring-emerald-400' : '' }}">
+                                            <div class="flex items-start justify-between gap-1">
+                                                <span class="text-[11px] sm:text-xs font-black {{ $isCurrentMonthCell ? 'text-slate-100' : 'text-slate-500' }}">{{ $monthCursor->day }}</span>
+                                                @if($isTodayCell)
+                                                    <span class="text-[8px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 font-black uppercase">Hoy</span>
+                                                @endif
+                                            </div>
+                                            @if($calendarDay && $calendarDay->guardia)
+                                                <div class="mt-2 px-1.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-[10px] leading-tight font-bold text-emerald-200 break-words">{{ $calendarDay->guardia->name }}</div>
+                                            @endif
+                                        </div>
+                                        @php $monthCursor->addDay(); @endphp
+                                    @endwhile
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1455,6 +1526,20 @@
         window.closeAcademyModal = function() {
             const modal = document.getElementById('academyModal');
             if (modal) modal.classList.add('hidden');
+        }
+
+        window.openCalendarPopup = function() {
+            const modal = document.getElementById('yearCalendarModal');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+        }
+
+        window.closeCalendarPopup = function() {
+            const modal = document.getElementById('yearCalendarModal');
+            if (!modal) return;
+            modal.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
         }
 
         window.openRefuerzoModal = function() {

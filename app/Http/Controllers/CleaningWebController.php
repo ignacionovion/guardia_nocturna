@@ -152,6 +152,19 @@ class CleaningWebController extends Controller
             ? Bombero::query()->whereIn('id', $firefighterIdsForMail)->get(['id', 'nombres', 'apellido_paterno', 'rut'])
             : collect();
 
+        // Obtener las tareas asignadas para mapear bombero -> tarea
+        $taskAssignments = CleaningAssignment::with(['cleaningTask', 'firefighter'])
+            ->whereDate('assigned_date', $date->toDateString())
+            ->whereIn('firefighter_id', $firefighterIdsForMail)
+            ->get();
+
+        $fighterTasks = [];
+        foreach ($taskAssignments as $assignment) {
+            if ($assignment->firefighter_id && $assignment->cleaningTask) {
+                $fighterTasks[$assignment->firefighter_id] = $assignment->cleaningTask->name;
+            }
+        }
+
         $lines = [];
         $lines[] = 'Fecha de aseo: ' . $date->format('d \d\e F \d\e Y');
         $lines[] = 'Guardia asignada: ' . (Guardia::find($guardiaId)?->name ?? '—');
@@ -159,7 +172,9 @@ class CleaningWebController extends Controller
         $lines[] = 'Bomberos asignados al aseo (' . $fighters->count() . '):';
         
         foreach ($fighters as $fighter) {
+            $taskName = $fighterTasks[$fighter->id] ?? 'Sin tarea asignada';
             $lines[] = '• ' . trim((string) $fighter->nombres . ' ' . (string) $fighter->apellido_paterno) . ' (RUT: ' . ($fighter->rut ?? 'N/A') . ')';
+            $lines[] = '  └─ ' . $taskName;
         }
 
         SystemEmailService::send(
