@@ -549,7 +549,7 @@ class AdministradorController extends Controller
 
         $endsAt = ReplacementService::calculateReplacementUntil(Carbon::now());
 
-        DB::transaction(function () use ($guardia, $original, $replacement, $endsAt) {
+        DB::transaction(function () use ($user, $guardia, $original, $replacement, $endsAt) {
             $replacementPreviousGuardiaId = $replacement->guardia_id;
             ReemplazoBombero::create([
                 'guardia_id' => $guardia->id,
