@@ -8,7 +8,7 @@
 
 <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
     <div class="lg:col-span-2">
-        <div class="bg-white rounded-2xl shadow-lg border-2 border-slate-200 overflow-hidden">
+        <div class="bg-white rounded-2xl shadow-lg border-2 border-slate-200 overflow-visible">
             <div class="bg-slate-900 px-5 py-4 border-b-4 border-red-700">
                 <div class="flex items-center justify-between">
                     <div>
