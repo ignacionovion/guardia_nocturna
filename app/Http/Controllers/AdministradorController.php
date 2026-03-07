@@ -1278,10 +1278,14 @@ class AdministradorController extends Controller
             );
 
             // Enviar notificación de asistencia guardada
-            $confirmedCount = collect($data['users'])->count();
+            // Solo contar los que realmente están presentes (no ausente, permiso, licencia, etc.)
+            $presentStatusesForCount = ['constituye', 'reemplazo', 'refuerzo'];
+            $confirmedCount = collect($data['users'])->filter(function ($attrs) use ($presentStatusesForCount) {
+                return in_array($attrs['estado_asistencia'] ?? '', $presentStatusesForCount, true);
+            })->count();
+            
             \App\Services\NotificationService::attendanceSaved(auth()->user(), $guardia, $confirmedCount);
         });
 
         return redirect()->back()->with('success', 'Asistencia guardada y registros históricos actualizados.');
-    }
 }
