@@ -79,6 +79,7 @@ class AsignacionCamaController extends Controller
                     'firefighter_id' => $validated['firefighter_id'],
                     'notes' => $validated['notes'] ?? null,
                     'assigned_at' => now(),
+                    'assigned_source' => 'manual',
                 ];
 
                 if ($legacyUserId) {
@@ -221,10 +222,23 @@ class AsignacionCamaController extends Controller
             $occupiedBeds = $beds->where('status', 'occupied')->sortBy('number');
             $assignmentsList = [];
             foreach ($occupiedBeds as $bed) {
-                $firefighterName = $bed->currentAssignment?->firefighter?->full_name 
-                    ?? $bed->currentAssignment?->firefighter?->nombre_completo 
-                    ?? 'No asignado';
-                $assignmentsList[] = '🛏️ Cama ' . $bed->number . ': ' . $firefighterName;
+                $assignment = $bed->currentAssignment;
+                $firefighter = $assignment?->firefighter;
+                
+                if ($firefighter) {
+                    $firefighterName = trim(($firefighter->apellido_paterno ?? '') . ' ' . ($firefighter->nombres ?? ''));
+                } else {
+                    $firefighterName = 'No asignado';
+                }
+                
+                $source = match($assignment?->assigned_source) {
+                    'qr'     => ' (QR)',
+                    'manual' => ' (Manual)',
+                    null     => ($assignment ? ' (Manual)' : ''),
+                    default  => ' (' . $assignment->assigned_source . ')',
+                };
+                
+                $assignmentsList[] = '🛏️ Cama ' . $bed->number . ': ' . $firefighterName . $source;
             }
             
             $lines = [

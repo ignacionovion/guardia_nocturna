@@ -4,7 +4,7 @@
 
 El sistema actual fue construido para la **Tercera Compañía del Cuerpo de Bomberos de Temuco**.
 
-Ahora se quiere escalar el sistema para que múltiples **Cuerpos de Bomberos** (de distintas regiones/ciudades) puedan contratar el servicio, y cada uno tiene internamente múltiples **Compañías**.
+Ahora se quiere escalar el sistema para que múltiples compañías y cuerpos de bomberos puedan contratar el servicio de forma flexible.
 
 ### Jerarquía real del negocio
 
@@ -18,67 +18,135 @@ Tú (dueño del software)
 └── Cuerpo de Bomberos de Osorno
 │       ├── Primera Compañía
 │       └── Segunda Compañía
-└── Cuerpo de Bomberos de Valdivia
-        └── ...
+└── Tercera Compañía de Valdivia  ← compañía sola, sin cuerpo registrado
 ```
 
 ---
 
-## Decisión de Arquitectura: ¿Tenant = Compañía o Tenant = Cuerpo?
+## Decisiones Arquitecturales (Definidas)
 
-Esta es la decisión más importante del plan.
+### 1. Estructura: Cuerpo → Compañía → Usuarios
 
-### Opción A: Tenant = Compañía (granular)
+La estructura interna principal es:
 
-Cada compañía (Primera, Segunda, Tercera...) es un tenant independiente.
+```
+Cuerpo de Bomberos (body)
+  └── Compañía (company)
+        └── Usuarios / Bomberos
+```
 
-- `tercera-temuco.tuapp.cl`
-- `primera-temuco.tuapp.cl`
-- `primera-osorno.tuapp.cl`
+**Clave:** Una compañía puede existir **sola** (sin cuerpo) o pertenecer a un cuerpo.
 
-**Pros:**
-- Aislamiento total entre compañías
-- Cada compañía paga por separado
+- Si una compañía contrata sola → `body_id = null`
+- Si pertenece a un cuerpo → `body_id = 1`
 
-**Contras:**
-- No hay visión consolidada por Cuerpo
-- Un Cuerpo con 8 compañías = 8 tenants que gestionar
-- Difícil reportar a nivel de Cuerpo completo
+Esto da flexibilidad comercial sin sacrificar la estructura real del negocio.
 
----
+### 2. Cobro: Por Compañía ✅
 
-### Opción B: Tenant = Cuerpo de Bomberos ✅ RECOMENDADA
+- 1 compañía activa = 1 cobro mensual
+- 3 compañías activas = 3 cobros mensuales
 
-Cada **Cuerpo de Bomberos** es un tenant. Las compañías son entidades internas dentro del tenant.
+**Evolución futura:**
+- Plan individual por compañía (inicio)
+- Plan corporativo por cuerpo (paquetes) → más adelante
 
-- `temuco.tuapp.cl` → Cuerpo de Temuco (con todas sus compañías adentro)
-- `osorno.tuapp.cl` → Cuerpo de Osorno
-- `valdivia.tuapp.cl` → Cuerpo de Valdivia
+Cobrar por cuerpo al inicio genera preguntas complejas (¿cuántas compañías incluye?, ¿qué pasa si se agregan más?). Por compañía es simple, claro y escalable.
 
-**Pros:**
-- Refleja la jerarquía real del negocio
-- El Comandante del Cuerpo puede ver todas sus compañías
-- Un solo contrato por Cuerpo
-- Más simple de vender y gestionar
-- Reportes consolidados por Cuerpo posibles
+### 3. Reportes cruzados: Contemplados desde la base ✅
 
-**Contras:**
-- Compañías del mismo Cuerpo comparten la misma base de datos (pero con `compania_id`)
-- Si una compañía quiere comprar sin el resto del Cuerpo, se complica
+Los reportes cruzados entre compañías **no se implementan al inicio**, pero la base de datos los soportará desde el día uno.
 
-**→ Se elige esta opción porque es la que mejor refleja la realidad operativa de los Cuerpos de Bomberos en Chile.**
+**Visibilidad por rol:**
+- Admin compañía → ve solo su compañía
+- Admin cuerpo → ve todas las compañías de su cuerpo
+- Superadmin (tú) → ve todo
 
----
+**Reportes futuros para el Admin del Cuerpo:**
+- Asistencia total del cuerpo
+- Novedades por compañía
+- Estadísticas comparativas
+- Dotación activa total
+- Guardias más complejas del mes
 
-## Estructura de URLs
+### 4. WebSockets / Reverb: Aislados por tenant ✅
+
+Cada tenant (compañía) debe estar completamente aislado en los canales de WebSocket.
+
+**Formato de canales:**
+```
+company.{id}.guardia.updated
+company.{id}.notifications
+body.{body_id}.company.{company_id}.guardia.updated
+```
+
+Nunca usar canales genéricos como `guardia.updated`.
+
+### 5. Dominios: Subdominios por compañía ✅
+
+Usar subdominios por cliente con wildcard DNS `*.tudominio.cl`.
 
 ```
 app.tudominio.cl           → Landing / marketing
 admin.tudominio.cl         → Tu panel maestro (solo tú)
-temuco.tudominio.cl        → Cuerpo de Bomberos de Temuco
-osorno.tudominio.cl        → Cuerpo de Bomberos de Osorno
-valdivia.tudominio.cl      → Cuerpo de Bomberos de Valdivia
+tercera-temuco.tudominio.cl  → Tercera Compañía de Temuco
+temuco.tudominio.cl          → Cuerpo de Bomberos de Temuco completo
+osorno.tudominio.cl          → Cuerpo de Bomberos de Osorno
 ```
+
+Requiere configuración de wildcard DNS en el proveedor de dominio.
+
+---
+
+## Estructura de Base de Datos
+
+### Base de datos central (sistema maestro)
+
+```sql
+bodies                    -- Cuerpos de Bomberos (opcional, body_id nullable)
+  - id
+  - nombre                -- "Cuerpo de Bomberos de Temuco"
+  - ciudad
+  - activo
+  - created_at
+
+companies                 -- Compañías (tenant principal)
+  - id
+  - body_id (nullable)    -- NULL si opera sola, FK si pertenece a un cuerpo
+  - nombre                -- "Tercera Compañía"
+  - numero                -- 3
+  - subdominio            -- "tercera-temuco"
+  - plan                  -- "básico" | "profesional" | "enterprise"
+  - activo
+  - fecha_vencimiento
+  - created_at
+
+company_plans
+  - id
+  - nombre
+  - max_usuarios
+  - precio_mensual
+  - funciones_habilitadas (JSON)
+
+-- Historial de facturación
+company_billing
+  - id
+  - company_id
+  - periodo
+  - monto
+  - pagado
+  - fecha_pago
+```
+
+### Base de datos por tenant (una por compañía)
+
+```
+DB: tenant_tercera_temuco
+DB: tenant_primera_osorno
+DB: tenant_segunda_valdivia
+```
+
+Cada base de datos tiene la misma estructura que el sistema actual. No se necesita `compania_id` en las tablas internas porque cada tenant ya es una compañía aislada.
 
 ---
 
@@ -86,73 +154,25 @@ valdivia.tudominio.cl      → Cuerpo de Bomberos de Valdivia
 
 ### Nivel 1: Super Admin del Software (tú)
 - Acceso a `admin.tudominio.cl`
-- Crear/suspender/eliminar Cuerpos de Bomberos (tenants)
+- Crear/suspender/eliminar compañías y cuerpos
 - Definir planes de suscripción
-- Ver métricas globales (cantidad de usuarios, guardias, etc.)
+- Ver métricas globales
 - Impersonar cualquier tenant para soporte
 
-### Nivel 2: Admin del Cuerpo (Comandante o TI del Cuerpo)
+### Nivel 2: Admin del Cuerpo
 - Acceso a `temuco.tudominio.cl`
-- Crear/gestionar sus Compañías dentro del Cuerpo
-- Crear usuarios admin por compañía
-- Ver reportes de todas las compañías
-- Configurar parámetros del Cuerpo
+- Ve todas las compañías de su cuerpo
+- Reportes consolidados del cuerpo
+- No puede gestionar internamente cada compañía (solo vista)
 
 ### Nivel 3: Admin de Compañía (Capitán / Jefe de Guardia)
-- Acceso a `temuco.tudominio.cl` pero solo ve su compañía
-- Todo lo que el sistema actual ya hace (guardias, nómina, camas, etc.)
-- Rol actual: `capitania`, `super_admin` de la compañía
+- Acceso a `tercera-temuco.tudominio.cl`
+- Todo lo que el sistema actual ya hace
+- Rol actual: `capitania`, `super_admin`
 
-### Nivel 4: Usuario operativo (Guardia, Inventario, etc.)
-- Acceso a `temuco.tudominio.cl`
+### Nivel 4: Usuario operativo
+- Acceso al subdominio de su compañía
 - Igual que el sistema actual
-
----
-
-## Estructura de Base de Datos
-
-### Base de datos central (solo del sistema maestro)
-```sql
-tenants           -- Cuerpos de Bomberos registrados
-  - id
-  - nombre        -- "Cuerpo de Bomberos de Temuco"
-  - subdominio    -- "temuco"
-  - plan          -- "básico" | "profesional" | "enterprise"
-  - activo
-  - fecha_vencimiento
-  - created_at
-
-tenant_plans
-  - id
-  - nombre
-  - max_companias
-  - max_usuarios
-  - precio_mensual
-  - funciones_habilitadas (JSON)
-```
-
-### Base de datos por tenant (una por Cuerpo de Bomberos)
-```
-DB: tenant_temuco
-DB: tenant_osorno
-DB: tenant_valdivia
-```
-
-Cada base de datos tiene la misma estructura que el sistema actual, más:
-```sql
-companias         -- Nueva tabla
-  - id
-  - nombre        -- "Tercera Compañía"
-  - numero        -- 3
-  - color
-  - activo
-
--- Todas las tablas existentes agregan:
-bomberos          + compania_id
-guardias          + compania_id
-novedades         + compania_id
-(etc.)
-```
 
 ---
 
@@ -162,7 +182,7 @@ novedades         + compania_id
 composer require stancl/tenancy
 ```
 
-Este paquete maneja automáticamente:
+Maneja automáticamente:
 - Resolución del tenant por subdominio
 - Cambio de conexión de base de datos por request
 - Migraciones separadas por tenant
@@ -175,8 +195,9 @@ Este paquete maneja automáticamente:
 ### Fase 0 — Preparación (sin cambios visibles al usuario)
 - [ ] Crear rama `feature/multitenant` en git
 - [ ] Instalar y configurar `stancl/tenancy`
-- [ ] Definir cuáles migraciones son "centrales" y cuáles son "por tenant"
+- [ ] Definir cuáles migraciones son "centrales" (`bodies`, `companies`, `company_plans`) y cuáles son "por tenant" (todo lo actual)
 - [ ] Crear base de datos central `app_master`
+- [ ] Configurar wildcard DNS `*.tudominio.cl`
 - [ ] Verificar que el sistema actual sigue funcionando igual
 
 **Estimado: 1-2 días**
@@ -186,7 +207,7 @@ Este paquete maneja automáticamente:
 ### Fase 1 — Panel del Super Admin (tú)
 - [ ] Crear subdominio `admin.tudominio.cl`
 - [ ] Login separado para el super admin (tabla `admin_users`)
-- [ ] CRUD de Tenants (Cuerpos de Bomberos)
+- [ ] CRUD de Companies + Bodies
 - [ ] Gestión de planes y vencimientos
 - [ ] Vista de estado de todos los tenants
 
@@ -196,77 +217,79 @@ Este paquete maneja automáticamente:
 
 ### Fase 2 — Adaptar sistema actual a multi-tenant
 - [ ] Mover todas las migraciones actuales a `database/migrations/tenant/`
-- [ ] Agregar tabla `companias` dentro del schema del tenant
-- [ ] Agregar `compania_id` a las tablas que lo necesiten
-- [ ] Adaptar los controllers para filtrar por `compania_id`
-- [ ] Adaptar el dashboard para que el Admin del Cuerpo vea todas sus compañías
+- [ ] Adaptar resolución de tenant por subdominio
+- [ ] Adaptar canales de WebSocket al formato `company.{id}.*`
+- [ ] Verificar que los controllers no filtren por tenant manualmente (ya lo hace el DB switch)
+- [ ] Adaptar el layout/navbar para mostrar nombre de compañía por tenant
 
-**Estimado: 5-7 días** (es la fase más grande)
+**Estimado: 4-6 días**
 
 ---
 
-### Fase 3 — Onboarding de nuevos Cuerpos
+### Fase 3 — Reportes del Admin del Cuerpo (base)
+- [ ] Crear panel básico para Admin del Cuerpo en `{cuerpo}.tudominio.cl`
+- [ ] Vista de compañías activas dentro del cuerpo
+- [ ] Reporte de asistencia consolidada (lectura cruzada de DBs)
+- [ ] Estadísticas básicas por compañía
+
+**Estimado: 3-4 días**
+
+---
+
+### Fase 4 — Onboarding de nuevos clientes
 - [ ] Comando/botón para crear nuevo tenant + base de datos automáticamente
-- [ ] Seed inicial con datos básicos (roles, configuración default)
-- [ ] Email de bienvenida con credenciales al admin del Cuerpo
-- [ ] Wizard de configuración inicial (nombre Cuerpo, compañías, primer admin)
+- [ ] Seed inicial con roles y configuración default
+- [ ] Email de bienvenida con credenciales al admin de la compañía
+- [ ] Wizard de configuración inicial (nombre, número de compañía, primer admin)
 
 **Estimado: 2-3 días**
 
 ---
 
-### Fase 4 — Migrar cliente actual (Temuco)
-- [ ] Crear tenant `temuco`
+### Fase 5 — Migrar cliente actual (Tercera Compañía Temuco)
+- [ ] Crear tenant `tercera-temuco`
 - [ ] Migrar datos actuales a la base de datos del tenant
-- [ ] Cambiar URL a `temuco.tudominio.cl`
+- [ ] Cambiar URL a `tercera-temuco.tudominio.cl`
 - [ ] Verificar que todo funciona igual para el cliente actual
 
 **Estimado: 1-2 días**
 
 ---
 
-### Fase 5 — Billing / Suscripciones (opcional futuro)
+### Fase 6 — Billing / Suscripciones (futuro)
 - [ ] Integrar pasarela de pagos (Khipu, Transbank, Stripe)
 - [ ] Automatizar suspensión por no pago
-- [ ] Panel de facturación por tenant
+- [ ] Panel de facturación por compañía
+- [ ] Plan corporativo por cuerpo (descuento por múltiples compañías)
 
 **Estimado: depende de la pasarela elegida**
 
 ---
 
-## Preguntas a definir antes de empezar
-
-1. **¿Quieres que cada Compañía pueda operar independiente, o siempre dentro de un Cuerpo?**
-   - Si una compañía quiere contratar sola sin el resto del Cuerpo, ¿se lo permites?
-
-2. **¿El plan de suscripción es por Cuerpo o por Compañía?**
-   - Por Cuerpo: un precio, todas las compañías incluidas
-   - Por Compañía: precio x compañía activa
-
-3. **¿Los Cuerpos necesitan reportes cruzados entre compañías?**
-   - Ej: "¿Cuántas emergencias tuvo el Cuerpo de Temuco en total este mes?"
-
-4. **¿Reverb (WebSockets) también debe ser por tenant?**
-   - Sí, cada tenant necesita su propio canal de notificaciones aislado
-
-5. **¿Qué dominio vas a usar para el producto?**
-   - Necesitas un dominio con wildcard DNS `*.tudominio.cl`
-
----
-
 ## Resumen de esfuerzo total estimado
 
-| Fase | Días estimados |
-|------|---------------|
-| 0 - Preparación | 1-2 |
-| 1 - Panel Super Admin | 3-4 |
-| 2 - Adaptar sistema | 5-7 |
-| 3 - Onboarding | 2-3 |
-| 4 - Migrar Temuco | 1-2 |
-| **Total** | **12-18 días** |
+| Fase | Descripción | Días estimados |
+|------|-------------|---------------|
+| 0 | Preparación | 1-2 |
+| 1 | Panel Super Admin | 3-4 |
+| 2 | Adaptar sistema | 4-6 |
+| 3 | Reportes Admin Cuerpo | 3-4 |
+| 4 | Onboarding | 2-3 |
+| 5 | Migrar Temuco | 1-2 |
+| **Total** | | **14-21 días** |
 
 ---
 
 ## Lo que NO cambia para los usuarios finales
 
-Los bomberos, capitanes y jefes de guardia de cada compañía **no notarán ningún cambio**. La interfaz, funcionalidades y flujos son exactamente los mismos. Solo cambia la URL (de `app.cl` a `temuco.app.cl`).
+Los bomberos, capitanes y jefes de guardia **no notarán ningún cambio funcional**. La interfaz, funcionalidades y flujos son exactamente los mismos. Solo cambia la URL (de la actual a `tercera-temuco.tudominio.cl`).
+
+---
+
+## Notas técnicas clave
+
+- `body_id` es **nullable** en `companies` → una compañía puede vivir sola o dentro de un cuerpo
+- Cada tenant tiene su **propia base de datos** → aislamiento total de datos
+- Los canales de WebSocket deben incluir **siempre el `company_id`** para evitar eventos cruzados
+- Los reportes cruzados del Admin del Cuerpo requieren **conexiones a múltiples DBs** → implementar con cuidado en Fase 3
+- El wildcard DNS **debe configurarse antes** de avanzar en subdominios
