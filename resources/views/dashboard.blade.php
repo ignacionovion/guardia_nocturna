@@ -530,6 +530,37 @@
                                     <div class="mt-4">
                                         {{ $guardiaNovelties->links() }}
                                     </div>
+                                    
+                                    {{-- Dark theme pagination styling --}}
+                                    <style>
+                                        .dark-pagination nav {
+                                            background: transparent;
+                                        }
+                                        .dark-pagination nav a,
+                                        .dark-pagination nav span {
+                                            background-color: #1e293b !important;
+                                            color: #94a3b8 !important;
+                                            border-color: #334155 !important;
+                                        }
+                                        .dark-pagination nav a:hover {
+                                            background-color: #334155 !important;
+                                            color: #e2e8f0 !important;
+                                        }
+                                        .dark-pagination nav span.relative.z-10 {
+                                            background-color: #3b82f6 !important;
+                                            color: white !important;
+                                            border-color: #3b82f6 !important;
+                                        }
+                                    </style>
+                                    <script>
+                                        // Add dark-pagination class to the parent of the nav element
+                                        document.addEventListener('DOMContentLoaded', function() {
+                                            var nav = document.querySelector('.mt-4 nav');
+                                            if (nav) {
+                                                nav.parentElement.classList.add('dark-pagination');
+                                            }
+                                        });
+                                    </script>
                                 @endif
                             @endif
                         </div>

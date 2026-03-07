@@ -216,6 +216,17 @@ class AsignacionCamaController extends Controller
 
             // Preparar datos para el email
             $subject = '📋 Reporte de Camas - ' . now()->format('d/m/Y H:i');
+            
+            // Build assignments list for occupied beds
+            $occupiedBeds = $beds->where('status', 'occupied')->sortBy('number');
+            $assignmentsList = [];
+            foreach ($occupiedBeds as $bed) {
+                $firefighterName = $bed->currentAssignment?->firefighter?->full_name 
+                    ?? $bed->currentAssignment?->firefighter?->nombre_completo 
+                    ?? 'No asignado';
+                $assignmentsList[] = '🛏️ Cama ' . $bed->number . ': ' . $firefighterName;
+            }
+            
             $lines = [
                 'Resumen de Camas:',
                 '',
@@ -225,9 +236,20 @@ class AsignacionCamaController extends Controller
                 '',
                 'Total de camas: ' . $beds->count(),
                 '',
-                'Reporte generado por: ' . ($user->name ?? 'Sistema'),
-                'Fecha y hora: ' . now()->format('d/m/Y H:i'),
             ];
+            
+            // Add assignments if there are occupied beds
+            if ($assignmentsList) {
+                $lines[] = 'Asignaciones de Bomberos:';
+                $lines[] = '';
+                foreach ($assignmentsList as $assignment) {
+                    $lines[] = $assignment;
+                }
+                $lines[] = '';
+            }
+            
+            $lines[] = 'Reporte generado por: ' . ($user->name ?? 'Sistema');
+            $lines[] = 'Fecha y hora: ' . now()->format('d/m/Y H:i');
 
             // Enviar email con PDF adjunto
             SystemEmailService::send(

@@ -297,7 +297,7 @@
                                     @endif
                                     @if($fueReemplazado)
                                         <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-500/20 text-rose-200 border border-rose-500/30">
-                                            <i class="fas fa-times-circle mr-1"></i>REEMPLAZADO
+                                            <i class="fas fa-exchange-alt mr-1"></i>REEMPLAZADO
                                         </span>
                                     @endif
                                 </div>
