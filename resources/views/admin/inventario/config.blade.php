@@ -17,29 +17,59 @@
 
         @if($bodega)
             <div class="flex flex-wrap items-center justify-end gap-2">
-                <a href="{{ route('inventario.snapshot.pdf') }}" target="_blank" class="inline-flex flex-col items-center justify-center gap-1 px-4 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs w-24 h-16">
-                    <i class="fas fa-file-pdf text-blue-600 text-lg"></i>
-                    <span class="text-center leading-tight">Descargar<br>PDF</span>
+                <a href="{{ route('inventario.snapshot.pdf') }}" target="_blank" class="inline-flex items-center gap-3 px-4 py-3 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold text-sm transition-all">
+                    <div class="w-10 h-10 rounded-lg bg-rose-500 flex items-center justify-center">
+                        <i class="fas fa-file-pdf text-white text-lg"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="font-bold text-rose-900">PDF</span>
+                        <span class="text-xs text-rose-600 font-medium">Descargar</span>
+                    </div>
                 </a>
-                <button type="button" onclick="sendBodegaSnapshotEmail()" class="inline-flex flex-col items-center justify-center gap-1 px-4 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs w-24 h-16">
-                    <i class="fas fa-envelope text-emerald-600 text-lg"></i>
-                    <span class="text-center leading-tight">Enviar<br>Email</span>
+                <button type="button" onclick="sendBodegaSnapshotEmail()" class="inline-flex items-center gap-3 px-4 py-3 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold text-sm transition-all">
+                    <div class="w-10 h-10 rounded-lg bg-emerald-500 flex items-center justify-center">
+                        <i class="fas fa-envelope text-white text-lg"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="font-bold text-emerald-900">Email</span>
+                        <span class="text-xs text-emerald-600 font-medium">Enviar</span>
+                    </div>
                 </button>
-                <a href="{{ route('inventario.qr.admin') }}" class="inline-flex flex-col items-center justify-center gap-1 px-4 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs w-24 h-16">
-                    <i class="fas fa-qrcode text-purple-600 text-lg"></i>
-                    <span class="text-center leading-tight">Ver<br>QR</span>
+                <a href="{{ route('inventario.qr.admin') }}" class="inline-flex items-center gap-3 px-4 py-3 rounded-xl border border-purple-200 bg-purple-50 hover:bg-purple-100 text-purple-700 font-semibold text-sm transition-all">
+                    <div class="w-10 h-10 rounded-lg bg-purple-500 flex items-center justify-center">
+                        <i class="fas fa-qrcode text-white text-lg"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="font-bold text-purple-900">QR</span>
+                        <span class="text-xs text-purple-600 font-medium">Ver</span>
+                    </div>
                 </a>
-                <a href="{{ route('inventario.movimientos.index') }}" class="inline-flex flex-col items-center justify-center gap-1 px-4 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs w-24 h-16">
-                    <i class="fas fa-list text-slate-600 text-lg"></i>
-                    <span class="text-center leading-tight">Historial</span>
+                <a href="{{ route('inventario.movimientos.index') }}" class="inline-flex items-center gap-3 px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold text-sm transition-all">
+                    <div class="w-10 h-10 rounded-lg bg-slate-500 flex items-center justify-center">
+                        <i class="fas fa-list text-white text-lg"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="font-bold text-slate-900">Historial</span>
+                        <span class="text-xs text-slate-600 font-medium">Ver</span>
+                    </div>
                 </a>
-                <a href="{{ route('inventario.import.form') }}" class="inline-flex flex-col items-center justify-center gap-1 px-4 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs w-24 h-16">
-                    <i class="fas fa-file-import text-amber-600 text-lg"></i>
-                    <span class="text-center leading-tight">Importar</span>
+                <a href="{{ route('inventario.import.form') }}" class="inline-flex items-center gap-3 px-4 py-3 rounded-xl border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-700 font-semibold text-sm transition-all">
+                    <div class="w-10 h-10 rounded-lg bg-amber-500 flex items-center justify-center">
+                        <i class="fas fa-file-import text-white text-lg"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="font-bold text-amber-900">Importar</span>
+                        <span class="text-xs text-amber-600 font-medium">Datos</span>
+                    </div>
                 </a>
-                <a href="{{ route('inventario.retiro.access') }}" class="inline-flex flex-col items-center justify-center gap-1 px-4 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs w-24 h-16">
-                    <i class="fas fa-arrow-right text-slate-600 text-lg"></i>
-                    <span class="text-center leading-tight">Ir a<br>retiro</span>
+                <a href="{{ route('inventario.retiro.access') }}" class="inline-flex items-center gap-3 px-4 py-3 rounded-xl border border-orange-200 bg-orange-50 hover:bg-orange-100 text-orange-700 font-semibold text-sm transition-all">
+                    <div class="w-10 h-10 rounded-lg bg-orange-500 flex items-center justify-center">
+                        <i class="fas fa-arrow-right text-white text-lg"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="font-bold text-orange-900">Retiro</span>
+                        <span class="text-xs text-orange-600 font-medium">Ir a</span>
+                    </div>
                 </a>
             </div>
         @endif

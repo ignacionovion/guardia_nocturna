@@ -176,6 +176,43 @@ class TableroController extends Controller
             ->where('guardia_id', $activeGuardia?->id)
             ->count();
         
+        // Estadísticas de estados de asistencia (para todos los usuarios, no solo guardia)
+        $statusCounts = [
+            'constituye' => Bombero::where('guardia_id', $activeGuardia?->id)
+                ->where('estado_asistencia', 'constituye')
+                ->where(function ($q) {
+                    $q->whereNull('fuera_de_servicio')->orWhere('fuera_de_servicio', false);
+                })
+                ->count(),
+            'permiso' => Bombero::where('guardia_id', $activeGuardia?->id)
+                ->where('estado_asistencia', 'permiso')
+                ->where(function ($q) {
+                    $q->whereNull('fuera_de_servicio')->orWhere('fuera_de_servicio', false);
+                })
+                ->count(),
+            'ausente' => Bombero::where('guardia_id', $activeGuardia?->id)
+                ->where('estado_asistencia', 'ausente')
+                ->where(function ($q) {
+                    $q->whereNull('fuera_de_servicio')->orWhere('fuera_de_servicio', false);
+                })
+                ->count(),
+            'licencia' => Bombero::where('guardia_id', $activeGuardia?->id)
+                ->where('estado_asistencia', 'licencia')
+                ->where(function ($q) {
+                    $q->whereNull('fuera_de_servicio')->orWhere('fuera_de_servicio', false);
+                })
+                ->count(),
+            'falta' => Bombero::where('guardia_id', $activeGuardia?->id)
+                ->where('estado_asistencia', 'falta')
+                ->where(function ($q) {
+                    $q->whereNull('fuera_de_servicio')->orWhere('fuera_de_servicio', false);
+                })
+                ->count(),
+            'fuera_de_servicio' => Bombero::where('guardia_id', $activeGuardia?->id)
+                ->where('fuera_de_servicio', true)
+                ->count(),
+        ];
+        
         // Contar bomberos presentes (excluyendo licencia, permiso, ausente, falta, inhabilitado)
         $presentStatuses = ['constituye', 'reemplazo', 'refuerzo'];
         $presentCount = Bombero::where('guardia_id', $activeGuardia?->id)
@@ -632,6 +669,7 @@ class TableroController extends Controller
                 'activeReplacementsCount',
                 'activeRefuerzosCount',
                 'presentCount',
+                'statusCounts',
                 'lastEmergency',
                 'upcomingBirthdaysAll',
                 'guardiaEnServicio',

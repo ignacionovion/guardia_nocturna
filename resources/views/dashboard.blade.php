@@ -738,12 +738,14 @@
                     <div class="p-6">
                         <!-- Estadísticas Rápidas -->
                         @php
-                            $countPermiso    = isset($myStaff) ? $myStaff->where('estado_asistencia', 'permiso')->count() : 0;
-                            $countAusente    = isset($myStaff) ? $myStaff->where('estado_asistencia', 'ausente')->count() : 0;
-                            $countLicencia   = isset($myStaff) ? $myStaff->where('estado_asistencia', 'licencia')->count() : 0;
-                            $countFalta      = isset($myStaff) ? $myStaff->where('estado_asistencia', 'falta')->count() : 0;
-                            $countInhabilita = isset($myStaff) ? $myStaff->where('fuera_de_servicio', true)->count() : 0;
-                            $countConstituye = isset($myStaff) ? $myStaff->where('estado_asistencia', 'constituye')->count() : 0;
+                            // Usar statusCounts del controlador (disponible para todos los roles)
+                            // o calcular desde myStaff si está disponible (para compatibilidad)
+                            $countPermiso    = $statusCounts['permiso'] ?? (isset($myStaff) ? $myStaff->where('estado_asistencia', 'permiso')->count() : 0);
+                            $countAusente    = $statusCounts['ausente'] ?? (isset($myStaff) ? $myStaff->where('estado_asistencia', 'ausente')->count() : 0);
+                            $countLicencia   = $statusCounts['licencia'] ?? (isset($myStaff) ? $myStaff->where('estado_asistencia', 'licencia')->count() : 0);
+                            $countFalta      = $statusCounts['falta'] ?? (isset($myStaff) ? $myStaff->where('estado_asistencia', 'falta')->count() : 0);
+                            $countInhabilita = $statusCounts['fuera_de_servicio'] ?? (isset($myStaff) ? $myStaff->where('fuera_de_servicio', true)->count() : 0);
+                            $countConstituye = $statusCounts['constituye'] ?? (isset($myStaff) ? $myStaff->where('estado_asistencia', 'constituye')->count() : 0);
                         @endphp
                         <div class="grid grid-cols-3 gap-3 mb-4">
                             <div class="bg-purple-50 rounded-xl border border-purple-200 p-3 text-center">
