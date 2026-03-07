@@ -168,17 +168,20 @@ class TableroController extends Controller
             
         // Reemplazos activos totales (solo de la guardia activa)
         $activeReplacementsCount = ReemplazoBombero::where('estado', 'activo')
-            ->whereHas('originalFirefighter', function ($q) use ($activeGuardia) {
-                if ($activeGuardia) {
-                    $q->where('guardia_id', $activeGuardia->id);
-                }
-            })
+            ->where('guardia_id', $activeGuardia?->id)
             ->count();
         
         // Refuerzos activos totales (solo de la guardia activa)
         $activeRefuerzosCount = Bombero::where('es_refuerzo', true)
-            ->when($activeGuardia, function ($q) use ($activeGuardia) {
-                return $q->where('guardia_id', $activeGuardia->id);
+            ->where('guardia_id', $activeGuardia?->id)
+            ->count();
+        
+        // Contar bomberos presentes (excluyendo licencia, permiso, ausente, falta, inhabilitado)
+        $presentStatuses = ['constituye', 'reemplazo', 'refuerzo'];
+        $presentCount = Bombero::where('guardia_id', $activeGuardia?->id)
+            ->whereIn('estado_asistencia', $presentStatuses)
+            ->where(function ($q) {
+                $q->whereNull('fuera_de_servicio')->orWhere('fuera_de_servicio', false);
             })
             ->count();
         
@@ -628,6 +631,7 @@ class TableroController extends Controller
                 'onDutyCount',
                 'activeReplacementsCount',
                 'activeRefuerzosCount',
+                'presentCount',
                 'lastEmergency',
                 'upcomingBirthdaysAll',
                 'guardiaEnServicio',
