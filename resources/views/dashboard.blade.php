@@ -720,20 +720,20 @@
 
                 <!-- Panel de Movimientos - Estilo Reporte Profesional -->
                 <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="px-6 py-4 border-b border-slate-200 bg-slate-50">
+                    <div class="px-6 py-4 border-b border-slate-300 bg-slate-100">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
-                                <div class="bg-purple-500/20 p-2 rounded-lg text-purple-400">
+                                <div class="bg-purple-600 p-2 rounded-lg text-white shadow-sm">
                                     <i class="fas fa-exchange-alt text-lg"></i>
                                 </div>
                                 <div>
-                                    <h2 class="font-black text-white uppercase tracking-wider text-sm">Reporte de Movimientos</h2>
-                                    <p class="text-xs text-slate-400">Reemplazos, refuerzos y personal fuera de servicio</p>
+                                    <h2 class="font-black text-slate-900 uppercase tracking-wider text-sm">Reporte de Movimientos</h2>
+                                    <p class="text-xs text-slate-600">Reemplazos, refuerzos y personal fuera de servicio</p>
                                 </div>
                             </div>
                             <div class="flex items-center gap-2">
-                                <span class="text-xs font-bold text-slate-400 uppercase">Total reemplazos:</span>
-                                <span class="text-xl font-black text-purple-400">{{ $activeReplacementsCount }}</span>
+                                <span class="text-xs font-bold text-slate-600 uppercase">Total reemplazos:</span>
+                                <span class="text-xl font-black text-purple-700">{{ $activeReplacementsCount }}</span>
                             </div>
                         </div>
                     </div>
@@ -751,39 +751,39 @@
                             $countConstituye = $statusCounts['constituye'] ?? (isset($myStaff) ? $myStaff->where('estado_asistencia', 'constituye')->count() : 0);
                         @endphp
                         <div class="grid grid-cols-3 gap-3 mb-4">
-                            <div class="bg-purple-50 rounded-xl border border-purple-200 p-3 text-center">
-                                <div class="text-2xl font-black text-purple-700">{{ $activeReplacementsCount }}</div>
-                                <div class="text-xs font-bold text-purple-600 uppercase tracking-wider">Reemplazos</div>
+                            <div class="bg-purple-100 rounded-xl border-2 border-purple-400 p-3 text-center shadow-sm">
+                                <div class="text-2xl font-black text-purple-800">{{ $activeReplacementsCount }}</div>
+                                <div class="text-xs font-black text-purple-700 uppercase tracking-wider">Reemplazos</div>
                             </div>
-                            <div class="bg-sky-50 rounded-xl border border-sky-200 p-3 text-center">
-                                <div class="text-2xl font-black text-sky-700">{{ $activeRefuerzosCount }}</div>
-                                <div class="text-xs font-bold text-sky-600 uppercase tracking-wider">Refuerzos</div>
+                            <div class="bg-sky-100 rounded-xl border-2 border-sky-400 p-3 text-center shadow-sm">
+                                <div class="text-2xl font-black text-sky-800">{{ $activeRefuerzosCount }}</div>
+                                <div class="text-xs font-black text-sky-700 uppercase tracking-wider">Refuerzos</div>
                             </div>
-                            <div class="bg-red-50 rounded-xl border border-red-200 p-3 text-center">
-                                <div class="text-2xl font-black text-red-700">{{ $outOfServiceFirefighters }}</div>
-                                <div class="text-xs font-bold text-red-600 uppercase tracking-wider">Fuera Servicio</div>
+                            <div class="bg-red-100 rounded-xl border-2 border-red-400 p-3 text-center shadow-sm">
+                                <div class="text-2xl font-black text-red-800">{{ $outOfServiceFirefighters }}</div>
+                                <div class="text-xs font-black text-red-700 uppercase tracking-wider">Fuera Servicio</div>
                             </div>
                         </div>
                         <div class="grid grid-cols-5 gap-3 mb-6">
-                            <div class="bg-emerald-50 rounded-xl border border-emerald-200 p-3 text-center">
-                                <div class="text-xl font-black text-emerald-700">{{ $countConstituye }}</div>
-                                <div class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Constituyen</div>
+                            <div class="bg-emerald-100 rounded-xl border-2 border-emerald-400 p-3 text-center shadow-sm">
+                                <div class="text-xl font-black text-emerald-800">{{ $countConstituye }}</div>
+                                <div class="text-[10px] font-black text-emerald-700 uppercase tracking-wider">Constituyen</div>
                             </div>
-                            <div class="bg-amber-50 rounded-xl border border-amber-200 p-3 text-center">
-                                <div class="text-xl font-black text-amber-700">{{ $countPermiso }}</div>
-                                <div class="text-[10px] font-bold text-amber-600 uppercase tracking-wider">Permiso</div>
+                            <div class="bg-amber-100 rounded-xl border-2 border-amber-400 p-3 text-center shadow-sm">
+                                <div class="text-xl font-black text-amber-800">{{ $countPermiso }}</div>
+                                <div class="text-[10px] font-black text-amber-700 uppercase tracking-wider">Permiso</div>
                             </div>
-                            <div class="bg-slate-100 rounded-xl border border-slate-300 p-3 text-center">
-                                <div class="text-xl font-black text-slate-600">{{ $countAusente }}</div>
-                                <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Ausente</div>
+                            <div class="bg-slate-200 rounded-xl border-2 border-slate-400 p-3 text-center shadow-sm">
+                                <div class="text-xl font-black text-slate-700">{{ $countAusente }}</div>
+                                <div class="text-[10px] font-black text-slate-600 uppercase tracking-wider">Ausente</div>
                             </div>
-                            <div class="bg-blue-50 rounded-xl border border-blue-200 p-3 text-center">
-                                <div class="text-xl font-black text-blue-700">{{ $countLicencia }}</div>
-                                <div class="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Licencia</div>
+                            <div class="bg-blue-100 rounded-xl border-2 border-blue-400 p-3 text-center shadow-sm">
+                                <div class="text-xl font-black text-blue-800">{{ $countLicencia }}</div>
+                                <div class="text-[10px] font-black text-blue-700 uppercase tracking-wider">Licencia</div>
                             </div>
-                            <div class="bg-rose-50 rounded-xl border border-rose-200 p-3 text-center">
-                                <div class="text-xl font-black text-rose-700">{{ $countFalta }}</div>
-                                <div class="text-[10px] font-bold text-rose-600 uppercase tracking-wider">Falta</div>
+                            <div class="bg-rose-100 rounded-xl border-2 border-rose-400 p-3 text-center shadow-sm">
+                                <div class="text-xl font-black text-rose-800">{{ $countFalta }}</div>
+                                <div class="text-[10px] font-black text-rose-700 uppercase tracking-wider">Falta</div>
                             </div>
                         </div>
 
@@ -1005,12 +1005,12 @@
 
                 <!-- Próximos Cumpleaños -->
                 <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="px-5 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+                    <div class="px-5 py-4 border-b border-slate-300 bg-slate-100 flex justify-between items-center">
                         <h2 class="font-black text-slate-800 uppercase tracking-wider text-xs flex items-center gap-2">
-                            <i class="fas fa-cake-candles text-amber-500"></i>
+                            <i class="fas fa-cake-candles text-amber-600"></i>
                             Cumpleaños
                         </h2>
-                        <span class="text-xs font-bold text-slate-500">{{ $birthdaysMonthCount }} este mes</span>
+                        <span class="text-xs font-black text-slate-700">{{ $birthdaysMonthCount }} este mes</span>
                     </div>
                     <div class="p-5">
                         @if($upcomingBirthdaysAll->isEmpty())
@@ -1018,13 +1018,13 @@
                         @else
                             <div class="space-y-3">
                                 @foreach($upcomingBirthdaysAll as $b)
-                                    <div class="flex items-center gap-3 p-2 rounded-lg bg-slate-50">
-                                        <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-xs">
+                                    <div class="flex items-center gap-3 p-2.5 rounded-lg bg-slate-100 border border-slate-200">
+                                        <div class="w-8 h-8 rounded-full bg-amber-200 text-amber-800 flex items-center justify-center font-black text-xs border border-amber-300">
                                             {{ strtoupper(substr($b->nombres, 0, 1)) }}
                                         </div>
                                         <div class="flex-1 min-w-0">
-                                            <div class="text-sm font-medium text-slate-200 truncate">{{ $b->nombres }} {{ $b->apellido_paterno }}</div>
-                                            <div class="text-xs text-slate-500">{{ $b->next_birthday->format('d') }} de {{ $b->next_birthday->locale('es')->monthName }}</div>
+                                            <div class="text-sm font-black text-slate-900 truncate">{{ $b->nombres }} {{ $b->apellido_paterno }}</div>
+                                            <div class="text-xs font-semibold text-slate-700">{{ $b->next_birthday->format('d') }} de {{ $b->next_birthday->locale('es')->monthName }}</div>
                                         </div>
                                     </div>
                                 @endforeach
