@@ -42,6 +42,7 @@ class NovedadController extends Controller
             if (($validated['type'] ?? null) === 'Academia') {
                 $userId = $validated['user_id'] ?? null;
                 $firefighterId = $validated['firefighter_id'] ?? null;
+                $authUser = auth()->user();
 
                 if (!$userId && $firefighterId) {
                     $userId = MapaBomberoUsuarioLegacy::where('firefighter_id', (int) $firefighterId)->value('user_id');
@@ -52,6 +53,9 @@ class NovedadController extends Controller
                     $novelty->firefighter_id = (int) $firefighterId;
                 }
                 $novelty->date = isset($validated['date']) ? \Carbon\Carbon::parse($validated['date']) : now();
+                if ($authUser && $authUser->role === 'guardia' && $authUser->guardia_id) {
+                    $novelty->guardia_id = $authUser->guardia_id;
+                }
                 // Las academias NO van en la bitácora de novedades, se manejan aparte
             } else {
                 // Es una novedad regular (no academia)

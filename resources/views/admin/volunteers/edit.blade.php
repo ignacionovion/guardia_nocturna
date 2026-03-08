@@ -238,8 +238,10 @@
     <script>
         (function() {
             const cargos = [
-                'Honorario', 'Director', 'Secretario', 'Tesorero', 'Capitán', 'Teniente 1', 'Teniente 2', 'Teniente 3', 'Teniente 4',
-                'Ayudante', 'Ayudante 1', 'Ayudante 2', 'Ayudante 3', 'Pro Secretario', 'Pro Tesorero', 'Administrativo'
+                'Bombero', 'Bombero Operativo', 'Bombero Activo', 'Aspirante', 'Cadete', 'Honorario',
+                'Capitán', 'Capitán de Guardia', 'Teniente', 'Teniente 1', 'Teniente 2', 'Teniente 3', 'Teniente 4',
+                'Maquinista', 'Conductor', 'Operador', 'Ayudante', 'Ayudante 1', 'Ayudante 2', 'Ayudante 3',
+                'Director', 'Director Honorario', 'Secretario', 'Pro Secretario', 'Tesorero', 'Pro Tesorero', 'Administrativo'
             ];
 
             const root = document.getElementById('cargoComboboxEdit');

@@ -207,33 +207,31 @@
                     </a>
                     <button type="submit" class="bg-slate-800 hover:bg-slate-700 text-white font-bold py-2.5 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 flex items-center uppercase tracking-wide text-sm">
                         <i class="fas fa-save mr-2"></i> Registrar Voluntario
-                    </button>
-                </div>
-            </form>
         </div>
-    </div>
 
-    <script>
-        (function() {
-            const cargos = [
-                'Honorario', 'Director', 'Secretario', 'Tesorero', 'Capitán', 'Teniente 1', 'Teniente 2', 'Teniente 3', 'Teniente 4',
-                'Ayudante', 'Ayudante 1', 'Ayudante 2', 'Ayudante 3', 'Pro Secretario', 'Pro Tesorero', 'Administrativo'
-            ];
+        <script>
+            (function() {
+                const cargos = [
+                    'Bombero', 'Bombero Operativo', 'Bombero Activo', 'Aspirante', 'Cadete', 'Honorario',
+                    'Capitán', 'Capitán de Guardia', 'Teniente', 'Teniente 1', 'Teniente 2', 'Teniente 3', 'Teniente 4',
+                    'Maquinista', 'Conductor', 'Operador', 'Ayudante', 'Ayudante 1', 'Ayudante 2', 'Ayudante 3',
+                    'Director', 'Director Honorario', 'Secretario', 'Pro Secretario', 'Tesorero', 'Pro Tesorero', 'Administrativo'
+                ];
 
-            const root = document.getElementById('cargoComboboxCreate');
-            if (!root) return;
+                const root = document.getElementById('cargoComboboxCreate');
+                if (!root) return;
 
-            const input = document.getElementById('cargoInputCreate');
-            const toggle = document.getElementById('cargoToggleCreate');
-            const list = document.getElementById('cargoListCreate');
-            const options = document.getElementById('cargoOptionsCreate');
+                const input = document.getElementById('cargoInputCreate');
+                const toggle = document.getElementById('cargoToggleCreate');
+                const list = document.getElementById('cargoListCreate');
+                const options = document.getElementById('cargoOptionsCreate');
 
-            let filtered = cargos.slice();
-            let activeIndex = -1;
+                let filtered = cargos.slice();
+                let activeIndex = -1;
 
-            const open = () => {
-                list.classList.remove('hidden');
-            };
+                const open = () => {
+                    list.classList.remove('hidden');
+                };
 
             const close = () => {
                 list.classList.add('hidden');

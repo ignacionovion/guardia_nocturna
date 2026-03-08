@@ -563,10 +563,12 @@ class TableroController extends Controller
 
             $guardiaNovelties = Novelty::with(['user', 'guardia'])
                 ->notAcademy()
+                ->byGuardia($guardiaIdForGuardiaUser)
                 ->latest()
                 ->paginate(3);
             $academies = Novelty::with(['user', 'firefighter'])
                 ->academy()
+                ->where('guardia_id', $guardiaIdForGuardiaUser)
                 ->latest()
                 ->take(5)
                 ->get();

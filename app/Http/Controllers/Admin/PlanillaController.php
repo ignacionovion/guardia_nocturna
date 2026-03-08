@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Planilla;
+use App\Models\SystemSetting;
 use Illuminate\Http\Request;
 
 class PlanillaController extends Controller
@@ -98,6 +99,10 @@ class PlanillaController extends Controller
         // Semana actual - planillas por guardia
         $inicioSemana = now()->startOfWeek();
         $finSemana = now()->endOfWeek();
+        $weeklyCleanupTime = SystemSetting::getValue('guardia_week_cleanup_time', '18:00');
+        [$cleanupHour, $cleanupMinute] = array_map('intval', explode(':', (string) $weeklyCleanupTime));
+        $weekClosureAt = $finSemana->copy()->startOfDay()->setTime($cleanupHour, $cleanupMinute, 0);
+        $weekClosed = now()->greaterThanOrEqualTo($weekClosureAt);
         
         $guardias = \App\Models\Guardia::orderBy('name')->get();
         
@@ -123,12 +128,14 @@ class PlanillaController extends Controller
                 'completadas' => $completadas,
                 'total' => 3, // Total esperado por semana
                 'completo' => $completadas >= 3,
+                'estado' => 'pendiente',
             ];
-        })->map(function ($pg) use ($completadasPorGuardia) {
+        })->map(function ($pg) use ($completadasPorGuardia, $weekClosed) {
             $guardiaId = $pg['guardia']->id;
             $completadas = (int) ($completadasPorGuardia[$guardiaId] ?? 0);
             $pg['completadas'] = $completadas;
             $pg['completo'] = $completadas >= $pg['total'];
+            $pg['estado'] = $pg['completo'] ? 'completo' : ($weekClosed ? 'falta' : 'pendiente');
             return $pg;
         });
 

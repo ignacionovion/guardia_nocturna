@@ -28,6 +28,10 @@ Artisan::command('inspire', function () {
 // Programar el cleanup diario para que se ejecute automáticamente a las 07:00
 // El comando tiene una ventana de 5 minutos (07:00-07:05) para ejecutar la lógica
 Schedule::command('guardia:daily-cleanup')->everyMinute();
+Schedule::command('guardia:run-calendar')->everyMinute();
+Schedule::command('guardia:reset-beds')->everyMinute();
+Schedule::command('guardia:generate-notifications')->everyMinute();
+Schedule::command('guardia:weekly-archive-clean')->everyMinute();
 
 Artisan::command('guardia:expire-replacements', function () {
     $processed = ReplacementService::expire(Carbon::now());
@@ -585,7 +589,32 @@ Artisan::command('guardia:weekly-archive-clean {--at=} {--tz=}', function () {
         return;
     }
 
+    $alreadyArchived = \App\Models\GuardiaArchive::query()
+        ->where('guardia_id', $outgoingGuardia->id)
+        ->whereDate('archived_at', $nowApp->toDateString())
+        ->exists();
+
+    if ($alreadyArchived) {
+        return;
+    }
+
     $archive = null;
+
+    $planillaUnits = ['BR-3', 'B-3', 'RX-3'];
+    $weekStart = $weekStartPrevious->copy()->startOfWeek(Carbon::SUNDAY);
+    $weekEnd = $weekStartPrevious->copy()->endOfWeek(Carbon::SATURDAY);
+
+    $completedPlanillas = \App\Models\Planilla::query()
+        ->where('estado', 'finalizado')
+        ->whereBetween('fecha_revision', [$weekStart, $weekEnd])
+        ->whereIn('unidad', $planillaUnits)
+        ->pluck('unidad')
+        ->unique()
+        ->values();
+
+    $missingPlanillas = collect($planillaUnits)
+        ->reject(fn ($unidad) => $completedPlanillas->contains($unidad))
+        ->values();
 
     DB::transaction(function () use ($outgoingGuardia, $nowApp, $scheduleTz, &$archive) {
         $archive = \App\Models\GuardiaArchive::create([
@@ -619,8 +648,20 @@ Artisan::command('guardia:weekly-archive-clean {--at=} {--tz=}', function () {
 
         // Novedades/Academias
         $novelties = Novelty::query()
-            ->when(!empty($firefighterIds), fn ($q) => $q->whereIn('firefighter_id', $firefighterIds), fn ($q) => $q)
-            ->orWhereIn('user_id', $guardiaUserIds)
+            ->where(function ($q) use ($outgoingGuardia, $guardiaUserIds) {
+                $q->where('guardia_id', $outgoingGuardia->id);
+
+                if (!empty($guardiaUserIds)) {
+                    $q->orWhere(function ($q2) use ($guardiaUserIds) {
+                        $q2->where('type', 'Academia')
+                            ->whereIn('user_id', $guardiaUserIds);
+                    });
+                }
+            })
+            ->where(function ($q) {
+                $q->whereNull('is_permanent')
+                    ->orWhere('is_permanent', false);
+            })
             ->orderByDesc('id')
             ->get();
 
@@ -720,8 +761,20 @@ Artisan::command('guardia:weekly-archive-clean {--at=} {--tz=}', function () {
         // Limpieza datos operativos (guardia saliente)
         if (!empty($firefighterIds) || !empty($guardiaUserIds)) {
             Novelty::query()
-                ->when(!empty($firefighterIds), fn ($q) => $q->whereIn('firefighter_id', $firefighterIds), fn ($q) => $q)
-                ->orWhereIn('user_id', $guardiaUserIds)
+                ->where(function ($q) use ($outgoingGuardia, $guardiaUserIds) {
+                    $q->where('guardia_id', $outgoingGuardia->id);
+
+                    if (!empty($guardiaUserIds)) {
+                        $q->orWhere(function ($q2) use ($guardiaUserIds) {
+                            $q2->where('type', 'Academia')
+                                ->whereIn('user_id', $guardiaUserIds);
+                        });
+                    }
+                })
+                ->where(function ($q) {
+                    $q->whereNull('is_permanent')
+                        ->orWhere('is_permanent', false);
+                })
                 ->delete();
 
             \App\Models\CleaningAssignment::query()
@@ -736,5 +789,20 @@ Artisan::command('guardia:weekly-archive-clean {--at=} {--tz=}', function () {
         Bed::where('status', 'occupied')->update(['status' => 'available']);
     });
 
-    $this->info('Weekly archive/clean ejecutado para guardia ' . $outgoingGuardia->name . ' (' . $nowLocal->toDateTimeString() . ')');
+    if ($missingPlanillas->isNotEmpty() && class_exists(\App\Services\SystemEmailService::class)) {
+        \App\Services\SystemEmailService::send(
+            type: 'planilla',
+            subject: '📋 Planillas faltantes - ' . $outgoingGuardia->name . ' - Semana ' . $weekStart->format('d/m') . ' al ' . $weekEnd->format('d/m'),
+            lines: [
+                'Guardia: ' . $outgoingGuardia->name,
+                'Semana: ' . $weekStart->format('d/m/Y') . ' al ' . $weekEnd->format('d/m/Y'),
+                'Planillas completadas: ' . $completedPlanillas->count() . '/' . count($planillaUnits),
+                'Planillas faltantes: ' . $missingPlanillas->implode(', '),
+                'Estado: FALTA',
+            ],
+            sourceLabel: 'Planillas semanales'
+        );
+    }
+
+    $this->info('Weekly archive clean ejecutado para guardia saliente: ' . $outgoingGuardia->name);
 })->purpose('Domingo: archiva y limpia datos operativos al cierre semanal de una guardia (según horario configurado)');

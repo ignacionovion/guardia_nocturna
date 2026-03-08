@@ -145,27 +145,34 @@
                 <div class="p-4">
                     <div class="space-y-3">
                         @foreach($planillasPorGuardia as $pg)
-                            <div class="flex items-center justify-between p-3 rounded-xl {{ $pg['completo'] ? 'bg-emerald-50 border border-emerald-100' : 'bg-slate-50 border border-slate-100' }}">
+                            <div class="flex items-center justify-between p-3 rounded-xl {{ $pg['estado'] === 'completo' ? 'bg-emerald-50 border border-emerald-100' : ($pg['estado'] === 'falta' ? 'bg-rose-50 border border-rose-100' : 'bg-slate-50 border border-slate-100') }}">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-full {{ $pg['completo'] ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-500' }} flex items-center justify-center text-xs font-bold">
-                                        @if($pg['completo'])
+                                    <div class="w-8 h-8 rounded-full {{ $pg['estado'] === 'completo' ? 'bg-emerald-500 text-white' : ($pg['estado'] === 'falta' ? 'bg-rose-500 text-white' : 'bg-slate-200 text-slate-500') }} flex items-center justify-center text-xs font-bold">
+                                        @if($pg['estado'] === 'completo')
                                             <i class="fas fa-check"></i>
+                                        @elseif($pg['estado'] === 'falta')
+                                            <i class="fas fa-times"></i>
                                         @else
                                             <i class="fas fa-clock"></i>
                                         @endif
                                     </div>
                                     <div>
                                         <div class="text-sm font-bold text-slate-800">{{ $pg['guardia']->name }}</div>
-                                        <div class="text-xs {{ $pg['completo'] ? 'text-emerald-600' : 'text-amber-600' }}">
+                                        <div class="text-xs {{ $pg['estado'] === 'completo' ? 'text-emerald-600' : ($pg['estado'] === 'falta' ? 'text-rose-600' : 'text-amber-600') }}">
                                             {{ $pg['completadas'] }}/{{ $pg['total'] }} planillas
                                         </div>
                                     </div>
                                 </div>
                                 <div class="text-right">
-                                    @if($pg['completo'])
+                                    @if($pg['estado'] === 'completo')
                                         <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold">
                                             <i class="fas fa-check-circle"></i>
                                             Completo
+                                        </span>
+                                    @elseif($pg['estado'] === 'falta')
+                                        <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-rose-100 text-rose-700 text-xs font-bold">
+                                            <i class="fas fa-times-circle"></i>
+                                            FALTA
                                         </span>
                                     @else
                                         <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-bold">
@@ -182,6 +189,10 @@
                             <div class="flex items-center gap-1">
                                 <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
                                 <span>Completado</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <span class="w-3 h-3 rounded-full bg-rose-500"></span>
+                                <span>Falta</span>
                             </div>
                             <div class="flex items-center gap-1">
                                 <span class="w-3 h-3 rounded-full bg-amber-500"></span>
