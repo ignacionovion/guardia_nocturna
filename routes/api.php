@@ -35,7 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('cleaning-assignments', AsignacionAseoController::class);
 
     // Novedades
-    Route::apiResource('novelties', NovedadController::class);
+    Route::apiResource('novelties', NovedadController::class)->names('api.novelties');
 
     // Recordatorios
     Route::apiResource('reminders', RecordatorioController::class);
