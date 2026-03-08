@@ -185,6 +185,22 @@
 
     {{-- Calendar Grid --}}
     <div class="max-w-7xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        @php
+            $guardiaPalette = [
+                ['dot' => 'bg-blue-500', 'badge' => 'bg-blue-50 text-blue-700 border-blue-200', 'icon' => 'text-blue-600', 'card' => 'from-blue-500 to-blue-600', 'cardShadow' => 'shadow-blue-200', 'count' => 'text-blue-600'],
+                ['dot' => 'bg-emerald-500', 'badge' => 'bg-emerald-50 text-emerald-700 border-emerald-200', 'icon' => 'text-emerald-600', 'card' => 'from-emerald-500 to-emerald-600', 'cardShadow' => 'shadow-emerald-200', 'count' => 'text-emerald-600'],
+                ['dot' => 'bg-amber-500', 'badge' => 'bg-amber-50 text-amber-700 border-amber-200', 'icon' => 'text-amber-600', 'card' => 'from-amber-500 to-amber-600', 'cardShadow' => 'shadow-amber-200', 'count' => 'text-amber-600'],
+                ['dot' => 'bg-purple-500', 'badge' => 'bg-purple-50 text-purple-700 border-purple-200', 'icon' => 'text-purple-600', 'card' => 'from-purple-500 to-purple-600', 'cardShadow' => 'shadow-purple-200', 'count' => 'text-purple-600'],
+                ['dot' => 'bg-rose-500', 'badge' => 'bg-rose-50 text-rose-700 border-rose-200', 'icon' => 'text-rose-600', 'card' => 'from-rose-500 to-rose-600', 'cardShadow' => 'shadow-rose-200', 'count' => 'text-rose-600'],
+                ['dot' => 'bg-cyan-500', 'badge' => 'bg-cyan-50 text-cyan-700 border-cyan-200', 'icon' => 'text-cyan-600', 'card' => 'from-cyan-500 to-cyan-600', 'cardShadow' => 'shadow-cyan-200', 'count' => 'text-cyan-600'],
+                ['dot' => 'bg-orange-500', 'badge' => 'bg-orange-50 text-orange-700 border-orange-200', 'icon' => 'text-orange-600', 'card' => 'from-orange-500 to-orange-600', 'cardShadow' => 'shadow-orange-200', 'count' => 'text-orange-600'],
+                ['dot' => 'bg-fuchsia-500', 'badge' => 'bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200', 'icon' => 'text-fuchsia-600', 'card' => 'from-fuchsia-500 to-fuchsia-600', 'cardShadow' => 'shadow-fuchsia-200', 'count' => 'text-fuchsia-600'],
+            ];
+
+            $guardiaColors = $guardias->mapWithKeys(function ($guardia) use ($guardiaPalette) {
+                return [$guardia->id => $guardiaPalette[$guardia->id % count($guardiaPalette)]];
+            });
+        @endphp
         <div class="bg-slate-900 px-6 py-5 border-b border-slate-800 flex justify-between items-center">
             <h2 class="text-lg font-black text-white flex items-center uppercase tracking-wider">
                 <i class="fas fa-calendar-week mr-3 text-red-500"></i>
@@ -192,9 +208,14 @@
             </h2>
             <div class="flex items-center gap-4">
                 <span class="text-sm text-slate-400 font-medium">{{ $calendarDays->count() }} días configurados</span>
-                <div class="flex items-center gap-2">
-                    <span class="w-3 h-3 rounded-full bg-blue-500"></span>
-                    <span class="text-xs text-slate-400">Con guardia</span>
+                <div class="hidden md:flex flex-wrap items-center justify-end gap-2 max-w-[420px]">
+                    @foreach($guardias as $legendGuardia)
+                        @php $legendColors = $guardiaColors[$legendGuardia->id] ?? $guardiaPalette[0]; @endphp
+                        <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-slate-800/80 border border-slate-700">
+                            <span class="w-2.5 h-2.5 rounded-full {{ $legendColors['dot'] }}"></span>
+                            <span class="text-[10px] text-slate-300 font-bold uppercase tracking-wide">{{ $legendGuardia->name }}</span>
+                        </div>
+                    @endforeach
                 </div>
             </div>
         </div>
@@ -234,9 +255,10 @@
                         @endif
                     </div>
                     @if($row && $row->guardia)
+                        @php $rowColors = $guardiaColors[$row->guardia->id] ?? $guardiaPalette[0]; @endphp
                         <div class="mt-0.5 sm:mt-1">
-                            <div class="inline-flex items-center gap-1 px-1.5 sm:px-3 py-1 sm:py-1.5 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 shadow-sm">
-                                <i class="fas fa-shield-alt text-blue-600 text-[8px] sm:text-xs"></i>
+                            <div class="inline-flex items-center gap-1 px-1.5 sm:px-3 py-1 sm:py-1.5 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-bold border shadow-sm {{ $rowColors['badge'] }}">
+                                <i class="fas fa-shield-alt text-[8px] sm:text-xs {{ $rowColors['icon'] }}"></i>
                                 <span class="truncate max-w-[40px] sm:max-w-none">{{ $row->guardia->name }}</span>
                             </div>
                         </div>
@@ -254,15 +276,16 @@
         @foreach($guardias as $g)
             @php
                 $daysCount = $calendarDays->filter(fn($d) => $d->guardia_id === $g->id)->count();
+                $summaryColors = $guardiaColors[$g->id] ?? $guardiaPalette[0];
             @endphp
             <div class="bg-white rounded-xl border border-slate-200 p-4 flex items-center gap-4 shadow-sm">
-                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-200">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br {{ $summaryColors['card'] }} text-white flex items-center justify-center shadow-lg {{ $summaryColors['cardShadow'] }}">
                     <i class="fas fa-shield text-lg"></i>
                 </div>
                 <div class="flex-1">
                     <div class="text-base font-black text-slate-800">{{ $g->name }}</div>
                     <div class="flex items-center gap-2 mt-0.5">
-                        <span class="text-2xl font-black text-blue-600">{{ $daysCount }}</span>
+                        <span class="text-2xl font-black {{ $summaryColors['count'] }}">{{ $daysCount }}</span>
                         <span class="text-xs text-slate-500">días asignados</span>
                     </div>
                 </div>

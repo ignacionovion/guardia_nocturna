@@ -1156,6 +1156,20 @@
                     </button>
                 </div>
                 @php
+                    $yearGuardiaPalette = [
+                        ['badge' => 'bg-blue-500/10 text-blue-200 border-blue-500/20', 'dot' => 'bg-blue-400'],
+                        ['badge' => 'bg-emerald-500/10 text-emerald-200 border-emerald-500/20', 'dot' => 'bg-emerald-400'],
+                        ['badge' => 'bg-amber-500/10 text-amber-200 border-amber-500/20', 'dot' => 'bg-amber-400'],
+                        ['badge' => 'bg-purple-500/10 text-purple-200 border-purple-500/20', 'dot' => 'bg-purple-400'],
+                        ['badge' => 'bg-rose-500/10 text-rose-200 border-rose-500/20', 'dot' => 'bg-rose-400'],
+                        ['badge' => 'bg-cyan-500/10 text-cyan-200 border-cyan-500/20', 'dot' => 'bg-cyan-400'],
+                        ['badge' => 'bg-orange-500/10 text-orange-200 border-orange-500/20', 'dot' => 'bg-orange-400'],
+                        ['badge' => 'bg-fuchsia-500/10 text-fuchsia-200 border-fuchsia-500/20', 'dot' => 'bg-fuchsia-400'],
+                    ];
+                    $yearGuardias = \App\Models\Guardia::query()->orderBy('name')->get();
+                    $yearGuardiaColors = $yearGuardias->mapWithKeys(function ($guardia) use ($yearGuardiaPalette) {
+                        return [$guardia->id => $yearGuardiaPalette[$guardia->id % count($yearGuardiaPalette)]];
+                    });
                     $yearCalendarDays = \App\Models\GuardiaCalendarDay::query()
                         ->with('guardia:id,name')
                         ->whereYear('date', now()->year)
@@ -1163,6 +1177,15 @@
                         ->keyBy(fn ($day) => \Carbon\Carbon::parse($day->date)->toDateString());
                 @endphp
                 <div class="p-4 sm:p-6">
+                    <div class="mb-4 flex flex-wrap gap-2">
+                        @foreach($yearGuardias as $legendGuardia)
+                            @php $legendColor = $yearGuardiaColors[$legendGuardia->id] ?? $yearGuardiaPalette[0]; @endphp
+                            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-700 bg-slate-950">
+                                <span class="w-2.5 h-2.5 rounded-full {{ $legendColor['dot'] }}"></span>
+                                <span class="text-[10px] font-black uppercase tracking-wide text-slate-200">{{ $legendGuardia->name }}</span>
+                            </div>
+                        @endforeach
+                    </div>
                     <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
                         @foreach(range(1, 12) as $monthNumber)
                             @php
@@ -1197,7 +1220,8 @@
                                                 @endif
                                             </div>
                                             @if($calendarDay && $calendarDay->guardia)
-                                                <div class="mt-2 px-1.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-[10px] leading-tight font-bold text-emerald-200 break-words">{{ $calendarDay->guardia->name }}</div>
+                                                @php $calendarColor = $yearGuardiaColors[$calendarDay->guardia->id] ?? $yearGuardiaPalette[0]; @endphp
+                                                <div class="mt-2 px-1.5 py-1 rounded-lg border text-[10px] leading-tight font-bold break-words {{ $calendarColor['badge'] }}">{{ $calendarDay->guardia->name }}</div>
                                             @endif
                                         </div>
                                         @php $monthCursor->addDay(); @endphp
