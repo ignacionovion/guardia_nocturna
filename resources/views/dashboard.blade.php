@@ -735,7 +735,7 @@
                                 </div>
                                 <div>
                                     <h2 class="font-black text-slate-900 uppercase tracking-wider text-sm">Reporte de Movimientos</h2>
-                                    <p class="text-xs text-slate-600">Reemplazos, refuerzos y personal fuera de servicio</p>
+                                    <p class="text-xs text-slate-600">Reemplazos, refuerzos y personal fuera de servicio   PROBANDOOOOOO</p>
                                 </div>
                             </div>
                             <div class="flex items-center gap-2">
