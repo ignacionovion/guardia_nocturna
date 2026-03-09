@@ -97,26 +97,41 @@ class TableroController extends Controller
             ? $globalCurrentShift->users->whereNull('end_time')->pluck('firefighter_id')->filter()->values()->toArray()
             : [];
 
-        // Novedades filtradas por guardia (o permanentes) - excluyendo academias
+        // Novedades filtradas según rol:
+        // - guardia: solo las de su propia guardia + permanentes + las de admin/capitán (sin guardia_id)
+        // - admin/capitán: todas
         $noveltiesQuery = Novelty::with(['user', 'guardia'])
-            ->notAcademy() // Excluir academias de la bitácora
+            ->notAcademy()
             ->latest();
-        
-        // Filtrar por guardia si el usuario tiene una guardia asignada y no es admin/capitán
-        if ($user->guardia_id && !in_array($user->role, ['super_admin', 'capitania'], true)) {
-            $noveltiesQuery->byGuardia($user->guardia_id);
+
+        if (!in_array($user->role, ['super_admin', 'capitania'], true)) {
+            // Guardia: ve sus propias novedades, las permanentes, y las ingresadas por admin/capitán (sin guardia asignada)
+            $noveltiesQuery->where(function ($q) use ($user) {
+                $q->where('guardia_id', $user->guardia_id)
+                  ->orWhere('is_permanent', true)
+                  ->orWhereNull('guardia_id');
+            });
         }
-        
+        // Admin/capitán: sin filtro → ve todo
+
         $novelties = $noveltiesQuery->take(5)->get();
-        
+
         // Novedades específicas de la guardia (para vista de guardia)
         $guardiaNovelties = null;
         if ($user->guardia_id) {
-            $guardiaNovelties = Novelty::with(['user', 'guardia'])
+            $guardiaQuery = Novelty::with(['user', 'guardia'])
                 ->notAcademy()
-                ->byGuardia($user->guardia_id)
-                ->latest()
-                ->paginate(10);
+                ->latest();
+
+            if (!in_array($user->role, ['super_admin', 'capitania'], true)) {
+                $guardiaQuery->where(function ($q) use ($user) {
+                    $q->where('guardia_id', $user->guardia_id)
+                      ->orWhere('is_permanent', true)
+                      ->orWhereNull('guardia_id');
+                });
+            }
+
+            $guardiaNovelties = $guardiaQuery->paginate(10);
         }
         
         // Academias - separadas de la bitácora de novedades

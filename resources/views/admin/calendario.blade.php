@@ -39,7 +39,7 @@
     <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {{-- Asignar Rango --}}
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-            <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+            <div class="bg-slate-900 px-6 py-4 border-b border-slate-800">
                 <h2 class="text-white font-black text-sm uppercase tracking-wider flex items-center gap-2">
                     <i class="fas fa-calendar-plus"></i>
                     Asignar Rango de Fechas
@@ -55,7 +55,7 @@
                             <div class="relative">
                                 <i class="fas fa-calendar absolute left-3 top-3 text-slate-400 text-sm"></i>
                                 <input type="date" name="from" required 
-                                    class="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all">
+                                    class="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:bg-white focus:border-slate-500 focus:ring-2 focus:ring-slate-200 transition-all">
                             </div>
                         </div>
                         <div>
@@ -63,7 +63,7 @@
                             <div class="relative">
                                 <i class="fas fa-calendar absolute left-3 top-3 text-slate-400 text-sm"></i>
                                 <input type="date" name="to" required 
-                                    class="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all">
+                                    class="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:bg-white focus:border-slate-500 focus:ring-2 focus:ring-slate-200 transition-all">
                             </div>
                         </div>
                     </div>
@@ -73,7 +73,7 @@
                         <div class="relative">
                             <i class="fas fa-shield absolute left-3 top-3 text-slate-400 text-sm"></i>
                             <select name="guardia_id" required 
-                                class="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all appearance-none">
+                                class="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:bg-white focus:border-slate-500 focus:ring-2 focus:ring-slate-200 transition-all appearance-none">
                                 @foreach($guardias as $g)
                                     <option value="{{ $g->id }}">{{ $g->name }}</option>
                                 @endforeach
@@ -84,14 +84,13 @@
 
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Días de la Semana</label>
-                        <div class="flex flex-wrap gap-2">
+                        <div class="grid grid-cols-4 sm:grid-cols-7 gap-2">
                             @foreach([
-                                ['1', 'Lun', 'blue'], ['2', 'Mar', 'emerald'], ['3', 'Mié', 'amber'],
-                                ['4', 'Jue', 'purple'], ['5', 'Vie', 'rose'], ['6', 'Sáb', 'indigo'], ['0', 'Dom', 'red']
-                            ] as [$val, $label, $color])
+                                ['1', 'Lun'], ['2', 'Mar'], ['3', 'Mié'], ['4', 'Jue'], ['5', 'Vie'], ['6', 'Sáb'], ['0', 'Dom']
+                            ] as [$val, $label])
                                 <label class="cursor-pointer">
                                     <input type="checkbox" name="weekdays[]" value="{{ $val }}" checked class="peer sr-only">
-                                    <span class="inline-flex items-center justify-center w-14 h-10 rounded-lg bg-slate-100 text-slate-600 text-xs font-bold uppercase border border-slate-200 peer-checked:bg-{{ $color }}-500 peer-checked:text-white peer-checked:border-{{ $color }}-500 transition-all hover:bg-slate-200">
+                                    <span class="inline-flex w-full items-center justify-center h-10 rounded-lg bg-slate-100 text-slate-600 text-xs font-bold uppercase border border-slate-200 peer-checked:bg-slate-900 peer-checked:text-white peer-checked:border-slate-900 transition-all hover:bg-slate-200">
                                         {{ $label }}
                                     </span>
                                 </label>
@@ -99,7 +98,7 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3 px-4 rounded-xl shadow-lg shadow-blue-200 transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-wider">
+                    <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-black py-3 px-4 rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-wider">
                         <i class="fas fa-check-circle"></i>
                         Aplicar Asignación
                     </button>
@@ -109,7 +108,7 @@
 
         {{-- Generar Rotación --}}
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-            <div class="bg-gradient-to-r from-slate-700 to-slate-800 px-6 py-4">
+            <div class="bg-slate-900 px-6 py-4 border-b border-slate-800">
                 <h2 class="text-white font-black text-sm uppercase tracking-wider flex items-center gap-2">
                     <i class="fas fa-sync-alt"></i>
                     Generar Rotación Semanal
@@ -174,7 +173,7 @@
                             placeholder="usuario@ejemplo.com, otro@ejemplo.com">
                     </div>
 
-                    <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-black py-3 px-4 rounded-xl shadow-lg shadow-slate-200 transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-wider">
+                    <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-black py-3 px-4 rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-wider">
                         <i class="fas fa-magic"></i>
                         Generar Rotación
                     </button>

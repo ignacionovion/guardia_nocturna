@@ -125,7 +125,9 @@ Route::get('/media/{path}', function (string $path) {
 // Rutas Protegidas (Dashboard)
 use App\Http\Controllers\NotificationController;
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
+    Route::view('/guardia/fuera-de-servicio', 'guardia.off_duty')->name('guardia.off_duty');
+
     // API de Notificaciones
     Route::get('/api/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/api/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread_count');

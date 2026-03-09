@@ -46,6 +46,9 @@
                 return in_array($u->estado_asistencia, ['constituye', 'reemplazo'], true);
             });
 
+            $visibleStaffCount = $activeStaff->count();
+            $presentStaffCount = $onDutyStaff->count();
+
             $offDutyStaff = $myStaff->reject(function ($u) use ($replacementByOriginal) {
                 $isReplaced = (bool) ($replacementByOriginal && $replacementByOriginal->has($u->id));
                 return !$isReplaced && in_array($u->estado_asistencia, ['constituye', 'reemplazo'], true);
@@ -77,7 +80,7 @@
                                 <span class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-100 text-slate-700 shrink-0">FUERA DE TURNO</span>
                             @endif
                         </div>
-                        <div class="mt-0.5 text-xs font-medium text-slate-500">{{ $activeStaff->count() }} bomberos | {{ $onDutyStaff->count() }} presentes</div>
+                        <div class="mt-0.5 text-xs font-medium text-slate-500">{{ $visibleStaffCount }} en pantalla | {{ $presentStaffCount }} presentes</div>
                     </div>
                 </div>
 
@@ -134,10 +137,7 @@
                         $attendanceMessage = '';
                         $attendanceBadgeClass = '';
                         
-                        if ($shiftClosedForToday) {
-                            $attendanceMessage = 'RECORDAR REGISTRAR GUARDIA A LAS 22:00';
-                            $attendanceBadgeClass = 'border-amber-200 bg-amber-50 text-amber-800';
-                        } elseif (isset($hasAttendanceSavedToday) && $hasAttendanceSavedToday && !empty($attendanceIsStale)) {
+                        if (isset($hasAttendanceSavedToday) && $hasAttendanceSavedToday && !empty($attendanceIsStale)) {
                             // Asistencia guardada pero roster cambió (refuerzo/reemplazo agregado después)
                             $attendanceMessage = 'ASISTENCIA DESACTUALIZADA';
                             $attendanceBadgeClass = 'border-amber-200 bg-amber-50 text-amber-800';
@@ -145,6 +145,9 @@
                             // Asistencia guardada correctamente
                             $attendanceMessage = 'ASISTENCIA REGISTRADA CORRECTAMENTE';
                             $attendanceBadgeClass = 'border-emerald-200 bg-emerald-50 text-emerald-700';
+                        } elseif ($shiftClosedForToday) {
+                            $attendanceMessage = 'RECORDAR REGISTRAR GUARDIA A LAS 22:00';
+                            $attendanceBadgeClass = 'border-amber-200 bg-amber-50 text-amber-800';
                         } else {
                             if ($isAfter2200) {
                                 $attendanceMessage = 'GUARDA LA ASISTENCIA ANTES DE IRTE';
@@ -749,8 +752,12 @@
                             $countFalta      = $statusCounts['falta'] ?? (isset($myStaff) ? $myStaff->where('estado_asistencia', 'falta')->count() : 0);
                             $countInhabilita = $statusCounts['fuera_de_servicio'] ?? (isset($myStaff) ? $myStaff->where('fuera_de_servicio', true)->count() : 0);
                             $countConstituye = $statusCounts['constituye'] ?? (isset($myStaff) ? $myStaff->where('estado_asistencia', 'constituye')->count() : 0);
+                            $dashboardActiveReplacements = isset($replacementByOriginal) ? collect($replacementByOriginal)->values() : collect();
+                            $dashboardActiveRefuerzos = isset($activeStaff)
+                                ? $activeStaff->filter(fn($staff) => (bool) ($staff->es_refuerzo ?? false))->values()
+                                : collect();
                         @endphp
-                        <div class="grid grid-cols-3 gap-3 mb-4">
+                        <div class="grid grid-cols-3 gap-3 mb-6">
                             <div class="bg-purple-100 rounded-xl border-2 border-purple-400 p-3 text-center shadow-sm">
                                 <div class="text-2xl font-black text-purple-800">{{ $activeReplacementsCount }}</div>
                                 <div class="text-xs font-black text-purple-700 uppercase tracking-wider">Reemplazos</div>
@@ -788,14 +795,14 @@
                         </div>
 
                         <!-- Lista Detallada de Reemplazos Activos -->
-                        @if(isset($replacementByOriginal) && $replacementByOriginal->isNotEmpty())
+                        @if($dashboardActiveReplacements->isNotEmpty())
                             <div class="mb-6">
                                 <h3 class="text-xs font-black text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
                                     <i class="fas fa-list-ul"></i>
                                     Detalle de Reemplazos Activos
                                 </h3>
                                 <div class="space-y-3">
-                                    @foreach($replacementByOriginal as $replacement)
+                                    @foreach($dashboardActiveReplacements as $replacement)
                                         <div class="bg-slate-50 rounded-xl border border-slate-200 p-4">
                                             <div class="flex items-start gap-4">
                                                 <!-- Reemplazado -->
@@ -849,14 +856,14 @@
                         @endif
 
                         <!-- Lista Detallada de Refuerzos Activos -->
-                        @if(isset($myStaff) && $myStaff->where('es_refuerzo', true)->isNotEmpty())
+                        @if($dashboardActiveRefuerzos->isNotEmpty())
                             <div class="mb-6">
                                 <h3 class="text-xs font-black text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
                                     <i class="fas fa-user-friends"></i>
                                     Detalle de Refuerzos Activos
                                 </h3>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                    @foreach($myStaff->where('es_refuerzo', true) as $refuerzo)
+                                    @foreach($dashboardActiveRefuerzos as $refuerzo)
                                         <div class="bg-sky-50 rounded-xl border border-sky-200 p-4">
                                             <div class="flex items-center gap-3">
                                                 <div class="w-10 h-10 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-sm">
@@ -874,7 +881,7 @@
                             </div>
                         @endif
 
-                        @if((!isset($replacementByOriginal) || $replacementByOriginal->isEmpty()) && (!isset($myStaff) || $myStaff->where('es_refuerzo', true)->isEmpty()))
+                        @if($dashboardActiveReplacements->isEmpty() && $dashboardActiveRefuerzos->isEmpty())
                             <div class="text-center py-8 bg-slate-50 rounded-xl border border-slate-200">
                                 <div class="inline-flex items-center justify-center w-12 h-12 bg-slate-200 rounded-full mb-3">
                                     <i class="fas fa-check text-slate-500"></i>
@@ -916,7 +923,7 @@
                             </div>
                             <div class="text-center">
                                 <p class="text-3xl font-black text-emerald-600">{{ $activeFirefighters }}</p>
-                                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">Activos</p>
+                                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">Habilitados</p>
                             </div>
                             <div class="text-center">
                                 <p class="text-3xl font-black text-slate-900">{{ $totalGuardias }}</p>
@@ -1197,7 +1204,10 @@
                             @endphp
                             <div class="rounded-2xl border border-slate-800 bg-slate-950 overflow-hidden">
                                 <div class="px-4 py-3 border-b border-slate-800 bg-slate-900">
-                                    <div class="text-sm sm:text-base font-black uppercase tracking-wide text-slate-100">{{ ucfirst($monthStart->translatedFormat('F')) }}</div>
+                                    @php
+                                        $spanishMonths = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+                                    @endphp
+                                    <div class="text-sm sm:text-base font-black uppercase tracking-wide text-slate-100">{{ $spanishMonths[$monthNumber - 1] }}</div>
                                 </div>
                                 <div class="grid grid-cols-7 bg-slate-900 border-b border-slate-800">
                                     @foreach(['D', 'L', 'M', 'M', 'J', 'V', 'S'] as $weekDay)
@@ -1484,6 +1494,14 @@
             e.preventDefault();
             e.returnValue = '';
         });
+
+        // Suppress beforeunload for any non-attendance form navigation
+        document.addEventListener('submit', function(e) {
+            const form = e.target;
+            if (form && form.id !== 'guardia-attendance-form') {
+                window.__attendanceSubmitting = true;
+            }
+        }, true);
 
         window.bindAttendanceFormHandlers = function() {
             const form = document.getElementById('guardia-attendance-form');
@@ -1822,7 +1840,8 @@
 
                         if (missingItems.length > 0) {
                             // Nuevo refuerzo/reemplazo agregado después de guardar → habilitar botón
-                            if (window.__attendanceSavedToday) {
+                            // Solo marcar dirty si estamos dentro de la ventana de asistencia
+                            if (window.__attendanceSavedToday && isAttendanceWindowOpen()) {
                                 markAttendanceDirty();
                             }
                             try {
@@ -2481,6 +2500,9 @@
                     if (!nextRoot) return;
 
                     root.innerHTML = nextRoot.innerHTML;
+
+                    // Reset dirty flag so markAttendanceDirty can re-fire if new items detected
+                    window.__attendanceDirty = false;
 
                     // Restaurar estado de confirmación inmediatamente después del swap
                     Object.keys(savedConfirmState).forEach(uid => {
