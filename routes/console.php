@@ -20,6 +20,7 @@ use App\Models\Bombero;
 use App\Models\SystemSetting;
 
 use Illuminate\Support\Facades\Schedule;
+use Illuminate\Support\Facades\Log;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -83,14 +84,31 @@ Artisan::command('guardia:daily-cleanup {--at=} {--tz=}', function () {
 
     $nowLocal = $at ? Carbon::parse($at, $scheduleTz) : Carbon::now($scheduleTz);
     $nowApp = $nowLocal->copy()->setTimezone(config('app.timezone'));
+    $logContext = [
+        'command' => 'guardia:daily-cleanup',
+        'now_local' => $nowLocal->toDateTimeString(),
+        'now_app' => $nowApp->toDateTimeString(),
+        'schedule_tz' => $scheduleTz,
+    ];
 
     $cleanupTime = SystemSetting::getValue('guardia_daily_end_time', '07:00');
     [$cleanupH, $cleanupM] = array_map('intval', explode(':', (string) $cleanupTime));
     $runAt = $nowLocal->copy()->startOfDay()->addHours($cleanupH)->addMinutes($cleanupM);
     $windowEnd = $runAt->copy()->addMinutes(5);
     if (!($nowLocal->greaterThanOrEqualTo($runAt) && $nowLocal->lessThan($windowEnd))) {
+        Log::info('Guardia daily cleanup skipped: outside execution window', $logContext + [
+            'configured_time' => $cleanupTime,
+            'window_start' => $runAt->toDateTimeString(),
+            'window_end' => $windowEnd->toDateTimeString(),
+        ]);
         return;
     }
+
+    Log::info('Guardia daily cleanup started', $logContext + [
+        'configured_time' => $cleanupTime,
+        'window_start' => $runAt->toDateTimeString(),
+        'window_end' => $windowEnd->toDateTimeString(),
+    ]);
 
     $shift = Shift::where('status', 'active')->latest()->first();
 
@@ -257,6 +275,12 @@ Artisan::command('guardia:run-calendar {--at=} {--tz=}', function () {
 
     $nowLocal = $at ? Carbon::parse($at, $scheduleTz) : Carbon::now($scheduleTz);
     $nowApp = $nowLocal->copy()->setTimezone(config('app.timezone'));
+    $logContext = [
+        'command' => 'guardia:run-calendar',
+        'now_local' => $nowLocal->toDateTimeString(),
+        'now_app' => $nowApp->toDateTimeString(),
+        'schedule_tz' => $scheduleTz,
+    ];
 
     $closeActiveShifts = function (?int $exceptShiftId = null) use ($nowApp, $nowLocal) {
         Shift::where('status', 'active')
@@ -309,6 +333,20 @@ Artisan::command('guardia:run-calendar {--at=} {--tz=}', function () {
         }
     };
 
+    $resolveCurrentWeeklyGuardia = function () use ($nowLocal) {
+        $activeGuardia = Guardia::where('is_active_week', true)->first();
+        if ($activeGuardia) {
+            return $activeGuardia;
+        }
+
+        $calendarDay = GuardiaCalendarDay::where('date', $nowLocal->toDateString())->first();
+        if (!$calendarDay) {
+            return null;
+        }
+
+        return Guardia::find($calendarDay->guardia_id);
+    };
+
     $weekTransitionTime = SystemSetting::getValue('guardia_week_transition_time', '18:00');
     if ($nowLocal->isSunday()) {
         [$transH, $transM] = array_map('intval', explode(':', (string) $weekTransitionTime));
@@ -320,6 +358,7 @@ Artisan::command('guardia:run-calendar {--at=} {--tz=}', function () {
             if ($calendarDay) {
                 $targetGuardia = Guardia::find($calendarDay->guardia_id);
                 if ($targetGuardia) {
+                    $previousActiveGuardia = Guardia::where('is_active_week', true)->first();
                     DB::transaction(function () use ($targetGuardia, $resetGuardiaState) {
                         $previousActiveGuardia = Guardia::where('is_active_week', true)->first();
                         if ($previousActiveGuardia && $previousActiveGuardia->id !== $targetGuardia->id) {
@@ -329,6 +368,15 @@ Artisan::command('guardia:run-calendar {--at=} {--tz=}', function () {
                         Guardia::query()->update(['is_active_week' => false]);
                         $targetGuardia->update(['is_active_week' => true]);
                     });
+
+                    Log::info('Guardia weekly transition executed', $logContext + [
+                        'transition_time' => $weekTransitionTime,
+                        'calendar_date' => $nowLocal->toDateString(),
+                        'previous_guardia_id' => $previousActiveGuardia?->id,
+                        'previous_guardia_name' => $previousActiveGuardia?->name,
+                        'target_guardia_id' => $targetGuardia->id,
+                        'target_guardia_name' => $targetGuardia->name,
+                    ]);
                 }
             }
 
@@ -342,6 +390,11 @@ Artisan::command('guardia:run-calendar {--at=} {--tz=}', function () {
     $closeWindowEnd = $closeAt->copy()->addMinutes(5);
     if ($nowLocal->greaterThanOrEqualTo($closeAt) && $nowLocal->lessThan($closeWindowEnd)) {
         $closeActiveShifts();
+        Log::info('Guardia daily shift close executed', $logContext + [
+            'close_time' => $dailyEndTime,
+            'window_start' => $closeAt->toDateTimeString(),
+            'window_end' => $closeWindowEnd->toDateTimeString(),
+        ]);
         return;
     }
 
@@ -353,16 +406,20 @@ Artisan::command('guardia:run-calendar {--at=} {--tz=}', function () {
     $startAt = $nowLocal->copy()->startOfDay()->addHours($startH)->addMinutes($startM);
     $startWindowEnd = $startAt->copy()->addMinutes(5);
     if (!($nowLocal->greaterThanOrEqualTo($startAt) && $nowLocal->lessThan($startWindowEnd))) {
+        Log::info('Guardia run-calendar skipped: outside constitution window', $logContext + [
+            'weekday_start_time' => $weekdayStartTime,
+            'sunday_start_time' => $sundayStartTime,
+            'window_start' => $startAt->toDateTimeString(),
+            'window_end' => $startWindowEnd->toDateTimeString(),
+        ]);
         return;
     }
 
-    $calendarDay = GuardiaCalendarDay::where('date', $nowLocal->toDateString())->first();
-    if (!$calendarDay) {
-        return;
-    }
-
-    $targetGuardia = Guardia::find($calendarDay->guardia_id);
+    $targetGuardia = $resolveCurrentWeeklyGuardia();
     if (!$targetGuardia) {
+        Log::warning('Guardia constitution skipped: no target guardia resolved', $logContext + [
+            'date' => $nowLocal->toDateString(),
+        ]);
         return;
     }
 
@@ -375,6 +432,10 @@ Artisan::command('guardia:run-calendar {--at=} {--tz=}', function () {
     }
 
     if (!$leader) {
+        Log::warning('Guardia constitution skipped: no leader found', $logContext + [
+            'target_guardia_id' => $targetGuardia->id,
+            'target_guardia_name' => $targetGuardia->name,
+        ]);
         return;
     }
 
@@ -382,27 +443,32 @@ Artisan::command('guardia:run-calendar {--at=} {--tz=}', function () {
         ->where('date', $nowLocal->toDateString())
         ->first();
 
-    DB::transaction(function () use ($targetGuardia, $resetGuardiaState) {
-        $previousActiveGuardia = Guardia::where('is_active_week', true)->first();
-        if ($previousActiveGuardia && $previousActiveGuardia->id !== $targetGuardia->id) {
-            $resetGuardiaState($previousActiveGuardia);
-        }
-
-        Guardia::query()->update(['is_active_week' => false]);
-        $targetGuardia->update(['is_active_week' => true]);
-    });
-
     $closeActiveShifts($existingShift?->id);
 
     if ($existingShift) {
+        Log::info('Guardia constitution skipped: shift already active for date', $logContext + [
+            'target_guardia_id' => $targetGuardia->id,
+            'target_guardia_name' => $targetGuardia->name,
+            'shift_id' => $existingShift->id,
+            'shift_date' => $existingShift->date,
+        ]);
         return;
     }
 
-    Shift::create([
+    $newShift = Shift::create([
         'date' => $nowLocal->toDateString(),
         'status' => 'active',
         'shift_leader_id' => $leader->id,
         'notes' => 'Guardia generada automáticamente por Calendario',
+    ]);
+
+    Log::info('Guardia constitution executed', $logContext + [
+        'target_guardia_id' => $targetGuardia->id,
+        'target_guardia_name' => $targetGuardia->name,
+        'leader_user_id' => $leader->id,
+        'shift_id' => $newShift->id,
+        'shift_date' => $newShift->date,
+        'is_sunday' => $nowLocal->isSunday(),
     ]);
 })->purpose('Activa guardia según calendario y crea/cierra turnos automáticamente');
 
@@ -413,8 +479,15 @@ Artisan::command('guardia:reset-beds {--at=} {--tz=}', function () {
 
     $nowLocal = $at ? Carbon::parse($at, $scheduleTz) : Carbon::now($scheduleTz);
     $nowApp = $nowLocal->copy()->setTimezone(config('app.timezone'));
+    $logContext = [
+        'command' => 'guardia:reset-beds',
+        'now_local' => $nowLocal->toDateTimeString(),
+        'now_app' => $nowApp->toDateTimeString(),
+        'schedule_tz' => $scheduleTz,
+    ];
 
     if (!$nowLocal->isSunday()) {
+        Log::info('Guardia reset beds skipped: not sunday', $logContext);
         return;
     }
 
@@ -423,6 +496,11 @@ Artisan::command('guardia:reset-beds {--at=} {--tz=}', function () {
     $resetAt = $nowLocal->copy()->startOfDay()->addHours($resetH)->addMinutes($resetM);
     $windowEnd = $resetAt->copy()->addMinutes(5);
     if (!($nowLocal->greaterThanOrEqualTo($resetAt) && $nowLocal->lessThan($windowEnd))) {
+        Log::info('Guardia reset beds skipped: outside execution window', $logContext + [
+            'configured_time' => $cleanupTime,
+            'window_start' => $resetAt->toDateTimeString(),
+            'window_end' => $windowEnd->toDateTimeString(),
+        ]);
         return;
     }
 
@@ -430,6 +508,10 @@ Artisan::command('guardia:reset-beds {--at=} {--tz=}', function () {
         BedAssignment::whereNull('released_at')->update(['released_at' => $nowApp]);
         Bed::where('status', 'occupied')->update(['status' => 'available']);
     });
+
+    Log::info('Guardia reset beds executed', $logContext + [
+        'configured_time' => $cleanupTime,
+    ]);
 
     $this->info('Camas reseteadas correctamente (' . $nowLocal->toDateTimeString() . ')');
 })->purpose('Resetea camas (libera asignaciones y deja camas disponibles) a las 18:00 del último día de guardia');
@@ -454,6 +536,11 @@ Artisan::command('guardia:generate-notifications {--at=} {--tz=}', function () {
     };
 
     $activeGuardia = (function () use ($nowLocal) {
+        $activeGuardia = Guardia::where('is_active_week', true)->first();
+        if ($activeGuardia) {
+            return $activeGuardia;
+        }
+
         $weekStart = $nowLocal->copy()->startOfWeek(Carbon::SUNDAY);
         $calendarDay = GuardiaCalendarDay::with('guardia')
             ->where('date', $weekStart->toDateString())
@@ -469,8 +556,16 @@ Artisan::command('guardia:generate-notifications {--at=} {--tz=}', function () {
             return $calendarDay->guardia;
         }
 
-        return Guardia::where('is_active_week', true)->first();
+        return null;
     })();
+
+    Log::info('Guardia notifications resolved active guardia', [
+        'command' => 'guardia:generate-notifications',
+        'now_local' => $nowLocal->toDateTimeString(),
+        'schedule_tz' => $scheduleTz,
+        'active_guardia_id' => $activeGuardia?->id,
+        'active_guardia_name' => $activeGuardia?->name,
+    ]);
 
     if ($activeGuardia) {
         $businessDate = $shiftBusinessDate($nowLocal);
@@ -552,7 +647,7 @@ Artisan::command('guardia:generate-notifications {--at=} {--tz=}', function () {
             }
         }
     }
-})->purpose('Genera notificaciones in-app (guardia sin constituir y recordatorios de academias)');
+})->purpose('Genera notificaciones automáticas de constitución pendiente y academias del día');
 
 Artisan::command('guardia:weekly-archive-clean {--at=} {--tz=}', function () {
     $scheduleTz = $this->option('tz')
@@ -561,8 +656,15 @@ Artisan::command('guardia:weekly-archive-clean {--at=} {--tz=}', function () {
 
     $nowLocal = $at ? Carbon::parse($at, $scheduleTz) : Carbon::now($scheduleTz);
     $nowApp = $nowLocal->copy()->setTimezone(config('app.timezone'));
+    $logContext = [
+        'command' => 'guardia:weekly-archive-clean',
+        'now_local' => $nowLocal->toDateTimeString(),
+        'now_app' => $nowApp->toDateTimeString(),
+        'schedule_tz' => $scheduleTz,
+    ];
 
     if (!$nowLocal->isSunday()) {
+        Log::info('Guardia weekly archive skipped: not sunday', $logContext);
         return;
     }
 
@@ -577,11 +679,17 @@ Artisan::command('guardia:weekly-archive-clean {--at=} {--tz=}', function () {
     $weekStartPrevious = $nowLocal->copy()->startOfWeek(Carbon::SUNDAY)->subWeek();
     $calendarDay = GuardiaCalendarDay::where('date', $weekStartPrevious->toDateString())->first();
     if (!$calendarDay) {
+        Log::warning('Guardia weekly archive skipped: no previous week calendar day found', $logContext + [
+            'previous_week_start' => $weekStartPrevious->toDateString(),
+        ]);
         return;
     }
 
     $outgoingGuardia = Guardia::find($calendarDay->guardia_id);
     if (!$outgoingGuardia) {
+        Log::warning('Guardia weekly archive skipped: outgoing guardia not found', $logContext + [
+            'calendar_guardia_id' => $calendarDay->guardia_id,
+        ]);
         return;
     }
 
@@ -737,4 +845,11 @@ Artisan::command('guardia:weekly-archive-clean {--at=} {--tz=}', function () {
     });
 
     $this->info('Weekly archive/clean ejecutado para guardia ' . $outgoingGuardia->name . ' (' . $nowLocal->toDateTimeString() . ')');
+
+    Log::info('Guardia weekly archive executed', $logContext + [
+        'outgoing_guardia_id' => $outgoingGuardia->id,
+        'outgoing_guardia_name' => $outgoingGuardia->name,
+        'archive_id' => $archive?->id,
+        'archive_label' => $archive?->label,
+    ]);
 })->purpose('Domingo: archiva y limpia datos operativos al cierre semanal de una guardia (según horario configurado)');
