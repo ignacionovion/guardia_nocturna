@@ -720,6 +720,7 @@ class TableroController extends Controller
         $latestNovelty = Novelty::query()->latest('updated_at')->value('updated_at');
         $latestBombero = Bombero::query()->where('guardia_id', $guardiaId)->latest('updated_at')->value('updated_at');
         $latestReplacement = ReemplazoBombero::query()->latest('updated_at')->value('updated_at');
+        $latestBedAssignment = \App\Models\BedAssignment::query()->latest('updated_at')->value('updated_at');
         $attendanceSavedAt = GuardiaAttendanceRecord::query()
             ->where('guardia_id', $guardiaId)
             ->whereDate('date', Carbon::today()->toDateString())
@@ -745,6 +746,7 @@ class TableroController extends Controller
             'latest_novelty_at' => $latestNovelty?->toISOString(),
             'latest_bombero_at' => $latestBombero?->toISOString(),
             'latest_replacement_at' => $latestReplacement?->toISOString(),
+            'latest_bed_assignment_at' => $latestBedAssignment?->toISOString(),
             'attendance_saved_at' => $attendanceSavedAt?->toISOString(),
             'latest_draft_at' => $latestDraftAt?->toISOString(),
             'ts' => now()->toISOString(),

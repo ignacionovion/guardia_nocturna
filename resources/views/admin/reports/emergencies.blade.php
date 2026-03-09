@@ -249,7 +249,7 @@
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div class="px-5 py-4 border-b border-slate-200 bg-slate-50">
                 <h3 class="text-sm font-bold text-slate-800 flex items-center">
-                    <i class="fas fa-car mr-2 text-slate-500"></i> Vehículos Más Utilizados
+                    <i class="fas fa-car mr-2 text-slate-500"></i> Unidades Más Utilizados
                 </h3>
                 <p class="text-xs text-slate-500 mt-1">Ordenado de menor a mayor</p>
             </div>

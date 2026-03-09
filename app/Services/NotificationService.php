@@ -98,7 +98,7 @@ class NotificationService
         );
     }
 
-    public static function bedAssigned(User $user, Bombero $firefighter, int $bedNumber, ?Guardia $guardia = null, string $source = 'dashboard'): void
+    public static function bedAssigned(?User $user, Bombero $firefighter, int $bedNumber, ?Guardia $guardia = null, string $source = 'dashboard'): void
     {
         self::notify(
             'bed_assigned',

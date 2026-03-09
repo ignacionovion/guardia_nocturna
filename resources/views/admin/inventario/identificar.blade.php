@@ -66,6 +66,7 @@
                         <label class="block text-xs font-black uppercase tracking-widest text-slate-300 mb-2">RUT</label>
                         <input
                             type="text"
+                            id="rut"
                             name="rut"
                             value="{{ old('rut') }}"
                             required
@@ -96,3 +97,17 @@
     </div>
 </body>
 </html>
+
+<script>
+    document.getElementById('rut')?.addEventListener('input', function (e) {
+        let value = e.target.value.replace(/[^0-9kK]/g, '');
+        if (value.length > 1) {
+            let body = value.slice(0, -1);
+            let dv = value.slice(-1).toLowerCase();
+            if (body.length > 8) body = body.slice(0, 8);
+            e.target.value = body + '-' + dv;
+        } else {
+            e.target.value = value;
+        }
+    });
+</script>

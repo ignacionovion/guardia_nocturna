@@ -132,12 +132,16 @@
                         $currentTime = $localNow->format('H:i');
                         $isAfter702 = $localNow->hour > 7 || ($localNow->hour === 7 && $localNow->minute >= 2);
                         $isAfter2200 = $localNow->hour >= 22;
+                        $isAttendanceWindowOpen = $attendanceEnabled;
                         
                         // Determinar mensaje apropiado
                         $attendanceMessage = '';
                         $attendanceBadgeClass = '';
                         
-                        if (isset($hasAttendanceSavedToday) && $hasAttendanceSavedToday && !empty($attendanceIsStale)) {
+                        if (!$isAttendanceWindowOpen) {
+                            $attendanceMessage = 'FUERA DE HORARIO DE REGISTRO';
+                            $attendanceBadgeClass = 'border-slate-300 bg-slate-100 text-slate-500';
+                        } elseif (isset($hasAttendanceSavedToday) && $hasAttendanceSavedToday && !empty($attendanceIsStale)) {
                             // Asistencia guardada pero roster cambió (refuerzo/reemplazo agregado después)
                             $attendanceMessage = 'ASISTENCIA DESACTUALIZADA';
                             $attendanceBadgeClass = 'border-amber-200 bg-amber-50 text-amber-800';
@@ -1431,6 +1435,7 @@
             latest_novelty_at: @json(optional(($guardiaNovelties ?? null)?->first()?->updated_at ?? null)?->toISOString()),
             latest_bombero_at: @json(optional(($myStaff ?? collect())->max('updated_at') ?? null)?->toISOString()),
             latest_replacement_at: @json(optional(($replacementByOriginal ?? collect())->max('updated_at') ?? null)?->toISOString()),
+            latest_bed_assignment_at: @json(optional(\App\Models\BedAssignment::query()->latest('updated_at')->value('updated_at'))?->toISOString()),
             attendance_saved_at: @json(optional(($hasAttendanceSavedToday ?? false) ? (\App\Models\GuardiaAttendanceRecord::where('guardia_id', $myGuardia->id ?? null)->whereDate('date', \Carbon\Carbon::today()->toDateString())->value('saved_at')) : null)?->toISOString()),
             latest_draft_at: @json(optional($latestDraftAt ?? null)?->toISOString()),
         };
@@ -2561,6 +2566,7 @@
                         (data.latest_novelty_at && data.latest_novelty_at !== prev.latest_novelty_at) ||
                         (data.latest_bombero_at && data.latest_bombero_at !== prev.latest_bombero_at) ||
                         (data.latest_replacement_at && data.latest_replacement_at !== prev.latest_replacement_at) ||
+                        (data.latest_bed_assignment_at && data.latest_bed_assignment_at !== prev.latest_bed_assignment_at) ||
                         (data.attendance_saved_at && data.attendance_saved_at !== prev.attendance_saved_at) ||
                         (data.latest_draft_at && data.latest_draft_at !== prev.latest_draft_at)
                     );
@@ -2573,6 +2579,7 @@
                             latest_novelty_at: data.latest_novelty_at,
                             latest_bombero_at: data.latest_bombero_at,
                             latest_replacement_at: data.latest_replacement_at,
+                            latest_bed_assignment_at: data.latest_bed_assignment_at,
                             attendance_saved_at: data.attendance_saved_at,
                             latest_draft_at: data.latest_draft_at,
                         };
@@ -2583,6 +2590,7 @@
                         latest_novelty_at: data.latest_novelty_at,
                         latest_bombero_at: data.latest_bombero_at,
                         latest_replacement_at: data.latest_replacement_at,
+                        latest_bed_assignment_at: data.latest_bed_assignment_at,
                         attendance_saved_at: data.attendance_saved_at,
                         latest_draft_at: data.latest_draft_at,
                     };

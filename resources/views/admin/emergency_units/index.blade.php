@@ -11,9 +11,9 @@
             <a href="{{ route('admin.emergencies.index') }}" class="inline-flex items-center bg-slate-700 hover:bg-slate-800 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200">
                 <i class="fas fa-arrow-left mr-2"></i> Volver a Emergencias
             </a>
-            <a href="{{ route('admin.emergency-units.create') }}" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200 transform hover:-translate-y-0.5">
+            <button type="button" onclick="openCreateUnitModal()" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200 transform hover:-translate-y-0.5">
                 <i class="fas fa-plus mr-2"></i> Nueva Unidad
-            </a>
+            </button>
         </div>
     </div>
 
@@ -161,7 +161,65 @@
         </div>
     </div>
 
+    <div id="create-unit-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-xl mx-4 p-6">
+            <button type="button" onclick="closeCreateUnitModal()" class="absolute top-3 right-3 w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500">
+                <i class="fas fa-times text-xs"></i>
+            </button>
+            <div class="flex items-center gap-3 mb-5">
+                <div class="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
+                    <i class="fas fa-truck text-blue-600"></i>
+                </div>
+                <div>
+                    <div class="text-sm font-black text-slate-800 uppercase tracking-wide">Nueva Unidad</div>
+                    <div class="text-xs text-slate-500">Agrega una unidad/carro para emergencias</div>
+                </div>
+            </div>
+
+            <form method="POST" action="{{ route('admin.emergency-units.store') }}">
+                @csrf
+
+                <div class="grid grid-cols-1 gap-5">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Nombre</label>
+                        <input type="text" name="name" value="{{ old('name') }}" required class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-slate-700 bg-white">
+                        @error('name')
+                            <div class="mt-2 text-sm font-semibold text-rose-600">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Descripción (opcional)</label>
+                        <input type="text" name="description" value="{{ old('description') }}" class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-slate-700 bg-white">
+                        @error('description')
+                            <div class="mt-2 text-sm font-semibold text-rose-600">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="mt-6 flex items-center justify-end gap-3">
+                    <button type="button" onclick="closeCreateUnitModal()" class="px-5 py-2.5 rounded-xl border-2 border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold transition-colors">Cancelar</button>
+                    <button type="submit" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-md transition-all duration-200">
+                        <i class="fas fa-save mr-2"></i> Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
+        function openCreateUnitModal() {
+            const modal = document.getElementById('create-unit-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeCreateUnitModal() {
+            const modal = document.getElementById('create-unit-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
         function openDisableModal(unitId, unitName) {
             document.getElementById('disable-unit-name').textContent = unitName;
             document.getElementById('disable-unit-form').action = '/admin/emergency-units/' + unitId + '/toggle-status';
@@ -179,5 +237,13 @@
         document.getElementById('disable-unit-modal').addEventListener('click', function(e) {
             if (e.target === this) closeDisableModal();
         });
+
+        document.getElementById('create-unit-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeCreateUnitModal();
+        });
+
+        @if($errors->has('name') || $errors->has('description'))
+            openCreateUnitModal();
+        @endif
     </script>
 @endsection
