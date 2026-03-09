@@ -44,8 +44,8 @@ Esto da flexibilidad comercial sin sacrificar la estructura real del negocio.
 
 ### 2. Cobro: Por Compañía ✅
 
-- 1 compañía activa = 1 cobro mensual
-- 3 compañías activas = 3 cobros mensuales
+- 1 compañía activa = 1 cobro mensual.
+- 3 compañías activas = 3 cobros mensuales.
 
 **Evolución futura:**
 - Plan individual por compañía (inicio)
