@@ -10,7 +10,7 @@
         <div class="flex flex-wrap gap-3 items-center">
             @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'capitania'], true))
                 <a href="{{ route('admin.emergency-keys.index') }}" class="inline-flex items-center bg-slate-700 hover:bg-slate-800 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200">
-                    <i class="fas fa-key mr-2"></i> Claves
+                    <i class="fas fa-key mr-2"></i> Claves Radiales
                 </a>
                 <a href="{{ route('admin.emergency-units.index') }}" class="inline-flex items-center bg-slate-700 hover:bg-slate-800 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200">
                     <i class="fas fa-truck mr-2"></i> Unidades
