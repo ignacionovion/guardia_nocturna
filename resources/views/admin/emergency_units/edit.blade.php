@@ -8,7 +8,7 @@
                 <p class="text-slate-500 text-sm mt-1">Actualiza nombre y descripción</p>
             </div>
             <a href="{{ route('admin.emergency-units.index') }}" class="inline-flex items-center text-slate-600 hover:text-slate-900">
-                <i class="fas fa-arrow-left mr-2"></i> Volver
+                <i class="fas fa-arrow-left mr-2"></i> Volver.
             </a>
         </div>
 
