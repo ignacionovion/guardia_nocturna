@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Models\Guardia;
 use App\Models\GuardiaCalendarDay;
+use App\Models\SystemSetting;
 use Carbon\Carbon;
 use Closure;
 use Illuminate\Http\Request;
@@ -44,13 +45,12 @@ class EnsureGuardiaOnDuty
 
     private function isGuardiaOnDuty(int $guardiaId): bool
     {
-        $now = Carbon::now();
-        $weekStart = $now->copy()->startOfWeek(Carbon::SUNDAY);
+        $shiftDay = $this->resolveShiftDay(Carbon::now());
 
-        $calendarDay = GuardiaCalendarDay::where('date', $weekStart->toDateString())->first();
+        $calendarDay = GuardiaCalendarDay::where('date', $shiftDay->toDateString())->first();
 
         if (!$calendarDay) {
-            $calendarDay = GuardiaCalendarDay::where('date', $now->toDateString())->first();
+            $calendarDay = GuardiaCalendarDay::where('date', $shiftDay->copy()->startOfWeek(Carbon::SUNDAY)->toDateString())->first();
         }
 
         if ($calendarDay && $calendarDay->guardia_id) {
@@ -58,5 +58,23 @@ class EnsureGuardiaOnDuty
         }
 
         return (bool) Guardia::where('id', $guardiaId)->where('is_active_week', true)->exists();
+    }
+
+    private function resolveShiftDay(Carbon $dateTime): Carbon
+    {
+        $scheduleTz = SystemSetting::getValue('guardia_schedule_tz', env('GUARDIA_SCHEDULE_TZ', config('app.timezone')));
+        $dailyEndTime = SystemSetting::getValue('guardia_daily_end_time', '07:00');
+
+        [$endH, $endM] = array_map('intval', explode(':', (string) $dailyEndTime));
+
+        $local = $dateTime->copy()->setTimezone($scheduleTz);
+        $day = $local->copy()->startOfDay();
+        $dayEnd = $day->copy()->setTime($endH, $endM, 0);
+
+        if ($local->lt($dayEnd)) {
+            $day->subDay();
+        }
+
+        return $day;
     }
 }
