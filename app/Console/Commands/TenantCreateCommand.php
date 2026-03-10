@@ -12,7 +12,6 @@ class TenantCreateCommand extends Command
     protected $signature = 'tenant:create
                             {id : Tenant slug (e.g. tercera-temuco)}
                             {nombre : Company display name}
-                            {domain : Full domain (e.g. tercera-temuco.dev-app.cl)}
                             {--numero= : Company number}
                             {--body= : Body ID}
                             {--plan=basico : Plan (basico|profesional|enterprise)}
@@ -41,9 +40,9 @@ class TenantCreateCommand extends Command
 
         $this->info("✅ Tenant created. DB: {$tenant->tenancy_db_name}");
 
-        $domain = $this->argument('domain');
-        $tenant->domains()->create(['domain' => $domain]);
-        $this->info("✅ Domain [{$domain}] attached.");
+        // InitializeTenancyBySubdomain searches by subdomain part only (not full domain)
+        $tenant->domains()->create(['domain' => $id]);
+        $this->info("✅ Subdomain [{$id}] attached.");
 
         if ($this->option('seed')) {
             $this->info("Seeding tenant database...");
@@ -55,7 +54,7 @@ class TenantCreateCommand extends Command
         }
 
         $this->newLine();
-        $this->info("🎉 Tenant [{$id}] is ready at https://{$domain}");
+        $this->info("🎉 Tenant [{$id}] is ready. Access via {$id}.<your-domain>");
 
         return self::SUCCESS;
     }
