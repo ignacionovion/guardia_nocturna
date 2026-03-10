@@ -13,14 +13,31 @@ class Tenant extends BaseTenant implements TenantWithDatabase
 {
     use HasDatabase, HasDomains;
 
-    public $incrementing = false;
-    protected $keyType = 'string';
-
     protected $casts = [
         'activo' => 'boolean',
         'fecha_vencimiento' => 'date',
         'data' => 'array',
     ];
+
+    public static function boot(): void
+    {
+        parent::boot();
+
+        // Force string key — GeneratesIds trait sets incrementing=true
+        static::creating(function (self $model) {
+            $model->incrementing = false;
+        });
+    }
+
+    public function getIncrementing(): bool
+    {
+        return false;
+    }
+
+    public function getKeyType(): string
+    {
+        return 'string';
+    }
 
     public static function getCustomColumns(): array
     {

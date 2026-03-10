@@ -124,6 +124,14 @@ class TenancyServiceProvider extends ServiceProvider
             Route::namespace(static::$controllerNamespace)
                 ->group(base_path('routes/tenant.php'));
         }
+
+        $centralDomains = config('tenancy.central_domains', []);
+
+        foreach ($centralDomains as $domain) {
+            Route::domain($domain)
+                ->middleware('web')
+                ->group(base_path('routes/central.php'));
+        }
     }
 
     protected function makeTenancyMiddlewareHighestPriority()
