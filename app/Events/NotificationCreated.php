@@ -32,6 +32,14 @@ class NotificationCreated implements ShouldBroadcast
      */
     public function broadcastOn(): array
     {
+        $tenantId = tenant('id');
+
+        if ($tenantId) {
+            return [
+                new PrivateChannel("tenant.{$tenantId}.notifications"),
+            ];
+        }
+
         return [
             new PrivateChannel('notifications'),
         ];
