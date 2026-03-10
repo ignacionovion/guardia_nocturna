@@ -2,25 +2,12 @@
 
 /*
 |--------------------------------------------------------------------------
-| Central Routes
+| Web Routes (unused in multi-tenant mode)
 |--------------------------------------------------------------------------
 |
-| Rutas del dominio central (sas.dev-app.cl / app.tudominio.cl).
-| Aquí vivirá el panel del super admin para gestionar tenants.
-| Las rutas de la app operativa están en routes/app.php y se cargan
-| dentro del contexto tenant via routes/tenant.php.
+| This file is kept for Laravel compatibility but is NOT loaded.
+| Route registration is handled by TenancyServiceProvider:
+|   - Central routes: routes/central.php (scoped to central domains)
+|   - Tenant routes:  routes/tenant.php → routes/app.php (scoped to subdomains)
 |
 */
-
-use Illuminate\Support\Facades\Route;
-
-Route::get('/', function () {
-    return view('central.landing');
-})->name('central.landing');
-
-// TODO: Fase 1 - Panel Super Admin
-// Route::prefix('admin')->middleware('auth:central')->group(function () {
-//     Route::get('/', [CentralAdminController::class, 'dashboard'])->name('central.admin.dashboard');
-//     Route::resource('bodies', BodyController::class);
-//     Route::resource('companies', TenantController::class);
-// });
