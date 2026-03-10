@@ -16,8 +16,12 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 |
 */
 
-Route::middleware([
-    'web',
-    InitializeTenancyBySubdomain::class,
-    PreventAccessFromCentralDomains::class,
-])->group(base_path('routes/app.php'));
+foreach (config('tenancy.central_domains') as $domain) {
+    Route::domain('{tenant}.' . $domain)
+        ->middleware([
+            'web',
+            InitializeTenancyBySubdomain::class,
+            PreventAccessFromCentralDomains::class,
+        ])
+        ->group(base_path('routes/app.php'));
+}
