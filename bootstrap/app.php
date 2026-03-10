@@ -22,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->command('tenant:run', ['guardia:daily-cleanup'])->everyMinute();
     })
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->trustProxies(at: '*');
         $middleware->appendToGroup('web', \App\Http\Middleware\ExpireReplacements::class);
         $middleware->appendToGroup('web', \App\Http\Middleware\EnsureInventoryOnly::class);
         $middleware->alias([
