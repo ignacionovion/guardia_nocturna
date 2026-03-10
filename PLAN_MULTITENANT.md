@@ -293,3 +293,5 @@ Los bomberos, capitanes y jefes de guardia **no notarán ningún cambio funciona
 - Los canales de WebSocket deben incluir **siempre el `company_id`** para evitar eventos cruzados
 - Los reportes cruzados del Admin del Cuerpo requieren **conexiones a múltiples DBs** → implementar con cuidado en Fase 3
 - El wildcard DNS **debe configurarse antes** de avanzar en subdominios
+
+PROBANDO.
