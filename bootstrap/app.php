@@ -38,7 +38,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (\Illuminate\Auth\AuthenticationException $e, $request) {
             if (collect($e->guards())->contains('central')) {
-                return redirect('/login');
+                return new \Illuminate\Http\RedirectResponse('/login', 302, ['Location' => '/login']);
             }
         });
     })->create();

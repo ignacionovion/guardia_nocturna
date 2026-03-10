@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Central;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -13,7 +14,7 @@ class CentralAuthController extends Controller
     public function showLogin()
     {
         if (Auth::guard('central')->check()) {
-            return redirect('/admin');
+            return new RedirectResponse('/admin', 302, ['Location' => '/admin']);
         }
 
         return view('central.auth.login');
@@ -28,7 +29,7 @@ class CentralAuthController extends Controller
 
         if (Auth::guard('central')->attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            return redirect('/admin');
+            return new RedirectResponse('/admin', 302, ['Location' => '/admin']);
         }
 
         return back()->withErrors([
@@ -42,6 +43,6 @@ class CentralAuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/login');
+        return new RedirectResponse('/login', 302, ['Location' => '/login']);
     }
 }

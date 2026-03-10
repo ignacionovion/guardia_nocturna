@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Route;
 // Public
 Route::get('/', function () {
     if (\Illuminate\Support\Facades\Auth::guard('central')->check()) {
-        return redirect('/admin');
+        return new \Illuminate\Http\RedirectResponse('/admin', 302, ['Location' => '/admin']);
     }
     return view('central.landing');
 })->name('central.landing');
