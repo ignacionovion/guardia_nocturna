@@ -13,6 +13,9 @@ class Tenant extends BaseTenant implements TenantWithDatabase
 {
     use HasDatabase, HasDomains;
 
+    public $incrementing = false;
+    protected $keyType = 'string';
+
     protected $casts = [
         'activo' => 'boolean',
         'fecha_vencimiento' => 'date',
