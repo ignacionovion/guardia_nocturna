@@ -394,7 +394,7 @@
                                     @if(in_array(Auth::user()->role, ['super_admin', 'capitania']))
                                     // WebSocket con Laravel Echo + Reverb (tiempo real)
                                     if (typeof window.Echo !== 'undefined') {
-                                        window.Echo.private('notifications')
+                                        window.Echo.private('tenant.{{ tenant("id") }}.notifications')
                                             .listen('.notification.created', (e) => {
                                                 const prev = lastUnreadCount;
                                                 lastUnreadCount = prev + 1;
