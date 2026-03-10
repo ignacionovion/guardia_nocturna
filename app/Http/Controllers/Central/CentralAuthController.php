@@ -13,7 +13,7 @@ class CentralAuthController extends Controller
     public function showLogin()
     {
         if (Auth::guard('central')->check()) {
-            return redirect()->route('central.dashboard');
+            return redirect('/admin');
         }
 
         return view('central.auth.login');
@@ -28,7 +28,7 @@ class CentralAuthController extends Controller
 
         if (Auth::guard('central')->attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            return redirect()->intended(route('central.dashboard'));
+            return redirect('/admin');
         }
 
         return back()->withErrors([
@@ -42,6 +42,6 @@ class CentralAuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('central.login');
+        return redirect('/login');
     }
 }
