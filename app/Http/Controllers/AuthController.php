@@ -32,7 +32,7 @@ class AuthController extends Controller
 
             $request->session()->regenerate();
 
-            return redirect()->intended(route('dashboard'));
+            return redirect('/dashboard');
         }
 
         return back()->withErrors([
@@ -47,6 +47,6 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect(route('login'));
+        return redirect('/');
     }
 }
