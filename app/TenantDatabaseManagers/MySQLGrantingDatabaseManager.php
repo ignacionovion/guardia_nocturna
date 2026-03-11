@@ -43,7 +43,7 @@ class MySQLGrantingDatabaseManager implements TenantDatabaseManager
             "GRANT ALL PRIVILEGES ON `{$database}`.* TO '{$username}'@'{$host}'"
         );
 
-        DB::connection($this->connection)->statement("FLUSH PRIVILEGES");
+        // DB::connection($this->connection)->statement("FLUSH PRIVILEGES");
 
         return true;
     }
