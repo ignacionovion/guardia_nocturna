@@ -27,7 +27,7 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('central.login') }}">
+            <form method="POST" action="{{ url()->current() }}">
                 @csrf
                 <div class="space-y-5">
                     <div>

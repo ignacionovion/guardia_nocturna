@@ -39,6 +39,11 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         return 'string';
     }
 
+    public function getRouteKeyName(): string
+    {
+        return 'id';
+    }
+
     public static function getCustomColumns(): array
     {
         return [
