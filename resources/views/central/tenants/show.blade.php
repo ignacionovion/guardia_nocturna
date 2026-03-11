@@ -43,11 +43,11 @@
                         <span>Abrir</span>
                     </a>
                 @endif
-                <a href="{{ route('central.tenants.edit', $tenant) }}"
+                <a href="{{ route('central.tenants.edit', $tenant->id) }}"
                    class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition">
                     Editar
                 </a>
-                <form method="POST" action="{{ route('central.tenants.destroy', $tenant) }}"
+                <form method="POST" action="{{ route('central.tenants.destroy', $tenant->id) }}"
                       onsubmit="return confirm('¿Eliminar esta compañía y TODA su base de datos? Esta acción es irreversible.')">
                     @csrf @method('DELETE')
                     <button type="submit" class="px-4 py-2 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-xl hover:bg-red-100 transition">
@@ -238,7 +238,7 @@
                 <h2 class="font-semibold text-slate-900 text-sm">Feature Flags</h2>
                 <span class="text-[10px] text-slate-400 font-medium">Los valores por defecto provienen del plan {{ ucfirst($tenant->plan) }}</span>
             </div>
-            <form method="POST" action="{{ route('central.tenants.features', $tenant) }}">
+            <form method="POST" action="{{ route('central.tenants.features', $tenant->id) }}">
                 @csrf
                 @php
                     $featureService = app(\App\Services\FeatureFlagService::class);
@@ -289,7 +289,7 @@
         <div class="bg-white rounded-2xl border border-slate-200 p-6">
             <h2 class="font-semibold text-slate-900 text-sm mb-4">Acciones Manuales</h2>
             <div class="space-y-3">
-                <form method="POST" action="{{ route('central.tenants.run-migrations', $tenant) }}">
+                <form method="POST" action="{{ route('central.tenants.run-migrations', $tenant->id) }}">
                     @csrf
                     <button type="submit" onclick="return confirm('¿Ejecutar migraciones para {{ $tenant->nombre }}?')"
                             class="w-full flex items-center space-x-3 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl py-3 px-4 hover:bg-slate-50 transition">
@@ -298,7 +298,7 @@
                     </button>
                 </form>
 
-                <form method="POST" action="{{ route('central.tenants.run-seed', $tenant) }}">
+                <form method="POST" action="{{ route('central.tenants.run-seed', $tenant->id) }}">
                     @csrf
                     <button type="submit" onclick="return confirm('¿Ejecutar seeders para {{ $tenant->nombre }}? Esto puede crear datos duplicados.')"
                             class="w-full flex items-center space-x-3 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl py-3 px-4 hover:bg-slate-50 transition">
@@ -318,7 +318,7 @@
 
             <div class="mt-5 pt-4 border-t border-slate-100">
                 <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Peligro</h3>
-                <form method="POST" action="{{ route('central.tenants.destroy', $tenant) }}"
+                <form method="POST" action="{{ route('central.tenants.destroy', $tenant->id) }}"
                       onsubmit="return confirm('¿ELIMINAR {{ $tenant->nombre }} y TODA su base de datos? Esta acción es IRREVERSIBLE.')">
                     @csrf @method('DELETE')
                     <button type="submit" class="w-full flex items-center space-x-3 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-xl py-3 px-4 hover:bg-red-100 transition">

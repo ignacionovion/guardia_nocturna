@@ -41,7 +41,7 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ $tenant ? route('central.tenants.update', $tenant) : route('central.tenants.store') }}">
+        <form method="POST" action="{{ $tenant ? route('central.tenants.update', $tenant->id) : route('central.tenants.store') }}">
             @csrf
             @if($tenant) @method('PUT') @endif
 

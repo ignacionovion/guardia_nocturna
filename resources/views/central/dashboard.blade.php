@@ -130,7 +130,7 @@
         <div class="divide-y divide-slate-100">
             @forelse($recentTenants as $tenant)
                 @php $health = $tenantHealthMap[$tenant->id] ?? ['overall' => 'ok']; @endphp
-                <a href="{{ route('central.tenants.show', $tenant) }}" class="px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition block">
+                <a href="{{ route('central.tenants.show', $tenant->id) }}" class="px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition block">
                     <div class="flex items-center space-x-4">
                         {{-- Health indicator --}}
                         <div class="relative">
