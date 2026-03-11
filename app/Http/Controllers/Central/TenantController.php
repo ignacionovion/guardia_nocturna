@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Central;
 use App\Http\Controllers\Controller;
 use App\Models\Body;
 use App\Models\CentralAuditLog;
+use App\Models\Plan;
 use App\Models\Tenant;
 use App\Services\TenantMetricsService;
 use Illuminate\Http\Request;
@@ -28,7 +29,8 @@ class TenantController extends Controller
     public function create()
     {
         $bodies = Body::where('activo', true)->orderBy('nombre')->get();
-        return view('central.tenants.form', ['tenant' => null, 'bodies' => $bodies]);
+        $plans = Plan::active()->ordered()->get();
+        return view('central.tenants.form', ['tenant' => null, 'bodies' => $bodies, 'plans' => $plans]);
     }
 
     public function store(Request $request)
@@ -81,12 +83,15 @@ class TenantController extends Controller
 
         try {
             // Step 1: Create tenant record in central DB
+            // Get plan_id from selected plan slug
+            $plan = Plan::where('slug', $validated['plan'])->first();
             $tenant = Tenant::create([
                 'id' => $validated['id'],
                 'nombre' => $validated['nombre'],
                 'numero' => $validated['numero'] ?? null,
                 'body_id' => $validated['body_id'] ?? null,
                 'plan' => $validated['plan'],
+                'plan_id' => $plan?->id,
                 'fecha_vencimiento' => $validated['fecha_vencimiento'] ?? null,
             ]);
             $steps[] = '✓ Registro tenant creado';
@@ -221,9 +226,17 @@ class TenantController extends Controller
 
     public function show(Tenant $tenant)
     {
-        $tenant->load(['body', 'domains']);
+        $tenant->load(['body', 'domains', 'plan']);
         $metrics = $this->metrics->forTenant($tenant);
         $health = $this->metrics->healthStatus($tenant);
+        
+        // Get plan usage if tenant DB exists
+        $planUsage = null;
+        try {
+            $planUsage = \App\Services\PlanService::getUsageInfo();
+        } catch (\Throwable $e) {
+            // Tenant DB may not exist yet
+        }
 
         // Get tenant users for impersonation
         $tenantUsers = [];
@@ -239,14 +252,18 @@ class TenantController extends Controller
         } catch (\Throwable $e) {
             // Tenant DB may not exist yet
         }
+        
+        // Get available plans for change plan dropdown
+        $availablePlans = Plan::active()->ordered()->get();
 
-        return view('central.tenants.show', compact('tenant', 'metrics', 'health', 'tenantUsers'));
+        return view('central.tenants.show', compact('tenant', 'metrics', 'health', 'tenantUsers', 'planUsage', 'availablePlans'));
     }
 
     public function edit(Tenant $tenant)
     {
         $bodies = Body::where('activo', true)->orderBy('nombre')->get();
-        return view('central.tenants.form', compact('tenant', 'bodies'));
+        $plans = Plan::active()->ordered()->get();
+        return view('central.tenants.form', compact('tenant', 'bodies', 'plans'));
     }
 
     public function update(Request $request, Tenant $tenant)
@@ -264,6 +281,10 @@ class TenantController extends Controller
         // Sync activo boolean with estado for backward compatibility
         $validated['activo'] = in_array($validated['estado'], ['trial', 'activo']);
         $validated['grace_days'] = $validated['grace_days'] ?? 5;
+
+        // Sync plan_id with plan slug
+        $plan = Plan::where('slug', $validated['plan'])->first();
+        $validated['plan_id'] = $plan?->id;
 
         $oldEstado = $tenant->estado;
         $oldPlan = $tenant->plan;
@@ -407,5 +428,32 @@ class TenantController extends Controller
             'available' => true,
             'message' => '✔ Disponible'
         ]);
+    }
+
+    /**
+     * Change the plan of a tenant.
+     */
+    public function changePlan(Request $request, Tenant $tenant)
+    {
+        $validated = $request->validate([
+            'plan_id' => ['required', 'exists:plans,id'],
+        ]);
+
+        $plan = Plan::findOrFail($validated['plan_id']);
+        $oldPlan = $tenant->plan;
+
+        $tenant->update([
+            'plan_id' => $plan->id,
+            'plan' => $plan->slug,
+        ]);
+
+        CentralAuditLog::log('plan_changed', "Plan cambiado de {$oldPlan} a {$plan->slug}", $tenant->id, [
+            'old_plan' => $oldPlan,
+            'new_plan' => $plan->slug,
+            'new_plan_id' => $plan->id,
+        ]);
+
+        return redirect("/admin/tenants/{$tenant->id}")
+            ->with('success', "Plan actualizado a «{$plan->nombre}»");
     }
 }

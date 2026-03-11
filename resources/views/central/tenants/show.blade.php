@@ -205,6 +205,65 @@
                 </div>
             </dl>
 
+            {{-- Plan Usage --}}
+            @if($planUsage)
+            <div class="mt-5 pt-4 border-t border-slate-100">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Uso del Plan</h3>
+                    <span class="text-[10px] font-medium px-2 py-0.5 rounded-full
+                        {{ $tenant->plan === 'enterprise' ? 'bg-purple-50 text-purple-700' : ($tenant->plan === 'profesional' ? 'bg-blue-50 text-blue-700' : 'bg-slate-100 text-slate-600') }}">
+                        {{ ucfirst($tenant->plan) }}
+                    </span>
+                </div>
+                <div class="space-y-2">
+                    @foreach($planUsage as $type => $info)
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-slate-600">{{ match($type) { 'users' => 'Usuarios', 'guardias' => 'Guardias', 'beds' => 'Camas', 'storage' => 'Almacenamiento', default => $type } }}</span>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-24 h-2 bg-slate-100 rounded-full overflow-hidden">
+                                @if($info['unlimited'])
+                                    <div class="h-full bg-emerald-500 w-full"></div>
+                                @elseif($info['percentage'] !== null)
+                                    <div class="h-full {{ $info['percentage'] >= 90 ? 'bg-red-500' : ($info['percentage'] >= 70 ? 'bg-amber-500' : 'bg-emerald-500') }}" style="width: {{ min(100, $info['percentage']) }}%"></div>
+                                @endif
+                            </div>
+                            <span class="text-slate-500 w-20 text-right">
+                                @if($info['unlimited'])
+                                    {{ $info['current'] }} / ∞
+                                @else
+                                    {{ $info['current'] }} / {{ $info['limit'] }}
+                                @endif
+                            </span>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+                
+                {{-- Change Plan Form --}}
+                @if(isset($availablePlans) && $availablePlans->count() > 0)
+                <form method="POST" action="{{ route('central.tenants.change-plan', $tenant) }}" class="mt-4 pt-3 border-t border-slate-100">
+                    @csrf
+                    <div class="flex items-end space-x-2">
+                        <div class="flex-1">
+                            <label class="block text-[10px] font-medium text-slate-500 mb-1 uppercase">Cambiar Plan</label>
+                            <select name="plan_id" class="w-full px-2 py-1.5 text-xs border border-slate-300 rounded-lg bg-white focus:ring-1 focus:ring-blue-500 outline-none">
+                                @foreach($availablePlans as $planOption)
+                                    <option value="{{ $planOption->id }}" {{ $tenant->plan_id == $planOption->id ? 'selected' : '' }}>
+                                        {{ $planOption->nombre }} ({{ $planOption->precio_mensual > 0 ? '$' . $planOption->precio_mensual . '/mes' : 'Gratis' }})
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <button type="submit" onclick="return confirm('¿Cambiar el plan de {{ $tenant->nombre }}?')"
+                                class="px-3 py-1.5 bg-blue-500 text-white text-xs font-medium rounded-lg hover:bg-blue-600 transition">
+                            Cambiar
+                        </button>
+                    </div>
+                </form>
+                @endif
+            </div>
+            @endif
+
             {{-- Auto-provisioning info --}}
             <div class="mt-5 pt-4 border-t border-slate-100">
                 <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Auto-provisioning</h3>

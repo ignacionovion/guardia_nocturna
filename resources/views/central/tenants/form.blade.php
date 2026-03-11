@@ -81,10 +81,21 @@
                         <label for="plan" class="block text-sm font-medium text-slate-700 mb-1.5">Plan</label>
                         <select id="plan" name="plan" required
                                 class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white">
-                            <option value="basico" {{ old('plan', $tenant?->plan) === 'basico' ? 'selected' : '' }}>Básico</option>
-                            <option value="profesional" {{ old('plan', $tenant?->plan) === 'profesional' ? 'selected' : '' }}>Profesional</option>
-                            <option value="enterprise" {{ old('plan', $tenant?->plan) === 'enterprise' ? 'selected' : '' }}>Enterprise</option>
+                            @if(isset($plans) && $plans->count() > 0)
+                                @foreach($plans as $planOption)
+                                    <option value="{{ $planOption->slug }}" {{ old('plan', $tenant?->plan) === $planOption->slug ? 'selected' : '' }}>
+                                        {{ $planOption->nombre }} ({{ $planOption->precio_mensual > 0 ? '$' . $planOption->precio_mensual . '/mes' : 'Gratis' }})
+                                    </option>
+                                @endforeach
+                            @else
+                                <option value="basico" {{ old('plan', $tenant?->plan) === 'basico' ? 'selected' : '' }}>Básico</option>
+                                <option value="profesional" {{ old('plan', $tenant?->plan) === 'profesional' ? 'selected' : '' }}>Profesional</option>
+                                <option value="enterprise" {{ old('plan', $tenant?->plan) === 'enterprise' ? 'selected' : '' }}>Enterprise</option>
+                            @endif
                         </select>
+                        @if(isset($plans) && $plans->count() > 0)
+                            <p class="text-xs text-slate-400 mt-1">Los límites se aplican automáticamente según el plan seleccionado.</p>
+                        @endif
                     </div>
                 </div>
 

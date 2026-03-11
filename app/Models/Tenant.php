@@ -60,6 +60,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase
             'nombre',
             'numero',
             'plan',
+            'plan_id',
             'activo',
             'estado',
             'fecha_vencimiento',
@@ -70,6 +71,11 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     public function body()
     {
         return $this->belongsTo(Body::class);
+    }
+
+    public function plan()
+    {
+        return $this->belongsTo(Plan::class);
     }
 
     /**
