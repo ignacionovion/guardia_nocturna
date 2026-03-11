@@ -187,4 +187,57 @@ class TenantController extends Controller
         return redirect('/admin/tenants')
             ->with('success', "Compañía «{$nombre}» eliminada junto con su base de datos.");
     }
+
+    public function updateFeatures(Request $request, Tenant $tenant)
+    {
+        $features = $request->input('features', []);
+        $resolved = [];
+
+        foreach (\App\Services\FeatureFlagService::availableFeatures() as $feature) {
+            if ($feature === 'max_users') {
+                $value = $request->input("features.{$feature}");
+                if ($value !== null && $value !== '') {
+                    $resolved[$feature] = (int) $value;
+                }
+            } else {
+                $resolved[$feature] = isset($features[$feature]) && $features[$feature] === '1';
+            }
+        }
+
+        $tenant->features = $resolved;
+        $tenant->save();
+
+        return redirect("/admin/tenants/{$tenant->id}")
+            ->with('success', 'Feature flags actualizados.');
+    }
+
+    public function runMigrations(Tenant $tenant)
+    {
+        try {
+            $tenant->run(function () {
+                Artisan::call('migrate', ['--force' => true, '--path' => 'database/migrations/tenant']);
+            });
+
+            return redirect("/admin/tenants/{$tenant->id}")
+                ->with('success', 'Migraciones ejecutadas correctamente.');
+        } catch (\Throwable $e) {
+            return redirect("/admin/tenants/{$tenant->id}")
+                ->with('error', 'Error al ejecutar migraciones: ' . $e->getMessage());
+        }
+    }
+
+    public function runSeed(Tenant $tenant)
+    {
+        try {
+            $tenant->run(function () {
+                Artisan::call('db:seed', ['--force' => true]);
+            });
+
+            return redirect("/admin/tenants/{$tenant->id}")
+                ->with('success', 'Seeders ejecutados correctamente.');
+        } catch (\Throwable $e) {
+            return redirect("/admin/tenants/{$tenant->id}")
+                ->with('error', 'Error al ejecutar seeders: ' . $e->getMessage());
+        }
+    }
 }

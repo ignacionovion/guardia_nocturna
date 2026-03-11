@@ -36,4 +36,11 @@ Route::middleware('auth:central')->prefix('admin')->group(function () {
 
     Route::resource('bodies', BodyController::class)->names('central.bodies');
     Route::resource('tenants', TenantController::class)->names('central.tenants');
+
+    // Feature flags toggle
+    Route::post('tenants/{tenant}/features', [TenantController::class, 'updateFeatures'])->name('central.tenants.features');
+
+    // Manual actions
+    Route::post('tenants/{tenant}/run-migrations', [TenantController::class, 'runMigrations'])->name('central.tenants.run-migrations');
+    Route::post('tenants/{tenant}/run-seed', [TenantController::class, 'runSeed'])->name('central.tenants.run-seed');
 });

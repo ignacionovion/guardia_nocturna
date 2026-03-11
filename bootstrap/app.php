@@ -20,6 +20,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->command('tenant:run', ['guardia:reset-beds'])->everyMinute();
         $schedule->command('tenant:run', ['guardia:generate-notifications'])->everyMinute();
         $schedule->command('tenant:run', ['guardia:daily-cleanup'])->everyMinute();
+
+        // SaaS maintenance
+        $schedule->command('tenant:backup')->dailyAt('03:00');
     })
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(at: '*');
@@ -33,6 +36,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'preventivas_admin' => \App\Http\Middleware\EnsurePreventivasAdmin::class,
             'guardia_on_duty' => \App\Http\Middleware\EnsureGuardiaOnDuty::class,
             'role_permission' => \App\Http\Middleware\CheckRolePermission::class,
+            'feature' => \App\Http\Middleware\EnforceFeatureFlag::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

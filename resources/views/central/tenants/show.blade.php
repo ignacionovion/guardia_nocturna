@@ -229,4 +229,104 @@
             </div>
         </div>
     </div>
+
+    {{-- Feature Flags + Manual Actions --}}
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        {{-- Feature Flags --}}
+        <div class="md:col-span-2 bg-white rounded-2xl border border-slate-200 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="font-semibold text-slate-900 text-sm">Feature Flags</h2>
+                <span class="text-[10px] text-slate-400 font-medium">Los valores por defecto provienen del plan {{ ucfirst($tenant->plan) }}</span>
+            </div>
+            <form method="POST" action="{{ route('central.tenants.features', $tenant) }}">
+                @csrf
+                @php
+                    $featureService = app(\App\Services\FeatureFlagService::class);
+                    $allFeatures = $featureService->all($tenant);
+                    $labels = \App\Services\FeatureFlagService::featureLabels();
+                    $planDefaults = \App\Services\FeatureFlagService::planDefaults($tenant->plan);
+                    $overrides = $tenant->features ?? [];
+                @endphp
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    @foreach($allFeatures as $feature => $value)
+                        @if($feature === 'max_users')
+                            <div class="col-span-2 flex items-center justify-between py-2 px-3 rounded-lg bg-slate-50">
+                                <span class="text-sm text-slate-700 font-medium">{{ $labels[$feature] ?? $feature }}</span>
+                                <div class="flex items-center space-x-2">
+                                    <input type="number" name="features[{{ $feature }}]" value="{{ $value }}"
+                                           class="w-20 text-sm text-center border border-slate-200 rounded-lg py-1 px-2 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                           min="-1" placeholder="-1=∞">
+                                    <span class="text-[10px] text-slate-400">(-1 = ilimitado)</span>
+                                </div>
+                            </div>
+                        @else
+                            <label class="flex items-center justify-between py-2 px-3 rounded-lg {{ $value ? 'bg-emerald-50' : 'bg-slate-50' }} cursor-pointer hover:bg-slate-100 transition">
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-sm text-slate-700 font-medium">{{ $labels[$feature] ?? $feature }}</span>
+                                    @if(array_key_exists($feature, $overrides))
+                                        <span class="text-[9px] font-bold text-blue-500 bg-blue-50 px-1 py-0.5 rounded">CUSTOM</span>
+                                    @endif
+                                </div>
+                                <div class="relative">
+                                    <input type="hidden" name="features[{{ $feature }}]" value="0">
+                                    <input type="checkbox" name="features[{{ $feature }}]" value="1"
+                                           {{ $value ? 'checked' : '' }}
+                                           class="sr-only peer">
+                                    <div class="w-9 h-5 bg-slate-300 rounded-full peer-checked:bg-emerald-500 transition"></div>
+                                    <div class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full peer-checked:translate-x-4 transition shadow-sm"></div>
+                                </div>
+                            </label>
+                        @endif
+                    @endforeach
+                </div>
+                <button type="submit" class="w-full bg-slate-900 text-white text-sm font-medium py-2.5 rounded-xl hover:bg-slate-800 transition">
+                    Guardar Features
+                </button>
+            </form>
+        </div>
+
+        {{-- Manual Actions --}}
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <h2 class="font-semibold text-slate-900 text-sm mb-4">Acciones Manuales</h2>
+            <div class="space-y-3">
+                <form method="POST" action="{{ route('central.tenants.run-migrations', $tenant) }}">
+                    @csrf
+                    <button type="submit" onclick="return confirm('¿Ejecutar migraciones para {{ $tenant->nombre }}?')"
+                            class="w-full flex items-center space-x-3 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl py-3 px-4 hover:bg-slate-50 transition">
+                        <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg>
+                        <span>Correr Migraciones</span>
+                    </button>
+                </form>
+
+                <form method="POST" action="{{ route('central.tenants.run-seed', $tenant) }}">
+                    @csrf
+                    <button type="submit" onclick="return confirm('¿Ejecutar seeders para {{ $tenant->nombre }}? Esto puede crear datos duplicados.')"
+                            class="w-full flex items-center space-x-3 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl py-3 px-4 hover:bg-slate-50 transition">
+                        <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        <span>Correr Seeders</span>
+                    </button>
+                </form>
+
+                @if($tenant->domains->first())
+                    <a href="http://{{ $tenant->domains->first()->domain }}.{{ env('CENTRAL_DOMAIN', 'localhost') }}" target="_blank"
+                       class="w-full flex items-center space-x-3 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl py-3 px-4 hover:bg-slate-50 transition">
+                        <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                        <span>Abrir App del Tenant</span>
+                    </a>
+                @endif
+            </div>
+
+            <div class="mt-5 pt-4 border-t border-slate-100">
+                <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Peligro</h3>
+                <form method="POST" action="{{ route('central.tenants.destroy', $tenant) }}"
+                      onsubmit="return confirm('¿ELIMINAR {{ $tenant->nombre }} y TODA su base de datos? Esta acción es IRREVERSIBLE.')">
+                    @csrf @method('DELETE')
+                    <button type="submit" class="w-full flex items-center space-x-3 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-xl py-3 px-4 hover:bg-red-100 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        <span>Eliminar Compañía</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
