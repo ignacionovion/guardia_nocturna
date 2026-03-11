@@ -49,10 +49,17 @@
                 @unless($tenant)
                 <div>
                     <label for="id" class="block text-sm font-medium text-slate-700 mb-1.5">Slug (ID)</label>
-                    <input type="text" id="id" name="id" value="{{ old('id') }}" required
-                           pattern="[a-z0-9\-]+" placeholder="tercera-temuco"
-                           class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none">
+                    <div class="relative">
+                        <input type="text" id="id" name="id" value="{{ old('id') }}" required
+                               pattern="[a-z0-9\-]+" placeholder="tercera-temuco"
+                               class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none"
+                               autocomplete="off">
+                        <div id="slug-status" class="absolute right-3 top-2.5 text-xs font-medium"></div>
+                    </div>
                     <p class="text-xs text-slate-400 mt-1">Solo minúsculas, números y guiones. Será el subdominio y nombre de la base de datos.</p>
+                    @error('id')
+                        <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
                 @endunless
 
@@ -149,3 +156,57 @@
         </form>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const slugInput = document.getElementById('id');
+    const statusDiv = document.getElementById('slug-status');
+    let debounceTimer;
+
+    if (slugInput) {
+        slugInput.addEventListener('input', function() {
+            const slug = this.value.trim().toLowerCase();
+
+            // Clear previous status
+            statusDiv.textContent = '';
+            statusDiv.className = 'absolute right-3 top-2.5 text-xs font-medium';
+            slugInput.classList.remove('border-emerald-500', 'border-red-500');
+
+            if (!slug) return;
+
+            // Validate format
+            if (!/^[a-z0-9\-]+$/.test(slug)) {
+                statusDiv.textContent = 'Formato inválido';
+                statusDiv.classList.add('text-amber-600');
+                slugInput.classList.add('border-amber-500');
+                return;
+            }
+
+            // Debounce AJAX call
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                statusDiv.textContent = 'Verificando...';
+                statusDiv.classList.add('text-slate-400');
+
+                fetch(`{{ route('central.check-slug') }}?slug=${encodeURIComponent(slug)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        statusDiv.textContent = data.message;
+                        if (data.available) {
+                            statusDiv.classList.add('text-emerald-600');
+                            slugInput.classList.add('border-emerald-500');
+                        } else {
+                            statusDiv.classList.add('text-red-600');
+                            slugInput.classList.add('border-red-500');
+                        }
+                    })
+                    .catch(() => {
+                        statusDiv.textContent = '';
+                    });
+            }, 300);
+        });
+    }
+});
+</script>
+@endpush

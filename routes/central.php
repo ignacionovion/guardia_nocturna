@@ -9,6 +9,8 @@ use App\Http\Controllers\Central\AuditController;
 use App\Http\Controllers\Central\BackupController;
 use App\Http\Controllers\Central\ImpersonationController;
 use App\Http\Controllers\Central\TenantController;
+use App\Http\Controllers\Central\TenantDataExplorerController;
+use App\Http\Controllers\Central\TenantAdminController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -48,6 +50,17 @@ Route::middleware('auth:central')->prefix('admin')->group(function () {
     Route::post('tenants/{tenant}/run-seed', [TenantController::class, 'runSeed'])->name('central.tenants.run-seed');
     Route::get('tenants/{tenant}/timeline', [TenantController::class, 'timeline'])->name('central.tenants.timeline');
     Route::post('tenants/{tenant}/impersonate', [ImpersonationController::class, 'start'])->name('central.tenants.impersonate');
+
+    // AJAX: Check slug availability
+    Route::get('check-slug', [TenantController::class, 'checkSlugAvailability'])->name('central.check-slug');
+
+    // Administración Técnica
+    Route::get('tenants/{tenant}/admin', [TenantController::class, 'admin'])->name('central.tenants.admin');
+    Route::get('tenants/{tenant}/explorer', [TenantDataExplorerController::class, 'index'])->name('central.tenants.explorer.index');
+    Route::get('tenants/{tenant}/explorer/{table}', [TenantDataExplorerController::class, 'table'])->name('central.tenants.explorer.table');
+    Route::get('tenants/{tenant}/explorer/{table}/record/{id}', [TenantDataExplorerController::class, 'showRecord'])->name('central.tenants.explorer.record');
+    Route::post('tenants/{tenant}/reset-database', [TenantAdminController::class, 'resetDatabase'])->name('central.tenants.reset-database');
+    Route::delete('tenants/{tenant}/destroy-completely', [TenantAdminController::class, 'destroyCompletely'])->name('central.tenants.destroy-completely');
 
     // Audit log
     Route::get('audit', [AuditController::class, 'index'])->name('central.audit.index');

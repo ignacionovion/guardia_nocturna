@@ -34,13 +34,26 @@ class TenantController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'id' => ['required', 'string', 'max:100', 'regex:/^[a-z0-9\-]+$/', 'unique:tenants,id'],
+            'id' => [
+                'required',
+                'string',
+                'max:100',
+                'regex:/^[a-z0-9\-]+$/',
+                'unique:tenants,id'
+            ],
             'nombre' => ['required', 'string', 'max:255'],
             'numero' => ['nullable', 'integer', 'min:1'],
             'body_id' => ['nullable', 'exists:bodies,id'],
             'plan' => ['required', 'in:basico,profesional,enterprise'],
             'fecha_vencimiento' => ['nullable', 'date'],
             'seed' => ['boolean'],
+        ], [
+            'id.required' => 'El identificador es obligatorio.',
+            'id.regex' => 'El identificador solo puede contener letras minúsculas, números y guiones.',
+            'id.unique' => 'Este identificador ya está en uso.',
+            'nombre.required' => 'El nombre es obligatorio.',
+            'plan.required' => 'El plan es obligatorio.',
+            'plan.in' => 'El plan seleccionado no es válido.',
         ]);
 
         $tenant = null;
@@ -301,5 +314,45 @@ class TenantController extends Controller
             ->paginate(30);
 
         return view('central.tenants.timeline', compact('tenant', 'events'));
+    }
+
+    public function admin(Tenant $tenant)
+    {
+        return view('central.tenants.admin', compact('tenant'));
+    }
+
+    /**
+     * Check if a slug is available via AJAX.
+     */
+    public function checkSlugAvailability(Request $request)
+    {
+        $slug = $request->input('slug');
+
+        if (!$slug) {
+            return response()->json(['available' => false, 'message' => 'Slug vacío']);
+        }
+
+        // Validate format
+        if (!preg_match('/^[a-z0-9\-]+$/', $slug)) {
+            return response()->json([
+                'available' => false,
+                'message' => 'Solo minúsculas, números y guiones'
+            ]);
+        }
+
+        // Check if exists
+        $exists = Tenant::where('id', $slug)->exists();
+
+        if ($exists) {
+            return response()->json([
+                'available' => false,
+                'message' => '✖ Ya existe'
+            ]);
+        }
+
+        return response()->json([
+            'available' => true,
+            'message' => '✔ Disponible'
+        ]);
     }
 }
