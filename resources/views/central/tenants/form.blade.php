@@ -15,6 +15,22 @@
     </div>
 
     <div class="bg-white rounded-2xl border border-slate-200 p-8 max-w-2xl">
+        @if(session('error'))
+            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm mb-6">
+                <p class="font-medium">{{ session('error') }}</p>
+                @if(session('steps'))
+                    <div class="mt-2 pt-2 border-t border-red-200">
+                        <p class="text-xs font-medium text-red-600 mb-1">Pasos completados antes del error:</p>
+                        <ul class="text-xs space-y-0.5">
+                            @foreach(session('steps') as $step)
+                                <li>{{ $step }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+            </div>
+        @endif
+
         @if($errors->any())
             <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm mb-6">
                 <ul class="list-disc list-inside space-y-1">

@@ -9,6 +9,8 @@ use App\Models\Body;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class TenantController extends Controller
 {
@@ -36,27 +38,108 @@ class TenantController extends Controller
             'seed' => ['boolean'],
         ]);
 
-        $tenant = Tenant::create([
-            'id' => $validated['id'],
-            'nombre' => $validated['nombre'],
-            'numero' => $validated['numero'] ?? null,
-            'body_id' => $validated['body_id'] ?? null,
-            'plan' => $validated['plan'],
-            'fecha_vencimiento' => $validated['fecha_vencimiento'] ?? null,
-        ]);
+        $tenant = null;
+        $steps = [];
 
-        // Subdomain = tenant id
-        $tenant->domains()->create(['domain' => $validated['id']]);
+        try {
+            // Step 1: Create tenant record in central DB
+            $tenant = Tenant::create([
+                'id' => $validated['id'],
+                'nombre' => $validated['nombre'],
+                'numero' => $validated['numero'] ?? null,
+                'body_id' => $validated['body_id'] ?? null,
+                'plan' => $validated['plan'],
+                'fecha_vencimiento' => $validated['fecha_vencimiento'] ?? null,
+            ]);
+            $steps[] = '✓ Registro tenant creado';
 
-        if ($request->boolean('seed')) {
-            $tenant->run(function () {
-                $seeder = new \Database\Seeders\DatabaseSeeder();
-                $seeder->run();
-            });
+            // Step 2: Create domain (subdomain = tenant id)
+            $tenant->domains()->create(['domain' => $validated['id']]);
+            $steps[] = '✓ Dominio creado: ' . $validated['id'];
+
+            // Step 3: Database creation + grants happen via TenantCreated event
+            // (CreateDatabase job runs automatically via TenancyServiceProvider)
+            // We verify the database was created
+            $dbName = $tenant->database()->getName();
+            if (!$this->databaseExists($dbName)) {
+                throw new \Exception("La base de datos {$dbName} no fue creada correctamente.");
+            }
+            $steps[] = "✓ Base de datos creada: {$dbName}";
+
+            // Step 4: Verify migrations ran (check if migrations table exists and has records)
+            $migrationsRan = $this->verifyMigrations($tenant);
+            if (!$migrationsRan) {
+                throw new \Exception("Las migraciones no se ejecutaron correctamente.");
+            }
+            $steps[] = '✓ Migraciones ejecutadas';
+
+            // Step 5: Optional seeding
+            if ($request->boolean('seed')) {
+                $tenant->run(function () {
+                    $seeder = new \Database\Seeders\DatabaseSeeder();
+                    $seeder->run();
+                });
+                $steps[] = '✓ Datos iniciales poblados';
+            }
+
+            Log::info("Tenant created successfully", [
+                'tenant_id' => $tenant->id,
+                'database' => $dbName,
+                'steps' => $steps,
+            ]);
+
+            return redirect('/admin/tenants')
+                ->with('success', "Compañía «{$tenant->nombre}» creada correctamente.\n" . implode("\n", $steps));
+
+        } catch (\Throwable $e) {
+            Log::error("Tenant creation failed", [
+                'tenant_id' => $validated['id'],
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'steps_completed' => $steps,
+            ]);
+
+            // Rollback: delete tenant if it was created (this will also delete DB via TenantDeleted event)
+            if ($tenant && $tenant->exists) {
+                try {
+                    $tenant->delete();
+                } catch (\Throwable $deleteError) {
+                    Log::error("Failed to rollback tenant", ['error' => $deleteError->getMessage()]);
+                }
+            }
+
+            return back()
+                ->withInput()
+                ->with('error', "Error al crear la compañía: {$e->getMessage()}")
+                ->with('steps', $steps);
         }
+    }
 
-        return redirect('/admin/tenants')
-            ->with('success', "Compañía «{$tenant->nombre}» creada. DB: {$tenant->tenancy_db_name}");
+    /**
+     * Check if a database exists
+     */
+    protected function databaseExists(string $name): bool
+    {
+        $result = DB::connection('central')->select(
+            "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = ?",
+            [$name]
+        );
+        return count($result) > 0;
+    }
+
+    /**
+     * Verify that migrations ran successfully for a tenant
+     */
+    protected function verifyMigrations(Tenant $tenant): bool
+    {
+        try {
+            $count = $tenant->run(function () {
+                return DB::table('migrations')->count();
+            });
+            return $count > 0;
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     public function show(Tenant $tenant)
