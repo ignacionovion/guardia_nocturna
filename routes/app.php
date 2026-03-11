@@ -28,6 +28,9 @@ use App\Http\Controllers\Admin\PlanillaListItemController;
 use App\Http\Controllers\Admin\TenantSettingsController;
 use App\Http\Controllers\TurnoDraftController;
 
+Route::get('/impersonate/callback', [\App\Http\Controllers\ImpersonateCallbackController::class, 'callback'])->name('impersonate.callback');
+Route::get('/impersonate/stop', [\App\Http\Controllers\Central\ImpersonationController::class, 'stop'])->name('impersonate.stop');
+
 Route::get('/preventivas/{token}', [PreventivePublicController::class, 'show'])->name('preventivas.public.show');
 Route::post('/preventivas/{token}/confirmar', [PreventivePublicController::class, 'confirm'])->name('preventivas.public.confirm');
 Route::get('/preventivas/{token}/identificar', [PreventivePublicController::class, 'identificarForm'])->name('preventivas.public.identificar.form');

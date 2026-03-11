@@ -159,7 +159,22 @@ class TenantController extends Controller
         $metrics = $this->metrics->forTenant($tenant);
         $health = $this->metrics->healthStatus($tenant);
 
-        return view('central.tenants.show', compact('tenant', 'metrics', 'health'));
+        // Get tenant users for impersonation
+        $tenantUsers = [];
+        try {
+            $tenant->run(function () use (&$tenantUsers) {
+                $tenantUsers = \App\Models\User::select('id', 'name', 'email', 'role')
+                    ->orderByRaw("FIELD(role, 'super_admin', 'capitania', 'administrador', 'guardia')")
+                    ->orderBy('name')
+                    ->limit(20)
+                    ->get()
+                    ->toArray();
+            });
+        } catch (\Throwable $e) {
+            // Tenant DB may not exist yet
+        }
+
+        return view('central.tenants.show', compact('tenant', 'metrics', 'health', 'tenantUsers'));
     }
 
     public function edit(Tenant $tenant)
@@ -277,5 +292,14 @@ class TenantController extends Controller
             return redirect("/admin/tenants/{$tenant->id}")
                 ->with('error', 'Error al ejecutar seeders: ' . $e->getMessage());
         }
+    }
+
+    public function timeline(Tenant $tenant)
+    {
+        $events = CentralAuditLog::forTenant($tenant->id)
+            ->latest()
+            ->paginate(30);
+
+        return view('central.tenants.timeline', compact('tenant', 'events'));
     }
 }

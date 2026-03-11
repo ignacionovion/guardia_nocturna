@@ -39,6 +39,8 @@
 </head>
 <body class="bg-gradient-to-b from-slate-100 via-slate-50 to-slate-100 font-sans leading-normal tracking-normal flex flex-col min-h-screen text-slate-800">
 
+    @include('components.impersonation-banner')
+
     @if(Auth::check() && !(Auth::user()->role === 'guardia' && request()->routeIs('dashboard')))
     <nav class="bg-slate-900 shadow-xl border-b-4 border-red-700 sticky top-0 z-50 pt-[env(safe-area-inset-top)]">
         <div class="container mx-auto px-4">

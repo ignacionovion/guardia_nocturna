@@ -314,6 +314,12 @@
                         <span>Abrir App del Tenant</span>
                     </a>
                 @endif
+
+                <a href="{{ route('central.tenants.timeline', $tenant) }}"
+                   class="w-full flex items-center space-x-3 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl py-3 px-4 hover:bg-slate-50 transition">
+                    <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span>Ver Timeline</span>
+                </a>
             </div>
 
             <div class="mt-5 pt-4 border-t border-slate-100">
@@ -329,4 +335,36 @@
             </div>
         </div>
     </div>
+
+    {{-- Impersonation --}}
+    @if(!empty($tenantUsers))
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h2 class="font-semibold text-slate-900 text-sm">Impersonar Usuario</h2>
+                <p class="text-xs text-slate-400 mt-0.5">Accede al sistema como si fueras un usuario de este tenant</p>
+            </div>
+            <span class="text-[10px] text-amber-600 bg-amber-50 px-2 py-1 rounded font-medium">⚠️ Se registra en auditoría</span>
+        </div>
+        <form method="POST" action="{{ route('central.tenants.impersonate', $tenant) }}" class="flex items-end space-x-3">
+            @csrf
+            <div class="flex-1">
+                <label class="block text-xs font-medium text-slate-500 mb-1">Seleccionar usuario</label>
+                <select name="user_id" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-amber-500 outline-none">
+                    <option value="">— Seleccionar —</option>
+                    @foreach($tenantUsers as $user)
+                        <option value="{{ $user['id'] }}">
+                            {{ $user['name'] }} ({{ $user['role'] }}) — {{ $user['email'] }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <button type="submit" onclick="return confirm('¿Impersonar este usuario? La acción quedará registrada en auditoría.')"
+                    class="px-4 py-2 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition flex items-center space-x-1.5">
+                <span>🎭</span>
+                <span>Impersonar</span>
+            </button>
+        </form>
+    </div>
+    @endif
 @endsection

@@ -7,6 +7,7 @@ use App\Http\Controllers\Central\CentralAuthController;
 use App\Http\Controllers\Central\CentralDashboardController;
 use App\Http\Controllers\Central\AuditController;
 use App\Http\Controllers\Central\BackupController;
+use App\Http\Controllers\Central\ImpersonationController;
 use App\Http\Controllers\Central\TenantController;
 use Illuminate\Support\Facades\Route;
 
@@ -45,6 +46,8 @@ Route::middleware('auth:central')->prefix('admin')->group(function () {
     // Manual actions
     Route::post('tenants/{tenant}/run-migrations', [TenantController::class, 'runMigrations'])->name('central.tenants.run-migrations');
     Route::post('tenants/{tenant}/run-seed', [TenantController::class, 'runSeed'])->name('central.tenants.run-seed');
+    Route::get('tenants/{tenant}/timeline', [TenantController::class, 'timeline'])->name('central.tenants.timeline');
+    Route::post('tenants/{tenant}/impersonate', [ImpersonationController::class, 'start'])->name('central.tenants.impersonate');
 
     // Audit log
     Route::get('audit', [AuditController::class, 'index'])->name('central.audit.index');

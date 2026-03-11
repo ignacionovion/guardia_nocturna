@@ -121,54 +121,144 @@
         </div>
     </div>
 
-    {{-- Recent tenants with health --}}
-    <div class="bg-white rounded-2xl border border-slate-200">
-        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-            <h2 class="font-semibold text-slate-900">Compañías</h2>
-            <a href="{{ route('central.tenants.index') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">Ver todas</a>
+    {{-- Distribution + Backups + Expiring Row --}}
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        {{-- Tenants by Plan --}}
+        <div class="bg-white rounded-2xl border border-slate-200 p-5">
+            <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Por Plan</h3>
+            <div class="space-y-2">
+                @foreach(['basico' => 'Básico', 'profesional' => 'Profesional', 'enterprise' => 'Enterprise'] as $plan => $label)
+                    @php $count = $tenantsByPlan[$plan] ?? 0; $pct = $tenantsCount > 0 ? ($count / $tenantsCount * 100) : 0; @endphp
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-slate-600">{{ $label }}</span>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-20 h-2 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="h-full {{ $plan === 'enterprise' ? 'bg-purple-500' : ($plan === 'profesional' ? 'bg-blue-500' : 'bg-slate-400') }}" style="width: {{ $pct }}%"></div>
+                            </div>
+                            <span class="text-xs font-medium text-slate-900 w-6 text-right">{{ $count }}</span>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
         </div>
-        <div class="divide-y divide-slate-100">
-            @forelse($recentTenants as $tenant)
-                @php $health = $tenantHealthMap[$tenant->id] ?? ['overall' => 'ok']; @endphp
-                <a href="{{ route('central.tenants.show', $tenant->id) }}" class="px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition block">
-                    <div class="flex items-center space-x-4">
-                        {{-- Health indicator --}}
-                        <div class="relative">
-                            <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
-                                <span class="text-sm font-bold text-slate-600">{{ $tenant->numero ?? '#' }}</span>
-                            </div>
-                            <div class="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white
-                                {{ $health['overall'] === 'ok' ? 'bg-emerald-400' : ($health['overall'] === 'warning' ? 'bg-amber-400' : 'bg-red-400') }}">
-                            </div>
-                        </div>
-                        <div>
-                            <p class="font-medium text-slate-900">{{ $tenant->nombre }}</p>
-                            <p class="text-xs text-slate-500">
-                                {{ $tenant->domains->first()?->domain ?? $tenant->id }}
-                                @if($tenant->body) &middot; {{ $tenant->body->nombre }} @endif
-                            </p>
-                        </div>
+
+        {{-- Tenants by Estado --}}
+        <div class="bg-white rounded-2xl border border-slate-200 p-5">
+            <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Por Estado</h3>
+            <div class="space-y-2">
+                @foreach(['activo' => ['Activo', 'emerald'], 'trial' => ['Trial', 'blue'], 'vencido' => ['Vencido', 'red'], 'suspendido' => ['Suspendido', 'amber'], 'cancelado' => ['Cancelado', 'slate']] as $estado => $info)
+                    @php $count = $tenantsByEstado[$estado] ?? 0; @endphp
+                    @if($count > 0)
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-slate-600">{{ $info[0] }}</span>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-{{ $info[1] }}-50 text-{{ $info[1] }}-700">{{ $count }}</span>
                     </div>
-                    <div class="flex items-center space-x-3">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $tenant->activo ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700' }}">
-                            {{ $tenant->activo ? 'Activa' : 'Inactiva' }}
-                        </span>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                            {{ $tenant->plan === 'enterprise' ? 'bg-purple-50 text-purple-700' : ($tenant->plan === 'profesional' ? 'bg-blue-50 text-blue-700' : 'bg-slate-100 text-slate-600') }}">
-                            {{ ucfirst($tenant->plan) }}
-                        </span>
-                        <svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </div>
-                </a>
-            @empty
-                <div class="px-6 py-12 text-center">
-                    <div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                        <svg class="w-8 h-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                    </div>
-                    <p class="text-slate-500 text-sm mb-3">No hay compañías registradas</p>
-                    <a href="{{ route('central.tenants.create') }}" class="text-sm text-blue-600 hover:underline font-medium">Crear la primera compañía</a>
+                    @endif
+                @endforeach
+            </div>
+        </div>
+
+        {{-- Backups --}}
+        <div class="bg-white rounded-2xl border border-slate-200 p-5">
+            <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Backups</h3>
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-slate-600">Total backups</span>
+                    <span class="text-sm font-medium text-slate-900">{{ $backupCount }}</span>
                 </div>
-            @endforelse
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-slate-600">Tamaño total</span>
+                    <span class="text-sm font-medium text-slate-900">{{ $backupSize > 0 ? round($backupSize / 1024 / 1024, 1) . ' MB' : '0 B' }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-slate-600">Último backup</span>
+                    <span class="text-sm font-medium text-slate-900">{{ $lastBackup ?? '—' }}</span>
+                </div>
+            </div>
+            <a href="{{ route('central.backups.index') }}" class="mt-3 block text-center text-xs text-blue-600 hover:underline">Ver todos →</a>
+        </div>
+    </div>
+
+    {{-- Expiring Soon Warning --}}
+    @if($expiringSoon->isNotEmpty())
+    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5 mb-6">
+        <div class="flex items-start space-x-3">
+            <div class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.268 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
+            </div>
+            <div class="flex-1">
+                <h3 class="text-sm font-semibold text-amber-800">Compañías por vencer (próximos 7 días)</h3>
+                <div class="mt-2 space-y-1">
+                    @foreach($expiringSoon as $t)
+                        <a href="{{ route('central.tenants.show', $t) }}" class="flex items-center justify-between text-sm hover:bg-amber-100 rounded px-2 py-1 -mx-2 transition">
+                            <span class="text-amber-900">{{ $t->nombre }}</span>
+                            <span class="text-amber-700 text-xs">{{ $t->fecha_vencimiento->format('d/m/Y') }} ({{ $t->fecha_vencimiento->diffForHumans() }})</span>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        {{-- Recent tenants with health --}}
+        <div class="bg-white rounded-2xl border border-slate-200">
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                <h2 class="font-semibold text-slate-900">Compañías Recientes</h2>
+                <a href="{{ route('central.tenants.index') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">Ver todas</a>
+            </div>
+            <div class="divide-y divide-slate-100">
+                @forelse($recentTenants as $tenant)
+                    @php $health = $tenantHealthMap[$tenant->id] ?? ['overall' => 'ok']; @endphp
+                    <a href="{{ route('central.tenants.show', $tenant->id) }}" class="px-6 py-3 flex items-center justify-between hover:bg-slate-50 transition block">
+                        <div class="flex items-center space-x-3">
+                            <div class="relative">
+                                <div class="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center">
+                                    <span class="text-xs font-bold text-slate-600">{{ $tenant->numero ?? '#' }}</span>
+                                </div>
+                                <div class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white
+                                    {{ $health['overall'] === 'ok' ? 'bg-emerald-400' : ($health['overall'] === 'warning' ? 'bg-amber-400' : 'bg-red-400') }}">
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-slate-900">{{ $tenant->nombre }}</p>
+                                <p class="text-[10px] text-slate-400">{{ $tenant->domains->first()?->domain ?? $tenant->id }}</p>
+                            </div>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium {{ $tenant->estadoBadgeClass() }}">
+                            {{ $tenant->estadoLabel() }}
+                        </span>
+                    </a>
+                @empty
+                    <div class="px-6 py-8 text-center text-slate-400 text-sm">
+                        No hay compañías registradas
+                    </div>
+                @endforelse
+            </div>
+        </div>
+
+        {{-- Recent Audit Logs --}}
+        <div class="bg-white rounded-2xl border border-slate-200">
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                <h2 class="font-semibold text-slate-900">Actividad Reciente</h2>
+                <a href="{{ route('central.audit.index') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">Ver todo</a>
+            </div>
+            <div class="divide-y divide-slate-100">
+                @forelse($recentAuditLogs as $log)
+                    <div class="px-6 py-3 flex items-start space-x-3">
+                        <span class="text-lg">{{ $log->actionIcon() }}</span>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm text-slate-900 truncate">{{ $log->description }}</p>
+                            <p class="text-[10px] text-slate-400">{{ $log->admin_name }} · {{ $log->created_at->diffForHumans() }}</p>
+                        </div>
+                    </div>
+                @empty
+                    <div class="px-6 py-8 text-center text-slate-400 text-sm">
+                        No hay actividad registrada
+                    </div>
+                @endforelse
+            </div>
         </div>
     </div>
 @endsection
