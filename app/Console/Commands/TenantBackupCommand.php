@@ -9,6 +9,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\Process\Process;
 
 class TenantBackupCommand extends Command
 {
@@ -67,21 +68,9 @@ class TenantBackupCommand extends Command
                 continue;
             }
 
-            $command = sprintf(
-                '%s --host=%s --port=%s --user=%s --password=%s --single-transaction --routines --triggers --databases %s 2>/dev/null | gzip > %s',
-                escapeshellarg($mysqldumpPath),
-                escapeshellarg($host),
-                escapeshellarg((string) $port),
-                escapeshellarg($username),
-                escapeshellarg($password),
-                escapeshellarg($dbName),
-                escapeshellarg($filepath)
-            );
+            $success = $this->runBackup($mysqldumpPath, $host, $port, $username, $password, $dbName, $filepath);
 
-            $exitCode = 0;
-            exec($command, $output, $exitCode);
-
-            if ($exitCode === 0 && file_exists($filepath) && filesize($filepath) > 0) {
+            if ($success && file_exists($filepath) && filesize($filepath) > 0) {
                 $size = $this->formatBytes(filesize($filepath));
                 $this->info("  ✓ Saved: {$filename} ({$size})");
                 Log::channel('tenant')->info("Backup created for {$dbName}: {$filename} ({$size})");
@@ -105,6 +94,87 @@ class TenantBackupCommand extends Command
         return $fail > 0 ? self::FAILURE : self::SUCCESS;
     }
 
+    /**
+     * Run backup using Symfony Process (works even when exec is disabled).
+     */
+    protected function runBackup(string $mysqldump, string $host, string $port, string $username, string $password, string $dbName, string $filepath): bool
+    {
+        // Try Symfony Process first (works with proc_open)
+        try {
+            $command = [
+                $mysqldump,
+                '--host=' . $host,
+                '--port=' . $port,
+                '--user=' . $username,
+                '--password=' . $password,
+                '--single-transaction',
+                '--routines',
+                '--triggers',
+                '--databases',
+                $dbName,
+            ];
+
+            $process = new Process($command, null, null, null, 600);
+            $process->run();
+
+            if ($process->isSuccessful()) {
+                // Compress with gzip
+                $gzFile = gzopen($filepath, 'wb9');
+                if ($gzFile) {
+                    gzwrite($gzFile, $process->getOutput());
+                    gzclose($gzFile);
+                    return true;
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::warning("Symfony Process backup failed: {$e->getMessage()}");
+        }
+
+        // Fallback: try shell command via proc_open
+        $this->warn("  → Fallback to shell backup...");
+
+        $dumpCommand = sprintf(
+            '%s --host=%s --port=%s --user=%s --password=%s --single-transaction --routines --triggers --databases %s 2>/dev/null',
+            escapeshellarg($mysqldump),
+            escapeshellarg($host),
+            escapeshellarg((string) $port),
+            escapeshellarg($username),
+            escapeshellarg($password),
+            escapeshellarg($dbName)
+        );
+
+        $descriptors = [
+            0 => ['pipe', 'r'],  // stdin
+            1 => ['pipe', 'w'],  // stdout
+            2 => ['file', '/dev/null', 'w'],  // stderr
+        ];
+
+        $process = proc_open($dumpCommand, $descriptors, $pipes);
+
+        if (!is_resource($process)) {
+            return false;
+        }
+
+        fclose($pipes[0]); // close stdin
+
+        // Read output and compress
+        $output = stream_get_contents($pipes[1]);
+        fclose($pipes[1]);
+
+        $exitCode = proc_close($process);
+
+        if ($exitCode === 0 && $output) {
+            $gzFile = gzopen($filepath, 'wb9');
+            if ($gzFile) {
+                gzwrite($gzFile, $output);
+                gzclose($gzFile);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     protected function findMysqldump(): ?string
     {
         $paths = [
@@ -112,17 +182,23 @@ class TenantBackupCommand extends Command
             '/usr/local/bin/mysqldump',
             '/opt/homebrew/bin/mysqldump',
             '/usr/local/mysql/bin/mysqldump',
+            'mysqldump',  // Let PATH find it
         ];
 
         foreach ($paths as $path) {
-            if (file_exists($path) && is_executable($path)) {
+            if ($path === 'mysqldump') {
+                // Try to run via shell
+                $result = shell_exec('which mysqldump 2>/dev/null') ?? '';
+                $result = trim($result);
+                if ($result && is_executable($result)) {
+                    return $result;
+                }
+            } elseif (file_exists($path) && is_executable($path)) {
                 return $path;
             }
         }
 
-        // Try which
-        $result = trim(shell_exec('which mysqldump 2>/dev/null') ?? '');
-        return $result ?: null;
+        return null;
     }
 
     protected function cleanOldBackups(string $dir, int $keepDays): void

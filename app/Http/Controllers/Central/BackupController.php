@@ -93,9 +93,15 @@ class BackupController extends Controller
         $username = config('database.connections.mysql.username');
         $password = config('database.connections.mysql.password');
 
-        $command = sprintf(
-            'gunzip -c %s | mysql --host=%s --port=%s --user=%s --password=%s %s 2>&1',
-            escapeshellarg($filepath),
+        // Use proc_open instead of exec (works even when exec is disabled)
+        $descriptors = [
+            0 => ['pipe', 'r'],  // stdin (gunzip output)
+            1 => ['pipe', 'w'],  // stdout
+            2 => ['pipe', 'w'],  // stderr
+        ];
+
+        $mysqlCommand = sprintf(
+            'mysql --host=%s --port=%s --user=%s --password=%s %s',
             escapeshellarg($host),
             escapeshellarg((string) $port),
             escapeshellarg($username),
@@ -103,9 +109,36 @@ class BackupController extends Controller
             escapeshellarg($dbName)
         );
 
-        $output = [];
-        $exitCode = 0;
-        exec($command, $output, $exitCode);
+        $process = proc_open($mysqlCommand, $descriptors, $pipes);
+
+        if (!is_resource($process)) {
+            return back()->with('error', 'No se pudo iniciar el proceso de restauración.');
+        }
+
+        // Read compressed file and decompress to mysql stdin
+        $gzHandle = gzopen($filepath, 'rb');
+        if (!$gzHandle) {
+            fclose($pipes[0]);
+            fclose($pipes[1]);
+            fclose($pipes[2]);
+            proc_close($process);
+            return back()->with('error', 'No se pudo leer el archivo de backup.');
+        }
+
+        // Stream decompressed content to mysql
+        while (!gzeof($gzHandle)) {
+            fwrite($pipes[0], gzread($gzHandle, 8192));
+        }
+        gzclose($gzHandle);
+        fclose($pipes[0]); // close stdin
+
+        $output = stream_get_contents($pipes[1]);
+        $error = stream_get_contents($pipes[2]);
+
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+
+        $exitCode = proc_close($process);
 
         if ($exitCode === 0) {
             // Find tenant by DB name
@@ -122,10 +155,11 @@ class BackupController extends Controller
             'file' => $filename,
             'database' => $dbName,
             'exit_code' => $exitCode,
-            'output' => implode("\n", $output),
+            'error' => $error,
+            'output' => $output,
         ]);
 
-        return back()->with('error', 'Error al restaurar backup: ' . implode(' ', $output));
+        return back()->with('error', 'Error al restaurar backup: ' . ($error ?: 'Unknown error'));
     }
 
     /**
