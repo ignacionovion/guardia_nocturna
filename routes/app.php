@@ -84,7 +84,7 @@ Route::post('/camas/scan/{bedId}/asignar', [BedQrController::class, 'assignStore
 Route::get('/camas/scan/{bedId}/exito', [BedQrController::class, 'success'])->name('camas.scan.success');
 
 // Rutas de Autenticación
-Route::get('/', [AuthController::class, 'showLoginForm'])->name('login')->middleware('guest');
+Route::get('/', [AuthController::class, 'showLoginForm'])->name('tenant.login')->middleware('guest');
 Route::post('/', [AuthController::class, 'login'])->middleware('guest');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 

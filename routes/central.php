@@ -26,7 +26,7 @@ Route::get('/', function () {
     return view('central.landing');
 })->name('central.landing');
 
-Route::get('/login', [CentralAuthController::class, 'showLogin'])->name('central.login');
+Route::get('/login', [CentralAuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [CentralAuthController::class, 'login']);
 Route::post('/logout', [CentralAuthController::class, 'logout'])->name('central.logout');
 

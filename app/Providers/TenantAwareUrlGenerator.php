@@ -27,8 +27,8 @@ class TenantAwareUrlGenerator extends UrlGenerator
      */
     public function toRoute($route, $parameters, $absolute = true)
     {
-        // If we're in tenant context and the route requires a 'tenant' parameter
-        if (tenant() && $this->routeNeedsTenantParameter($route)) {
+        // If the route requires a 'tenant' parameter
+        if ($this->routeNeedsTenantParameter($route)) {
             $parameters = $this->injectTenantParameter($parameters);
         }
 
@@ -61,9 +61,15 @@ class TenantAwareUrlGenerator extends UrlGenerator
             return $parameters;
         }
 
-        // Add the current tenant ID
-        $parameters['tenant'] = tenant('id');
+        // If we're in tenant context, use current tenant
+        if (tenant()) {
+            $parameters['tenant'] = tenant('id');
+            return $parameters;
+        }
 
+        // Not in tenant context and no tenant parameter provided
+        // This will cause the parent::toRoute to throw an exception
+        // with a clear message about missing parameter
         return $parameters;
     }
 }
