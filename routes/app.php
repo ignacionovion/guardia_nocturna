@@ -25,6 +25,7 @@ use App\Http\Controllers\Admin\PlanillaQrFijoController;
 use App\Http\Controllers\Admin\InventarioImportController;
 use App\Http\Controllers\BedQrController;
 use App\Http\Controllers\Admin\PlanillaListItemController;
+use App\Http\Controllers\Admin\TenantSettingsController;
 use App\Http\Controllers\TurnoDraftController;
 
 Route::get('/preventivas/{token}', [PreventivePublicController::class, 'show'])->name('preventivas.public.show');
@@ -146,7 +147,7 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
         return redirect()->route('inventario.dashboard');
     })->name('inventario.index');
 
-    Route::middleware('inventory_access')->group(function () {
+    Route::middleware(['feature:inventario', 'inventory_access'])->group(function () {
         Route::get('/inventario/panel', [InventarioController::class, 'index'])->name('inventario.dashboard');
         Route::get('/inventario/retiro/acceso', [InventarioController::class, 'retiroAccess'])->name('inventario.retiro.access');
         Route::get('/inventario/retiro/identificar', [InventarioController::class, 'identificarForm'])->name('inventario.retiro.identificar.form');
@@ -235,7 +236,7 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
 
     // Rutas Admin - Bomberos (Legacy/Guardias specific)
     Route::get('/admin/guardias', [AdministradorController::class, 'index'])->name('admin.guardias');
-    Route::get('/admin/dotaciones', [AdministradorController::class, 'dotaciones'])->name('admin.dotaciones');
+    Route::get('/admin/dotaciones', [AdministradorController::class, 'dotaciones'])->middleware('feature:dotaciones')->name('admin.dotaciones');
     Route::post('/admin/guardias/assign', [AdministradorController::class, 'assignBombero'])->name('admin.guardias.assign');
     Route::match(['get', 'post', 'delete'], '/admin/guardias/unassign', [AdministradorController::class, 'unassignBombero'])->name('admin.guardias.unassign');
     Route::post('/admin/guardias/refuerzo', [AdministradorController::class, 'assignRefuerzo'])->name('admin.guardias.refuerzo');
@@ -253,6 +254,7 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
     Route::post('/admin/bomberos/{id}/toggle-fuera-servicio', [AdministradorController::class, 'toggleFueraDeServicio'])->name('admin.bomberos.toggle_fuera_servicio');
 
     // Rutas de Reportes
+    Route::middleware('feature:reportes')->group(function () {
     Route::get('/admin/reports', [App\Http\Controllers\ReportController::class, 'attendance'])->name('admin.reports.index');
     Route::get('/admin/reports/attendance', [App\Http\Controllers\ReportController::class, 'attendance'])->name('admin.reports.attendance');
     Route::get('/admin/reports/attendance/export', [App\Http\Controllers\ReportController::class, 'attendanceExport'])->name('admin.reports.attendance.export');
@@ -266,6 +268,7 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
     Route::get('/admin/reports/emergencias/export', [App\Http\Controllers\ReportController::class, 'emergenciesExport'])->name('admin.reports.emergencies.export');
     Route::get('/admin/reports/reemplazos/export', [App\Http\Controllers\ReportController::class, 'replacementsExport'])->name('admin.reports.replacements.export');
     Route::get('/admin/reports/reemplazos/print', [App\Http\Controllers\ReportController::class, 'replacementsPrint'])->name('admin.reports.replacements.print');
+    });
 
     // Rutas Admin - Calendario
     Route::get('/admin/calendario', [AdminCalendarController::class, 'index'])->name('admin.calendario');
@@ -280,12 +283,15 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
     Route::post('/notifications/read', [App\Http\Controllers\InAppNotificationController::class, 'markRead'])->name('notifications.read');
 
     // Emergencias (Guardia + Super Admin)
-    Route::middleware('emergency_access')->group(function () {
+    Route::middleware(['feature:emergencias', 'emergency_access'])->group(function () {
         Route::resource('admin/emergencies', App\Http\Controllers\Admin\EmergencyController::class, ['as' => 'admin']);
     });
 
     // Rutas Admin - Usuarios del Sistema (solo Super Admin)
     Route::middleware('super_admin')->group(function () {
+        Route::get('/admin/tenant-settings', [TenantSettingsController::class, 'index'])->name('admin.tenant-settings.index');
+        Route::put('/admin/tenant-settings', [TenantSettingsController::class, 'update'])->name('admin.tenant-settings.update');
+
         Route::get('/admin/system', [SystemAdminController::class, 'index'])->name('admin.system.index');
         Route::post('/admin/system/schedule', [SystemAdminController::class, 'saveSchedule'])->name('admin.system.schedule.save');
         Route::post('/admin/system/mail', [SystemAdminController::class, 'saveMailSettings'])->name('admin.system.mail.save');
@@ -341,7 +347,8 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
             Route::delete('/admin/preventivas/{event}', [PreventiveEventController::class, 'destroy'])->name('admin.preventivas.destroy');
         });
 
-        Route::resource('admin/users', App\Http\Controllers\Admin\SystemUserController::class, ['as' => 'admin']);
+        Route::post('admin/users', [App\Http\Controllers\Admin\SystemUserController::class, 'store'])->middleware('max_users')->name('admin.users.store');
+        Route::resource('admin/users', App\Http\Controllers\Admin\SystemUserController::class, ['as' => 'admin'])->except(['store']);
         Route::resource('admin/roles', App\Http\Controllers\Admin\RoleController::class, ['as' => 'admin']);
 
         Route::get('/admin/emergency-keys/import', [App\Http\Controllers\Admin\EmergencyKeyController::class, 'importForm'])->name('admin.emergency-keys.import');

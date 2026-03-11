@@ -5,6 +5,8 @@ declare(strict_types=1);
 use App\Http\Controllers\Central\BodyController;
 use App\Http\Controllers\Central\CentralAuthController;
 use App\Http\Controllers\Central\CentralDashboardController;
+use App\Http\Controllers\Central\AuditController;
+use App\Http\Controllers\Central\BackupController;
 use App\Http\Controllers\Central\TenantController;
 use Illuminate\Support\Facades\Route;
 
@@ -43,4 +45,14 @@ Route::middleware('auth:central')->prefix('admin')->group(function () {
     // Manual actions
     Route::post('tenants/{tenant}/run-migrations', [TenantController::class, 'runMigrations'])->name('central.tenants.run-migrations');
     Route::post('tenants/{tenant}/run-seed', [TenantController::class, 'runSeed'])->name('central.tenants.run-seed');
+
+    // Audit log
+    Route::get('audit', [AuditController::class, 'index'])->name('central.audit.index');
+
+    // Backups
+    Route::get('backups', [BackupController::class, 'index'])->name('central.backups.index');
+    Route::post('backups', [BackupController::class, 'store'])->name('central.backups.store');
+    Route::get('backups/download', [BackupController::class, 'download'])->name('central.backups.download');
+    Route::post('backups/restore', [BackupController::class, 'restore'])->name('central.backups.restore');
+    Route::delete('backups', [BackupController::class, 'destroy'])->name('central.backups.destroy');
 });

@@ -49,9 +49,12 @@
                             </span>
                         </td>
                         <td class="px-6 py-4">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $tenant->activo ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700' }}">
-                                {{ $tenant->activo ? 'Activa' : 'Inactiva' }}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $tenant->estadoBadgeClass() }}">
+                                {{ $tenant->estadoLabel() }}
                             </span>
+                            @if($tenant->daysUntilExpiry() !== null && $tenant->daysUntilExpiry() <= 7 && $tenant->daysUntilExpiry() > 0)
+                                <span class="text-[10px] text-amber-600 ml-1">{{ $tenant->daysUntilExpiry() }}d</span>
+                            @endif
                         </td>
                         <td class="px-6 py-4">
                             <code class="text-xs bg-slate-100 px-2 py-1 rounded text-slate-600">{{ $tenant->domains->first()?->domain ?? $tenant->id }}</code>

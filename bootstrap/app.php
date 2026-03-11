@@ -23,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // SaaS maintenance
         $schedule->command('tenant:backup')->dailyAt('03:00');
+        $schedule->command('tenant:check-expiry')->dailyAt('06:00');
     })
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(at: '*');
@@ -37,6 +38,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'guardia_on_duty' => \App\Http\Middleware\EnsureGuardiaOnDuty::class,
             'role_permission' => \App\Http\Middleware\CheckRolePermission::class,
             'feature' => \App\Http\Middleware\EnforceFeatureFlag::class,
+            'max_users' => \App\Http\Middleware\EnforceMaxUsers::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Central;
 
 use App\Http\Controllers\Controller;
 use App\Models\Body;
+use App\Models\CentralAuditLog;
 use App\Models\Tenant;
 use App\Services\TenantMetricsService;
 use Illuminate\Http\Request;
@@ -92,6 +93,12 @@ class TenantController extends Controller
                 'steps' => $steps,
             ]);
 
+            CentralAuditLog::log('tenant_created', "Compañía «{$tenant->nombre}» creada", $tenant->id, [
+                'plan' => $validated['plan'],
+                'seed' => $request->boolean('seed'),
+                'steps' => $steps,
+            ]);
+
             return redirect('/admin/tenants')
                 ->with('success', "Compañía «{$tenant->nombre}» creada correctamente.\n" . implode("\n", $steps));
 
@@ -168,12 +175,31 @@ class TenantController extends Controller
             'numero' => ['nullable', 'integer', 'min:1'],
             'body_id' => ['nullable', 'exists:bodies,id'],
             'plan' => ['required', 'in:basico,profesional,enterprise'],
-            'activo' => ['boolean'],
+            'estado' => ['required', 'in:trial,activo,suspendido,vencido,cancelado'],
+            'grace_days' => ['nullable', 'integer', 'min:0', 'max:30'],
             'fecha_vencimiento' => ['nullable', 'date'],
         ]);
 
-        $validated['activo'] = $request->boolean('activo', true);
+        // Sync activo boolean with estado for backward compatibility
+        $validated['activo'] = in_array($validated['estado'], ['trial', 'activo']);
+        $validated['grace_days'] = $validated['grace_days'] ?? 5;
+
+        $oldEstado = $tenant->estado;
+        $oldPlan = $tenant->plan;
+
         $tenant->update($validated);
+
+        if ($oldPlan !== $validated['plan']) {
+            CentralAuditLog::log('plan_changed', "Plan cambiado de {$oldPlan} a {$validated['plan']}", $tenant->id, [
+                'old_plan' => $oldPlan, 'new_plan' => $validated['plan'],
+            ]);
+        }
+        if ($oldEstado !== $validated['estado']) {
+            CentralAuditLog::log('estado_changed', "Estado cambiado de {$oldEstado} a {$validated['estado']}", $tenant->id, [
+                'old_estado' => $oldEstado, 'new_estado' => $validated['estado'],
+            ]);
+        }
+        CentralAuditLog::log('tenant_updated', "Compañía «{$tenant->nombre}» actualizada", $tenant->id);
 
         return redirect('/admin/tenants')
             ->with('success', "Compañía «{$tenant->nombre}» actualizada.");
@@ -182,7 +208,11 @@ class TenantController extends Controller
     public function destroy(Tenant $tenant)
     {
         $nombre = $tenant->nombre;
+        $tenantId = $tenant->id;
+        $plan = $tenant->plan;
         $tenant->delete();
+
+        CentralAuditLog::log('tenant_deleted', "Compañía «{$nombre}» eliminada", $tenantId, ['plan' => $plan]);
 
         return redirect('/admin/tenants')
             ->with('success', "Compañía «{$nombre}» eliminada junto con su base de datos.");
@@ -207,6 +237,10 @@ class TenantController extends Controller
         $tenant->features = $resolved;
         $tenant->save();
 
+        CentralAuditLog::log('features_updated', "Feature flags actualizados para «{$tenant->nombre}»", $tenant->id, [
+            'features' => $resolved,
+        ]);
+
         return redirect("/admin/tenants/{$tenant->id}")
             ->with('success', 'Feature flags actualizados.');
     }
@@ -217,6 +251,8 @@ class TenantController extends Controller
             $tenant->run(function () {
                 Artisan::call('migrate', ['--force' => true, '--path' => 'database/migrations/tenant']);
             });
+
+            CentralAuditLog::log('migrations_run', "Migraciones ejecutadas para «{$tenant->nombre}»", $tenant->id);
 
             return redirect("/admin/tenants/{$tenant->id}")
                 ->with('success', 'Migraciones ejecutadas correctamente.');
@@ -232,6 +268,8 @@ class TenantController extends Controller
             $tenant->run(function () {
                 Artisan::call('db:seed', ['--force' => true]);
             });
+
+            CentralAuditLog::log('seed_run', "Seeders ejecutados para «{$tenant->nombre}»", $tenant->id);
 
             return redirect("/admin/tenants/{$tenant->id}")
                 ->with('success', 'Seeders ejecutados correctamente.');

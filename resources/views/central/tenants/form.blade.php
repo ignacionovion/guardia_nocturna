@@ -102,12 +102,25 @@
                 </div>
 
                 @if($tenant)
-                <div class="flex items-center space-x-3">
-                    <input type="hidden" name="activo" value="0">
-                    <input type="checkbox" id="activo" name="activo" value="1"
-                           {{ old('activo', $tenant->activo) ? 'checked' : '' }}
-                           class="rounded border-slate-300 text-amber-500 focus:ring-amber-500">
-                    <label for="activo" class="text-sm text-slate-700">Compañía activa</label>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="estado" class="block text-sm font-medium text-slate-700 mb-1.5">Estado</label>
+                        <select id="estado" name="estado" required
+                                class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white">
+                            <option value="trial" {{ old('estado', $tenant->estado) === 'trial' ? 'selected' : '' }}>Trial</option>
+                            <option value="activo" {{ old('estado', $tenant->estado) === 'activo' ? 'selected' : '' }}>Activo</option>
+                            <option value="suspendido" {{ old('estado', $tenant->estado) === 'suspendido' ? 'selected' : '' }}>Suspendido</option>
+                            <option value="vencido" {{ old('estado', $tenant->estado) === 'vencido' ? 'selected' : '' }}>Vencido</option>
+                            <option value="cancelado" {{ old('estado', $tenant->estado) === 'cancelado' ? 'selected' : '' }}>Cancelado</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="grace_days" class="block text-sm font-medium text-slate-700 mb-1.5">Días de Gracia</label>
+                        <input type="number" id="grace_days" name="grace_days" min="0" max="30"
+                               value="{{ old('grace_days', $tenant->grace_days ?? 5) }}"
+                               class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none">
+                        <p class="text-xs text-slate-400 mt-1">Días permitidos después del vencimiento antes de suspender.</p>
+                    </div>
                 </div>
                 @endif
 
