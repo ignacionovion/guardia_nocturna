@@ -95,84 +95,165 @@ class TenantBackupCommand extends Command
     }
 
     /**
-     * Run backup using Symfony Process (works even when exec is disabled).
+     * Run backup using available methods (Process, proc_open, or pure PHP fallback).
      */
     protected function runBackup(string $mysqldump, string $host, string $port, string $username, string $password, string $dbName, string $filepath): bool
     {
-        // Try Symfony Process first (works with proc_open)
-        try {
-            $command = [
-                $mysqldump,
-                '--host=' . $host,
-                '--port=' . $port,
-                '--user=' . $username,
-                '--password=' . $password,
-                '--single-transaction',
-                '--routines',
-                '--triggers',
-                '--databases',
-                $dbName,
+        // Try 1: Symfony Process (if proc_open is available)
+        if (function_exists('proc_open')) {
+            try {
+                $command = [
+                    $mysqldump,
+                    '--host=' . $host,
+                    '--port=' . $port,
+                    '--user=' . $username,
+                    '--password=' . $password,
+                    '--single-transaction',
+                    '--routines',
+                    '--triggers',
+                    '--databases',
+                    $dbName,
+                ];
+
+                $process = new Process($command, null, null, null, 600);
+                $process->run();
+
+                if ($process->isSuccessful()) {
+                    $gzFile = gzopen($filepath, 'wb9');
+                    if ($gzFile) {
+                        gzwrite($gzFile, $process->getOutput());
+                        gzclose($gzFile);
+                        return true;
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::warning("Symfony Process backup failed: {$e->getMessage()}");
+            }
+        }
+
+        // Try 2: proc_open directly
+        if (function_exists('proc_open')) {
+            $dumpCommand = sprintf(
+                '%s --host=%s --port=%s --user=%s --password=%s --single-transaction --routines --triggers --databases %s',
+                escapeshellarg($mysqldump),
+                escapeshellarg($host),
+                escapeshellarg((string) $port),
+                escapeshellarg($username),
+                escapeshellarg($password),
+                escapeshellarg($dbName)
+            );
+
+            $descriptors = [
+                0 => ['pipe', 'r'],
+                1 => ['pipe', 'w'],
+                2 => ['file', '/dev/null', 'w'],
             ];
 
-            $process = new Process($command, null, null, null, 600);
-            $process->run();
+            $process = @proc_open($dumpCommand, $descriptors, $pipes);
 
-            if ($process->isSuccessful()) {
-                // Compress with gzip
-                $gzFile = gzopen($filepath, 'wb9');
-                if ($gzFile) {
-                    gzwrite($gzFile, $process->getOutput());
-                    gzclose($gzFile);
-                    return true;
+            if (is_resource($process)) {
+                fclose($pipes[0]);
+                $output = stream_get_contents($pipes[1]);
+                fclose($pipes[1]);
+                $exitCode = proc_close($process);
+
+                if ($exitCode === 0 && $output) {
+                    $gzFile = gzopen($filepath, 'wb9');
+                    if ($gzFile) {
+                        gzwrite($gzFile, $output);
+                        gzclose($gzFile);
+                        return true;
+                    }
                 }
             }
-        } catch (\Throwable $e) {
-            Log::warning("Symfony Process backup failed: {$e->getMessage()}");
         }
 
-        // Fallback: try shell command via proc_open
-        $this->warn("  → Fallback to shell backup...");
+        // Try 3: Pure PHP fallback (always works but slower)
+        $this->warn("  → Usando método PHP puro (más lento pero compatible)...");
+        return $this->runBackupPurePhp($host, $port, $username, $password, $dbName, $filepath);
+    }
 
-        $dumpCommand = sprintf(
-            '%s --host=%s --port=%s --user=%s --password=%s --single-transaction --routines --triggers --databases %s 2>/dev/null',
-            escapeshellarg($mysqldump),
-            escapeshellarg($host),
-            escapeshellarg((string) $port),
-            escapeshellarg($username),
-            escapeshellarg($password),
-            escapeshellarg($dbName)
-        );
+    /**
+     * Pure PHP backup implementation (no system calls needed).
+     */
+    protected function runBackupPurePhp(string $host, string $port, string $username, string $password, string $dbName, string $filepath): bool
+    {
+        try {
+            // Connect to database
+            $dsn = "mysql:host={$host};port={$port};dbname={$dbName};charset=utf8mb4";
+            $pdo = new \PDO($dsn, $username, $password, [
+                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+            ]);
 
-        $descriptors = [
-            0 => ['pipe', 'r'],  // stdin
-            1 => ['pipe', 'w'],  // stdout
-            2 => ['file', '/dev/null', 'w'],  // stderr
-        ];
+            $gzFile = gzopen($filepath, 'wb9');
+            if (!$gzFile) {
+                return false;
+            }
 
-        $process = proc_open($dumpCommand, $descriptors, $pipes);
+            // Header
+            gzwrite($gzFile, "-- GuardiAPP Backup\n");
+            gzwrite($gzFile, "-- Database: {$dbName}\n");
+            gzwrite($gzFile, "-- Generated: " . now()->format('Y-m-d H:i:s') . "\n");
+            gzwrite($gzFile, "SET FOREIGN_KEY_CHECKS=0;\n\n");
 
-        if (!is_resource($process)) {
+            // Get all tables
+            $tables = $pdo->query("SHOW TABLES")->fetchAll(\PDO::FETCH_COLUMN);
+
+            foreach ($tables as $table) {
+                // Table structure
+                gzwrite($gzFile, "-- Table: {$table}\n");
+                gzwrite($gzFile, "DROP TABLE IF EXISTS `{$table}`;\n");
+
+                $createTable = $pdo->query("SHOW CREATE TABLE `{$table}`")->fetch(\PDO::FETCH_ASSOC);
+                gzwrite($gzFile, $createTable['Create Table'] . ";\n\n");
+
+                // Table data
+                $rows = $pdo->query("SELECT * FROM `{$table}`", \PDO::FETCH_ASSOC);
+                $rowCount = 0;
+                $values = [];
+
+                foreach ($rows as $row) {
+                    $rowValues = [];
+                    foreach ($row as $value) {
+                        if ($value === null) {
+                            $rowValues[] = 'NULL';
+                        } elseif (is_numeric($value)) {
+                            $rowValues[] = $value;
+                        } else {
+                            $rowValues[] = "'" . str_replace("'", "''", $value) . "'";
+                        }
+                    }
+                    $values[] = '(' . implode(', ', $rowValues) . ')';
+                    $rowCount++;
+
+                    // Write in batches of 1000 rows to avoid memory issues
+                    if (count($values) >= 1000) {
+                        gzwrite($gzFile, "INSERT INTO `{$table}` VALUES " . implode(', ', $values) . ";\n");
+                        $values = [];
+                    }
+                }
+
+                if (count($values) > 0) {
+                    gzwrite($gzFile, "INSERT INTO `{$table}` VALUES " . implode(', ', $values) . ";\n");
+                }
+
+                if ($rowCount > 0) {
+                    gzwrite($gzFile, "\n");
+                }
+            }
+
+            // Footer
+            gzwrite($gzFile, "SET FOREIGN_KEY_CHECKS=1;\n");
+            gzclose($gzFile);
+
+            return true;
+        } catch (\Throwable $e) {
+            Log::error("Pure PHP backup failed: {$e->getMessage()}");
+            if (file_exists($filepath)) {
+                unlink($filepath);
+            }
             return false;
         }
-
-        fclose($pipes[0]); // close stdin
-
-        // Read output and compress
-        $output = stream_get_contents($pipes[1]);
-        fclose($pipes[1]);
-
-        $exitCode = proc_close($process);
-
-        if ($exitCode === 0 && $output) {
-            $gzFile = gzopen($filepath, 'wb9');
-            if ($gzFile) {
-                gzwrite($gzFile, $output);
-                gzclose($gzFile);
-                return true;
-            }
-        }
-
-        return false;
     }
 
     protected function findMysqldump(): ?string
