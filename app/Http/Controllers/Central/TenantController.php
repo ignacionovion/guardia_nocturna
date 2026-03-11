@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Central;
 use App\Http\Controllers\Controller;
 use App\Models\Body;
 use App\Models\Tenant;
+use App\Services\TenantMetricsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -14,6 +15,9 @@ use Illuminate\Support\Facades\Log;
 
 class TenantController extends Controller
 {
+    public function __construct(
+        protected TenantMetricsService $metrics,
+    ) {}
     public function index()
     {
         $tenants = Tenant::with(['body', 'domains'])->latest()->paginate(20);
@@ -145,7 +149,10 @@ class TenantController extends Controller
     public function show(Tenant $tenant)
     {
         $tenant->load(['body', 'domains']);
-        return view('central.tenants.show', compact('tenant'));
+        $metrics = $this->metrics->forTenant($tenant);
+        $health = $this->metrics->healthStatus($tenant);
+
+        return view('central.tenants.show', compact('tenant', 'metrics', 'health'));
     }
 
     public function edit(Tenant $tenant)

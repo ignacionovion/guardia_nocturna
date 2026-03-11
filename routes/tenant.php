@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\EnsureTenantActive;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyBySubdomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
@@ -22,6 +23,7 @@ foreach (config('tenancy.central_domains') as $domain) {
             'web',
             InitializeTenancyBySubdomain::class,
             PreventAccessFromCentralDomains::class,
+            EnsureTenantActive::class,
         ])
         ->group(base_path('routes/app.php'));
 }
