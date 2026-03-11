@@ -55,7 +55,7 @@ class TenantController extends Controller
             });
         }
 
-        return redirect()->route('central.tenants.index')
+        return redirect('/admin/tenants')
             ->with('success', "Compañía «{$tenant->nombre}» creada. DB: {$tenant->tenancy_db_name}");
     }
 
@@ -85,7 +85,7 @@ class TenantController extends Controller
         $validated['activo'] = $request->boolean('activo', true);
         $tenant->update($validated);
 
-        return redirect()->route('central.tenants.index')
+        return redirect('/admin/tenants')
             ->with('success', "Compañía «{$tenant->nombre}» actualizada.");
     }
 
@@ -94,7 +94,7 @@ class TenantController extends Controller
         $nombre = $tenant->nombre;
         $tenant->delete();
 
-        return redirect()->route('central.tenants.index')
+        return redirect('/admin/tenants')
             ->with('success', "Compañía «{$nombre}» eliminada junto con su base de datos.");
     }
 }

@@ -32,7 +32,7 @@ class BodyController extends Controller
         $validated['activo'] = $request->boolean('activo', true);
         Body::create($validated);
 
-        return redirect()->route('central.bodies.index')->with('success', 'Cuerpo creado correctamente.');
+        return redirect('/admin/bodies')->with('success', 'Cuerpo creado correctamente.');
     }
 
     public function edit(Body $body)
@@ -51,7 +51,7 @@ class BodyController extends Controller
         $validated['activo'] = $request->boolean('activo', true);
         $body->update($validated);
 
-        return redirect()->route('central.bodies.index')->with('success', 'Cuerpo actualizado correctamente.');
+        return redirect('/admin/bodies')->with('success', 'Cuerpo actualizado correctamente.');
     }
 
     public function destroy(Body $body)
@@ -61,6 +61,6 @@ class BodyController extends Controller
         }
 
         $body->delete();
-        return redirect()->route('central.bodies.index')->with('success', 'Cuerpo eliminado.');
+        return redirect('/admin/bodies')->with('success', 'Cuerpo eliminado.');
     }
 }

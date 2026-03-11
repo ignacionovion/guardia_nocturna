@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Body extends Model
 {
+    protected $connection = 'central';
+
     protected $table = 'bodies';
 
     protected $fillable = [

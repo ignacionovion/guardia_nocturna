@@ -25,9 +25,13 @@
             </p>
         </div>
 
+        <a href="/login"
+           class="inline-block bg-amber-500 hover:bg-amber-600 text-white font-semibold text-sm px-6 py-3 rounded-xl transition shadow-lg shadow-amber-500/20 mb-6">
+            Acceder al Panel de Administración
+        </a>
+
         <div class="space-y-3 text-sm text-slate-500">
-            <p>Entorno: <span class="text-amber-400 font-bold">Staging</span></p>
-            <p class="text-xs">Panel Super Admin — Próximamente</p>
+            <p>Entorno: <span class="text-amber-400 font-bold">{{ app()->environment() }}</span></p>
         </div>
     </div>
 </body>

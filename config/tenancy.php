@@ -16,20 +16,11 @@ return [
      *
      * Only relevant if you're using the domain or subdomain identification middleware.
      */
-    // 'central_domains' => [
-    //     '127.0.0.1',
-    //     'localhost',
-    //     'sas.dev-app.cl',     // staging central
-    //     'dev-app.cl',         // staging wildcard parent
-    //     // 'app.tudominio.cl', // production central (futuro)
-    // ],
-
-    'central_domains' => [
-    'sas.dev-app.cl',
-    'dev-app.cl',
-    'localhost',
-    '127.0.0.1',
-],
+    'central_domains' => array_filter([
+        env('CENTRAL_DOMAIN', 'localhost'),  // staging: sas.dev-app.cl
+        '127.0.0.1',
+        'localhost',
+    ]),
 
     /**
      * Tenancy bootstrappers are executed when tenancy is initialized.

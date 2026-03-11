@@ -12,8 +12,10 @@ class ExpireReplacements
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (Cache::add('guardia:expire-replacements:ran', 1, 60)) {
-            ReplacementService::expire();
+        if (app()->bound('currentTenant') && tenant()) {
+            if (Cache::add('guardia:expire-replacements:ran', 1, 60)) {
+                ReplacementService::expire();
+            }
         }
 
         return $next($request);

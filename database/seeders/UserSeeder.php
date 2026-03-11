@@ -10,13 +10,20 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        User::create([
-            'name' => 'Administrador',
-            'email' => 'admin@' . tenant('id') . '.cl',
-            'username' => 'admin',
-            'password' => Hash::make('password'),
-            'role' => 'admin',
-            'active' => true,
-        ]);
+        if (! app()->bound('currentTenant') || ! tenant()) {
+            $this->command?->warn('UserSeeder skipped — not in tenant context.');
+            return;
+        }
+
+        User::firstOrCreate(
+            ['username' => 'admin'],
+            [
+                'name' => 'Administrador',
+                'email' => 'admin@' . tenant('id') . '.cl',
+                'password' => Hash::make('password'),
+                'role' => 'admin',
+                'active' => true,
+            ]
+        );
     }
 }

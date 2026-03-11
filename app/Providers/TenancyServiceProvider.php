@@ -120,17 +120,19 @@ class TenancyServiceProvider extends ServiceProvider
 
     protected function mapRoutes()
     {
-        if (file_exists(base_path('routes/tenant.php'))) {
-            Route::namespace(static::$controllerNamespace)
-                ->group(base_path('routes/tenant.php'));
-        }
-
+        // Central routes FIRST — exact domain match takes priority
         $centralDomains = config('tenancy.central_domains', []);
 
         foreach ($centralDomains as $domain) {
             Route::domain($domain)
                 ->middleware('web')
                 ->group(base_path('routes/central.php'));
+        }
+
+        // Tenant routes SECOND — wildcard subdomain match
+        if (file_exists(base_path('routes/tenant.php'))) {
+            Route::namespace(static::$controllerNamespace)
+                ->group(base_path('routes/tenant.php'));
         }
     }
 
