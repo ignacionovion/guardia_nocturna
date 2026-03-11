@@ -34,7 +34,7 @@
                     <p class="text-slate-500 text-sm">Ingrese sus credenciales para acceder al sistema.</p>
                 </div>
 
-                <form method="POST" action="{{ route('login') }}">
+               <form method="POST" action="{{ route('central.login') }}">
                     @csrf
 
                     <div class="mb-5">
