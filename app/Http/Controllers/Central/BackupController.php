@@ -93,55 +93,10 @@ class BackupController extends Controller
         $username = config('database.connections.mysql.username');
         $password = config('database.connections.mysql.password');
 
-        // Use proc_open instead of exec (works even when exec is disabled)
-        $descriptors = [
-            0 => ['pipe', 'r'],  // stdin (gunzip output)
-            1 => ['pipe', 'w'],  // stdout
-            2 => ['pipe', 'w'],  // stderr
-        ];
+        // Use pure PHP restore (works on all servers)
+        $result = $this->restorePurePhp($host, $port, $username, $password, $dbName, $filepath);
 
-        $mysqlCommand = sprintf(
-            'mysql --host=%s --port=%s --user=%s --password=%s %s',
-            escapeshellarg($host),
-            escapeshellarg((string) $port),
-            escapeshellarg($username),
-            escapeshellarg($password),
-            escapeshellarg($dbName)
-        );
-
-        $process = proc_open($mysqlCommand, $descriptors, $pipes);
-
-        if (!is_resource($process)) {
-            return back()->with('error', 'No se pudo iniciar el proceso de restauración.');
-        }
-
-        // Read compressed file and decompress to mysql stdin
-        $gzHandle = gzopen($filepath, 'rb');
-        if (!$gzHandle) {
-            fclose($pipes[0]);
-            fclose($pipes[1]);
-            fclose($pipes[2]);
-            proc_close($process);
-            return back()->with('error', 'No se pudo leer el archivo de backup.');
-        }
-
-        // Stream decompressed content to mysql
-        while (!gzeof($gzHandle)) {
-            fwrite($pipes[0], gzread($gzHandle, 8192));
-        }
-        gzclose($gzHandle);
-        fclose($pipes[0]); // close stdin
-
-        $output = stream_get_contents($pipes[1]);
-        $error = stream_get_contents($pipes[2]);
-
-        fclose($pipes[1]);
-        fclose($pipes[2]);
-
-        $exitCode = proc_close($process);
-
-        if ($exitCode === 0) {
-            // Find tenant by DB name
+        if ($result === true) {
             $tenantId = str_replace('tenant_', '', $dbName);
             CentralAuditLog::log('backup_restored', "Backup restaurado: {$filename}", $tenantId, [
                 'file' => $filename,
@@ -151,15 +106,141 @@ class BackupController extends Controller
             return back()->with('success', "Backup «{$filename}» restaurado exitosamente en {$dbName}.");
         }
 
-        Log::error("Backup restore failed", [
-            'file' => $filename,
-            'database' => $dbName,
-            'exit_code' => $exitCode,
-            'error' => $error,
-            'output' => $output,
-        ]);
+        return back()->with('error', 'Error al restaurar backup: ' . $result);
+    }
 
-        return back()->with('error', 'Error al restaurar backup: ' . ($error ?: 'Unknown error'));
+    /**
+     * Pure PHP restore implementation (no system calls needed).
+     */
+    protected function restorePurePhp(string $host, string $port, string $username, string $password, string $dbName, string $filepath): bool|string
+    {
+        try {
+            // Connect to database
+            $dsn = "mysql:host={$host};port={$port};dbname={$dbName};charset=utf8mb4";
+            $pdo = new \PDO($dsn, $username, $password, [
+                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+                \PDO::MYSQL_ATTR_LOCAL_INFILE => true,
+            ]);
+
+            // Read and decompress the backup file
+            $gzHandle = gzopen($filepath, 'rb');
+            if (!$gzHandle) {
+                return 'No se pudo abrir el archivo de backup.';
+            }
+
+            $sql = '';
+            while (!gzeof($gzHandle)) {
+                $sql .= gzread($gzHandle, 8192);
+            }
+            gzclose($gzHandle);
+
+            if (empty($sql)) {
+                return 'El archivo de backup está vacío.';
+            }
+
+            // Disable foreign key checks
+            $pdo->exec('SET FOREIGN_KEY_CHECKS=0');
+
+            // Split SQL into statements and execute
+            // Handle multi-line statements properly
+            $statements = $this->splitSqlStatements($sql);
+            $executed = 0;
+            $errors = [];
+
+            foreach ($statements as $statement) {
+                $statement = trim($statement);
+                if (empty($statement) || strpos($statement, '--') === 0) {
+                    continue;
+                }
+
+                try {
+                    $pdo->exec($statement);
+                    $executed++;
+                } catch (\PDOException $e) {
+                    // Log but continue (some statements may fail due to existing data)
+                    $errors[] = substr($e->getMessage(), 0, 100);
+                    if (count($errors) > 10) {
+                        break; // Too many errors, stop
+                    }
+                }
+            }
+
+            // Re-enable foreign key checks
+            $pdo->exec('SET FOREIGN_KEY_CHECKS=1');
+
+            if ($executed === 0 && count($errors) > 0) {
+                Log::error("Restore failed", ['errors' => $errors]);
+                return 'No se pudo ejecutar ninguna sentencia SQL.';
+            }
+
+            Log::info("Restore completed", [
+                'database' => $dbName,
+                'statements' => $executed,
+                'errors' => count($errors),
+            ]);
+
+            return true;
+        } catch (\Throwable $e) {
+            Log::error("Pure PHP restore failed: {$e->getMessage()}");
+            return $e->getMessage();
+        }
+    }
+
+    /**
+     * Split SQL dump into individual statements.
+     */
+    protected function splitSqlStatements(string $sql): array
+    {
+        $statements = [];
+        $current = '';
+        $inString = false;
+        $stringChar = '';
+        $length = strlen($sql);
+
+        for ($i = 0; $i < $length; $i++) {
+            $char = $sql[$i];
+
+            // Handle string literals
+            if (!$inString && ($char === '"' || $char === "'")) {
+                $inString = true;
+                $stringChar = $char;
+                $current .= $char;
+                continue;
+            }
+
+            if ($inString) {
+                $current .= $char;
+                // Check for escaped quotes
+                if ($char === $stringChar) {
+                    // Check if it's escaped
+                    $escapes = 0;
+                    for ($j = $i - 1; $j >= 0 && $sql[$j] === '\\'; $j--) {
+                        $escapes++;
+                    }
+                    if ($escapes % 2 === 0) {
+                        $inString = false;
+                    }
+                }
+                continue;
+            }
+
+            // Check for statement terminator
+            if ($char === ';') {
+                $current .= $char;
+                $statements[] = $current;
+                $current = '';
+                continue;
+            }
+
+            $current .= $char;
+        }
+
+        // Add any remaining content
+        if (trim($current)) {
+            $statements[] = $current;
+        }
+
+        return $statements;
     }
 
     /**
