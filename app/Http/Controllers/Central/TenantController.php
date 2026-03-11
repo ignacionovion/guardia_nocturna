@@ -33,6 +33,24 @@ class TenantController extends Controller
 
     public function store(Request $request)
     {
+        // Debug: Log incoming request data
+        Log::debug('Tenant creation attempt', [
+            'input_id' => $request->input('id'),
+            'input_nombre' => $request->input('nombre'),
+            'all_input' => $request->all(),
+        ]);
+
+        // Check if tenant exists before validation
+        $inputId = $request->input('id');
+        if ($inputId) {
+            $existingTenant = Tenant::where('id', $inputId)->first();
+            Log::debug('Pre-validation tenant check', [
+                'input_id' => $inputId,
+                'exists' => $existingTenant ? true : false,
+                'existing_tenant' => $existingTenant?->toArray(),
+            ]);
+        }
+
         $validated = $request->validate([
             'id' => [
                 'required',
@@ -50,11 +68,13 @@ class TenantController extends Controller
         ], [
             'id.required' => 'El identificador es obligatorio.',
             'id.regex' => 'El identificador solo puede contener letras minúsculas, números y guiones.',
-            'id.unique' => 'Este identificador ya está en uso.',
+            'id.unique' => 'Este identificador ya está en uso (validación Laravel).',
             'nombre.required' => 'El nombre es obligatorio.',
             'plan.required' => 'El plan es obligatorio.',
             'plan.in' => 'El plan seleccionado no es válido.',
         ]);
+
+        Log::debug('Validation passed', ['validated_id' => $validated['id']]);
 
         $tenant = null;
         $steps = [];
@@ -115,9 +135,42 @@ class TenantController extends Controller
             return redirect('/admin/tenants')
                 ->with('success', "Compañía «{$tenant->nombre}» creada correctamente.\n" . implode("\n", $steps));
 
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Log detailed SQL error info
+            Log::error("Tenant creation SQL error", [
+                'tenant_id' => $validated['id'] ?? $request->input('id'),
+                'sql_error_code' => $e->getCode(),
+                'sql_error_message' => $e->getMessage(),
+                'sql_state' => $e->getSqlState() ?? 'N/A',
+                'steps_completed' => $steps,
+            ]);
+
+            // Check if it's a duplicate key error
+            $errorMsg = $e->getMessage();
+            if (str_contains($errorMsg, 'Duplicate entry') || str_contains($errorMsg, '1062')) {
+                // Try to identify which table/column caused the duplicate
+                if (str_contains($errorMsg, 'domains')) {
+                    return back()
+                        ->withInput()
+                        ->with('error', "El dominio '{$validated['id']}' ya está registrado. Este error puede ocurrir si se eliminó una compañía anterior pero quedó residuo del dominio. Contacte al administrador del sistema.")
+                        ->with('steps', $steps);
+                }
+                if (str_contains($errorMsg, 'tenants')) {
+                    return back()
+                        ->withInput()
+                        ->with('error', "El identificador '{$validated['id']}' ya existe en la base de datos (error SQL). Intente con otro nombre.")
+                        ->with('steps', $steps);
+                }
+            }
+
+            return back()
+                ->withInput()
+                ->with('error', "Error de base de datos al crear la compañía: {$e->getMessage()}")
+                ->with('steps', $steps);
+
         } catch (\Throwable $e) {
             Log::error("Tenant creation failed", [
-                'tenant_id' => $validated['id'],
+                'tenant_id' => $validated['id'] ?? $request->input('id'),
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'steps_completed' => $steps,
