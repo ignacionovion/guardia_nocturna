@@ -84,20 +84,30 @@
                             </button>
                             <div class="hidden group-hover:block absolute left-0 top-full w-56 bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden">
                                 <div class="h-2"></div>
-                                <a href="{{ route('admin.volunteers.index') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
-                                    <i class="fas fa-users mr-2 text-slate-500"></i> Voluntarios
-                                </a>
+                                @if(feature('voluntarios'))
+                        @if(feature('voluntarios'))
+                        <a href="{{ route('admin.volunteers.index') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                            <i class="fas fa-users mr-2 text-slate-500"></i> Voluntarios
+                        </a>
+                        @endif
+                                @endif
                                 @if(feature('emergencias'))
                                 <a href="{{ route('admin.emergencies.index') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                                     <i class="fas fa-truck-medical mr-2 text-slate-500"></i> Emergencias
                                 </a>
                                 @endif
+                                @if(feature('dotaciones'))
                                 <a href="{{ route('admin.dotaciones') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                                     <i class="fas fa-users-gear mr-2 text-slate-500"></i> Dotaciones
                                 </a>
+                                @endif
+                                @if(feature('calendario'))
+                                @if(feature('calendario'))
                                 <a href="{{ route('admin.calendario') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                                     <i class="fas fa-calendar-alt mr-2 text-slate-500"></i> Calendario
                                 </a>
+                                @endif
+                                @endif
                             </div>
                         </div>
 
