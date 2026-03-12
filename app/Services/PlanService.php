@@ -19,13 +19,16 @@ class PlanService
             return false;
         }
         
-        // Si el tenant tiene plan_id, usar el plan de la tabla
-        if ($tenant->plan_id && $tenant->plan) {
-            return $tenant->plan->hasFeature($feature);
+        // Si el tenant tiene plan_id, cargar el plan explícitamente
+        if ($tenant->plan_id) {
+            $plan = Plan::find($tenant->plan_id);
+            if ($plan) {
+                return $plan->hasFeature($feature);
+            }
         }
         
         // Fallback: usar el campo plan string (legacy) con defaults
-        return self::getLegacyFeature($tenant->plan ?? 'basico', $feature);
+        return self::getLegacyFeature($tenant->getRawOriginal('plan') ?? 'basico', $feature);
     }
     
     // Obtener límite para el tenant actual
@@ -37,13 +40,16 @@ class PlanService
             return null;
         }
         
-        // Si tiene plan_id en la tabla
-        if ($tenant->plan_id && $tenant->plan) {
-            return $tenant->plan->getLimit($type);
+        // Si tiene plan_id, cargar el plan explícitamente
+        if ($tenant->plan_id) {
+            $plan = Plan::find($tenant->plan_id);
+            if ($plan) {
+                return $plan->getLimit($type);
+            }
         }
         
         // Fallback: legacy
-        return self::getLegacyLimit($tenant->plan ?? 'basico', $type);
+        return self::getLegacyLimit($tenant->getRawOriginal('plan') ?? 'basico', $type);
     }
     
     // Verificar si está cerca del límite (80% o más)
