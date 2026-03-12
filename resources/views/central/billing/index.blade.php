@@ -145,39 +145,39 @@
                                     {{ $billing->observacion ?: '-' }}
                                 </div>
                             </td>
-                            <td class="px-4 py-3" style="min-width: 220px;">
-                                <div class="flex items-center gap-2 flex-wrap">
+                            <td class="px-4 py-3" style="min-width: 320px;">
+                                <div class="flex items-center gap-1">
                                     <button onclick="openPaymentModal({{ $billing->id }})" 
-                                            class="inline-flex items-center justify-center w-8 h-8 rounded bg-emerald-100 text-emerald-600 hover:bg-emerald-200" 
+                                            class="px-2 py-1 text-xs font-medium rounded bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border border-emerald-200" 
                                             title="Registrar pago">
-                                        <i class="fas fa-money-bill-wave text-sm"></i>
+                                        Pagar
                                     </button>
 
                                     <button onclick="openExtendModal({{ $billing->id }})" 
-                                            class="inline-flex items-center justify-center w-8 h-8 rounded bg-blue-100 text-blue-600 hover:bg-blue-200" 
-                                            title="Extender">
-                                        <i class="fas fa-calendar-plus text-sm"></i>
+                                            class="px-2 py-1 text-xs font-medium rounded bg-blue-100 text-blue-700 hover:bg-blue-200 border border-blue-200" 
+                                            title="Extender vencimiento">
+                                        Extender
                                     </button>
 
                                     <button onclick="openPlanModal({{ $billing->id }}, '{{ $billing->plan }}')" 
-                                            class="inline-flex items-center justify-center w-8 h-8 rounded bg-purple-100 text-purple-600 hover:bg-purple-200" 
+                                            class="px-2 py-1 text-xs font-medium rounded bg-purple-100 text-purple-700 hover:bg-purple-200 border border-purple-200" 
                                             title="Cambiar plan">
-                                        <i class="fas fa-exchange-alt text-sm"></i>
+                                        Plan
                                     </button>
 
                                     <button onclick="openObservationModal({{ $billing->id }}, '{{ addslashes($billing->observacion) }}')" 
-                                            class="inline-flex items-center justify-center w-8 h-8 rounded bg-slate-100 text-slate-600 hover:bg-slate-200" 
-                                            title="Editar">
-                                        <i class="fas fa-edit text-sm"></i>
+                                            class="px-2 py-1 text-xs font-medium rounded bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200" 
+                                            title="Editar observación">
+                                        Obs
                                     </button>
 
                                     <form action="{{ route('central.billing.suspend', $billing) }}" method="POST" class="inline m-0 p-0" onsubmit="return confirm('¿Suspender tenant?')">
                                         @csrf
                                         @method('PATCH')
                                         <button type="submit" 
-                                                class="inline-flex items-center justify-center w-8 h-8 rounded bg-red-100 text-red-600 hover:bg-red-200" 
+                                                class="px-2 py-1 text-xs font-medium rounded bg-red-100 text-red-700 hover:bg-red-200 border border-red-200" 
                                                 title="Suspender">
-                                            <i class="fas fa-ban text-sm"></i>
+                                            Suspender
                                         </button>
                                     </form>
                                 </div>
