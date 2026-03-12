@@ -44,8 +44,8 @@ class BrandingService
             }
 
             return $this->toObject([
-                'logo' => $branding->logo_path ? Storage::url($branding->logo_path) : $this->defaults['logo'],
-                'favicon' => $branding->favicon_path ? Storage::url($branding->favicon_path) : $this->defaults['favicon'],
+                'logo' => $branding->logo_path ? Storage::disk('public')->url($branding->logo_path) : $this->defaults['logo'],
+                'favicon' => $branding->favicon_path ? Storage::disk('public')->url($branding->favicon_path) : $this->defaults['favicon'],
                 'nombre_empresa' => $branding->nombre_empresa ?? $this->defaults['nombre_empresa'],
                 'color_primario' => $branding->color_primario ?? $this->defaults['color_primario'],
                 'color_secundario' => $branding->color_secundario ?? $this->defaults['color_secundario'],
