@@ -10,11 +10,11 @@
         </div>
 
         <div class="flex items-center gap-2">
-            <a href="{{ route('admin.planillas.index') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white font-bold text-xs">
+            <a href="{{ route('admin.planillas.index') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-bold text-xs">
                 <i class="fas fa-arrow-left"></i>
                 Historial
             </a>
-            <a href="{{ route('admin.planillas.qr_fijo.print') }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white font-extrabold text-xs">
+            <a href="{{ route('admin.planillas.qr_fijo.print') }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-extrabold text-xs">
                 <i class="fas fa-print"></i>
                 Imprimir
             </a>

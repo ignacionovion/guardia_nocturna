@@ -197,7 +197,7 @@
                                 <form action="{{ route('beds.maintenance', $bed->id) }}" method="POST" onsubmit="return confirm('¿Marcar cama #{{ $bed->number }} en mantención?');" class="m-0 mt-2">
                                     @csrf
                                     @method('PUT')
-                                    <button type="submit" class="group/btn w-full bg-white dark:bg-slate-900 hover:bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 font-bold py-3 px-4 rounded-xl text-xs transition-all shadow-sm hover:shadow flex items-center justify-center uppercase tracking-wider">
+                                    <button type="submit" class="group/btn w-full bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 font-bold py-3 px-4 rounded-xl text-xs transition-all shadow-sm hover:shadow flex items-center justify-center uppercase tracking-wider">
                                         <i class="fas fa-tools mr-2 text-slate-400 group-hover/btn:text-slate-600 dark:text-slate-400 transition-colors"></i>
                                         <span>Mantención</span>
                                     </button>
@@ -282,7 +282,7 @@
                     </div>
 
                     <div class="flex gap-3 pt-2">
-                        <button type="button" onclick="closeAssignModal()" class="w-1/2 py-2.5 px-4 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-xs font-bold rounded-lg hover:bg-slate-50 dark:bg-slate-800 transition-colors uppercase tracking-wide">
+                        <button type="button" onclick="closeAssignModal()" class="w-1/2 py-2.5 px-4 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-xs font-bold rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors uppercase tracking-wide">
                             Cancelar
                         </button>
                         <button type="submit" class="w-1/2 py-2.5 px-4 bg-slate-900 text-white text-xs font-bold rounded-lg hover:bg-slate-800 transition-colors shadow-md uppercase tracking-wide flex items-center justify-center gap-2">

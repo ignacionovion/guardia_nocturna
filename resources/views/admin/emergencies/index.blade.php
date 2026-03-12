@@ -67,7 +67,7 @@
                     </thead>
                     <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-200">
                         @foreach($emergencies as $emergency)
-                            <tr class="hover:bg-slate-50 dark:bg-slate-800 transition-colors">
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                                 <td class="px-6 py-4 align-top">
                                     <div class="text-sm font-bold text-slate-900">{{ $emergency->key?->code ?? '-' }}</div>
                                     <div class="text-xs text-slate-500 dark:text-slate-400">{{ \Illuminate\Support\Str::limit($emergency->key?->description ?? '', 60) }}</div>

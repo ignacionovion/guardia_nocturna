@@ -140,7 +140,7 @@
                         </div>
 
                         <div class="md:col-span-3">
-                            <label class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-100 dark:bg-slate-800 transition">
+                            <label class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition">
                                 <input type="checkbox" name="fuera_de_servicio" value="1" {{ old('fuera_de_servicio') ? 'checked' : '' }} class="rounded text-red-600 focus:ring-red-500 h-5 w-5 border-slate-300 dark:border-slate-600">
                                 <div class="min-w-0">
                                     <div class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wide">Fuera de servicio</div>
@@ -202,7 +202,7 @@
 
                 <!-- Footer Acciones -->
                 <div class="flex items-center justify-end gap-4 pt-6 mt-6 border-t border-slate-100 dark:border-slate-800">
-                    <a href="{{ route('admin.volunteers.index') }}" class="px-6 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-400 font-medium hover:bg-slate-50 dark:bg-slate-800 transition-colors">
+                    <a href="{{ route('admin.volunteers.index') }}" class="px-6 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-400 font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                         Cancelar
                     </a>
                     <button type="submit" class="bg-slate-800 hover:bg-slate-700 text-white font-bold py-2.5 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 flex items-center uppercase tracking-wide text-sm">
@@ -254,7 +254,7 @@
                 filtered.forEach((value, idx) => {
                     const item = document.createElement('button');
                     item.type = 'button';
-                    item.className = 'w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50 dark:bg-slate-800 focus:bg-slate-50 dark:bg-slate-800 focus:outline-none text-slate-700 dark:text-slate-300';
+                    item.className = 'w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-slate-800 focus:bg-slate-50 dark:bg-slate-800 focus:outline-none text-slate-700 dark:text-slate-300';
                     item.textContent = value;
                     item.addEventListener('mousedown', (e) => {
                         e.preventDefault();
@@ -405,7 +405,7 @@
                                 ¿Este voluntario está <strong>habilitado para conducir carros bomba</strong> (unidades B-3, BR-3, RX-3)?
                             </p>
                             <div class="flex gap-3">
-                                <button type="button" id="driverModalNo" class="flex-1 px-4 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-50 dark:bg-slate-800 transition-colors">
+                                <button type="button" id="driverModalNo" class="flex-1 px-4 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                                     Solo comandancia
                                 </button>
                                 <button type="button" id="driverModalYes" class="flex-1 px-4 py-2.5 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200">

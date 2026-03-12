@@ -15,11 +15,11 @@
                 Nueva planilla
             </a>
             @if(auth()->check() && auth()->user()->role === 'super_admin')
-                <a href="{{ route('admin.planillas.listados.index') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white font-extrabold text-[11px] uppercase tracking-widest">
+                <a href="{{ route('admin.planillas.listados.index') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-extrabold text-[11px] uppercase tracking-widest">
                     <i class="fas fa-list-check"></i>
                     Editar listados
                 </a>
-                <a href="{{ route('admin.planillas.qr_fijo') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white font-extrabold text-[11px] uppercase tracking-widest">
+                <a href="{{ route('admin.planillas.qr_fijo') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-extrabold text-[11px] uppercase tracking-widest">
                     <i class="fas fa-qrcode"></i>
                     QR fijo
                 </a>
@@ -48,7 +48,7 @@
                         <button type="submit" class="w-full sm:w-auto px-5 py-2 rounded-lg bg-slate-900 hover:bg-black text-white font-black text-[11px] uppercase tracking-widest">
                             Filtrar
                         </button>
-                        <a href="{{ route('admin.planillas.index') }}" class="w-full sm:w-auto px-5 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-extrabold text-[11px] uppercase tracking-widest text-center">
+                        <a href="{{ route('admin.planillas.index') }}" class="w-full sm:w-auto px-5 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-extrabold text-[11px] uppercase tracking-widest text-center">
                             Limpiar
                         </a>
                     </div>
@@ -91,7 +91,7 @@
                                             Continuar
                                         </a>
                                     @endif
-                                    <a href="{{ route('admin.planillas.show', $p) }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white font-bold text-xs">
+                                    <a href="{{ route('admin.planillas.show', $p) }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-bold text-xs">
                                         <i class="fas fa-eye"></i>
                                         Ver
                                     </a>
@@ -212,7 +212,7 @@
                         </thead>
                         <tbody class="divide-y divide-slate-100">
                             @forelse($bitacora as $item)
-                                <tr class="hover:bg-slate-50 dark:bg-slate-800">
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800">
                                     <td class="px-4 py-3 text-xs text-slate-600 dark:text-slate-400">{{ $item['fecha']?->format('d/m H:i') }}</td>
                                     <td class="px-4 py-3">
                                         <span class="px-2 py-1 rounded text-xs font-bold uppercase

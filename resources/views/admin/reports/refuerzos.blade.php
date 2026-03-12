@@ -13,29 +13,7 @@
         </div>
     </div>
 
-    {{-- NAVEGACIÓN PRINCIPAL --}}
-    <div class="bg-white dark:bg-slate-900 rounded-t-lg border border-slate-200 dark:border-slate-700">
-        <div class="flex overflow-x-auto">
-            <a href="{{ route('admin.reports.attendance') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
-                <i class="fas fa-calendar-check"></i> Asistencia
-            </a>
-            <a href="{{ route('admin.reports.preventivas') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
-                <i class="fas fa-clipboard-list"></i> Preventivas
-            </a>
-            <a href="{{ route('admin.reports.replacements') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
-                <i class="fas fa-exchange-alt"></i> Reemplazos
-            </a>
-            <a href="{{ route('admin.reports.refuerzos') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors text-red-600 border-red-600 bg-red-50">
-                <i class="fas fa-user-plus"></i> Refuerzos
-            </a>
-            <a href="{{ route('admin.reports.drivers') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
-                <i class="fas fa-truck"></i> Conductores
-            </a>
-            <a href="{{ route('admin.reports.emergencies') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
-                <i class="fas fa-ambulance text-red-600"></i> Emergencias
-            </a>
-        </div>
-    </div>
+    @include('admin.reports._tabs')
 
     {{-- FILTROS CON SELECTS ESTANDARIZADOS --}}
     <div class="bg-white dark:bg-slate-900 p-5 border border-t-0 border-slate-200 dark:border-slate-700 mb-6 rounded-b-lg shadow-sm">
@@ -284,7 +262,7 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse($detallePorDia ?? [] as $registro)
-                    <tr class="hover:bg-slate-50 dark:bg-slate-800 transition-colors">
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                         <td class="py-4 px-4">
                             <div class="font-bold text-slate-800 dark:text-white">{{ $registro['fecha'] ?? 'N/A' }}</div>
                             <div class="text-xs text-slate-500 dark:text-slate-400">{{ $registro['dia_semana'] ?? '' }}</div>
@@ -336,10 +314,10 @@
         <div class="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex items-center justify-between">
             <span class="text-xs text-slate-500 dark:text-slate-400">Mostrando {{ count($detallePorDia) }} registros</span>
             <div class="flex gap-2">
-                <button class="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-xs font-bold hover:bg-slate-50 dark:bg-slate-800 disabled:opacity-50" disabled>
+                <button class="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50" disabled>
                     <i class="fas fa-chevron-left"></i>
                 </button>
-                <button class="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-xs font-bold hover:bg-slate-50 dark:bg-slate-800 disabled:opacity-50" disabled>
+                <button class="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50" disabled>
                     <i class="fas fa-chevron-right"></i>
                 </button>
             </div>

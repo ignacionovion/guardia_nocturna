@@ -26,7 +26,7 @@
 
                         <input type="hidden" name="emergency_key_id" id="emergency_key_id" value="{{ $selectedKeyId }}">
 
-                        <button type="button" id="btn-pick-key" class="w-full text-left px-4 py-3 border-2 border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 transition">
+                        <button type="button" id="btn-pick-key" class="w-full text-left px-4 py-3 border-2 border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 transition">
                             <div class="flex items-start justify-between gap-3">
                                 <div>
                                     <div class="text-sm font-bold text-slate-900" id="key-code">{{ $selectedKeyId ? optional($keys->firstWhere('id', (int)$selectedKeyId))->code : 'Seleccionar clave...' }}</div>
@@ -57,7 +57,7 @@
                     <div>
                         <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">Unidades</label>
 
-                        <button type="button" id="btn-pick-units" class="w-full text-left px-4 py-3 border-2 border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 transition">
+                        <button type="button" id="btn-pick-units" class="w-full text-left px-4 py-3 border-2 border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 transition">
                             <div class="flex items-start justify-between gap-3">
                                 <div>
                                     <div class="text-sm font-bold text-slate-900">Seleccionar unidades</div>
@@ -105,7 +105,7 @@
                                         placeholder="Filtrar por nombre...">
                                 </div>
                                 <div id="officer-options-list" class="py-1">
-                                    <div class="officer-option px-3 py-2.5 hover:bg-slate-50 dark:bg-slate-800 cursor-pointer transition-colors flex items-center gap-3 {{ !$selectedOfficerId ? 'bg-blue-50' : '' }}"
+                                    <div class="officer-option px-3 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer transition-colors flex items-center gap-3 {{ !$selectedOfficerId ? 'bg-blue-50' : '' }}"
                                          data-value=""
                                          data-search="sin asignar">
                                         <div class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 text-xs font-bold">
@@ -116,7 +116,7 @@
                                         </div>
                                     </div>
                                     @foreach($onDutyUsers as $u)
-                                        <div class="officer-option px-3 py-2.5 hover:bg-slate-50 dark:bg-slate-800 cursor-pointer transition-colors flex items-center gap-3 {{ (string)$selectedOfficerId === (string)$u->id ? 'bg-blue-50' : '' }}"
+                                        <div class="officer-option px-3 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer transition-colors flex items-center gap-3 {{ (string)$selectedOfficerId === (string)$u->id ? 'bg-blue-50' : '' }}"
                                              data-value="{{ $u->id }}"
                                              data-search="{{ strtolower(trim($u->nombres . ' ' . $u->apellido_paterno . ' ' . ($u->rut ?? ''))) }}">
                                             <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xs font-bold">
@@ -169,7 +169,7 @@
         </div>
 
         <div class="mt-6 flex items-center justify-end gap-3">
-            <a href="{{ route('admin.emergencies.index') }}" class="px-5 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-800 font-semibold transition-colors">Cancelar</a>
+            <a href="{{ route('admin.emergencies.index') }}" class="px-5 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-semibold transition-colors">Cancelar</a>
             <button type="submit" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-md transition-all duration-200">
                 <i class="fas fa-save mr-2"></i> Guardar
             </button>
@@ -205,7 +205,7 @@
                 </thead>
                 <tbody id="keys-tbody" class="bg-white dark:bg-slate-900 divide-y divide-slate-200">
                     @foreach($keys as $k)
-                        <tr class="hover:bg-slate-50 dark:bg-slate-800 transition" data-code="{{ strtolower($k->code) }}" data-desc="{{ strtolower($k->description) }}">
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 transition" data-code="{{ strtolower($k->code) }}" data-desc="{{ strtolower($k->description) }}">
                             <td class="px-4 py-3 font-mono text-sm font-bold text-slate-900">{{ $k->code }}</td>
                             <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300">{{ $k->description }}</td>
                             <td class="px-4 py-3 text-right">
@@ -240,7 +240,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
 @foreach($units as $u)
                     @php $unitActive = ($u->status ?? 'active') === 'active'; @endphp
-                    <label class="unit-item flex items-start gap-3 p-3 rounded-lg border {{ $unitActive ? 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:bg-slate-800 cursor-pointer' : 'border-red-200 bg-red-50/60 opacity-70 cursor-not-allowed pointer-events-none' }} transition" data-name="{{ strtolower($u->name) }}" data-desc="{{ strtolower($u->description ?? '') }}">
+                    <label class="unit-item flex items-start gap-3 p-3 rounded-lg border {{ $unitActive ? 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer' : 'border-red-200 bg-red-50/60 opacity-70 cursor-not-allowed pointer-events-none' }} transition" data-name="{{ strtolower($u->name) }}" data-desc="{{ strtolower($u->description ?? '') }}">
                         <input type="checkbox" class="mt-1 unit-checkbox w-5 h-5 rounded border-slate-300 dark:border-slate-600 text-blue-600" value="{{ $u->id }}" {{ in_array($u->id, $selectedUnitIds) ? 'checked' : '' }} {{ !$unitActive ? 'disabled' : '' }}>
                         <div class="flex-1">
                             <div class="font-bold text-slate-900">{{ $u->name }}</div>

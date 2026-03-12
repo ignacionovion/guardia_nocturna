@@ -10,11 +10,11 @@
         </div>
 
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-            <a href="{{ route('inventario.config.form') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white font-extrabold text-[11px] uppercase tracking-widest">
+            <a href="{{ route('inventario.config.form') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-extrabold text-[11px] uppercase tracking-widest">
                 <i class="fas fa-gear"></i>
                 Administrar
             </a>
-            <a href="{{ route('inventario.qr.admin') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white font-extrabold text-[11px] uppercase tracking-widest">
+            <a href="{{ route('inventario.qr.admin') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-extrabold text-[11px] uppercase tracking-widest">
                 <i class="fas fa-qrcode"></i>
                 QR fijo
             </a>

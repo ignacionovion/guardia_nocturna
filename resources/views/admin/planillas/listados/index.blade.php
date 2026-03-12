@@ -11,7 +11,7 @@
         </div>
 
         <div class="flex items-center gap-2">
-            <a href="{{ route('admin.planillas.index') }}" class="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs">
+            <a href="{{ route('admin.planillas.index') }}" class="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs">
                 <i class="fas fa-arrow-left mr-1"></i> Volver
             </a>
         </div>
@@ -47,7 +47,7 @@
             </div>
             <div class="flex items-center gap-3">
                 <button type="submit" class="px-5 py-2 rounded-lg bg-slate-900 hover:bg-black text-white font-black text-[11px] uppercase tracking-widest">Filtrar</button>
-                <a href="{{ route('admin.planillas.listados.index') }}" class="px-5 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-extrabold text-[11px] uppercase tracking-widest text-center">Limpiar</a>
+                <a href="{{ route('admin.planillas.listados.index') }}" class="px-5 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-extrabold text-[11px] uppercase tracking-widest text-center">Limpiar</a>
             </div>
         </form>
     </div>

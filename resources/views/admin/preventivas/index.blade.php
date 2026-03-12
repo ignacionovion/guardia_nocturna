@@ -27,7 +27,7 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse($events as $event)
-                        <tr class="hover:bg-slate-50 dark:bg-slate-800">
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800">
                             <td class="px-6 py-4 font-bold text-slate-900">
                                 {{ $event->title }}
                             </td>
@@ -51,7 +51,7 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-right">
-                                <a href="{{ route('admin.preventivas.show', $event) }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white font-bold text-xs">
+                                <a href="{{ route('admin.preventivas.show', $event) }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-bold text-xs">
                                     <i class="fas fa-arrow-right"></i>
                                     Abrir
                                 </a>

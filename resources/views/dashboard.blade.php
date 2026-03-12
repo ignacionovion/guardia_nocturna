@@ -958,7 +958,7 @@
                         </div>
                     </a>
                     
-                    <a href="{{ route('admin.dotaciones') }}" class="group bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-sm transition-all flex items-center gap-3">
+                    <a href="{{ route('admin.dotaciones') }}" class="group bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-sm transition-all flex items-center gap-3">
                         <div class="bg-slate-100 dark:bg-slate-800 p-2 rounded-lg text-slate-600 dark:text-slate-400">
                             <i class="fas fa-users-gear"></i>
                         </div>
@@ -968,7 +968,7 @@
                         </div>
                     </a>
                     
-                    <a href="{{ route('camas') }}" class="group bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-sm transition-all flex items-center gap-3">
+                    <a href="{{ route('camas') }}" class="group bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-sm transition-all flex items-center gap-3">
                         <div class="bg-emerald-100 p-2 rounded-lg text-emerald-600">
                             <i class="fas fa-bed"></i>
                         </div>
@@ -978,7 +978,7 @@
                         </div>
                     </a>
                     
-                    <a href="{{ route('admin.emergencies.index') }}" class="group bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-sm transition-all flex items-center gap-3">
+                    <a href="{{ route('admin.emergencies.index') }}" class="group bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-sm transition-all flex items-center gap-3">
                         <div class="bg-amber-100 p-2 rounded-lg text-amber-600">
                             <i class="fas fa-truck-medical"></i>
                         </div>

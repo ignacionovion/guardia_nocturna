@@ -31,7 +31,7 @@
                 </div>
 
                 <div class="mt-8 flex items-center justify-end gap-3">
-                    <a href="{{ route('admin.emergency-units.index') }}" class="px-5 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-800 font-semibold transition-colors">Cancelar</a>
+                    <a href="{{ route('admin.emergency-units.index') }}" class="px-5 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-semibold transition-colors">Cancelar</a>
                     <button type="submit" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-md transition-all duration-200">
                         <i class="fas fa-save mr-2"></i> Guardar
                     </button>

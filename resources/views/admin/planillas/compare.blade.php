@@ -9,7 +9,7 @@
             <div class="text-sm text-slate-600 dark:text-slate-400 mt-1">Fecha: {{ $planilla->fecha_revision->format('d/m/Y H:i') }}</div>
         </div>
         <div class="flex items-center gap-3">
-            <a href="{{ route('admin.planillas.show', $planilla) }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white font-bold text-xs">
+            <a href="{{ route('admin.planillas.show', $planilla) }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-bold text-xs">
                 <i class="fas fa-arrow-left"></i>
                 Volver
             </a>

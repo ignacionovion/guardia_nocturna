@@ -17,7 +17,7 @@
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <i class="fas fa-calendar-days text-slate-400"></i>
                     </div>
-                    <select name="month" class="pl-10 pr-8 py-2 bg-slate-50 dark:bg-slate-800 border-transparent focus:border-blue-500 focus:bg-white dark:bg-slate-900 focus:ring-0 rounded-md text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:bg-slate-800 transition-colors">
+                    <select name="month" class="pl-10 pr-8 py-2 bg-slate-50 dark:bg-slate-800 border-transparent focus:border-blue-500 focus:bg-white dark:bg-slate-900 focus:ring-0 rounded-md text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                         @foreach(range(1, 12) as $m)
                             <option value="{{ $m }}" {{ $month == $m ? 'selected' : '' }}>
                                 {{ ucfirst(\Carbon\Carbon::create()->month($m)->locale('es')->monthName) }}
@@ -27,7 +27,7 @@
                 </div>
                 
                 <div class="relative">
-                    <select name="year" class="pl-4 pr-8 py-2 bg-slate-50 dark:bg-slate-800 border-transparent focus:border-blue-500 focus:bg-white dark:bg-slate-900 focus:ring-0 rounded-md text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:bg-slate-800 transition-colors">
+                    <select name="year" class="pl-4 pr-8 py-2 bg-slate-50 dark:bg-slate-800 border-transparent focus:border-blue-500 focus:bg-white dark:bg-slate-900 focus:ring-0 rounded-md text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                         @foreach(range(now()->year - 2, now()->year) as $y)
                             <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>
                                 {{ $y }}
@@ -43,26 +43,7 @@
         </div>
     </div>
 
-    <div class="flex flex-col md:flex-row gap-2 mb-6">
-        <a href="{{ route('admin.reports.index') }}" class="px-4 py-2 rounded-lg text-sm font-bold border border-red-200 bg-red-50 text-red-800 hover:bg-red-100 transition">
-            <i class="fas fa-chart-line mr-2 text-red-500"></i> Asistencia
-        </a>
-        <a href="{{ route('admin.reports.preventivas') }}" class="px-4 py-2 rounded-lg text-sm font-bold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:bg-slate-800 transition">
-            <i class="fas fa-clipboard-list mr-2 text-slate-400"></i> Preventivas
-        </a>
-        <a href="{{ route('admin.reports.replacements') }}" class="px-4 py-2 rounded-lg text-sm font-bold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:bg-slate-800 transition">
-            <i class="fas fa-right-left mr-2 text-slate-400"></i> Reemplazos
-        </a>
-        <a href="{{ route('admin.reports.refuerzos') }}" class="px-4 py-2 rounded-lg text-sm font-bold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:bg-slate-800 transition">
-            <i class="fas fa-user-plus mr-2 text-slate-400"></i> Refuerzos
-        </a>
-        <a href="{{ route('admin.reports.drivers') }}" class="px-4 py-2 rounded-lg text-sm font-bold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:bg-slate-800 transition">
-            <i class="fas fa-id-card mr-2 text-slate-400"></i> Conductores
-        </a>
-        <a href="{{ route('admin.reports.emergencies') }}" class="px-4 py-2 rounded-lg text-sm font-bold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:bg-slate-800 transition">
-            <i class="fas fa-ambulance mr-2 text-slate-400"></i> Emergencias
-        </a>
-    </div>
+    @include('admin.reports._tabs')
 
     @isset($selectedMonthKpis)
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
@@ -172,8 +153,8 @@
                         </thead>
                         <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-100">
                             <?php foreach($guardia->bomberos as $user): ?>
-                                <tr class="hover:bg-slate-50 dark:bg-slate-800 transition-colors group">
-                                    <td class="px-6 py-3 whitespace-nowrap sticky left-0 bg-white dark:bg-slate-900 group-hover:bg-slate-50 dark:bg-slate-800 transition-colors z-10 border-r border-slate-200 dark:border-slate-700 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group">
+                                    <td class="px-6 py-3 whitespace-nowrap sticky left-0 bg-white dark:bg-slate-900 group-hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors z-10 border-r border-slate-200 dark:border-slate-700 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0 h-8 w-8 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 font-bold text-xs">
                                                 {{ substr($user->nombres, 0, 1) }}{{ substr($user->apellido_paterno, 0, 1) }}

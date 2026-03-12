@@ -44,7 +44,7 @@
                         <span class="text-xs text-purple-600 font-medium">Ver</span>
                     </div>
                 </a>
-                <a href="{{ route('inventario.movimientos.index') }}" class="inline-flex items-center gap-3 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-sm transition-all">
+                <a href="{{ route('inventario.movimientos.index') }}" class="inline-flex items-center gap-3 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-sm transition-all">
                     <div class="w-10 h-10 rounded-lg bg-slate-50 dark:bg-slate-8000 flex items-center justify-center">
                         <i class="fas fa-list text-white text-lg"></i>
                     </div>

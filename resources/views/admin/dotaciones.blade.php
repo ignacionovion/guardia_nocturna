@@ -200,7 +200,7 @@
             for (const v of items) {
                 const btn = document.createElement('button');
                 btn.type = 'button';
-                btn.className = 'w-full text-left px-3 py-2 hover:bg-slate-50 dark:bg-slate-800 transition flex items-center justify-between';
+                btn.className = 'w-full text-left px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition flex items-center justify-between';
                 btn.addEventListener('click', function () {
                     setSelectedVolunteer(guardiaId, v);
                 });

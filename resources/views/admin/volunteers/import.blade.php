@@ -62,7 +62,7 @@
                         <label class="block text-slate-700 dark:text-slate-300 text-sm font-bold mb-2 uppercase tracking-wide" for="file">
                             Seleccionar Archivo
                         </label>
-                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 dark:border-slate-600 border-dashed rounded-lg hover:bg-slate-50 dark:bg-slate-800 transition-colors cursor-pointer group relative">
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 dark:border-slate-600 border-dashed rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer group relative">
                             <div class="space-y-1 text-center">
                                 <i class="fas fa-cloud-upload-alt text-4xl text-slate-400 group-hover:text-blue-500 transition-colors mb-3"></i>
                                 <div class="flex text-sm text-slate-600 dark:text-slate-400 justify-center">

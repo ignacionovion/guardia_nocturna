@@ -34,7 +34,7 @@
                     </span>
                     <span class="text-xs text-slate-400">{{ $event->start_date?->format('d/m/Y') }} - {{ $event->end_date?->format('d/m/Y') }}</span>
                 </div>
-                <a href="{{ route('admin.preventivas.index') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:bg-slate-800 transition-colors">
+                <a href="{{ route('admin.preventivas.index') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                     <i class="fas fa-arrow-left"></i>
                     Volver
                 </a>
@@ -76,7 +76,7 @@
                 </a>
 
                 <!-- Código QR -->
-                <a href="{{ $status === 'active' ? route('admin.preventivas.qr', $event) : '#' }}" class="flex items-center gap-3 p-3 rounded-lg {{ $status === 'active' ? 'bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 opacity-50 cursor-not-allowed' }} border transition-all group" {{ $status === 'active' ? '' : 'onclick="return false;"' }}>
+                <a href="{{ $status === 'active' ? route('admin.preventivas.qr', $event) : '#' }}" class="flex items-center gap-3 p-3 rounded-lg {{ $status === 'active' ? 'bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 border-slate-200 dark:border-slate-700' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 opacity-50 cursor-not-allowed' }} border transition-all group" {{ $status === 'active' ? '' : 'onclick="return false;"' }}>
                     <div class="w-10 h-10 rounded-lg {{ $status === 'active' ? 'bg-slate-800' : 'bg-slate-400' }} text-white flex items-center justify-center shadow-sm">
                         <i class="fas fa-qrcode text-sm"></i>
                     </div>
@@ -238,7 +238,7 @@
                                                         $rut = trim((string) ($f->rut ?? ''));
                                                         $searchText = strtolower(trim($f->apellido_paterno . ' ' . $f->nombres . ' ' . $rut));
                                                     @endphp
-                                                    <div class="js-option px-3 py-2 text-sm hover:bg-slate-100 dark:bg-slate-800 cursor-pointer border-b border-slate-50 last:border-0 {{ $status === 'closed' ? 'opacity-50 pointer-events-none' : '' }}"
+                                                    <div class="js-option px-3 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer border-b border-slate-50 last:border-0 {{ $status === 'closed' ? 'opacity-50 pointer-events-none' : '' }}"
                                                          data-id="{{ $f->id }}"
                                                          data-text="{{ $f->apellido_paterno }}, {{ $f->nombres }}"
                                                          data-search="{{ $searchText }}">
@@ -298,7 +298,7 @@
                                                                 <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-800 border border-emerald-200">Asistió</span>
                                                                 <form method="POST" action="{{ route('admin.preventivas.assignments.attendance.toggle', [$event, $a]) }}" onsubmit="return {{ $status === 'closed' ? 'false' : 'confirm(\'¿Quitar asistencia?\')' }};">
                                                                     @csrf
-                                                                    <button type="submit" class="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-black text-[10px] uppercase tracking-widest {{ $status === 'closed' ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-50 dark:bg-slate-800' }}" {{ $status === 'closed' ? 'disabled' : '' }}>Quitar</button>
+                                                                    <button type="submit" class="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-black text-[10px] uppercase tracking-widest {{ $status === 'closed' ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-50 dark:hover:bg-slate-800' }}" {{ $status === 'closed' ? 'disabled' : '' }}>Quitar</button>
                                                                 </form>
                                                             </div>
                                                         @elseif($fueReemplazado)
@@ -412,7 +412,7 @@
                     </div>
                     <div class="js-portal-options overflow-y-auto" style="max-height: 260px;">
                         ${firefightersData.map(f => `
-                            <div class="js-portal-option px-3 py-2 text-sm hover:bg-slate-100 dark:bg-slate-800 cursor-pointer border-b border-slate-50 last:border-0 ${isClosed ? 'opacity-50 pointer-events-none' : ''}"
+                            <div class="js-portal-option px-3 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer border-b border-slate-50 last:border-0 ${isClosed ? 'opacity-50 pointer-events-none' : ''}"
                                  data-id="${f.id}"
                                  data-text="${f.text}">
                                 ${f.html}

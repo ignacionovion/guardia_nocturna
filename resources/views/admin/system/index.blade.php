@@ -10,7 +10,7 @@
                 <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium">Acciones peligrosas. Usa con precaución.</p>
             </div>
 
-            <a href="{{ route('dashboard') }}" class="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold py-2.5 px-4 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 flex items-center gap-2 uppercase text-xs tracking-widest">
+            <a href="{{ route('dashboard') }}" class="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold py-2.5 px-4 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 flex items-center gap-2 uppercase text-xs tracking-widest">
                 <i class="fas fa-arrow-left"></i>
                 Volver
             </a>
@@ -159,7 +159,7 @@
                 </div>
 
                 <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <label class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-100 dark:bg-slate-800 transition">
+                    <label class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition">
                         <input type="checkbox" name="mail_enabled_cleaning" value="1" {{ old('mail_enabled_cleaning', ($settings['mail_enabled_cleaning'] ?? '0')) === '1' ? 'checked' : '' }} class="rounded text-blue-600 focus:ring-blue-500 h-5 w-5 border-slate-300 dark:border-slate-600">
                         <div class="min-w-0">
                             <div class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wide">Aseo</div>
@@ -167,7 +167,7 @@
                         </div>
                     </label>
 
-                    <label class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-100 dark:bg-slate-800 transition">
+                    <label class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition">
                         <input type="checkbox" name="mail_enabled_novelty" value="1" {{ old('mail_enabled_novelty', ($settings['mail_enabled_novelty'] ?? '0')) === '1' ? 'checked' : '' }} class="rounded text-indigo-600 focus:ring-indigo-500 h-5 w-5 border-slate-300 dark:border-slate-600">
                         <div class="min-w-0">
                             <div class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wide">Novedades</div>
@@ -175,7 +175,7 @@
                         </div>
                     </label>
 
-                    <label class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-100 dark:bg-slate-800 transition">
+                    <label class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition">
                         <input type="checkbox" name="mail_enabled_academy" value="1" {{ old('mail_enabled_academy', ($settings['mail_enabled_academy'] ?? '0')) === '1' ? 'checked' : '' }} class="rounded text-amber-600 focus:ring-amber-500 h-5 w-5 border-slate-300 dark:border-slate-600">
                         <div class="min-w-0">
                             <div class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wide">Academias</div>
@@ -183,7 +183,7 @@
                         </div>
                     </label>
 
-                    <label class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-100 dark:bg-slate-800 transition">
+                    <label class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition">
                         <input type="checkbox" name="mail_enabled_beds" value="1" {{ old('mail_enabled_beds', ($settings['mail_enabled_beds'] ?? '0')) === '1' ? 'checked' : '' }} class="rounded text-emerald-600 focus:ring-emerald-500 h-5 w-5 border-slate-300 dark:border-slate-600">
                         <div class="min-w-0">
                             <div class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wide">Camas</div>
@@ -191,7 +191,7 @@
                         </div>
                     </label>
 
-                    <label class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-100 dark:bg-slate-800 transition">
+                    <label class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition">
                         <input type="checkbox" name="mail_enabled_planilla" value="1" {{ old('mail_enabled_planilla', ($settings['mail_enabled_planilla'] ?? '0')) === '1' ? 'checked' : '' }} class="rounded text-sky-600 focus:ring-sky-500 h-5 w-5 border-slate-300 dark:border-slate-600">
                         <div class="min-w-0">
                             <div class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wide">Planillas</div>
@@ -199,7 +199,7 @@
                         </div>
                     </label>
 
-                    <label class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-100 dark:bg-slate-800 transition">
+                    <label class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition">
                         <input type="checkbox" name="mail_enabled_rotation" value="1" {{ old('mail_enabled_rotation', ($settings['mail_enabled_rotation'] ?? '0')) === '1' ? 'checked' : '' }} class="rounded text-purple-600 focus:ring-purple-500 h-5 w-5 border-slate-300 dark:border-slate-600">
                         <div class="min-w-0">
                             <div class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wide">Rotación</div>

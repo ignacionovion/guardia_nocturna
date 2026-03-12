@@ -17,7 +17,7 @@
                 <div class="text-sm text-slate-600 dark:text-slate-400 mt-1">Tienes planillas pendientes de terminar.</div>
             </div>
 
-            <a href="{{ route('planillas.qr.identificar.form', ['token' => $token]) }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs shadow-sm transition-all">
+            <a href="{{ route('planillas.qr.identificar.form', ['token' => $token]) }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs shadow-sm transition-all">
                 <i class="fas fa-arrow-left text-slate-400"></i> Salir
             </a>
         </div>

@@ -14,7 +14,7 @@
             </div>
 
             <div class="flex items-center gap-2">
-                <a href="{{ route('admin.roles.index') }}" class="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-800">Volver</a>
+                <a href="{{ route('admin.roles.index') }}" class="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800">Volver</a>
                 <a href="{{ route('admin.roles.edit', $role->id) }}" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200">
                     <i class="fas fa-edit mr-2"></i> Editar
                 </a>

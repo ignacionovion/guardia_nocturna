@@ -10,7 +10,7 @@
                 <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium">Registros privados archivados al cierre semanal.</p>
             </div>
 
-            <a href="{{ route('admin.guardias') }}" class="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold py-2.5 px-4 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 flex items-center gap-2 uppercase text-xs tracking-widest">
+            <a href="{{ route('admin.guardias') }}" class="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold py-2.5 px-4 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 flex items-center gap-2 uppercase text-xs tracking-widest">
                 <i class="fas fa-arrow-left"></i>
                 Volver
             </a>
@@ -24,7 +24,7 @@
 
             <div class="divide-y divide-slate-100">
                 @forelse($archives as $a)
-                    <a href="{{ route('admin.guardias.history.show', [$guardia->id, $a->id]) }}" class="block px-6 py-4 hover:bg-slate-50 dark:bg-slate-800 transition">
+                    <a href="{{ route('admin.guardias.history.show', [$guardia->id, $a->id]) }}" class="block px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition">
                         <div class="flex items-center justify-between gap-4">
                             <div class="min-w-0">
                                 <div class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tight truncate">{{ $a->label ?: 'Cierre semanal' }}</div>

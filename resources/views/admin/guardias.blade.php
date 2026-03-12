@@ -59,7 +59,7 @@
                     </div>
 
                     <div class="flex gap-3 pt-2">
-                        <button type="button" onclick="closeRefuerzoModal()" class="w-1/2 py-2.5 px-4 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold text-sm hover:bg-slate-50 dark:bg-slate-800 transition-colors uppercase">
+                        <button type="button" onclick="closeRefuerzoModal()" class="w-1/2 py-2.5 px-4 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold text-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors uppercase">
                             Cancelar
                         </button>
                         <button type="submit" class="w-1/2 py-2.5 px-4 rounded-lg bg-slate-900 text-white font-bold text-sm hover:bg-slate-800 shadow-md hover:shadow-lg transition-all uppercase flex items-center justify-center gap-2">
@@ -286,27 +286,27 @@
 
                                                     @if(!$lockAttendanceStatus)
                                                         <div id="attendance-menu-{{ $user->id }}" class="hidden absolute left-0 right-0 mt-1 z-30 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl overflow-hidden">
-                                                            <button type="button" onclick="setAttendanceStatus('{{ $user->id }}', 'constituye')" class="w-full px-3 py-2 text-xs font-black uppercase tracking-wide flex items-center gap-2 hover:bg-slate-50 dark:bg-slate-800">
+                                                            <button type="button" onclick="setAttendanceStatus('{{ $user->id }}', 'constituye')" class="w-full px-3 py-2 text-xs font-black uppercase tracking-wide flex items-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-800">
                                                                 <span class="w-2 h-2 rounded-full bg-green-500"></span>
                                                                 <span class="text-green-700">CONSTITUYE</span>
                                                             </button>
-                                                            <button type="button" onclick="setAttendanceStatus('{{ $user->id }}', 'reemplazo')" class="w-full px-3 py-2 text-xs font-black uppercase tracking-wide flex items-center gap-2 hover:bg-slate-50 dark:bg-slate-800">
+                                                            <button type="button" onclick="setAttendanceStatus('{{ $user->id }}', 'reemplazo')" class="w-full px-3 py-2 text-xs font-black uppercase tracking-wide flex items-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-800">
                                                                 <span class="w-2 h-2 rounded-full bg-purple-500"></span>
                                                                 <span class="text-purple-700">REEMPLAZO</span>
                                                             </button>
-                                                            <button type="button" onclick="setAttendanceStatus('{{ $user->id }}', 'permiso')" class="w-full px-3 py-2 text-xs font-black uppercase tracking-wide flex items-center gap-2 hover:bg-slate-50 dark:bg-slate-800">
+                                                            <button type="button" onclick="setAttendanceStatus('{{ $user->id }}', 'permiso')" class="w-full px-3 py-2 text-xs font-black uppercase tracking-wide flex items-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-800">
                                                                 <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
                                                                 <span class="text-yellow-700">PERMISO</span>
                                                             </button>
-                                                            <button type="button" onclick="setAttendanceStatus('{{ $user->id }}', 'ausente')" class="w-full px-3 py-2 text-xs font-black uppercase tracking-wide flex items-center gap-2 hover:bg-slate-50 dark:bg-slate-800">
+                                                            <button type="button" onclick="setAttendanceStatus('{{ $user->id }}', 'ausente')" class="w-full px-3 py-2 text-xs font-black uppercase tracking-wide flex items-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-800">
                                                                 <span class="w-2 h-2 rounded-full bg-red-500"></span>
                                                                 <span class="text-red-700">AUSENTE</span>
                                                             </button>
-                                                            <button type="button" onclick="setAttendanceStatus('{{ $user->id }}', 'falta')" class="w-full px-3 py-2 text-xs font-black uppercase tracking-wide flex items-center gap-2 hover:bg-slate-50 dark:bg-slate-800">
+                                                            <button type="button" onclick="setAttendanceStatus('{{ $user->id }}', 'falta')" class="w-full px-3 py-2 text-xs font-black uppercase tracking-wide flex items-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-800">
                                                                 <span class="w-2 h-2 rounded-full bg-red-600"></span>
                                                                 <span class="text-red-800">CUMPLE FALTA</span>
                                                             </button>
-                                                            <button type="button" onclick="setAttendanceStatus('{{ $user->id }}', 'licencia')" class="w-full px-3 py-2 text-xs font-black uppercase tracking-wide flex items-center gap-2 hover:bg-slate-50 dark:bg-slate-800">
+                                                            <button type="button" onclick="setAttendanceStatus('{{ $user->id }}', 'licencia')" class="w-full px-3 py-2 text-xs font-black uppercase tracking-wide flex items-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-800">
                                                                 <span class="w-2 h-2 rounded-full bg-blue-500"></span>
                                                                 <span class="text-blue-700">LICENCIA MÉDICA</span>
                                                             </button>
@@ -352,7 +352,7 @@
                 <!-- Formulario Agregar / Asignar (Colapsable) -->
                 <div class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 mt-auto shadow-[0_-4px_20px_-5px_rgba(0,0,0,0.1)] z-10 relative">
                     <div class="grid grid-cols-1">
-                        <a href="{{ route('admin.dotaciones') }}" class="w-full p-3 flex items-center justify-center text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest hover:bg-slate-50 dark:bg-slate-800 transition-colors group outline-none focus:bg-slate-50 dark:bg-slate-800">
+                        <a href="{{ route('admin.dotaciones') }}" class="w-full p-3 flex items-center justify-center text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group outline-none focus:bg-slate-50 dark:bg-slate-800">
                             <i class="fas fa-users-gear mr-2 text-slate-400"></i> Gestionar Dotación
                         </a>
                     </div>
@@ -413,7 +413,7 @@
                     </div>
 
                     <div class="flex gap-3 pt-2">
-                        <button type="button" onclick="closeReplacementModal()" class="w-1/2 py-2.5 px-4 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold text-sm hover:bg-slate-50 dark:bg-slate-800 transition-colors uppercase">
+                        <button type="button" onclick="closeReplacementModal()" class="w-1/2 py-2.5 px-4 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold text-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors uppercase">
                             Cancelar
                         </button>
                         <button type="submit" class="w-1/2 py-2.5 px-4 rounded-lg bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 shadow-md hover:shadow-lg transition-all uppercase flex items-center justify-center gap-2">

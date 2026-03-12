@@ -27,7 +27,7 @@ $colorClasses = [
     'purple' => 'border-purple-300 dark:border-purple-700 bg-purple-50/50 dark:bg-purple-900/10',
     'red' => 'border-red-300 dark:border-red-700 bg-red-50/50 dark:bg-red-900/10',
     'cyan' => 'border-cyan-300 dark:border-cyan-700 bg-cyan-50/50 dark:bg-cyan-900/10',
-    'slate' => 'border-slate-200 dark:border-slate-700 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 dark:bg-slate-800/30',
+    'slate' => 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 dark:bg-slate-800/30',
 ];
 $badgeColors = [
     'emerald' => 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',

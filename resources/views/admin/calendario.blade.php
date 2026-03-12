@@ -16,14 +16,14 @@
 
             {{-- Month/Year Selector --}}
             <form action="{{ route('admin.calendario') }}" method="GET" class="flex items-center gap-2 bg-white dark:bg-slate-900 p-1.5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
-                <select name="month" class="px-3 py-2 bg-slate-50 dark:bg-slate-800 border-0 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:bg-slate-800 transition-colors focus:ring-2 focus:ring-blue-500">
+                <select name="month" class="px-3 py-2 bg-slate-50 dark:bg-slate-800 border-0 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:ring-2 focus:ring-blue-500">
                     @foreach(range(1, 12) as $m)
                         <option value="{{ $m }}" {{ $month == $m ? 'selected' : '' }}>
                             {{ ucfirst(\Carbon\Carbon::create()->month($m)->locale('es')->monthName) }}
                         </option>
                     @endforeach
                 </select>
-                <select name="year" class="px-3 py-2 bg-slate-50 dark:bg-slate-800 border-0 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:bg-slate-800 transition-colors focus:ring-2 focus:ring-blue-500">
+                <select name="year" class="px-3 py-2 bg-slate-50 dark:bg-slate-800 border-0 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:ring-2 focus:ring-blue-500">
                     @foreach(range(now()->year - 2, now()->year + 1) as $y)
                         <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>{{ $y }}</option>
                     @endforeach

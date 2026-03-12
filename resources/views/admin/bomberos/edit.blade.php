@@ -76,7 +76,7 @@
                     </div>
 
                     <div class="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-800 mt-6">
-                        <a href="{{ auth()->user()->role === 'guardia' ? route('admin.dotaciones') : route('admin.guardias') }}" class="mr-4 px-6 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-400 font-medium hover:bg-slate-50 dark:bg-slate-800 transition-colors">
+                        <a href="{{ auth()->user()->role === 'guardia' ? route('admin.dotaciones') : route('admin.guardias') }}" class="mr-4 px-6 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-400 font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                             Cancelar
                         </a>
                         <button type="submit" class="bg-slate-800 hover:bg-slate-700 text-white font-bold py-2.5 px-8 rounded-lg shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 uppercase tracking-wide text-sm">

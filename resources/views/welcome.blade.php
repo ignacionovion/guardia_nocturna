@@ -40,7 +40,7 @@
                         <i class="fas fa-gauge-high mr-3"></i> Ir al Panel
                     </a>
                 @else
-                    <a href="{{ route('login') }}" class="w-full sm:w-auto px-8 py-4 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:bg-slate-800 text-slate-900 font-bold rounded-xl transition-all shadow-lg hover:shadow-white/10 transform hover:-translate-y-1 flex items-center justify-center text-lg uppercase tracking-wide">
+                    <a href="{{ route('login') }}" class="w-full sm:w-auto px-8 py-4 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-900 font-bold rounded-xl transition-all shadow-lg hover:shadow-white/10 transform hover:-translate-y-1 flex items-center justify-center text-lg uppercase tracking-wide">
                         <i class="fas fa-right-to-bracket mr-3 text-red-700"></i> Ingresar al Sistema
                     </a>
                 @endauth

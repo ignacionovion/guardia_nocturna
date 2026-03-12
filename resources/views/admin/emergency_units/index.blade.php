@@ -66,7 +66,7 @@
                     </thead>
                     <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-200">
                         @foreach($units as $unit)
-                            <tr class="hover:bg-slate-50 dark:bg-slate-800 transition-colors {{ ($unit->status ?? 'active') !== 'active' ? 'opacity-60' : '' }}">
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors {{ ($unit->status ?? 'active') !== 'active' ? 'opacity-60' : '' }}">
                                 <td class="px-6 py-4 whitespace-nowrap font-bold text-slate-900">{{ $unit->name }}</td>
                                 <td class="px-6 py-4 text-slate-700 dark:text-slate-300">{{ $unit->description ?? '-' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
@@ -154,7 +154,7 @@
                     </select>
                 </div>
                 <div class="flex gap-3">
-                    <button type="button" onclick="closeDisableModal()" class="flex-1 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold hover:bg-slate-50 dark:bg-slate-800 transition-colors text-sm">Cancelar</button>
+                    <button type="button" onclick="closeDisableModal()" class="flex-1 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-sm">Cancelar</button>
                     <button type="submit" class="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold transition-colors text-sm">Confirmar</button>
                 </div>
             </form>
@@ -198,7 +198,7 @@
                 </div>
 
                 <div class="mt-6 flex items-center justify-end gap-3">
-                    <button type="button" onclick="closeCreateUnitModal()" class="px-5 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-800 font-semibold transition-colors">Cancelar</button>
+                    <button type="button" onclick="closeCreateUnitModal()" class="px-5 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-semibold transition-colors">Cancelar</button>
                     <button type="submit" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-md transition-all duration-200">
                         <i class="fas fa-save mr-2"></i> Guardar
                     </button>

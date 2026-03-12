@@ -62,7 +62,7 @@
                     </thead>
                     <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-200">
                         @foreach($keys as $key)
-                            <tr class="hover:bg-slate-50 dark:bg-slate-800 transition-colors">
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                                 <td class="px-6 py-4 whitespace-nowrap font-mono font-bold text-slate-900">{{ $key->code }}</td>
                                 <td class="px-6 py-4 text-slate-700 dark:text-slate-300">{{ $key->description }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

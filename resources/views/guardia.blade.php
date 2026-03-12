@@ -184,7 +184,7 @@
                             </thead>
                             <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-100">
                                 @forelse($shift->users->whereNull('end_time') as $shiftUser)
-                                    <tr class="hover:bg-slate-50 dark:bg-slate-800 transition-colors">
+                                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
                                                 <div class="flex-shrink-0 h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 dark:text-slate-400 font-bold border border-slate-300 dark:border-slate-600">

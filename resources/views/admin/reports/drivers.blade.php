@@ -13,29 +13,7 @@
         </div>
     </div>
 
-    {{-- NAVEGACIÓN PRINCIPAL --}}
-    <div class="bg-white dark:bg-slate-900 rounded-t-lg border border-slate-200 dark:border-slate-700">
-        <div class="flex overflow-x-auto">
-            <a href="{{ route('admin.reports.attendance') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
-                <i class="fas fa-calendar-check"></i> Asistencia
-            </a>
-            <a href="{{ route('admin.reports.preventivas') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
-                <i class="fas fa-clipboard-list"></i> Preventivas
-            </a>
-            <a href="{{ route('admin.reports.replacements') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
-                <i class="fas fa-exchange-alt"></i> Reemplazos
-            </a>
-            <a href="{{ route('admin.reports.refuerzos') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
-                <i class="fas fa-user-plus"></i> Refuerzos
-            </a>
-            <a href="{{ route('admin.reports.drivers') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors text-red-600 border-red-600 bg-red-50">
-                <i class="fas fa-truck"></i> Conductores
-            </a>
-            <a href="{{ route('admin.reports.emergencies') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
-                <i class="fas fa-ambulance text-red-600"></i> Emergencias
-            </a>
-        </div>
-    </div>
+    @include('admin.reports._tabs')
 
     {{-- FILTROS CON SELECTS ESTANDARIZADOS --}}
     <div class="bg-white dark:bg-slate-900 p-5 border border-t-0 border-slate-200 dark:border-slate-700 mb-6 rounded-b-lg shadow-sm">
@@ -109,7 +87,7 @@
                 </thead>
                 <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-100">
                     @forelse($topDrivers as $i => $row)
-                        <tr class="hover:bg-slate-50 dark:bg-slate-800 transition-colors">
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                             <td class="px-6 py-3 whitespace-nowrap">
                                 <div class="flex items-center gap-3">
                                     <div class="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center font-black text-xs">{{ $i + 1 }}</div>

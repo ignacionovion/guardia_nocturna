@@ -57,7 +57,7 @@
                     </thead>
                     <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-200">
                         @foreach($roles as $role)
-                            <tr class="hover:bg-slate-50 dark:bg-slate-800 transition-colors">
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <a href="{{ route('admin.roles.show', $role->id) }}" class="text-sm font-bold text-slate-900 hover:text-blue-700">
                                         {{ $role->name }}

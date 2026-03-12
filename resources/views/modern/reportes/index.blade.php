@@ -12,13 +12,13 @@
             <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Análisis de operaciones y métricas del cuartel</p>
         </div>
         <div class="flex items-center gap-3">
-            <select class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-700 bg-white dark:bg-slate-900 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-white">
+            <select class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-white">
                 <option value="mes">Este mes</option>
                 <option value="semana">Esta semana</option>
                 <option value="trimestre">Este trimestre</option>
                 <option value="año">Este año</option>
             </select>
-            <button class="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors">
+            <button class="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 dark:hover:bg-slate-700 transition-colors">
                 <i class="fas fa-download mr-2"></i>
                 Exportar
             </button>
@@ -75,7 +75,7 @@
     {{-- Charts Grid --}}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {{-- Asistencia por Guardia --}}
-        <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 overflow-hidden">
             <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 dark:border-slate-800 flex items-center justify-between">
                 <div>
                     <h2 class="font-semibold text-slate-900 dark:text-white">Asistencia por Guardia</h2>
@@ -130,7 +130,7 @@
         </div>
 
         {{-- Emergencias por Tipo --}}
-        <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 overflow-hidden">
             <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 dark:border-slate-800">
                 <h2 class="font-semibold text-slate-900 dark:text-white">Emergencias por Tipo</h2>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Distribución este mes</p>
@@ -153,22 +153,22 @@
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-3 mt-4">
-                    <div class="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800 dark:bg-slate-800/50">
+                    <div class="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/50">
                         <span class="w-3 h-3 rounded-full bg-red-500"></span>
                         <span class="text-sm text-slate-600 dark:text-slate-400">Incendios</span>
                         <span class="ml-auto font-semibold text-slate-900 dark:text-white">19</span>
                     </div>
-                    <div class="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800 dark:bg-slate-800/50">
+                    <div class="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/50">
                         <span class="w-3 h-3 rounded-full bg-amber-500"></span>
                         <span class="text-sm text-slate-600 dark:text-slate-400">Rescates</span>
                         <span class="ml-auto font-semibold text-slate-900 dark:text-white">12</span>
                     </div>
-                    <div class="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800 dark:bg-slate-800/50">
+                    <div class="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/50">
                         <span class="w-3 h-3 rounded-full bg-blue-500"></span>
                         <span class="text-sm text-slate-600 dark:text-slate-400">Accidentes</span>
                         <span class="ml-auto font-semibold text-slate-900 dark:text-white">9</span>
                     </div>
-                    <div class="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800 dark:bg-slate-800/50">
+                    <div class="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/50">
                         <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
                         <span class="text-sm text-slate-600 dark:text-slate-400">Otros</span>
                         <span class="ml-auto font-semibold text-slate-900 dark:text-white">7</span>
@@ -181,7 +181,7 @@
     {{-- Activity & Stats --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {{-- Actividad Mensual --}}
-        <div class="lg:col-span-2 bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 overflow-hidden">
+        <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 overflow-hidden">
             <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 dark:border-slate-800">
                 <h2 class="font-semibold text-slate-900 dark:text-white">Actividad Mensual</h2>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Guardias y emergencias por día</p>
@@ -213,7 +213,7 @@
         </div>
 
         {{-- Top Voluntarios --}}
-        <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 overflow-hidden">
             <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 dark:border-slate-800">
                 <h2 class="font-semibold text-slate-900 dark:text-white">Top Voluntarios</h2>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Mayor participación este mes</p>
@@ -231,7 +231,7 @@
                     $medals = ['🥇', '🥈', '🥉', '', ''];
                     @endphp
                     @foreach($topVoluntarios as $i => $v)
-                    <div class="flex items-center gap-3 p-3 rounded-xl {{ $i < 3 ? 'bg-slate-50 dark:bg-slate-800 dark:bg-slate-800/50' : '' }}">
+                    <div class="flex items-center gap-3 p-3 rounded-xl {{ $i < 3 ? 'bg-slate-50 dark:bg-slate-800/50' : '' }}">
                         <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-700 to-slate-900 dark:from-slate-200 dark:to-slate-400 flex items-center justify-center text-white dark:text-slate-900 text-xs font-bold">
                             {{ strtoupper(substr($v['nombre'], 0, 1)) }}{{ strtoupper(substr(explode(' ', $v['nombre'])[1], 0, 1)) }}
                         </div>
@@ -258,7 +258,7 @@
     </div>
 
     {{-- Detailed Stats Table --}}
-    <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 overflow-hidden">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 overflow-hidden">
         <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 dark:border-slate-800 flex items-center justify-between">
             <div>
                 <h2 class="font-semibold text-slate-900 dark:text-white">Resumen por Guardia</h2>
@@ -268,7 +268,7 @@
         <div class="overflow-x-auto">
             <table class="w-full">
                 <thead>
-                    <tr class="bg-slate-50 dark:bg-slate-800 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 dark:border-slate-700">
+                    <tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
                         <th class="px-6 py-3 text-left text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Guardia</th>
                         <th class="px-6 py-3 text-center text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Turnos</th>
                         <th class="px-6 py-3 text-center text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Asistencia</th>
@@ -294,7 +294,7 @@
                     @endphp
                     @foreach($guardias as $g)
                     @php $rc = $rendimientoConfig[$g['rendimiento']]; @endphp
-                    <tr class="hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-800/50 transition-colors">
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 dark:hover:bg-slate-800/50 transition-colors">
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
                                 <span class="w-3 h-3 rounded-full bg-{{ $g['color'] }}-500"></span>

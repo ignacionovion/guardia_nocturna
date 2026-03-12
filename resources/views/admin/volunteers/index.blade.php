@@ -102,7 +102,7 @@
                     </thead>
                     <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-200" id="volunteer-table-body">
                         @foreach($volunteers as $volunteer)
-                            <tr class="hover:bg-slate-50 dark:bg-slate-800 transition-colors">
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                                 <td class="px-3 md:px-6 py-4 whitespace-nowrap">
                                     <input type="checkbox" name="selected_ids[]" value="{{ $volunteer->id }}" class="volunteer-checkbox rounded border-gray-300 dark:border-slate-600 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 w-5 h-5">
                                 </td>

@@ -16,36 +16,7 @@
         </div>
     </div>
 
-    {{-- NAVEGACIÓN PRINCIPAL --}}
-    <div class="bg-white dark:bg-slate-900 rounded-t-lg border border-slate-200 dark:border-slate-700">
-        <div class="flex overflow-x-auto">
-            <a href="{{ route('admin.reports.attendance', request()->except('tab')) }}"
-               class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors
-                      {{ (!request('tab') || request('tab') === 'asistencia') ? 'text-red-600 border-red-600 bg-red-50' : 'text-slate-600 dark:text-slate-400 border-transparent hover:text-slate-800 dark:text-white' }}">
-                <i class="fas fa-calendar-check"></i> Asistencia
-            </a>
-            <a href="{{ route('admin.reports.preventivas') }}"
-               class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
-                <i class="fas fa-clipboard-list"></i> Preventivas
-            </a>
-            <a href="{{ route('admin.reports.replacements') }}"
-               class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
-                <i class="fas fa-exchange-alt"></i> Reemplazos
-            </a>
-            <a href="{{ route('admin.reports.refuerzos') }}"
-               class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
-                <i class="fas fa-user-plus"></i> Refuerzos
-            </a>
-            <a href="{{ route('admin.reports.drivers') }}"
-               class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
-                <i class="fas fa-truck"></i> Conductores
-            </a>
-            <a href="{{ route('admin.reports.emergencies') }}"
-               class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
-                <i class="fas fa-ambulance text-red-600"></i> Emergencias
-            </a>
-        </div>
-    </div>
+    @include('admin.reports._tabs')
 
     @php $activeTab = request('tab', 'asistencia'); @endphp
 
@@ -275,7 +246,7 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse($titulares as $ff)
-                    <tr class="hover:bg-slate-50 dark:bg-slate-800 transition-colors">
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                         <td class="py-3 px-4">
                             <div class="flex items-center gap-2">
                                 <div class="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-700 font-bold text-xs flex-shrink-0">
@@ -378,7 +349,7 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse($firefighterStats->filter(fn($f) => ($f['permissions'] + $f['licenses'] + $f['disabled']) > 0)->sortByDesc(fn($f) => $f['permissions'] + $f['licenses'] + $f['disabled']) as $ff)
-                    <tr class="hover:bg-slate-50 dark:bg-slate-800">
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800">
                         <td class="py-3 px-4">
                             <div class="flex items-center gap-2">
                                 <div class="w-7 h-7 bg-amber-100 rounded-full flex items-center justify-center text-amber-700 font-bold text-xs flex-shrink-0">

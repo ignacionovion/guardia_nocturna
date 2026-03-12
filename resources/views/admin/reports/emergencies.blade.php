@@ -13,39 +13,11 @@
         </div>
     </div>
 
-    {{-- NAVEGACIÓN PRINCIPAL --}}
-    <div class="bg-white dark:bg-slate-900 rounded-t-lg border border-slate-200 dark:border-slate-700">
-        <div class="flex overflow-x-auto">
-            <a href="{{ route('admin.reports.attendance') }}"
-               class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
-                <i class="fas fa-calendar-check"></i> Asistencia
-            </a>
-            <a href="{{ route('admin.reports.preventivas') }}"
-               class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
-                <i class="fas fa-clipboard-list"></i> Preventivas
-            </a>
-            <a href="{{ route('admin.reports.replacements') }}"
-               class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
-                <i class="fas fa-exchange-alt"></i> Reemplazos
-            </a>
-            <a href="{{ route('admin.reports.refuerzos') }}"
-               class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
-                <i class="fas fa-user-plus"></i> Refuerzos
-            </a>
-            <a href="{{ route('admin.reports.drivers') }}"
-               class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
-                <i class="fas fa-truck"></i> Conductores
-            </a>
-            <a href="{{ route('admin.reports.emergencies') }}"
-               class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-red-600 text-red-600 bg-red-50 transition-colors">
-                <i class="fas fa-ambulance"></i> Emergencias
-            </a>
-        </div>
-    </div>
+    @include('admin.reports._tabs')
 
     {{-- FILTROS CON SELECTS ESTANDARIZADOS --}}
     <div class="bg-white dark:bg-slate-900 p-5 border border-t-0 border-slate-200 dark:border-slate-700 mb-6 rounded-b-lg shadow-sm">
-        <form action="{{ route('admin.reports.emergencies') }}" method="GET" class="flex flex-wrap items-end gap-4">
+        <form action="{{ route('admin.reports.emergencias') }}" method="GET" class="flex flex-wrap items-end gap-4">
             
             {{-- Select Mes - ESTANDARIZADO --}}
             <div class="min-w-[160px]">
@@ -115,18 +87,18 @@
                 <button type="submit" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-900 text-white font-extrabold text-xs uppercase tracking-widest transition-all shadow-md hover:shadow-lg">
                     <i class="fas fa-filter"></i> Filtrar
                 </button>
-                <a href="{{ route('admin.reports.emergencies') }}" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 font-extrabold text-xs uppercase tracking-widest transition-all" title="Limpiar filtros">
+                <a href="{{ route('admin.reports.emergencias') }}" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 font-extrabold text-xs uppercase tracking-widest transition-all" title="Limpiar filtros">
                     <i class="fas fa-undo"></i>
                 </a>
             </div>
 
             {{-- Botones de Exportación Profesionales --}}
             <div class="ml-auto flex gap-2">
-                <a href="{{ route('admin.reports.emergencies.export', ['format' => 'excel'] + request()->all()) }}" 
+                <a href="{{ route('admin.reports.emergencias.export', ['format' => 'excel'] + request()->all()) }}" 
                    class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-extrabold text-xs uppercase tracking-widest transition-all shadow-sm hover:shadow-md">
                     <i class="fas fa-file-excel text-emerald-600"></i> Excel
                 </a>
-                <a href="{{ route('admin.reports.emergencies.export', ['format' => 'pdf'] + request()->all()) }}" target="_blank"
+                <a href="{{ route('admin.reports.emergencias.export', ['format' => 'pdf'] + request()->all()) }}" target="_blank"
                    class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-extrabold text-xs uppercase tracking-widest transition-all shadow-sm hover:shadow-md">
                     <i class="fas fa-file-pdf text-rose-600"></i> PDF
                 </a>
@@ -264,7 +236,7 @@
                     </thead>
                     <tbody class="divide-y divide-slate-200">
                         @forelse($vehiclesUsed as $vehicle)
-                            <tr class="hover:bg-slate-50 dark:bg-slate-800">
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800">
                                 <td class="px-4 py-3 font-medium text-slate-700 dark:text-slate-300">{{ $vehicle['vehicle'] }}</td>
                                 <td class="px-4 py-3 text-center">
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-white">
@@ -309,7 +281,7 @@
                     </thead>
                     <tbody class="divide-y divide-slate-200">
                         @forelse($pointsByKey->take(10) as $key)
-                            <tr class="hover:bg-slate-50 dark:bg-slate-800">
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800">
                                 <td class="px-3 py-3">
                                     <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-800">
                                         {{ $key['key'] }}
@@ -352,7 +324,7 @@
                     </thead>
                     <tbody class="divide-y divide-slate-200">
                         @forelse($topKeys as $index => $key)
-                            <tr class="hover:bg-slate-50 dark:bg-slate-800">
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800">
                                 <td class="px-4 py-3 text-center">
                                     @if($index < 3)
                                         <i class="fas fa-medal text-lg {{ ['text-yellow-500', 'text-slate-400', 'text-amber-700'][$index] }}"></i>
@@ -402,7 +374,7 @@
                 </thead>
                 <tbody class="divide-y divide-slate-200">
                     @forelse($statsByGuardia as $stat)
-                        <tr class="hover:bg-slate-50 dark:bg-slate-800">
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800">
                             <td class="px-5 py-4">
                                 <div class="flex items-center">
                                     <i class="fas fa-shield-alt text-cyan-500 mr-3"></i>
