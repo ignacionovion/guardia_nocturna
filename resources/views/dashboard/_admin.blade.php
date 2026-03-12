@@ -98,41 +98,57 @@
                                 ? $activeStaff->filter(fn($staff) => (bool) ($staff->es_refuerzo ?? false))->values()
                                 : collect();
                         @endphp
-                        <div class="grid grid-cols-3 gap-3 mb-6">
-                            <div class="bg-purple-100 rounded-xl border-2 border-purple-400 p-3 text-center shadow-sm">
-                                <div class="text-2xl font-black text-purple-800">{{ $activeReplacementsCount }}</div>
-                                <div class="text-xs font-black text-purple-700 uppercase tracking-wider">Reemplazos</div>
-                            </div>
-                            <div class="bg-sky-100 rounded-xl border-2 border-sky-400 p-3 text-center shadow-sm">
-                                <div class="text-2xl font-black text-sky-800">{{ $activeRefuerzosCount }}</div>
-                                <div class="text-xs font-black text-sky-700 uppercase tracking-wider">Refuerzos</div>
-                            </div>
-                            <div class="bg-red-100 rounded-xl border-2 border-red-400 p-3 text-center shadow-sm">
-                                <div class="text-2xl font-black text-red-800">{{ $outOfServiceFirefighters }}</div>
-                                <div class="text-xs font-black text-red-700 uppercase tracking-wider">Fuera Servicio</div>
-                            </div>
+                        <div class="grid grid-cols-3 gap-4 mb-6">
+                            <x-ui.metric-card
+                                :value="$activeReplacementsCount"
+                                label="Reemplazos"
+                                icon="fas fa-exchange-alt"
+                                variant="purple"
+                            />
+                            <x-ui.metric-card
+                                :value="$activeRefuerzosCount"
+                                label="Refuerzos"
+                                icon="fas fa-user-plus"
+                                variant="sky"
+                            />
+                            <x-ui.metric-card
+                                :value="$outOfServiceFirefighters"
+                                label="Fuera de Servicio"
+                                icon="fas fa-ban"
+                                variant="danger"
+                            />
                         </div>
                         <div class="grid grid-cols-5 gap-3 mb-6">
-                            <div class="bg-emerald-100 rounded-xl border-2 border-emerald-400 p-3 text-center shadow-sm">
-                                <div class="text-xl font-black text-emerald-800">{{ $countConstituye }}</div>
-                                <div class="text-[10px] font-black text-emerald-700 uppercase tracking-wider">Constituyen</div>
-                            </div>
-                            <div class="bg-amber-100 rounded-xl border-2 border-amber-400 p-3 text-center shadow-sm">
-                                <div class="text-xl font-black text-amber-800">{{ $countPermiso }}</div>
-                                <div class="text-[10px] font-black text-amber-700 uppercase tracking-wider">Permiso</div>
-                            </div>
-                            <div class="bg-slate-200 rounded-xl border-2 border-slate-400 p-3 text-center shadow-sm">
-                                <div class="text-xl font-black text-slate-700 dark:text-slate-300">{{ $countAusente }}</div>
-                                <div class="text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-wider">Ausente</div>
-                            </div>
-                            <div class="bg-blue-100 rounded-xl border-2 border-blue-400 p-3 text-center shadow-sm">
-                                <div class="text-xl font-black text-blue-800">{{ $countLicencia }}</div>
-                                <div class="text-[10px] font-black text-blue-700 uppercase tracking-wider">Licencia</div>
-                            </div>
-                            <div class="bg-rose-100 rounded-xl border-2 border-rose-400 p-3 text-center shadow-sm">
-                                <div class="text-xl font-black text-rose-800">{{ $countFalta }}</div>
-                                <div class="text-[10px] font-black text-rose-700 uppercase tracking-wider">Falta</div>
-                            </div>
+                            <x-ui.metric-card
+                                :value="$countConstituye"
+                                label="Constituyen"
+                                icon="fas fa-check-circle"
+                                variant="success"
+                            />
+                            <x-ui.metric-card
+                                :value="$countPermiso"
+                                label="Permiso"
+                                icon="fas fa-clipboard"
+                                variant="warning"
+                            />
+                            <x-ui.metric-card
+                                :value="$countAusente"
+                                label="Ausente"
+                                icon="fas fa-minus-circle"
+                                variant="default"
+                            />
+                            <x-ui.metric-card
+                                :value="$countLicencia"
+                                label="Licencia"
+                                icon="fas fa-file-medical"
+                                variant="primary"
+                            />
+                            <x-ui.metric-card
+                                :value="$countFalta"
+                                label="Falta"
+                                icon="fas fa-times-circle"
+                                variant="danger"
+                            />
                         </div>
 
                         <!-- Lista Detallada de Reemplazos Activos -->
