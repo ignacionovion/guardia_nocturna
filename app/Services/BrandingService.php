@@ -34,22 +34,27 @@ class BrandingService
             return $this->toObject($this->defaults);
         }
 
-        $branding = DB::table('tenant_branding')
-            ->where('tenant_id', $tenantId)
-            ->first();
+        try {
+            $branding = DB::table('tenant_branding')
+                ->where('tenant_id', $tenantId)
+                ->first();
 
-        if (!$branding) {
+            if (!$branding) {
+                return $this->toObject($this->defaults);
+            }
+
+            return $this->toObject([
+                'logo' => $branding->logo_path ? Storage::url($branding->logo_path) : $this->defaults['logo'],
+                'favicon' => $branding->favicon_path ? Storage::url($branding->favicon_path) : $this->defaults['favicon'],
+                'nombre_empresa' => $branding->nombre_empresa ?? $this->defaults['nombre_empresa'],
+                'color_primario' => $branding->color_primario ?? $this->defaults['color_primario'],
+                'color_secundario' => $branding->color_secundario ?? $this->defaults['color_secundario'],
+                'color_sidebar' => $branding->color_sidebar ?? $this->defaults['color_sidebar'],
+            ]);
+        } catch (\Exception $e) {
+            // Table doesn't exist yet - return defaults
             return $this->toObject($this->defaults);
         }
-
-        return $this->toObject([
-            'logo' => $branding->logo_path ? Storage::url($branding->logo_path) : $this->defaults['logo'],
-            'favicon' => $branding->favicon_path ? Storage::url($branding->favicon_path) : $this->defaults['favicon'],
-            'nombre_empresa' => $branding->nombre_empresa ?? $this->defaults['nombre_empresa'],
-            'color_primario' => $branding->color_primario ?? $this->defaults['color_primario'],
-            'color_secundario' => $branding->color_secundario ?? $this->defaults['color_secundario'],
-            'color_sidebar' => $branding->color_sidebar ?? $this->defaults['color_sidebar'],
-        ]);
     }
 
     /**
