@@ -4,7 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'AppGuardia') }}</title>
+    <title>{{ branding()->nombre_empresa }}</title>
+    <link rel="icon" type="image/x-icon" href="{{ branding()->favicon ?? asset('favicon.ico') }}">
+    <style>
+        :root {
+            --brand-primary: {{ branding()->color_primario }};
+            --brand-secondary: {{ branding()->color_secundario }};
+            --brand-sidebar: {{ branding()->color_sidebar }};
+        }
+    </style>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -47,11 +55,16 @@
             <div class="flex justify-between items-center h-16">
                 <!-- Logo / Marca -->
                 <a href="{{ route('dashboard') }}" class="flex items-center group">
-                    @if(file_exists(public_path('brand/guardiapp.png')))
+                    @if(branding()->logo)
+                        <img src="{{ branding()->logo }}" alt="{{ branding()->nombre_empresa }}" class="h-12 w-auto">
+                    @elseif(file_exists(public_path('brand/guardiapp.png')))
                         <img src="{{ asset('brand/guardiapp.png') }}?v={{ filemtime(public_path('brand/guardiapp.png')) }}" alt="GuardiAPP" class="h-14 w-auto drop-shadow-sm">
                     @else
-                        <div class="bg-red-300 p-2.5 rounded-lg text-white transform group-hover:rotate-3 transition-transform duration-300 shadow-lg border border-red-200">
-                            <i class="fas fa-helmet-safety text-xl"></i>
+                        <div class="flex items-center gap-2">
+                            <div class="bg-red-300 p-2.5 rounded-lg text-white transform group-hover:rotate-3 transition-transform duration-300 shadow-lg border border-red-200">
+                                <i class="fas fa-helmet-safety text-xl"></i>
+                            </div>
+                            <span class="text-white font-bold text-lg hidden sm:block">{{ branding()->nombre_empresa }}</span>
                         </div>
                     @endif
                 </a>
@@ -531,6 +544,11 @@
                                                 <a href="{{ route('admin.system.index') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                                                     <i class="fas fa-gear mr-2 text-slate-500"></i> Administración del Sistema
                                                 </a>
+                                                @if(addon('custom_branding'))
+                                                <a href="{{ route('admin.branding.index') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                                                    <i class="fas fa-palette mr-2 text-slate-500"></i> Marca Personalizada
+                                                </a>
+                                                @endif
                                                 <a href="{{ route('admin.users.index') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                                                     <i class="fas fa-user-shield mr-2 text-slate-500"></i> Usuarios
                                                 </a>
@@ -597,6 +615,11 @@
                                 <a href="{{ route('admin.system.index') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:bg-slate-800 hover:text-white">
                                     <i class="fas fa-gear mr-2 opacity-80"></i> Administración del Sistema
                                 </a>
+                                @if(addon('custom_branding'))
+                                <a href="{{ route('admin.branding.index') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:bg-slate-800 hover:text-white">
+                                    <i class="fas fa-palette mr-2 opacity-80"></i> Marca Personalizada
+                                </a>
+                                @endif
                                 <a href="{{ route('admin.users.index') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-200 hover:bg-slate-800 hover:text-white">
                                     <i class="fas fa-user-shield mr-2 opacity-80"></i> Usuarios
                                 </a>

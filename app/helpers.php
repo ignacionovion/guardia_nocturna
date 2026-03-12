@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\BrandingService;
 use App\Services\FeatureFlagService;
 use App\Services\PlanService;
 
@@ -81,6 +82,35 @@ if (!function_exists('plan_exceeded')) {
     function plan_exceeded(string $type): bool
     {
         return PlanService::exceedsLimit($type);
+    }
+}
+
+if (!function_exists('branding')) {
+    /**
+     * Get branding data for the current tenant.
+     * Returns an object with branding settings or defaults.
+     *
+     * Usage in views: {{ branding()->logo }}
+     * Usage in code:  $branding = branding();
+     */
+    function branding(): object
+    {
+        $service = app(BrandingService::class);
+        return $service->getBranding();
+    }
+}
+
+if (!function_exists('addon')) {
+    /**
+     * Check if an addon is enabled for the current tenant.
+     * Addons are commercial features beyond the core modules.
+     *
+     * Usage in views: @if(addon('custom_branding')) ... @endif
+     * Usage in code:  if (addon('api_access')) { ... }
+     */
+    function addon(string $addon): bool
+    {
+        return PlanService::hasAddon($addon);
     }
 }
 

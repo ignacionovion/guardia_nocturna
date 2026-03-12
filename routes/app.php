@@ -297,6 +297,14 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
         Route::get('/admin/tenant-settings', [TenantSettingsController::class, 'index'])->name('admin.tenant-settings.index');
         Route::put('/admin/tenant-settings', [TenantSettingsController::class, 'update'])->name('admin.tenant-settings.update');
 
+        // Rutas Admin - Branding Personalizado (Marca Personalizada addon)
+        Route::get('/admin/branding', [App\Http\Controllers\Admin\BrandingController::class, 'index'])->name('admin.branding.index');
+        Route::post('/admin/branding', [App\Http\Controllers\Admin\BrandingController::class, 'store'])->name('admin.branding.store');
+        Route::post('/admin/branding/logo', [App\Http\Controllers\Admin\BrandingController::class, 'uploadLogo'])->name('admin.branding.upload-logo');
+        Route::post('/admin/branding/favicon', [App\Http\Controllers\Admin\BrandingController::class, 'uploadFavicon'])->name('admin.branding.upload-favicon');
+        Route::delete('/admin/branding/logo', [App\Http\Controllers\Admin\BrandingController::class, 'removeLogo'])->name('admin.branding.remove-logo');
+        Route::delete('/admin/branding/favicon', [App\Http\Controllers\Admin\BrandingController::class, 'removeFavicon'])->name('admin.branding.remove-favicon');
+
         Route::get('/admin/system', [SystemAdminController::class, 'index'])->name('admin.system.index');
         Route::post('/admin/system/schedule', [SystemAdminController::class, 'saveSchedule'])->name('admin.system.schedule.save');
         Route::post('/admin/system/mail', [SystemAdminController::class, 'saveMailSettings'])->name('admin.system.mail.save');

@@ -10,6 +10,28 @@ use Illuminate\Support\Facades\DB;
 
 class PlanService
 {
+    // Verificar si el tenant actual tiene un addon
+    public static function hasAddon(string $addon): bool
+    {
+        $tenant = tenant();
+        
+        if (!$tenant) {
+            return false;
+        }
+        
+        // Si el tenant tiene plan_id, cargar el plan explícitamente desde la BD
+        if ($tenant->plan_id) {
+            $plan = Plan::find($tenant->plan_id);
+            if ($plan) {
+                return $plan->hasAddon($addon);
+            }
+        }
+        
+        // Fallback: usar el campo plan string (legacy) con defaults
+        // Legacy plans don't have addons enabled by default
+        return false;
+    }
+    
     // Verificar si el tenant actual tiene una feature
     public static function hasFeature(string $feature): bool
     {
