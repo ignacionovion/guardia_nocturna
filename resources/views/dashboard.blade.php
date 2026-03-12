@@ -113,9 +113,11 @@
                         <button type="button" onclick="openCalendarPopup()" class="w-9 h-9 sm:w-10 sm:h-10 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center" title="Calendario de Guardias">
                             <i class="fas fa-calendar-days text-[14px] text-emerald-300"></i>
                         </button>
+                        @if(feature('emergencias'))
                         <a href="{{ route('admin.emergencies.index') }}" class="w-9 h-9 sm:w-10 sm:h-10 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center" title="Emergencias">
                             <i class="fas fa-truck-medical text-[14px] text-amber-300"></i>
                         </a>
+                        @endif
                         <button type="button" onclick="openRefuerzoModal()" class="w-9 h-9 sm:w-10 sm:h-10 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center" title="Refuerzo">
                             <i class="fas fa-user-plus text-[14px] text-sky-300"></i>
                         </button>

@@ -101,7 +101,7 @@ class SyncPlansCommand extends Command
         $plans = Plan::orderBy('orden')->get();
         foreach ($plans as $plan) {
             $this->line("<comment>{$plan->nombre}</comment> ({$plan->slug})");
-            $this->line("  Precio: $" . number_format($plan->precio_mensual, 0, ',', '.') . "/mes");
+            $this->line("  Precio: $" . number_format((float) $plan->precio_mensual, 0, ',', '.') . "/mes");
             $this->line("  Límites: {$plan->max_users} usuarios, {$plan->max_guardias} guardias, {$plan->max_beds} camas");
             
             $enabledModules = $plan->getEnabledModules();

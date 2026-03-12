@@ -185,23 +185,31 @@
                         <a href="{{ route('dashboard') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('dashboard') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
                             <i class="fas fa-home mr-1.5 opacity-70"></i> Inicio
                         </a>
+                        @if(feature('camas'))
                         <a href="{{ route('camas') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('camas') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
                             <i class="fas fa-bed mr-1.5 opacity-70"></i> Camas
                         </a>
+                        @endif
                     @endif
                     
                     @if(in_array(Auth::user()->role, ['super_admin', 'capitania'], true) && Auth::user()->role !== 'super_admin')
                         <div class="h-6 w-px bg-slate-700 mx-2"></div>
                         
+                        @if(feature('guardia'))
                         <a href="{{ route('admin.guardias') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('admin.guardias*') ? 'bg-red-900/50 text-red-100 shadow-inner' : 'text-slate-300 hover:bg-red-900/30 hover:text-red-100' }}">
                             <i class="fas fa-shield mr-1.5 text-red-400"></i> Guardias
                         </a>
+                        @endif
+                        @if(feature('calendario'))
                         <a href="{{ route('admin.calendario') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('admin.calendario*') ? 'bg-red-900/50 text-red-100 shadow-inner' : 'text-slate-300 hover:bg-red-900/30 hover:text-red-100' }}">
                             <i class="fas fa-calendar-alt mr-1.5 text-red-400"></i> Calendario
                         </a>
+                        @endif
+                        @if(feature('voluntarios'))
                         <a href="{{ route('admin.volunteers.index') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('admin.volunteers*') ? 'bg-red-900/50 text-red-100 shadow-inner' : 'text-slate-300 hover:bg-red-900/30 hover:text-red-100' }}">
                             <i class="fas fa-users mr-1.5 text-red-400"></i> Voluntarios
                         </a>
+                        @endif
                         <a href="{{ route('admin.users.index') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('admin.users*') ? 'bg-red-900/50 text-red-100 shadow-inner' : 'text-slate-300 hover:bg-red-900/30 hover:text-red-100' }}">
                             <i class="fas fa-user-shield mr-1.5 text-red-400"></i> Usuarios
                         </a>
@@ -210,7 +218,7 @@
                             <i class="fas fa-truck-medical mr-1.5 text-red-400"></i> Emergencias
                         </a>
                         @endif
-                        @if(feature('reportes') || feature('reportes_avanzados'))
+                        @if(feature('reportes'))
                         <a href="{{ route('admin.reports.index') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('admin.reports*') ? 'bg-red-900/50 text-red-100 shadow-inner' : 'text-slate-300 hover:bg-red-900/30 hover:text-red-100' }}">
                             <i class="fas fa-chart-pie mr-1.5 text-red-400"></i> Reportes
                         </a>
@@ -608,9 +616,11 @@
                                 <a href="{{ route('dashboard') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('dashboard') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                                     <i class="fas fa-home mr-2 opacity-80"></i> Inicio
                                 </a>
+                                @if(feature('camas'))
                                 <a href="{{ route('camas') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('camas') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                                     <i class="fas fa-bed mr-2 opacity-80"></i> Camas
                                 </a>
+                                @endif
                             @elseif(Auth::user()->role === 'ayudante')
                                 <a href="{{ route('admin.preventivas.index') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('admin.preventivas*') ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                                     <i class="fas fa-clipboard-list mr-2 opacity-80"></i> Preventivas
