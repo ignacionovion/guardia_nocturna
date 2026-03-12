@@ -81,31 +81,64 @@ class BrandingController extends Controller
         }
 
         $request->validate([
-            'logo' => ['required', 'image', 'max:2048'], // Max 2MB
+            'logo' => ['required', 'image', 'max:2048'],
         ]);
 
         $tenantId = tenant('id');
         $file = $request->file('logo');
         
-        // Normalizar extensión (solo usar la extensión real del mime type)
-        $extension = strtolower($file->getClientOriginalExtension());
-        if (!in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'])) {
-            $extension = 'png'; // fallback seguro
+        // Verificar que el archivo es válido
+        if (!$file || !$file->isValid()) {
+            return redirect()
+                ->route('admin.branding.index')
+                ->with('error', 'Error: El archivo no es válido o no se subió correctamente.');
         }
-        
-        $filename = 'logo.' . $extension;
 
-        // Delete old logo if exists
-        Storage::disk('public')->deleteDirectory('branding/' . $tenantId);
+        try {
+            // Normalizar extensión
+            $extension = strtolower($file->getClientOriginalExtension());
+            if (!in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'])) {
+                $extension = 'png';
+            }
+            
+            $directory = 'branding/' . $tenantId;
+            $filename = 'logo.' . $extension;
 
-        // Store new logo with sanitized name
-        $path = $file->storeAs('branding/' . $tenantId, $filename, 'public');
+            // Asegurar que el directorio exista
+            if (!Storage::disk('public')->exists($directory)) {
+                Storage::disk('public')->makeDirectory($directory);
+            }
 
-        $this->brandingService->updateLogo($path);
+            // Borrar logo anterior específico (no todo el directorio)
+            $oldBranding = $this->brandingService->getBrandingForEdit();
+            if ($oldBranding && $oldBranding->logo_path) {
+                Storage::disk('public')->delete($oldBranding->logo_path);
+            }
 
-        return redirect()
-            ->route('admin.branding.index')
-            ->with('success', 'Logo actualizado correctamente.');
+            // Guardar archivo usando putFileAs para más control
+            $path = Storage::disk('public')->putFileAs(
+                $directory,
+                $file,
+                $filename
+            );
+
+            if (!$path) {
+                throw new \Exception('No se pudo guardar el archivo.');
+            }
+
+            // Guardar ruta relativa en BD
+            $this->brandingService->updateLogo($path);
+
+            return redirect()
+                ->route('admin.branding.index')
+                ->with('success', 'Logo actualizado correctamente. Ruta: ' . $path);
+
+        } catch (\Exception $e) {
+            \Log::error('Error subiendo logo: ' . $e->getMessage());
+            return redirect()
+                ->route('admin.branding.index')
+                ->with('error', 'Error al guardar el logo: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -120,28 +153,61 @@ class BrandingController extends Controller
         }
 
         $request->validate([
-            'favicon' => ['required', 'image', 'max:1024', 'mimes:png,ico'], // Max 1MB, only PNG or ICO
+            'favicon' => ['required', 'image', 'max:1024', 'mimes:png,ico'],
         ]);
 
         $tenantId = tenant('id');
         $file = $request->file('favicon');
         
-        // Normalizar extensión
-        $extension = strtolower($file->getClientOriginalExtension());
-        if (!in_array($extension, ['png', 'ico'])) {
-            $extension = 'png';
+        if (!$file || !$file->isValid()) {
+            return redirect()
+                ->route('admin.branding.index')
+                ->with('error', 'Error: El archivo no es válido.');
         }
-        
-        $filename = 'favicon.' . $extension;
 
-        // Store new favicon
-        $path = $file->storeAs('branding/' . $tenantId, $filename, 'public');
+        try {
+            $extension = strtolower($file->getClientOriginalExtension());
+            if (!in_array($extension, ['png', 'ico'])) {
+                $extension = 'png';
+            }
+            
+            $directory = 'branding/' . $tenantId;
+            $filename = 'favicon.' . $extension;
 
-        $this->brandingService->updateFavicon($path);
+            // Asegurar que el directorio exista
+            if (!Storage::disk('public')->exists($directory)) {
+                Storage::disk('public')->makeDirectory($directory);
+            }
 
-        return redirect()
-            ->route('admin.branding.index')
-            ->with('success', 'Favicon actualizado correctamente.');
+            // Borrar favicon anterior
+            $oldBranding = $this->brandingService->getBrandingForEdit();
+            if ($oldBranding && $oldBranding->favicon_path) {
+                Storage::disk('public')->delete($oldBranding->favicon_path);
+            }
+
+            // Guardar archivo
+            $path = Storage::disk('public')->putFileAs(
+                $directory,
+                $file,
+                $filename
+            );
+
+            if (!$path) {
+                throw new \Exception('No se pudo guardar el favicon.');
+            }
+
+            $this->brandingService->updateFavicon($path);
+
+            return redirect()
+                ->route('admin.branding.index')
+                ->with('success', 'Favicon actualizado correctamente.');
+
+        } catch (\Exception $e) {
+            \Log::error('Error subiendo favicon: ' . $e->getMessage());
+            return redirect()
+                ->route('admin.branding.index')
+                ->with('error', 'Error al guardar el favicon: ' . $e->getMessage());
+        }
     }
 
     /**
