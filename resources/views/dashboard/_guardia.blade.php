@@ -203,8 +203,8 @@
 
                                 <div id="guardia-card-{{ $staff->id }}" class="bg-slate-900 rounded-xl shadow-sm border border-slate-800 overflow-hidden flex flex-col h-full" data-card-user="{{ $staff->id }}" data-requires-confirmation="{{ (in_array($status, ['constituye','reemplazo'], true) || $staff->es_refuerzo || $repAsReplacement) ? '1' : '0' }}" data-is-confirmed="0">
                                     <div id="card-header-{{ $staff->id }}" class="{{ $statusHeaderClass }} text-white px-2 py-1.5 flex items-center justify-between">
-                                        <div class="min-w-0">
-                                            <div class="text-[12px] font-black truncate" title="{{ $staff->nombres }} {{ $staff->apellido_paterno }}">
+                                        <div class="min-w-0 flex-1">
+                                            <div class="text-xs font-bold text-white leading-tight" title="{{ $staff->nombres }} {{ $staff->apellido_paterno }}">
                                                 {{ strtoupper($staff->apellido_paterno ?: $staff->nombres) }}
                                             </div>
                                             @if($staff->es_jefe_guardia)
