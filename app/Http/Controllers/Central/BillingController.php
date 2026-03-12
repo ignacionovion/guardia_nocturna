@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Central;
 
 use App\Http\Controllers\Controller;
 use App\Models\Billing;
+use App\Models\Payment;
 use App\Models\Plan;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
@@ -36,20 +37,37 @@ class BillingController extends Controller
     }
 
     /**
-     * Mark billing as paid
+     * Mark billing as paid and create payment record
      */
-    public function markPaid(Billing $billing)
+    public function markPaid(Request $request, Billing $billing)
     {
-        $billing->marcarPagado();
+        $validated = $request->validate([
+            'fecha_pago' => ['required', 'date'],
+            'metodo_pago' => ['nullable', 'string', 'max' => 50'],
+        ]);
+
+        // Crear registro en payments
+        Payment::create([
+            'tenant_id' => $billing->tenant_id,
+            'monto' => $billing->monto,
+            'fecha_pago' => $validated['fecha_pago'],
+            'metodo_pago' => $validated['metodo_pago'],
+            'observacion' => 'Pago registrado manualmente desde panel admin',
+        ]);
+
+        // Actualizar billing con fecha de pago y recalcular vencimiento
+        $billing->marcarPagado($validated['fecha_pago']);
 
         // Reactivar tenant si estaba suspendido
         if ($billing->tenant && !$billing->tenant->activo) {
             $billing->tenant->update(['activo' => true]);
         }
 
+        $ciclo = $billing->billing_cycle === 'yearly' ? '1 año' : '1 mes';
+
         return redirect()
             ->route('central.billing.index')
-            ->with('success', 'Pago marcado como completado. Vencimiento extendido 1 mes.');
+            ->with('success', "Pago registrado. Vencimiento extendido {$ciclo}.");
     }
 
     /**
@@ -127,6 +145,24 @@ class BillingController extends Controller
     }
 
     /**
+     * Change billing cycle (monthly/yearly)
+     */
+    public function changeBillingCycle(Request $request, Billing $billing)
+    {
+        $validated = $request->validate([
+            'billing_cycle' => ['required', 'in:monthly,yearly'],
+        ]);
+
+        $billing->update(['billing_cycle' => $validated['billing_cycle']]);
+
+        $cicloLabel = $validated['billing_cycle'] === 'yearly' ? 'Anual' : 'Mensual';
+
+        return redirect()
+            ->route('central.billing.index')
+            ->with('success', "Ciclo de facturación cambiado a {$cicloLabel}.");
+    }
+
+    /**
      * Create billing record for tenant
      */
     public function create(Request $request)
@@ -141,6 +177,7 @@ class BillingController extends Controller
         Billing::create([
             'tenant_id' => $validated['tenant_id'],
             'plan' => $validated['plan'],
+            'billing_cycle' => $validated['billing_cycle'] ?? 'monthly',
             'monto' => $validated['monto'],
             'estado_pago' => 'pendiente',
             'fecha_vencimiento' => $validated['fecha_vencimiento'],

@@ -7,6 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Billing extends Model
 {
@@ -19,6 +20,7 @@ class Billing extends Model
     protected $fillable = [
         'tenant_id',
         'plan',
+        'billing_cycle',
         'monto',
         'estado_pago',
         'fecha_vencimiento',
@@ -29,6 +31,7 @@ class Billing extends Model
 
     protected $casts = [
         'monto' => 'decimal:2',
+        'billing_cycle' => 'string',
         'fecha_vencimiento' => 'date',
         'fecha_ultimo_pago' => 'date',
         'trial_ends_at' => 'date',
@@ -37,6 +40,11 @@ class Billing extends Model
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class, 'tenant_id');
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class, 'tenant_id', 'tenant_id');
     }
 
     /**
@@ -93,6 +101,30 @@ class Billing extends Model
     }
 
     /**
+     * Get cycle label
+     */
+    public function getCicloEtiqueta(): string
+    {
+        return match($this->billing_cycle) {
+            'monthly' => 'Mensual',
+            'yearly' => 'Anual',
+            default => 'Mensual',
+        };
+    }
+
+    /**
+     * Get cycle badge class
+     */
+    public function getCicloClase(): string
+    {
+        return match($this->billing_cycle) {
+            'monthly' => 'bg-blue-100 text-blue-800 border-blue-200',
+            'yearly' => 'bg-purple-100 text-purple-800 border-purple-200',
+            default => 'bg-blue-100 text-blue-800 border-blue-200',
+        };
+    }
+
+    /**
      * Check if billing is expired
      */
     public function estaVencido(): bool
@@ -101,14 +133,17 @@ class Billing extends Model
     }
 
     /**
-     * Mark as paid and extend due date
+     * Mark as paid and extend due date based on billing cycle
      */
-    public function marcarPagado(): void
+    public function marcarPagado(?string $fechaPago = null): void
     {
+        $fecha = $fechaPago ? \Carbon\Carbon::parse($fechaPago) : now();
+        $dias = $this->billing_cycle === 'yearly' ? 365 : 30;
+
         $this->update([
             'estado_pago' => 'pagado',
-            'fecha_ultimo_pago' => now(),
-            'fecha_vencimiento' => now()->addMonth(),
+            'fecha_ultimo_pago' => $fecha,
+            'fecha_vencimiento' => $fecha->copy()->addDays($dias),
         ]);
     }
 

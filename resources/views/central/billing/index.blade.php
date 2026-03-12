@@ -100,6 +100,7 @@
                     <tr>
                         <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Compañía</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Plan</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Ciclo</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Monto</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Vencimiento</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Estado</th>
@@ -116,6 +117,11 @@
                             </td>
                             <td class="px-4 py-3">
                                 <span class="capitalize text-sm">{{ $billing->plan }}</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border {{ $billing->getCicloClase() }}">
+                                    {{ $billing->getCicloEtiqueta() }}
+                                </span>
                             </td>
                             <td class="px-4 py-3">
                                 <span class="font-medium">${{ number_format($billing->monto, 0, ',', '.') }}</span>
@@ -140,25 +146,11 @@
                                 </div>
                             </td>
                             <td class="px-4 py-3">
-                                <div class="flex items-center gap-1">
-                                    @if($billing->estado_pago !== 'pagado')
-                                        <form action="{{ route('central.billing.mark-paid', $billing) }}" method="POST" class="inline">
-                                            @csrf
-                                            @method('PATCH')
-                                            <button type="submit" class="text-emerald-600 hover:text-emerald-700 p-1" title="Marcar pagado">
-                                                <i class="fas fa-check-circle"></i>
-                                            </button>
-                                        </form>
-                                    @endif
-
-                                    @if($billing->estado_pago !== 'suspendido')
-                                        <form action="{{ route('central.billing.suspend', $billing) }}" method="POST" class="inline" onsubmit="return confirm('¿Suspender tenant por falta de pago?')">
-                                            @csrf
-                                            @method('PATCH')
-                                            <button type="submit" class="text-red-600 hover:text-red-700 p-1" title="Suspender">
-                                                <i class="fas fa-ban"></i>
-                                            </button>
-                                        </form>
+                                <div class="flex items-center gap-1 flex-wrap">
+                                    @if($billing->estado_pago !== 'pagado' && $billing->estado_pago !== 'trial')
+                                        <button onclick="openPaymentModal({{ $billing->id }})" class="text-emerald-600 hover:text-emerald-700 p-1" title="Registrar pago">
+                                            <i class="fas fa-money-bill-wave"></i>
+                                        </button>
                                     @endif
 
                                     <button onclick="openExtendModal({{ $billing->id }})" class="text-blue-600 hover:text-blue-700 p-1" title="Extender vencimiento">
@@ -169,15 +161,29 @@
                                         <i class="fas fa-exchange-alt"></i>
                                     </button>
 
+                                    <button onclick="openCycleModal({{ $billing->id }}, '{{ $billing->billing_cycle }}')" class="text-cyan-600 hover:text-cyan-700 p-1" title="Cambiar ciclo">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
+
                                     <button onclick="openObservationModal({{ $billing->id }}, '{{ addslashes($billing->observacion) }}')" class="text-slate-600 hover:text-slate-700 p-1" title="Editar observación">
                                         <i class="fas fa-edit"></i>
                                     </button>
+
+                                    @if($billing->estado_pago !== 'suspendido')
+                                        <form action="{{ route('central.billing.suspend', $billing) }}" method="POST" class="inline" onsubmit="return confirm('¿Suspender tenant por falta de pago?')">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="text-red-600 hover:text-red-700 p-1" title="Suspender">
+                                                <i class="fas fa-ban"></i>
+                                            </button>
+                                        </form>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-4 py-8 text-center text-slate-500">
+                            <td colspan="8" class="px-4 py-8 text-center text-slate-500">
                                 No hay registros de facturación.
                             </td>
                         </tr>
@@ -231,6 +237,71 @@
                 </button>
                 <button type="submit" class="px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800">
                     Crear
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- Payment Modal --}}
+<div id="payment-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl max-w-md w-full p-6">
+        <h3 class="text-lg font-semibold mb-4">Registrar Pago</h3>
+        <form id="payment-form" method="POST">
+            @csrf
+            @method('PATCH')
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Fecha de Pago</label>
+                    <input type="date" name="fecha_pago" class="w-full rounded-lg border-slate-300" required value="{{ date('Y-m-d') }}">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Método de Pago</label>
+                    <select name="metodo_pago" class="w-full rounded-lg border-slate-300">
+                        <option value="">Seleccionar...</option>
+                        <option value="transferencia">Transferencia</option>
+                        <option value="efectivo">Efectivo</option>
+                        <option value="tarjeta">Tarjeta</option>
+                        <option value="cheque">Cheque</option>
+                        <option value="webpay">Webpay</option>
+                        <option value="paypal">PayPal</option>
+                        <option value="otro">Otro</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex justify-end gap-3 mt-6">
+                <button type="button" onclick="closePaymentModal()" class="px-4 py-2 text-slate-600 hover:text-slate-800">
+                    Cancelar
+                </button>
+                <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">
+                    <i class="fas fa-check mr-2"></i>Registrar Pago
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- Billing Cycle Modal --}}
+<div id="cycle-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl max-w-sm w-full p-6">
+        <h3 class="text-lg font-semibold mb-4">Cambiar Ciclo de Facturación</h3>
+        <form id="cycle-form" method="POST">
+            @csrf
+            @method('PATCH')
+            <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Ciclo</label>
+                <select name="billing_cycle" id="cycle-select" class="w-full rounded-lg border-slate-300" required>
+                    <option value="monthly">Mensual (30 días)</option>
+                    <option value="yearly">Anual (365 días)</option>
+                </select>
+                <p class="text-xs text-slate-500 mt-1">Al cambiar el ciclo, el próximo vencimiento se recalculará automáticamente.</p>
+            </div>
+            <div class="flex justify-end gap-3 mt-6">
+                <button type="button" onclick="closeCycleModal()" class="px-4 py-2 text-slate-600 hover:text-slate-800">
+                    Cancelar
+                </button>
+                <button type="submit" class="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700">
+                    Cambiar
                 </button>
             </div>
         </form>
@@ -315,6 +386,25 @@
 </div>
 
 <script>
+function openPaymentModal(billingId) {
+    document.getElementById('payment-form').action = `/admin/billing/${billingId}/mark-paid`;
+    document.getElementById('payment-modal').classList.remove('hidden');
+}
+
+function closePaymentModal() {
+    document.getElementById('payment-modal').classList.add('hidden');
+}
+
+function openCycleModal(billingId, currentCycle) {
+    document.getElementById('cycle-form').action = `/admin/billing/${billingId}/billing-cycle`;
+    document.getElementById('cycle-select').value = currentCycle || 'monthly';
+    document.getElementById('cycle-modal').classList.remove('hidden');
+}
+
+function closeCycleModal() {
+    document.getElementById('cycle-modal').classList.add('hidden');
+}
+
 function openExtendModal(billingId) {
     document.getElementById('extend-form').action = `/admin/billing/${billingId}/extend`;
     document.getElementById('extend-modal').classList.remove('hidden');

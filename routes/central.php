@@ -83,5 +83,6 @@ Route::middleware('auth:central')->prefix('admin')->group(function () {
     Route::patch('billing/{billing}/suspend', [BillingController::class, 'suspend'])->name('central.billing.suspend');
     Route::patch('billing/{billing}/extend', [BillingController::class, 'extend'])->name('central.billing.extend');
     Route::patch('billing/{billing}/change-plan', [BillingController::class, 'changePlan'])->name('central.billing.change-plan');
+    Route::patch('billing/{billing}/billing-cycle', [BillingController::class, 'changeBillingCycle'])->name('central.billing.billing-cycle');
     Route::patch('billing/{billing}/observation', [BillingController::class, 'updateObservation'])->name('central.billing.observation');
 });

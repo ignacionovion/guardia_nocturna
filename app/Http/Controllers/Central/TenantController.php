@@ -112,6 +112,7 @@ class TenantController extends Controller
                 $billing = Billing::create([
                     'tenant_id' => $tenant->id,
                     'plan' => $validated['plan'],
+                    'billing_cycle' => 'monthly',
                     'monto' => $planPrice,
                     'estado_pago' => $isTrial ? 'trial' : 'pendiente',
                     'fecha_vencimiento' => $isTrial ? null : now()->addDays(30),
