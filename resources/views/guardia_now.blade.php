@@ -1,311 +1,468 @@
-@extends('layouts.modern')
+@extends('layouts.now-fullscreen')
 
-@section('content')
-<div class="w-full">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-200 dark:border-slate-700 pb-6">
-        <div>
-            <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Guardia</div>
-            <div class="text-3xl font-extrabold text-slate-900 tracking-tight flex items-center uppercase">
-                <i class="fas fa-bolt mr-3 text-red-700"></i>
-                Guardiapp NOW
-            </div>
-            <div class="text-sm text-slate-600 dark:text-slate-400 mt-1">Vista en vivo del estado de la guardia constituida.</div>
-        </div>
+@section('title', 'GuardiAPP NOW - ' . branding()->nombre_empresa)
 
-        <div class="flex items-center gap-2">
-            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 text-xs font-extrabold">
-                <span class="w-2 h-2 rounded-full bg-emerald-600" id="now-live-dot"></span>
-                <span id="now-last-update">Actualizando...</span>
-            </div>
-            
-            {{-- Snapshot buttons --}}
-            <a href="{{ route('guardia.now.snapshot.pdf') }}" 
-               class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 text-xs font-extrabold hover:bg-blue-100 transition-colors"
-               target="_blank">
-                <i class="fas fa-file-pdf"></i>
-                <span>Descargar PDF</span>
-            </a>
-            
-            <button type="button" 
-                    onclick="sendSnapshotEmail()"
-                    class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 text-xs font-extrabold hover:bg-emerald-100 transition-colors">
-                <i class="fas fa-envelope"></i>
-                <span>Enviar por Email</span>
-            </button>
-        </div>
+@section('header-center')
+<div class="flex items-center gap-6">
+    {{-- Status Badge --}}
+    <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-live" id="now-live-dot"></span>
+        <span class="text-xs font-bold text-emerald-700 dark:text-emerald-400" id="now-last-update">Conectando...</span>
     </div>
-
-    <div class="mt-6">
-        <div id="now-shift" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm overflow-hidden">
-            <div class="p-6 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
-                <div class="text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">Asistencia Registrada</div>
-                <div class="text-sm text-slate-600 dark:text-slate-400 mt-1">Información del turno activo.</div>
-            </div>
-            <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
-                    <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Estado</div>
-                    <div class="mt-1 text-lg font-extrabold text-slate-900" id="now-shift-status">—</div>
-                </div>
-                <div class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
-                    <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Guardia Nocturna</div>
-                    <div class="mt-1 text-lg font-extrabold text-slate-900" id="now-shift-leader">—</div>
-                </div>
-                <div class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
-                    <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Hora servidor</div>
-                    <div class="mt-1 text-lg font-extrabold text-slate-900" id="now-server-time">—</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="mt-6 bg-white dark:bg-slate-900 rounded-2xl border border-teal-900/20 shadow-sm overflow-hidden">
-            <div class="p-6 border-b border-teal-900/20 bg-sky-100">
-                <div class="text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">Dotación</div>
-                <div class="text-sm text-slate-600 dark:text-slate-400 mt-1">Estados actuales de los bomberos.</div>
-            </div>
-
-            <div class="p-6">
-                <div id="now-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3"></div>
-            </div>
-        </div>
+    
+    {{-- Server Time --}}
+    <div class="hidden lg:flex items-center gap-2 text-sm">
+        <i class="fas fa-server text-slate-400 text-xs"></i>
+        <span class="font-mono font-medium text-slate-600 dark:text-slate-400" id="now-server-time">--:--:--</span>
     </div>
 </div>
 @endsection
 
+@section('content')
+<div class="max-w-[1800px] mx-auto space-y-6">
+    {{-- Header con acciones --}}
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center shadow-lg shadow-red-500/25">
+                    <i class="fas fa-bolt text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">GuardiAPP NOW</h1>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">Panel operativo en tiempo real</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex flex-wrap items-center gap-2">
+            <a href="{{ route('guardia.now.snapshot.pdf') }}" 
+               class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-all shadow-sm"
+               target="_blank">
+                <i class="fas fa-file-pdf text-red-500"></i>
+                <span>Exportar PDF</span>
+            </a>
+            
+            <button type="button" 
+                    onclick="sendSnapshotEmail()"
+                    id="btn-send-email"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-semibold hover:bg-slate-800 dark:hover:bg-slate-100 transition-all shadow-sm">
+                <i class="fas fa-paper-plane"></i>
+                <span>Enviar por Email</span>
+            </button>
+        </div>
+    </div>
+    
+    {{-- KPIs Row --}}
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Estado</p>
+                    <p class="mt-1 text-xl font-black text-slate-900 dark:text-white" id="now-shift-status">—</p>
+                </div>
+                <div class="w-11 h-11 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+                    <i class="fas fa-shield-halved text-emerald-600 dark:text-emerald-400"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Guardia</p>
+                    <p class="mt-1 text-xl font-black text-slate-900 dark:text-white truncate" id="now-shift-leader">—</p>
+                </div>
+                <div class="w-11 h-11 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                    <i class="fas fa-users text-blue-600 dark:text-blue-400"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Presentes</p>
+                    <p class="mt-1 text-xl font-black text-emerald-600 dark:text-emerald-400" id="now-count-present">0</p>
+                </div>
+                <div class="w-11 h-11 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+                    <i class="fas fa-user-check text-emerald-600 dark:text-emerald-400"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total</p>
+                    <p class="mt-1 text-xl font-black text-slate-900 dark:text-white" id="now-count-total">0</p>
+                </div>
+                <div class="w-11 h-11 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                    <i class="fas fa-users-line text-slate-600 dark:text-slate-400"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {{-- Dotación Grid --}}
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
+                    <i class="fas fa-id-badge text-white text-sm"></i>
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white">Dotación Actual</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Estado en tiempo real del personal</p>
+                </div>
+            </div>
+            
+            {{-- Filter Pills --}}
+            <div class="hidden md:flex items-center gap-2" id="filter-pills">
+                <button onclick="filterGrid('all')" class="filter-pill active px-3 py-1.5 rounded-lg text-xs font-bold transition-all" data-filter="all">
+                    Todos
+                </button>
+                <button onclick="filterGrid('present')" class="filter-pill px-3 py-1.5 rounded-lg text-xs font-bold transition-all" data-filter="present">
+                    Presentes
+                </button>
+                <button onclick="filterGrid('absent')" class="filter-pill px-3 py-1.5 rounded-lg text-xs font-bold transition-all" data-filter="absent">
+                    Ausentes
+                </button>
+            </div>
+        </div>
+        
+        <div class="p-6">
+            <div id="now-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4"></div>
+            
+            {{-- Empty State --}}
+            <div id="now-empty" class="hidden py-16 text-center">
+                <div class="w-16 h-16 mx-auto rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
+                    <i class="fas fa-users-slash text-2xl text-slate-400"></i>
+                </div>
+                <p class="text-slate-500 dark:text-slate-400 font-medium">No hay personal registrado</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .filter-pill {
+        background: transparent;
+        color: #64748b;
+        border: 1px solid #e2e8f0;
+    }
+    .dark .filter-pill {
+        border-color: #334155;
+        color: #94a3b8;
+    }
+    .filter-pill:hover {
+        background: #f1f5f9;
+        border-color: #cbd5e1;
+    }
+    .dark .filter-pill:hover {
+        background: #1e293b;
+        border-color: #475569;
+    }
+    .filter-pill.active {
+        background: #0f172a;
+        color: white;
+        border-color: #0f172a;
+    }
+    .dark .filter-pill.active {
+        background: white;
+        color: #0f172a;
+        border-color: white;
+    }
+    
+    .person-card {
+        transition: all 0.2s ease;
+    }
+    .person-card:hover {
+        transform: translateY(-2px);
+    }
+</style>
+@endsection
+
 @push('scripts')
 <script>
-    (function () {
-        const grid = document.getElementById('now-grid');
-        const lastUpdate = document.getElementById('now-last-update');
-        const liveDot = document.getElementById('now-live-dot');
+(function () {
+    const grid = document.getElementById('now-grid');
+    const emptyState = document.getElementById('now-empty');
+    const lastUpdate = document.getElementById('now-last-update');
+    const footerUpdate = document.getElementById('footer-last-update');
+    const liveDot = document.getElementById('now-live-dot');
+    const headerIndicator = document.getElementById('header-live-indicator');
 
-        const shiftStatus = document.getElementById('now-shift-status');
-        const shiftLeader = document.getElementById('now-shift-leader');
-        const serverTime = document.getElementById('now-server-time');
+    const shiftStatus = document.getElementById('now-shift-status');
+    const shiftLeader = document.getElementById('now-shift-leader');
+    const serverTime = document.getElementById('now-server-time');
+    const countPresent = document.getElementById('now-count-present');
+    const countTotal = document.getElementById('now-count-total');
 
-        function fmtTime(iso) {
-            if (!iso) return '—';
-            const d = new Date(iso);
-            if (Number.isNaN(d.getTime())) return '—';
-            return d.toLocaleString();
+    let allBomberos = [];
+    let currentFilter = 'all';
+
+    function fmtTime(iso) {
+        if (!iso) return '—';
+        const d = new Date(iso);
+        if (Number.isNaN(d.getTime())) return '—';
+        return d.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+
+    function statusConfig(status, enTurno, confirmado) {
+        const s = (status || 'constituye').toLowerCase();
+        const isPresent = ['constituye', 'reemplazo'].includes(s);
+        
+        const configs = {
+            'constituye': { 
+                label: 'CONSTITUYE', 
+                badgeCls: confirmado 
+                    ? 'bg-emerald-600 text-white' 
+                    : (enTurno ? 'bg-emerald-500 text-white' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400'),
+                cardBorder: confirmado ? 'border-emerald-500' : (enTurno ? 'border-emerald-400' : 'border-slate-200 dark:border-slate-700'),
+                cardBg: confirmado ? 'bg-emerald-50 dark:bg-emerald-900/20' : 'bg-white dark:bg-slate-800',
+                isPresent: true
+            },
+            'reemplazo': { 
+                label: 'REEMPLAZO', 
+                badgeCls: 'bg-violet-500 text-white',
+                cardBorder: confirmado ? 'border-emerald-500' : 'border-violet-400',
+                cardBg: confirmado ? 'bg-emerald-50 dark:bg-emerald-900/20' : 'bg-violet-50 dark:bg-violet-900/20',
+                isPresent: true
+            },
+            'permiso': { 
+                label: 'PERMISO', 
+                badgeCls: 'bg-amber-500 text-white',
+                cardBorder: 'border-amber-300 dark:border-amber-700',
+                cardBg: 'bg-amber-50 dark:bg-amber-900/20',
+                isPresent: false
+            },
+            'ausente': { 
+                label: 'AUSENTE', 
+                badgeCls: 'bg-slate-500 text-white',
+                cardBorder: 'border-slate-300 dark:border-slate-600',
+                cardBg: 'bg-slate-50 dark:bg-slate-800/50',
+                isPresent: false
+            },
+            'licencia': { 
+                label: 'LICENCIA', 
+                badgeCls: 'bg-blue-500 text-white',
+                cardBorder: 'border-blue-300 dark:border-blue-700',
+                cardBg: 'bg-blue-50 dark:bg-blue-900/20',
+                isPresent: false
+            },
+            'falta': { 
+                label: 'FALTA', 
+                badgeCls: 'bg-rose-500 text-white',
+                cardBorder: 'border-rose-300 dark:border-rose-700',
+                cardBg: 'bg-rose-50 dark:bg-rose-900/20',
+                isPresent: false
+            },
+        };
+        
+        return configs[s] || { 
+            label: s.toUpperCase(), 
+            badgeCls: 'bg-slate-500 text-white',
+            cardBorder: 'border-slate-200 dark:border-slate-700',
+            cardBg: 'bg-white dark:bg-slate-800',
+            isPresent: false
+        };
+    }
+
+    function renderCard(b) {
+        const config = statusConfig(b.estado_asistencia, b.en_turno, b.confirmado);
+        
+        // Tags
+        const tags = [];
+        if (b.confirmado) tags.push({ label: 'Confirmado', cls: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400' });
+        if (b.es_jefe_guardia) tags.push({ label: 'Jefe', cls: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-400' });
+        if (b.es_refuerzo) tags.push({ label: 'Refuerzo', cls: 'bg-sky-100 text-sky-700 dark:bg-sky-900/50 dark:text-sky-400' });
+        if (b.es_permanente) tags.push({ label: 'Permanente', cls: 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300' });
+        
+        // Specialties
+        const specs = [];
+        if (b.es_conductor) specs.push({ icon: 'fa-car', label: 'Conductor', cls: 'text-blue-600 dark:text-blue-400' });
+        if (b.es_operador_rescate) specs.push({ icon: 'fa-life-ring', label: 'Rescate', cls: 'text-orange-600 dark:text-orange-400' });
+        if (b.es_asistente_trauma) specs.push({ icon: 'fa-heart-pulse', label: 'Trauma', cls: 'text-red-600 dark:text-red-400' });
+
+        // Service years
+        let serviceYears = '';
+        if (b.service_years !== null && b.service_years !== undefined) {
+            serviceYears = b.service_years + (b.service_years === 1 ? ' año' : ' años');
         }
 
-        function statusBadge(status, enTurno, confirmado) {
-            const s = (status || 'constituye').toLowerCase();
-            
-            // Colores más vibrantes y diferenciados
-            const badges = {
-                'constituye': { 
-                    label: 'CONSTITUYE', 
-                    cls: confirmado ? 'bg-emerald-600 text-white border-emerald-700' : (enTurno ? 'bg-emerald-500 text-white border-emerald-600' : 'bg-emerald-100 text-emerald-800 border-emerald-300'),
-                    cardCls: confirmado ? 'border-emerald-400 bg-emerald-50/50' : (enTurno ? 'border-emerald-300 bg-emerald-50/50' : 'border-slate-200 dark:border-slate-700 bg-white')
-                },
-                'reemplazo': { 
-                    label: 'REEMPLAZO', 
-                    cls: 'bg-purple-500 text-white border-purple-600',
-                    cardCls: confirmado ? 'border-emerald-400 bg-emerald-50/50' : 'border-purple-300 bg-purple-50/50'
-                },
-                'permiso': { 
-                    label: 'PERMISO', 
-                    cls: 'bg-amber-500 text-white border-amber-600',
-                    cardCls: 'border-amber-300 bg-amber-50/50'
-                },
-                'ausente': { 
-                    label: 'AUSENTE', 
-                    cls: 'bg-slate-50 dark:bg-slate-8000 text-white border-slate-600',
-                    cardCls: 'border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800'
-                },
-                'licencia': { 
-                    label: 'LICENCIA', 
-                    cls: 'bg-blue-500 text-white border-blue-600',
-                    cardCls: 'border-blue-300 bg-blue-50/50'
-                },
-                'falta': { 
-                    label: 'FALTA', 
-                    cls: 'bg-rose-500 text-white border-rose-600',
-                    cardCls: 'border-rose-300 bg-rose-50/50'
-                },
-            };
-            
-            return badges[s] || { 
-                label: s.toUpperCase(), 
-                cls: 'bg-slate-50 dark:bg-slate-8000 text-white border-slate-600',
-                cardCls: 'border-slate-200 dark:border-slate-700 bg-white'
-            };
+        // Replacement info
+        let replacementHtml = '';
+        if (b.es_reemplazante && b.reemplaza_a) {
+            replacementHtml = `
+                <div class="mt-3 p-2 rounded-lg bg-violet-100 dark:bg-violet-900/30 border border-violet-200 dark:border-violet-800">
+                    <span class="text-[10px] font-bold text-violet-600 dark:text-violet-400 uppercase">Reemplaza a:</span>
+                    <span class="text-xs font-semibold text-violet-800 dark:text-violet-300 ml-1">${b.reemplaza_a.nombre}</span>
+                </div>`;
+        }
+        if (b.es_reemplazado && b.reemplazado_por) {
+            replacementHtml = `
+                <div class="mt-3 p-2 rounded-lg bg-amber-100 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800">
+                    <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase">Reemplazado por:</span>
+                    <span class="text-xs font-semibold text-amber-800 dark:text-amber-300 ml-1">${b.reemplazado_por.nombre}</span>
+                </div>`;
         }
 
-        function pill(label, cls) {
-            return `<span class="inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-black uppercase tracking-wider ${cls}">${label}</span>`;
-        }
-
-        function specialtyPill(label, icon, colorClass) {
-            return `<span class="inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider ${colorClass}">
-                ${icon ? `<i class="fas ${icon} text-[8px]"></i>` : ''}${label}
-            </span>`;
-        }
-
-        function render(payload) {
-            if (!payload || typeof payload !== 'object') return;
-
-            serverTime.textContent = fmtTime(payload.server_time);
-
-            if (!payload.shift) {
-                shiftStatus.textContent = 'No constituida';
-                shiftLeader.textContent = '—';
-            } else {
-                shiftStatus.textContent = (payload.shift.status || 'active').toUpperCase();
-                shiftLeader.textContent = payload.shift.leader || '—';
-            }
-
-            const bomberos = Array.isArray(payload.bomberos) ? payload.bomberos : [];
-            grid.innerHTML = bomberos.map((b) => {
-                const badge = statusBadge(b.estado_asistencia, b.en_turno, b.confirmado);
-
-                const flags = [];
-                
-                if (b.confirmado) {
-                    flags.push(pill('CONFIRMADO', 'bg-emerald-100 text-emerald-800 border-emerald-300'));
-                } else if (b.en_turno) {
-                    flags.push(pill('EN TURNO', 'bg-sky-100 text-sky-800 border-sky-300'));
-                } else {
-                    flags.push(pill('PENDIENTE', 'bg-amber-100 text-amber-700 border-amber-300'));
-                }
-                
-                if (b.es_jefe_guardia) flags.push(pill('JEFE', 'bg-indigo-500 text-white border-indigo-600'));
-                if (b.es_refuerzo) flags.push(pill('REFUERZO', 'bg-sky-500 text-white border-sky-600'));
-                if (b.es_cambio) flags.push(pill('CAMBIO', 'bg-violet-100 text-violet-800 border-violet-300'));
-                if (b.es_sancion) flags.push(pill('SANCIÓN', 'bg-rose-500 text-white border-rose-600'));
-                if (b.fuera_de_servicio) flags.push(pill('FUERA SERVICIO', 'bg-slate-50 dark:bg-slate-8000 text-white border-slate-600'));
-                if (b.es_permanente) flags.push(pill('PERMANENTE', 'bg-emerald-100 text-emerald-800 border-emerald-300'));
-
-                // Especialidades técnicas
-                const specialties = [];
-                if (b.es_conductor) specialties.push(specialtyPill('COND', 'fa-car', 'bg-blue-100 text-blue-700 border-blue-300'));
-                if (b.es_operador_rescate) specialties.push(specialtyPill('R', '', 'bg-orange-100 text-orange-700 border-orange-300'));
-                if (b.es_asistente_trauma) specialties.push(specialtyPill('A.T', '', 'bg-red-100 text-red-700 border-red-300'));
-
-                // Años de servicio
-                let serviceText = '';
-                if (b.service_years !== null) {
-                    const yearsLabel = b.service_years === 1 ? 'año' : 'años';
-                    const monthsLabel = b.service_months === 1 ? 'mes' : 'meses';
-                    if (b.service_months > 0) {
-                        serviceText = `${b.service_years} ${yearsLabel} ${b.service_months} ${monthsLabel}`;
-                    } else {
-                        serviceText = `${b.service_years} ${yearsLabel}`;
-                    }
-                }
-
-                // Información de reemplazo
-                let replacementInfo = '';
-                if (b.es_reemplazante && b.reemplaza_a) {
-                    replacementInfo = `
-                        <div class="mt-2 p-2 rounded-lg bg-purple-100 border border-purple-200">
-                            <div class="text-[10px] font-black text-purple-600 uppercase tracking-wider">REEMPLAZA A</div>
-                            <div class="text-xs font-bold text-purple-900">${b.reemplaza_a.nombre}</div>
-                        </div>
-                    `;
-                }
-                if (b.es_reemplazado && b.reemplazado_por) {
-                    replacementInfo = `
-                        <div class="mt-2 p-2 rounded-lg bg-amber-100 border border-amber-200">
-                            <div class="text-[10px] font-black text-amber-600 uppercase tracking-wider">REEMPLAZADO POR</div>
-                            <div class="text-xs font-bold text-amber-900">${b.reemplazado_por.nombre}</div>
-                        </div>
-                    `;
-                }
-
-                return `
-                    <div class="rounded-xl border-2 ${badge.cardCls} p-4 hover:shadow-md transition-all">
-                        <div class="flex items-start justify-between gap-3">
-                            <div class="min-w-0 flex-1">
-                                <div class="text-sm font-extrabold text-slate-900 truncate uppercase">${(b.apellido_paterno || '—')}</div>
-                                <div class="text-xs text-slate-600 dark:text-slate-400 font-semibold truncate">${(b.nombres || '')}</div>
-                                ${b.cargo_texto ? `<div class="mt-0.5 text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">${b.cargo_texto}</div>` : ''}
-                            </div>
-                            <div class="shrink-0">
-                                <span class="inline-flex items-center rounded-lg border px-2 py-1 text-[10px] font-black uppercase tracking-wider ${badge.cls}">${badge.label}</span>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-3 flex flex-wrap gap-1">${flags.join('')}</div>
-                        
-                        ${specialties.length > 0 ? `<div class="mt-2 flex flex-wrap gap-1">${specialties.join('')}</div>` : ''}
-                        
-                        <div class="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700/60 grid grid-cols-2 gap-2 text-xs">
-                            <div>
-                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Móvil</span>
-                                <div class="font-bold text-slate-700 dark:text-slate-300">${b.portatil || '—'}</div>
-                            </div>
-                            ${serviceText ? `
-                            <div>
-                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Servicio</span>
-                                <div class="font-bold text-slate-700 dark:text-slate-300">${serviceText}</div>
-                            </div>
-                            ` : ''}
-                        </div>
-                        
-                        ${replacementInfo}
+        return `
+            <div class="person-card rounded-xl border-2 ${config.cardBorder} ${config.cardBg} p-4 shadow-sm" data-present="${config.isPresent}">
+                <div class="flex items-start justify-between gap-3">
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm font-bold text-slate-900 dark:text-white truncate">${b.apellido_paterno || '—'}</p>
+                        <p class="text-xs text-slate-600 dark:text-slate-400 truncate">${b.nombres || ''}</p>
+                        ${b.cargo_texto ? `<p class="mt-0.5 text-[10px] font-semibold text-slate-500 dark:text-slate-500 uppercase tracking-wide">${b.cargo_texto}</p>` : ''}
                     </div>
-                `;
-            }).join('');
+                    <span class="shrink-0 px-2 py-1 rounded-lg text-[10px] font-bold uppercase ${config.badgeCls}">${config.label}</span>
+                </div>
+                
+                ${tags.length > 0 ? `
+                <div class="mt-3 flex flex-wrap gap-1">
+                    ${tags.map(t => `<span class="px-2 py-0.5 rounded-md text-[10px] font-semibold ${t.cls}">${t.label}</span>`).join('')}
+                </div>` : ''}
+                
+                ${specs.length > 0 ? `
+                <div class="mt-2 flex items-center gap-3">
+                    ${specs.map(s => `<span class="flex items-center gap-1 text-xs ${s.cls}" title="${s.label}"><i class="fas ${s.icon} text-[10px]"></i></span>`).join('')}
+                </div>` : ''}
+                
+                <div class="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700 grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                        <span class="text-[10px] font-semibold text-slate-400 uppercase">Móvil</span>
+                        <p class="font-semibold text-slate-700 dark:text-slate-300">${b.portatil || '—'}</p>
+                    </div>
+                    ${serviceYears ? `
+                    <div>
+                        <span class="text-[10px] font-semibold text-slate-400 uppercase">Servicio</span>
+                        <p class="font-semibold text-slate-700 dark:text-slate-300">${serviceYears}</p>
+                    </div>` : ''}
+                </div>
+                
+                ${replacementHtml}
+            </div>
+        `;
+    }
+
+    function renderGrid() {
+        let filtered = allBomberos;
+        if (currentFilter === 'present') {
+            filtered = allBomberos.filter(b => ['constituye', 'reemplazo'].includes((b.estado_asistencia || '').toLowerCase()));
+        } else if (currentFilter === 'absent') {
+            filtered = allBomberos.filter(b => !['constituye', 'reemplazo'].includes((b.estado_asistencia || '').toLowerCase()));
         }
 
-        async function tick() {
-            try {
-                liveDot.classList.remove('bg-rose-600');
-                liveDot.classList.add('bg-emerald-600');
+        if (filtered.length === 0) {
+            grid.innerHTML = '';
+            emptyState.classList.remove('hidden');
+        } else {
+            emptyState.classList.add('hidden');
+            grid.innerHTML = filtered.map(renderCard).join('');
+        }
+    }
 
-                const res = await fetch('{{ route('guardia.now.data') }}', {
-                    headers: { 'Accept': 'application/json' },
-                    credentials: 'same-origin'
-                });
+    window.filterGrid = function(filter) {
+        currentFilter = filter;
+        document.querySelectorAll('.filter-pill').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.filter === filter);
+        });
+        renderGrid();
+    };
 
-                if (!res.ok) throw new Error('bad_status');
-                const json = await res.json();
-                render(json);
+    function render(payload) {
+        if (!payload || typeof payload !== 'object') return;
 
-                lastUpdate.textContent = 'Actualizado: ' + new Date().toLocaleTimeString();
-            } catch (e) {
-                liveDot.classList.remove('bg-emerald-600');
-                liveDot.classList.add('bg-rose-600');
-                lastUpdate.textContent = 'Sin conexión';
+        // Server time
+        if (serverTime) serverTime.textContent = fmtTime(payload.server_time);
+
+        // Shift info
+        if (!payload.shift) {
+            if (shiftStatus) shiftStatus.textContent = 'Sin turno';
+            if (shiftLeader) shiftLeader.textContent = '—';
+        } else {
+            if (shiftStatus) shiftStatus.textContent = (payload.shift.status || 'Activo').toUpperCase();
+            if (shiftLeader) shiftLeader.textContent = payload.shift.leader || '—';
+        }
+
+        // Bomberos
+        allBomberos = Array.isArray(payload.bomberos) ? payload.bomberos : [];
+        
+        // Counts
+        const presentCount = allBomberos.filter(b => ['constituye', 'reemplazo'].includes((b.estado_asistencia || '').toLowerCase())).length;
+        if (countPresent) countPresent.textContent = presentCount;
+        if (countTotal) countTotal.textContent = allBomberos.length;
+
+        renderGrid();
+    }
+
+    async function tick() {
+        try {
+            if (liveDot) {
+                liveDot.classList.remove('bg-rose-500');
+                liveDot.classList.add('bg-emerald-500');
             }
-        }
-
-        tick();
-        setInterval(tick, 10000);
-
-        // Send snapshot email function
-        async function sendSnapshotEmail() {
-            const btn = document.querySelector('button[onclick="sendSnapshotEmail()"]');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
-            btn.disabled = true;
-
-            try {
-                const res = await fetch('{{ route('guardia.now.snapshot.email') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    },
-                    credentials: 'same-origin'
-                });
-
-                const json = await res.json();
-
-                if (json.success) {
-                    alert('✓ ' + json.message);
-                } else {
-                    alert('✗ ' + (json.error || 'Error al enviar'));
-                }
-            } catch (e) {
-                alert('✗ Error de conexión al enviar email');
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
+            if (headerIndicator) {
+                headerIndicator.classList.remove('bg-rose-500');
+                headerIndicator.classList.add('bg-emerald-500');
             }
+
+            const res = await fetch('{{ route('guardia.now.data') }}', {
+                headers: { 'Accept': 'application/json' },
+                credentials: 'same-origin'
+            });
+
+            if (!res.ok) throw new Error('bad_status');
+            const json = await res.json();
+            render(json);
+
+            const timeStr = new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+            if (lastUpdate) lastUpdate.textContent = 'En vivo · ' + timeStr;
+            if (footerUpdate) footerUpdate.textContent = 'Última actualización: ' + timeStr;
+        } catch (e) {
+            if (liveDot) {
+                liveDot.classList.remove('bg-emerald-500');
+                liveDot.classList.add('bg-rose-500');
+            }
+            if (headerIndicator) {
+                headerIndicator.classList.remove('bg-emerald-500');
+                headerIndicator.classList.add('bg-rose-500');
+            }
+            if (lastUpdate) lastUpdate.textContent = 'Sin conexión';
         }
-    })();
+    }
+
+    tick();
+    setInterval(tick, 10000);
+
+    // Send snapshot email
+    window.sendSnapshotEmail = async function() {
+        const btn = document.getElementById('btn-send-email');
+        if (!btn) return;
+        
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+        btn.disabled = true;
+
+        try {
+            const res = await fetch('{{ route('guardia.now.snapshot.email') }}', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                },
+                credentials: 'same-origin'
+            });
+
+            const json = await res.json();
+            alert(json.success ? '✓ ' + json.message : '✗ ' + (json.error || 'Error al enviar'));
+        } catch (e) {
+            alert('✗ Error de conexión');
+        } finally {
+            btn.innerHTML = originalHtml;
+            btn.disabled = false;
+        }
+    };
+})();
 </script>
 @endpush

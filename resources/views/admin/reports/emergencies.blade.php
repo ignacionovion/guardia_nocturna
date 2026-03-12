@@ -1,22 +1,14 @@
 @extends('layouts.modern')
 
+@section('title', 'Emergencias - ' . branding()->nombre_empresa)
+
 @section('content')
-<div class="container mx-auto px-4 py-6 max-w-7xl">
-
-    {{-- HEADER --}}
-    <div class="mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <div>
-            <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center uppercase">
-                <i class="fas fa-chart-line mr-3 text-red-600"></i> Reportes
-            </h1>
-            <p class="text-slate-500 dark:text-slate-400 mt-1 text-sm">Estadísticas de asistencia, permisos, reemplazos y conductores</p>
-        </div>
-    </div>
-
+<div class="space-y-6">
+    @include('admin.reports._header')
     @include('admin.reports._tabs')
 
-    {{-- FILTROS CON SELECTS ESTANDARIZADOS --}}
-    <div class="bg-white dark:bg-slate-900 p-5 border border-t-0 border-slate-200 dark:border-slate-700 mb-6 rounded-b-lg shadow-sm">
+    {{-- Filtros --}}
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
         <form action="{{ route('admin.reports.emergencias') }}" method="GET" class="flex flex-wrap items-end gap-4">
             
             {{-- Select Mes - ESTANDARIZADO --}}
