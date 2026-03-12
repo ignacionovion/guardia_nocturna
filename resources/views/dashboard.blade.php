@@ -571,9 +571,8 @@
                                         });
                                     </script>
                                 @endif
-                            @endif
-                        </div>
-                    </div>
+                        @endif
+                    </x-ui.card>
 
                     <div class="bg-slate-900 rounded-2xl shadow-sm border border-slate-800 overflow-hidden">
                         <div class="flex items-center justify-between px-5 py-4 border-b border-slate-800 bg-slate-950">
