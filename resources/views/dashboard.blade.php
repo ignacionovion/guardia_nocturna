@@ -762,6 +762,9 @@
                         </div>
 
                         <!-- Lista Detallada de Reemplazos Activos -->
+                        <!-- Lista Detallada de Reemplazos Activos -->
+                        <!-- Lista Detallada de Reemplazos Activos -->
+                        <!-- Lista Detallada de Reemplazos Activos -->
                         @if($dashboardActiveReplacements->isNotEmpty())
                             <div class="mb-6">
                                 <h3 class="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
