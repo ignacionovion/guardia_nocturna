@@ -43,7 +43,7 @@ class BillingController extends Controller
     {
         $validated = $request->validate([
             'fecha_pago' => ['required', 'date'],
-            'metodo_pago' => ['nullable', 'string', 'max' => 50'],
+            'metodo_pago' => ['nullable', 'string', 'max:50'],
         ]);
 
         // Crear registro en payments
