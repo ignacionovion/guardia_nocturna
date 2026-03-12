@@ -102,7 +102,14 @@ class TenantController extends Controller
                 $isTrial = $validated['plan'] === 'trial' || $request->boolean('trial');
                 $planPrice = $plan?->precio_mensual ?? 0;
                 
-                Billing::create([
+                Log::debug('Creating billing record', [
+                    'tenant_id' => $tenant->id,
+                    'plan' => $validated['plan'],
+                    'monto' => $planPrice,
+                    'is_trial' => $isTrial,
+                ]);
+                
+                $billing = Billing::create([
                     'tenant_id' => $tenant->id,
                     'plan' => $validated['plan'],
                     'monto' => $planPrice,
@@ -112,13 +119,20 @@ class TenantController extends Controller
                     'fecha_ultimo_pago' => null,
                     'observacion' => $isTrial ? 'Período de prueba 30 días' : null,
                 ]);
-                $steps[] = '✓ Registro de facturación creado';
+                
+                Log::debug('Billing record created successfully', [
+                    'billing_id' => $billing->id,
+                    'tenant_id' => $tenant->id,
+                ]);
+                
+                $steps[] = '✓ Facturación creada (plan: ' . $validated['plan'] . ', $' . $planPrice . ')';
             } catch (\Throwable $e) {
-                Log::warning('Billing record creation failed', [
+                Log::error('Billing record creation failed', [
                     'tenant_id' => $tenant->id,
                     'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
                 ]);
-                $steps[] = '⚠ Registro de facturación no creado (error)';
+                $steps[] = '✗ ERROR Facturación: ' . $e->getMessage();
             }
 
             // Step 2: Create domain (subdomain = tenant id)

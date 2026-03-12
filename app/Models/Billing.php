@@ -12,6 +12,8 @@ class Billing extends Model
 {
     use HasFactory;
 
+    protected $connection = 'central';
+
     protected $table = 'tenant_billing';
 
     protected $fillable = [
