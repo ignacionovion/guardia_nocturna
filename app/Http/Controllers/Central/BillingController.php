@@ -22,6 +22,7 @@ class BillingController extends Controller
             'pagos_pendientes' => Billing::pendientes()->count(),
             'por_vencer' => Billing::porVencer(7)->count(),
             'vencidos' => Billing::vencidos()->count(),
+            'trials' => Billing::trial()->count(),
             'ingresos_estimados' => Billing::whereIn('estado_pago', ['pagado', 'pendiente', 'trial'])->sum('monto'),
         ];
 

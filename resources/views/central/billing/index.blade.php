@@ -39,7 +39,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-slate-600">En Trial</p>
-                    <p class="text-2xl font-bold text-blue-600">{{ Billing::trial()->count() }}</p>
+                    <p class="text-2xl font-bold text-blue-600">{{ $stats['trials'] }}</p>
                 </div>
                 <div class="bg-blue-100 p-3 rounded-lg">
                     <i class="fas fa-gift text-blue-600"></i>
