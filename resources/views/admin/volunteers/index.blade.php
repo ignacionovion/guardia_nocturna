@@ -19,12 +19,20 @@
                 </button>
             @endif
 
+            @if(feature('inventario') || feature('gestion_bomberos'))
             <a href="{{ route('admin.volunteers.import') }}" class="inline-flex items-center bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200 transform hover:-translate-y-0.5">
                 <i class="fas fa-file-excel mr-2"></i> Importar Excel
             </a>
+            @endif
+            @if(!plan_exceeded('guardias'))
             <a href="{{ route('admin.volunteers.create') }}" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200 transform hover:-translate-y-0.5">
                 <i class="fas fa-plus mr-2"></i> Nuevo Voluntario
             </a>
+            @else
+            <div class="px-4 py-2 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 text-sm">
+                <i class="fas fa-exclamation-triangle mr-2"></i> Límite de guardias alcanzado
+            </div>
+            @endif
         </div>
     </div>
 

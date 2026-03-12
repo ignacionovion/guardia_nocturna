@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Middleware;
 
 use App\Services\FeatureFlagService;
+use App\Services\PlanService;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,9 +28,10 @@ class EnforceMaxUsers
             return $next($request);
         }
 
-        $maxUsers = $this->features->get('max_users');
+        // Try new PlanService first, fallback to FeatureFlagService
+        $maxUsers = PlanService::getLimit('users') ?? $this->features->get('max_users');
 
-        // -1 means unlimited
+        // null or -1 means unlimited
         if ($maxUsers === null || $maxUsers === -1) {
             return $next($request);
         }

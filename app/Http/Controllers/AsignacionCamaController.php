@@ -34,6 +34,12 @@ class AsignacionCamaController extends Controller
             'notes' => 'nullable|string',
         ]);
 
+        // Check plan limit for beds (assignments count toward the limit)
+        if (\App\Services\PlanService::exceedsLimit('beds')) {
+            return back()
+                ->with('error', 'Has alcanzado el límite de camas asignadas de tu plan. Actualiza tu plan para agregar más.');
+        }
+
         // Evitar pegarle a information_schema en cada request.
         // Si en el futuro agregas/eliminas la columna, reinicia PHP-FPM o el servidor para limpiar cache.
         static $hasUserIdColumn = null;

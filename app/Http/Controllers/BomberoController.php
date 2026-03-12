@@ -54,6 +54,13 @@ class BomberoController extends Controller
             abort(403, 'No autorizado.');
         }
 
+        // Check plan limit for guardias
+        if (\App\Services\PlanService::exceedsLimit('guardias')) {
+            return back()
+                ->withInput()
+                ->with('error', 'Has alcanzado el límite de guardias de tu plan. Actualiza tu plan para agregar más.');
+        }
+
         $validated = $request->validate([
             'nombres' => 'required|string|max:255',
             'apellido_paterno' => 'nullable|string|max:255',

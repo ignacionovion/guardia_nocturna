@@ -87,9 +87,11 @@
                                 <a href="{{ route('admin.volunteers.index') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                                     <i class="fas fa-users mr-2 text-slate-500"></i> Voluntarios
                                 </a>
+                                @if(feature('emergencias'))
                                 <a href="{{ route('admin.emergencies.index') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                                     <i class="fas fa-truck-medical mr-2 text-slate-500"></i> Emergencias
                                 </a>
+                                @endif
                                 <a href="{{ route('admin.dotaciones') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                                     <i class="fas fa-users-gear mr-2 text-slate-500"></i> Dotaciones
                                 </a>
@@ -99,6 +101,7 @@
                             </div>
                         </div>
 
+                        @if(feature('reportes_avanzados') || feature('reportes'))
                         <div class="relative group">
                             <button type="button" class="px-3 py-2 rounded-md text-sm font-semibold transition-colors text-slate-200 hover:bg-slate-800 hover:text-white">
                                 <i class="fas fa-shield-halved mr-1.5 opacity-80"></i>
@@ -116,11 +119,14 @@
                                 <a href="{{ route('camas') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                                     <i class="fas fa-bed mr-2 text-slate-500"></i> Camas
                                 </a>
+                                @if(feature('reportes_avanzados'))
                                 <a href="{{ route('admin.reports.index') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                                     <i class="fas fa-chart-pie mr-2 text-slate-500"></i> Reportes
                                 </a>
+                                @endif
                             </div>
                         </div>
+                        @endif
 
                         <div class="relative group">
                             <button type="button" class="px-3 py-2 rounded-md text-sm font-semibold transition-colors {{ request()->routeIs('admin.preventivas*') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
@@ -183,12 +189,16 @@
                         <a href="{{ route('admin.users.index') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('admin.users*') ? 'bg-red-900/50 text-red-100 shadow-inner' : 'text-slate-300 hover:bg-red-900/30 hover:text-red-100' }}">
                             <i class="fas fa-user-shield mr-1.5 text-red-400"></i> Usuarios
                         </a>
+                        @if(feature('emergencias'))
                         <a href="{{ route('admin.emergencies.index') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('admin.emergencies*') ? 'bg-red-900/50 text-red-100 shadow-inner' : 'text-slate-300 hover:bg-red-900/30 hover:text-red-100' }}">
                             <i class="fas fa-truck-medical mr-1.5 text-red-400"></i> Emergencias
                         </a>
+                        @endif
+                        @if(feature('reportes') || feature('reportes_avanzados'))
                         <a href="{{ route('admin.reports.index') }}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('admin.reports*') ? 'bg-red-900/50 text-red-100 shadow-inner' : 'text-slate-300 hover:bg-red-900/30 hover:text-red-100' }}">
                             <i class="fas fa-chart-pie mr-1.5 text-red-400"></i> Reportes
                         </a>
+                        @endif
                     @endif
                     @endauth
                 </div>

@@ -8,9 +8,15 @@
         </div>
 
         <div class="flex flex-wrap gap-3 items-center">
+            @if(!plan_exceeded('users'))
             <a href="{{ route('admin.users.create') }}" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200 transform hover:-translate-y-0.5">
                 <i class="fas fa-plus mr-2"></i> Nuevo Usuario
             </a>
+            @else
+            <div class="px-4 py-2 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 text-sm">
+                <i class="fas fa-exclamation-triangle mr-2"></i> Límite de usuarios alcanzado
+            </div>
+            @endif
             <a href="{{ route('admin.roles.index') }}" class="inline-flex items-center bg-slate-800 hover:bg-slate-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200 transform hover:-translate-y-0.5">
                 <i class="fas fa-user-gear mr-2"></i> Roles
             </a>

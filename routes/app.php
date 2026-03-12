@@ -193,13 +193,13 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
     Route::post('/draft/turno/seed', [TurnoDraftController::class, 'seedItems'])->name('draft.turno.seed');
 
     // Rutas operativas de Guardia
-    Route::post('/guardia', [GuardiaController::class, 'start'])->name('guardia.start');
+    Route::post('/guardia', [GuardiaController::class, 'start'])->middleware('plan.limit:guardias')->name('guardia.start');
     Route::post('/guardia/{id}/close', [GuardiaController::class, 'close'])->name('guardia.close');
     Route::post('/guardia/{id}/add-user', [GuardiaController::class, 'addUser'])->name('guardia.add_user');
     Route::post('/guardia/{shiftId}/remove-user/{userId}', [GuardiaController::class, 'removeUser'])->name('guardia.remove_user');
 
     // Rutas de Gestión de Camas
-    Route::post('/camas/asignar', [AsignacionCamaController::class, 'store'])->name('beds.assign');
+    Route::post('/camas/asignar', [AsignacionCamaController::class, 'store'])->middleware('plan.limit:beds')->name('beds.assign');
     Route::put('/camas/liberar/{id}', [AsignacionCamaController::class, 'update'])->name('beds.release');
     Route::put('/camas/{bed}/mantencion', [AsignacionCamaController::class, 'markMaintenance'])->name('beds.maintenance');
     Route::put('/camas/{bed}/habilitar', [AsignacionCamaController::class, 'markAvailable'])->name('beds.available');
@@ -257,7 +257,7 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
     Route::post('/admin/bomberos/{id}/toggle-fuera-servicio', [AdministradorController::class, 'toggleFueraDeServicio'])->name('admin.bomberos.toggle_fuera_servicio');
 
     // Rutas de Reportes
-    Route::middleware('feature:reportes')->group(function () {
+    Route::middleware(['feature:reportes_avanzados'])->group(function () {
     Route::get('/admin/reports', [App\Http\Controllers\ReportController::class, 'attendance'])->name('admin.reports.index');
     Route::get('/admin/reports/attendance', [App\Http\Controllers\ReportController::class, 'attendance'])->name('admin.reports.attendance');
     Route::get('/admin/reports/attendance/export', [App\Http\Controllers\ReportController::class, 'attendanceExport'])->name('admin.reports.attendance.export');
@@ -267,8 +267,8 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
     Route::get('/admin/reports/refuerzos/export', [App\Http\Controllers\ReportController::class, 'refuerzosExport'])->name('admin.reports.refuerzos.export');
     Route::get('/admin/reports/conductores', [App\Http\Controllers\ReportController::class, 'drivers'])->name('admin.reports.drivers');
     Route::get('/admin/reports/conductores/export', [App\Http\Controllers\ReportController::class, 'driversExport'])->name('admin.reports.drivers.export');
-    Route::get('/admin/reports/emergencias', [App\Http\Controllers\ReportController::class, 'emergencies'])->name('admin.reports.emergencies');
-    Route::get('/admin/reports/emergencias/export', [App\Http\Controllers\ReportController::class, 'emergenciesExport'])->name('admin.reports.emergencies.export');
+    Route::get('/admin/reports/emergencias', [App\Http\Controllers\ReportController::class, 'emergencies'])->name('admin.reports.emergencias');
+    Route::get('/admin/reports/emergencias/export', [App\Http\Controllers\ReportController::class, 'emergenciesExport'])->name('admin.reports.emergencias.export');
     Route::get('/admin/reports/reemplazos/export', [App\Http\Controllers\ReportController::class, 'replacementsExport'])->name('admin.reports.replacements.export');
     Route::get('/admin/reports/reemplazos/print', [App\Http\Controllers\ReportController::class, 'replacementsPrint'])->name('admin.reports.replacements.print');
     });

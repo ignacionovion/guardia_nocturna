@@ -39,6 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role_permission' => \App\Http\Middleware\CheckRolePermission::class,
             'feature' => \App\Http\Middleware\EnforceFeatureFlag::class,
             'max_users' => \App\Http\Middleware\EnforceMaxUsers::class,
+            'plan.limit' => \App\Http\Middleware\EnforcePlanLimits::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
