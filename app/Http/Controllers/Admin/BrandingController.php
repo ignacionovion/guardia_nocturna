@@ -86,13 +86,20 @@ class BrandingController extends Controller
 
         $tenantId = tenant('id');
         $file = $request->file('logo');
-        $filename = 'branding/' . $tenantId . '/logo.' . $file->getClientOriginalExtension();
+        
+        // Normalizar extensión (solo usar la extensión real del mime type)
+        $extension = strtolower($file->getClientOriginalExtension());
+        if (!in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'])) {
+            $extension = 'png'; // fallback seguro
+        }
+        
+        $filename = 'logo.' . $extension;
 
         // Delete old logo if exists
         Storage::disk('public')->deleteDirectory('branding/' . $tenantId);
 
-        // Store new logo
-        $path = $file->storeAs('branding/' . $tenantId, 'logo.' . $file->getClientOriginalExtension(), 'public');
+        // Store new logo with sanitized name
+        $path = $file->storeAs('branding/' . $tenantId, $filename, 'public');
 
         $this->brandingService->updateLogo($path);
 
@@ -118,13 +125,17 @@ class BrandingController extends Controller
 
         $tenantId = tenant('id');
         $file = $request->file('favicon');
-        $extension = in_array($file->getClientOriginalExtension(), ['ico', 'png']) 
-            ? $file->getClientOriginalExtension() 
-            : 'png';
-        $filename = 'branding/' . $tenantId . '/favicon.' . $extension;
+        
+        // Normalizar extensión
+        $extension = strtolower($file->getClientOriginalExtension());
+        if (!in_array($extension, ['png', 'ico'])) {
+            $extension = 'png';
+        }
+        
+        $filename = 'favicon.' . $extension;
 
         // Store new favicon
-        $path = $file->storeAs('branding/' . $tenantId, 'favicon.' . $extension, 'public');
+        $path = $file->storeAs('branding/' . $tenantId, $filename, 'public');
 
         $this->brandingService->updateFavicon($path);
 
