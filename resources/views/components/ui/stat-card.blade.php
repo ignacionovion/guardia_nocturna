@@ -6,6 +6,7 @@
     'trendUp' => true,
     'trendLabel' => 'vs mes anterior',
     'color' => 'slate',
+    'size' => 'default',
 ])
 
 @php
@@ -15,29 +16,35 @@ $colors = [
     'emerald' => ['bg' => 'bg-emerald-100 dark:bg-emerald-900/30', 'icon' => 'text-emerald-600 dark:text-emerald-400'],
     'amber' => ['bg' => 'bg-amber-100 dark:bg-amber-900/30', 'icon' => 'text-amber-600 dark:text-amber-400'],
     'red' => ['bg' => 'bg-red-100 dark:bg-red-900/30', 'icon' => 'text-red-600 dark:text-red-400'],
-    'purple' => ['bg' => 'bg-purple-100 dark:bg-purple-900/30', 'icon' => 'text-purple-600 dark:text-purple-400'],
+    'purple' => ['bg' => 'bg-violet-100 dark:bg-violet-900/30', 'icon' => 'text-violet-600 dark:text-violet-400'],
+    'violet' => ['bg' => 'bg-violet-100 dark:bg-violet-900/30', 'icon' => 'text-violet-600 dark:text-violet-400'],
     'cyan' => ['bg' => 'bg-cyan-100 dark:bg-cyan-900/30', 'icon' => 'text-cyan-600 dark:text-cyan-400'],
+    'indigo' => ['bg' => 'bg-indigo-100 dark:bg-indigo-900/30', 'icon' => 'text-indigo-600 dark:text-indigo-400'],
+    'rose' => ['bg' => 'bg-rose-100 dark:bg-rose-900/30', 'icon' => 'text-rose-600 dark:text-rose-400'],
 ];
 $c = $colors[$color] ?? $colors['slate'];
+
+$valueSize = $size === 'lg' ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl';
+$iconSize = $size === 'lg' ? 'w-14 h-14' : 'w-12 h-12';
 @endphp
 
-<div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 p-5 hover:shadow-lg hover:shadow-slate-200/50 dark:hover:shadow-slate-900/50 transition-all">
+<div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
     <div class="flex items-start justify-between">
-        <div>
-            <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ $title }}</p>
-            <p class="mt-2 text-3xl font-bold text-slate-900 dark:text-white">{{ $value }}</p>
+        <div class="min-w-0 flex-1">
+            <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ $title }}</p>
+            <p class="mt-2 {{ $valueSize }} font-bold text-slate-900 dark:text-white truncate">{{ $value }}</p>
             @if($trend)
-            <p class="mt-1.5 text-xs flex items-center gap-1">
-                <span class="{{ $trendUp ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }} font-medium">
-                    <i class="fas fa-arrow-{{ $trendUp ? 'up' : 'down' }} text-[10px]"></i>
+            <p class="mt-2 text-xs flex items-center gap-1.5">
+                <span class="{{ $trendUp ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }} font-semibold">
+                    <i class="fas fa-arrow-{{ $trendUp ? 'up' : 'down' }} text-[10px] mr-0.5"></i>
                     {{ $trend }}
                 </span>
-                <span class="text-slate-400 dark:text-slate-500 dark:text-slate-400">{{ $trendLabel }}</span>
+                <span class="text-slate-400 dark:text-slate-500">{{ $trendLabel }}</span>
             </p>
             @endif
         </div>
         @if($icon)
-        <div class="w-12 h-12 rounded-xl {{ $c['bg'] }} flex items-center justify-center">
+        <div class="{{ $iconSize }} rounded-xl {{ $c['bg'] }} flex items-center justify-center shrink-0 ml-4">
             <i class="{{ $icon }} text-lg {{ $c['icon'] }}"></i>
         </div>
         @endif
