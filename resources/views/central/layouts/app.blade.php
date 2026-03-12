@@ -37,6 +37,10 @@
                            class="px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('central.bodies.*') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }} transition">
                             Cuerpos
                         </a>
+                        <a href="{{ route('central.billing.index') }}"
+                           class="px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('central.billing.*') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }} transition">
+                            Facturación
+                        </a>
                         <a href="{{ route('central.backups.index') }}"
                            class="px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('central.backups.*') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }} transition">
                             Backups

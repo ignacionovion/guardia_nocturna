@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Central\BillingController;
 use App\Http\Controllers\Central\BodyController;
 use App\Http\Controllers\Central\CentralAuthController;
 use App\Http\Controllers\Central\CentralDashboardController;
@@ -74,4 +75,13 @@ Route::middleware('auth:central')->prefix('admin')->group(function () {
     Route::get('backups/download', [BackupController::class, 'download'])->name('central.backups.download');
     Route::post('backups/restore', [BackupController::class, 'restore'])->name('central.backups.restore');
     Route::delete('backups', [BackupController::class, 'destroy'])->name('central.backups.destroy');
+
+    // Billing
+    Route::get('billing', [BillingController::class, 'index'])->name('central.billing.index');
+    Route::post('billing', [BillingController::class, 'create'])->name('central.billing.create');
+    Route::patch('billing/{billing}/mark-paid', [BillingController::class, 'markPaid'])->name('central.billing.mark-paid');
+    Route::patch('billing/{billing}/suspend', [BillingController::class, 'suspend'])->name('central.billing.suspend');
+    Route::patch('billing/{billing}/extend', [BillingController::class, 'extend'])->name('central.billing.extend');
+    Route::patch('billing/{billing}/change-plan', [BillingController::class, 'changePlan'])->name('central.billing.change-plan');
+    Route::patch('billing/{billing}/observation', [BillingController::class, 'updateObservation'])->name('central.billing.observation');
 });

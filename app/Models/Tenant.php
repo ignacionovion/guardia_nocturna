@@ -78,6 +78,11 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         return $this->belongsTo(Plan::class);
     }
 
+    public function billing()
+    {
+        return $this->hasOne(Billing::class, 'tenant_id');
+    }
+
     /**
      * Check if the tenant is in an operational state (can access the app).
      */
