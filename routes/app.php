@@ -257,7 +257,7 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
     Route::post('/admin/bomberos/{id}/toggle-fuera-servicio', [AdministradorController::class, 'toggleFueraDeServicio'])->name('admin.bomberos.toggle_fuera_servicio');
 
     // Rutas de Reportes
-    Route::middleware(['feature:reportes_avanzados'])->group(function () {
+    Route::middleware(['feature:reportes'])->group(function () {
     Route::get('/admin/reports', [App\Http\Controllers\ReportController::class, 'attendance'])->name('admin.reports.index');
     Route::get('/admin/reports/attendance', [App\Http\Controllers\ReportController::class, 'attendance'])->name('admin.reports.attendance');
     Route::get('/admin/reports/attendance/export', [App\Http\Controllers\ReportController::class, 'attendanceExport'])->name('admin.reports.attendance.export');
@@ -274,9 +274,11 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
     });
 
     // Rutas Admin - Calendario
-    Route::get('/admin/calendario', [AdminCalendarController::class, 'index'])->name('admin.calendario');
-    Route::post('/admin/calendario/assign-range', [AdminCalendarController::class, 'assignRange'])->name('admin.calendario.assign_range');
-    Route::post('/admin/calendario/generate-rotation', [AdminCalendarController::class, 'generateRotation'])->name('admin.calendario.generate_rotation');
+    Route::middleware(['feature:calendario'])->group(function () {
+        Route::get('/admin/calendario', [AdminCalendarController::class, 'index'])->name('admin.calendario');
+        Route::post('/admin/calendario/assign-range', [AdminCalendarController::class, 'assignRange'])->name('admin.calendario.assign_range');
+        Route::post('/admin/calendario/generate-rotation', [AdminCalendarController::class, 'generateRotation'])->name('admin.calendario.generate_rotation');
+    });
 
     // Rutas de Novedades
     Route::post('/novedades', [NovedadController::class, 'store'])->name('novelties.store_web');
@@ -301,34 +303,36 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
         Route::post('/admin/system/purge', [SystemAdminController::class, 'purge'])->name('admin.system.purge');
         Route::post('/admin/system/clear-guardias', [SystemAdminController::class, 'clearGuardias'])->name('admin.system.clear_guardias');
 
-        Route::get('/admin/planillas', [PlanillaController::class, 'index'])->name('admin.planillas.index');
-        Route::get('/admin/planillas/create', [PlanillaController::class, 'create'])->name('admin.planillas.create');
-        Route::post('/admin/planillas', [PlanillaController::class, 'store'])->name('admin.planillas.store');
-        Route::get('/admin/planillas/{planilla}', [PlanillaController::class, 'show'])->whereNumber('planilla')->name('admin.planillas.show');
-        Route::get('/admin/planillas/{planilla}/edit', [PlanillaController::class, 'edit'])->whereNumber('planilla')->name('admin.planillas.edit');
-        Route::put('/admin/planillas/{planilla}', [PlanillaController::class, 'update'])->whereNumber('planilla')->name('admin.planillas.update');
-        Route::put('/admin/planillas/{planilla}/estado', [PlanillaController::class, 'updateEstado'])->whereNumber('planilla')->name('admin.planillas.estado.update');
-        Route::delete('/admin/planillas/{planilla}', [PlanillaController::class, 'destroy'])->whereNumber('planilla')->name('admin.planillas.destroy');
-        Route::get('/admin/planillas/{planilla}/pdf', [PlanillaController::class, 'pdf'])->whereNumber('planilla')->name('admin.planillas.pdf');
-        Route::get('/admin/planillas/{planilla}/email', [PlanillaController::class, 'email'])->whereNumber('planilla')->name('admin.planillas.email');
-        Route::get('/admin/planillas/{planilla}/compare', [PlanillaController::class, 'compare'])->whereNumber('planilla')->name('admin.planillas.compare');
+        Route::middleware(['feature:planilla'])->group(function () {
+            Route::get('/admin/planillas', [PlanillaController::class, 'index'])->name('admin.planillas.index');
+            Route::get('/admin/planillas/create', [PlanillaController::class, 'create'])->name('admin.planillas.create');
+            Route::post('/admin/planillas', [PlanillaController::class, 'store'])->name('admin.planillas.store');
+            Route::get('/admin/planillas/{planilla}', [PlanillaController::class, 'show'])->whereNumber('planilla')->name('admin.planillas.show');
+            Route::get('/admin/planillas/{planilla}/edit', [PlanillaController::class, 'edit'])->whereNumber('planilla')->name('admin.planillas.edit');
+            Route::put('/admin/planillas/{planilla}', [PlanillaController::class, 'update'])->whereNumber('planilla')->name('admin.planillas.update');
+            Route::put('/admin/planillas/{planilla}/estado', [PlanillaController::class, 'updateEstado'])->whereNumber('planilla')->name('admin.planillas.estado.update');
+            Route::delete('/admin/planillas/{planilla}', [PlanillaController::class, 'destroy'])->whereNumber('planilla')->name('admin.planillas.destroy');
+            Route::get('/admin/planillas/{planilla}/pdf', [PlanillaController::class, 'pdf'])->whereNumber('planilla')->name('admin.planillas.pdf');
+            Route::get('/admin/planillas/{planilla}/email', [PlanillaController::class, 'email'])->whereNumber('planilla')->name('admin.planillas.email');
+            Route::get('/admin/planillas/{planilla}/compare', [PlanillaController::class, 'compare'])->whereNumber('planilla')->name('admin.planillas.compare');
 
-        Route::get('/admin/planillas/listados', [PlanillaListItemController::class, 'index'])->name('admin.planillas.listados.index');
-        Route::post('/admin/planillas/listados', [PlanillaListItemController::class, 'store'])->name('admin.planillas.listados.store');
-        Route::put('/admin/planillas/listados/{item}', [PlanillaListItemController::class, 'update'])->whereNumber('item')->name('admin.planillas.listados.update');
-        Route::delete('/admin/planillas/listados/{item}', [PlanillaListItemController::class, 'destroy'])->whereNumber('item')->name('admin.planillas.listados.destroy');
-        Route::post('/admin/planillas/listados/reorder', [PlanillaListItemController::class, 'reorder'])->name('admin.planillas.listados.reorder');
-        Route::post('/admin/planillas/listados/reset', [PlanillaListItemController::class, 'reset'])->name('admin.planillas.listados.reset');
+            Route::get('/admin/planillas/listados', [PlanillaListItemController::class, 'index'])->name('admin.planillas.listados.index');
+            Route::post('/admin/planillas/listados', [PlanillaListItemController::class, 'store'])->name('admin.planillas.listados.store');
+            Route::put('/admin/planillas/listados/{item}', [PlanillaListItemController::class, 'update'])->whereNumber('item')->name('admin.planillas.listados.update');
+            Route::delete('/admin/planillas/listados/{item}', [PlanillaListItemController::class, 'destroy'])->whereNumber('item')->name('admin.planillas.listados.destroy');
+            Route::post('/admin/planillas/listados/reorder', [PlanillaListItemController::class, 'reorder'])->name('admin.planillas.listados.reorder');
+            Route::post('/admin/planillas/listados/reset', [PlanillaListItemController::class, 'reset'])->name('admin.planillas.listados.reset');
 
-        Route::get('/admin/planillas/qr-fijo', [PlanillaQrFijoController::class, 'show'])->name('admin.planillas.qr_fijo');
-        Route::get('/admin/planillas/qr-fijo/imprimir', [PlanillaQrFijoController::class, 'print'])->name('admin.planillas.qr_fijo.print');
-        Route::post('/admin/planillas/qr-fijo/regenerar', [PlanillaQrFijoController::class, 'regenerar'])->name('admin.planillas.qr_fijo.regenerar');
+            Route::get('/admin/planillas/qr-fijo', [PlanillaQrFijoController::class, 'show'])->name('admin.planillas.qr_fijo');
+            Route::get('/admin/planillas/qr-fijo/imprimir', [PlanillaQrFijoController::class, 'print'])->name('admin.planillas.qr_fijo.print');
+            Route::post('/admin/planillas/qr-fijo/regenerar', [PlanillaQrFijoController::class, 'regenerar'])->name('admin.planillas.qr_fijo.regenerar');
 
-        Route::get('/planillas/qr-fijo', function () {
-            return redirect()->route('admin.planillas.qr_fijo');
-        })->name('planillas.qr_fijo.alias');
+            Route::get('/planillas/qr-fijo', function () {
+                return redirect()->route('admin.planillas.qr_fijo');
+            })->name('planillas.qr_fijo.alias');
+        });
 
-        Route::middleware('preventivas_admin')->group(function () {
+        Route::middleware(['feature:preventiva', 'preventivas_admin'])->group(function () {
             Route::get('/admin/preventivas', [PreventiveEventController::class, 'index'])->name('admin.preventivas.index');
             Route::get('/admin/preventivas/create', [PreventiveEventController::class, 'create'])->name('admin.preventivas.create');
             Route::post('/admin/preventivas', [PreventiveEventController::class, 'store'])->name('admin.preventivas.store');

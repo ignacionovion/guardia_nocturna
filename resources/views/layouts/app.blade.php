@@ -85,11 +85,9 @@
                             <div class="hidden group-hover:block absolute left-0 top-full w-56 bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden">
                                 <div class="h-2"></div>
                                 @if(feature('voluntarios'))
-                        @if(feature('voluntarios'))
-                        <a href="{{ route('admin.volunteers.index') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
-                            <i class="fas fa-users mr-2 text-slate-500"></i> Voluntarios
-                        </a>
-                        @endif
+                                <a href="{{ route('admin.volunteers.index') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                                    <i class="fas fa-users mr-2 text-slate-500"></i> Voluntarios
+                                </a>
                                 @endif
                                 @if(feature('emergencias'))
                                 <a href="{{ route('admin.emergencies.index') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
@@ -102,11 +100,9 @@
                                 </a>
                                 @endif
                                 @if(feature('calendario'))
-                                @if(feature('calendario'))
                                 <a href="{{ route('admin.calendario') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                                     <i class="fas fa-calendar-alt mr-2 text-slate-500"></i> Calendario
                                 </a>
-                                @endif
                                 @endif
                             </div>
                         </div>
@@ -790,7 +786,7 @@
                         <span class="font-bold text-slate-200 tracking-wide">{{ strtoupper(config('app.name', 'AppGuardia')) }}</span>
                     </div>
                     <div class="text-sm">
-                        &copy; {{ date('Y') }} Sistema de Gestión de Cuerpo de Bomberos. Todos los derechos reservados.
+                        &copy; GuardiAPP © {{ date('Y') }} – Plataforma SaaS para gestión de compañías de bomberos.
                     </div>
                 </div>
             </div>

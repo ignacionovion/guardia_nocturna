@@ -301,43 +301,69 @@
                 @csrf
                 @php
                     $featureService = app(\App\Services\FeatureFlagService::class);
-                    $allFeatures = $featureService->all($tenant);
-                    $labels = \App\Services\FeatureFlagService::featureLabels();
-                    $planDefaults = \App\Services\FeatureFlagService::planDefaults($tenant->plan);
+                    $modules = $featureService->allModules($tenant);
+                    $addons = $featureService->allAddons($tenant);
+                    $moduleLabels = \App\Services\FeatureFlagService::moduleLabels();
+                    $addonLabels = \App\Services\FeatureFlagService::addonLabels();
                     $overrides = $tenant->features ?? [];
                 @endphp
-                <div class="grid grid-cols-2 gap-3 mb-4">
-                    @foreach($allFeatures as $feature => $value)
-                        @if($feature === 'max_users')
-                            <div class="col-span-2 flex items-center justify-between py-2 px-3 rounded-lg bg-slate-50">
-                                <span class="text-sm text-slate-700 font-medium">{{ $labels[$feature] ?? $feature }}</span>
+                
+                {{-- Módulos del Sistema --}}
+                <div class="mb-6">
+                    <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center">
+                        <svg class="w-4 h-4 mr-1.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+                        Módulos del Sistema
+                    </h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        @foreach($modules as $module => $value)
+                            <label class="flex items-center justify-between py-2 px-3 rounded-lg {{ $value ? 'bg-emerald-50 border border-emerald-200' : 'bg-slate-50 border border-slate-200' }} cursor-pointer hover:bg-slate-100 transition">
                                 <div class="flex items-center space-x-2">
-                                    <input type="number" name="features[{{ $feature }}]" value="{{ $value }}"
-                                           class="w-20 text-sm text-center border border-slate-200 rounded-lg py-1 px-2 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                                           min="-1" placeholder="-1=∞">
-                                    <span class="text-[10px] text-slate-400">(-1 = ilimitado)</span>
-                                </div>
-                            </div>
-                        @else
-                            <label class="flex items-center justify-between py-2 px-3 rounded-lg {{ $value ? 'bg-emerald-50' : 'bg-slate-50' }} cursor-pointer hover:bg-slate-100 transition">
-                                <div class="flex items-center space-x-2">
-                                    <span class="text-sm text-slate-700 font-medium">{{ $labels[$feature] ?? $feature }}</span>
-                                    @if(array_key_exists($feature, $overrides))
+                                    <span class="text-sm text-slate-700 font-medium">{{ $moduleLabels[$module] ?? $module }}</span>
+                                    @if(array_key_exists($module, $overrides))
                                         <span class="text-[9px] font-bold text-blue-500 bg-blue-50 px-1 py-0.5 rounded">CUSTOM</span>
                                     @endif
                                 </div>
                                 <div class="relative">
-                                    <input type="hidden" name="features[{{ $feature }}]" value="0">
-                                    <input type="checkbox" name="features[{{ $feature }}]" value="1"
+                                    <input type="hidden" name="features[{{ $module }}]" value="0">
+                                    <input type="checkbox" name="features[{{ $module }}]" value="1"
                                            {{ $value ? 'checked' : '' }}
                                            class="sr-only peer">
                                     <div class="w-9 h-5 bg-slate-300 rounded-full peer-checked:bg-emerald-500 transition"></div>
                                     <div class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full peer-checked:translate-x-4 transition shadow-sm"></div>
                                 </div>
                             </label>
-                        @endif
-                    @endforeach
+                        @endforeach
+                    </div>
                 </div>
+
+                {{-- Addons SaaS --}}
+                <div class="mb-6">
+                    <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center">
+                        <svg class="w-4 h-4 mr-1.5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+                        Addons SaaS / Comerciales
+                    </h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        @foreach($addons as $addon => $value)
+                            <label class="flex items-center justify-between py-2 px-3 rounded-lg {{ $value ? 'bg-purple-50 border border-purple-200' : 'bg-slate-50 border border-slate-200' }} cursor-pointer hover:bg-slate-100 transition">
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-sm text-slate-700 font-medium">{{ $addonLabels[$addon] ?? $addon }}</span>
+                                    @if(array_key_exists($addon, $overrides))
+                                        <span class="text-[9px] font-bold text-blue-500 bg-blue-50 px-1 py-0.5 rounded">CUSTOM</span>
+                                    @endif
+                                </div>
+                                <div class="relative">
+                                    <input type="hidden" name="features[{{ $addon }}]" value="0">
+                                    <input type="checkbox" name="features[{{ $addon }}]" value="1"
+                                           {{ $value ? 'checked' : '' }}
+                                           class="sr-only peer">
+                                    <div class="w-9 h-5 bg-slate-300 rounded-full peer-checked:bg-purple-500 transition"></div>
+                                    <div class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full peer-checked:translate-x-4 transition shadow-sm"></div>
+                                </div>
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+
                 <button type="submit" class="w-full bg-slate-900 text-white text-sm font-medium py-2.5 rounded-xl hover:bg-slate-800 transition">
                     Guardar Features
                 </button>
