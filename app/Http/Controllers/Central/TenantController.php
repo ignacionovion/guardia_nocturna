@@ -66,6 +66,9 @@ class TenantController extends Controller
             'numero' => ['nullable', 'integer', 'min:1'],
             'body_id' => ['nullable', 'exists:bodies,id'],
             'plan' => ['required', 'in:basico,profesional,enterprise'],
+            'billing_cycle' => ['required', 'in:monthly,yearly'],
+            'tiene_trial' => ['nullable', 'boolean'],
+            'trial_days' => ['nullable', 'integer', 'min:1', 'max:90'],
             'fecha_vencimiento' => ['nullable', 'date'],
             'seed' => ['boolean'],
         ], [
@@ -75,6 +78,8 @@ class TenantController extends Controller
             'nombre.required' => 'El nombre es obligatorio.',
             'plan.required' => 'El plan es obligatorio.',
             'plan.in' => 'El plan seleccionado no es válido.',
+            'billing_cycle.required' => 'El ciclo de facturación es obligatorio.',
+            'billing_cycle.in' => 'El ciclo de facturación debe ser mensual o anual.',
         ]);
 
         Log::debug('Validation passed', ['validated_id' => $validated['id']]);
@@ -99,26 +104,48 @@ class TenantController extends Controller
 
             // Step 1b: Create billing record automatically
             try {
-                $isTrial = $validated['plan'] === 'trial' || $request->boolean('trial');
-                $planPrice = $plan?->precio_mensual ?? 0;
+                $billingCycle = $validated['billing_cycle'] ?? 'monthly';
+                $tieneTrial = $request->boolean('tiene_trial');
+                $trialDays = $validated['trial_days'] ?? 30;
+                
+                // Calcular monto según ciclo
+                $planPrice = $billingCycle === 'yearly' 
+                    ? ($plan?->precio_anual ?? $plan?->precio_mensual * 12 ?? 0)
+                    : ($plan?->precio_mensual ?? 0);
                 
                 Log::debug('Creating billing record', [
                     'tenant_id' => $tenant->id,
                     'plan' => $validated['plan'],
+                    'billing_cycle' => $billingCycle,
                     'monto' => $planPrice,
-                    'is_trial' => $isTrial,
+                    'tiene_trial' => $tieneTrial,
+                    'trial_days' => $trialDays,
                 ]);
+                
+                // Determinar fechas según trial
+                if ($tieneTrial) {
+                    $trialEndsAt = now()->addDays($trialDays);
+                    $fechaVencimiento = null; // Se calculará al terminar el trial
+                    $estadoPago = 'trial';
+                    $observacion = "Período de prueba de {$trialDays} días";
+                } else {
+                    $diasVencimiento = $billingCycle === 'yearly' ? 365 : 30;
+                    $trialEndsAt = null;
+                    $fechaVencimiento = now()->addDays($diasVencimiento);
+                    $estadoPago = 'pendiente';
+                    $observacion = null;
+                }
                 
                 $billing = Billing::create([
                     'tenant_id' => $tenant->id,
                     'plan' => $validated['plan'],
-                    'billing_cycle' => 'monthly',
+                    'billing_cycle' => $billingCycle,
                     'monto' => $planPrice,
-                    'estado_pago' => $isTrial ? 'trial' : 'pendiente',
-                    'fecha_vencimiento' => $isTrial ? null : now()->addDays(30),
-                    'trial_ends_at' => $isTrial ? now()->addDays(30) : null,
+                    'estado_pago' => $estadoPago,
+                    'fecha_vencimiento' => $fechaVencimiento,
+                    'trial_ends_at' => $trialEndsAt,
                     'fecha_ultimo_pago' => null,
-                    'observacion' => $isTrial ? 'Período de prueba 30 días' : null,
+                    'observacion' => $observacion,
                 ]);
                 
                 Log::debug('Billing record created successfully', [
@@ -126,7 +153,9 @@ class TenantController extends Controller
                     'tenant_id' => $tenant->id,
                 ]);
                 
-                $steps[] = '✓ Facturación creada (plan: ' . $validated['plan'] . ', $' . $planPrice . ')';
+                $cicloLabel = $billingCycle === 'yearly' ? 'Anual' : 'Mensual';
+                $trialLabel = $tieneTrial ? " (Trial {$trialDays} días)" : '';
+                $steps[] = "✓ Facturación creada: {$cicloLabel}{$trialLabel} - \${$planPrice}";
             } catch (\Throwable $e) {
                 Log::error('Billing record creation failed', [
                     'tenant_id' => $tenant->id,

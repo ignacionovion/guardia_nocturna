@@ -80,24 +80,81 @@
                     <div>
                         <label for="plan" class="block text-sm font-medium text-slate-700 mb-1.5">Plan</label>
                         <select id="plan" name="plan" required
-                                class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white">
+                                class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white billing-input">
                             @if(isset($plans) && $plans->count() > 0)
                                 @foreach($plans as $planOption)
-                                    <option value="{{ $planOption->slug }}" {{ old('plan', $tenant?->plan) === $planOption->slug ? 'selected' : '' }}>
-                                        {{ $planOption->nombre }} ({{ $planOption->precio_mensual > 0 ? '$' . $planOption->precio_mensual . '/mes' : 'Gratis' }})
+                                    <option value="{{ $planOption->slug }}"
+                                            data-precio-mensual="{{ $planOption->precio_mensual }}"
+                                            data-precio-anual="{{ $planOption->precio_anual ?? $planOption->precio_mensual * 12 }}"
+                                            {{ old('plan', $tenant?->plan) === $planOption->slug ? 'selected' : '' }}>
+                                        {{ $planOption->nombre }}
                                     </option>
                                 @endforeach
                             @else
-                                <option value="basico" {{ old('plan', $tenant?->plan) === 'basico' ? 'selected' : '' }}>Básico</option>
-                                <option value="profesional" {{ old('plan', $tenant?->plan) === 'profesional' ? 'selected' : '' }}>Profesional</option>
-                                <option value="enterprise" {{ old('plan', $tenant?->plan) === 'enterprise' ? 'selected' : '' }}>Enterprise</option>
+                                <option value="basico" data-precio-mensual="0" data-precio-anual="0">Básico</option>
+                                <option value="profesional" data-precio-mensual="39990" data-precio-anual="399900">Profesional</option>
+                                <option value="enterprise" data-precio-mensual="79990" data-precio-anual="799900">Enterprise</option>
                             @endif
                         </select>
-                        @if(isset($plans) && $plans->count() > 0)
-                            <p class="text-xs text-slate-400 mt-1">Los límites se aplican automáticamente según el plan seleccionado.</p>
-                        @endif
                     </div>
                 </div>
+
+                {{-- Sección de Facturación --}}
+                @unless($tenant)
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-4">
+                    <h3 class="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                        <i class="fas fa-credit-card text-slate-500"></i>
+                        Configuración de Facturación
+                    </h3>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="billing_cycle" class="block text-sm font-medium text-slate-700 mb-1.5">Ciclo de Facturación</label>
+                            <select id="billing_cycle" name="billing_cycle" required
+                                    class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white billing-input">
+                                <option value="monthly" {{ old('billing_cycle') === 'monthly' ? 'selected' : '' }}>Mensual (30 días)</option>
+                                <option value="yearly" {{ old('billing_cycle') === 'yearly' ? 'selected' : '' }}>Anual (365 días)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Monto Estimado</label>
+                            <div class="px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-semibold text-slate-900" id="monto-preview">
+                                Calculando...
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-3">
+                        <input type="checkbox" id="tiene_trial" name="tiene_trial" value="1" {{ old('tiene_trial') ? 'checked' : '' }}
+                               class="rounded border-slate-300 text-amber-500 focus:ring-amber-500 billing-input">
+                        <label for="tiene_trial" class="text-sm text-slate-700">
+                            <span class="font-medium">Activar período de prueba (Trial)</span>
+                        </label>
+                    </div>
+
+                    <div id="trial-days-container" class="{{ old('tiene_trial') ? '' : 'hidden' }}">
+                        <label for="trial_days" class="block text-sm font-medium text-slate-700 mb-1.5">Días de Trial</label>
+                        <input type="number" id="trial_days" name="trial_days" value="{{ old('trial_days', 30) }}" min="1" max="90"
+                               class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none billing-input">
+                        <p class="text-xs text-slate-400 mt-1">Duración del período de prueba gratuito.</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 pt-2 border-t border-slate-200">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 mb-1">Estado Inicial</label>
+                            <div id="estado-preview" class="text-sm font-medium text-slate-700">
+                                Pendiente
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 mb-1">Vencimiento Estimado</label>
+                            <div id="vencimiento-preview" class="text-sm font-medium text-slate-700">
+                                Calculando...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endunless
 
                 <div>
                     <label for="body_id" class="block text-sm font-medium text-slate-700 mb-1.5">Cuerpo de Bomberos</label>
@@ -218,6 +275,84 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 300);
         });
     }
+
+    // Billing calculation logic
+    const planSelect = document.getElementById('plan');
+    const billingCycleSelect = document.getElementById('billing_cycle');
+    const tieneTrialCheckbox = document.getElementById('tiene_trial');
+    const trialDaysInput = document.getElementById('trial_days');
+    const trialDaysContainer = document.getElementById('trial-days-container');
+    const montoPreview = document.getElementById('monto-preview');
+    const estadoPreview = document.getElementById('estado-preview');
+    const vencimientoPreview = document.getElementById('vencimiento-preview');
+
+    function formatCurrency(amount) {
+        return '$' + amount.toLocaleString('es-CL');
+    }
+
+    function formatDate(date) {
+        return date.toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
+    function calcularFacturacion() {
+        if (!planSelect || !billingCycleSelect) return;
+
+        const selectedPlan = planSelect.options[planSelect.selectedIndex];
+        const billingCycle = billingCycleSelect.value;
+        const tieneTrial = tieneTrialCheckbox && tieneTrialCheckbox.checked;
+        const trialDays = trialDaysInput ? parseInt(trialDaysInput.value) || 30 : 30;
+
+        const precioMensual = parseInt(selectedPlan.dataset.precioMensual) || 0;
+        const precioAnual = parseInt(selectedPlan.dataset.precioAnual) || 0;
+
+        // Calcular monto
+        const monto = billingCycle === 'yearly' ? precioAnual : precioMensual;
+        montoPreview.textContent = tieneTrial ? formatCurrency(0) + ' (Trial)' : formatCurrency(monto);
+
+        // Calcular estado
+        const estado = tieneTrial ? 'Trial' : 'Pendiente';
+        estadoPreview.textContent = estado;
+        estadoPreview.className = 'text-sm font-medium ' + (tieneTrial ? 'text-blue-600' : 'text-yellow-600');
+
+        // Calcular vencimiento
+        const hoy = new Date();
+        let vencimiento;
+        if (tieneTrial) {
+            vencimiento = new Date(hoy);
+            vencimiento.setDate(vencimiento.getDate() + trialDays);
+            vencimientoPreview.textContent = 'Finaliza trial: ' + formatDate(vencimiento);
+        } else {
+            vencimiento = new Date(hoy);
+            if (billingCycle === 'yearly') {
+                vencimiento.setDate(vencimiento.getDate() + 365);
+            } else {
+                vencimiento.setDate(vencimiento.getDate() + 30);
+            }
+            vencimientoPreview.textContent = formatDate(vencimiento);
+        }
+    }
+
+    if (tieneTrialCheckbox) {
+        tieneTrialCheckbox.addEventListener('change', function() {
+            trialDaysContainer.classList.toggle('hidden', !this.checked);
+            calcularFacturacion();
+        });
+    }
+
+    if (trialDaysInput) {
+        trialDaysInput.addEventListener('input', calcularFacturacion);
+    }
+
+    if (planSelect) {
+        planSelect.addEventListener('change', calcularFacturacion);
+    }
+
+    if (billingCycleSelect) {
+        billingCycleSelect.addEventListener('change', calcularFacturacion);
+    }
+
+    // Initial calculation
+    calcularFacturacion();
 });
 </script>
 @endpush

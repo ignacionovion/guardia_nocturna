@@ -146,12 +146,10 @@
                                 </div>
                             </td>
                             <td class="px-4 py-3">
-                                <div class="flex items-center gap-1 flex-wrap">
-                                    @if($billing->estado_pago !== 'pagado' && $billing->estado_pago !== 'trial')
-                                        <button onclick="openPaymentModal({{ $billing->id }})" class="text-emerald-600 hover:text-emerald-700 p-1" title="Registrar pago">
-                                            <i class="fas fa-money-bill-wave"></i>
-                                        </button>
-                                    @endif
+                                <div class="flex items-center gap-1">
+                                    <button onclick="openPaymentModal({{ $billing->id }})" class="text-emerald-600 hover:text-emerald-700 p-1" title="Registrar pago">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                    </button>
 
                                     <button onclick="openExtendModal({{ $billing->id }})" class="text-blue-600 hover:text-blue-700 p-1" title="Extender vencimiento">
                                         <i class="fas fa-calendar-plus"></i>
@@ -161,23 +159,17 @@
                                         <i class="fas fa-exchange-alt"></i>
                                     </button>
 
-                                    <button onclick="openCycleModal({{ $billing->id }}, '{{ $billing->billing_cycle }}')" class="text-cyan-600 hover:text-cyan-700 p-1" title="Cambiar ciclo">
-                                        <i class="fas fa-sync-alt"></i>
-                                    </button>
-
                                     <button onclick="openObservationModal({{ $billing->id }}, '{{ addslashes($billing->observacion) }}')" class="text-slate-600 hover:text-slate-700 p-1" title="Editar observación">
                                         <i class="fas fa-edit"></i>
                                     </button>
 
-                                    @if($billing->estado_pago !== 'suspendido')
-                                        <form action="{{ route('central.billing.suspend', $billing) }}" method="POST" class="inline" onsubmit="return confirm('¿Suspender tenant por falta de pago?')">
-                                            @csrf
-                                            @method('PATCH')
-                                            <button type="submit" class="text-red-600 hover:text-red-700 p-1" title="Suspender">
-                                                <i class="fas fa-ban"></i>
-                                            </button>
-                                        </form>
-                                    @endif
+                                    <form action="{{ route('central.billing.suspend', $billing) }}" method="POST" class="inline" onsubmit="return confirm('¿Suspender tenant por falta de pago?')">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="text-red-600 hover:text-red-700 p-1" title="Suspender">
+                                            <i class="fas fa-ban"></i>
+                                        </button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>
