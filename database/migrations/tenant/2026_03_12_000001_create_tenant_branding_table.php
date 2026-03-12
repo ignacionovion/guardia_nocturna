@@ -22,10 +22,9 @@ return new class extends Migration
             $table->string('color_sidebar', 7)->nullable();
             $table->timestamps();
 
-            $table->foreign('tenant_id')
-                ->references('id')
-                ->on('tenants')
-                ->onDelete('cascade');
+            // Nota: No se agrega foreign key porque la tabla 'tenants' 
+            // solo existe en la base de datos central, no en los tenants
+            $table->index('tenant_id');
         });
     }
 
