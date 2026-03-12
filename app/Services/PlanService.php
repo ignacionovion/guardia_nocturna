@@ -19,7 +19,7 @@ class PlanService
             return false;
         }
         
-        // Si el tenant tiene plan_id, cargar el plan explícitamente
+        // Si el tenant tiene plan_id, cargar el plan explícitamente desde la BD
         if ($tenant->plan_id) {
             $plan = Plan::find($tenant->plan_id);
             if ($plan) {
@@ -40,7 +40,7 @@ class PlanService
             return null;
         }
         
-        // Si tiene plan_id, cargar el plan explícitamente
+        // Si tiene plan_id, cargar el plan explícitamente desde la BD
         if ($tenant->plan_id) {
             $plan = Plan::find($tenant->plan_id);
             if ($plan) {
@@ -155,40 +155,43 @@ class PlanService
     {
         $features = [
             'basico' => [
-                'reportes_avanzados' => false,
-                'whatsapp_integration' => false,
-                'estadisticas_avanzadas' => false,
-                'backup_automatico' => false,
-                'api_access' => false,
-                'custom_branding' => false,
-                'priority_support' => false,
-                'audit_logs' => false,
-                'multi_body' => false,
-                'advanced_notifications' => false,
+                'voluntarios' => true,
+                'emergencias' => false,
+                'dotaciones' => true,
+                'calendario' => true,
+                'guardia' => true,
+                'camas' => true,
+                'reportes' => false,
+                'planilla' => false,
+                'now' => false,
+                'preventiva' => false,
+                'inventario' => false,
             ],
             'profesional' => [
-                'reportes_avanzados' => true,
-                'whatsapp_integration' => true,
-                'estadisticas_avanzadas' => true,
-                'backup_automatico' => true,
-                'api_access' => false,
-                'custom_branding' => false,
-                'priority_support' => false,
-                'audit_logs' => true,
-                'multi_body' => false,
-                'advanced_notifications' => true,
+                'voluntarios' => true,
+                'emergencias' => true,
+                'dotaciones' => true,
+                'calendario' => true,
+                'guardia' => true,
+                'camas' => true,
+                'reportes' => true,
+                'planilla' => true,
+                'now' => false,
+                'preventiva' => false,
+                'inventario' => false,
             ],
             'enterprise' => [
-                'reportes_avanzados' => true,
-                'whatsapp_integration' => true,
-                'estadisticas_avanzadas' => true,
-                'backup_automatico' => true,
-                'api_access' => true,
-                'custom_branding' => true,
-                'priority_support' => true,
-                'audit_logs' => true,
-                'multi_body' => true,
-                'advanced_notifications' => true,
+                'voluntarios' => true,
+                'emergencias' => true,
+                'dotaciones' => true,
+                'calendario' => true,
+                'guardia' => true,
+                'camas' => true,
+                'reportes' => true,
+                'planilla' => true,
+                'now' => true,
+                'preventiva' => true,
+                'inventario' => true,
             ],
         ];
         

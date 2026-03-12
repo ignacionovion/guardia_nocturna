@@ -101,7 +101,7 @@
                             </div>
                         </div>
 
-                        @if(feature('reportes_avanzados') || feature('reportes'))
+                        @if(feature('guardia') || feature('camas') || feature('now'))
                         <div class="relative group">
                             <button type="button" class="px-3 py-2 rounded-md text-sm font-semibold transition-colors text-slate-200 hover:bg-slate-800 hover:text-white">
                                 <i class="fas fa-shield-halved mr-1.5 opacity-80"></i>
@@ -110,16 +110,22 @@
                             </button>
                             <div class="hidden group-hover:block absolute left-0 top-full w-56 bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden">
                                 <div class="h-2"></div>
+                                @if(feature('now'))
                                 <a href="{{ route('guardia.now') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                                     <i class="fas fa-bolt mr-2 text-slate-500"></i> Now
                                 </a>
+                                @endif
+                                @if(feature('guardia'))
                                 <a href="{{ route('admin.guardias') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                                     <i class="fas fa-shield mr-2 text-slate-500"></i> Guardias
                                 </a>
+                                @endif
+                                @if(feature('camas'))
                                 <a href="{{ route('camas') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                                     <i class="fas fa-bed mr-2 text-slate-500"></i> Camas
                                 </a>
-                                @if(feature('reportes_avanzados'))
+                                @endif
+                                @if(feature('reportes'))
                                 <a href="{{ route('admin.reports.index') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                                     <i class="fas fa-chart-pie mr-2 text-slate-500"></i> Reportes
                                 </a>
@@ -128,6 +134,7 @@
                         </div>
                         @endif
 
+                        @if(feature('preventiva'))
                         <div class="relative group">
                             <button type="button" class="px-3 py-2 rounded-md text-sm font-semibold transition-colors {{ request()->routeIs('admin.preventivas*') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                                 <i class="fas fa-clipboard-list mr-1.5 opacity-80"></i>
@@ -143,12 +150,17 @@
                                 <div class="px-4 pb-2 text-xs text-slate-500">Ver reporte desde el detalle de cada evento</div>
                             </div>
                         </div>
+                        @endif
+                        @if(feature('planilla'))
                         <a href="{{ route('admin.planillas.index') }}" class="px-3 py-2 rounded-md text-sm font-semibold transition-colors {{ request()->routeIs('admin.planillas*') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                             <i class="fas fa-table-list mr-1.5 opacity-80"></i> Planillas
                         </a>
+                        @endif
+                        @if(feature('inventario'))
                         <a href="{{ route('inventario.index') }}" class="px-3 py-2 rounded-md text-sm font-semibold transition-colors {{ request()->routeIs('inventario.*') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                             <i class="fas fa-boxes-stacked mr-1.5 opacity-80"></i> Inventario
                         </a>
+                        @endif
                     @elseif(Auth::user()->role === 'ayudante')
                         <div class="relative group">
                             <button type="button" class="px-3 py-2 rounded-md text-sm font-semibold transition-colors {{ request()->routeIs('admin.preventivas*') ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
