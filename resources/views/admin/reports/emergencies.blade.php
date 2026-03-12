@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.modern')
 
 @section('content')
 <div class="container mx-auto px-4 py-6 max-w-7xl">
@@ -6,34 +6,34 @@
     {{-- HEADER --}}
     <div class="mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-slate-800 flex items-center uppercase">
+            <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center uppercase">
                 <i class="fas fa-chart-line mr-3 text-red-600"></i> Reportes
             </h1>
-            <p class="text-slate-500 mt-1 text-sm">Estadísticas de asistencia, permisos, reemplazos y conductores</p>
+            <p class="text-slate-500 dark:text-slate-400 mt-1 text-sm">Estadísticas de asistencia, permisos, reemplazos y conductores</p>
         </div>
     </div>
 
     {{-- NAVEGACIÓN PRINCIPAL --}}
-    <div class="bg-white rounded-t-lg border border-slate-200">
+    <div class="bg-white dark:bg-slate-900 rounded-t-lg border border-slate-200 dark:border-slate-700">
         <div class="flex overflow-x-auto">
             <a href="{{ route('admin.reports.attendance') }}"
-               class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 hover:text-slate-800 transition-colors">
+               class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
                 <i class="fas fa-calendar-check"></i> Asistencia
             </a>
             <a href="{{ route('admin.reports.preventivas') }}"
-               class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 hover:text-slate-800 transition-colors">
+               class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
                 <i class="fas fa-clipboard-list"></i> Preventivas
             </a>
             <a href="{{ route('admin.reports.replacements') }}"
-               class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 hover:text-slate-800 transition-colors">
+               class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
                 <i class="fas fa-exchange-alt"></i> Reemplazos
             </a>
             <a href="{{ route('admin.reports.refuerzos') }}"
-               class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 hover:text-slate-800 transition-colors">
+               class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
                 <i class="fas fa-user-plus"></i> Refuerzos
             </a>
             <a href="{{ route('admin.reports.drivers') }}"
-               class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 hover:text-slate-800 transition-colors">
+               class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
                 <i class="fas fa-truck"></i> Conductores
             </a>
             <a href="{{ route('admin.reports.emergencies') }}"
@@ -44,17 +44,17 @@
     </div>
 
     {{-- FILTROS CON SELECTS ESTANDARIZADOS --}}
-    <div class="bg-white p-5 border border-t-0 border-slate-200 mb-6 rounded-b-lg shadow-sm">
+    <div class="bg-white dark:bg-slate-900 p-5 border border-t-0 border-slate-200 dark:border-slate-700 mb-6 rounded-b-lg shadow-sm">
         <form action="{{ route('admin.reports.emergencies') }}" method="GET" class="flex flex-wrap items-end gap-4">
             
             {{-- Select Mes - ESTANDARIZADO --}}
             <div class="min-w-[160px]">
-                <label class="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Mes</label>
+                <label class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Mes</label>
                 <div class="relative group">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                         <i class="fas fa-calendar text-slate-400 group-focus-within:text-red-500 transition-colors"></i>
                     </div>
-                    <select name="month" class="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 appearance-none cursor-pointer hover:bg-white hover:border-slate-300 transition-all shadow-sm">
+                    <select name="month" class="w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 appearance-none cursor-pointer hover:bg-white dark:bg-slate-900 hover:border-slate-300 dark:border-slate-600 transition-all shadow-sm">
                         @foreach(range(1, 12) as $m)
                             <option value="{{ $m }}" {{ $m == ($month ?? now()->month) ? 'selected' : '' }}>
                                 {{ Carbon\Carbon::create()->month($m)->locale('es')->monthName }}
@@ -62,7 +62,7 @@
                         @endforeach
                     </select>
                     <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
-                        <div class="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center">
+                        <div class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                             <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
                         </div>
                     </div>
@@ -71,18 +71,18 @@
 
             {{-- Select Año - ESTANDARIZADO --}}
             <div class="min-w-[140px]">
-                <label class="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Año</label>
+                <label class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Año</label>
                 <div class="relative group">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                         <i class="fas fa-calendar-alt text-slate-400 group-focus-within:text-red-500 transition-colors"></i>
                     </div>
-                    <select name="year" class="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 appearance-none cursor-pointer hover:bg-white hover:border-slate-300 transition-all shadow-sm">
+                    <select name="year" class="w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 appearance-none cursor-pointer hover:bg-white dark:bg-slate-900 hover:border-slate-300 dark:border-slate-600 transition-all shadow-sm">
                         @foreach(range(now()->year - 2, now()->year + 1) as $y)
                             <option value="{{ $y }}" {{ $y == ($year ?? now()->year) ? 'selected' : '' }}>{{ $y }}</option>
                         @endforeach
                     </select>
                     <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
-                        <div class="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center">
+                        <div class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                             <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
                         </div>
                     </div>
@@ -91,19 +91,19 @@
 
             {{-- Select Guardia - ESTANDARIZADO --}}
             <div class="min-w-[220px]">
-                <label class="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Guardia</label>
+                <label class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Guardia</label>
                 <div class="relative group">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                         <i class="fas fa-shield-alt text-slate-400 group-focus-within:text-red-500 transition-colors"></i>
                     </div>
-                    <select name="guardia_id" class="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 appearance-none cursor-pointer hover:bg-white hover:border-slate-300 transition-all shadow-sm">
+                    <select name="guardia_id" class="w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 appearance-none cursor-pointer hover:bg-white dark:bg-slate-900 hover:border-slate-300 dark:border-slate-600 transition-all shadow-sm">
                         <option value="">Todas las Guardias</option>
                         @foreach($guardias ?? [] as $g)
                             <option value="{{ $g->id }}" {{ ($guardiaId ?? '') == $g->id ? 'selected' : '' }}>{{ $g->name }}</option>
                         @endforeach
                     </select>
                     <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
-                        <div class="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center">
+                        <div class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                             <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
                         </div>
                     </div>
@@ -115,7 +115,7 @@
                 <button type="submit" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-900 text-white font-extrabold text-xs uppercase tracking-widest transition-all shadow-md hover:shadow-lg">
                     <i class="fas fa-filter"></i> Filtrar
                 </button>
-                <a href="{{ route('admin.reports.emergencies') }}" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs uppercase tracking-widest transition-all" title="Limpiar filtros">
+                <a href="{{ route('admin.reports.emergencies') }}" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 font-extrabold text-xs uppercase tracking-widest transition-all" title="Limpiar filtros">
                     <i class="fas fa-undo"></i>
                 </a>
             </div>
@@ -137,53 +137,53 @@
     {{-- KPIs --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {{-- Total Emergencias --}}
-        <div class="bg-white rounded-xl border-l-4 border-red-500 shadow-sm p-5">
+        <div class="bg-white dark:bg-slate-900 rounded-xl border-l-4 border-red-500 shadow-sm p-5">
             <div class="flex items-center">
                 <div class="flex-shrink-0 w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
                     <i class="fas fa-ambulance text-xl text-red-600"></i>
                 </div>
                 <div class="ml-4">
-                    <p class="text-xs font-black text-slate-500 uppercase tracking-wider">Total Emergencias</p>
-                    <p class="text-2xl font-bold text-slate-800">{{ $kpis['total_emergencies'] }}</p>
+                    <p class="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Emergencias</p>
+                    <p class="text-2xl font-bold text-slate-800 dark:text-white">{{ $kpis['total_emergencies'] }}</p>
                 </div>
             </div>
         </div>
 
         {{-- Período --}}
-        <div class="bg-white rounded-xl border-l-4 border-blue-500 shadow-sm p-5">
+        <div class="bg-white dark:bg-slate-900 rounded-xl border-l-4 border-blue-500 shadow-sm p-5">
             <div class="flex items-center">
                 <div class="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                     <i class="fas fa-calendar text-xl text-blue-600"></i>
                 </div>
                 <div class="ml-4">
-                    <p class="text-xs font-black text-slate-500 uppercase tracking-wider">Período</p>
-                    <p class="text-lg font-bold text-slate-800">{{ Carbon\Carbon::create()->month($month)->locale('es')->monthName }} {{ $year }}</p>
+                    <p class="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">Período</p>
+                    <p class="text-lg font-bold text-slate-800 dark:text-white">{{ Carbon\Carbon::create()->month($month)->locale('es')->monthName }} {{ $year }}</p>
                 </div>
             </div>
         </div>
 
         {{-- Guardia Filtrada --}}
-        <div class="bg-white rounded-xl border-l-4 border-cyan-500 shadow-sm p-5">
+        <div class="bg-white dark:bg-slate-900 rounded-xl border-l-4 border-cyan-500 shadow-sm p-5">
             <div class="flex items-center">
                 <div class="flex-shrink-0 w-12 h-12 bg-cyan-100 rounded-lg flex items-center justify-center">
                     <i class="fas fa-shield-alt text-xl text-cyan-600"></i>
                 </div>
                 <div class="ml-4">
-                    <p class="text-xs font-black text-slate-500 uppercase tracking-wider">Guardia</p>
-                    <p class="text-lg font-bold text-slate-800">{{ $kpis['guardia_filter'] }}</p>
+                    <p class="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">Guardia</p>
+                    <p class="text-lg font-bold text-slate-800 dark:text-white">{{ $kpis['guardia_filter'] }}</p>
                 </div>
             </div>
         </div>
 
         {{-- Claves Distintas --}}
-        <div class="bg-white rounded-xl border-l-4 border-amber-500 shadow-sm p-5">
+        <div class="bg-white dark:bg-slate-900 rounded-xl border-l-4 border-amber-500 shadow-sm p-5">
             <div class="flex items-center">
                 <div class="flex-shrink-0 w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
                     <i class="fas fa-key text-xl text-amber-600"></i>
                 </div>
                 <div class="ml-4">
-                    <p class="text-xs font-black text-slate-500 uppercase tracking-wider">Claves Distintas</p>
-                    <p class="text-2xl font-bold text-slate-800">{{ $topKeys->count() }}</p>
+                    <p class="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">Claves Distintas</p>
+                    <p class="text-2xl font-bold text-slate-800 dark:text-white">{{ $topKeys->count() }}</p>
                 </div>
             </div>
         </div>
@@ -192,10 +192,10 @@
     {{-- GRÁFICOS --}}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {{-- Emergencias por Guardia --}}
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="px-5 py-4 border-b border-slate-200 bg-slate-50">
-                <h3 class="text-sm font-bold text-slate-800 flex items-center">
-                    <i class="fas fa-chart-bar mr-2 text-slate-500"></i> Emergencias por Guardia
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                <h3 class="text-sm font-bold text-slate-800 dark:text-white flex items-center">
+                    <i class="fas fa-chart-bar mr-2 text-slate-500 dark:text-slate-400"></i> Emergencias por Guardia
                 </h3>
             </div>
             <div class="p-5" style="height: 280px; position: relative;">
@@ -204,10 +204,10 @@
         </div>
 
         {{-- Emergencias Mensuales --}}
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="px-5 py-4 border-b border-slate-200 bg-slate-50">
-                <h3 class="text-sm font-bold text-slate-800 flex items-center">
-                    <i class="fas fa-chart-line mr-2 text-slate-500"></i> Emergencias Mensuales ({{ $year }})
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                <h3 class="text-sm font-bold text-slate-800 dark:text-white flex items-center">
+                    <i class="fas fa-chart-line mr-2 text-slate-500 dark:text-slate-400"></i> Emergencias Mensuales ({{ $year }})
                 </h3>
             </div>
             <div class="p-5" style="height: 280px; position: relative;">
@@ -219,10 +219,10 @@
     {{-- GRÁFICOS 2 --}}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {{-- Emergencias por Hora --}}
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="px-5 py-4 border-b border-slate-200 bg-slate-50">
-                <h3 class="text-sm font-bold text-slate-800 flex items-center">
-                    <i class="fas fa-clock mr-2 text-slate-500"></i> Emergencias por Hora del Día
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                <h3 class="text-sm font-bold text-slate-800 dark:text-white flex items-center">
+                    <i class="fas fa-clock mr-2 text-slate-500 dark:text-slate-400"></i> Emergencias por Hora del Día
                 </h3>
             </div>
             <div class="p-5" style="height: 280px; position: relative;">
@@ -231,10 +231,10 @@
         </div>
 
         {{-- Top 5 Claves --}}
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="px-5 py-4 border-b border-slate-200 bg-slate-50">
-                <h3 class="text-sm font-bold text-slate-800 flex items-center">
-                    <i class="fas fa-key mr-2 text-slate-500"></i> Top 5 Claves Más Concurridas
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                <h3 class="text-sm font-bold text-slate-800 dark:text-white flex items-center">
+                    <i class="fas fa-key mr-2 text-slate-500 dark:text-slate-400"></i> Top 5 Claves Más Concurridas
                 </h3>
             </div>
             <div class="p-5" style="height: 280px; position: relative;">
@@ -246,32 +246,32 @@
     {{-- TABLAS --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         {{-- Vehículos más utilizados --}}
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="px-5 py-4 border-b border-slate-200 bg-slate-50">
-                <h3 class="text-sm font-bold text-slate-800 flex items-center">
-                    <i class="fas fa-car mr-2 text-slate-500"></i> Unidades Más Utilizados
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                <h3 class="text-sm font-bold text-slate-800 dark:text-white flex items-center">
+                    <i class="fas fa-car mr-2 text-slate-500 dark:text-slate-400"></i> Unidades Más Utilizados
                 </h3>
-                <p class="text-xs text-slate-500 mt-1">Ordenado de menor a mayor</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Ordenado de menor a mayor</p>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
-                    <thead class="bg-slate-50">
+                    <thead class="bg-slate-50 dark:bg-slate-800">
                         <tr>
-                            <th class="px-4 py-3 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">Vehículo</th>
-                            <th class="px-4 py-3 text-center text-xs font-bold text-slate-600 uppercase tracking-wider">Total</th>
-                            <th class="px-4 py-3 text-center text-xs font-bold text-slate-600 uppercase tracking-wider">%</th>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Vehículo</th>
+                            <th class="px-4 py-3 text-center text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Total</th>
+                            <th class="px-4 py-3 text-center text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">%</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-200">
                         @forelse($vehiclesUsed as $vehicle)
-                            <tr class="hover:bg-slate-50">
-                                <td class="px-4 py-3 font-medium text-slate-700">{{ $vehicle['vehicle'] }}</td>
+                            <tr class="hover:bg-slate-50 dark:bg-slate-800">
+                                <td class="px-4 py-3 font-medium text-slate-700 dark:text-slate-300">{{ $vehicle['vehicle'] }}</td>
                                 <td class="px-4 py-3 text-center">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-white">
                                         {{ $vehicle['total'] }}
                                     </span>
                                 </td>
-                                <td class="px-4 py-3 text-center text-slate-500">
+                                <td class="px-4 py-3 text-center text-slate-500 dark:text-slate-400">
                                     @if($kpis['total_emergencies'] > 0)
                                         {{ round(($vehicle['total'] / $kpis['total_emergencies']) * 100, 1) }}%
                                     @else
@@ -281,7 +281,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="3" class="px-4 py-8 text-center text-slate-500">Sin datos</td>
+                                <td colspan="3" class="px-4 py-8 text-center text-slate-500 dark:text-slate-400">Sin datos</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -290,8 +290,8 @@
         </div>
 
         {{-- Sistema de Puntos --}}
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="px-5 py-4 border-b border-slate-200 bg-amber-50">
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-amber-50">
                 <h3 class="text-sm font-bold text-amber-800 flex items-center">
                     <i class="fas fa-star mr-2 text-amber-600"></i> Sistema de Puntos
                 </h3>
@@ -299,22 +299,22 @@
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
-                    <thead class="bg-slate-50">
+                    <thead class="bg-slate-50 dark:bg-slate-800">
                         <tr>
-                            <th class="px-3 py-3 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">Clave</th>
-                            <th class="px-3 py-3 text-center text-xs font-bold text-slate-600 uppercase tracking-wider">Cant</th>
-                            <th class="px-3 py-3 text-center text-xs font-bold text-slate-600 uppercase tracking-wider">Pts</th>
-                            <th class="px-3 py-3 text-center text-xs font-bold text-slate-600 uppercase tracking-wider">Total</th>
+                            <th class="px-3 py-3 text-left text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Clave</th>
+                            <th class="px-3 py-3 text-center text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Cant</th>
+                            <th class="px-3 py-3 text-center text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Pts</th>
+                            <th class="px-3 py-3 text-center text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Total</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-200">
                         @forelse($pointsByKey->take(10) as $key)
-                            <tr class="hover:bg-slate-50">
+                            <tr class="hover:bg-slate-50 dark:bg-slate-800">
                                 <td class="px-3 py-3">
                                     <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-800">
                                         {{ $key['key'] }}
                                     </span>
-                                    <p class="text-xs text-slate-500 mt-1 truncate max-w-[120px]">{{ $key['description'] }}</p>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 truncate max-w-[120px]">{{ $key['description'] }}</p>
                                 </td>
                                 <td class="px-3 py-3 text-center">{{ $key['total'] }}</td>
                                 <td class="px-3 py-3 text-center">
@@ -326,7 +326,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="px-4 py-8 text-center text-slate-500">Sin datos</td>
+                                <td colspan="4" class="px-4 py-8 text-center text-slate-500 dark:text-slate-400">Sin datos</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -335,36 +335,36 @@
         </div>
 
         {{-- Top Claves --}}
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="px-5 py-4 border-b border-slate-200 bg-slate-50">
-                <h3 class="text-sm font-bold text-slate-800 flex items-center">
-                    <i class="fas fa-list-ol mr-2 text-slate-500"></i> Top 5 Claves
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                <h3 class="text-sm font-bold text-slate-800 dark:text-white flex items-center">
+                    <i class="fas fa-list-ol mr-2 text-slate-500 dark:text-slate-400"></i> Top 5 Claves
                 </h3>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
-                    <thead class="bg-slate-50">
+                    <thead class="bg-slate-50 dark:bg-slate-800">
                         <tr>
-                            <th class="px-4 py-3 text-center text-xs font-bold text-slate-600 uppercase tracking-wider">#</th>
-                            <th class="px-4 py-3 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">Clave</th>
-                            <th class="px-4 py-3 text-center text-xs font-bold text-slate-600 uppercase tracking-wider">Total</th>
+                            <th class="px-4 py-3 text-center text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">#</th>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Clave</th>
+                            <th class="px-4 py-3 text-center text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Total</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-200">
                         @forelse($topKeys as $index => $key)
-                            <tr class="hover:bg-slate-50">
+                            <tr class="hover:bg-slate-50 dark:bg-slate-800">
                                 <td class="px-4 py-3 text-center">
                                     @if($index < 3)
                                         <i class="fas fa-medal text-lg {{ ['text-yellow-500', 'text-slate-400', 'text-amber-700'][$index] }}"></i>
                                     @else
-                                        <span class="text-slate-500 font-medium">{{ $index + 1 }}</span>
+                                        <span class="text-slate-500 dark:text-slate-400 font-medium">{{ $index + 1 }}</span>
                                     @endif
                                 </td>
                                 <td class="px-4 py-3">
                                     <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-800">
                                         {{ $key['key'] }}
                                     </span>
-                                    <p class="text-xs text-slate-500 mt-1 truncate max-w-[150px]">{{ $key['description'] }}</p>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 truncate max-w-[150px]">{{ $key['description'] }}</p>
                                 </td>
                                 <td class="px-4 py-3 text-center">
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800">
@@ -374,7 +374,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="3" class="px-4 py-8 text-center text-slate-500">Sin datos</td>
+                                <td colspan="3" class="px-4 py-8 text-center text-slate-500 dark:text-slate-400">Sin datos</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -384,29 +384,29 @@
     </div>
 
     {{-- Detalle por Guardia --}}
-    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-6">
-        <div class="px-5 py-4 border-b border-slate-200 bg-slate-50">
-            <h3 class="text-sm font-bold text-slate-800 flex items-center">
-                <i class="fas fa-shield-alt mr-2 text-slate-500"></i> Detalle por Guardia
+    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden mb-6">
+        <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+            <h3 class="text-sm font-bold text-slate-800 dark:text-white flex items-center">
+                <i class="fas fa-shield-alt mr-2 text-slate-500 dark:text-slate-400"></i> Detalle por Guardia
             </h3>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
-                <thead class="bg-slate-50">
+                <thead class="bg-slate-50 dark:bg-slate-800">
                     <tr>
-                        <th class="px-5 py-4 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">Guardia</th>
-                        <th class="px-5 py-4 text-center text-xs font-bold text-slate-600 uppercase tracking-wider">Total Emergencias</th>
-                        <th class="px-5 py-4 text-center text-xs font-bold text-slate-600 uppercase tracking-wider">% del Total</th>
-                        <th class="px-5 py-4 text-left text-xs font-bold text-slate-600 uppercase tracking-wider" style="width: 30%;">Progreso</th>
+                        <th class="px-5 py-4 text-left text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Guardia</th>
+                        <th class="px-5 py-4 text-center text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Total Emergencias</th>
+                        <th class="px-5 py-4 text-center text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">% del Total</th>
+                        <th class="px-5 py-4 text-left text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider" style="width: 30%;">Progreso</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-200">
                     @forelse($statsByGuardia as $stat)
-                        <tr class="hover:bg-slate-50">
+                        <tr class="hover:bg-slate-50 dark:bg-slate-800">
                             <td class="px-5 py-4">
                                 <div class="flex items-center">
                                     <i class="fas fa-shield-alt text-cyan-500 mr-3"></i>
-                                    <span class="font-medium text-slate-700">{{ $stat['guardia'] }}</span>
+                                    <span class="font-medium text-slate-700 dark:text-slate-300">{{ $stat['guardia'] }}</span>
                                 </div>
                             </td>
                             <td class="px-5 py-4 text-center">
@@ -416,9 +416,9 @@
                             </td>
                             <td class="px-5 py-4 text-center">
                                 @if($kpis['total_emergencies'] > 0)
-                                    <span class="text-slate-600 font-medium">{{ round(($stat['total'] / $kpis['total_emergencies']) * 100, 1) }}%</span>
+                                    <span class="text-slate-600 dark:text-slate-400 font-medium">{{ round(($stat['total'] / $kpis['total_emergencies']) * 100, 1) }}%</span>
                                 @else
-                                    <span class="text-slate-500">0%</span>
+                                    <span class="text-slate-500 dark:text-slate-400">0%</span>
                                 @endif
                             </td>
                             <td class="px-5 py-4">
@@ -439,7 +439,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-5 py-8 text-center text-slate-500">Sin datos</td>
+                            <td colspan="4" class="px-5 py-8 text-center text-slate-500 dark:text-slate-400">Sin datos</td>
                         </tr>
                     @endforelse
                 </tbody>

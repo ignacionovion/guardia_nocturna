@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.modern')
 
 @section('content')
 <div class="w-full py-4">

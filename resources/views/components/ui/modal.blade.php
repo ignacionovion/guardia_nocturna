@@ -49,7 +49,7 @@ $iconColorClass = $iconColors[$iconColor] ?? $iconColors['slate'];
              x-transition:leave-end="opacity-0"></div>
         
         {{-- Modal Panel --}}
-        <div class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl {{ $maxWidthClass }} w-full transform transition-all border border-slate-200 dark:border-slate-800"
+        <div class="relative bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl shadow-2xl {{ $maxWidthClass }} w-full transform transition-all border border-slate-200 dark:border-slate-700 dark:border-slate-800"
              x-show="open"
              x-transition:enter="ease-out duration-200"
              x-transition:enter-start="opacity-0 scale-95"
@@ -59,7 +59,7 @@ $iconColorClass = $iconColors[$iconColor] ?? $iconColors['slate'];
              x-transition:leave-end="opacity-0 scale-95">
             {{-- Header --}}
             @if($title)
-            <div class="flex items-center gap-4 px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+            <div class="flex items-center gap-4 px-6 py-4 border-b border-slate-200 dark:border-slate-700 dark:border-slate-800">
                 @if($icon)
                 <div class="w-10 h-10 rounded-xl {{ $iconColorClass }} flex items-center justify-center shrink-0">
                     <i class="{{ $icon }}"></i>
@@ -70,7 +70,7 @@ $iconColorClass = $iconColors[$iconColor] ?? $iconColors['slate'];
                 </div>
                 <button type="button" 
                         @click="open = false; document.getElementById('{{ $id }}').classList.add('hidden')"
-                        class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                        class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-800 transition-colors">
                     <i class="fas fa-xmark"></i>
                 </button>
             </div>
@@ -83,7 +83,7 @@ $iconColorClass = $iconColors[$iconColor] ?? $iconColors['slate'];
             
             {{-- Footer --}}
             @if(isset($footer))
-            <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 rounded-b-2xl">
+            <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-200 dark:border-slate-700 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 dark:bg-slate-800/50 rounded-b-2xl">
                 {{ $footer }}
             </div>
             @endif

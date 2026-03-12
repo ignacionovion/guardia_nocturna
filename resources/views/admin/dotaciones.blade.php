@@ -1,12 +1,12 @@
-@extends('layouts.app')
+@extends('layouts.modern')
 
 @section('content')
-    <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 border-b border-slate-200 pb-6">
+    <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 border-b border-slate-200 dark:border-slate-700 pb-6">
         <div>
-            <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight flex items-center uppercase">
+            <h1 class="text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight flex items-center uppercase">
                 <i class="fas fa-users-gear mr-3 text-red-700"></i> Dotaciones
             </h1>
-            <p class="text-slate-500 mt-1 font-medium">Asignación de personal a guardias</p>
+            <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium">Asignación de personal a guardias</p>
         </div>
     </div>
 
@@ -33,7 +33,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         @foreach($guardias as $guardia)
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
                 <div class="bg-slate-900 text-white p-4 border-b border-slate-800 flex items-center justify-between">
                     <div>
                         <h2 class="text-lg font-black tracking-tight uppercase">{{ $guardia->name }}</h2>
@@ -49,15 +49,15 @@
                         <input type="hidden" name="guardia_id" value="{{ $guardia->id }}">
 
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Voluntario</label>
+                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">Voluntario</label>
                             <div class="relative">
                                 <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                                 <input name="firefighter_id_display" autocomplete="off" data-dotaciones-volunteer-input data-guardia-id="{{ $guardia->id }}"
-                                       class="w-full text-sm border-slate-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 pl-9 py-2.5 bg-slate-50"
+                                       class="w-full text-sm border-slate-300 dark:border-slate-600 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 pl-9 py-2.5 bg-slate-50 dark:bg-slate-800"
                                        placeholder="Buscar por nombre, apellido o RUT..." required>
                                 <input type="hidden" name="firefighter_id" id="firefighter_id_input_{{ $guardia->id }}" required>
 
-                                <div id="volunteer_dropdown_{{ $guardia->id }}" class="hidden absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-20 max-h-60 overflow-auto"></div>
+                                <div id="volunteer_dropdown_{{ $guardia->id }}" class="hidden absolute left-0 right-0 mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg z-20 max-h-60 overflow-auto"></div>
                             </div>
                             <div class="hidden text-xs text-red-700 font-bold mt-2" data-dotaciones-error data-guardia-id="{{ $guardia->id }}"></div>
                         </div>
@@ -67,17 +67,17 @@
                         </button>
                     </form>
 
-                    <div class="border-t border-slate-100 pt-4">
-                        <h3 class="text-xs font-black text-slate-500 uppercase tracking-widest mb-3">Personal asignado</h3>
+                    <div class="border-t border-slate-100 dark:border-slate-800 pt-4">
+                        <h3 class="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3">Personal asignado</h3>
                         <div class="space-y-2">
                             @forelse($guardia->bomberos as $user)
-                                <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-lg p-2">
+                                <div class="flex items-center justify-between bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2">
                                     <div>
-                                        <p class="text-sm font-bold text-slate-800">{{ $user->nombres }} {{ $user->apellido_paterno }}</p>
+                                        <p class="text-sm font-bold text-slate-800 dark:text-white">{{ $user->nombres }} {{ $user->apellido_paterno }}</p>
                                         @if($user->cargo_texto)
-                                            <p class="text-[11px] text-slate-600 font-black uppercase tracking-widest">{{ $user->cargo_texto }}</p>
+                                            <p class="text-[11px] text-slate-600 dark:text-slate-400 font-black uppercase tracking-widest">{{ $user->cargo_texto }}</p>
                                         @endif
-                                        <p class="text-[11px] text-slate-500 font-medium uppercase tracking-wide">
+                                        <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide">
                                             {{ $user->es_jefe_guardia ? 'Jefe de Guardia' : 'Bombero' }}
                                         </p>
                                         <div class="flex gap-1 mt-1">
@@ -98,7 +98,7 @@
                                         @csrf
                                         <input type="hidden" name="guardia_id" value="{{ $guardia->id }}">
                                         <input type="hidden" name="firefighter_id" value="{{ $user->id }}">
-                                        <button type="submit" class="text-slate-400 hover:text-red-600 p-2 rounded-md hover:bg-white transition-all" title="Quitar de guardia">
+                                        <button type="submit" class="text-slate-400 hover:text-red-600 p-2 rounded-md hover:bg-white dark:bg-slate-900 transition-all" title="Quitar de guardia">
                                             <i class="fas fa-user-minus"></i>
                                         </button>
                                     </form>
@@ -200,7 +200,7 @@
             for (const v of items) {
                 const btn = document.createElement('button');
                 btn.type = 'button';
-                btn.className = 'w-full text-left px-3 py-2 hover:bg-slate-50 transition flex items-center justify-between';
+                btn.className = 'w-full text-left px-3 py-2 hover:bg-slate-50 dark:bg-slate-800 transition flex items-center justify-between';
                 btn.addEventListener('click', function () {
                     setSelectedVolunteer(guardiaId, v);
                 });
@@ -208,7 +208,7 @@
                 const left = document.createElement('div');
                 left.className = 'min-w-0';
                 const name = document.createElement('div');
-                name.className = 'text-sm font-bold text-slate-700 truncate';
+                name.className = 'text-sm font-bold text-slate-700 dark:text-slate-300 truncate';
                 name.textContent = formatVolunteerLabel(v);
                 left.appendChild(name);
 

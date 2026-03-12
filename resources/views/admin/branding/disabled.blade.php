@@ -1,20 +1,20 @@
-@extends('layouts.app')
+@extends('layouts.modern')
 
 @section('title', 'Marca Personalizada - GuardiAPP')
 
 @section('content')
 <div class="container mx-auto px-4 py-12">
     <div class="max-w-2xl mx-auto text-center">
-        <div class="bg-slate-50 rounded-2xl border border-slate-200 p-8">
+        <div class="bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-8">
             <div class="w-16 h-16 bg-slate-200 rounded-full flex items-center justify-center mx-auto mb-6">
-                <i class="fas fa-palette text-slate-500 text-2xl"></i>
+                <i class="fas fa-palette text-slate-500 dark:text-slate-400 text-2xl"></i>
             </div>
             
             <h1 class="text-2xl font-bold text-slate-900 mb-3">
                 Marca Personalizada
             </h1>
             
-            <p class="text-slate-600 mb-6">
+            <p class="text-slate-600 dark:text-slate-400 mb-6">
                 Tu plan actual no incluye la funcionalidad de Marca Personalizada.
             </p>
             
@@ -43,7 +43,7 @@
             </div>
             
             <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <a href="{{ route('dashboard') }}" class="text-slate-600 hover:text-slate-800 font-medium">
+                <a href="{{ route('dashboard') }}" class="text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white font-medium">
                     Volver al inicio
                 </a>
                 

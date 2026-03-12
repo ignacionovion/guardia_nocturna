@@ -108,7 +108,7 @@
                     @endfor
                 </div>
                 
-                <div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                <div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700 dark:border-slate-700">
                     <x-ui.button variant="outline" class="w-full" href="#">
                         <i class="fas fa-expand mr-2"></i>
                         Ver todas las camas
@@ -186,7 +186,7 @@
                 </tr>
             </x-slot:head>
             
-            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50">
+            <tr class="hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700/50">
                 <td class="px-4 py-3">
                     <div class="flex items-center gap-3">
                         <x-ui.avatar name="Pedro Soto" size="sm" />
@@ -199,7 +199,7 @@
                 <td class="px-4 py-3">
                     <x-ui.badge variant="purple">Permiso</x-ui.badge>
                 </td>
-                <td class="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">Cita médica</td>
+                <td class="px-4 py-3 text-sm text-slate-600 dark:text-slate-400 dark:text-slate-300">Cita médica</td>
                 <td class="px-4 py-3">
                     <x-ui.badge variant="warning">Pendiente</x-ui.badge>
                 </td>
@@ -210,7 +210,7 @@
                 </td>
             </tr>
             
-            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50">
+            <tr class="hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700/50">
                 <td class="px-4 py-3">
                     <div class="flex items-center gap-3">
                         <x-ui.avatar name="Luis Vera" size="sm" />
@@ -223,7 +223,7 @@
                 <td class="px-4 py-3">
                     <x-ui.badge variant="info">Licencia</x-ui.badge>
                 </td>
-                <td class="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">Licencia médica 3 días</td>
+                <td class="px-4 py-3 text-sm text-slate-600 dark:text-slate-400 dark:text-slate-300">Licencia médica 3 días</td>
                 <td class="px-4 py-3">
                     <x-ui.badge variant="success">Aprobado</x-ui.badge>
                 </td>

@@ -17,7 +17,7 @@
                     <div class="flex items-center gap-3 mb-1">
                         <h1 class="text-2xl font-bold text-white">Centro de Comando</h1>
                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-white/20 text-white backdrop-blur">
-                            <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+                            <span class="w-2 h-2 rounded-full bg-white dark:bg-slate-900 animate-pulse"></span>
                             EN VIVO
                         </span>
                     </div>
@@ -29,7 +29,7 @@
                     <i class="fas fa-clock text-white/70"></i>
                     <span class="text-white font-semibold" id="live-clock">{{ now()->format('H:i:s') }}</span>
                 </div>
-                <button class="px-4 py-2 rounded-xl bg-white text-emerald-700 font-semibold text-sm hover:bg-emerald-50 transition-colors">
+                <button class="px-4 py-2 rounded-xl bg-white dark:bg-slate-900 text-emerald-700 font-semibold text-sm hover:bg-emerald-50 transition-colors">
                     <i class="fas fa-file-pdf mr-2"></i>
                     Exportar PDF
                 </button>
@@ -43,19 +43,19 @@
 
     {{-- Quick Stats --}}
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 text-center">
+        <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 p-4 text-center">
             <div class="text-3xl font-bold text-emerald-600 dark:text-emerald-400">{{ $totalPresentes ?? 12 }}</div>
             <div class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1">Presentes</div>
         </div>
-        <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 text-center">
+        <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 p-4 text-center">
             <div class="text-3xl font-bold text-amber-600 dark:text-amber-400">{{ $totalReemplazos ?? 2 }}</div>
             <div class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1">Reemplazos</div>
         </div>
-        <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 text-center">
+        <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 p-4 text-center">
             <div class="text-3xl font-bold text-blue-600 dark:text-blue-400">{{ $totalRefuerzos ?? 1 }}</div>
             <div class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1">Refuerzos</div>
         </div>
-        <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 text-center">
+        <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 p-4 text-center">
             <div class="text-3xl font-bold text-purple-600 dark:text-purple-400">{{ $totalPermisos ?? 3 }}</div>
             <div class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1">Permisos</div>
         </div>
@@ -66,8 +66,8 @@
         {{-- Dotación Principal --}}
         <div class="xl:col-span-3 space-y-6">
             {{-- Presentes --}}
-            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-                <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-emerald-50 dark:bg-emerald-900/20">
+            <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 dark:border-slate-800 flex items-center justify-between bg-emerald-50 dark:bg-emerald-900/20">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center">
                             <i class="fas fa-check-circle text-white"></i>
@@ -132,8 +132,8 @@
             {{-- Reemplazos y Refuerzos --}}
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {{-- Reemplazos --}}
-                <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-                    <div class="px-5 py-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-amber-50 dark:bg-amber-900/20">
+                <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 overflow-hidden">
+                    <div class="px-5 py-3 border-b border-slate-200 dark:border-slate-700 dark:border-slate-800 flex items-center justify-between bg-amber-50 dark:bg-amber-900/20">
                         <div class="flex items-center gap-2">
                             <div class="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center">
                                 <i class="fas fa-people-arrows text-white text-sm"></i>
@@ -174,8 +174,8 @@
                 </div>
 
                 {{-- Refuerzos --}}
-                <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-                    <div class="px-5 py-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-blue-50 dark:bg-blue-900/20">
+                <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 overflow-hidden">
+                    <div class="px-5 py-3 border-b border-slate-200 dark:border-slate-700 dark:border-slate-800 flex items-center justify-between bg-blue-50 dark:bg-blue-900/20">
                         <div class="flex items-center gap-2">
                             <div class="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center">
                                 <i class="fas fa-user-plus text-white text-sm"></i>
@@ -207,7 +207,7 @@
                         </div>
                         @endforeach
                         @if(count($refuerzos) === 0)
-                        <div class="text-center py-6 text-slate-400 dark:text-slate-500">
+                        <div class="text-center py-6 text-slate-400 dark:text-slate-500 dark:text-slate-400">
                             <i class="fas fa-user-plus text-2xl mb-2"></i>
                             <p class="text-sm">Sin refuerzos</p>
                         </div>
@@ -217,8 +217,8 @@
             </div>
 
             {{-- Ausencias --}}
-            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-                <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 dark:border-slate-800 flex items-center justify-between">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-xl bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
                             <i class="fas fa-user-clock text-slate-500 dark:text-slate-400"></i>
@@ -245,7 +245,7 @@
                         @endphp
                         @foreach($ausencias as $a)
                         @php $tc = $tipoConfig[$a['tipo']]; @endphp
-                        <div class="p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+                        <div class="p-3 rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 dark:bg-slate-800/50">
                             <div class="flex items-center gap-3 mb-2">
                                 <div class="w-8 h-8 rounded-lg bg-{{ $tc['color'] }}-100 dark:bg-{{ $tc['color'] }}-900/30 flex items-center justify-center">
                                     <i class="fas {{ $tc['icon'] }} text-{{ $tc['color'] }}-600 dark:text-{{ $tc['color'] }}-400 text-xs"></i>
@@ -266,13 +266,13 @@
         {{-- Panel Lateral --}}
         <div class="space-y-6">
             {{-- Resumen Operativo --}}
-            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5">
+            <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 p-5">
                 <h3 class="font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
                     <i class="fas fa-chart-pie text-slate-400"></i>
                     Resumen Operativo
                 </h3>
                 <div class="space-y-3">
-                    <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800 dark:bg-slate-800/50">
                         <span class="text-sm text-slate-600 dark:text-slate-400">Dotación requerida</span>
                         <span class="font-bold text-slate-900 dark:text-white">15</span>
                     </div>
@@ -288,7 +288,7 @@
             </div>
 
             {{-- Estado de Camas --}}
-            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5">
+            <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 p-5">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                         <i class="fas fa-bed text-slate-400"></i>
@@ -317,7 +317,7 @@
             </div>
 
             {{-- Acciones Rápidas --}}
-            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5">
+            <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 p-5">
                 <h3 class="font-semibold text-slate-900 dark:text-white mb-4">Acciones</h3>
                 <div class="space-y-2">
                     <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors text-sm font-medium">
@@ -340,7 +340,7 @@
             </div>
 
             {{-- Última Actualización --}}
-            <div class="bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 p-4 text-center">
+            <div class="bg-slate-50 dark:bg-slate-800 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-700 p-4 text-center">
                 <p class="text-xs text-slate-500 dark:text-slate-400">Última actualización</p>
                 <p class="text-sm font-semibold text-slate-700 dark:text-slate-300 mt-1">{{ now()->format('H:i:s') }}</p>
                 <button class="mt-2 text-xs text-blue-600 dark:text-blue-400 hover:underline">

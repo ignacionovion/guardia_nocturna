@@ -21,12 +21,12 @@
         </tr>
         <tr class="bg-sky-100">
             @foreach(['1', '2', '3', '4', '5', '6', '7', 'OBAC (M7)', 'Radios', 'Motorola', '1', '2'] as $label)
-                <th class="p-1 text-xs text-center font-bold border border-teal-600 bg-teal-100 text-slate-800">{{ $label }}</th>
+                <th class="p-1 text-xs text-center font-bold border border-teal-600 bg-teal-100 text-slate-800 dark:text-white">{{ $label }}</th>
             @endforeach
         </tr>
         <tr>
             @for($i = 1; $i <= 7; $i++)
-                <td class="p-1 border border-slate-300 text-center">
+                <td class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                     @if($readonly)
                         <div class="font-semibold">{{ $data['cabina']['era_msa_g1']['num_'.$i] ?? '—' }}</div>
                     @else
@@ -34,29 +34,29 @@
                     @endif
                 </td>
             @endfor
-            <td class="p-1 border border-slate-300 text-center">
+            <td class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cabina']['era_msa_g1']['obac_m7'] ?? '—' }}</div>
                 @else
                     <input type="text" name="data[cabina][era_msa_g1][obac_m7]" value="{{ $data['cabina']['era_msa_g1']['obac_m7'] ?? '' }}" class="w-full text-sm border rounded p-1 text-center">
                 @endif
             </td>
-            <td class="p-1 border border-slate-300 text-center">
+            <td class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cabina']['era_msa_g1']['radios'] ?? '—' }}</div>
                 @else
                     <input type="text" name="data[cabina][era_msa_g1][radios]" value="{{ $data['cabina']['era_msa_g1']['radios'] ?? '' }}" class="w-full text-sm border rounded p-1 text-center">
                 @endif
             </td>
-            <td class="p-1 border border-slate-300 bg-sky-100"></td>
-            <td class="p-1 border border-slate-300 text-center">
+            <td class="p-1 border border-slate-300 dark:border-slate-600 bg-sky-100"></td>
+            <td class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cabina']['era_msa_g1']['radio_1'] ?? '—' }}</div>
                 @else
                     <input type="text" name="data[cabina][era_msa_g1][radio_1]" value="{{ $data['cabina']['era_msa_g1']['radio_1'] ?? '' }}" class="w-full text-sm border rounded p-1 text-center">
                 @endif
             </td>
-            <td class="p-1 border border-slate-300 text-center">
+            <td class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cabina']['era_msa_g1']['radio_2'] ?? '—' }}</div>
                 @else
@@ -67,8 +67,8 @@
 
         {{-- Linterna NIGHTSTICK --}}
         <tr>
-            <td colspan="3" class="p-1 border border-slate-300 bg-sky-100 font-bold text-sm">Linterna NIGHTSTICK XPR-5568</td>
-            <td colspan="3" class="p-1 border border-slate-300 bg-sky-100">
+            <td colspan="3" class="p-1 border border-slate-300 dark:border-slate-600 bg-sky-100 font-bold text-sm">Linterna NIGHTSTICK XPR-5568</td>
+            <td colspan="3" class="p-1 border border-slate-300 dark:border-slate-600 bg-sky-100">
                 <div class="text-xs">Funcionamiento</div>
                 @if($readonly)
                     <div class="font-semibold text-center">{{ ($data['cabina']['linterna_nightstick']['funcionamiento'] ?? '') === 'si' ? 'Sí' : (($data['cabina']['linterna_nightstick']['funcionamiento'] ?? '') === 'no' ? 'No' : '—') }}</div>
@@ -80,7 +80,7 @@
                     </select>
                 @endif
             </td>
-            <td colspan="3" class="p-1 border border-slate-300 bg-sky-100">
+            <td colspan="3" class="p-1 border border-slate-300 dark:border-slate-600 bg-sky-100">
                 <div class="text-xs">Cantidad:</div>
                 @if($readonly)
                     <div class="font-semibold text-center">{{ $data['cabina']['linterna_nightstick']['cantidad'] ?? '—' }}</div>
@@ -88,7 +88,7 @@
                     <input type="text" name="data[cabina][linterna_nightstick][cantidad]" value="{{ $data['cabina']['linterna_nightstick']['cantidad'] ?? '' }}" class="w-full text-sm border rounded p-1 text-center">
                 @endif
             </td>
-            <td colspan="3" class="p-1 border border-slate-300 bg-sky-100">
+            <td colspan="3" class="p-1 border border-slate-300 dark:border-slate-600 bg-sky-100">
                 <div class="text-xs">Línea de vida B & R</div>
                 @if($readonly)
                     <div class="font-semibold text-center">{{ $data['cabina']['linterna_nightstick']['linea_vida'] ?? '—' }}</div>
@@ -100,8 +100,8 @@
 
         {{-- Tablet y Maleta --}}
         <tr>
-            <td colspan="6" class="p-1 border border-slate-300 bg-sky-100 font-bold text-sm">Tablet unidad B-3 y Cargador</td>
-            <td colspan="6" class="p-1 border border-slate-300 bg-sky-100 font-bold text-sm">Maleta SCI</td>
+            <td colspan="6" class="p-1 border border-slate-300 dark:border-slate-600 bg-sky-100 font-bold text-sm">Tablet unidad B-3 y Cargador</td>
+            <td colspan="6" class="p-1 border border-slate-300 dark:border-slate-600 bg-sky-100 font-bold text-sm">Maleta SCI</td>
         </tr>
     </table>
     </div>
@@ -140,8 +140,8 @@
 
         @foreach($herramientas as $key => $label)
             <tr class="{{ in_array($key, $highlightTools) ? 'bg-yellow-50' : 'bg-sky-50' }}">
-                <td colspan="6" class="p-1 border border-slate-300 font-semibold {{ in_array($key, $highlightTools) ? 'bg-yellow-100' : '' }}">{{ $label }}</td>
-                <td colspan="1" class="p-1 border border-slate-300 text-center">
+                <td colspan="6" class="p-1 border border-slate-300 dark:border-slate-600 font-semibold {{ in_array($key, $highlightTools) ? 'bg-yellow-100' : '' }}">{{ $label }}</td>
+                <td colspan="1" class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                     @if($readonly)
                         @php $v = $data['herramientas'][$key]['funciona'] ?? ''; @endphp
                         <span class="font-semibold {{ $v === 'si' ? 'text-teal-700' : ($v === 'no' ? 'text-red-600' : 'text-slate-400') }}">
@@ -155,7 +155,7 @@
                         </select>
                     @endif
                 </td>
-                <td colspan="5" class="p-1 border border-slate-300">
+                <td colspan="5" class="p-1 border border-slate-300 dark:border-slate-600">
                     @if($readonly)
                         <div class="font-semibold text-sm">{{ $data['herramientas'][$key]['novedades'] ?? '—' }}</div>
                     @else
@@ -176,8 +176,8 @@
 
         {{-- Mochila de Trauma --}}
         <tr class="bg-sky-100">
-            <td colspan="3" class="p-1 border border-slate-300 font-bold text-sm">Mochila de Trauma y Cilindro O2</td>
-            <td colspan="3" class="p-1 border border-slate-300 bg-teal-100">
+            <td colspan="3" class="p-1 border border-slate-300 dark:border-slate-600 font-bold text-sm">Mochila de Trauma y Cilindro O2</td>
+            <td colspan="3" class="p-1 border border-slate-300 dark:border-slate-600 bg-teal-100">
                 <div class="text-xs font-bold text-center">NIVEL O.</div>
                 @if($readonly)
                     <div class="font-semibold text-center">{{ $data['cantidades']['mochila_trauma']['nivelo'] ?? '—' }}</div>
@@ -185,7 +185,7 @@
                     <input type="text" name="data[cantidades][mochila_trauma][nivelo]" value="{{ $data['cantidades']['mochila_trauma']['nivelo'] ?? '' }}" class="w-full text-sm border rounded p-1 text-center">
                 @endif
             </td>
-            <td colspan="3" class="p-1 border border-slate-300 bg-teal-100">
+            <td colspan="3" class="p-1 border border-slate-300 dark:border-slate-600 bg-teal-100">
                 <div class="text-xs font-bold text-center">Kit Inmovilización completo</div>
                 @if($readonly)
                     <div class="font-semibold text-center">{{ $data['cantidades']['mochila_trauma']['kit_inmovilizacion'] ?? '—' }}</div>
@@ -193,7 +193,7 @@
                     <input type="text" name="data[cantidades][mochila_trauma][kit_inmovilizacion]" value="{{ $data['cantidades']['mochila_trauma']['kit_inmovilizacion'] ?? '' }}" class="w-full text-sm border rounded p-1 text-center">
                 @endif
             </td>
-            <td colspan="3" class="p-1 border border-slate-300 bg-teal-100">
+            <td colspan="3" class="p-1 border border-slate-300 dark:border-slate-600 bg-teal-100">
                 <div class="text-xs font-bold text-center">Conos</div>
                 @if($readonly)
                     <div class="font-semibold text-center">{{ $data['cantidades']['mochila_trauma']['conos'] ?? '—' }}</div>
@@ -208,45 +208,45 @@
             <td colspan="12" class="p-1 text-xs font-bold text-center">MANGUERAS</td>
         </tr>
         <tr class="bg-sky-100">
-            <td class="p-1 border border-slate-300 bg-teal-100 text-center"><div class="text-xs font-bold">52</div></td>
-            <td class="p-1 border border-slate-300 text-center">
+            <td class="p-1 border border-slate-300 dark:border-slate-600 bg-teal-100 text-center"><div class="text-xs font-bold">52</div></td>
+            <td class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cantidades']['mangueras_52'] ?? '—' }}</div>
                 @else
                     <input type="text" name="data[cantidades][mangueras_52]" value="{{ $data['cantidades']['mangueras_52'] ?? '' }}" class="w-full text-sm border rounded p-1 text-center">
                 @endif
             </td>
-            <td class="p-1 border border-slate-300 bg-teal-100 text-center"><div class="text-xs font-bold">75</div></td>
-            <td class="p-1 border border-slate-300 text-center">
+            <td class="p-1 border border-slate-300 dark:border-slate-600 bg-teal-100 text-center"><div class="text-xs font-bold">75</div></td>
+            <td class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cantidades']['mangueras_75'] ?? '—' }}</div>
                 @else
                     <input type="text" name="data[cantidades][mangueras_75]" value="{{ $data['cantidades']['mangueras_75'] ?? '' }}" class="w-full text-sm border rounded p-1 text-center">
                 @endif
             </td>
-            <td class="p-1 border border-slate-300 bg-teal-100 text-center"><div class="text-xs font-bold">L D H</div></td>
-            <td class="p-1 border border-slate-300 text-center">
+            <td class="p-1 border border-slate-300 dark:border-slate-600 bg-teal-100 text-center"><div class="text-xs font-bold">L D H</div></td>
+            <td class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cantidades']['mangueras_ldh'] ?? '—' }}</div>
                 @else
                     <input type="text" name="data[cantidades][mangueras_ldh]" value="{{ $data['cantidades']['mangueras_ldh'] ?? '' }}" class="w-full text-sm border rounded p-1 text-center">
                 @endif
             </td>
-            <td class="p-1 border border-slate-300 bg-teal-100 text-center"><div class="text-xs font-bold">Armada Base</div></td>
-            <td class="p-1 border border-slate-300 text-center">
+            <td class="p-1 border border-slate-300 dark:border-slate-600 bg-teal-100 text-center"><div class="text-xs font-bold">Armada Base</div></td>
+            <td class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cantidades']['mangueras_armada_base'] ?? '—' }}</div>
                 @else
                     <input type="text" name="data[cantidades][mangueras_armada_base]" value="{{ $data['cantidades']['mangueras_armada_base'] ?? '' }}" class="w-full text-sm border rounded p-1 text-center">
                 @endif
             </td>
-            <td colspan="4" class="p-1 border border-slate-300"></td>
+            <td colspan="4" class="p-1 border border-slate-300 dark:border-slate-600"></td>
         </tr>
 
         {{-- Paquete Circular --}}
         <tr>
-            <td colspan="3" class="p-1 border border-slate-300 bg-sky-100 font-bold">Paquete Circular</td>
-            <td colspan="3" class="p-1 border border-slate-300 bg-sky-100">
+            <td colspan="3" class="p-1 border border-slate-300 dark:border-slate-600 bg-sky-100 font-bold">Paquete Circular</td>
+            <td colspan="3" class="p-1 border border-slate-300 dark:border-slate-600 bg-sky-100">
                 <div class="text-xs">Herraduras</div>
                 @if($readonly)
                     <div class="font-semibold text-center">{{ $data['cantidades']['paquete_herraduras'] ?? '—' }}</div>
@@ -254,7 +254,7 @@
                     <input type="text" name="data[cantidades][paquete_herraduras]" value="{{ $data['cantidades']['paquete_herraduras'] ?? '' }}" class="w-full text-sm border rounded p-1 text-center">
                 @endif
             </td>
-            <td colspan="6" class="p-1 border border-slate-300 bg-sky-100">
+            <td colspan="6" class="p-1 border border-slate-300 dark:border-slate-600 bg-sky-100">
                 <div class="text-xs">Carretes alimentación (cantidad tiras)</div>
                 @if($readonly)
                     <div class="font-semibold text-center">{{ $data['cantidades']['paquete_carretes'] ?? '—' }}</div>
@@ -269,26 +269,26 @@
             <td colspan="12" class="p-1 text-xs font-bold text-center">ATAQUES</td>
         </tr>
         <tr class="bg-sky-100">
-            <td class="p-1 border border-slate-300 bg-teal-100 text-center"><div class="text-xs font-bold">52</div></td>
-            <td class="p-1 border border-slate-300 text-center">
+            <td class="p-1 border border-slate-300 dark:border-slate-600 bg-teal-100 text-center"><div class="text-xs font-bold">52</div></td>
+            <td class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cantidades']['ataques_52'] ?? '—' }}</div>
                 @else
                     <input type="text" name="data[cantidades][ataques_52]" value="{{ $data['cantidades']['ataques_52'] ?? '' }}" class="w-full text-sm border rounded p-1 text-center">
                 @endif
             </td>
-            <td class="p-1 border border-slate-300 bg-teal-100 text-center"><div class="text-xs font-bold">75</div></td>
-            <td class="p-1 border border-slate-300 text-center">
+            <td class="p-1 border border-slate-300 dark:border-slate-600 bg-teal-100 text-center"><div class="text-xs font-bold">75</div></td>
+            <td class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cantidades']['ataques_75'] ?? '—' }}</div>
                 @else
                     <input type="text" name="data[cantidades][ataques_75]" value="{{ $data['cantidades']['ataques_75'] ?? '' }}" class="w-full text-sm border rounded p-1 text-center">
                 @endif
             </td>
-            <td colspan="4" class="p-1 border border-slate-300 bg-teal-100 text-center">
+            <td colspan="4" class="p-1 border border-slate-300 dark:border-slate-600 bg-teal-100 text-center">
                 <div class="text-xs font-bold">Cilindros de recambio MSA</div>
             </td>
-            <td colspan="4" class="p-1 border border-slate-300 text-center">
+            <td colspan="4" class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cantidades']['ataques_cilindros_msa'] ?? '—' }}</div>
                 @else
@@ -302,16 +302,16 @@
             <td colspan="12" class="p-1 text-xs font-bold text-center">TRASPASOS</td>
         </tr>
         <tr class="bg-sky-100">
-            <td class="p-1 border border-slate-300 bg-teal-100 text-center"><div class="text-xs font-bold">Llave de grifo</div></td>
-            <td class="p-1 border border-slate-300 text-center">
+            <td class="p-1 border border-slate-300 dark:border-slate-600 bg-teal-100 text-center"><div class="text-xs font-bold">Llave de grifo</div></td>
+            <td class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cantidades']['traspasos_llave_grifo'] ?? '—' }}</div>
                 @else
                     <input type="text" name="data[cantidades][traspasos_llave_grifo]" value="{{ $data['cantidades']['traspasos_llave_grifo'] ?? '' }}" class="w-full text-sm border rounded p-1 text-center">
                 @endif
             </td>
-            <td colspan="3" class="p-1 border border-slate-300 bg-teal-100 text-center"><div class="text-xs font-bold">Traspaso de grifo</div></td>
-            <td colspan="7" class="p-1 border border-slate-300 text-center">
+            <td colspan="3" class="p-1 border border-slate-300 dark:border-slate-600 bg-teal-100 text-center"><div class="text-xs font-bold">Traspaso de grifo</div></td>
+            <td colspan="7" class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cantidades']['traspasos_traspaso_grifo'] ?? '—' }}</div>
                 @else
@@ -324,16 +324,16 @@
             <td colspan="12" class="p-1 text-xs font-bold text-center">LLAVES DE COPLA</td>
         </tr>
         <tr class="bg-sky-100">
-            <td colspan="2" class="p-1 border border-slate-300 bg-teal-100 text-center"><div class="text-xs font-bold">Llave de piso</div></td>
-            <td colspan="4" class="p-1 border border-slate-300 text-center">
+            <td colspan="2" class="p-1 border border-slate-300 dark:border-slate-600 bg-teal-100 text-center"><div class="text-xs font-bold">Llave de piso</div></td>
+            <td colspan="4" class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cantidades']['llaves_llave_piso'] ?? '—' }}</div>
                 @else
                     <input type="text" name="data[cantidades][llaves_llave_piso]" value="{{ $data['cantidades']['llaves_llave_piso'] ?? '' }}" class="w-full text-sm border rounded p-1 text-center">
                 @endif
             </td>
-            <td colspan="2" class="p-1 border border-slate-300 bg-teal-100 text-center"><div class="text-xs font-bold">Manguera 75 alimentación</div></td>
-            <td colspan="4" class="p-1 border border-slate-300 text-center">
+            <td colspan="2" class="p-1 border border-slate-300 dark:border-slate-600 bg-teal-100 text-center"><div class="text-xs font-bold">Manguera 75 alimentación</div></td>
+            <td colspan="4" class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cantidades']['llaves_manguera_75'] ?? '—' }}</div>
                 @else
@@ -344,8 +344,8 @@
 
         {{-- Escalas de Techo --}}
         <tr class="bg-sky-100">
-            <td colspan="2" class="p-1 border border-slate-300 font-bold">Escalas de Techo</td>
-            <td colspan="2" class="p-1 border border-slate-300 text-center">
+            <td colspan="2" class="p-1 border border-slate-300 dark:border-slate-600 font-bold">Escalas de Techo</td>
+            <td colspan="2" class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 <div class="text-xs">Puntas Taladro</div>
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cantidades']['escalas_puntas_taladro'] ?? '—' }}</div>
@@ -353,7 +353,7 @@
                     <input type="text" name="data[cantidades][escalas_puntas_taladro]" value="{{ $data['cantidades']['escalas_puntas_taladro'] ?? '' }}" class="w-full text-sm border rounded p-1 text-center">
                 @endif
             </td>
-            <td colspan="8" class="p-1 border border-slate-300 text-center">
+            <td colspan="8" class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 <div class="text-xs">Napoleón 30"</div>
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cantidades']['escalas_napoleon'] ?? '—' }}</div>
@@ -365,8 +365,8 @@
 
         {{-- Combo de 8 libras --}}
         <tr class="bg-sky-100">
-            <td colspan="2" class="p-1 border border-slate-300 font-bold">Combo de 8 libras</td>
-            <td colspan="2" class="p-1 border border-slate-300 text-center">
+            <td colspan="2" class="p-1 border border-slate-300 dark:border-slate-600 font-bold">Combo de 8 libras</td>
+            <td colspan="2" class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 <div class="text-xs">Bidón Motosierra</div>
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cantidades']['combo_bidon_motosierra'] ?? '—' }}</div>
@@ -374,7 +374,7 @@
                     <input type="text" name="data[cantidades][combo_bidon_motosierra]" value="{{ $data['cantidades']['combo_bidon_motosierra'] ?? '' }}" class="w-full text-sm border rounded p-1 text-center">
                 @endif
             </td>
-            <td colspan="8" class="p-1 border border-slate-300 text-center">
+            <td colspan="8" class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 <div class="text-xs">Hacha bombero</div>
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cantidades']['combo_hacha_bombero'] ?? '—' }}</div>
@@ -386,8 +386,8 @@
 
         {{-- Bicheros --}}
         <tr class="bg-sky-100">
-            <td colspan="2" class="p-1 border border-slate-300 font-bold">Bicheros</td>
-            <td colspan="2" class="p-1 border border-slate-300 text-center">
+            <td colspan="2" class="p-1 border border-slate-300 dark:border-slate-600 font-bold">Bicheros</td>
+            <td colspan="2" class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 <div class="text-xs">Barretilla</div>
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cantidades']['bicheros_barretilla'] ?? '—' }}</div>
@@ -395,7 +395,7 @@
                     <input type="text" name="data[cantidades][bicheros_barretilla]" value="{{ $data['cantidades']['bicheros_barretilla'] ?? '' }}" class="w-full text-sm border rounded p-1 text-center">
                 @endif
             </td>
-            <td colspan="8" class="p-1 border border-slate-300 text-center">
+            <td colspan="8" class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 <div class="text-xs">Halligan</div>
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cantidades']['bicheros_halligan'] ?? '—' }}</div>
@@ -407,8 +407,8 @@
 
         {{-- Caja de Herramientas --}}
         <tr class="bg-sky-100">
-            <td colspan="2" class="p-1 border border-slate-300 font-bold">Caja de Herramientas</td>
-            <td colspan="2" class="p-1 border border-slate-300 text-center">
+            <td colspan="2" class="p-1 border border-slate-300 dark:border-slate-600 font-bold">Caja de Herramientas</td>
+            <td colspan="2" class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 <div class="text-xs">Hacha suela</div>
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cantidades']['caja_hacha_suela'] ?? '—' }}</div>
@@ -416,7 +416,7 @@
                     <input type="text" name="data[cantidades][caja_hacha_suela]" value="{{ $data['cantidades']['caja_hacha_suela'] ?? '' }}" class="w-full text-sm border rounded p-1 text-center">
                 @endif
             </td>
-            <td colspan="8" class="p-1 border border-slate-300 text-center">
+            <td colspan="8" class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 <div class="text-xs">TNT</div>
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cantidades']['caja_tnt'] ?? '—' }}</div>
@@ -428,8 +428,8 @@
 
         {{-- Gremio --}}
         <tr class="bg-sky-100">
-            <td colspan="2" class="p-1 border border-slate-300 font-bold">Gremio</td>
-            <td colspan="2" class="p-1 border border-slate-300 text-center">
+            <td colspan="2" class="p-1 border border-slate-300 dark:border-slate-600 font-bold">Gremio</td>
+            <td colspan="2" class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 <div class="text-xs">Kit Entrada Forzada</div>
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cantidades']['gremio_kit_entrada'] ?? '—' }}</div>
@@ -437,7 +437,7 @@
                     <input type="text" name="data[cantidades][gremio_kit_entrada]" value="{{ $data['cantidades']['gremio_kit_entrada'] ?? '' }}" class="w-full text-sm border rounded p-1 text-center">
                 @endif
             </td>
-            <td colspan="8" class="p-1 border border-slate-300 text-center">
+            <td colspan="8" class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 <div class="text-xs">Trifurca</div>
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cantidades']['gremio_trifurca'] ?? '—' }}</div>
@@ -449,8 +449,8 @@
 
         {{-- Filtro de Aspiración --}}
         <tr class="bg-sky-100">
-            <td colspan="2" class="p-1 border border-slate-300 font-bold">Filtro de Aspiración</td>
-            <td colspan="2" class="p-1 border border-slate-300 text-center">
+            <td colspan="2" class="p-1 border border-slate-300 dark:border-slate-600 font-bold">Filtro de Aspiración</td>
+            <td colspan="2" class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 <div class="text-xs">Siamesa</div>
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cantidades']['filtro_siamesa'] ?? '—' }}</div>
@@ -458,7 +458,7 @@
                     <input type="text" name="data[cantidades][filtro_siamesa]" value="{{ $data['cantidades']['filtro_siamesa'] ?? '' }}" class="w-full text-sm border rounded p-1 text-center">
                 @endif
             </td>
-            <td colspan="8" class="p-1 border border-slate-300 text-center">
+            <td colspan="8" class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 <div class="text-xs">Pitones de 50</div>
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cantidades']['filtro_pitones_50'] ?? '—' }}</div>
@@ -470,8 +470,8 @@
 
         {{-- Kit quemados --}}
         <tr class="bg-sky-100">
-            <td colspan="2" class="p-1 border border-slate-300 font-bold">Kit quemados / Asistente de Trauma</td>
-            <td colspan="2" class="p-1 border border-slate-300 text-center">
+            <td colspan="2" class="p-1 border border-slate-300 dark:border-slate-600 font-bold">Kit quemados / Asistente de Trauma</td>
+            <td colspan="2" class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 <div class="text-xs">Pitón DIN 50</div>
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cantidades']['kit_piton_din_50'] ?? '—' }}</div>
@@ -479,7 +479,7 @@
                     <input type="text" name="data[cantidades][kit_piton_din_50]" value="{{ $data['cantidades']['kit_piton_din_50'] ?? '' }}" class="w-full text-sm border rounded p-1 text-center">
                 @endif
             </td>
-            <td colspan="8" class="p-1 border border-slate-300 text-center">
+            <td colspan="8" class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 <div class="text-xs">Pitones de 70</div>
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cantidades']['kit_pitones_70'] ?? '—' }}</div>
@@ -491,8 +491,8 @@
 
         {{-- Bidón de bencina --}}
         <tr class="bg-sky-100">
-            <td colspan="2" class="p-1 border border-slate-300 font-bold">Bidón de bencina Verde 10L</td>
-            <td colspan="2" class="p-1 border border-slate-300 text-center">
+            <td colspan="2" class="p-1 border border-slate-300 dark:border-slate-600 font-bold">Bidón de bencina Verde 10L</td>
+            <td colspan="2" class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 <div class="text-xs">Chorizos</div>
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cantidades']['bidon_chorizos'] ?? '—' }}</div>
@@ -500,7 +500,7 @@
                     <input type="text" name="data[cantidades][bidon_chorizos]" value="{{ $data['cantidades']['bidon_chorizos'] ?? '' }}" class="w-full text-sm border rounded p-1 text-center">
                 @endif
             </td>
-            <td colspan="8" class="p-1 border border-slate-300 text-center">
+            <td colspan="8" class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 <div class="text-xs">Pasatiras</div>
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cantidades']['bidon_pasatiras'] ?? '—' }}</div>
@@ -512,8 +512,8 @@
 
         {{-- Extintor de agua --}}
         <tr class="bg-sky-100">
-            <td colspan="2" class="p-1 border border-slate-300 font-bold">Extintor de agua</td>
-            <td colspan="2" class="p-1 border border-slate-300 text-center">
+            <td colspan="2" class="p-1 border border-slate-300 dark:border-slate-600 font-bold">Extintor de agua</td>
+            <td colspan="2" class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 <div class="text-xs">Carretes de extensión</div>
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cantidades']['extintor_carretes'] ?? '—' }}</div>
@@ -521,7 +521,7 @@
                     <input type="text" name="data[cantidades][extintor_carretes]" value="{{ $data['cantidades']['extintor_carretes'] ?? '' }}" class="w-full text-sm border rounded p-1 text-center">
                 @endif
             </td>
-            <td colspan="8" class="p-1 border border-slate-300 text-center">
+            <td colspan="8" class="p-1 border border-slate-300 dark:border-slate-600 text-center">
                 <div class="text-xs">Pitón de espuma</div>
                 @if($readonly)
                     <div class="font-semibold">{{ $data['cantidades']['extintor_piton_espuma'] ?? '—' }}</div>
@@ -536,13 +536,13 @@
     {{-- Material Forestal --}}
     <div class="bg-yellow-50 border-l-4 border-yellow-400 p-2 rounded mt-2">
         <div class="font-bold text-sm">Material Forestal</div>
-        <div class="text-xs text-slate-600 italic">(1 pala, 1 rozón, 2 rastrillos cegadores, 1 McLeod, 2 bombas de espalda)</div>
+        <div class="text-xs text-slate-600 dark:text-slate-400 italic">(1 pala, 1 rozón, 2 rastrillos cegadores, 1 McLeod, 2 bombas de espalda)</div>
     </div>
 
     {{-- Bolso de altura --}}
     <div class="bg-green-100 border-l-4 border-green-400 p-2 rounded mt-2">
         <div class="font-bold text-sm">Bolso de altura</div>
-        <div class="text-xs text-slate-600 italic">(Tira de 38mm 3 metros, Pitón POK, gemelo, reducción, cuerda utilitaria)</div>
+        <div class="text-xs text-slate-600 dark:text-slate-400 italic">(Tira de 38mm 3 metros, Pitón POK, gemelo, reducción, cuerda utilitaria)</div>
     </div>
 
     {{-- General Unidad --}}
@@ -553,7 +553,7 @@
             </tr>
 
         <tr class="bg-sky-100">
-            <td colspan="6" class="p-1 border border-slate-300">
+            <td colspan="6" class="p-1 border border-slate-300 dark:border-slate-600">
                 <div class="text-xs font-bold">Alarmas Sonoras y Visuales</div>
                 @if($readonly)
                     <div class="font-semibold">{{ ($data['general']['alarmas'] ?? '') === 'si' ? 'Sí' : (($data['general']['alarmas'] ?? '') === 'no' ? 'No' : '—') }}</div>
@@ -565,7 +565,7 @@
                     </select>
                 @endif
             </td>
-            <td colspan="6" class="p-1 border border-slate-300">
+            <td colspan="6" class="p-1 border border-slate-300 dark:border-slate-600">
                 <div class="text-xs font-bold">Aseo Interior Cabina Aseo Gavetas y Herramientas</div>
                 @if($readonly)
                     <div class="font-semibold">{{ ($data['general']['aseo'] ?? '') === 'si' ? 'Sí' : (($data['general']['aseo'] ?? '') === 'no' ? 'No' : '—') }}</div>
@@ -580,7 +580,7 @@
         </tr>
 
         <tr class="bg-sky-100">
-            <td colspan="6" class="p-1 border border-slate-300">
+            <td colspan="6" class="p-1 border border-slate-300 dark:border-slate-600">
                 <div class="text-xs font-bold">Nivel Combustible Bidón (Naranjo)</div>
                 @if($readonly)
                     <div class="font-semibold">{{ $data['general']['nivel_combustible_bidon'] ?? '—' }}</div>
@@ -588,7 +588,7 @@
                     <input type="text" name="data[general][nivel_combustible_bidon]" value="{{ $data['general']['nivel_combustible_bidon'] ?? '' }}" class="w-full text-sm border rounded p-1">
                 @endif
             </td>
-            <td colspan="6" class="p-1 border border-slate-300">
+            <td colspan="6" class="p-1 border border-slate-300 dark:border-slate-600">
                 <div class="text-xs font-bold">Nivel Aceite para mezcla (Jeringa)</div>
                 @if($readonly)
                     <div class="font-semibold">{{ $data['general']['nivel_aceite_mezcla'] ?? '—' }}</div>
@@ -599,7 +599,7 @@
         </tr>
 
         <tr class="bg-sky-100">
-            <td colspan="6" class="p-1 border border-slate-300">
+            <td colspan="6" class="p-1 border border-slate-300 dark:border-slate-600">
                 <div class="text-xs font-bold">Nivel Combustible de la Unidad</div>
                 @if($readonly)
                     <div class="font-semibold">{{ $data['general']['nivel_combustible_unidad'] ?? '—' }}</div>
@@ -607,7 +607,7 @@
                     <input type="text" name="data[general][nivel_combustible_unidad]" value="{{ $data['general']['nivel_combustible_unidad'] ?? '' }}" class="w-full text-sm border rounded p-1">
                 @endif
             </td>
-            <td colspan="6" class="p-1 border border-slate-300">
+            <td colspan="6" class="p-1 border border-slate-300 dark:border-slate-600">
                 <div class="text-xs font-bold">Nivel de agua de la unidad</div>
                 @if($readonly)
                     <div class="font-semibold">{{ $data['general']['nivel_agua_unidad'] ?? '—' }}</div>
@@ -618,7 +618,7 @@
         </tr>
 
         <tr class="bg-sky-100">
-            <td colspan="12" class="p-1 border border-slate-300">
+            <td colspan="12" class="p-1 border border-slate-300 dark:border-slate-600">
                 <div class="text-xs font-bold">Nivel de aceite para cadena</div>
                 @if($readonly)
                     <div class="font-semibold">{{ $data['general']['nivel_aceite_cadena'] ?? '—' }}</div>

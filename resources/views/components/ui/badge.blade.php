@@ -17,7 +17,7 @@ $variants = [
 ];
 
 $dotColors = [
-    'default' => 'bg-slate-500',
+    'default' => 'bg-slate-50 dark:bg-slate-8000',
     'primary' => 'bg-blue-500',
     'success' => 'bg-emerald-500',
     'warning' => 'bg-amber-500',

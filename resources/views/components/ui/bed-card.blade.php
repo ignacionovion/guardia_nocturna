@@ -13,7 +13,7 @@ $isMaintenance = ($bed->estado ?? '') === 'mantenimiento';
 $statusClasses = [
     'occupied' => 'border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/20 hover:border-blue-400 dark:hover:border-blue-600',
     'available' => 'border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 hover:border-emerald-400 dark:hover:border-emerald-600 cursor-pointer',
-    'maintenance' => 'border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 opacity-60 cursor-not-allowed',
+    'maintenance' => 'border-slate-300 dark:border-slate-600 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 opacity-60 cursor-not-allowed',
 ];
 
 $status = $isMaintenance ? 'maintenance' : ($isOccupied ? 'occupied' : 'available');
@@ -29,7 +29,7 @@ $status = $isMaintenance ? 'maintenance' : ($isOccupied ? 'occupied' : 'availabl
     
     {{-- Bed icon --}}
     <div class="flex justify-center mb-3 pt-2">
-        <i class="fas fa-bed text-3xl {{ $isOccupied ? 'text-blue-500 dark:text-blue-400' : ($isMaintenance ? 'text-slate-400 dark:text-slate-500' : 'text-emerald-500 dark:text-emerald-400') }}"></i>
+        <i class="fas fa-bed text-3xl {{ $isOccupied ? 'text-blue-500 dark:text-blue-400' : ($isMaintenance ? 'text-slate-400 dark:text-slate-500 dark:text-slate-400' : 'text-emerald-500 dark:text-emerald-400') }}"></i>
     </div>
     
     {{-- Occupant info --}}
@@ -48,10 +48,10 @@ $status = $isMaintenance ? 'maintenance' : ($isOccupied ? 'occupied' : 'availabl
     @elseif($isMaintenance)
     <div class="text-center">
         <div class="w-10 h-10 mx-auto mb-2 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
-            <i class="fas fa-wrench text-slate-400 dark:text-slate-500"></i>
+            <i class="fas fa-wrench text-slate-400 dark:text-slate-500 dark:text-slate-400"></i>
         </div>
         <p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Mantenimiento</p>
-        <p class="text-xs text-slate-400 dark:text-slate-500">No disponible</p>
+        <p class="text-xs text-slate-400 dark:text-slate-500 dark:text-slate-400">No disponible</p>
     </div>
     @else
     <div class="text-center">
@@ -59,7 +59,7 @@ $status = $isMaintenance ? 'maintenance' : ($isOccupied ? 'occupied' : 'availabl
             <i class="fas fa-plus text-emerald-400 dark:text-emerald-500"></i>
         </div>
         <p class="text-sm text-emerald-600 dark:text-emerald-400 font-medium">Disponible</p>
-        <p class="text-xs text-slate-400 dark:text-slate-500">Click para asignar</p>
+        <p class="text-xs text-slate-400 dark:text-slate-500 dark:text-slate-400">Click para asignar</p>
     </div>
     @endif
     

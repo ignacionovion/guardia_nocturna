@@ -11,7 +11,7 @@
                 <i class="fas fa-check text-3xl text-green-400"></i>
             </div>
             <h1 class="text-2xl font-black text-green-400 uppercase tracking-wider">¡Éxito!</h1>
-            <p class="text-slate-500 text-sm mt-2">Cama asignada correctamente</p>
+            <p class="text-slate-500 dark:text-slate-400 text-sm mt-2">Cama asignada correctamente</p>
         </div>
 
         {{-- Card --}}
@@ -32,9 +32,9 @@
                         <i class="fas fa-user text-cyan-400"></i>
                     </div>
                     <div>
-                        <p class="text-xs text-slate-500 uppercase tracking-wider font-bold">Asignada a</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold">Asignada a</p>
                         <p class="text-sm font-bold text-slate-100">{{ $bombero->nombres }} {{ $bombero->apellido_paterno }}</p>
-                        <p class="text-xs text-slate-500">RUT: {{ $bombero->rut }}</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">RUT: {{ $bombero->rut }}</p>
                     </div>
                 </div>
             </div>
@@ -49,16 +49,16 @@
             <div class="p-6">
                 <div class="bg-slate-800/50 rounded-xl p-4 mb-6">
                     <div class="flex items-center gap-3 mb-3">
-                        <i class="fas fa-clock text-slate-500"></i>
+                        <i class="fas fa-clock text-slate-500 dark:text-slate-400"></i>
                         <div>
-                            <p class="text-xs text-slate-500">Hora de asignación</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Hora de asignación</p>
                             <p class="text-sm font-bold text-slate-100">{{ now()->format('H:i') }} hrs</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-3">
-                        <i class="fas fa-calendar text-slate-500"></i>
+                        <i class="fas fa-calendar text-slate-500 dark:text-slate-400"></i>
                         <div>
-                            <p class="text-xs text-slate-500">Fecha</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Fecha</p>
                             <p class="text-sm font-bold text-slate-100">{{ now()->locale('es')->isoFormat('dddd D [de] MMMM') }}</p>
                         </div>
                     </div>
@@ -69,11 +69,11 @@
 
         {{-- Info --}}
         <div class="mt-6 text-center space-y-2">
-            <p class="text-xs text-slate-600">
+            <p class="text-xs text-slate-600 dark:text-slate-400">
                 <i class="fas fa-shield-alt mr-1"></i>
                 Sistema de Guardia Nocturna
             </p>
-            <p class="text-xs text-slate-700">
+            <p class="text-xs text-slate-700 dark:text-slate-300">
                 Registro guardado para auditoría
             </p>
         </div>

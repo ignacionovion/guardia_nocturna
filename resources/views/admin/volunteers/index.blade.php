@@ -1,10 +1,13 @@
-@extends('layouts.app')
+@extends('layouts.modern')
+
+@section('title', 'Gestión de Voluntarios - ' . branding()->nombre_empresa)
+@section('page-title', 'Gestión de Voluntarios')
 
 @section('content')
     <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
         <div>
-            <h1 class="text-3xl font-bold text-gray-800">Gestión de Voluntarios</h1>
-            <p class="text-gray-500 text-sm mt-1">Administración del personal del cuerpo de bomberos</p>
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-white">Gestión de Voluntarios</h1>
+            <p class="text-gray-500 dark:text-slate-400 text-sm mt-1">Administración del personal del cuerpo de bomberos</p>
         </div>
         
         <div class="flex flex-wrap gap-3 items-center">
@@ -37,16 +40,16 @@
     </div>
 
     <!-- Buscador -->
-    <div class="bg-white p-4 rounded-xl shadow-sm mb-8 border border-gray-100">
+    <div class="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm mb-8 border border-gray-100 dark:border-slate-800">
         <form action="{{ route('admin.volunteers.index') }}" method="GET" class="relative" id="volunteer-search-form">
             <div class="flex items-center">
                 <i class="fas fa-search absolute left-4 text-gray-400"></i>
                 <input type="text" name="search" value="{{ request('search') }}" id="volunteer-search-input"
                     placeholder="Buscar por nombre, RUT o cargo..." 
-                    class="w-full pl-11 pr-4 py-3 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-colors text-gray-700">
+                    class="w-full pl-11 pr-4 py-3 border-gray-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-colors text-gray-700 dark:text-slate-300">
                 
                 @if(request('search'))
-                    <a href="{{ route('admin.volunteers.index') }}" class="absolute right-20 text-gray-400 hover:text-gray-600 p-2">
+                    <a href="{{ route('admin.volunteers.index') }}" class="absolute right-20 text-gray-400 hover:text-gray-600 dark:text-slate-400 p-2">
                         <i class="fas fa-times"></i>
                     </a>
                 @endif
@@ -73,42 +76,42 @@
     @endif
 
     @if($volunteers->isEmpty())
-        <div class="text-center py-16 bg-white rounded-xl shadow-sm border border-dashed border-slate-300">
-            <div class="bg-slate-50 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+        <div class="text-center py-16 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-dashed border-slate-300 dark:border-slate-600">
+            <div class="bg-slate-50 dark:bg-slate-800 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
                 <i class="fas fa-users text-slate-400 text-3xl"></i>
             </div>
             <h3 class="text-lg font-medium text-slate-900">No se encontraron voluntarios</h3>
-            <p class="text-slate-500 mt-1">Intenta ajustar los filtros de búsqueda o agrega un nuevo voluntario.</p>
+            <p class="text-slate-500 dark:text-slate-400 mt-1">Intenta ajustar los filtros de búsqueda o agrega un nuevo voluntario.</p>
         </div>
     @else
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-slate-200">
-                    <thead class="bg-slate-50">
+                    <thead class="bg-slate-50 dark:bg-slate-800">
                         <tr>
                             <th scope="col" class="px-3 md:px-6 py-4 text-left">
-                                <input type="checkbox" id="select-all" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 w-5 h-5">
+                                <input type="checkbox" id="select-all" class="rounded border-gray-300 dark:border-slate-600 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 w-5 h-5">
                             </th>
-                            <th scope="col" class="px-3 md:px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Identificación</th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider hidden md:table-cell">Cargo / Rol</th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider hidden lg:table-cell">N° Registro</th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider hidden lg:table-cell">Especialidades</th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider hidden md:table-cell">Guardia</th>
-                            <th scope="col" class="px-3 md:px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Acciones</th>
+                            <th scope="col" class="px-3 md:px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Identificación</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden md:table-cell">Cargo / Rol</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">N° Registro</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">Especialidades</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden md:table-cell">Guardia</th>
+                            <th scope="col" class="px-3 md:px-6 py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-slate-200" id="volunteer-table-body">
+                    <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-200" id="volunteer-table-body">
                         @foreach($volunteers as $volunteer)
-                            <tr class="hover:bg-slate-50 transition-colors">
+                            <tr class="hover:bg-slate-50 dark:bg-slate-800 transition-colors">
                                 <td class="px-3 md:px-6 py-4 whitespace-nowrap">
-                                    <input type="checkbox" name="selected_ids[]" value="{{ $volunteer->id }}" class="volunteer-checkbox rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 w-5 h-5">
+                                    <input type="checkbox" name="selected_ids[]" value="{{ $volunteer->id }}" class="volunteer-checkbox rounded border-gray-300 dark:border-slate-600 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 w-5 h-5">
                                 </td>
                                 <td class="px-3 md:px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         @if($volunteer->photo_path)
-                                            <img src="{{ url('media/' . ltrim($volunteer->photo_path, '/')) }}" class="flex-shrink-0 h-10 w-10 rounded-full object-cover border border-slate-300 shadow-sm" alt="Foto">
+                                            <img src="{{ url('media/' . ltrim($volunteer->photo_path, '/')) }}" class="flex-shrink-0 h-10 w-10 rounded-full object-cover border border-slate-300 dark:border-slate-600 shadow-sm" alt="Foto">
                                         @else
-                                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-bold border border-slate-300 shadow-sm text-sm">
+                                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 dark:text-slate-400 font-bold border border-slate-300 dark:border-slate-600 shadow-sm text-sm">
                                                 {{ substr($volunteer->nombres, 0, 1) }}{{ substr($volunteer->apellido_paterno, 0, 1) }}
                                             </div>
                                         @endif
@@ -119,12 +122,12 @@
                                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-800 border border-emerald-200">Permanente</span>
                                                 @endif
                                             </div>
-                                            <div class="text-xs text-slate-500 font-mono">{{ $volunteer->rut ?? 'S/RUT' }}</div>
+                                            <div class="text-xs text-slate-500 dark:text-slate-400 font-mono">{{ $volunteer->rut ?? 'S/RUT' }}</div>
 
-                                            <div class="md:hidden mt-1 text-[11px] text-slate-600 font-black uppercase tracking-widest">
+                                            <div class="md:hidden mt-1 text-[11px] text-slate-600 dark:text-slate-400 font-black uppercase tracking-widest">
                                                 {{ $volunteer->cargo_texto ?? '-' }}
                                             </div>
-                                            <div class="md:hidden text-[10px] text-slate-500 font-medium uppercase tracking-wide">
+                                            <div class="md:hidden text-[10px] text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide">
                                                 {{ $volunteer->es_jefe_guardia ? 'Jefe de Guardia' : '-' }}
                                             </div>
 
@@ -163,12 +166,12 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap hidden md:table-cell">
                                     <div class="text-sm text-slate-900 font-medium">{{ $volunteer->cargo_texto ?? '-' }}</div>
-                                    <div class="text-xs text-slate-500">
+                                    <div class="text-xs text-slate-500 dark:text-slate-400">
                                         {{ $volunteer->es_jefe_guardia ? 'Jefe de Guardia' : '-' }}
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap hidden lg:table-cell">
-                                    <div class="text-sm text-slate-600 flex flex-col gap-1">
+                                    <div class="text-sm text-slate-600 dark:text-slate-400 flex flex-col gap-1">
                                         @if($volunteer->numero_registro)
                                             <span class="flex items-center"><i class="fas fa-id-card text-slate-400 mr-2 w-4"></i> {{ $volunteer->numero_registro }}</span>
                                         @else
@@ -198,7 +201,7 @@
                                         @endif
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 hidden md:table-cell">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400 hidden md:table-cell">
                                     @if($volunteer->guardia_id)
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                             {{ $volunteer->guardia->name }}
@@ -228,7 +231,7 @@
             </div>
             
             <!-- Paginación Footer -->
-            <div class="bg-slate-50 px-6 py-4 border-t border-slate-200">
+            <div class="bg-slate-50 dark:bg-slate-800 px-6 py-4 border-t border-slate-200 dark:border-slate-700">
                 {{ $volunteers->appends(request()->only('search'))->links() }}
             </div>
         </div>
@@ -331,17 +334,17 @@
         </script>
     @if(auth()->check() && auth()->user()->role === 'super_admin')
         <div id="purgeModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center">
-            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 border border-slate-200 overflow-hidden">
-                <div class="p-5 border-b border-slate-200 bg-slate-50">
-                    <div class="text-sm font-black text-slate-800 uppercase tracking-widest">Eliminar todos los voluntarios</div>
-                    <div class="mt-2 text-sm text-slate-600">Esta acción es irreversible. Para confirmar escribe <span class="font-black">ELIMINAR TODO</span>.</div>
+            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md mx-4 border border-slate-200 dark:border-slate-700 overflow-hidden">
+                <div class="p-5 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                    <div class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-widest">Eliminar todos los voluntarios</div>
+                    <div class="mt-2 text-sm text-slate-600 dark:text-slate-400">Esta acción es irreversible. Para confirmar escribe <span class="font-black">ELIMINAR TODO</span>.</div>
                 </div>
                 <form method="POST" action="{{ route('admin.volunteers.purge') }}" class="p-5">
                     @csrf
                     @method('DELETE')
-                    <input type="text" name="confirm_text" class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-white text-slate-800 font-semibold" placeholder="ELIMINAR TODO" required>
+                    <input type="text" name="confirm_text" class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-semibold" placeholder="ELIMINAR TODO" required>
                     <div class="mt-4 flex gap-2">
-                        <button type="button" onclick="closePurgeModal()" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-black uppercase tracking-widest text-[11px] py-3 rounded-xl border border-slate-200">Cancelar</button>
+                        <button type="button" onclick="closePurgeModal()" class="w-1/2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-800 dark:text-white font-black uppercase tracking-widest text-[11px] py-3 rounded-xl border border-slate-200 dark:border-slate-700">Cancelar</button>
                         <button type="submit" class="w-1/2 bg-rose-700 hover:bg-rose-800 text-white font-black uppercase tracking-widest text-[11px] py-3 rounded-xl">Eliminar todo</button>
                     </div>
                 </form>

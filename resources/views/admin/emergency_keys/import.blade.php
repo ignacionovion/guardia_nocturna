@@ -1,23 +1,23 @@
-@extends('layouts.app')
+@extends('layouts.modern')
 
 @section('content')
     <div class="max-w-2xl mx-auto py-8">
         <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
             <div>
-                <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight flex items-center uppercase">
+                <h1 class="text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight flex items-center uppercase">
                     <i class="fas fa-file-import mr-3 text-red-700"></i> Importación Claves Radiales
                 </h1>
-                <p class="text-slate-500 mt-1 font-medium">Carga masiva de claves (catálogo)</p>
+                <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium">Carga masiva de claves (catálogo)</p>
             </div>
-            <a href="{{ route('admin.emergency-keys.index') }}" class="inline-flex items-center text-slate-600 hover:text-blue-600 font-medium transition-colors bg-white px-4 py-2 rounded-lg border border-slate-200 hover:border-blue-300 shadow-sm">
+            <a href="{{ route('admin.emergency-keys.index') }}" class="inline-flex items-center text-slate-600 dark:text-slate-400 hover:text-blue-600 font-medium transition-colors bg-white dark:bg-slate-900 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-300 shadow-sm">
                 <i class="fas fa-arrow-left mr-2"></i> Volver
             </a>
         </div>
 
-        <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-slate-200">
-            <div class="bg-slate-50 px-8 py-6 border-b border-slate-200">
-                <h2 class="text-lg font-bold text-slate-700">Cargar Archivo</h2>
-                <p class="text-sm text-slate-500 mt-1">Seleccione un archivo .CSV o .XLSX con columnas A-B.</p>
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-lg overflow-hidden border border-slate-200 dark:border-slate-700">
+            <div class="bg-slate-50 dark:bg-slate-800 px-8 py-6 border-b border-slate-200 dark:border-slate-700">
+                <h2 class="text-lg font-bold text-slate-700 dark:text-slate-300">Cargar Archivo</h2>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Seleccione un archivo .CSV o .XLSX con columnas A-B.</p>
             </div>
 
             <div class="p-8">
@@ -41,24 +41,24 @@
                     @csrf
 
                     <div>
-                        <label class="block text-slate-700 text-sm font-bold mb-2 uppercase tracking-wide" for="file">Seleccionar Archivo</label>
-                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 border-dashed rounded-lg hover:bg-slate-50 transition-colors cursor-pointer group relative">
+                        <label class="block text-slate-700 dark:text-slate-300 text-sm font-bold mb-2 uppercase tracking-wide" for="file">Seleccionar Archivo</label>
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 dark:border-slate-600 border-dashed rounded-lg hover:bg-slate-50 dark:bg-slate-800 transition-colors cursor-pointer group relative">
                             <div class="space-y-1 text-center">
                                 <i class="fas fa-cloud-upload-alt text-4xl text-slate-400 group-hover:text-blue-500 transition-colors mb-3"></i>
-                                <div class="flex text-sm text-slate-600 justify-center">
+                                <div class="flex text-sm text-slate-600 dark:text-slate-400 justify-center">
                                     <label for="file" class="relative cursor-pointer rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none">
                                         <span>Subir un archivo</span>
                                         <input id="file" name="file" type="file" class="sr-only" accept=".csv, .txt, .xlsx" required>
                                     </label>
                                     <p class="pl-1">o arrastrar y soltar</p>
                                 </div>
-                                <p class="text-xs text-slate-500">Excel o CSV hasta 10MB</p>
-                                <p id="fileName" class="text-sm font-bold text-slate-800 mt-2 hidden"></p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Excel o CSV hasta 10MB</p>
+                                <p id="fileName" class="text-sm font-bold text-slate-800 dark:text-white mt-2 hidden"></p>
                             </div>
                         </div>
                     </div>
 
-                    <div id="progressContainer" class="hidden bg-slate-50 p-4 rounded-lg border border-slate-200">
+                    <div id="progressContainer" class="hidden bg-slate-50 dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
                         <div class="flex justify-between mb-2">
                             <span id="progressText" class="text-xs font-bold text-blue-700 uppercase tracking-wide">Iniciando carga...</span>
                             <span id="progressPercent" class="text-xs font-bold text-blue-700">0%</span>
@@ -72,7 +72,7 @@
 
                     <div id="statusMessage" class="hidden p-4 rounded-lg text-sm border"></div>
 
-                    <div class="flex justify-end pt-4 border-t border-slate-100">
+                    <div class="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
                         <button type="submit" id="submitBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center uppercase text-sm tracking-wide">
                             <i class="fas fa-file-import mr-2"></i> Procesar Importación
                         </button>

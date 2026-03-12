@@ -21,7 +21,7 @@ $colors = [
 $c = $colors[$color] ?? $colors['slate'];
 @endphp
 
-<div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 hover:shadow-lg hover:shadow-slate-200/50 dark:hover:shadow-slate-900/50 transition-all">
+<div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 p-5 hover:shadow-lg hover:shadow-slate-200/50 dark:hover:shadow-slate-900/50 transition-all">
     <div class="flex items-start justify-between">
         <div>
             <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ $title }}</p>
@@ -32,7 +32,7 @@ $c = $colors[$color] ?? $colors['slate'];
                     <i class="fas fa-arrow-{{ $trendUp ? 'up' : 'down' }} text-[10px]"></i>
                     {{ $trend }}
                 </span>
-                <span class="text-slate-400 dark:text-slate-500">{{ $trendLabel }}</span>
+                <span class="text-slate-400 dark:text-slate-500 dark:text-slate-400">{{ $trendLabel }}</span>
             </p>
             @endif
         </div>

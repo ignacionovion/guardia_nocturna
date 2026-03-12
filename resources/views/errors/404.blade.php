@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.modern')
 
 @section('content')
     <div class="min-h-[60vh] flex items-center justify-center">
@@ -10,10 +10,10 @@
                 </div>
             </div>
             
-            <h1 class="text-6xl font-extrabold text-slate-800 mb-2">404</h1>
-            <h2 class="text-2xl font-bold text-slate-600 mb-4 uppercase tracking-wide">Página No Encontrada</h2>
+            <h1 class="text-6xl font-extrabold text-slate-800 dark:text-white mb-2">404</h1>
+            <h2 class="text-2xl font-bold text-slate-600 dark:text-slate-400 mb-4 uppercase tracking-wide">Página No Encontrada</h2>
             
-            <p class="text-slate-500 mb-8 text-lg">
+            <p class="text-slate-500 dark:text-slate-400 mb-8 text-lg">
                 La ruta solicitada no existe o ha sido movida. Verifique la dirección o regrese al panel principal.
             </p>
 

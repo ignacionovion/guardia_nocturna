@@ -11,7 +11,7 @@
                 <i class="fas fa-bed text-2xl text-cyan-400"></i>
             </div>
             <h1 class="text-2xl font-black text-slate-100 uppercase tracking-wider">Guardia Nocturna</h1>
-            <p class="text-slate-500 text-sm mt-2">Sistema de Asignación de Camas</p>
+            <p class="text-slate-500 dark:text-slate-400 text-sm mt-2">Sistema de Asignación de Camas</p>
         </div>
 
         {{-- Card --}}
@@ -24,7 +24,7 @@
                             <i class="fas fa-bed text-cyan-400"></i>
                         </div>
                         <div>
-                            <p class="text-xs text-slate-500 uppercase tracking-wider font-bold">Cama</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold">Cama</p>
                             <p class="text-lg font-black text-slate-100">#{{ $bed->number }}</p>
                         </div>
                     </div>
@@ -61,14 +61,14 @@
                         <p class="text-lg font-bold text-slate-100 mb-2">Horario no disponible</p>
                         <p class="text-sm text-slate-400 mb-4">Las asignaciones de camas solo están disponibles durante el horario de guardia.</p>
                         <div class="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
-                            <p class="text-xs text-slate-500 uppercase tracking-wider font-bold mb-2">Horario de guardia</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold mb-2">Horario de guardia</p>
                             <p class="text-sm text-slate-300">
                                 <span class="text-amber-400 font-bold">Todos los días:</span> 22:00 - 07:00
                             </p>
                         </div>
                         
                         @if($bombero)
-                        <a href="{{ route('camas.scan.form', ['bedId' => $bed->id, 'reset' => 1]) }}" class="block mt-6 text-sm text-slate-500 hover:text-slate-300 transition-colors">
+                        <a href="{{ route('camas.scan.form', ['bedId' => $bed->id, 'reset' => 1]) }}" class="block mt-6 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-300 transition-colors">
                             <i class="fas fa-rotate-left mr-1"></i> Cambiar bombero
                         </a>
                         @endif
@@ -79,9 +79,9 @@
                         <div class="inline-flex items-center justify-center w-14 h-14 bg-green-500/10 rounded-full mb-3">
                             <i class="fas fa-user-check text-2xl text-green-400"></i>
                         </div>
-                        <p class="text-sm text-slate-500 mb-1">Identificado como</p>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mb-1">Identificado como</p>
                         <p class="text-lg font-bold text-slate-100">{{ $bombero->nombres }} {{ $bombero->apellido_paterno }}</p>
-                        <p class="text-xs text-slate-500 mt-1">RUT: {{ $bombero->rut }}</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">RUT: {{ $bombero->rut }}</p>
                     </div>
 
                     <form method="POST" action="{{ route('camas.scan.rut', ['bedId' => $bed->id]) }}">
@@ -92,7 +92,7 @@
                         </button>
                     </form>
 
-                    <a href="{{ route('camas.scan.form', ['bedId' => $bed->id, 'reset' => 1]) }}" class="block text-center mt-4 text-sm text-slate-500 hover:text-slate-300 transition-colors">
+                    <a href="{{ route('camas.scan.form', ['bedId' => $bed->id, 'reset' => 1]) }}" class="block text-center mt-4 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-300 transition-colors">
                         <i class="fas fa-rotate-left mr-1"></i> Cambiar bombero
                     </a>
                 @else
@@ -101,12 +101,12 @@
                         @csrf
                         
                         <div class="mb-6">
-                            <label for="rut" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
+                            <label for="rut" class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">
                                 Ingresa tu RUT
                             </label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    <i class="fas fa-id-card text-slate-500"></i>
+                                    <i class="fas fa-id-card text-slate-500 dark:text-slate-400"></i>
                                 </div>
                                 <input 
                                     type="text" 
@@ -138,7 +138,7 @@
 
         {{-- Info --}}
         <div class="mt-6 text-center">
-            <p class="text-xs text-slate-600">
+            <p class="text-xs text-slate-600 dark:text-slate-400">
                 <i class="fas fa-shield-alt mr-1"></i>
                 Sistema de Guardia Nocturna
             </p>

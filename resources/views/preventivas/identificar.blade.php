@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.modern')
 
 @section('content')
 <div class="w-full min-h-screen bg-slate-900 flex items-center justify-center px-4">
@@ -35,7 +35,7 @@
                            placeholder="Ej: 11222333-4"
                            value="{{ old('rut') }}"
                            class="w-full px-4 py-3 rounded-xl border-2 border-slate-600 bg-slate-700/50 text-white text-center font-bold text-lg tracking-wider placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 uppercase">
-                    <p class="mt-2 text-[10px] text-slate-500 font-semibold">Formato: 12345678-9 (con guion y dígito verificador)</p>
+                    <p class="mt-2 text-[10px] text-slate-500 dark:text-slate-400 font-semibold">Formato: 12345678-9 (con guion y dígito verificador)</p>
                 </div>
 
                 <button type="submit" class="w-full py-4 px-6 bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-widest rounded-xl border border-blue-500 shadow-lg shadow-blue-600/20 transition-all active:scale-[0.98]">
@@ -45,7 +45,7 @@
             </form>
 
             <div class="mt-6 text-center">
-                <a href="{{ route('preventivas.public.show', $token) }}" class="text-xs font-semibold text-slate-500 hover:text-slate-300 transition-colors">
+                <a href="{{ route('preventivas.public.show', $token) }}" class="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-300 transition-colors">
                     <i class="fas fa-arrow-left mr-1"></i>
                     Volver a la lista
                 </a>
@@ -53,8 +53,8 @@
         </div>
 
         <div class="mt-8 text-center">
-            <div class="text-[10px] font-black uppercase tracking-widest text-slate-600">{{ $event->title }}</div>
-            <div class="text-xs text-slate-500 mt-1">{{ $event->start_date->format('d/m/Y') }} - {{ $event->end_date->format('d/m/Y') }}</div>
+            <div class="text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">{{ $event->title }}</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">{{ $event->start_date->format('d/m/Y') }} - {{ $event->end_date->format('d/m/Y') }}</div>
         </div>
     </div>
 </div>

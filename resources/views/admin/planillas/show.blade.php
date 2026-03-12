@@ -1,12 +1,12 @@
-@extends('layouts.app')
+@extends('layouts.modern')
 
 @section('content')
 <div class="w-full py-4">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-            <div class="text-xs font-black uppercase tracking-widest text-slate-500">Planillas</div>
+            <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Planillas</div>
             <div class="text-2xl font-extrabold text-slate-900">{{ $planilla->unidad }} · {{ $planilla->fecha_revision?->format('d-m-Y H:i') }}</div>
-            <div class="text-sm text-slate-600 mt-1">Registrada por: {{ $planilla->creador?->name ?? trim((string)($planilla->bombero?->nombres ?? '') . ' ' . (string)($planilla->bombero?->apellido_paterno ?? '')) ?: '—' }}</div>
+            <div class="text-sm text-slate-600 dark:text-slate-400 mt-1">Registrada por: {{ $planilla->creador?->name ?? trim((string)($planilla->bombero?->nombres ?? '') . ' ' . (string)($planilla->bombero?->apellido_paterno ?? '')) ?: '—' }}</div>
             <div class="mt-2">
                 @if(($planilla->estado ?? '') === 'finalizado')
                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest bg-emerald-100 text-emerald-900 border border-emerald-200">Finalizado</span>
@@ -35,7 +35,7 @@
                     Eliminar
                 </button>
             </form>
-            <a href="{{ route('admin.planillas.index') }}" class="px-4 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs">Volver</a>
+            <a href="{{ route('admin.planillas.index') }}" class="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs">Volver</a>
             <a href="{{ route('admin.planillas.create', ['unidad' => $planilla->unidad]) }}" class="inline-flex items-center gap-2 bg-slate-950 hover:bg-black text-white font-black py-3 px-5 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest border border-slate-800">
                 <i class="fas fa-plus"></i>
                 Nueva planilla
@@ -54,7 +54,7 @@
         </div>
     @endif
 
-    <div class="mt-6 bg-white rounded-2xl border border-teal-900/20 shadow-sm overflow-hidden">
+    <div class="mt-6 bg-white dark:bg-slate-900 rounded-2xl border border-teal-900/20 shadow-sm overflow-hidden">
         <div class="px-6 py-4 bg-sky-100 border-b border-teal-900/20">
             <div class="text-xs font-black uppercase tracking-widest text-slate-900">PLANILLA DE REVISIÓN DE NIVELES</div>
             <div class="text-xs font-black uppercase tracking-widest text-slate-900 mt-1">{{ $planilla->unidad }}</div>
@@ -70,7 +70,7 @@
             @elseif($planilla->unidad === 'RX-3')
                 @include('admin.planillas.forms.rx3', ['data' => $data, 'readonly' => true])
             @else
-                <div class="text-slate-600 font-semibold">Detalle no disponible.</div>
+                <div class="text-slate-600 dark:text-slate-400 font-semibold">Detalle no disponible.</div>
             @endif
         </div>
     </div>

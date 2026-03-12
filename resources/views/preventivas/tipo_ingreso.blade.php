@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.modern')
 
 @section('content')
 <div class="w-full min-h-screen bg-slate-900 flex items-center justify-center px-4">
@@ -23,7 +23,7 @@
                 <div class="text-lg font-extrabold text-white uppercase">{{ $bombero->apellido_paterno }}</div>
                 <div class="text-sm text-slate-300">{{ $bombero->nombres }}</div>
                 @if($bombero->cargo_texto)
-                    <div class="mt-1 text-xs font-semibold text-slate-500">{{ $bombero->cargo_texto }}</div>
+                    <div class="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">{{ $bombero->cargo_texto }}</div>
                 @endif
             </div>
 
@@ -82,7 +82,7 @@
                             </option>
                         @endforeach
                     </select>
-                    <p class="text-[10px] text-slate-500">El bombero seleccionado será marcado como reemplazado.</p>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400">El bombero seleccionado será marcado como reemplazado.</p>
                 </div>
 
                 <button type="submit" class="w-full py-4 px-6 bg-emerald-600 hover:bg-emerald-500 text-white font-black uppercase tracking-widest rounded-xl border border-emerald-500 shadow-lg shadow-emerald-600/20 transition-all active:scale-[0.98]">
@@ -92,7 +92,7 @@
             </form>
 
             <div class="mt-6 text-center">
-                <a href="{{ route('preventivas.public.show', $token) }}" class="text-xs font-semibold text-slate-500 hover:text-slate-300 transition-colors">
+                <a href="{{ route('preventivas.public.show', $token) }}" class="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-300 transition-colors">
                     <i class="fas fa-arrow-left mr-1"></i>
                     Volver a la lista
                 </a>
@@ -100,8 +100,8 @@
         </div>
 
         <div class="mt-8 text-center">
-            <div class="text-[10px] font-black uppercase tracking-widest text-slate-600">{{ $event->title }}</div>
-            <div class="text-xs text-slate-500 mt-1">Turno: {{ $shift->label ?? $shift->start_time . ' - ' . $shift->end_time }}</div>
+            <div class="text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">{{ $event->title }}</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Turno: {{ $shift->label ?? $shift->start_time . ' - ' . $shift->end_time }}</div>
         </div>
     </div>
 </div>

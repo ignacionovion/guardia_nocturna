@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.modern')
 
 @section('content')
     <div class="min-h-[60vh] flex items-center justify-center">
@@ -10,10 +10,10 @@
                 </div>
             </div>
             
-            <h1 class="text-6xl font-extrabold text-slate-800 mb-2">403</h1>
-            <h2 class="text-2xl font-bold text-slate-600 mb-4 uppercase tracking-wide">Acceso Denegado</h2>
+            <h1 class="text-6xl font-extrabold text-slate-800 dark:text-white mb-2">403</h1>
+            <h2 class="text-2xl font-bold text-slate-600 dark:text-slate-400 mb-4 uppercase tracking-wide">Acceso Denegado</h2>
             
-            <p class="text-slate-500 mb-8 text-lg">
+            <p class="text-slate-500 dark:text-slate-400 mb-8 text-lg">
                 Lo sentimos, no tiene permisos suficientes para acceder a esta sección del cuartel digital.
             </p>
 

@@ -1,10 +1,10 @@
-@extends('layouts.app')
+@extends('layouts.modern')
 
 @section('content')
     <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
         <div>
-            <h1 class="text-3xl font-bold text-gray-800">Usuarios del Sistema</h1>
-            <p class="text-gray-500 text-sm mt-1">Administración de cuentas con acceso al sistema</p>
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-white">Usuarios del Sistema</h1>
+            <p class="text-gray-500 dark:text-slate-400 text-sm mt-1">Administración de cuentas con acceso al sistema</p>
         </div>
 
         <div class="flex flex-wrap gap-3 items-center">
@@ -23,16 +23,16 @@
         </div>
     </div>
 
-    <div class="bg-white p-4 rounded-xl shadow-sm mb-8 border border-gray-100">
+    <div class="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm mb-8 border border-gray-100 dark:border-slate-800">
         <form action="{{ route('admin.users.index') }}" method="GET" class="relative">
             <div class="flex items-center">
                 <i class="fas fa-search absolute left-4 text-gray-400"></i>
                 <input type="text" name="search" value="{{ request('search') }}"
                     placeholder="Buscar por nombre o email..."
-                    class="w-full pl-11 pr-4 py-3 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-colors text-gray-700">
+                    class="w-full pl-11 pr-4 py-3 border-gray-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-colors text-gray-700 dark:text-slate-300">
 
                 @if(request('search'))
-                    <a href="{{ route('admin.users.index') }}" class="absolute right-20 text-gray-400 hover:text-gray-600 p-2">
+                    <a href="{{ route('admin.users.index') }}" class="absolute right-20 text-gray-400 hover:text-gray-600 dark:text-slate-400 p-2">
                         <i class="fas fa-times"></i>
                     </a>
                 @endif
@@ -45,36 +45,36 @@
     </div>
 
     @if($users->isEmpty())
-        <div class="text-center py-16 bg-white rounded-xl shadow-sm border border-dashed border-slate-300">
-            <div class="bg-slate-50 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+        <div class="text-center py-16 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-dashed border-slate-300 dark:border-slate-600">
+            <div class="bg-slate-50 dark:bg-slate-800 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
                 <i class="fas fa-user-shield text-slate-400 text-3xl"></i>
             </div>
             <h3 class="text-lg font-medium text-slate-900">No se encontraron usuarios</h3>
-            <p class="text-slate-500 mt-1">Intenta ajustar el buscador o crea un nuevo usuario.</p>
+            <p class="text-slate-500 dark:text-slate-400 mt-1">Intenta ajustar el buscador o crea un nuevo usuario.</p>
         </div>
     @else
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-slate-200">
-                    <thead class="bg-slate-50">
+                    <thead class="bg-slate-50 dark:bg-slate-800">
                         <tr>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Usuario</th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Rol</th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Guardia</th>
-                            <th scope="col" class="px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Acciones</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Usuario</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Rol</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Guardia</th>
+                            <th scope="col" class="px-6 py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-slate-200">
+                    <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-200">
                         @foreach($users as $user)
-                            <tr class="hover:bg-slate-50 transition-colors">
+                            <tr class="hover:bg-slate-50 dark:bg-slate-800 transition-colors">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-bold border border-slate-300 shadow-sm text-sm">
+                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 dark:text-slate-400 font-bold border border-slate-300 dark:border-slate-600 shadow-sm text-sm">
                                             {{ substr($user->name, 0, 1) }}
                                         </div>
                                         <div class="ml-4">
                                             <div class="text-sm font-bold text-slate-900">{{ $user->name }}</div>
-                                            <div class="text-xs text-slate-500 font-mono">{{ $user->email }}</div>
+                                            <div class="text-xs text-slate-500 dark:text-slate-400 font-mono">{{ $user->email }}</div>
                                         </div>
                                     </div>
                                 </td>
@@ -84,13 +84,13 @@
                                     </span>
                                     @if($user->roleEntity)
                                         <div class="mt-1">
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-50 text-slate-700 border border-slate-100">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-100 dark:border-slate-800">
                                                 {{ $user->roleEntity->name }}
                                             </span>
                                         </div>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
                                     @if($user->guardia)
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                             {{ $user->guardia->name }}
@@ -119,7 +119,7 @@
                 </table>
             </div>
 
-            <div class="bg-slate-50 px-6 py-4 border-t border-slate-200">
+            <div class="bg-slate-50 dark:bg-slate-800 px-6 py-4 border-t border-slate-200 dark:border-slate-700">
                 {{ $users->links() }}
             </div>
         </div>

@@ -1,26 +1,26 @@
-@extends('layouts.app')
+@extends('layouts.modern')
 
 @section('content')
 <div class="w-full py-4">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-            <div class="text-xs font-black uppercase tracking-widest text-slate-500">Inventario</div>
+            <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Inventario</div>
             <div class="text-2xl font-extrabold text-slate-900">Importación</div>
-            <div class="text-sm text-slate-600 mt-1">Carga masiva de ítems para {{ $bodega->nombre }}.</div>
+            <div class="text-sm text-slate-600 dark:text-slate-400 mt-1">Carga masiva de ítems para {{ $bodega->nombre }}.</div>
         </div>
 
-        <a href="{{ route('inventario.config.form') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs">
+        <a href="{{ route('inventario.config.form') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white font-bold text-xs">
             <i class="fas fa-arrow-left"></i>
             Volver
         </a>
     </div>
 
-    <div class="mt-6 bg-white rounded-2xl border border-teal-900/20 shadow-sm overflow-hidden">
+    <div class="mt-6 bg-white dark:bg-slate-900 rounded-2xl border border-teal-900/20 shadow-sm overflow-hidden">
         <div class="p-6 border-b border-teal-900/20 bg-sky-100">
-            <div class="text-xs font-black uppercase tracking-widest text-slate-600">Formato</div>
-            <div class="text-sm text-slate-700 mt-2">
+            <div class="text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">Formato</div>
+            <div class="text-sm text-slate-700 dark:text-slate-300 mt-2">
                 Columnas esperadas:
-                <div class="mt-2 text-sm text-slate-600">
+                <div class="mt-2 text-sm text-slate-600 dark:text-slate-400">
                     Categoría | Título | Variante | Unidad | Stock
                 </div>
             </div>
@@ -31,9 +31,9 @@
                 @csrf
 
                 <div>
-                    <label class="block text-xs font-black uppercase tracking-widest text-slate-600 mb-2">Archivo</label>
-                    <input type="file" name="file" accept=".csv,.txt,.xlsx" class="w-full px-3 py-3 border border-slate-200 rounded-xl bg-white text-slate-800 font-semibold text-sm" required />
-                    <div class="text-xs text-slate-500 mt-2">Formatos permitidos: .CSV, .XLSX</div>
+                    <label class="block text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-2">Archivo</label>
+                    <input type="file" name="file" accept=".csv,.txt,.xlsx" class="w-full px-3 py-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-semibold text-sm" required />
+                    <div class="text-xs text-slate-500 dark:text-slate-400 mt-2">Formatos permitidos: .CSV, .XLSX</div>
                 </div>
 
                 <div class="pt-2">
@@ -44,9 +44,9 @@
                 </div>
             </form>
 
-            <div id="progressBox" class="hidden mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <div class="text-xs font-black uppercase tracking-widest text-slate-600">Progreso</div>
-                <div class="mt-2 text-sm text-slate-700" id="progressText">Preparando...</div>
+            <div id="progressBox" class="hidden mt-6 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-4">
+                <div class="text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">Progreso</div>
+                <div class="mt-2 text-sm text-slate-700 dark:text-slate-300" id="progressText">Preparando...</div>
                 <div class="mt-3 h-3 rounded-full bg-slate-200 overflow-hidden">
                     <div id="progressBar" class="h-full bg-emerald-600" style="width: 0%"></div>
                 </div>

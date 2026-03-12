@@ -1,19 +1,19 @@
-@extends('layouts.app')
+@extends('layouts.modern')
 
 @section('content')
     <div class="flex items-center justify-between mb-6">
         <div>
             <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Guardia</div>
-            <h1 class="text-xl font-black text-slate-800 uppercase tracking-tight">Asignación de Aseo</h1>
+            <h1 class="text-xl font-black text-slate-800 dark:text-white uppercase tracking-tight">Asignación de Aseo</h1>
         </div>
-        <a href="{{ route('dashboard') }}" class="text-xs font-bold text-slate-500 hover:text-slate-800 flex items-center gap-1.5 transition-colors">
+        <a href="{{ route('dashboard') }}" class="text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white flex items-center gap-1.5 transition-colors">
             <i class="fas fa-arrow-left text-[11px]"></i> Volver
         </a>
     </div>
 
     <div class="mb-4 flex items-center gap-3">
         <form method="GET" action="{{ route('guardia.aseo') }}" class="flex items-center gap-2">
-            <input type="date" name="date" value="{{ $date->toDateString() }}" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-300" />
+            <input type="date" name="date" value="{{ $date->toDateString() }}" class="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-semibold text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-300" />
             <button type="submit" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-lg text-xs uppercase tracking-widest transition-colors">Ver</button>
         </form>
         <span class="text-xs text-slate-400">{{ $date->translatedFormat('d \d\e F \d\e Y') }}</span>
@@ -26,17 +26,17 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             @foreach($tasks as $task)
                 @php $current = $assignmentsByTaskId->get($task->id); @endphp
-                <div class="bg-white border border-slate-200 rounded-xl p-4 flex flex-col gap-3">
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 flex flex-col gap-3">
                     <div class="flex items-center justify-between gap-2">
-                        <span class="text-sm font-black text-slate-800 uppercase tracking-wide leading-tight">{{ $task->name }}</span>
-                        <span class="shrink-0 text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded border {{ $current ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-slate-200 bg-slate-50 text-slate-500' }}">
+                        <span class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wide leading-tight">{{ $task->name }}</span>
+                        <span class="shrink-0 text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded border {{ $current ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400' }}">
                             {{ $current ? 'Asignado' : 'Pendiente' }}
                         </span>
                     </div>
                     @if($task->description)
                         <p class="text-xs text-slate-400 -mt-1">{{ $task->description }}</p>
                     @endif
-                    <select name="assignments[{{ $task->id }}]" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-300">
+                    <select name="assignments[{{ $task->id }}]" class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-xs font-semibold text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-300">
                         <option value="">Sin asignar</option>
                         @foreach($users as $u)
                             <option value="{{ $u->id }}" {{ ((string)($current?->firefighter_id) === (string)$u->id) ? 'selected' : '' }}>

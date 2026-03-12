@@ -1,19 +1,22 @@
-@extends('layouts.app')
+@extends('layouts.modern')
+
+@section('title', 'Gestión de Camas - ' . branding()->nombre_empresa)
+@section('page-title', 'Gestión de Camas')
 
 @section('content')
     <div class="mb-8">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
                 <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Dormitorios</span>
-                <h1 class="text-3xl font-black text-slate-800 tracking-tight uppercase leading-none flex items-center gap-3">
+                <h1 class="text-3xl font-black text-slate-800 dark:text-white tracking-tight uppercase leading-none flex items-center gap-3">
                     <span class="text-red-700">Gestión</span> de Camas
-                    <span class="text-xs font-black text-slate-400 bg-slate-100 px-2 py-1 rounded-lg">{{ $totalBeds ?? $beds->count() }} camas</span>
+                    <span class="text-xs font-black text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-lg">{{ $totalBeds ?? $beds->count() }} camas</span>
                 </h1>
-                <p class="text-slate-500 font-medium text-sm mt-2">Control de ocupación y asignaciones en tiempo real</p>
+                <p class="text-slate-500 dark:text-slate-400 font-medium text-sm mt-2">Control de ocupación y asignaciones en tiempo real</p>
             </div>
             
             <!-- Status Legend -->
-            <div class="flex items-center gap-2 bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm">
+            <div class="flex items-center gap-2 bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
                 <div class="flex items-center px-3 py-1.5 bg-emerald-50 rounded-lg border border-emerald-100">
                     <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full mr-2 shadow-[0_0_6px_rgba(16,185,129,0.5)]"></span>
                     <span class="text-[11px] font-black text-emerald-700 uppercase tracking-wide">Disponible</span>
@@ -22,9 +25,9 @@
                     <span class="w-2.5 h-2.5 bg-red-500 rounded-full mr-2 shadow-[0_0_6px_rgba(239,68,68,0.5)]"></span>
                     <span class="text-[11px] font-black text-red-700 uppercase tracking-wide">Ocupada</span>
                 </div>
-                <div class="flex items-center px-3 py-1.5 bg-slate-100 rounded-lg border border-slate-200">
+                <div class="flex items-center px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
                     <span class="w-2.5 h-2.5 bg-slate-400 rounded-full mr-2"></span>
-                    <span class="text-[11px] font-black text-slate-600 uppercase tracking-wide">Mantención</span>
+                    <span class="text-[11px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-wide">Mantención</span>
                 </div>
             </div>
         </div>
@@ -54,7 +57,7 @@
                     ? 'border-emerald-200' 
                     : ($isOccupied 
                         ? 'border-red-200' 
-                        : 'border-slate-200');
+                        : 'border-slate-200 dark:border-slate-700');
             @endphp
             
             <div class="relative bg-gradient-to-br {{ $cardGradient }} rounded-2xl shadow-sm {{ $borderColor }} border overflow-hidden flex flex-col h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group">
@@ -68,7 +71,7 @@
                         <div class="flex items-center gap-3">
                             <!-- Bed Number Badge -->
                             <div class="relative">
-                                <div class="w-14 h-14 rounded-2xl bg-white border-2 border-{{ $statusColor }}-200 shadow-lg flex items-center justify-center">
+                                <div class="w-14 h-14 rounded-2xl bg-white dark:bg-slate-900 border-2 border-{{ $statusColor }}-200 shadow-lg flex items-center justify-center">
                                     <span class="text-2xl font-black text-{{ $statusColor }}-600">{{ $bed->number }}</span>
                                 </div>
                                 @if($isOccupied)
@@ -89,7 +92,7 @@
                                     @elseif($isOccupied)
                                         <span class="text-xs font-black text-red-600 bg-red-100 px-2 py-0.5 rounded-full uppercase">Ocupada</span>
                                     @else
-                                        <span class="text-xs font-black text-slate-500 bg-slate-200 px-2 py-0.5 rounded-full uppercase">Mantención</span>
+                                        <span class="text-xs font-black text-slate-500 dark:text-slate-400 bg-slate-200 px-2 py-0.5 rounded-full uppercase">Mantención</span>
                                     @endif
                                 </div>
                             </div>
@@ -111,7 +114,7 @@
                             @endphp
                             
                             <!-- Occupant Card -->
-                            <div class="bg-white rounded-xl p-4 border border-red-100 shadow-sm mb-3">
+                            <div class="bg-white dark:bg-slate-900 rounded-xl p-4 border border-red-100 shadow-sm mb-3">
                                 <div class="flex items-center gap-3">
                                     @if($firefighter?->photo_path)
                                         <img src="{{ url('media/' . ltrim($firefighter->photo_path, '/')) }}" class="w-12 h-12 rounded-xl object-cover border border-red-200 shadow-md" alt="{{ $fullName }}">
@@ -122,18 +125,18 @@
                                     @endif
                                     <div class="flex-1 min-w-0">
                                         <p class="text-[10px] font-black text-red-400 uppercase tracking-wide mb-0.5">Ocupante</p>
-                                        <p class="font-bold text-slate-800 text-sm truncate leading-tight">{{ $fullName }}</p>
+                                        <p class="font-bold text-slate-800 dark:text-white text-sm truncate leading-tight">{{ $fullName }}</p>
                                         @if($firefighter?->cargo_texto)
-                                            <p class="text-[11px] text-slate-500 font-medium">{{ $firefighter->cargo_texto }}</p>
+                                            <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">{{ $firefighter->cargo_texto }}</p>
                                         @endif
                                     </div>
                                 </div>
                             </div>
                             
                             <!-- Time Info -->
-                            <div class="flex items-center gap-2 text-xs text-slate-500 bg-slate-50 rounded-lg px-3 py-2 mb-3">
+                            <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 rounded-lg px-3 py-2 mb-3">
                                 <i class="fas fa-clock text-slate-400"></i>
-                                <span>Ingreso: <span class="font-bold text-slate-700">{{ $bed->currentAssignment->assigned_at->format('H:i') }}</span> hrs</span>
+                                <span>Ingreso: <span class="font-bold text-slate-700 dark:text-slate-300">{{ $bed->currentAssignment->assigned_at->format('H:i') }}</span> hrs</span>
                                 <span class="mx-1 text-slate-300">|</span>
                                 <span class="text-slate-400">{{ $bed->currentAssignment->assigned_at->diffForHumans() }}</span>
                             </div>
@@ -160,10 +163,10 @@
                         @else
                             <!-- Maintenance State -->
                             <div class="h-full flex flex-col items-center justify-center py-8 text-center">
-                                <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-slate-200 to-slate-100 text-slate-400 flex items-center justify-center mb-4 shadow-md border-2 border-slate-300">
+                                <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-slate-200 to-slate-100 text-slate-400 flex items-center justify-center mb-4 shadow-md border-2 border-slate-300 dark:border-slate-600">
                                     <i class="fas fa-tools text-3xl"></i>
                                 </div>
-                                <p class="text-sm font-black text-slate-500 uppercase tracking-wide">Fuera de Servicio</p>
+                                <p class="text-sm font-black text-slate-500 dark:text-slate-400 uppercase tracking-wide">Fuera de Servicio</p>
                                 @if($bed->description)
                                     <p class="text-xs text-slate-400 mt-1">{{ $bed->description }}</p>
                                 @endif
@@ -172,7 +175,7 @@
                     </div>
 
                     <!-- Actions Footer -->
-                    <div class="mt-4 pt-4 border-t border-slate-100">
+                    <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                         @if($isAvailable)
                             <div class="grid grid-cols-1 {{ auth()->user()->role === 'super_admin' ? 'sm:grid-cols-2' : '' }} gap-2">
                                 <button onclick="openAssignModal('{{ $bed->id }}', '{{ $bed->number }}')" 
@@ -194,8 +197,8 @@
                                 <form action="{{ route('beds.maintenance', $bed->id) }}" method="POST" onsubmit="return confirm('¿Marcar cama #{{ $bed->number }} en mantención?');" class="m-0 mt-2">
                                     @csrf
                                     @method('PUT')
-                                    <button type="submit" class="group/btn w-full bg-white hover:bg-slate-100 text-slate-500 border border-slate-200 font-bold py-3 px-4 rounded-xl text-xs transition-all shadow-sm hover:shadow flex items-center justify-center uppercase tracking-wider">
-                                        <i class="fas fa-tools mr-2 text-slate-400 group-hover/btn:text-slate-600 transition-colors"></i>
+                                    <button type="submit" class="group/btn w-full bg-white dark:bg-slate-900 hover:bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 font-bold py-3 px-4 rounded-xl text-xs transition-all shadow-sm hover:shadow flex items-center justify-center uppercase tracking-wider">
+                                        <i class="fas fa-tools mr-2 text-slate-400 group-hover/btn:text-slate-600 dark:text-slate-400 transition-colors"></i>
                                         <span>Mantención</span>
                                     </button>
                                 </form>
@@ -206,7 +209,7 @@
                                     @csrf
                                     @method('PUT')
                                     <input type="hidden" name="release" value="1">
-                                    <button type="submit" class="group/btn w-full bg-white hover:bg-red-50 text-slate-600 hover:text-red-600 border border-slate-200 hover:border-red-200 font-bold py-3 px-4 rounded-xl text-xs transition-all shadow-sm hover:shadow flex items-center justify-center uppercase tracking-wider">
+                                    <button type="submit" class="group/btn w-full bg-white dark:bg-slate-900 hover:bg-red-50 text-slate-600 dark:text-slate-400 hover:text-red-600 border border-slate-200 dark:border-slate-700 hover:border-red-200 font-bold py-3 px-4 rounded-xl text-xs transition-all shadow-sm hover:shadow flex items-center justify-center uppercase tracking-wider">
                                         <i class="fas fa-right-from-bracket mr-2 group-hover/btn:scale-110 transition-transform"></i>
                                         <span>Liberar</span>
                                     </button>
@@ -221,13 +224,13 @@
                                 <form action="{{ route('beds.available', $bed->id) }}" method="POST" onsubmit="return confirm('¿Habilitar cama #{{ $bed->number }} como disponible?');" class="m-0">
                                     @csrf
                                     @method('PUT')
-                                    <button type="submit" class="group/btn w-full bg-white hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 border border-slate-200 hover:border-emerald-200 font-bold py-3 px-4 rounded-xl text-xs transition-all shadow-sm hover:shadow flex items-center justify-center uppercase tracking-wider">
+                                    <button type="submit" class="group/btn w-full bg-white dark:bg-slate-900 hover:bg-emerald-50 text-slate-600 dark:text-slate-400 hover:text-emerald-700 border border-slate-200 dark:border-slate-700 hover:border-emerald-200 font-bold py-3 px-4 rounded-xl text-xs transition-all shadow-sm hover:shadow flex items-center justify-center uppercase tracking-wider">
                                         <i class="fas fa-check-circle mr-2 text-emerald-500 group-hover/btn:scale-110 transition-transform"></i>
                                         <span>Habilitar</span>
                                     </button>
                                 </form>
                             @else
-                                <button disabled class="w-full bg-slate-100 text-slate-400 font-bold py-3 px-4 rounded-xl text-xs cursor-not-allowed uppercase tracking-wider flex items-center justify-center border border-slate-200">
+                                <button disabled class="w-full bg-slate-100 dark:bg-slate-800 text-slate-400 font-bold py-3 px-4 rounded-xl text-xs cursor-not-allowed uppercase tracking-wider flex items-center justify-center border border-slate-200 dark:border-slate-700">
                                     <i class="fas fa-ban mr-2"></i> No Disponible
                                 </button>
                             @endif
@@ -240,7 +243,7 @@
 
     <!-- Modal Asignación -->
     <div id="assignModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center transition-all duration-300 opacity-0">
-        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden transform scale-95 transition-all duration-300">
+        <div class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden transform scale-95 transition-all duration-300">
             <!-- Modal Header -->
             <div class="bg-slate-900 px-6 py-4 flex justify-between items-center">
                 <h3 class="text-white font-bold text-sm uppercase tracking-wide flex items-center">
@@ -258,10 +261,10 @@
                     <input type="hidden" name="bed_id" id="modalBedId">
                     
                     <div class="mb-5">
-                        <label class="block text-slate-700 text-xs font-bold mb-2 uppercase tracking-wide">Voluntario</label>
+                        <label class="block text-slate-700 dark:text-slate-300 text-xs font-bold mb-2 uppercase tracking-wide">Voluntario</label>
                         <div class="relative">
                             <i class="fas fa-user absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                            <select name="firefighter_id" class="w-full pl-9 pr-4 py-2.5 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-slate-50 transition-colors cursor-pointer hover:bg-white" required>
+                            <select name="firefighter_id" class="w-full pl-9 pr-4 py-2.5 text-sm border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-slate-50 dark:bg-slate-800 transition-colors cursor-pointer hover:bg-white" required>
                                 <option value="">Seleccione voluntario...</option>
                                 @foreach($users as $user)
                                     <option value="{{ $user->id }}">{{ $user->nombres }} {{ $user->apellido_paterno }}</option>
@@ -271,15 +274,15 @@
                     </div>
                     
                     <div class="mb-6">
-                        <label class="block text-slate-700 text-xs font-bold mb-2 uppercase tracking-wide">Comentario / Nota <span class="text-slate-400 font-normal normal-case">(Opcional)</span></label>
+                        <label class="block text-slate-700 dark:text-slate-300 text-xs font-bold mb-2 uppercase tracking-wide">Comentario / Nota <span class="text-slate-400 font-normal normal-case">(Opcional)</span></label>
                         <div class="relative">
                             <i class="fas fa-comment-dots absolute left-3 top-3 text-slate-400 text-xs"></i>
-                            <textarea name="notes" class="w-full pl-9 pr-4 py-2.5 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-slate-50 min-h-[80px] hover:bg-white transition-colors" placeholder="Ej: Se retira a las 07:00 hrs..."></textarea>
+                            <textarea name="notes" class="w-full pl-9 pr-4 py-2.5 text-sm border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-slate-50 dark:bg-slate-800 min-h-[80px] hover:bg-white dark:bg-slate-900 transition-colors" placeholder="Ej: Se retira a las 07:00 hrs..."></textarea>
                         </div>
                     </div>
 
                     <div class="flex gap-3 pt-2">
-                        <button type="button" onclick="closeAssignModal()" class="w-1/2 py-2.5 px-4 border border-slate-200 text-slate-600 text-xs font-bold rounded-lg hover:bg-slate-50 transition-colors uppercase tracking-wide">
+                        <button type="button" onclick="closeAssignModal()" class="w-1/2 py-2.5 px-4 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-xs font-bold rounded-lg hover:bg-slate-50 dark:bg-slate-800 transition-colors uppercase tracking-wide">
                             Cancelar
                         </button>
                         <button type="submit" class="w-1/2 py-2.5 px-4 bg-slate-900 text-white text-xs font-bold rounded-lg hover:bg-slate-800 transition-colors shadow-md uppercase tracking-wide flex items-center justify-center gap-2">
@@ -294,7 +297,7 @@
 
     <!-- Modal QR -->
     <div id="qrModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center transition-all duration-300 opacity-0">
-        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden transform scale-95 transition-all duration-300">
+        <div class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden transform scale-95 transition-all duration-300">
             <!-- Modal Header -->
             <div class="bg-slate-900 px-6 py-4 flex justify-between items-center">
                 <h3 class="text-white font-bold text-sm uppercase tracking-wide flex items-center">
@@ -307,16 +310,16 @@
 
             <!-- Modal Body -->
             <div class="p-6 text-center">
-                <p class="text-sm text-slate-600 mb-4">Escanea este código con tu teléfono para asignarte esta cama</p>
+                <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">Escanea este código con tu teléfono para asignarte esta cama</p>
                 
                 <!-- QR Code Container -->
-                <div class="bg-slate-100 rounded-xl p-6 mb-4 inline-block">
+                <div class="bg-slate-100 dark:bg-slate-800 rounded-xl p-6 mb-4 inline-block">
                     <div id="qrCodeContainer" class="flex justify-center"></div>
                 </div>
                 
                 <!-- URL -->
-                <div class="bg-slate-50 rounded-lg p-3 mb-4">
-                    <p class="text-xs text-slate-500 uppercase tracking-wider font-bold mb-1">URL</p>
+                <div class="bg-slate-50 dark:bg-slate-800 rounded-lg p-3 mb-4">
+                    <p class="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold mb-1">URL</p>
                     <a id="qrUrl" href="#" target="_blank" class="text-sm text-cyan-600 font-mono break-all hover:text-cyan-500 transition-colors"></a>
                 </div>
 

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.modern')
 
 @section('content')
 <div class="container mx-auto px-4 py-6 max-w-7xl">
@@ -6,56 +6,56 @@
     {{-- HEADER --}}
     <div class="mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-slate-800 flex items-center uppercase">
+            <h1 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center uppercase">
                 <i class="fas fa-chart-line mr-3 text-red-600"></i> Reportes
             </h1>
-            <p class="text-slate-500 mt-1 text-sm">Estadísticas de asistencia, permisos, reemplazos y conductores</p>
+            <p class="text-slate-500 dark:text-slate-400 mt-1 text-sm">Estadísticas de asistencia, permisos, reemplazos y conductores</p>
         </div>
     </div>
 
     {{-- NAVEGACIÓN PRINCIPAL --}}
-    <div class="bg-white rounded-t-lg border border-slate-200">
+    <div class="bg-white dark:bg-slate-900 rounded-t-lg border border-slate-200 dark:border-slate-700">
         <div class="flex overflow-x-auto">
-            <a href="{{ route('admin.reports.attendance') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 hover:text-slate-800 transition-colors">
+            <a href="{{ route('admin.reports.attendance') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
                 <i class="fas fa-calendar-check"></i> Asistencia
             </a>
-            <a href="{{ route('admin.reports.preventivas') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 hover:text-slate-800 transition-colors">
+            <a href="{{ route('admin.reports.preventivas') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
                 <i class="fas fa-clipboard-list"></i> Preventivas
             </a>
-            <a href="{{ route('admin.reports.replacements') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 hover:text-slate-800 transition-colors">
+            <a href="{{ route('admin.reports.replacements') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
                 <i class="fas fa-exchange-alt"></i> Reemplazos
             </a>
             <a href="{{ route('admin.reports.refuerzos') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors text-red-600 border-red-600 bg-red-50">
                 <i class="fas fa-user-plus"></i> Refuerzos
             </a>
-            <a href="{{ route('admin.reports.drivers') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 hover:text-slate-800 transition-colors">
+            <a href="{{ route('admin.reports.drivers') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
                 <i class="fas fa-truck"></i> Conductores
             </a>
-            <a href="{{ route('admin.reports.emergencies') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 hover:text-slate-800 transition-colors">
+            <a href="{{ route('admin.reports.emergencies') }}" class="flex items-center gap-2 px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
                 <i class="fas fa-ambulance text-red-600"></i> Emergencias
             </a>
         </div>
     </div>
 
     {{-- FILTROS CON SELECTS ESTANDARIZADOS --}}
-    <div class="bg-white p-5 border border-t-0 border-slate-200 mb-6 rounded-b-lg shadow-sm">
+    <div class="bg-white dark:bg-slate-900 p-5 border border-t-0 border-slate-200 dark:border-slate-700 mb-6 rounded-b-lg shadow-sm">
         <form action="{{ route('admin.reports.refuerzos') }}" method="GET" class="flex flex-wrap items-end gap-4">
             
             {{-- Select Guardia - ESTANDARIZADO --}}
             <div class="min-w-[220px]">
-                <label class="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Guardia</label>
+                <label class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Guardia</label>
                 <div class="relative group">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                         <i class="fas fa-shield-alt text-slate-400 group-focus-within:text-red-500 transition-colors"></i>
                     </div>
-                    <select name="guardia_id" class="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 appearance-none cursor-pointer hover:bg-white hover:border-slate-300 transition-all shadow-sm">
+                    <select name="guardia_id" class="w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 appearance-none cursor-pointer hover:bg-white dark:bg-slate-900 hover:border-slate-300 dark:border-slate-600 transition-all shadow-sm">
                         <option value="">Todas las Guardias</option>
                         @foreach($guardias ?? [] as $g)
                             <option value="{{ $g->id }}" {{ ($guardiaId ?? '') == $g->id ? 'selected' : '' }}>{{ $g->name }}</option>
                         @endforeach
                     </select>
                     <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
-                        <div class="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center">
+                        <div class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                             <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
                         </div>
                     </div>
@@ -64,12 +64,12 @@
 
             {{-- Select Período - ESTANDARIZADO --}}
             <div class="min-w-[200px]">
-                <label class="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Período</label>
+                <label class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Período</label>
                 <div class="relative group">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                         <i class="fas fa-calendar-alt text-slate-400 group-focus-within:text-red-500 transition-colors"></i>
                     </div>
-                    <select name="periodo" class="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 appearance-none cursor-pointer hover:bg-white hover:border-slate-300 transition-all shadow-sm">
+                    <select name="periodo" class="w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 appearance-none cursor-pointer hover:bg-white dark:bg-slate-900 hover:border-slate-300 dark:border-slate-600 transition-all shadow-sm">
                         <option value="7" {{ ($periodo ?? 30) == 7 ? 'selected' : '' }}>Últimos 7 días</option>
                         <option value="14" {{ ($periodo ?? 30) == 14 ? 'selected' : '' }}>Últimos 14 días</option>
                         <option value="30" {{ ($periodo ?? 30) == 30 ? 'selected' : '' }}>Últimos 30 días</option>
@@ -78,7 +78,7 @@
                         <option value="365" {{ ($periodo ?? 30) == 365 ? 'selected' : '' }}>Último año</option>
                     </select>
                     <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
-                        <div class="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center">
+                        <div class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                             <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
                         </div>
                     </div>
@@ -87,23 +87,23 @@
 
             {{-- Fecha Desde - ESTANDARIZADO --}}
             <div class="min-w-[160px]">
-                <label class="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Desde</label>
+                <label class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Desde</label>
                 <div class="relative group">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                         <i class="fas fa-calendar text-slate-400 group-focus-within:text-red-500 transition-colors"></i>
                     </div>
-                    <input type="date" name="from" value="{{ $from->format('Y-m-d') }}" class="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 hover:bg-white hover:border-slate-300 transition-all shadow-sm">
+                    <input type="date" name="from" value="{{ $from->format('Y-m-d') }}" class="w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 hover:bg-white dark:bg-slate-900 hover:border-slate-300 dark:border-slate-600 transition-all shadow-sm">
                 </div>
             </div>
 
             {{-- Fecha Hasta - ESTANDARIZADO --}}
             <div class="min-w-[160px]">
-                <label class="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Hasta</label>
+                <label class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Hasta</label>
                 <div class="relative group">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                         <i class="fas fa-calendar text-slate-400 group-focus-within:text-red-500 transition-colors"></i>
                     </div>
-                    <input type="date" name="to" value="{{ $to->format('Y-m-d') }}" class="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 hover:bg-white hover:border-slate-300 transition-all shadow-sm">
+                    <input type="date" name="to" value="{{ $to->format('Y-m-d') }}" class="w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 hover:bg-white dark:bg-slate-900 hover:border-slate-300 dark:border-slate-600 transition-all shadow-sm">
                 </div>
             </div>
 
@@ -112,7 +112,7 @@
                 <button type="submit" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-900 text-white font-extrabold text-xs uppercase tracking-widest transition-all shadow-md hover:shadow-lg">
                     <i class="fas fa-filter"></i> Filtrar
                 </button>
-                <a href="{{ route('admin.reports.refuerzos') }}" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs uppercase tracking-widest transition-all" title="Limpiar filtros">
+                <a href="{{ route('admin.reports.refuerzos') }}" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 font-extrabold text-xs uppercase tracking-widest transition-all" title="Limpiar filtros">
                     <i class="fas fa-undo"></i>
                 </a>
             </div>
@@ -142,38 +142,38 @@
             ];
         @endphp
         @foreach($statCards as $card)
-        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-all group">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm hover:shadow-md transition-all group">
             <div class="flex items-start justify-between mb-4">
                 <div class="w-12 h-12 rounded-xl bg-{{ $card['color'] }}-100 text-{{ $card['color'] }}-600 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <i class="fas fa-{{ $card['icon'] }} text-xl"></i>
                 </div>
                 @if($card['trend'])
-                <span class="text-xs font-bold {{ str_starts_with($card['trend'], '+') ? 'text-emerald-600' : 'text-rose-600' }} bg-slate-50 px-2 py-1 rounded-lg">
+                <span class="text-xs font-bold {{ str_starts_with($card['trend'], '+') ? 'text-emerald-600' : 'text-rose-600' }} bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded-lg">
                     {{ $card['trend'] }}
                 </span>
                 @endif
             </div>
-            <div class="text-3xl font-black text-slate-800 mb-1">{{ $card['value'] }}</div>
+            <div class="text-3xl font-black text-slate-800 dark:text-white mb-1">{{ $card['value'] }}</div>
             <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">{{ $card['label'] }}</div>
         </div>
         @endforeach
     </div>
 
     {{-- GRÁFICO PRINCIPAL: TENDENCIA DE REFUERZOS --}}
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-8">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 mb-8">
         <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center">
                     <i class="fas fa-chart-area text-lg"></i>
                 </div>
                 <div>
-                    <h3 class="text-lg font-black text-slate-800 uppercase tracking-wide">Tendencia de Refuerzos</h3>
-                    <p class="text-xs text-slate-500">Evolución diaria en el período seleccionado</p>
+                    <h3 class="text-lg font-black text-slate-800 dark:text-white uppercase tracking-wide">Tendencia de Refuerzos</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Evolución diaria en el período seleccionado</p>
                 </div>
             </div>
             <div class="flex items-center gap-2">
                 <span class="text-xs font-bold text-slate-400 uppercase">Período:</span>
-                <span class="text-sm font-bold text-slate-700">{{ $from->format('d/m/Y') }} — {{ $to->format('d/m/Y') }}</span>
+                <span class="text-sm font-bold text-slate-700 dark:text-slate-300">{{ $from->format('d/m/Y') }} — {{ $to->format('d/m/Y') }}</span>
             </div>
         </div>
         
@@ -183,14 +183,14 @@
         </div>
         
         {{-- Leyenda --}}
-        <div class="flex items-center justify-center gap-6 mt-4 pt-4 border-t border-slate-100">
+        <div class="flex items-center justify-center gap-6 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
             <div class="flex items-center gap-2">
                 <div class="w-4 h-4 rounded bg-sky-500"></div>
-                <span class="text-xs font-semibold text-slate-600">Total Refuerzos</span>
+                <span class="text-xs font-semibold text-slate-600 dark:text-slate-400">Total Refuerzos</span>
             </div>
             <div class="flex items-center gap-2">
                 <div class="w-4 h-4 rounded bg-emerald-400"></div>
-                <span class="text-xs font-semibold text-slate-600">Promedio Móvil (7 días)</span>
+                <span class="text-xs font-semibold text-slate-600 dark:text-slate-400">Promedio Móvil (7 días)</span>
             </div>
         </div>
     </div>
@@ -199,14 +199,14 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         
         {{-- Gráfico: Refuerzos por Guardia --}}
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
             <div class="flex items-center gap-3 mb-6">
                 <div class="w-10 h-10 rounded-xl bg-violet-100 text-violet-600 flex items-center justify-center">
                     <i class="fas fa-chart-pie text-lg"></i>
                 </div>
                 <div>
-                    <h3 class="text-lg font-black text-slate-800 uppercase tracking-wide">Por Guardia</h3>
-                    <p class="text-xs text-slate-500">Distribución de refuerzos</p>
+                    <h3 class="text-lg font-black text-slate-800 dark:text-white uppercase tracking-wide">Por Guardia</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Distribución de refuerzos</p>
                 </div>
             </div>
             <div class="relative h-64">
@@ -215,29 +215,29 @@
         </div>
 
         {{-- Ranking: Top Refuerzos --}}
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
             <div class="flex items-center gap-3 mb-6">
                 <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center">
                     <i class="fas fa-trophy text-lg"></i>
                 </div>
                 <div>
-                    <h3 class="text-lg font-black text-slate-800 uppercase tracking-wide">Top Refuerzos</h3>
-                    <p class="text-xs text-slate-500">Voluntarios con más refuerzos</p>
+                    <h3 class="text-lg font-black text-slate-800 dark:text-white uppercase tracking-wide">Top Refuerzos</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Voluntarios con más refuerzos</p>
                 </div>
             </div>
             
             <div class="space-y-3">
                 @forelse($topRefuerzos ?? [] as $index => $refuerzo)
-                <div class="flex items-center gap-3 p-3 rounded-xl {{ $index < 3 ? 'bg-gradient-to-r from-amber-50 to-transparent border border-amber-100' : 'bg-slate-50' }}">
-                    <div class="w-8 h-8 rounded-lg {{ $index == 0 ? 'bg-amber-400 text-white' : ($index == 1 ? 'bg-slate-300 text-white' : ($index == 2 ? 'bg-orange-400 text-white' : 'bg-slate-200 text-slate-600')) }} font-black text-sm flex items-center justify-center">
+                <div class="flex items-center gap-3 p-3 rounded-xl {{ $index < 3 ? 'bg-gradient-to-r from-amber-50 to-transparent border border-amber-100' : 'bg-slate-50 dark:bg-slate-800' }}">
+                    <div class="w-8 h-8 rounded-lg {{ $index == 0 ? 'bg-amber-400 text-white' : ($index == 1 ? 'bg-slate-300 text-white' : ($index == 2 ? 'bg-orange-400 text-white' : 'bg-slate-200 text-slate-600 dark:text-slate-400')) }} font-black text-sm flex items-center justify-center">
                         {{ $index + 1 }}
                     </div>
                     <div class="w-10 h-10 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-sm">
                         {{ substr($refuerzo['nombres'] ?? 'NA', 0, 1) }}{{ substr($refuerzo['apellido'] ?? 'A', 0, 1) }}
                     </div>
                     <div class="flex-1 min-w-0">
-                        <div class="font-bold text-slate-800 text-sm truncate">{{ $refuerzo['nombre'] ?? 'Sin nombre' }}</div>
-                        <div class="text-xs text-slate-500">{{ $refuerzo['guardia'] ?? 'Sin guardia' }}</div>
+                        <div class="font-bold text-slate-800 dark:text-white text-sm truncate">{{ $refuerzo['nombre'] ?? 'Sin nombre' }}</div>
+                        <div class="text-xs text-slate-500 dark:text-slate-400">{{ $refuerzo['guardia'] ?? 'Sin guardia' }}</div>
                     </div>
                     <div class="text-right">
                         <div class="text-lg font-black text-sky-600">{{ $refuerzo['total'] ?? 0 }}</div>
@@ -255,16 +255,16 @@
     </div>
 
     {{-- SECCIÓN: DETALLE POR DÍA --}}
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
-        <div class="p-6 border-b border-slate-200 bg-gradient-to-r from-sky-50 to-white">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden mb-8">
+        <div class="p-6 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-sky-50 to-white">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center">
                         <i class="fas fa-list-alt text-lg"></i>
                     </div>
                     <div>
-                        <h3 class="text-lg font-black text-slate-800 uppercase tracking-wide">Detalle por Día</h3>
-                        <p class="text-xs text-slate-500">Registro histórico de refuerzos</p>
+                        <h3 class="text-lg font-black text-slate-800 dark:text-white uppercase tracking-wide">Detalle por Día</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Registro histórico de refuerzos</p>
                     </div>
                 </div>
                 <span class="text-sm font-bold text-sky-700 bg-sky-100 px-3 py-1 rounded-full">{{ count($detallePorDia ?? []) }} registros</span>
@@ -273,21 +273,21 @@
         
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
-                <thead class="bg-slate-50">
+                <thead class="bg-slate-50 dark:bg-slate-800">
                     <tr>
-                        <th class="text-left py-4 px-4 font-bold text-slate-600 text-xs uppercase tracking-wider">Fecha</th>
-                        <th class="text-left py-4 px-4 font-bold text-slate-600 text-xs uppercase tracking-wider">Guardia</th>
-                        <th class="text-left py-4 px-4 font-bold text-slate-600 text-xs uppercase tracking-wider">Voluntario</th>
-                        <th class="text-center py-4 px-4 font-bold text-slate-600 text-xs uppercase tracking-wider">Turno</th>
-                        <th class="text-center py-4 px-4 font-bold text-slate-600 text-xs uppercase tracking-wider">Estado</th>
+                        <th class="text-left py-4 px-4 font-bold text-slate-600 dark:text-slate-400 text-xs uppercase tracking-wider">Fecha</th>
+                        <th class="text-left py-4 px-4 font-bold text-slate-600 dark:text-slate-400 text-xs uppercase tracking-wider">Guardia</th>
+                        <th class="text-left py-4 px-4 font-bold text-slate-600 dark:text-slate-400 text-xs uppercase tracking-wider">Voluntario</th>
+                        <th class="text-center py-4 px-4 font-bold text-slate-600 dark:text-slate-400 text-xs uppercase tracking-wider">Turno</th>
+                        <th class="text-center py-4 px-4 font-bold text-slate-600 dark:text-slate-400 text-xs uppercase tracking-wider">Estado</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse($detallePorDia ?? [] as $registro)
-                    <tr class="hover:bg-slate-50 transition-colors">
+                    <tr class="hover:bg-slate-50 dark:bg-slate-800 transition-colors">
                         <td class="py-4 px-4">
-                            <div class="font-bold text-slate-800">{{ $registro['fecha'] ?? 'N/A' }}</div>
-                            <div class="text-xs text-slate-500">{{ $registro['dia_semana'] ?? '' }}</div>
+                            <div class="font-bold text-slate-800 dark:text-white">{{ $registro['fecha'] ?? 'N/A' }}</div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400">{{ $registro['dia_semana'] ?? '' }}</div>
                         </td>
                         <td class="py-4 px-4">
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-violet-100 text-violet-700 font-bold text-xs">
@@ -301,13 +301,13 @@
                                     {{ substr($registro['nombres'] ?? 'N', 0, 1) }}{{ substr($registro['apellido'] ?? 'A', 0, 1) }}
                                 </div>
                                 <div>
-                                    <div class="font-bold text-slate-800 text-xs">{{ $registro['nombre'] ?? 'Sin nombre' }}</div>
-                                    <div class="text-[10px] text-slate-500">{{ $registro['rut'] ?? '' }}</div>
+                                    <div class="font-bold text-slate-800 dark:text-white text-xs">{{ $registro['nombre'] ?? 'Sin nombre' }}</div>
+                                    <div class="text-[10px] text-slate-500 dark:text-slate-400">{{ $registro['rut'] ?? '' }}</div>
                                 </div>
                             </div>
                         </td>
                         <td class="py-4 px-4 text-center">
-                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-bold text-xs">
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs">
                                 <i class="fas fa-clock text-[10px]"></i>
                                 {{ $registro['turno'] ?? 'N/A' }}
                             </span>
@@ -333,13 +333,13 @@
         
         {{-- Paginación --}}
         @if(isset($detallePorDia) && count($detallePorDia) > 0)
-        <div class="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
-            <span class="text-xs text-slate-500">Mostrando {{ count($detallePorDia) }} registros</span>
+        <div class="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex items-center justify-between">
+            <span class="text-xs text-slate-500 dark:text-slate-400">Mostrando {{ count($detallePorDia) }} registros</span>
             <div class="flex gap-2">
-                <button class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 disabled:opacity-50" disabled>
+                <button class="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-xs font-bold hover:bg-slate-50 dark:bg-slate-800 disabled:opacity-50" disabled>
                     <i class="fas fa-chevron-left"></i>
                 </button>
-                <button class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 disabled:opacity-50" disabled>
+                <button class="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-xs font-bold hover:bg-slate-50 dark:bg-slate-800 disabled:opacity-50" disabled>
                     <i class="fas fa-chevron-right"></i>
                 </button>
             </div>

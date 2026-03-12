@@ -51,17 +51,17 @@
                 @if($sec === 'cantidades')
                     <div class="grid grid-cols-1 gap-2">
                         @foreach(($data['cantidades'] ?? []) as $k => $v)
-                            <div class="rounded-xl border border-slate-200 bg-white px-4 py-2">
+                            <div class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2">
                                 <div class="flex items-center justify-between">
                                     <div class="text-sm font-extrabold text-slate-900">{{ $k }}</div>
                                     @if(is_array($v))
-                                        <div class="text-sm font-extrabold text-slate-700">
+                                        <div class="text-sm font-extrabold text-slate-700 dark:text-slate-300">
                                             @foreach($v as $subK => $subV)
                                                 {{ $subK }}: {{ $subV }}@if(!$loop->last), @endif
                                             @endforeach
                                         </div>
                                     @else
-                                        <div class="text-sm font-extrabold text-slate-700">{{ $v !== '' ? $v : '—' }}</div>
+                                        <div class="text-sm font-extrabold text-slate-700 dark:text-slate-300">{{ $v !== '' ? $v : '—' }}</div>
                                     @endif
                                 </div>
                             </div>
@@ -69,8 +69,8 @@
                     </div>
 
                     <div class="mt-4">
-                        <div class="text-xs font-black uppercase tracking-widest text-slate-500">Observaciones generales</div>
-                        <div class="mt-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 font-semibold">
+                        <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Observaciones generales</div>
+                        <div class="mt-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 text-sm text-slate-700 dark:text-slate-300 font-semibold">
                             {{ ($data['observaciones_generales'] ?? '') !== '' ? $data['observaciones_generales'] : '—' }}
                         </div>
                     </div>
@@ -78,7 +78,7 @@
                     <div class="overflow-x-auto">
                         <table class="min-w-full text-sm">
                             <thead>
-                                <tr class="text-xs font-black uppercase tracking-widest text-slate-700 bg-sky-100 border border-sky-200">
+                                <tr class="text-xs font-black uppercase tracking-widest text-slate-700 dark:text-slate-300 bg-sky-100 border border-sky-200">
                                     <th class="text-left py-2 px-3">Ítem</th>
                                     <th class="text-left py-2 px-3">Funciona</th>
                                     <th class="text-left py-2 px-3">Cantidad</th>
@@ -87,11 +87,11 @@
                             </thead>
                             <tbody class="divide-y divide-slate-100 bg-white">
                                 @foreach(($data[$sec] ?? []) as $key => $row)
-                                    <tr class="border border-slate-200">
+                                    <tr class="border border-slate-200 dark:border-slate-700">
                                         <td class="py-2 px-3 font-extrabold text-slate-900 bg-yellow-50">{{ $labels[$sec][$key] ?? $key }}</td>
-                                        <td class="py-2 px-3 text-slate-700 font-semibold">{{ $boolLabel($row['funciona'] ?? null) }}</td>
-                                        <td class="py-2 px-3 text-slate-700 font-semibold">{{ ($row['cantidad'] ?? '') !== '' ? $row['cantidad'] : '—' }}</td>
-                                        <td class="py-2 px-3 text-slate-700 font-semibold">{{ ($row['novedades'] ?? '') !== '' ? $row['novedades'] : '—' }}</td>
+                                        <td class="py-2 px-3 text-slate-700 dark:text-slate-300 font-semibold">{{ $boolLabel($row['funciona'] ?? null) }}</td>
+                                        <td class="py-2 px-3 text-slate-700 dark:text-slate-300 font-semibold">{{ ($row['cantidad'] ?? '') !== '' ? $row['cantidad'] : '—' }}</td>
+                                        <td class="py-2 px-3 text-slate-700 dark:text-slate-300 font-semibold">{{ ($row['novedades'] ?? '') !== '' ? $row['novedades'] : '—' }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>

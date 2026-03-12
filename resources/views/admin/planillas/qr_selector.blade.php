@@ -7,17 +7,17 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-slate-100 min-h-screen text-slate-800">
+<body class="bg-slate-100 dark:bg-slate-800 min-h-screen text-slate-800 dark:text-white">
 <div class="w-full py-6 px-4">
     <div class="max-w-5xl mx-auto">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-                <div class="text-xs font-black uppercase tracking-widest text-slate-500">Planillas</div>
+                <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Planillas</div>
                 <div class="text-2xl font-extrabold text-slate-900">Mis revisiones</div>
-                <div class="text-sm text-slate-600 mt-1">Tienes planillas pendientes de terminar.</div>
+                <div class="text-sm text-slate-600 dark:text-slate-400 mt-1">Tienes planillas pendientes de terminar.</div>
             </div>
 
-            <a href="{{ route('planillas.qr.identificar.form', ['token' => $token]) }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs shadow-sm transition-all">
+            <a href="{{ route('planillas.qr.identificar.form', ['token' => $token]) }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs shadow-sm transition-all">
                 <i class="fas fa-arrow-left text-slate-400"></i> Salir
             </a>
         </div>
@@ -34,22 +34,22 @@
             </div>
         @endif
 
-        <div class="mt-6 bg-white rounded-2xl border border-teal-900/20 shadow-sm overflow-hidden">
+        <div class="mt-6 bg-white dark:bg-slate-900 rounded-2xl border border-teal-900/20 shadow-sm overflow-hidden">
             <div class="px-6 py-4 bg-sky-100 border-b border-teal-900/20">
                 <div class="text-xs font-black uppercase tracking-widest text-slate-900">PLANILLAS EN EDICIÓN</div>
             </div>
             <div class="p-6">
                 <div class="space-y-4">
                     @foreach($planillas as $p)
-                        <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <div class="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-4">
                             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                                 <div>
                                     <div class="text-lg font-extrabold text-slate-900">{{ $p->unidad }}</div>
-                                    <div class="text-sm text-slate-600 mt-1">
+                                    <div class="text-sm text-slate-600 dark:text-slate-400 mt-1">
                                         <i class="far fa-calendar-alt mr-1"></i>
                                         Creada el {{ $p->created_at->format('d/m/Y H:i') }}
                                     </div>
-                                    <div class="text-xs text-slate-500 mt-1">
+                                    <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                         Última edición: {{ $p->updated_at->format('d/m/Y H:i') }}
                                     </div>
                                     <div class="mt-2">
@@ -71,12 +71,12 @@
             </div>
         </div>
 
-        <div class="mt-6 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="mt-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
             <div class="p-6">
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div>
                         <div class="text-sm font-extrabold text-slate-900">¿Quieres crear una nueva planilla?</div>
-                        <div class="text-xs text-slate-600 mt-1">Si ya completaste las anteriores, puedes comenzar una nueva revisión.</div>
+                        <div class="text-xs text-slate-600 dark:text-slate-400 mt-1">Si ya completaste las anteriores, puedes comenzar una nueva revisión.</div>
                     </div>
                     <a href="{{ route('planillas.qr.create.form', ['token' => $token]) }}" class="inline-flex items-center gap-2 bg-slate-950 hover:bg-black text-white font-black py-3 px-5 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest border border-slate-800">
                         <i class="fas fa-plus"></i>

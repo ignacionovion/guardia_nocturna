@@ -40,7 +40,7 @@
                         <i class="fas fa-gauge-high mr-3"></i> Ir al Panel
                     </a>
                 @else
-                    <a href="{{ route('login') }}" class="w-full sm:w-auto px-8 py-4 bg-white hover:bg-slate-100 text-slate-900 font-bold rounded-xl transition-all shadow-lg hover:shadow-white/10 transform hover:-translate-y-1 flex items-center justify-center text-lg uppercase tracking-wide">
+                    <a href="{{ route('login') }}" class="w-full sm:w-auto px-8 py-4 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:bg-slate-800 text-slate-900 font-bold rounded-xl transition-all shadow-lg hover:shadow-white/10 transform hover:-translate-y-1 flex items-center justify-center text-lg uppercase tracking-wide">
                         <i class="fas fa-right-to-bracket mr-3 text-red-700"></i> Ingresar al Sistema
                     </a>
                 @endauth
@@ -51,22 +51,22 @@
         <div class="mt-16 grid grid-cols-2 md:grid-cols-3 gap-8 text-center border-t border-slate-800 pt-8 opacity-75">
             <div>
                 <span class="block text-2xl font-bold text-white mb-1"><i class="fas fa-shield-halved text-red-500"></i></span>
-                <span class="text-xs text-slate-500 uppercase font-bold tracking-wider">Gestión Turnos</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400 uppercase font-bold tracking-wider">Gestión Turnos</span>
             </div>
             <div>
                 <span class="block text-2xl font-bold text-white mb-1"><i class="fas fa-users text-blue-500"></i></span>
-                <span class="text-xs text-slate-500 uppercase font-bold tracking-wider">Control Personal</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400 uppercase font-bold tracking-wider">Control Personal</span>
             </div>
             <div class="hidden md:block">
                 <span class="block text-2xl font-bold text-white mb-1"><i class="fas fa-chart-line text-yellow-500"></i></span>
-                <span class="text-xs text-slate-500 uppercase font-bold tracking-wider">Reportes</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400 uppercase font-bold tracking-wider">Reportes</span>
             </div>
         </div>
     </div>
 
     <!-- Footer -->
     <div class="absolute bottom-6 w-full text-center z-10">
-        <p class="text-slate-600 text-xs uppercase tracking-widest font-semibold">
+        <p class="text-slate-600 dark:text-slate-400 text-xs uppercase tracking-widest font-semibold">
             &copy; {{ date('Y') }} {{ config('app.name', 'AppGuardia') }}
         </p>
     </div>

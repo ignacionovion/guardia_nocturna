@@ -91,7 +91,7 @@
                 </form>
         @endif
 
-        <div class="mt-6 text-center text-xs text-slate-500">
+        <div class="mt-6 text-center text-xs text-slate-500 dark:text-slate-400">
             GuardiAPP
         </div>
     </div>

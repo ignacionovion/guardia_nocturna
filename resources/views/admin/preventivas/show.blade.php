@@ -1,20 +1,20 @@
-@extends('layouts.app')
+@extends('layouts.modern')
 
 @section('content')
 <div class="container mx-auto px-4 py-8">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-            <div class="text-xs font-black uppercase tracking-widest text-slate-500">Guardias Preventivas</div>
+            <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Guardias Preventivas</div>
             <div class="text-2xl font-extrabold text-slate-900">{{ $event->title }}</div>
-            <div class="text-sm text-slate-600 mt-1">
+            <div class="text-sm text-slate-600 dark:text-slate-400 mt-1">
                 {{ $event->start_date?->format('d-m-Y') }} → {{ $event->end_date?->format('d-m-Y') }} · TZ {{ $event->timezone }}
             </div>
         </div>
 
         <!-- Panel de Acciones Rediseñado -->
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-4">
             <!-- Header con Estado y Acciones Principales -->
-            <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
                 <div class="flex items-center gap-3">
                     @php
                         $status = strtolower((string) ($event->status ?? 'draft'));
@@ -24,7 +24,7 @@
                         $statusConfig = [
                             'active' => ['label' => 'Activa', 'bg' => 'bg-emerald-100', 'text' => 'text-emerald-800', 'border' => 'border-emerald-300', 'dot' => 'text-emerald-500'],
                             'closed' => ['label' => 'Cerrada', 'bg' => 'bg-red-100', 'text' => 'text-red-800', 'border' => 'border-red-300', 'dot' => 'text-red-500'],
-                            'draft' => ['label' => 'Borrador', 'bg' => 'bg-slate-100', 'text' => 'text-slate-700', 'border' => 'border-slate-300', 'dot' => 'text-slate-400'],
+                            'draft' => ['label' => 'Borrador', 'bg' => 'bg-slate-100 dark:bg-slate-800', 'text' => 'text-slate-700 dark:text-slate-300', 'border' => 'border-slate-300 dark:border-slate-600', 'dot' => 'text-slate-400'],
                         ];
                         $cfg = $statusConfig[$status];
                     @endphp
@@ -34,7 +34,7 @@
                     </span>
                     <span class="text-xs text-slate-400">{{ $event->start_date?->format('d/m/Y') }} - {{ $event->end_date?->format('d/m/Y') }}</span>
                 </div>
-                <a href="{{ route('admin.preventivas.index') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors">
+                <a href="{{ route('admin.preventivas.index') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:bg-slate-800 transition-colors">
                     <i class="fas fa-arrow-left"></i>
                     Volver
                 </a>
@@ -76,19 +76,19 @@
                 </a>
 
                 <!-- Código QR -->
-                <a href="{{ $status === 'active' ? route('admin.preventivas.qr', $event) : '#' }}" class="flex items-center gap-3 p-3 rounded-lg {{ $status === 'active' ? 'bg-slate-50 hover:bg-slate-100 border-slate-200' : 'bg-slate-50 border-slate-200 opacity-50 cursor-not-allowed' }} border transition-all group" {{ $status === 'active' ? '' : 'onclick="return false;"' }}>
+                <a href="{{ $status === 'active' ? route('admin.preventivas.qr', $event) : '#' }}" class="flex items-center gap-3 p-3 rounded-lg {{ $status === 'active' ? 'bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 opacity-50 cursor-not-allowed' }} border transition-all group" {{ $status === 'active' ? '' : 'onclick="return false;"' }}>
                     <div class="w-10 h-10 rounded-lg {{ $status === 'active' ? 'bg-slate-800' : 'bg-slate-400' }} text-white flex items-center justify-center shadow-sm">
                         <i class="fas fa-qrcode text-sm"></i>
                     </div>
                     <div>
-                        <div class="text-sm font-bold {{ $status === 'active' ? 'text-slate-900' : 'text-slate-500' }}">QR</div>
-                        <div class="text-xs {{ $status === 'active' ? 'text-slate-600' : 'text-slate-400' }}">{{ $status === 'active' ? 'Acceso público' : 'Solo guardia activa' }}</div>
+                        <div class="text-sm font-bold {{ $status === 'active' ? 'text-slate-900' : 'text-slate-500 dark:text-slate-400' }}">QR</div>
+                        <div class="text-xs {{ $status === 'active' ? 'text-slate-600 dark:text-slate-400' : 'text-slate-400' }}">{{ $status === 'active' ? 'Acceso público' : 'Solo guardia activa' }}</div>
                     </div>
                 </a>
             </div>
 
             <!-- Acciones de Estado -->
-            <div class="mt-4 pt-4 border-t border-slate-100">
+            <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                 <div class="flex flex-wrap items-center gap-2">
                     @if($status !== 'active' && $status !== 'closed')
                         <form method="POST" action="{{ route('admin.preventivas.status.activate', $event) }}" onsubmit="return confirm('¿Activar esta preventiva?');" class="inline">
@@ -125,7 +125,7 @@
                         <form method="POST" action="{{ route('admin.preventivas.destroy', $event) }}" onsubmit="return confirm('¿ELIMINAR permanentemente esta preventiva? Esta acción no se puede deshacer.');" class="inline">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-red-300 hover:bg-red-50 text-red-600 font-bold text-xs transition-all">
+                            <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white dark:bg-slate-900 border border-red-300 hover:bg-red-50 text-red-600 font-bold text-xs transition-all">
                                 <i class="fas fa-trash-can"></i>
                                 Eliminar
                             </button>
@@ -148,27 +148,27 @@
     @endif
 
     <div class="mt-6 space-y-6">
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="px-6 py-5 border-b border-slate-200 bg-slate-50">
-                <div class="text-sm font-black uppercase tracking-widest text-slate-700">Plantilla de turnos</div>
-                <div class="text-xs text-slate-500 mt-1">Si cambias la plantilla, se regeneran los turnos y se pierden asignaciones.</div>
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+            <div class="px-6 py-5 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                <div class="text-sm font-black uppercase tracking-widest text-slate-700 dark:text-slate-300">Plantilla de turnos</div>
+                <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Si cambias la plantilla, se regeneran los turnos y se pierden asignaciones.</div>
             </div>
 
             <form method="POST" action="{{ route('admin.preventivas.templates.save', $event) }}" class="p-6" {{ in_array($status, ['active','closed'], true) ? 'onsubmit=return false;' : '' }}>
                 @csrf
                 <div class="mt-6">
-                    <div class="text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Turnos</div>
+                    <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">Turnos</div>
                     <div id="tplRows" class="space-y-2">
                         @foreach($event->templates as $i => $tpl)
                             <div class="grid grid-cols-12 gap-2">
                                 <div class="col-span-5">
-                                    <input type="time" name="template[{{ $i }}][start_time]" value="{{ substr((string) $tpl->start_time, 0, 5) }}" required class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold" {{ in_array($status, ['active','closed'], true) ? 'disabled' : '' }}>
+                                    <input type="time" name="template[{{ $i }}][start_time]" value="{{ substr((string) $tpl->start_time, 0, 5) }}" required class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 font-semibold" {{ in_array($status, ['active','closed'], true) ? 'disabled' : '' }}>
                                 </div>
                                 <div class="col-span-5">
-                                    <input type="time" name="template[{{ $i }}][end_time]" value="{{ substr((string) $tpl->end_time, 0, 5) }}" required class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold" {{ in_array($status, ['active','closed'], true) ? 'disabled' : '' }}>
+                                    <input type="time" name="template[{{ $i }}][end_time]" value="{{ substr((string) $tpl->end_time, 0, 5) }}" required class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 font-semibold" {{ in_array($status, ['active','closed'], true) ? 'disabled' : '' }}>
                                 </div>
                                 <div class="col-span-2">
-                                    <input type="text" name="template[{{ $i }}][label]" value="{{ $tpl->label }}" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold" placeholder="#" {{ in_array($status, ['active','closed'], true) ? 'disabled' : '' }}>
+                                    <input type="text" name="template[{{ $i }}][label]" value="{{ $tpl->label }}" class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 font-semibold" placeholder="#" {{ in_array($status, ['active','closed'], true) ? 'disabled' : '' }}>
                                 </div>
                             </div>
                         @endforeach
@@ -193,11 +193,11 @@
 
         <div>
             @foreach($shiftsByDate as $date => $shifts)
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
-                    <div class="px-6 py-5 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+                <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden mb-6">
+                    <div class="px-6 py-5 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex items-center justify-between">
                         <div>
-                            <div class="text-sm font-black uppercase tracking-widest text-slate-700">{{ \Carbon\Carbon::parse($date)->locale('es')->isoFormat('dddd D [de] MMMM YYYY') }}</div>
-                            <div class="text-xs text-slate-500 mt-1">Asignación por turno</div>
+                            <div class="text-sm font-black uppercase tracking-widest text-slate-700 dark:text-slate-300">{{ \Carbon\Carbon::parse($date)->locale('es')->isoFormat('dddd D [de] MMMM YYYY') }}</div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Asignación por turno</div>
                         </div>
                     </div>
 
@@ -209,10 +209,10 @@
                                         <div class="text-sm font-black text-slate-900">
                                             {{ substr((string) $shift->start_time, 0, 5) }} a {{ substr((string) $shift->end_time, 0, 5) }}
                                             @if($shift->label)
-                                                <span class="ml-2 text-xs font-black uppercase tracking-widest text-slate-500">{{ $shift->label }}</span>
+                                                <span class="ml-2 text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">{{ $shift->label }}</span>
                                             @endif
                                         </div>
-                                        <div class="text-xs text-slate-500 mt-1">Asignados: {{ $shift->assignments->count() }}</div>
+                                        <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Asignados: {{ $shift->assignments->count() }}</div>
                                     </div>
 
                                     <form method="POST" action="{{ route('admin.preventivas.assignments.add', $event) }}" class="flex flex-col sm:flex-row sm:items-center gap-2 js-assignment-form">
@@ -225,7 +225,7 @@
                                             
                                             {{-- Botón que abre el dropdown --}}
                                             <button type="button" 
-                                                    class="js-dropdown-toggle w-full px-3 py-2.5 border border-slate-200 rounded-lg bg-white text-slate-800 font-semibold text-sm text-left flex items-center justify-between {{ $status === 'closed' ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                                    class="js-dropdown-toggle w-full px-3 py-2.5 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-semibold text-sm text-left flex items-center justify-between {{ $status === 'closed' ? 'opacity-50 cursor-not-allowed' : '' }}"
                                                     {{ $status === 'closed' ? 'disabled' : '' }}>
                                                 <span class="js-dropdown-text text-slate-400">Seleccionar bombero...</span>
                                                 <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
@@ -238,13 +238,13 @@
                                                         $rut = trim((string) ($f->rut ?? ''));
                                                         $searchText = strtolower(trim($f->apellido_paterno . ' ' . $f->nombres . ' ' . $rut));
                                                     @endphp
-                                                    <div class="js-option px-3 py-2 text-sm hover:bg-slate-100 cursor-pointer border-b border-slate-50 last:border-0 {{ $status === 'closed' ? 'opacity-50 pointer-events-none' : '' }}"
+                                                    <div class="js-option px-3 py-2 text-sm hover:bg-slate-100 dark:bg-slate-800 cursor-pointer border-b border-slate-50 last:border-0 {{ $status === 'closed' ? 'opacity-50 pointer-events-none' : '' }}"
                                                          data-id="{{ $f->id }}"
                                                          data-text="{{ $f->apellido_paterno }}, {{ $f->nombres }}"
                                                          data-search="{{ $searchText }}">
-                                                        <div class="font-semibold text-slate-800">{{ $f->apellido_paterno }}, {{ $f->nombres }}</div>
+                                                        <div class="font-semibold text-slate-800 dark:text-white">{{ $f->apellido_paterno }}, {{ $f->nombres }}</div>
                                                         @if($rut)
-                                                            <div class="text-xs text-slate-500">{{ $rut }}</div>
+                                                            <div class="text-xs text-slate-500 dark:text-slate-400">{{ $rut }}</div>
                                                         @endif
                                                     </div>
                                                 @endforeach
@@ -260,7 +260,7 @@
                                 <div class="mt-4 overflow-x-auto">
                                     <table class="min-w-full text-sm">
                                         <thead>
-                                            <tr class="text-xs font-black uppercase tracking-widest text-slate-500">
+                                            <tr class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">
                                                 <th class="text-left py-2">Bombero</th>
                                                 <th class="text-left py-2">Tipo</th>
                                                 <th class="text-left py-2">Estado</th>
@@ -288,7 +288,7 @@
                                                                     <i class="fas fa-exchange-alt mr-1 text-[8px]"></i>REEMP
                                                                 </span>
                                                             @else
-                                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200">TIT</span>
+                                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">TIT</span>
                                                             @endif
                                                         </div>
                                                     </td>
@@ -298,7 +298,7 @@
                                                                 <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-800 border border-emerald-200">Asistió</span>
                                                                 <form method="POST" action="{{ route('admin.preventivas.assignments.attendance.toggle', [$event, $a]) }}" onsubmit="return {{ $status === 'closed' ? 'false' : 'confirm(\'¿Quitar asistencia?\')' }};">
                                                                     @csrf
-                                                                    <button type="submit" class="px-2.5 py-1 rounded-lg border border-slate-200 bg-white text-slate-700 font-black text-[10px] uppercase tracking-widest {{ $status === 'closed' ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-50' }}" {{ $status === 'closed' ? 'disabled' : '' }}>Quitar</button>
+                                                                    <button type="submit" class="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-black text-[10px] uppercase tracking-widest {{ $status === 'closed' ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-50 dark:bg-slate-800' }}" {{ $status === 'closed' ? 'disabled' : '' }}>Quitar</button>
                                                                 </form>
                                                             </div>
                                                         @elseif($fueReemplazado)
@@ -309,7 +309,7 @@
                                                             </div>
                                                         @else
                                                             <div class="flex items-center gap-2">
-                                                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-widest bg-slate-100 text-slate-700 border border-slate-200">Pendiente</span>
+                                                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-widest bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">Pendiente</span>
                                                                 <form method="POST" action="{{ route('admin.preventivas.assignments.attendance.toggle', [$event, $a]) }}" onsubmit="return {{ $status === 'closed' ? 'false' : 'confirm(\'¿Marcar asistencia manualmente?\')' }};">
                                                                     @csrf
                                                                     <button type="submit" class="px-2.5 py-1 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-800 font-black text-[10px] uppercase tracking-widest {{ $status === 'closed' ? 'opacity-50 cursor-not-allowed' : 'hover:bg-emerald-100' }}" {{ $status === 'closed' ? 'disabled' : '' }}>Marcar</button>
@@ -322,20 +322,20 @@
                                                             <form method="POST" action="{{ route('admin.preventivas.assignments.remove', [$event, $a]) }}" onsubmit="return false;">
                                                                 @csrf
                                                                 @method('DELETE')
-                                                                <button type="submit" class="px-3 py-2 rounded-lg border border-slate-200 bg-white text-red-700 font-bold text-xs opacity-50 cursor-not-allowed" disabled><i class="fas fa-trash"></i></button>
+                                                                <button type="submit" class="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-red-700 font-bold text-xs opacity-50 cursor-not-allowed" disabled><i class="fas fa-trash"></i></button>
                                                             </form>
                                                         @else
                                                             <form method="POST" action="{{ route('admin.preventivas.assignments.remove', [$event, $a]) }}" onsubmit="return confirm('¿Eliminar asignación?');">
                                                                 @csrf
                                                                 @method('DELETE')
-                                                                <button type="submit" class="px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-red-50 text-red-700 font-bold text-xs"><i class="fas fa-trash"></i></button>
+                                                                <button type="submit" class="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-red-50 text-red-700 font-bold text-xs"><i class="fas fa-trash"></i></button>
                                                             </form>
                                                         @endif
                                                     </td>
                                                 </tr>
                                             @empty
                                                 <tr>
-                                                    <td colspan="4" class="py-4 text-slate-500">Sin asignaciones.</td>
+                                                    <td colspan="4" class="py-4 text-slate-500 dark:text-slate-400">Sin asignaciones.</td>
                                                 </tr>
                                             @endforelse
                                         </tbody>
@@ -392,7 +392,7 @@
 
                 // Create portal dropdown
                 const portalDropdown = document.createElement('div');
-                portalDropdown.className = 'js-portal-dropdown fixed z-[99999] w-96 bg-white border border-slate-200 rounded-lg shadow-2xl overflow-hidden';
+                portalDropdown.className = 'js-portal-dropdown fixed z-[99999] w-96 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-2xl overflow-hidden';
                 portalDropdown.style.minWidth = '384px';
                 
                 // Position below the toggle button
@@ -402,24 +402,24 @@
 
                 // Build dropdown content
                 portalDropdown.innerHTML = `
-                    <div class="p-2 border-b border-slate-100 bg-white">
+                    <div class="p-2 border-b border-slate-100 dark:border-slate-800 bg-white">
                         <div class="relative">
                             <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                             <input type="text" 
-                                   class="js-portal-search w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-md focus:outline-none focus:border-slate-400 bg-white"
+                                   class="js-portal-search w-full pl-8 pr-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none focus:border-slate-400 bg-white"
                                    placeholder="Buscar bombero...">
                         </div>
                     </div>
                     <div class="js-portal-options overflow-y-auto" style="max-height: 260px;">
                         ${firefightersData.map(f => `
-                            <div class="js-portal-option px-3 py-2 text-sm hover:bg-slate-100 cursor-pointer border-b border-slate-50 last:border-0 ${isClosed ? 'opacity-50 pointer-events-none' : ''}"
+                            <div class="js-portal-option px-3 py-2 text-sm hover:bg-slate-100 dark:bg-slate-800 cursor-pointer border-b border-slate-50 last:border-0 ${isClosed ? 'opacity-50 pointer-events-none' : ''}"
                                  data-id="${f.id}"
                                  data-text="${f.text}">
                                 ${f.html}
                             </div>
                         `).join('')}
                     </div>
-                    <div class="js-portal-no-results hidden px-3 py-4 text-sm text-slate-500 text-center bg-white">
+                    <div class="js-portal-no-results hidden px-3 py-4 text-sm text-slate-500 dark:text-slate-400 text-center bg-white">
                         No se encontraron resultados
                     </div>
                 `;
@@ -465,7 +465,7 @@
                         hiddenInput.value = id;
                         textDisplay.textContent = text;
                         textDisplay.classList.remove('text-slate-400');
-                        textDisplay.classList.add('text-slate-800');
+                        textDisplay.classList.add('text-slate-800 dark:text-white');
                         
                         portalDropdown.remove();
                         activeDropdown = null;

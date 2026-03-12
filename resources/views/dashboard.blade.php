@@ -1,4 +1,7 @@
-@extends('layouts.app')
+@extends('layouts.modern')
+
+@section('title', 'Dashboard - ' . branding()->nombre_empresa)
+@section('page-title', 'Dashboard')
 
 @section('content')
     @if(Auth::check() && Auth::user()->role === 'guardia' && isset($myGuardia) && $myGuardia)
@@ -77,10 +80,10 @@
                             @if(isset($isMyGuardiaOnDuty) && $isMyGuardiaOnDuty)
                                 <span class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-green-200 bg-green-50 text-green-700 shrink-0">SEMANA DE GUARDIA</span>
                             @else
-                                <span class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-100 text-slate-700 shrink-0">FUERA DE TURNO</span>
+                                <span class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 shrink-0">FUERA DE TURNO</span>
                             @endif
                         </div>
-                        <div class="mt-0.5 text-xs font-medium text-slate-500">{{ $visibleStaffCount }} en pantalla | {{ $presentStaffCount }} presentes</div>
+                        <div class="mt-0.5 text-xs font-medium text-slate-500 dark:text-slate-400">{{ $visibleStaffCount }} en pantalla | {{ $presentStaffCount }} presentes</div>
                     </div>
                 </div>
 
@@ -121,7 +124,7 @@
                         <button type="button" onclick="openRefuerzoModal()" class="w-9 h-9 sm:w-10 sm:h-10 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center" title="Refuerzo">
                             <i class="fas fa-user-plus text-[14px] text-sky-300"></i>
                         </button>
-                        <button id="guardia-attendance-submit" form="guardia-attendance-form" type="submit" @if(!$attendanceEnabled) disabled @endif class="w-9 h-9 sm:w-10 sm:h-10 {{ $attendanceEnabled ? 'bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700 shadow-sm' : 'bg-slate-200 text-slate-500 border-slate-300 shadow-sm cursor-not-allowed' }} rounded-xl transition-all border flex items-center justify-center" title="Guardar Asistencia">
+                        <button id="guardia-attendance-submit" form="guardia-attendance-form" type="submit" @if(!$attendanceEnabled) disabled @endif class="w-9 h-9 sm:w-10 sm:h-10 {{ $attendanceEnabled ? 'bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700 shadow-sm' : 'bg-slate-200 text-slate-500 dark:text-slate-400 border-slate-300 dark:border-slate-600 shadow-sm cursor-not-allowed' }} rounded-xl transition-all border flex items-center justify-center" title="Guardar Asistencia">
                             <i class="fas fa-floppy-disk text-[14px] {{ $attendanceEnabled ? 'text-emerald-300' : '' }}"></i>
                         </button>
                     </div>
@@ -142,7 +145,7 @@
                         
                         if (!$isAttendanceWindowOpen) {
                             $attendanceMessage = 'FUERA DE HORARIO DE REGISTRO';
-                            $attendanceBadgeClass = 'border-slate-300 bg-slate-100 text-slate-500';
+                            $attendanceBadgeClass = 'border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400';
                         } elseif (isset($hasAttendanceSavedToday) && $hasAttendanceSavedToday && !empty($attendanceIsStale)) {
                             // Asistencia guardada pero roster cambió (refuerzo/reemplazo agregado después)
                             $attendanceMessage = 'ASISTENCIA DESACTUALIZADA';
@@ -192,10 +195,10 @@
                                         'constituye' => 'bg-emerald-400',
                                         'reemplazo' => 'bg-purple-400',
                                         'permiso' => 'bg-amber-400',
-                                        'ausente' => 'bg-slate-500',
+                                        'ausente' => 'bg-slate-50 dark:bg-slate-8000',
                                         'licencia' => 'bg-blue-400',
                                         'falta' => 'bg-red-400',
-                                        default => 'bg-slate-500',
+                                        default => 'bg-slate-50 dark:bg-slate-8000',
                                     };
 
                                     $statusHeaderClass = match ($status) {
@@ -311,7 +314,7 @@
                                                 {{ explode(' ', trim((string) ($repAsReplacement->originalFirefighter?->nombres ?? '')))[0] ?? '' }} {{ explode(' ', trim((string) ($repAsReplacement->originalFirefighter?->apellido_paterno ?? '')))[0] ?? '' }}
                                             </div>
                                             <div class="mt-1">
-                                                <button type="button" onclick="openUndoReplacementModal('{{ route('admin.guardias.replacement.undo', $repAsReplacement->id) }}')" class="w-full bg-white hover:bg-purple-100 text-purple-800 font-black uppercase tracking-widest text-[10px] py-1.5 rounded-lg border border-purple-200">
+                                                <button type="button" onclick="openUndoReplacementModal('{{ route('admin.guardias.replacement.undo', $repAsReplacement->id) }}')" class="w-full bg-white dark:bg-slate-900 hover:bg-purple-100 text-purple-800 font-black uppercase tracking-widest text-[10px] py-1.5 rounded-lg border border-purple-200">
                                                     Deshacer reemplazo
                                                 </button>
                                             </div>
@@ -325,7 +328,7 @@
                                                 {{ explode(' ', trim((string) ($repAsOriginal->replacementFirefighter?->nombres ?? '')))[0] ?? '' }} {{ explode(' ', trim((string) ($repAsOriginal->replacementFirefighter?->apellido_paterno ?? '')))[0] ?? '' }}
                                             </div>
                                             <div class="mt-1">
-                                                <button type="button" onclick="openUndoReplacementModal('{{ route('admin.guardias.replacement.undo', $repAsOriginal->id) }}')" class="w-full bg-white hover:bg-amber-100 text-amber-800 font-black uppercase tracking-widest text-[10px] py-1.5 rounded-lg border border-amber-200">
+                                                <button type="button" onclick="openUndoReplacementModal('{{ route('admin.guardias.replacement.undo', $repAsOriginal->id) }}')" class="w-full bg-white dark:bg-slate-900 hover:bg-amber-100 text-amber-800 font-black uppercase tracking-widest text-[10px] py-1.5 rounded-lg border border-amber-200">
                                                     Deshacer reemplazo
                                                 </button>
                                             </div>
@@ -340,7 +343,7 @@
                                                     <div id="confirm-status-{{ $staff->id }}" class="text-[9px] font-black uppercase tracking-widest text-rose-200">NO CONFIRMADO</div>
                                                 </div>
                                                 <div id="confirm-controls-{{ $staff->id }}" class="mt-1.5 flex items-center gap-2">
-                                                    <input type="password" inputmode="numeric" autocomplete="one-time-code" id="confirm-code-{{ $staff->id }}" placeholder="Código" class="flex-1 min-w-0 px-2.5 py-1.5 rounded-lg border border-slate-800 bg-slate-900 text-[10px] font-black uppercase tracking-widest text-slate-100 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20" onkeydown="if(event.key==='Enter'){event.preventDefault();confirmBombero({{ (int) $myGuardia->id }}, {{ (int) $staff->id }});}" />
+                                                    <input type="password" inputmode="numeric" autocomplete="one-time-code" id="confirm-code-{{ $staff->id }}" placeholder="Código" class="flex-1 min-w-0 px-2.5 py-1.5 rounded-lg border border-slate-800 bg-slate-900 text-[10px] font-black uppercase tracking-widest text-slate-100 placeholder:text-slate-600 dark:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20" onkeydown="if(event.key==='Enter'){event.preventDefault();confirmBombero({{ (int) $myGuardia->id }}, {{ (int) $staff->id }});}" />
                                                     <button type="button" id="confirm-btn-{{ $staff->id }}" onclick="confirmBombero({{ (int) $myGuardia->id }}, {{ (int) $staff->id }})" class="shrink-0 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-100 text-[9px] font-black uppercase tracking-widest border border-slate-700">Confirmar</button>
                                                 </div>
                                                 <div id="confirm-msg-{{ $staff->id }}" class="mt-1 text-[10px] font-black uppercase tracking-widest text-slate-400"></div>
@@ -421,14 +424,14 @@
                         @if(isset($outOfServiceStaff) && $outOfServiceStaff->isNotEmpty())
                             <div class="mt-6">
                                 <div class="flex items-center justify-between mb-3">
-                                    <div class="text-xs font-black text-slate-500 uppercase tracking-widest">Inhabilitados</div>
+                                    <div class="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Inhabilitados</div>
                                     <div class="text-[11px] font-bold text-slate-400">{{ $outOfServiceStaff->count() }}</div>
                                 </div>
                                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2">
                                     @foreach($outOfServiceStaff as $staff)
                                         <div class="bg-slate-900 rounded-xl shadow-sm border border-slate-800 overflow-hidden flex flex-col p-3">
                                             <div class="flex items-center justify-between">
-                                                <div class="text-[10px] font-black text-slate-500 uppercase tracking-widest truncate">{{ $staff->cargo_texto ?? 'Bombero' }}</div>
+                                                <div class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest truncate">{{ $staff->cargo_texto ?? 'Bombero' }}</div>
                                                 <div class="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-red-50 text-red-700 border border-red-100">INHABILITADO</div>
                                             </div>
                                             <div class="mt-2 text-sm font-black text-slate-100 leading-tight truncate" title="{{ $staff->nombres }} {{ $staff->apellido_paterno }}">
@@ -484,7 +487,7 @@
                                                 <div class="text-sm font-black text-slate-100 truncate">{{ $user->nombres }} {{ $user->apellido_paterno }}</div>
                                                 <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Bombero</div>
                                             </div>
-                                            <div class="text-sm font-black text-slate-600">
+                                            <div class="text-sm font-black text-slate-600 dark:text-slate-400">
                                                 {{ \Carbon\Carbon::parse($user->fecha_nacimiento)->format('d') }}
                                             </div>
                                         </div>
@@ -527,10 +530,10 @@
                                             </div>
                                             <div class="text-sm font-black text-slate-100">{{ $novelty->title }}</div>
                                             <div class="text-xs text-slate-400 mt-1 line-clamp-2">{{ $novelty->description }}</div>
-                                            <div class="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-2">
+                                            <div class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-2">
                                                 {{ $novelty->created_at->locale('es')->diffForHumans() }}
                                                 @if($novelty->user)
-                                                    <span class="text-slate-600">|</span>
+                                                    <span class="text-slate-600 dark:text-slate-400">|</span>
                                                     {{ $novelty->user->name ?? '-' }}
                                                 @endif
                                             </div>
@@ -597,7 +600,7 @@
                                                     <i class="fas fa-clock text-[9px]"></i>
                                                     {{ ($academy->date ?? $academy->created_at)?->format('H:i') }}
                                                 </span>
-                                                <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                                                <span class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
                                                     {{ ($academy->date ?? $academy->created_at)?->locale('es')->diffForHumans() }}
                                                 </span>
                                             </div>
@@ -631,13 +634,13 @@
         <!-- VISTA ADMIN / GENERAL - DASHBOARD PROFESIONAL -->
         
         <!-- Header Profesional -->
-        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4 pb-6 border-b border-slate-200">
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4 pb-6 border-b border-slate-200 dark:border-slate-700">
             <div>
                 <h1 class="text-2xl font-black text-slate-900 tracking-tight uppercase flex items-center gap-3">
                     <i class="fas fa-gauge-high text-red-700"></i>
                     Centro de Operaciones
                 </h1>
-                <p class="text-slate-500 mt-1 font-medium text-sm">Panel de control operativo del sistema</p>
+                <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">Panel de control operativo del sistema</p>
             </div>
             
             <div class="flex items-center gap-4">
@@ -664,7 +667,7 @@
                 <!-- Tarjetas KPI Principales -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <!-- Guardia Activa -->
-                    <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-all">
+                    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm hover:shadow-md transition-all">
                         <div class="flex items-start justify-between">
                             <div>
                                 <p class="text-xs font-black text-slate-400 uppercase tracking-wider mb-1">Guardia en Servicio</p>
@@ -679,13 +682,13 @@
                         @if($guardiaEnServicio)
                             <div class="mt-3 flex items-center gap-2">
                                 <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-                                <span class="text-xs font-bold text-slate-600">Operativa</span>
+                                <span class="text-xs font-bold text-slate-600 dark:text-slate-400">Operativa</span>
                             </div>
                         @endif
                     </div>
 
                     <!-- Personal en Turno -->
-                    <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-all">
+                    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm hover:shadow-md transition-all">
                         <div class="flex items-start justify-between">
                             <div>
                                 <p class="text-xs font-black text-slate-400 uppercase tracking-wider mb-1">Personal en Guardia Nocturna</p>
@@ -695,11 +698,11 @@
                                 <i class="fas fa-users text-lg"></i>
                             </div>
                         </div>
-                        <p class="text-xs text-slate-500 mt-2">Bomberos activos</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Bomberos activos</p>
                     </div>
 
                     <!-- Camas Disponibles -->
-                    <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-all">
+                    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm hover:shadow-md transition-all">
                         <div class="flex items-start justify-between">
                             <div>
                                 <p class="text-xs font-black text-slate-400 uppercase tracking-wider mb-1">Camas Libres</p>
@@ -709,11 +712,11 @@
                                 <i class="fas fa-bed text-lg"></i>
                             </div>
                         </div>
-                        <p class="text-xs text-slate-500 mt-2">{{ $occupiedBeds }} ocupadas</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">{{ $occupiedBeds }} ocupadas</p>
                     </div>
 
                     <!-- Novedades -->
-                    <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-all">
+                    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm hover:shadow-md transition-all">
                         <div class="flex items-start justify-between">
                             <div>
                                 <p class="text-xs font-black text-slate-400 uppercase tracking-wider mb-1">Novedades</p>
@@ -723,13 +726,13 @@
                                 <i class="fas fa-clipboard-list text-lg"></i>
                             </div>
                         </div>
-                        <p class="text-xs text-slate-500 mt-2">Últimas 24 horas</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Últimas 24 horas</p>
                     </div>
                 </div>
 
                 <!-- Panel de Movimientos - Estilo Reporte Profesional -->
-                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="px-6 py-4 border-b border-slate-300 bg-slate-100">
+                <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
                                 <div class="bg-purple-600 p-2 rounded-lg text-white shadow-sm">
@@ -737,11 +740,11 @@
                                 </div>
                                 <div>
                                     <h2 class="font-black text-slate-900 uppercase tracking-wider text-sm">Reporte de Movimientos</h2>
-                                    <p class="text-xs text-slate-600">Reemplazos, refuerzos y personal fuera de servicio</p>
+                                    <p class="text-xs text-slate-600 dark:text-slate-400">Reemplazos, refuerzos y personal fuera de servicio</p>
                                 </div>
                             </div>
                             <div class="flex items-center gap-2">
-                                <span class="text-xs font-bold text-slate-600 uppercase">Total reemplazos:</span>
+                                <span class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Total reemplazos:</span>
                                 <span class="text-xl font-black text-purple-700">{{ $activeReplacementsCount }}</span>
                             </div>
                         </div>
@@ -787,8 +790,8 @@
                                 <div class="text-[10px] font-black text-amber-700 uppercase tracking-wider">Permiso</div>
                             </div>
                             <div class="bg-slate-200 rounded-xl border-2 border-slate-400 p-3 text-center shadow-sm">
-                                <div class="text-xl font-black text-slate-700">{{ $countAusente }}</div>
-                                <div class="text-[10px] font-black text-slate-600 uppercase tracking-wider">Ausente</div>
+                                <div class="text-xl font-black text-slate-700 dark:text-slate-300">{{ $countAusente }}</div>
+                                <div class="text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-wider">Ausente</div>
                             </div>
                             <div class="bg-blue-100 rounded-xl border-2 border-blue-400 p-3 text-center shadow-sm">
                                 <div class="text-xl font-black text-blue-800">{{ $countLicencia }}</div>
@@ -803,13 +806,13 @@
                         <!-- Lista Detallada de Reemplazos Activos -->
                         @if($dashboardActiveReplacements->isNotEmpty())
                             <div class="mb-6">
-                                <h3 class="text-xs font-black text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                <h3 class="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
                                     <i class="fas fa-list-ul"></i>
                                     Detalle de Reemplazos Activos
                                 </h3>
                                 <div class="space-y-3">
                                     @foreach($dashboardActiveReplacements as $replacement)
-                                        <div class="bg-slate-50 rounded-xl border border-slate-200 p-4">
+                                        <div class="bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
                                             <div class="flex items-start gap-4">
                                                 <!-- Reemplazado -->
                                                 <div class="flex-1">
@@ -820,7 +823,7 @@
                                                         </div>
                                                         <div>
                                                             <div class="font-bold text-slate-900">{{ $replacement->originalFirefighter?->nombres }} {{ $replacement->originalFirefighter?->apellido_paterno }}</div>
-                                                            <div class="text-xs text-slate-500">{{ $replacement->originalFirefighter?->rut ?? 'Sin RUT' }}</div>
+                                                            <div class="text-xs text-slate-500 dark:text-slate-400">{{ $replacement->originalFirefighter?->rut ?? 'Sin RUT' }}</div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -841,7 +844,7 @@
                                                         </div>
                                                         <div>
                                                             <div class="font-bold text-slate-900">{{ $replacement->replacementFirefighter?->nombres }} {{ $replacement->replacementFirefighter?->apellido_paterno }}</div>
-                                                            <div class="text-xs text-slate-500">{{ $replacement->replacementFirefighter?->rut ?? 'Sin RUT' }}</div>
+                                                            <div class="text-xs text-slate-500 dark:text-slate-400">{{ $replacement->replacementFirefighter?->rut ?? 'Sin RUT' }}</div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -849,7 +852,7 @@
                                                 <!-- Info adicional -->
                                                 <div class="text-right">
                                                     <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Inicio</div>
-                                                    <div class="text-sm font-bold text-slate-700">{{ $replacement->inicio?->format('d/m/Y H:i') ?? 'N/A' }}</div>
+                                                    <div class="text-sm font-bold text-slate-700 dark:text-slate-300">{{ $replacement->inicio?->format('d/m/Y H:i') ?? 'N/A' }}</div>
                                                     <button type="button" onclick="openUndoReplacementModal('{{ route('admin.guardias.replacement.undo', $replacement->id) }}')" class="mt-2 text-xs font-bold text-purple-600 hover:text-purple-800 underline">
                                                         Deshacer
                                                     </button>
@@ -864,7 +867,7 @@
                         <!-- Lista Detallada de Refuerzos Activos -->
                         @if($dashboardActiveRefuerzos->isNotEmpty())
                             <div class="mb-6">
-                                <h3 class="text-xs font-black text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                <h3 class="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
                                     <i class="fas fa-user-friends"></i>
                                     Detalle de Refuerzos Activos
                                 </h3>
@@ -877,7 +880,7 @@
                                                 </div>
                                                 <div class="flex-1 min-w-0">
                                                     <div class="font-bold text-slate-900 truncate">{{ $refuerzo->nombres }} {{ $refuerzo->apellido_paterno }}</div>
-                                                    <div class="text-xs text-slate-500">{{ $refuerzo->rut ?? 'Sin RUT' }}</div>
+                                                    <div class="text-xs text-slate-500 dark:text-slate-400">{{ $refuerzo->rut ?? 'Sin RUT' }}</div>
                                                 </div>
                                                 <span class="text-[10px] font-black uppercase tracking-widest text-sky-700 bg-sky-100 px-2 py-1 rounded">REFUERZO</span>
                                             </div>
@@ -888,18 +891,18 @@
                         @endif
 
                         @if($dashboardActiveReplacements->isEmpty() && $dashboardActiveRefuerzos->isEmpty())
-                            <div class="text-center py-8 bg-slate-50 rounded-xl border border-slate-200">
+                            <div class="text-center py-8 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
                                 <div class="inline-flex items-center justify-center w-12 h-12 bg-slate-200 rounded-full mb-3">
-                                    <i class="fas fa-check text-slate-500"></i>
+                                    <i class="fas fa-check text-slate-500 dark:text-slate-400"></i>
                                 </div>
-                                <p class="text-sm font-bold text-slate-600">Sin movimientos activos</p>
+                                <p class="text-sm font-bold text-slate-600 dark:text-slate-400">Sin movimientos activos</p>
                                 <p class="text-xs text-slate-400 mt-1">No hay reemplazos ni refuerzos registrados</p>
                             </div>
                         @endif
 
                         <!-- Acciones Rápidas -->
                         @if(Auth::check() && Auth::user()->role === 'guardia' && isset($myGuardia) && $myGuardia)
-                            <div class="flex gap-3 pt-4 border-t border-slate-200">
+                            <div class="flex gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
                                 <button onclick="openReplacementModal()" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 px-4 rounded-lg text-xs uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-2">
                                     <i class="fas fa-plus"></i>
                                     Nuevo Reemplazo
@@ -914,10 +917,10 @@
                 </div>
 
                 <!-- Resumen de Personal -->
-                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="px-6 py-4 border-b border-slate-200 bg-slate-50">
-                        <h2 class="font-black text-slate-800 uppercase tracking-wider text-sm flex items-center gap-2">
-                            <i class="fas fa-users text-slate-500"></i>
+                <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                        <h2 class="font-black text-slate-800 dark:text-white uppercase tracking-wider text-sm flex items-center gap-2">
+                            <i class="fas fa-users text-slate-500 dark:text-slate-400"></i>
                             Resumen de Personal
                         </h2>
                     </div>
@@ -925,19 +928,19 @@
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                             <div class="text-center">
                                 <p class="text-3xl font-black text-slate-900">{{ $totalFirefighters }}</p>
-                                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">Total Bomberos</p>
+                                <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1">Total Bomberos</p>
                             </div>
                             <div class="text-center">
                                 <p class="text-3xl font-black text-emerald-600">{{ $activeFirefighters }}</p>
-                                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">Habilitados</p>
+                                <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1">Habilitados</p>
                             </div>
                             <div class="text-center">
                                 <p class="text-3xl font-black text-slate-900">{{ $totalGuardias }}</p>
-                                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">Guardias</p>
+                                <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1">Guardias</p>
                             </div>
                             <div class="text-center">
                                 <p class="text-3xl font-black text-amber-600">{{ $birthdaysMonthCount }}</p>
-                                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">Cumpleaños Mes</p>
+                                <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1">Cumpleaños Mes</p>
                             </div>
                         </div>
                     </div>
@@ -955,33 +958,33 @@
                         </div>
                     </a>
                     
-                    <a href="{{ route('admin.dotaciones') }}" class="group bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 rounded-xl p-4 shadow-sm transition-all flex items-center gap-3">
-                        <div class="bg-slate-100 p-2 rounded-lg text-slate-600">
+                    <a href="{{ route('admin.dotaciones') }}" class="group bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-sm transition-all flex items-center gap-3">
+                        <div class="bg-slate-100 dark:bg-slate-800 p-2 rounded-lg text-slate-600 dark:text-slate-400">
                             <i class="fas fa-users-gear"></i>
                         </div>
                         <div>
                             <p class="font-black text-sm uppercase">Dotaciones</p>
-                            <p class="text-xs text-slate-500">Asignar personal</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Asignar personal</p>
                         </div>
                     </a>
                     
-                    <a href="{{ route('camas') }}" class="group bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 rounded-xl p-4 shadow-sm transition-all flex items-center gap-3">
+                    <a href="{{ route('camas') }}" class="group bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-sm transition-all flex items-center gap-3">
                         <div class="bg-emerald-100 p-2 rounded-lg text-emerald-600">
                             <i class="fas fa-bed"></i>
                         </div>
                         <div>
                             <p class="font-black text-sm uppercase">Camas</p>
-                            <p class="text-xs text-slate-500">{{ $availableBeds }} disponibles</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">{{ $availableBeds }} disponibles</p>
                         </div>
                     </a>
                     
-                    <a href="{{ route('admin.emergencies.index') }}" class="group bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 rounded-xl p-4 shadow-sm transition-all flex items-center gap-3">
+                    <a href="{{ route('admin.emergencies.index') }}" class="group bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-sm transition-all flex items-center gap-3">
                         <div class="bg-amber-100 p-2 rounded-lg text-amber-600">
                             <i class="fas fa-truck-medical"></i>
                         </div>
                         <div>
                             <p class="font-black text-sm uppercase">Emergencias</p>
-                            <p class="text-xs text-slate-500">Ver historial</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Ver historial</p>
                         </div>
                     </a>
                 </div>
@@ -991,10 +994,10 @@
             <div class="space-y-6">
                 
                 <!-- Estado del Turno -->
-                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="px-5 py-4 border-b border-slate-200 bg-slate-50">
-                        <h2 class="font-black text-slate-800 uppercase tracking-wider text-xs flex items-center gap-2">
-                            <i class="fas fa-info-circle text-slate-500"></i>
+                <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                    <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                        <h2 class="font-black text-slate-800 dark:text-white uppercase tracking-wider text-xs flex items-center gap-2">
+                            <i class="fas fa-info-circle text-slate-500 dark:text-slate-400"></i>
                             Estado del Turno
                         </h2>
                     </div>
@@ -1004,40 +1007,40 @@
                                 <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
                                 <p class="font-black text-slate-900">TURNO ACTIVO</p>
                             </div>
-                            <p class="text-sm text-slate-600 mb-1">Guardia constituida y operativa</p>
+                            <p class="text-sm text-slate-600 dark:text-slate-400 mb-1">Guardia constituida y operativa</p>
                             <p class="text-xs text-slate-400">Inicio: {{ $currentShift->created_at?->format('H:i') ?? '--:--' }}</p>
                         @else
                             <div class="flex items-center gap-3 mb-4">
                                 <div class="w-3 h-3 bg-amber-500 rounded-full"></div>
                                 <p class="font-black text-amber-700">SIN CONSTITUIR</p>
                             </div>
-                            <p class="text-sm text-slate-600">La guardia aún no ha sido constituida</p>
+                            <p class="text-sm text-slate-600 dark:text-slate-400">La guardia aún no ha sido constituida</p>
                         @endif
                     </div>
                 </div>
 
                 <!-- Próximos Cumpleaños -->
-                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="px-5 py-4 border-b border-slate-300 bg-slate-100 flex justify-between items-center">
-                        <h2 class="font-black text-slate-800 uppercase tracking-wider text-xs flex items-center gap-2">
+                <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                    <div class="px-5 py-4 border-b border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 flex justify-between items-center">
+                        <h2 class="font-black text-slate-800 dark:text-white uppercase tracking-wider text-xs flex items-center gap-2">
                             <i class="fas fa-cake-candles text-amber-600"></i>
                             Cumpleaños
                         </h2>
-                        <span class="text-xs font-black text-slate-700">{{ $birthdaysMonthCount }} este mes</span>
+                        <span class="text-xs font-black text-slate-700 dark:text-slate-300">{{ $birthdaysMonthCount }} este mes</span>
                     </div>
                     <div class="p-5">
                         @if($upcomingBirthdaysAll->isEmpty())
-                            <p class="text-sm text-slate-500 text-center">No hay cumpleaños próximos</p>
+                            <p class="text-sm text-slate-500 dark:text-slate-400 text-center">No hay cumpleaños próximos</p>
                         @else
                             <div class="space-y-3">
                                 @foreach($upcomingBirthdaysAll as $b)
-                                    <div class="flex items-center gap-3 p-2.5 rounded-lg bg-slate-100 border border-slate-200">
+                                    <div class="flex items-center gap-3 p-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                                         <div class="w-8 h-8 rounded-full bg-amber-200 text-amber-800 flex items-center justify-center font-black text-xs border border-amber-300">
                                             {{ strtoupper(substr($b->nombres, 0, 1)) }}
                                         </div>
                                         <div class="flex-1 min-w-0">
                                             <div class="text-sm font-black text-slate-900 truncate">{{ $b->nombres }} {{ $b->apellido_paterno }}</div>
-                                            <div class="text-xs font-semibold text-slate-700">{{ $b->next_birthday->format('d') }} de {{ $b->next_birthday->locale('es')->monthName }}</div>
+                                            <div class="text-xs font-semibold text-slate-700 dark:text-slate-300">{{ $b->next_birthday->format('d') }} de {{ $b->next_birthday->locale('es')->monthName }}</div>
                                         </div>
                                     </div>
                                 @endforeach
@@ -1047,17 +1050,17 @@
                 </div>
 
                 <!-- Últimas Novedades -->
-                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="px-5 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
-                        <h2 class="font-black text-slate-800 uppercase tracking-wider text-xs flex items-center gap-2">
-                            <i class="fas fa-bullhorn text-slate-500"></i>
+                <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                    <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex justify-between items-center">
+                        <h2 class="font-black text-slate-800 dark:text-white uppercase tracking-wider text-xs flex items-center gap-2">
+                            <i class="fas fa-bullhorn text-slate-500 dark:text-slate-400"></i>
                             Novedades Recientes
                         </h2>
                         <button onclick="openNoveltyModal()" class="text-xs font-black text-blue-600 hover:text-blue-800 uppercase">Registrar</button>
                     </div>
                     <div class="p-5">
                         @if($novelties->isEmpty())
-                            <p class="text-sm text-slate-500 text-center">Sin novedades recientes</p>
+                            <p class="text-sm text-slate-500 dark:text-slate-400 text-center">Sin novedades recientes</p>
                         @else
                             <div class="space-y-4">
                                 @foreach($novelties->take(3) as $novelty)
@@ -1073,7 +1076,7 @@
                                         $canDeleteNovelty = in_array(auth()->user()->role ?? null, ['super_admin', 'capitania']) || 
                                             ($novelty->user_id === auth()->id() && !$novelty->is_permanent);
                                     @endphp
-                                    <div class="border-l-2 border-slate-300 pl-3 py-2 relative group">
+                                    <div class="border-l-2 border-slate-300 dark:border-slate-600 pl-3 py-2 relative group">
                                         <div class="flex items-center gap-2 mb-1">
                                             <span class="text-xs font-bold {{ $colors['text'] }} {{ $colors['bgLight'] }} px-2 py-0.5 rounded border {{ $colors['border'] }}">{{ $novelty->type }}</span>
                                             @if($novelty->is_permanent && mb_strtolower((string) $novelty->type) !== 'permanente')
@@ -1086,7 +1089,7 @@
                                             @endif
                                         </div>
                                         <p class="font-bold text-slate-900 text-sm">{{ $novelty->title }}</p>
-                                        <p class="text-xs text-slate-500 mt-1">{{ $novelty->created_at->locale('es')->diffForHumans() }}</p>
+                                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">{{ $novelty->created_at->locale('es')->diffForHumans() }}</p>
                                     </div>
                                 @endforeach
                             </div>
@@ -1099,36 +1102,36 @@
     @endif
 
     <div id="noveltyModal" class="fixed inset-0 bg-slate-900 bg-opacity-75 hidden overflow-y-auto h-full w-full z-50 flex items-center justify-center backdrop-blur-sm">
-        <div class="relative p-6 border w-full max-w-lg shadow-2xl rounded-xl {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200' }}">
+        <div class="relative p-6 border w-full max-w-lg shadow-2xl rounded-xl {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-900 border-slate-800' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700' }}">
             <div class="text-center mb-6">
                 <div class="mx-auto flex items-center justify-center h-14 w-14 rounded-full {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 border border-slate-800' : 'bg-blue-100' }} mb-4">
                     <i class="fas fa-pen-to-square {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-blue-300' : 'text-blue-600' }} text-2xl"></i>
                 </div>
-                <h3 class="text-2xl font-bold {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-100' : 'text-slate-800' }}">Registrar Novedad</h3>
-                <p class="{{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-400' : 'text-slate-500' }} text-sm mt-1">Bitácora de la Guardia</p>
+                <h3 class="text-2xl font-bold {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-100' : 'text-slate-800 dark:text-white' }}">Registrar Novedad</h3>
+                <p class="{{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-400' : 'text-slate-500 dark:text-slate-400' }} text-sm mt-1">Bitácora de la Guardia</p>
             </div>
             
             <form action="{{ route('novelties.store_web') }}" method="POST">
                 @csrf
                 
                 <div class="mb-4">
-                    <label class="block text-xs font-bold mb-2 uppercase tracking-wide {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-300' : 'text-slate-700' }}">Título</label>
-                    <input type="text" name="title" value="{{ old('title') }}" class="w-full px-4 py-2.5 border {{ $errors->has('title') ? 'border-red-500' : ((Auth::check() && Auth::user()->role === 'guardia') ? 'border-slate-800' : 'border-slate-300') }} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 text-slate-100 placeholder:text-slate-500' : 'bg-white text-slate-900' }}" placeholder="Ej: Falla en carro B-3" required>
+                    <label class="block text-xs font-bold mb-2 uppercase tracking-wide {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-300' : 'text-slate-700 dark:text-slate-300' }}">Título</label>
+                    <input type="text" name="title" value="{{ old('title') }}" class="w-full px-4 py-2.5 border {{ $errors->has('title') ? 'border-red-500' : ((Auth::check() && Auth::user()->role === 'guardia') ? 'border-slate-800' : 'border-slate-300 dark:border-slate-600') }} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 text-slate-100 placeholder:text-slate-500 dark:text-slate-400' : 'bg-white dark:bg-slate-900 text-slate-900' }}" placeholder="Ej: Falla en carro B-3" required>
                     @error('title')
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-xs font-bold mb-2 uppercase tracking-wide {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-300' : 'text-slate-700' }}">Tipo</label>
-                    <select name="type" class="w-full px-4 py-2.5 border {{ $errors->has('type') ? 'border-red-500' : ((Auth::check() && Auth::user()->role === 'guardia') ? 'border-slate-800' : 'border-slate-300') }} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 text-slate-100' : 'bg-white text-slate-900' }}">
+                    <label class="block text-xs font-bold mb-2 uppercase tracking-wide {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-300' : 'text-slate-700 dark:text-slate-300' }}">Tipo</label>
+                    <select name="type" class="w-full px-4 py-2.5 border {{ $errors->has('type') ? 'border-red-500' : ((Auth::check() && Auth::user()->role === 'guardia') ? 'border-slate-800' : 'border-slate-300 dark:border-slate-600') }} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 text-slate-100' : 'bg-white dark:bg-slate-900 text-slate-900' }}">
                         <option value="Informativa" {{ old('type') == 'Informativa' ? 'selected' : '' }}>Informativa</option>
                         <option value="Incidente" {{ old('type') == 'Incidente' ? 'selected' : '' }}>Incidente</option>
                         <option value="Mantención" {{ old('type') == 'Mantención' ? 'selected' : '' }}>Mantención</option>
                         <option value="Urgente" {{ old('type') == 'Urgente' ? 'selected' : '' }}>Urgente</option>
                         <option value="Permanente" {{ old('type') == 'Permanente' ? 'selected' : '' }}>Permanente (Todas las Guardias)</option>
                     </select>
-                    <div class="mt-1 text-[10px] text-slate-500">
+                    <div class="mt-1 text-[10px] text-slate-500 dark:text-slate-400">
                         <i class="fas fa-info-circle mr-1"></i> Las novedades "Permanentes" son visibles para todas las guardias. Solo admin/capitán pueden eliminarlas.
                     </div>
                     @error('type')
@@ -1137,15 +1140,15 @@
                 </div>
                 
                 <div class="mb-6">
-                    <label class="block text-xs font-bold mb-2 uppercase tracking-wide {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-300' : 'text-slate-700' }}">Descripción</label>
-                    <textarea name="description" class="w-full px-4 py-2.5 border {{ $errors->has('description') ? 'border-red-500' : ((Auth::check() && Auth::user()->role === 'guardia') ? 'border-slate-800' : 'border-slate-300') }} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[100px] {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 text-slate-100 placeholder:text-slate-500' : 'bg-white text-slate-900' }}" placeholder="Detalle de la novedad..." required>{{ old('description') }}</textarea>
+                    <label class="block text-xs font-bold mb-2 uppercase tracking-wide {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-300' : 'text-slate-700 dark:text-slate-300' }}">Descripción</label>
+                    <textarea name="description" class="w-full px-4 py-2.5 border {{ $errors->has('description') ? 'border-red-500' : ((Auth::check() && Auth::user()->role === 'guardia') ? 'border-slate-800' : 'border-slate-300 dark:border-slate-600') }} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[100px] {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 text-slate-100 placeholder:text-slate-500 dark:text-slate-400' : 'bg-white dark:bg-slate-900 text-slate-900' }}" placeholder="Detalle de la novedad..." required>{{ old('description') }}</textarea>
                     @error('description')
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
                 <div class="flex gap-3">
-                    <button type="button" onclick="closeNoveltyModal()" class="w-1/2 px-4 py-2.5 font-bold rounded-lg transition-colors uppercase text-sm {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 hover:bg-slate-900 text-slate-100 border border-slate-800' : 'bg-slate-100 text-slate-700 hover:bg-slate-200' }}">
+                    <button type="button" onclick="closeNoveltyModal()" class="w-1/2 px-4 py-2.5 font-bold rounded-lg transition-colors uppercase text-sm {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 hover:bg-slate-900 text-slate-100 border border-slate-800' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200' }}">
                         Cancelar
                     </button>
                     <button type="submit" class="w-1/2 px-4 py-2.5 bg-blue-700 text-white font-bold rounded-lg hover:bg-blue-800 transition-colors shadow-md uppercase text-sm">
@@ -1217,7 +1220,7 @@
                                 </div>
                                 <div class="grid grid-cols-7 bg-slate-900 border-b border-slate-800">
                                     @foreach(['D', 'L', 'M', 'M', 'J', 'V', 'S'] as $weekDay)
-                                        <div class="px-1 py-2 text-center text-[10px] font-black text-slate-500 uppercase border-r border-slate-800 last:border-r-0">{{ $weekDay }}</div>
+                                        <div class="px-1 py-2 text-center text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase border-r border-slate-800 last:border-r-0">{{ $weekDay }}</div>
                                     @endforeach
                                 </div>
                                 <div class="grid grid-cols-7 gap-px bg-slate-800">
@@ -1230,7 +1233,7 @@
                                         @endphp
                                         <div class="min-h-[74px] p-1.5 sm:p-2 {{ $isCurrentMonthCell ? 'bg-slate-950' : 'bg-slate-900/60' }} {{ $isTodayCell ? 'ring-1 ring-inset ring-emerald-400' : '' }}">
                                             <div class="flex items-start justify-between gap-1">
-                                                <span class="text-[11px] sm:text-xs font-black {{ $isCurrentMonthCell ? 'text-slate-100' : 'text-slate-500' }}">{{ $monthCursor->day }}</span>
+                                                <span class="text-[11px] sm:text-xs font-black {{ $isCurrentMonthCell ? 'text-slate-100' : 'text-slate-500 dark:text-slate-400' }}">{{ $monthCursor->day }}</span>
                                                 @if($isTodayCell)
                                                     <span class="text-[8px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 font-black uppercase">Hoy</span>
                                                 @endif
@@ -1252,13 +1255,13 @@
     </div>
 
     <div id="academyModal" class="fixed inset-0 bg-slate-900 bg-opacity-75 hidden overflow-y-auto h-full w-full z-50 flex items-center justify-center backdrop-blur-sm">
-        <div class="relative p-6 border w-full max-w-lg shadow-2xl rounded-xl {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200' }}">
+        <div class="relative p-6 border w-full max-w-lg shadow-2xl rounded-xl {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-900 border-slate-800' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700' }}">
             <div class="text-center mb-6">
                 <div class="mx-auto flex items-center justify-center h-14 w-14 rounded-full {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 border border-slate-800' : 'bg-blue-100' }} mb-4">
                     <i class="fas fa-chalkboard-user {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-blue-300' : 'text-blue-600' }} text-2xl"></i>
                 </div>
-                <h3 class="text-2xl font-bold {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-100' : 'text-slate-800' }}">Registrar Academia</h3>
-                <p class="{{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-400' : 'text-slate-500' }} text-sm mt-1">Academia nocturna</p>
+                <h3 class="text-2xl font-bold {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-100' : 'text-slate-800 dark:text-white' }}">Registrar Academia</h3>
+                <p class="{{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-400' : 'text-slate-500 dark:text-slate-400' }} text-sm mt-1">Academia nocturna</p>
             </div>
 
             <form action="{{ route('novelties.store_web') }}" method="POST">
@@ -1266,35 +1269,35 @@
                 <input type="hidden" name="type" value="Academia">
 
                 <div class="mb-4">
-                    <label class="block text-xs font-bold mb-2 uppercase tracking-wide {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-300' : 'text-slate-700' }}">A cargo</label>
-                    <select name="firefighter_id" class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 border-slate-800 text-slate-100' : 'bg-white border-slate-300 text-slate-900' }}" required>
+                    <label class="block text-xs font-bold mb-2 uppercase tracking-wide {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-300' : 'text-slate-700 dark:text-slate-300' }}">A cargo</label>
+                    <select name="firefighter_id" class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 border-slate-800 text-slate-100' : 'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 text-slate-900' }}" required>
                         <option value="" disabled selected>Seleccionar</option>
                         @foreach(($academyLeadersFirefighters ?? collect()) as $leader)
                             <option value="{{ $leader->id }}">{{ $leader->apellido_paterno }} {{ $leader->apellido_materno ? $leader->apellido_materno . ',' : ',' }} {{ $leader->nombres }}</option>
                         @endforeach
                     </select>
                     @if(!isset($academyLeadersFirefighters) || ($academyLeadersFirefighters ?? collect())->isEmpty())
-                        <div class="text-[11px] text-slate-500 mt-1">No se detectó personal en la guardia nocturna.</div>
+                        <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">No se detectó personal en la guardia nocturna.</div>
                     @endif
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-xs font-bold mb-2 uppercase tracking-wide {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-300' : 'text-slate-700' }}">Día y hora</label>
-                    <input type="datetime-local" name="date" value="{{ now()->copy()->setTimezone($guardiaTz)->format('Y-m-d\\TH:i') }}" class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 border-slate-800 text-slate-100' : 'bg-white border-slate-300 text-slate-900' }}" required>
+                    <label class="block text-xs font-bold mb-2 uppercase tracking-wide {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-300' : 'text-slate-700 dark:text-slate-300' }}">Día y hora</label>
+                    <input type="datetime-local" name="date" value="{{ now()->copy()->setTimezone($guardiaTz)->format('Y-m-d\\TH:i') }}" class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 border-slate-800 text-slate-100' : 'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 text-slate-900' }}" required>
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-xs font-bold mb-2 uppercase tracking-wide {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-300' : 'text-slate-700' }}">Título</label>
-                    <input type="text" name="title" value="{{ old('title') }}" class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 border-slate-800 text-slate-100 placeholder:text-slate-500' : 'bg-white border-slate-300 text-slate-900' }}" placeholder="Ej: RCP, Uso de ERA, etc" required>
+                    <label class="block text-xs font-bold mb-2 uppercase tracking-wide {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-300' : 'text-slate-700 dark:text-slate-300' }}">Título</label>
+                    <input type="text" name="title" value="{{ old('title') }}" class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 border-slate-800 text-slate-100 placeholder:text-slate-500 dark:text-slate-400' : 'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 text-slate-900' }}" placeholder="Ej: RCP, Uso de ERA, etc" required>
                 </div>
 
                 <div class="mb-6">
-                    <label class="block text-xs font-bold mb-2 uppercase tracking-wide {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-300' : 'text-slate-700' }}">Descripción</label>
-                    <textarea name="description" class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[100px] {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 border-slate-800 text-slate-100 placeholder:text-slate-500' : 'bg-white border-slate-300 text-slate-900' }}" placeholder="Detalle de la academia..." required>{{ old('description') }}</textarea>
+                    <label class="block text-xs font-bold mb-2 uppercase tracking-wide {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-300' : 'text-slate-700 dark:text-slate-300' }}">Descripción</label>
+                    <textarea name="description" class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[100px] {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 border-slate-800 text-slate-100 placeholder:text-slate-500 dark:text-slate-400' : 'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 text-slate-900' }}" placeholder="Detalle de la academia..." required>{{ old('description') }}</textarea>
                 </div>
 
                 <div class="flex gap-3">
-                    <button type="button" onclick="closeAcademyModal()" class="w-1/2 px-4 py-2.5 font-bold rounded-lg transition-colors uppercase text-sm {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 hover:bg-slate-900 text-slate-100 border border-slate-800' : 'bg-slate-100 text-slate-700 hover:bg-slate-200' }}">
+                    <button type="button" onclick="closeAcademyModal()" class="w-1/2 px-4 py-2.5 font-bold rounded-lg transition-colors uppercase text-sm {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 hover:bg-slate-900 text-slate-100 border border-slate-800' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200' }}">
                         Cancelar
                     </button>
                     <button type="submit" class="w-1/2 px-4 py-2.5 bg-blue-700 text-white font-bold rounded-lg hover:bg-blue-800 transition-colors shadow-md uppercase text-sm">
@@ -1325,7 +1328,7 @@
 
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Voluntario</label>
+                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">Voluntario</label>
                             <!-- Custom Professional Dropdown -->
                             <div class="relative" id="refuerzo-select-container">
                                 <input type="hidden" name="firefighter_id" id="refuerzo_firefighter_id" required>
@@ -1334,7 +1337,7 @@
                                 <div class="relative">
                                     <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                                     <input type="text" id="refuerzo-search-input"
-                                        class="w-full text-sm border-slate-800 rounded-lg shadow-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 pl-9 pr-10 py-2.5 bg-slate-950 text-slate-100 placeholder:text-slate-500 cursor-pointer"
+                                        class="w-full text-sm border-slate-800 rounded-lg shadow-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 pl-9 pr-10 py-2.5 bg-slate-950 text-slate-100 placeholder:text-slate-500 dark:text-slate-400 cursor-pointer"
                                         placeholder="Buscar voluntario..." autocomplete="off" readonly>
                                     <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
                                 </div>
@@ -1343,7 +1346,7 @@
                                 <div id="refuerzo-dropdown" class="hidden absolute top-full left-0 right-0 mt-1 bg-slate-900 border border-slate-700 rounded-lg shadow-xl z-50 max-h-64 overflow-y-auto">
                                     <div class="p-2 sticky top-0 bg-slate-900 border-b border-slate-800">
                                         <input type="text" id="refuerzo-filter-input" 
-                                            class="w-full text-xs bg-slate-800 border-slate-700 rounded px-2 py-1.5 text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-sky-500"
+                                            class="w-full text-xs bg-slate-800 border-slate-700 rounded px-2 py-1.5 text-slate-200 placeholder:text-slate-500 dark:text-slate-400 focus:outline-none focus:border-sky-500"
                                             placeholder="Filtrar por nombre o RUT...">
                                     </div>
                                     <div id="refuerzo-options-list" class="py-1">
@@ -1359,13 +1362,13 @@
                                                         {{ trim($cand->nombres . ' ' . $cand->apellido_paterno) }}
                                                     </div>
                                                     @if($cand->rut)
-                                                        <div class="text-xs text-slate-500">{{ $cand->rut }}</div>
+                                                        <div class="text-xs text-slate-500 dark:text-slate-400">{{ $cand->rut }}</div>
                                                     @endif
                                                 </div>
                                             </div>
                                         @endforeach
                                     </div>
-                                    <div id="refuerzo-no-results" class="hidden px-3 py-4 text-center text-xs text-slate-500">
+                                    <div id="refuerzo-no-results" class="hidden px-3 py-4 text-center text-xs text-slate-500 dark:text-slate-400">
                                         No se encontraron resultados
                                     </div>
                                 </div>
@@ -1470,7 +1473,7 @@
             if (!isAttendanceWindowOpen()) {
                 if (badge) {
                     badge.classList.remove('border-emerald-200', 'bg-emerald-50', 'text-emerald-700', 'border-amber-200', 'bg-amber-50', 'text-amber-800');
-                    badge.classList.add('border-slate-300', 'bg-slate-100', 'text-slate-500');
+                    badge.classList.add('border-slate-300 dark:border-slate-600', 'bg-slate-100 dark:bg-slate-800', 'text-slate-500 dark:text-slate-400');
                     badge.textContent = 'FUERA DE HORARIO DE REGISTRO';
                 }
                 // No mostrar el banner modal fuera de horario
@@ -1543,7 +1546,7 @@
                     if (submitBtn) {
                         submitBtn.setAttribute('disabled', 'disabled');
                         submitBtn.classList.remove('bg-slate-800','hover:bg-slate-700','text-slate-100','border-slate-700');
-                        submitBtn.classList.add('bg-slate-200','text-slate-500','border-slate-300','cursor-not-allowed');
+                        submitBtn.classList.add('bg-slate-200','text-slate-500 dark:text-slate-400','border-slate-300 dark:border-slate-600','cursor-not-allowed');
                     }
                 }, 0);
             };
@@ -2123,7 +2126,7 @@
             if (!isAttendanceWindowOpen()) {
                 submitBtn.setAttribute('disabled', 'disabled');
                 submitBtn.classList.remove('bg-slate-800','hover:bg-slate-700','text-slate-100','border-slate-700');
-                submitBtn.classList.add('bg-slate-200','text-slate-500','border-slate-300','cursor-not-allowed');
+                submitBtn.classList.add('bg-slate-200','text-slate-500 dark:text-slate-400','border-slate-300 dark:border-slate-600','cursor-not-allowed');
                 return;
             }
 
@@ -2137,19 +2140,19 @@
             if (window.__attendanceSavedToday && !window.__attendanceDirty && !hasUnconfirmed) {
                 submitBtn.setAttribute('disabled', 'disabled');
                 submitBtn.classList.remove('bg-slate-800','hover:bg-slate-700','text-slate-100','border-slate-700');
-                submitBtn.classList.add('bg-slate-200','text-slate-500','border-slate-300','cursor-not-allowed');
+                submitBtn.classList.add('bg-slate-200','text-slate-500 dark:text-slate-400','border-slate-300 dark:border-slate-600','cursor-not-allowed');
                 return;
             }
 
             // Si todos los que requieren confirmación están confirmados, habilitar
             if (!hasUnconfirmed) {
                 submitBtn.removeAttribute('disabled');
-                submitBtn.classList.remove('bg-slate-200','text-slate-500','border-slate-300','cursor-not-allowed');
+                submitBtn.classList.remove('bg-slate-200','text-slate-500 dark:text-slate-400','border-slate-300 dark:border-slate-600','cursor-not-allowed');
                 submitBtn.classList.add('bg-slate-800','hover:bg-slate-700','text-slate-100','border-slate-700');
             } else {
                 submitBtn.setAttribute('disabled', 'disabled');
                 submitBtn.classList.remove('bg-slate-800','hover:bg-slate-700','text-slate-100','border-slate-700');
-                submitBtn.classList.add('bg-slate-200','text-slate-500','border-slate-300','cursor-not-allowed');
+                submitBtn.classList.add('bg-slate-200','text-slate-500 dark:text-slate-400','border-slate-300 dark:border-slate-600','cursor-not-allowed');
             }
         }
 
@@ -2606,13 +2609,13 @@
     </script>
 
     <div id="undoReplacementModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center">
-        <div class="{{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200' }} rounded-2xl shadow-2xl w-full max-w-sm mx-4 border overflow-hidden">
+        <div class="{{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-900 border-slate-800' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700' }} rounded-2xl shadow-2xl w-full max-w-sm mx-4 border overflow-hidden">
             <div class="p-4">
                 <div class="text-sm font-black {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-100' : 'text-slate-900' }} uppercase tracking-widest">Confirmar acción</div>
-                <div class="mt-2 text-sm {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-400' : 'text-slate-600' }}">¿Deshacer este reemplazo?</div>
+                <div class="mt-2 text-sm {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-400' : 'text-slate-600 dark:text-slate-400' }}">¿Deshacer este reemplazo?</div>
             </div>
             <div class="p-4 pt-0 flex gap-2">
-                <button type="button" onclick="closeUndoReplacementModal()" class="w-1/2 font-black uppercase tracking-widest text-[10px] py-2 rounded-xl border {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 hover:bg-slate-900 text-slate-100 border-slate-800' : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-200' }}">
+                <button type="button" onclick="closeUndoReplacementModal()" class="w-1/2 font-black uppercase tracking-widest text-[10px] py-2 rounded-xl border {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 hover:bg-slate-900 text-slate-100 border-slate-800' : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-800 dark:text-white border-slate-200 dark:border-slate-700' }}">
                     Cancelar
                 </button>
                 <form id="undoReplacementModalForm" method="POST" class="w-1/2">
@@ -2655,7 +2658,7 @@
 
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Voluntario Reemplazante</label>
+                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">Voluntario Reemplazante</label>
                             <!-- Custom Professional Dropdown -->
                             <div class="relative" id="replacement-select-container">
                                 <input type="hidden" name="replacement_firefighter_id" id="modal_replacement_firefighter_id" required>
@@ -2664,7 +2667,7 @@
                                 <div class="relative">
                                     <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                                     <input type="text" id="replacement-search-input"
-                                        class="w-full text-sm border-slate-800 rounded-lg shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 pl-9 pr-10 py-2.5 bg-slate-950 text-slate-100 placeholder:text-slate-500 cursor-pointer"
+                                        class="w-full text-sm border-slate-800 rounded-lg shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 pl-9 pr-10 py-2.5 bg-slate-950 text-slate-100 placeholder:text-slate-500 dark:text-slate-400 cursor-pointer"
                                         placeholder="Buscar voluntario..." autocomplete="off" readonly>
                                     <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
                                 </div>
@@ -2673,7 +2676,7 @@
                                 <div id="replacement-dropdown" class="hidden absolute top-full left-0 right-0 mt-1 bg-slate-900 border border-slate-700 rounded-lg shadow-xl z-50 max-h-64 overflow-y-auto">
                                     <div class="p-2 sticky top-0 bg-slate-900 border-b border-slate-800">
                                         <input type="text" id="replacement-filter-input" 
-                                            class="w-full text-xs bg-slate-800 border-slate-700 rounded px-2 py-1.5 text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-blue-500"
+                                            class="w-full text-xs bg-slate-800 border-slate-700 rounded px-2 py-1.5 text-slate-200 placeholder:text-slate-500 dark:text-slate-400 focus:outline-none focus:border-blue-500"
                                             placeholder="Filtrar por nombre o RUT...">
                                     </div>
                                     <div id="replacement-options-list" class="py-1">
@@ -2689,13 +2692,13 @@
                                                         {{ trim($cand->nombres . ' ' . $cand->apellido_paterno) }}
                                                     </div>
                                                     @if($cand->rut)
-                                                        <div class="text-xs text-slate-500">{{ $cand->rut }}</div>
+                                                        <div class="text-xs text-slate-500 dark:text-slate-400">{{ $cand->rut }}</div>
                                                     @endif
                                                 </div>
                                             </div>
                                         @endforeach
                                     </div>
-                                    <div id="replacement-no-results" class="hidden px-3 py-4 text-center text-xs text-slate-500">
+                                    <div id="replacement-no-results" class="hidden px-3 py-4 text-center text-xs text-slate-500 dark:text-slate-400">
                                         No se encontraron resultados
                                     </div>
                                 </div>

@@ -12,11 +12,11 @@
             <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Gestión de asignación de camas del cuartel</p>
         </div>
         <div class="flex items-center gap-3">
-            <div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+            <div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-white dark:bg-slate-900 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 dark:border-slate-700">
                 <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
                 <span class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ $camasOcupadas ?? 8 }} ocupadas</span>
             </div>
-            <div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+            <div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-white dark:bg-slate-900 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 dark:border-slate-700">
                 <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
                 <span class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ ($camasTotal ?? 15) - ($camasOcupadas ?? 8) }} libres</span>
             </div>
@@ -24,7 +24,7 @@
     </div>
 
     {{-- Stats Bar --}}
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4">
+    <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 p-4">
         <div class="flex items-center gap-4">
             <div class="flex-1">
                 <div class="flex items-center justify-between mb-2">
@@ -35,7 +35,7 @@
                     <div class="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-500" style="width: {{ ($camasOcupadas ?? 8) / ($camasTotal ?? 15) * 100 }}%"></div>
                 </div>
             </div>
-            <div class="hidden sm:flex items-center gap-6 pl-6 border-l border-slate-200 dark:border-slate-700">
+            <div class="hidden sm:flex items-center gap-6 pl-6 border-l border-slate-200 dark:border-slate-700 dark:border-slate-700">
                 <div class="text-center">
                     <div class="text-2xl font-bold text-slate-900 dark:text-white">{{ $camasTotal ?? 15 }}</div>
                     <div class="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total</div>
@@ -53,8 +53,8 @@
     </div>
 
     {{-- Camas Grid --}}
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-        <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+    <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 dark:border-slate-800 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
                     <i class="fas fa-bed text-white"></i>
@@ -74,7 +74,7 @@
                     <span class="text-slate-500 dark:text-slate-400">Ocupada</span>
                 </div>
                 <div class="flex items-center gap-1.5">
-                    <span class="w-4 h-4 rounded bg-slate-100 dark:bg-slate-700 border-2 border-slate-400"></span>
+                    <span class="w-4 h-4 rounded bg-slate-100 dark:bg-slate-800 dark:bg-slate-700 border-2 border-slate-400"></span>
                     <span class="text-slate-500 dark:text-slate-400">Mantenimiento</span>
                 </div>
             </div>
@@ -105,12 +105,12 @@
                 $estadoClasses = [
                     'libre' => 'border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 hover:border-emerald-400 dark:hover:border-emerald-600 hover:shadow-emerald-100 dark:hover:shadow-emerald-900/20',
                     'ocupada' => 'border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/20 hover:border-blue-400 dark:hover:border-blue-600 hover:shadow-blue-100 dark:hover:shadow-blue-900/20',
-                    'mantenimiento' => 'border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 cursor-not-allowed opacity-60',
+                    'mantenimiento' => 'border-slate-300 dark:border-slate-600 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 cursor-not-allowed opacity-60',
                 ];
                 $iconClasses = [
                     'libre' => 'text-emerald-500 dark:text-emerald-400',
                     'ocupada' => 'text-blue-500 dark:text-blue-400',
-                    'mantenimiento' => 'text-slate-400 dark:text-slate-500',
+                    'mantenimiento' => 'text-slate-400 dark:text-slate-500 dark:text-slate-400',
                 ];
                 @endphp
                 <div class="relative group rounded-2xl border-2 p-4 transition-all duration-200 cursor-pointer hover:shadow-lg {{ $estadoClasses[$cama['estado']] }}"
@@ -140,15 +140,15 @@
                             <i class="fas fa-plus text-emerald-400 dark:text-emerald-500"></i>
                         </div>
                         <p class="text-sm font-medium text-emerald-600 dark:text-emerald-400">Disponible</p>
-                        <p class="text-xs text-slate-400 dark:text-slate-500">Click para asignar</p>
+                        <p class="text-xs text-slate-400 dark:text-slate-500 dark:text-slate-400">Click para asignar</p>
                     </div>
                     @else
                     <div class="text-center">
                         <div class="w-10 h-10 mx-auto mb-2 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
-                            <i class="fas fa-wrench text-slate-400 dark:text-slate-500"></i>
+                            <i class="fas fa-wrench text-slate-400 dark:text-slate-500 dark:text-slate-400"></i>
                         </div>
                         <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Mantenimiento</p>
-                        <p class="text-xs text-slate-400 dark:text-slate-500">No disponible</p>
+                        <p class="text-xs text-slate-400 dark:text-slate-500 dark:text-slate-400">No disponible</p>
                     </div>
                     @endif
                     
@@ -168,8 +168,8 @@
     </div>
 
     {{-- Historial Reciente --}}
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-        <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+    <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 dark:border-slate-800">
             <h2 class="font-semibold text-slate-900 dark:text-white">Historial de Asignaciones</h2>
         </div>
         <div class="divide-y divide-slate-100 dark:divide-slate-800">
@@ -182,7 +182,7 @@
             ];
             @endphp
             @foreach($historial as $h)
-            <div class="px-6 py-3 flex items-center gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+            <div class="px-6 py-3 flex items-center gap-4 hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-800/50 transition-colors">
                 <div class="w-8 h-8 rounded-lg {{ $h['accion'] === 'asignada' ? 'bg-blue-100 dark:bg-blue-900/30' : 'bg-emerald-100 dark:bg-emerald-900/30' }} flex items-center justify-center">
                     <i class="fas {{ $h['accion'] === 'asignada' ? 'fa-arrow-right text-blue-600 dark:text-blue-400' : 'fa-arrow-left text-emerald-600 dark:text-emerald-400' }} text-xs"></i>
                 </div>
@@ -193,7 +193,7 @@
                         <span class="font-medium">{{ $h['bombero'] }}</span>
                     </p>
                 </div>
-                <span class="text-xs text-slate-400 dark:text-slate-500">{{ $h['hora'] }}</span>
+                <span class="text-xs text-slate-400 dark:text-slate-500 dark:text-slate-400">{{ $h['hora'] }}</span>
             </div>
             @endforeach
         </div>

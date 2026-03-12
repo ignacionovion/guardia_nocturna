@@ -7,17 +7,17 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-slate-100 min-h-screen text-slate-800">
+<body class="bg-slate-100 dark:bg-slate-800 min-h-screen text-slate-800 dark:text-white">
 <div class="w-full py-6 px-4">
     <div class="max-w-5xl mx-auto">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-                <div class="text-xs font-black uppercase tracking-widest text-slate-500">Planillas</div>
+                <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Planillas</div>
                 <div class="text-2xl font-extrabold text-slate-900">Continuar revisión</div>
-                <div class="text-sm text-slate-600 mt-1">Unidad: {{ $unidad }} · Iniciada: {{ $planilla->created_at->format('d/m/Y H:i') }}</div>
+                <div class="text-sm text-slate-600 dark:text-slate-400 mt-1">Unidad: {{ $unidad }} · Iniciada: {{ $planilla->created_at->format('d/m/Y H:i') }}</div>
             </div>
 
-            <a href="{{ route('planillas.qr.identificar.form', ['token' => $token]) }}" class="px-4 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs">Salir</a>
+            <a href="{{ route('planillas.qr.identificar.form', ['token' => $token]) }}" class="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs">Salir</a>
         </div>
 
         @if(session('success'))
@@ -26,7 +26,7 @@
             </div>
         @endif
 
-        <div class="mt-6 bg-white rounded-2xl border border-teal-900/20 shadow-sm overflow-hidden">
+        <div class="mt-6 bg-white dark:bg-slate-900 rounded-2xl border border-teal-900/20 shadow-sm overflow-hidden">
             <div class="px-6 py-4 bg-sky-100 border-b border-teal-900/20">
                 <div class="text-xs font-black uppercase tracking-widest text-slate-900">PLANILLA DE REVISIÓN DE NIVELES</div>
                 <div class="text-xs font-black uppercase tracking-widest text-slate-900 mt-1">{{ $unidad }}</div>
@@ -40,10 +40,10 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                            <div class="text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Fecha y hora de revisión</div>
-                            <input type="text" id="fechaRevisionDisplay" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white font-semibold" value="{{ $planilla->fecha_revision->format('d/m/Y H:i') }}" disabled>
+                            <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">Fecha y hora de revisión</div>
+                            <input type="text" id="fechaRevisionDisplay" class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 font-semibold" value="{{ $planilla->fecha_revision->format('d/m/Y H:i') }}" disabled>
                             <input type="hidden" id="fechaRevisionHidden" name="fecha_revision" value="{{ $planilla->fecha_revision->format('Y-m-d\TH:i') }}" required>
-                            <div class="text-xs text-slate-500 mt-2 font-semibold">Fecha de inicio de la revisión.</div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400 mt-2 font-semibold">Fecha de inicio de la revisión.</div>
                         </div>
                     </div>
 

@@ -1,13 +1,16 @@
-@extends('layouts.app')
+@extends('layouts.modern')
+
+@section('title', 'Libro de Guardia - ' . branding()->nombre_empresa)
+@section('page-title', 'Libro de Guardia')
 
 @section('content')
     <!-- Header de Sección -->
-    <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 border-b border-slate-200 pb-6">
+    <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 border-b border-slate-200 dark:border-slate-700 pb-6">
         <div>
-            <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight flex items-center uppercase">
+            <h1 class="text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight flex items-center uppercase">
                 <i class="fas fa-clipboard-list mr-3 text-red-700"></i> Libro de Guardia
             </h1>
-            <p class="text-slate-500 mt-1 font-medium">Registro y control de asistencia nocturna</p>
+            <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium">Registro y control de asistencia nocturna</p>
         </div>
         
         @if($shift)
@@ -45,16 +48,16 @@
     @if(!$shift)
         <!-- Estado: Sin Guardia Activa -->
         <div class="max-w-2xl mx-auto mt-12">
-            <div class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
-                <div class="bg-slate-50 p-8 text-center border-b border-slate-100">
+            <div class="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+                <div class="bg-slate-50 dark:bg-slate-800 p-8 text-center border-b border-slate-100 dark:border-slate-800">
                     <div class="w-24 h-24 bg-slate-200 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
                         <i class="fas fa-shield-halved text-5xl"></i>
                     </div>
-                    <h2 class="text-2xl font-bold text-slate-800 mb-2">Guardia No Constituida</h2>
-                    <p class="text-slate-500">Actualmente no hay un turno de guardia nocturna activo en el sistema.</p>
+                    <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-2">Guardia No Constituida</h2>
+                    <p class="text-slate-500 dark:text-slate-400">Actualmente no hay un turno de guardia nocturna activo en el sistema.</p>
                 </div>
-                <div class="p-8 bg-white text-center">
-                    <p class="text-slate-600 mb-8 max-w-md mx-auto">Para comenzar el registro de asistencia y asignar camas, debes iniciar un nuevo turno de guardia.</p>
+                <div class="p-8 bg-white dark:bg-slate-900 text-center">
+                    <p class="text-slate-600 dark:text-slate-400 mb-8 max-w-md mx-auto">Para comenzar el registro de asistencia y asignar camas, debes iniciar un nuevo turno de guardia.</p>
                     
                     <form action="{{ route('guardia.start') }}" method="POST">
                         @csrf
@@ -72,7 +75,7 @@
             
             <!-- Columna Izquierda: Panel de Control (Asignación) -->
             <div class="lg:col-span-1">
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 sticky top-24 overflow-hidden">
+                <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 sticky top-24 overflow-hidden">
                     <div class="bg-slate-800 px-6 py-4 border-b border-slate-700 flex justify-between items-center">
                         <h2 class="font-bold text-white flex items-center">
                             <i class="fas fa-user-plus mr-2 text-blue-400"></i> Registrar Asistencia
@@ -84,7 +87,7 @@
                             @csrf
                             
                             <div class="mb-5">
-                                <label class="block text-slate-700 text-sm font-bold mb-2 uppercase tracking-wide" for="firefighter_id">
+                                <label class="block text-slate-700 dark:text-slate-300 text-sm font-bold mb-2 uppercase tracking-wide" for="firefighter_id">
                                     Voluntario
                                 </label>
                                 <div class="relative">
@@ -92,7 +95,7 @@
                                         <i class="fas fa-search text-slate-400"></i>
                                     </div>
                                     <input list="volunteers-list" name="firefighter_id" id="firefighter_id" 
-                                        class="pl-10 shadow-sm appearance-none border border-slate-300 rounded-lg w-full py-2.5 px-3 text-slate-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
+                                        class="pl-10 shadow-sm appearance-none border border-slate-300 dark:border-slate-600 rounded-lg w-full py-2.5 px-3 text-slate-700 dark:text-slate-300 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
                                         placeholder="Buscar por nombre..." required autocomplete="off">
                                 </div>
                                 <datalist id="volunteers-list">
@@ -103,7 +106,7 @@
                             </div>
 
                             <div class="mb-5">
-                                <label class="block text-slate-700 text-sm font-bold mb-2 uppercase tracking-wide" for="assignment_type">
+                                <label class="block text-slate-700 dark:text-slate-300 text-sm font-bold mb-2 uppercase tracking-wide" for="assignment_type">
                                     Rol en Guardia
                                 </label>
                                 <div class="relative">
@@ -111,7 +114,7 @@
                                         <i class="fas fa-tag text-slate-400"></i>
                                     </div>
                                     <select name="assignment_type" id="assignment_type" 
-                                        class="pl-10 shadow-sm appearance-none border border-slate-300 rounded-lg w-full py-2.5 px-3 text-slate-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white" 
+                                        class="pl-10 shadow-sm appearance-none border border-slate-300 dark:border-slate-600 rounded-lg w-full py-2.5 px-3 text-slate-700 dark:text-slate-300 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white" 
                                         required onchange="toggleReemplazo(this.value)">
                                         <option value="Bombero">Bombero</option>
                                         <option value="Oficial a cargo">Oficial a cargo</option>
@@ -127,12 +130,12 @@
                                 </div>
                             </div>
 
-                            <div class="mb-6 hidden bg-slate-50 p-4 rounded-lg border border-slate-200" id="reemplazo_div">
-                                <label class="block text-slate-700 text-sm font-bold mb-2 uppercase tracking-wide" for="replaced_firefighter_id">
+                            <div class="mb-6 hidden bg-slate-50 dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700" id="reemplazo_div">
+                                <label class="block text-slate-700 dark:text-slate-300 text-sm font-bold mb-2 uppercase tracking-wide" for="replaced_firefighter_id">
                                     Reemplaza a:
                                 </label>
                                 <div class="relative">
-                                    <select name="replaced_firefighter_id" id="replaced_firefighter_id" class="shadow-sm appearance-none border border-slate-300 rounded-lg w-full py-2 px-3 text-slate-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                    <select name="replaced_firefighter_id" id="replaced_firefighter_id" class="shadow-sm appearance-none border border-slate-300 dark:border-slate-600 rounded-lg w-full py-2 px-3 text-slate-700 dark:text-slate-300 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                                         <option value="">Seleccione voluntario...</option>
                                         @foreach($users as $user)
                                             <option value="{{ $user->id }}">{{ $user->nombres }} {{ $user->apellido_paterno }}</option>
@@ -151,14 +154,14 @@
 
             <!-- Columna Derecha: Listado de Personal -->
             <div class="lg:col-span-2">
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-8">
-                    <div class="bg-white px-6 py-5 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden mb-8">
+                    <div class="bg-white dark:bg-slate-900 px-6 py-5 border-b border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row justify-between items-center gap-4">
                         <div>
-                            <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                            <h2 class="text-xl font-bold text-slate-800 dark:text-white flex items-center">
                                 <span class="w-3 h-3 bg-green-500 rounded-full mr-3 animate-pulse"></span>
                                 Guardia Activa
                             </h2>
-                            <p class="text-slate-500 text-sm mt-1 ml-6">
+                            <p class="text-slate-500 dark:text-slate-400 text-sm mt-1 ml-6">
                                 <i class="fas fa-calendar-days mr-1"></i> {{ \Carbon\Carbon::parse($shift->date)->translatedFormat('l d \d\e F, Y') }}
                                 <span class="mx-2 text-slate-300">|</span>
                                 <i class="fas fa-clock mr-1"></i> Inicio: {{ \Carbon\Carbon::parse($shift->created_at)->format('H:i') }} hrs
@@ -171,24 +174,24 @@
                     
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-slate-200">
-                            <thead class="bg-slate-50">
+                            <thead class="bg-slate-50 dark:bg-slate-800">
                                 <tr>
-                                    <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Voluntario</th>
-                                    <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Rol / Calidad</th>
-                                    <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Llegada</th>
-                                    <th class="px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Acciones</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Voluntario</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Rol / Calidad</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Llegada</th>
+                                    <th class="px-6 py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white divide-y divide-slate-100">
+                            <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-100">
                                 @forelse($shift->users->whereNull('end_time') as $shiftUser)
-                                    <tr class="hover:bg-slate-50 transition-colors">
+                                    <tr class="hover:bg-slate-50 dark:bg-slate-800 transition-colors">
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
-                                                <div class="flex-shrink-0 h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-bold border border-slate-300">
+                                                <div class="flex-shrink-0 h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 dark:text-slate-400 font-bold border border-slate-300 dark:border-slate-600">
                                                     {{ substr($shiftUser->firefighter?->nombres ?? '-', 0, 1) }}{{ substr($shiftUser->firefighter?->apellido_paterno ?? '-', 0, 1) }}
                                                 </div>
                                                 <div class="ml-4">
-                                                    <div class="text-sm font-bold text-slate-800">{{ $shiftUser->firefighter?->nombres }} {{ $shiftUser->firefighter?->apellido_paterno }}</div>
+                                                    <div class="text-sm font-bold text-slate-800 dark:text-white">{{ $shiftUser->firefighter?->nombres }} {{ $shiftUser->firefighter?->apellido_paterno }}</div>
                                                 </div>
                                             </div>
                                         </td>
@@ -202,7 +205,7 @@
                                                 </div>
                                             @endif
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 font-medium">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400 font-medium">
                                             <i class="fas fa-clock mr-1 text-slate-400"></i> {{ \Carbon\Carbon::parse($shiftUser->start_time)->format('H:i') }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -228,31 +231,31 @@
                 </div>
 
                 @if($shift->users->whereNotNull('end_time')->count() > 0)
-                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden opacity-90">
-                        <div class="bg-slate-50 px-6 py-3 border-b border-slate-200">
-                            <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wide">
+                    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden opacity-90">
+                        <div class="bg-slate-50 dark:bg-slate-800 px-6 py-3 border-b border-slate-200 dark:border-slate-700">
+                            <h3 class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
                                 <i class="fas fa-history mr-2"></i> Historial de Turno (Retirados)
                             </h3>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-slate-200">
-                                <thead class="bg-slate-50">
+                                <thead class="bg-slate-50 dark:bg-slate-800">
                                     <tr>
                                         <th class="px-6 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Voluntario</th>
                                         <th class="px-6 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Rol</th>
                                         <th class="px-6 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Horario</th>
                                     </tr>
                                 </thead>
-                                <tbody class="bg-white divide-y divide-slate-100">
+                                <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-100">
                                     @foreach($shift->users->whereNotNull('end_time') as $shiftUser)
                                         <tr>
-                                            <td class="px-6 py-3 whitespace-nowrap text-sm font-medium text-slate-700">
+                                            <td class="px-6 py-3 whitespace-nowrap text-sm font-medium text-slate-700 dark:text-slate-300">
                                                 {{ $shiftUser->firefighter?->nombres }} {{ $shiftUser->firefighter?->apellido_paterno }}
                                             </td>
-                                            <td class="px-6 py-3 whitespace-nowrap text-sm text-slate-500">
+                                            <td class="px-6 py-3 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
                                                 {{ $shiftUser->assignment_type }}
                                             </td>
-                                            <td class="px-6 py-3 whitespace-nowrap text-sm text-slate-500">
+                                            <td class="px-6 py-3 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
                                                 {{ \Carbon\Carbon::parse($shiftUser->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($shiftUser->end_time)->format('H:i') }}
                                             </td>
                                         </tr>

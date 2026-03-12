@@ -1,19 +1,19 @@
-@extends('layouts.app')
+@extends('layouts.modern')
 
 @section('content')
 <div class="w-full">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-200 pb-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-200 dark:border-slate-700 pb-6">
         <div>
-            <div class="text-xs font-black uppercase tracking-widest text-slate-500">Guardia</div>
+            <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Guardia</div>
             <div class="text-3xl font-extrabold text-slate-900 tracking-tight flex items-center uppercase">
                 <i class="fas fa-bolt mr-3 text-red-700"></i>
                 Guardiapp NOW
             </div>
-            <div class="text-sm text-slate-600 mt-1">Vista en vivo del estado de la guardia constituida.</div>
+            <div class="text-sm text-slate-600 dark:text-slate-400 mt-1">Vista en vivo del estado de la guardia constituida.</div>
         </div>
 
         <div class="flex items-center gap-2">
-            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 text-xs font-extrabold">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 text-xs font-extrabold">
                 <span class="w-2 h-2 rounded-full bg-emerald-600" id="now-live-dot"></span>
                 <span id="now-last-update">Actualizando...</span>
             </div>
@@ -36,31 +36,31 @@
     </div>
 
     <div class="mt-6">
-        <div id="now-shift" class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-            <div class="p-6 border-b border-slate-200 bg-slate-50">
-                <div class="text-xs font-black uppercase tracking-widest text-slate-600">Asistencia Registrada</div>
-                <div class="text-sm text-slate-600 mt-1">Información del turno activo.</div>
+        <div id="now-shift" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                <div class="text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">Asistencia Registrada</div>
+                <div class="text-sm text-slate-600 dark:text-slate-400 mt-1">Información del turno activo.</div>
             </div>
             <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="rounded-xl border border-slate-200 bg-white p-4">
-                    <div class="text-xs font-black uppercase tracking-widest text-slate-500">Estado</div>
+                <div class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
+                    <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Estado</div>
                     <div class="mt-1 text-lg font-extrabold text-slate-900" id="now-shift-status">—</div>
                 </div>
-                <div class="rounded-xl border border-slate-200 bg-white p-4">
-                    <div class="text-xs font-black uppercase tracking-widest text-slate-500">Guardia Nocturna</div>
+                <div class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
+                    <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Guardia Nocturna</div>
                     <div class="mt-1 text-lg font-extrabold text-slate-900" id="now-shift-leader">—</div>
                 </div>
-                <div class="rounded-xl border border-slate-200 bg-white p-4">
-                    <div class="text-xs font-black uppercase tracking-widest text-slate-500">Hora servidor</div>
+                <div class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
+                    <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Hora servidor</div>
                     <div class="mt-1 text-lg font-extrabold text-slate-900" id="now-server-time">—</div>
                 </div>
             </div>
         </div>
 
-        <div class="mt-6 bg-white rounded-2xl border border-teal-900/20 shadow-sm overflow-hidden">
+        <div class="mt-6 bg-white dark:bg-slate-900 rounded-2xl border border-teal-900/20 shadow-sm overflow-hidden">
             <div class="p-6 border-b border-teal-900/20 bg-sky-100">
-                <div class="text-xs font-black uppercase tracking-widest text-slate-600">Dotación</div>
-                <div class="text-sm text-slate-600 mt-1">Estados actuales de los bomberos.</div>
+                <div class="text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">Dotación</div>
+                <div class="text-sm text-slate-600 dark:text-slate-400 mt-1">Estados actuales de los bomberos.</div>
             </div>
 
             <div class="p-6">
@@ -97,7 +97,7 @@
                 'constituye': { 
                     label: 'CONSTITUYE', 
                     cls: confirmado ? 'bg-emerald-600 text-white border-emerald-700' : (enTurno ? 'bg-emerald-500 text-white border-emerald-600' : 'bg-emerald-100 text-emerald-800 border-emerald-300'),
-                    cardCls: confirmado ? 'border-emerald-400 bg-emerald-50/50' : (enTurno ? 'border-emerald-300 bg-emerald-50/50' : 'border-slate-200 bg-white')
+                    cardCls: confirmado ? 'border-emerald-400 bg-emerald-50/50' : (enTurno ? 'border-emerald-300 bg-emerald-50/50' : 'border-slate-200 dark:border-slate-700 bg-white')
                 },
                 'reemplazo': { 
                     label: 'REEMPLAZO', 
@@ -111,8 +111,8 @@
                 },
                 'ausente': { 
                     label: 'AUSENTE', 
-                    cls: 'bg-slate-500 text-white border-slate-600',
-                    cardCls: 'border-slate-300 bg-slate-50'
+                    cls: 'bg-slate-50 dark:bg-slate-8000 text-white border-slate-600',
+                    cardCls: 'border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800'
                 },
                 'licencia': { 
                     label: 'LICENCIA', 
@@ -128,8 +128,8 @@
             
             return badges[s] || { 
                 label: s.toUpperCase(), 
-                cls: 'bg-slate-500 text-white border-slate-600',
-                cardCls: 'border-slate-200 bg-white'
+                cls: 'bg-slate-50 dark:bg-slate-8000 text-white border-slate-600',
+                cardCls: 'border-slate-200 dark:border-slate-700 bg-white'
             };
         }
 
@@ -174,7 +174,7 @@
                 if (b.es_refuerzo) flags.push(pill('REFUERZO', 'bg-sky-500 text-white border-sky-600'));
                 if (b.es_cambio) flags.push(pill('CAMBIO', 'bg-violet-100 text-violet-800 border-violet-300'));
                 if (b.es_sancion) flags.push(pill('SANCIÓN', 'bg-rose-500 text-white border-rose-600'));
-                if (b.fuera_de_servicio) flags.push(pill('FUERA SERVICIO', 'bg-slate-500 text-white border-slate-600'));
+                if (b.fuera_de_servicio) flags.push(pill('FUERA SERVICIO', 'bg-slate-50 dark:bg-slate-8000 text-white border-slate-600'));
                 if (b.es_permanente) flags.push(pill('PERMANENTE', 'bg-emerald-100 text-emerald-800 border-emerald-300'));
 
                 // Especialidades técnicas
@@ -219,8 +219,8 @@
                         <div class="flex items-start justify-between gap-3">
                             <div class="min-w-0 flex-1">
                                 <div class="text-sm font-extrabold text-slate-900 truncate uppercase">${(b.apellido_paterno || '—')}</div>
-                                <div class="text-xs text-slate-600 font-semibold truncate">${(b.nombres || '')}</div>
-                                ${b.cargo_texto ? `<div class="mt-0.5 text-[10px] font-black text-slate-500 uppercase tracking-wider">${b.cargo_texto}</div>` : ''}
+                                <div class="text-xs text-slate-600 dark:text-slate-400 font-semibold truncate">${(b.nombres || '')}</div>
+                                ${b.cargo_texto ? `<div class="mt-0.5 text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">${b.cargo_texto}</div>` : ''}
                             </div>
                             <div class="shrink-0">
                                 <span class="inline-flex items-center rounded-lg border px-2 py-1 text-[10px] font-black uppercase tracking-wider ${badge.cls}">${badge.label}</span>
@@ -231,15 +231,15 @@
                         
                         ${specialties.length > 0 ? `<div class="mt-2 flex flex-wrap gap-1">${specialties.join('')}</div>` : ''}
                         
-                        <div class="mt-3 pt-3 border-t border-slate-200/60 grid grid-cols-2 gap-2 text-xs">
+                        <div class="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700/60 grid grid-cols-2 gap-2 text-xs">
                             <div>
                                 <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Móvil</span>
-                                <div class="font-bold text-slate-700">${b.portatil || '—'}</div>
+                                <div class="font-bold text-slate-700 dark:text-slate-300">${b.portatil || '—'}</div>
                             </div>
                             ${serviceText ? `
                             <div>
                                 <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Servicio</span>
-                                <div class="font-bold text-slate-700">${serviceText}</div>
+                                <div class="font-bold text-slate-700 dark:text-slate-300">${serviceText}</div>
                             </div>
                             ` : ''}
                         </div>

@@ -25,7 +25,7 @@
                     </p>
                 </div>
                 <div class="flex items-center gap-3">
-                    <a href="{{ route('guardia.now') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-slate-900 text-sm font-semibold hover:bg-slate-100 transition-colors shadow-lg shadow-white/10">
+                    <a href="{{ route('guardia.now') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 text-slate-900 text-sm font-semibold hover:bg-slate-100 dark:bg-slate-800 transition-colors shadow-lg shadow-white/10">
                         <i class="fas fa-satellite-dish"></i>
                         Ver Guardia en Vivo
                     </a>
@@ -37,7 +37,7 @@
     {{-- Stats Grid --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {{-- Bomberos en Guardia --}}
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 hover:shadow-lg hover:shadow-slate-200/50 dark:hover:shadow-slate-900/50 transition-shadow">
+        <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 p-5 hover:shadow-lg hover:shadow-slate-200/50 dark:hover:shadow-slate-900/50 transition-shadow">
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">En Guardia</p>
@@ -54,7 +54,7 @@
         </div>
 
         {{-- Camas Ocupadas --}}
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 hover:shadow-lg hover:shadow-slate-200/50 dark:hover:shadow-slate-900/50 transition-shadow">
+        <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 p-5 hover:shadow-lg hover:shadow-slate-200/50 dark:hover:shadow-slate-900/50 transition-shadow">
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Camas</p>
@@ -70,7 +70,7 @@
         </div>
 
         {{-- Emergencias Hoy --}}
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 hover:shadow-lg hover:shadow-slate-200/50 dark:hover:shadow-slate-900/50 transition-shadow">
+        <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 p-5 hover:shadow-lg hover:shadow-slate-200/50 dark:hover:shadow-slate-900/50 transition-shadow">
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Emergencias</p>
@@ -86,7 +86,7 @@
         </div>
 
         {{-- Novedades Activas --}}
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 hover:shadow-lg hover:shadow-slate-200/50 dark:hover:shadow-slate-900/50 transition-shadow">
+        <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 p-5 hover:shadow-lg hover:shadow-slate-200/50 dark:hover:shadow-slate-900/50 transition-shadow">
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Novedades</p>
@@ -105,8 +105,8 @@
     {{-- Main Content Grid --}}
     <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {{-- Dotación Actual --}}
-        <div class="xl:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <div class="xl:col-span-2 bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 dark:border-slate-800 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center">
                         <i class="fas fa-shield-halved text-white"></i>
@@ -141,7 +141,7 @@
                     @endphp
                     @foreach($dotacionEjemplo as $bombero)
                     @php $config = $estadoConfig[$bombero['estado']]; @endphp
-                    <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 hover:border-slate-200 dark:hover:border-slate-700 transition-colors">
+                    <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 dark:border-slate-700/50 hover:border-slate-200 dark:border-slate-700 dark:hover:border-slate-700 transition-colors">
                         <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-slate-700 to-slate-900 dark:from-slate-300 dark:to-slate-500 flex items-center justify-center text-white dark:text-slate-900 text-sm font-bold">
                             {{ strtoupper(substr($bombero['nombre'], 0, 1)) }}{{ strtoupper(substr(explode(' ', $bombero['nombre'])[1], 0, 1)) }}
                         </div>
@@ -167,28 +167,28 @@
         {{-- Panel Lateral --}}
         <div class="space-y-6">
             {{-- Accesos Rápidos --}}
-            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5">
+            <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 p-5">
                 <h3 class="font-semibold text-slate-900 dark:text-white mb-4">Accesos Rápidos</h3>
                 <div class="grid grid-cols-2 gap-2">
-                    <a href="{{ route('camas') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-100 dark:border-slate-700/50 transition-colors group">
+                    <a href="{{ route('camas') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-slate-50 dark:bg-slate-800 dark:bg-slate-800/50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-800 border border-slate-100 dark:border-slate-800 dark:border-slate-700/50 transition-colors group">
                         <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center group-hover:scale-110 transition-transform">
                             <i class="fas fa-bed text-blue-600 dark:text-blue-400"></i>
                         </div>
                         <span class="text-xs font-medium text-slate-700 dark:text-slate-300">Camas</span>
                     </a>
-                    <a href="{{ route('admin.volunteers.index') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-100 dark:border-slate-700/50 transition-colors group">
+                    <a href="{{ route('admin.volunteers.index') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-slate-50 dark:bg-slate-800 dark:bg-slate-800/50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-800 border border-slate-100 dark:border-slate-800 dark:border-slate-700/50 transition-colors group">
                         <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center group-hover:scale-110 transition-transform">
                             <i class="fas fa-user-group text-emerald-600 dark:text-emerald-400"></i>
                         </div>
                         <span class="text-xs font-medium text-slate-700 dark:text-slate-300">Voluntarios</span>
                     </a>
-                    <a href="{{ route('admin.emergencies.index') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-100 dark:border-slate-700/50 transition-colors group">
+                    <a href="{{ route('admin.emergencies.index') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-slate-50 dark:bg-slate-800 dark:bg-slate-800/50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-800 border border-slate-100 dark:border-slate-800 dark:border-slate-700/50 transition-colors group">
                         <div class="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center group-hover:scale-110 transition-transform">
                             <i class="fas fa-truck-medical text-red-600 dark:text-red-400"></i>
                         </div>
                         <span class="text-xs font-medium text-slate-700 dark:text-slate-300">Emergencias</span>
                     </a>
-                    <a href="{{ route('admin.reports.index') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-100 dark:border-slate-700/50 transition-colors group">
+                    <a href="{{ route('admin.reports.index') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-slate-50 dark:bg-slate-800 dark:bg-slate-800/50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-800 border border-slate-100 dark:border-slate-800 dark:border-slate-700/50 transition-colors group">
                         <div class="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center group-hover:scale-110 transition-transform">
                             <i class="fas fa-chart-line text-purple-600 dark:text-purple-400"></i>
                         </div>
@@ -198,10 +198,10 @@
             </div>
 
             {{-- Estado de Camas Mini --}}
-            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5">
+            <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 p-5">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="font-semibold text-slate-900 dark:text-white">Estado de Camas</h3>
-                    <a href="{{ route('camas') }}" class="text-xs font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">
+                    <a href="{{ route('camas') }}" class="text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-300 dark:hover:text-slate-300">
                         Ver todas
                     </a>
                 </div>
@@ -222,7 +222,7 @@
                         <p class="text-lg font-bold text-emerald-600 dark:text-emerald-400">{{ ($camasTotal ?? 15) - ($camasOcupadas ?? 8) }}</p>
                         <p class="text-[10px] text-slate-500 dark:text-slate-400 uppercase">Libres</p>
                     </div>
-                    <div class="p-2 rounded-lg bg-slate-50 dark:bg-slate-800">
+                    <div class="p-2 rounded-lg bg-slate-50 dark:bg-slate-800 dark:bg-slate-800">
                         <p class="text-lg font-bold text-slate-600 dark:text-slate-400">{{ $camasTotal ?? 15 }}</p>
                         <p class="text-[10px] text-slate-500 dark:text-slate-400 uppercase">Total</p>
                     </div>
@@ -230,7 +230,7 @@
             </div>
 
             {{-- Actividad Reciente --}}
-            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5">
+            <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 p-5">
                 <h3 class="font-semibold text-slate-900 dark:text-white mb-4">Actividad Reciente</h3>
                 <div class="space-y-3">
                     <div class="flex items-start gap-3">
@@ -275,8 +275,8 @@
     </div>
 
     {{-- Novedades Activas --}}
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-        <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+    <div class="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 dark:border-slate-800 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center">
                     <i class="fas fa-clipboard-list text-white"></i>
@@ -290,7 +290,7 @@
                 <button class="px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors">
                     <i class="fas fa-filter mr-1"></i> Filtrar
                 </button>
-                <button class="px-3 py-1.5 text-xs font-medium text-white bg-slate-900 dark:bg-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 rounded-lg transition-colors">
+                <button class="px-3 py-1.5 text-xs font-medium text-white bg-slate-900 dark:bg-white dark:bg-slate-900 dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 dark:bg-slate-800 rounded-lg transition-colors">
                     <i class="fas fa-plus mr-1"></i> Nueva
                 </button>
             </div>
@@ -298,7 +298,7 @@
         <div class="overflow-x-auto">
             <table class="w-full">
                 <thead>
-                    <tr class="bg-slate-50 dark:bg-slate-800/50">
+                    <tr class="bg-slate-50 dark:bg-slate-800 dark:bg-slate-800/50">
                         <th class="px-6 py-3 text-left text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Bombero</th>
                         <th class="px-6 py-3 text-left text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Tipo</th>
                         <th class="px-6 py-3 text-left text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Motivo</th>
@@ -308,7 +308,7 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                    <tr class="hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-800/50 transition-colors">
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-700 to-slate-900 dark:from-slate-300 dark:to-slate-500 flex items-center justify-center text-white dark:text-slate-900 text-xs font-bold">PS</div>
@@ -323,7 +323,7 @@
                                 <i class="fas fa-calendar-check mr-1"></i> Permiso
                             </span>
                         </td>
-                        <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">Cita médica</td>
+                        <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 dark:text-slate-300">Cita médica</td>
                         <td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">12 Mar 2026</td>
                         <td class="px-6 py-4">
                             <span class="inline-flex items-center px-2 py-1 rounded-lg text-[10px] font-semibold uppercase bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
@@ -331,12 +331,12 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 text-right">
-                            <button class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                            <button class="p-2 text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-800 rounded-lg transition-colors">
                                 <i class="fas fa-ellipsis-h"></i>
                             </button>
                         </td>
                     </tr>
-                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                    <tr class="hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-800/50 transition-colors">
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-700 to-slate-900 dark:from-slate-300 dark:to-slate-500 flex items-center justify-center text-white dark:text-slate-900 text-xs font-bold">LV</div>
@@ -351,7 +351,7 @@
                                 <i class="fas fa-file-medical mr-1"></i> Licencia
                             </span>
                         </td>
-                        <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">Licencia médica 3 días</td>
+                        <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 dark:text-slate-300">Licencia médica 3 días</td>
                         <td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">10-13 Mar 2026</td>
                         <td class="px-6 py-4">
                             <span class="inline-flex items-center px-2 py-1 rounded-lg text-[10px] font-semibold uppercase bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">
@@ -359,7 +359,7 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 text-right">
-                            <button class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                            <button class="p-2 text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-800 rounded-lg transition-colors">
                                 <i class="fas fa-ellipsis-h"></i>
                             </button>
                         </td>

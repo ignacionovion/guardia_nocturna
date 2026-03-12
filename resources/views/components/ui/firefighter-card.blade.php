@@ -27,7 +27,7 @@ $colorClasses = [
     'purple' => 'border-purple-300 dark:border-purple-700 bg-purple-50/50 dark:bg-purple-900/10',
     'red' => 'border-red-300 dark:border-red-700 bg-red-50/50 dark:bg-red-900/10',
     'cyan' => 'border-cyan-300 dark:border-cyan-700 bg-cyan-50/50 dark:bg-cyan-900/10',
-    'slate' => 'border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30',
+    'slate' => 'border-slate-200 dark:border-slate-700 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 dark:bg-slate-800/30',
 ];
 $badgeColors = [
     'emerald' => 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
@@ -77,7 +77,7 @@ $badgeColors = [
                         </span>
                         @endif
                         @if(isset($volunteer->numero))
-                        <span class="text-xs text-slate-400 dark:text-slate-500">#{{ $volunteer->numero }}</span>
+                        <span class="text-xs text-slate-400 dark:text-slate-500 dark:text-slate-400">#{{ $volunteer->numero }}</span>
                         @endif
                     </div>
                 </div>
@@ -101,7 +101,7 @@ $badgeColors = [
     
     {{-- Actions --}}
     @if($showActions && isset($actions))
-    <div class="mt-3 pt-3 border-t border-slate-200/50 dark:border-slate-700/50 flex items-center gap-2">
+    <div class="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700/50 dark:border-slate-700/50 flex items-center gap-2">
         {{ $actions }}
     </div>
     @endif

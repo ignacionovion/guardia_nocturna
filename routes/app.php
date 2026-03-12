@@ -132,15 +132,7 @@ use App\Http\Controllers\NotificationController;
 Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
     Route::view('/guardia/fuera-de-servicio', 'guardia.off_duty')->name('guardia.off_duty');
     
-    // UI Preview - Nuevas vistas modernas
-    Route::get('/ui-preview', fn() => view('modern.dashboard'))->name('ui.preview');
-    Route::get('/ui/dashboard', fn() => view('modern.dashboard'))->name('ui.dashboard');
-    Route::get('/ui/guardia', fn() => view('modern.guardia.index'))->name('ui.guardia');
-    Route::get('/ui/camas', fn() => view('modern.camas.index'))->name('ui.camas');
-    Route::get('/ui/voluntarios', fn() => view('modern.voluntarios.index'))->name('ui.voluntarios');
-    Route::get('/ui/novedades', fn() => view('modern.novedades.index'))->name('ui.novedades');
-    Route::get('/ui/reportes', fn() => view('modern.reportes.index'))->name('ui.reportes');
-
+    
     // API de Notificaciones
     Route::get('/api/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/api/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread_count');

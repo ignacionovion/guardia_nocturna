@@ -70,7 +70,7 @@
                             <div class="text-lg font-extrabold text-white uppercase">{{ $identifiedBombero->apellido_paterno }}</div>
                             <div class="text-sm text-slate-300">{{ $identifiedBombero->nombres }}</div>
                             @if($identifiedBombero->cargo_texto)
-                                <div class="mt-1 text-xs font-semibold text-slate-500">{{ $identifiedBombero->cargo_texto }}</div>
+                                <div class="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">{{ $identifiedBombero->cargo_texto }}</div>
                             @endif
                         </div>
                         
@@ -83,7 +83,7 @@
                         <input type="text" name="rut" id="rutInput" required placeholder="Ej: 12345678-9" 
                             class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 font-semibold uppercase placeholder-slate-500"
                             pattern="[0-9]{7,8}-[0-9kK]" title="Formato: 12345678-5" maxlength="10">
-                        <div class="text-xs text-slate-500 mt-1">Formato: 12345678-5</div>
+                        <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Formato: 12345678-5</div>
 
                         <script>
                             (function() {
@@ -152,7 +152,7 @@
                                     <div class="text-lg font-extrabold text-white uppercase">{{ $identifiedBombero->apellido_paterno }}</div>
                                     <div class="text-sm text-slate-300">{{ $identifiedBombero->nombres }}</div>
                                     @if($identifiedBombero->cargo_texto)
-                                        <div class="mt-1 text-xs font-semibold text-slate-500">{{ $identifiedBombero->cargo_texto }}</div>
+                                        <div class="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">{{ $identifiedBombero->cargo_texto }}</div>
                                     @endif
                                 </div>
                                 @endif
@@ -205,7 +205,7 @@
                                                 </option>
                                             @endforeach
                                         </select>
-                                        <p class="text-[10px] text-slate-500 mt-2">El bombero seleccionado será marcado como reemplazado.</p>
+                                        <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-2">El bombero seleccionado será marcado como reemplazado.</p>
                                     </div>
 
                                     <button type="submit" class="w-full inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 px-6 rounded-xl text-sm transition-all shadow-lg hover:shadow-xl uppercase tracking-widest">
@@ -215,7 +215,7 @@
                                 </form>
 
                                 <div class="mt-4 text-center">
-                                    <a href="{{ route('preventivas.public.show', $event->public_token) }}" class="text-xs font-semibold text-slate-500 hover:text-slate-300 transition-colors">
+                                    <a href="{{ route('preventivas.public.show', $event->public_token) }}" class="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-300 transition-colors">
                                         <i class="fas fa-arrow-left mr-1"></i>
                                         Volver e ingresar otro RUT
                                     </a>
@@ -314,7 +314,7 @@
                                             <i class="fas fa-exchange-alt mr-1"></i>Reemplazado
                                         </div>
                                     @else
-                                        <div class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-widest bg-slate-100/10 text-slate-300 border border-white/10">Pendiente</div>
+                                        <div class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-widest bg-slate-100 dark:bg-slate-800/10 text-slate-300 border border-white/10">Pendiente</div>
                                     @endif
                                 </div>
                             </div>
@@ -324,7 +324,7 @@
             @endif
         </div>
 
-        <div class="mt-6 text-center text-xs text-slate-500">
+        <div class="mt-6 text-center text-xs text-slate-500 dark:text-slate-400">
             GuardiAPP
         </div>
     </div>

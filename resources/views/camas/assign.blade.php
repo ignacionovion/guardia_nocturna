@@ -11,7 +11,7 @@
                 <i class="fas fa-bed text-2xl text-cyan-400"></i>
             </div>
             <h1 class="text-2xl font-black text-slate-100 uppercase tracking-wider">Guardia Nocturna</h1>
-            <p class="text-slate-500 text-sm mt-2">Sistema de Asignación de Camas</p>
+            <p class="text-slate-500 dark:text-slate-400 text-sm mt-2">Sistema de Asignación de Camas</p>
         </div>
 
         {{-- Card --}}
@@ -24,7 +24,7 @@
                             <i class="fas fa-bed text-cyan-400"></i>
                         </div>
                         <div>
-                            <p class="text-xs text-slate-500 uppercase tracking-wider font-bold">Cama</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold">Cama</p>
                             <p class="text-lg font-black text-slate-100">#{{ $bed->number }}</p>
                         </div>
                     </div>
@@ -51,9 +51,9 @@
                         <i class="fas fa-user-check text-green-400"></i>
                     </div>
                     <div>
-                        <p class="text-xs text-slate-500 uppercase tracking-wider font-bold">Bombero</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold">Bombero</p>
                         <p class="text-sm font-bold text-slate-100">{{ $bombero->nombres }} {{ $bombero->apellido_paterno }}</p>
-                        <p class="text-xs text-slate-500">RUT: {{ $bombero->rut }}</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">RUT: {{ $bombero->rut }}</p>
                     </div>
                 </div>
             </div>
@@ -111,7 +111,7 @@
                     </button>
                 </form>
 
-                <a href="{{ route('camas.scan.form', ['bedId' => $bed->id, 'reset' => 1]) }}" class="block text-center mt-4 text-sm text-slate-500 hover:text-slate-300 transition-colors">
+                <a href="{{ route('camas.scan.form', ['bedId' => $bed->id, 'reset' => 1]) }}" class="block text-center mt-4 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-300 transition-colors">
                     <i class="fas fa-rotate-left mr-1"></i> Cancelar y cambiar RUT
                 </a>
             </div>
@@ -119,7 +119,7 @@
 
         {{-- Info --}}
         <div class="mt-6 text-center">
-            <p class="text-xs text-slate-600">
+            <p class="text-xs text-slate-600 dark:text-slate-400">
                 <i class="fas fa-shield-alt mr-1"></i>
                 Sistema de Guardia Nocturna
             </p>

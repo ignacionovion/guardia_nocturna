@@ -1,20 +1,20 @@
-@extends('layouts.app')
+@extends('layouts.modern')
 
 @section('content')
 <div class="w-full py-4">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-            <div class="text-xs font-black uppercase tracking-widest text-slate-500">Inventario</div>
+            <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Inventario</div>
             <div class="text-2xl font-extrabold text-slate-900">QR fijo</div>
-            <div class="text-sm text-slate-600 mt-1">Escanea para ir directo al formulario de retiro.</div>
+            <div class="text-sm text-slate-600 dark:text-slate-400 mt-1">Escanea para ir directo al formulario de retiro.</div>
         </div>
 
         <div class="flex items-center gap-2">
-            <a href="{{ route('inventario.config.form') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs">
+            <a href="{{ route('inventario.config.form') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white font-bold text-xs">
                 <i class="fas fa-gear"></i>
                 Configuración
             </a>
-            <a href="{{ route('inventario.qr.print') }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-extrabold text-xs">
+            <a href="{{ route('inventario.qr.print') }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white font-extrabold text-xs">
                 <i class="fas fa-print"></i>
                 Imprimir
             </a>
@@ -28,17 +28,17 @@
         </div>
     </div>
 
-    <div class="mt-6 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="p-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100">
-            <div class="text-xs font-black uppercase tracking-widest text-slate-600">Enlace</div>
-            <div class="text-sm text-slate-700 mt-1 break-all font-mono">{{ $url }}</div>
+    <div class="mt-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-slate-50 to-slate-100">
+            <div class="text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">Enlace</div>
+            <div class="text-sm text-slate-700 dark:text-slate-300 mt-1 break-all font-mono">{{ $url }}</div>
         </div>
 
-        <div class="p-10 flex flex-col items-center bg-slate-50">
+        <div class="p-10 flex flex-col items-center bg-slate-50 dark:bg-slate-800">
             {{-- QR Container --}}
             <div class="relative">
                 {{-- Main QR Card --}}
-                <div class="relative bg-white p-8 rounded-3xl border-2 border-slate-800 shadow-xl">
+                <div class="relative bg-white dark:bg-slate-900 p-8 rounded-3xl border-2 border-slate-800 shadow-xl">
                     <div class="relative">
                         {!! $qrSvg !!}
                     </div>
@@ -53,8 +53,8 @@
             
             {{-- Instructions --}}
             <div class="mt-6 text-center">
-                <p class="text-lg font-bold text-slate-800">Escanea para acceder al retiro</p>
-                <p class="text-sm text-slate-500 mt-1 font-medium">Inventario • Guardia Nocturna</p>
+                <p class="text-lg font-bold text-slate-800 dark:text-white">Escanea para acceder al retiro</p>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">Inventario • Guardia Nocturna</p>
             </div>
             
             {{-- Decorative Line --}}

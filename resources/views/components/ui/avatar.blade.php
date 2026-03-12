@@ -29,7 +29,7 @@ $initials = collect(explode(' ', $name))->map(fn($w) => strtoupper(substr($w, 0,
     @if($src)
     <img src="{{ $src }}" alt="{{ $name }}" {{ $attributes->merge(['class' => 'rounded-full object-cover ' . $sizeClass]) }}>
     @else
-    <div {{ $attributes->merge(['class' => 'rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center font-semibold text-slate-600 dark:text-slate-300 ' . $sizeClass]) }}>
+    <div {{ $attributes->merge(['class' => 'rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center font-semibold text-slate-600 dark:text-slate-400 dark:text-slate-300 ' . $sizeClass]) }}>
         {{ $initials ?: '?' }}
     </div>
     @endif

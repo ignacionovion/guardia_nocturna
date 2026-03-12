@@ -1,12 +1,12 @@
-@extends('layouts.app')
+@extends('layouts.modern')
 
 @section('content')
 <div class="w-full py-4">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-            <div class="text-xs font-black uppercase tracking-widest text-slate-500">Planillas</div>
+            <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Planillas</div>
             <div class="text-2xl font-extrabold text-slate-900">Historial</div>
-            <div class="text-sm text-slate-600 mt-1">Registro semanal de revisión de unidades.</div>
+            <div class="text-sm text-slate-600 dark:text-slate-400 mt-1">Registro semanal de revisión de unidades.</div>
         </div>
 
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
@@ -15,11 +15,11 @@
                 Nueva planilla
             </a>
             @if(auth()->check() && auth()->user()->role === 'super_admin')
-                <a href="{{ route('admin.planillas.listados.index') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-extrabold text-[11px] uppercase tracking-widest">
+                <a href="{{ route('admin.planillas.listados.index') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white font-extrabold text-[11px] uppercase tracking-widest">
                     <i class="fas fa-list-check"></i>
                     Editar listados
                 </a>
-                <a href="{{ route('admin.planillas.qr_fijo') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-extrabold text-[11px] uppercase tracking-widest">
+                <a href="{{ route('admin.planillas.qr_fijo') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white font-extrabold text-[11px] uppercase tracking-widest">
                     <i class="fas fa-qrcode"></i>
                     QR fijo
                 </a>
@@ -33,13 +33,13 @@
         </div>
     @endif
 
-    <div class="mt-6 bg-white rounded-2xl border border-teal-900/20 shadow-sm overflow-hidden">
+    <div class="mt-6 bg-white dark:bg-slate-900 rounded-2xl border border-teal-900/20 shadow-sm overflow-hidden">
         <div class="p-6 border-b border-teal-900/20 bg-sky-100">
             <form method="GET" class="flex flex-col md:flex-row md:items-end gap-4">
                 <div class="flex-1">
-                    <div class="text-xs font-black uppercase tracking-widest text-slate-600 mb-2">Filtrar por unidad</div>
+                    <div class="text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-2">Filtrar por unidad</div>
                     <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-                        <select name="unidad" class="w-full sm:w-56 px-3 py-2 border border-slate-200 rounded-lg bg-white text-slate-800 font-semibold text-sm">
+                        <select name="unidad" class="w-full sm:w-56 px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-semibold text-sm">
                             <option value="">Todas</option>
                             @foreach($unidades as $u)
                                 <option value="{{ $u }}" {{ ($unidadSeleccionada ?? '') === $u ? 'selected' : '' }}>{{ $u }}</option>
@@ -48,7 +48,7 @@
                         <button type="submit" class="w-full sm:w-auto px-5 py-2 rounded-lg bg-slate-900 hover:bg-black text-white font-black text-[11px] uppercase tracking-widest">
                             Filtrar
                         </button>
-                        <a href="{{ route('admin.planillas.index') }}" class="w-full sm:w-auto px-5 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-extrabold text-[11px] uppercase tracking-widest text-center">
+                        <a href="{{ route('admin.planillas.index') }}" class="w-full sm:w-auto px-5 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-extrabold text-[11px] uppercase tracking-widest text-center">
                             Limpiar
                         </a>
                     </div>
@@ -59,7 +59,7 @@
         <div class="overflow-x-auto">
             <table class="min-w-full text-sm">
                 <thead class="bg-sky-50 border-b border-teal-900/20">
-                    <tr class="text-xs font-black uppercase tracking-widest text-slate-700">
+                    <tr class="text-xs font-black uppercase tracking-widest text-slate-700 dark:text-slate-300">
                         <th class="text-left px-6 py-3">Fecha</th>
                         <th class="text-left px-6 py-3">Unidad</th>
                         <th class="text-left px-6 py-3">Estado</th>
@@ -71,7 +71,7 @@
                     @forelse($planillas as $p)
                         <tr class="hover:bg-sky-50">
                             <td class="px-6 py-4 font-bold text-slate-900">{{ $p->fecha_revision?->format('d-m-Y H:i') }}</td>
-                            <td class="px-6 py-4 text-slate-700 font-bold">{{ $p->unidad }}</td>
+                            <td class="px-6 py-4 text-slate-700 dark:text-slate-300 font-bold">{{ $p->unidad }}</td>
                             <td class="px-6 py-4">
                                 <form method="POST" action="{{ route('admin.planillas.estado.update', $p) }}" class="inline">
                                     @csrf
@@ -82,7 +82,7 @@
                                     </select>
                                 </form>
                             </td>
-                            <td class="px-6 py-4 text-slate-700">{{ $p->creador?->name ?? trim((string)($p->bombero?->nombres ?? '') . ' ' . (string)($p->bombero?->apellido_paterno ?? '')) ?: '—' }}</td>
+                            <td class="px-6 py-4 text-slate-700 dark:text-slate-300">{{ $p->creador?->name ?? trim((string)($p->bombero?->nombres ?? '') . ' ' . (string)($p->bombero?->apellido_paterno ?? '')) ?: '—' }}</td>
                             <td class="px-6 py-4 text-right">
                                 <div class="inline-flex items-center gap-2">
                                     @if(($p->estado ?? '') !== 'finalizado')
@@ -91,7 +91,7 @@
                                             Continuar
                                         </a>
                                     @endif
-                                    <a href="{{ route('admin.planillas.show', $p) }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs">
+                                    <a href="{{ route('admin.planillas.show', $p) }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white font-bold text-xs">
                                         <i class="fas fa-eye"></i>
                                         Ver
                                     </a>
@@ -114,40 +114,40 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-6 py-10 text-center text-slate-500">No hay planillas registradas.</td>
+                            <td colspan="5" class="px-6 py-10 text-center text-slate-500 dark:text-slate-400">No hay planillas registradas.</td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
 
-        <div class="px-6 py-4 border-t border-slate-200 bg-slate-50">
+        <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
             {{ $planillas->links() }}
         </div>
     </div>
 
     {{-- Sección Historial --}}
     <div class="mt-8">
-        <div class="text-xs font-black uppercase tracking-widest text-slate-500 mb-4">Historial de Actividad</div>
+        <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-4">Historial de Actividad</div>
         
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {{-- Grid 1: Planillas Semanales por Guardia --}}
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div class="p-4 border-b border-slate-200 bg-emerald-50">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-slate-200 dark:border-slate-700 bg-emerald-50">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <i class="fas fa-clipboard-check text-emerald-600"></i>
                             <div class="text-sm font-extrabold text-slate-900">Planillas Semanales</div>
                         </div>
-                        <span class="text-xs text-slate-500">{{ $inicioSemana->format('d/m') }} - {{ $finSemana->format('d/m') }}</span>
+                        <span class="text-xs text-slate-500 dark:text-slate-400">{{ $inicioSemana->format('d/m') }} - {{ $finSemana->format('d/m') }}</span>
                     </div>
                 </div>
                 <div class="p-4">
                     <div class="space-y-3">
                         @foreach($planillasPorGuardia as $pg)
-                            <div class="flex items-center justify-between p-3 rounded-xl {{ $pg['completo'] ? 'bg-emerald-50 border border-emerald-100' : 'bg-slate-50 border border-slate-100' }}">
+                            <div class="flex items-center justify-between p-3 rounded-xl {{ $pg['completo'] ? 'bg-emerald-50 border border-emerald-100' : 'bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-800' }}">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-full {{ $pg['completo'] ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-500' }} flex items-center justify-center text-xs font-bold">
+                                    <div class="w-8 h-8 rounded-full {{ $pg['completo'] ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-500 dark:text-slate-400' }} flex items-center justify-center text-xs font-bold">
                                         @if($pg['completo'])
                                             <i class="fas fa-check"></i>
                                         @else
@@ -155,7 +155,7 @@
                                         @endif
                                     </div>
                                     <div>
-                                        <div class="text-sm font-bold text-slate-800">{{ $pg['guardia']->name }}</div>
+                                        <div class="text-sm font-bold text-slate-800 dark:text-white">{{ $pg['guardia']->name }}</div>
                                         <div class="text-xs {{ $pg['completo'] ? 'text-emerald-600' : 'text-amber-600' }}">
                                             {{ $pg['completadas'] }}/{{ $pg['total'] }} planillas
                                         </div>
@@ -177,8 +177,8 @@
                             </div>
                         @endforeach
                     </div>
-                    <div class="mt-4 pt-3 border-t border-slate-100">
-                        <div class="flex items-center gap-4 text-xs text-slate-500">
+                    <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+                        <div class="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
                             <div class="flex items-center gap-1">
                                 <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
                                 <span>Completado</span>
@@ -193,17 +193,17 @@
             </div>
 
             {{-- Grid 2: Bitácora / Nuevos Items --}}
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div class="p-4 border-b border-slate-200 bg-slate-50">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
                     <div class="flex items-center gap-2">
-                        <i class="fas fa-clipboard-list text-slate-600"></i>
+                        <i class="fas fa-clipboard-list text-slate-600 dark:text-slate-400"></i>
                         <div class="text-sm font-extrabold text-slate-900">Bitácora - Novedades (Últimos 7 días)</div>
                     </div>
                 </div>
                 <div class="overflow-x-auto max-h-96 overflow-y-auto">
                     <table class="min-w-full text-sm">
-                        <thead class="bg-slate-50 border-b border-slate-200 sticky top-0">
-                            <tr class="text-xs font-black uppercase tracking-widest text-slate-600">
+                        <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0">
+                            <tr class="text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">
                                 <th class="text-left px-4 py-2">Fecha</th>
                                 <th class="text-left px-4 py-2">Tipo</th>
                                 <th class="text-left px-4 py-2">Descripción</th>
@@ -212,8 +212,8 @@
                         </thead>
                         <tbody class="divide-y divide-slate-100">
                             @forelse($bitacora as $item)
-                                <tr class="hover:bg-slate-50">
-                                    <td class="px-4 py-3 text-xs text-slate-600">{{ $item['fecha']?->format('d/m H:i') }}</td>
+                                <tr class="hover:bg-slate-50 dark:bg-slate-800">
+                                    <td class="px-4 py-3 text-xs text-slate-600 dark:text-slate-400">{{ $item['fecha']?->format('d/m H:i') }}</td>
                                     <td class="px-4 py-3">
                                         <span class="px-2 py-1 rounded text-xs font-bold uppercase
                                             {{ $item['tipo'] === 'Planilla' ? 'bg-purple-100 text-purple-800' : '' }}
@@ -230,11 +230,11 @@
                                             {{ $item['descripcion'] }}
                                         @endif
                                     </td>
-                                    <td class="px-4 py-3 text-xs text-slate-600">{{ $item['usuario'] }}</td>
+                                    <td class="px-4 py-3 text-xs text-slate-600 dark:text-slate-400">{{ $item['usuario'] }}</td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="px-4 py-8 text-center text-slate-500 text-sm">No hay registros nuevos</td>
+                                    <td colspan="4" class="px-4 py-8 text-center text-slate-500 dark:text-slate-400 text-sm">No hay registros nuevos</td>
                                 </tr>
                             @endforelse
                         </tbody>

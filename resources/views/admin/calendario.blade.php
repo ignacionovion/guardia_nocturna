@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.modern')
 
 @section('content')
     {{-- Header --}}
@@ -10,20 +10,20 @@
                 </div>
                 <div>
                     <h1 class="text-2xl font-black text-slate-900 tracking-tight">Calendario de Guardias</h1>
-                    <p class="text-slate-500 text-sm">Planificación semanal y asignación de dotaciones</p>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm">Planificación semanal y asignación de dotaciones</p>
                 </div>
             </div>
 
             {{-- Month/Year Selector --}}
-            <form action="{{ route('admin.calendario') }}" method="GET" class="flex items-center gap-2 bg-white p-1.5 rounded-xl shadow-sm border border-slate-200">
-                <select name="month" class="px-3 py-2 bg-slate-50 border-0 rounded-lg text-sm font-semibold text-slate-700 cursor-pointer hover:bg-slate-100 transition-colors focus:ring-2 focus:ring-blue-500">
+            <form action="{{ route('admin.calendario') }}" method="GET" class="flex items-center gap-2 bg-white dark:bg-slate-900 p-1.5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+                <select name="month" class="px-3 py-2 bg-slate-50 dark:bg-slate-800 border-0 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:bg-slate-800 transition-colors focus:ring-2 focus:ring-blue-500">
                     @foreach(range(1, 12) as $m)
                         <option value="{{ $m }}" {{ $month == $m ? 'selected' : '' }}>
                             {{ ucfirst(\Carbon\Carbon::create()->month($m)->locale('es')->monthName) }}
                         </option>
                     @endforeach
                 </select>
-                <select name="year" class="px-3 py-2 bg-slate-50 border-0 rounded-lg text-sm font-semibold text-slate-700 cursor-pointer hover:bg-slate-100 transition-colors focus:ring-2 focus:ring-blue-500">
+                <select name="year" class="px-3 py-2 bg-slate-50 dark:bg-slate-800 border-0 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:bg-slate-800 transition-colors focus:ring-2 focus:ring-blue-500">
                     @foreach(range(now()->year - 2, now()->year + 1) as $y)
                         <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>{{ $y }}</option>
                     @endforeach
@@ -38,7 +38,7 @@
     {{-- Action Cards --}}
     <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {{-- Asignar Rango --}}
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div class="bg-slate-900 px-6 py-4 border-b border-slate-800">
                 <h2 class="text-white font-black text-sm uppercase tracking-wider flex items-center gap-2">
                     <i class="fas fa-calendar-plus"></i>
@@ -51,29 +51,29 @@
                     
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Fecha Inicio</label>
+                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Fecha Inicio</label>
                             <div class="relative">
                                 <i class="fas fa-calendar absolute left-3 top-3 text-slate-400 text-sm"></i>
                                 <input type="date" name="from" required 
-                                    class="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:bg-white focus:border-slate-500 focus:ring-2 focus:ring-slate-200 transition-all">
+                                    class="w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 focus:bg-white dark:bg-slate-900 focus:border-slate-500 focus:ring-2 focus:ring-slate-200 transition-all">
                             </div>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Fecha Fin</label>
+                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Fecha Fin</label>
                             <div class="relative">
                                 <i class="fas fa-calendar absolute left-3 top-3 text-slate-400 text-sm"></i>
                                 <input type="date" name="to" required 
-                                    class="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:bg-white focus:border-slate-500 focus:ring-2 focus:ring-slate-200 transition-all">
+                                    class="w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 focus:bg-white dark:bg-slate-900 focus:border-slate-500 focus:ring-2 focus:ring-slate-200 transition-all">
                             </div>
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Guardia Asignada</label>
+                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Guardia Asignada</label>
                         <div class="relative">
                             <i class="fas fa-shield absolute left-3 top-3 text-slate-400 text-sm"></i>
                             <select name="guardia_id" required 
-                                class="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:bg-white focus:border-slate-500 focus:ring-2 focus:ring-slate-200 transition-all appearance-none">
+                                class="w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 focus:bg-white dark:bg-slate-900 focus:border-slate-500 focus:ring-2 focus:ring-slate-200 transition-all appearance-none">
                                 @foreach($guardias as $g)
                                     <option value="{{ $g->id }}">{{ $g->name }}</option>
                                 @endforeach
@@ -83,14 +83,14 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Días de la Semana</label>
+                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Días de la Semana</label>
                         <div class="grid grid-cols-4 sm:grid-cols-7 gap-2">
                             @foreach([
                                 ['1', 'Lun'], ['2', 'Mar'], ['3', 'Mié'], ['4', 'Jue'], ['5', 'Vie'], ['6', 'Sáb'], ['0', 'Dom']
                             ] as [$val, $label])
                                 <label class="cursor-pointer">
                                     <input type="checkbox" name="weekdays[]" value="{{ $val }}" checked class="peer sr-only">
-                                    <span class="inline-flex w-full items-center justify-center h-10 rounded-lg bg-slate-100 text-slate-600 text-xs font-bold uppercase border border-slate-200 peer-checked:bg-slate-900 peer-checked:text-white peer-checked:border-slate-900 transition-all hover:bg-slate-200">
+                                    <span class="inline-flex w-full items-center justify-center h-10 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-bold uppercase border border-slate-200 dark:border-slate-700 peer-checked:bg-slate-900 peer-checked:text-white peer-checked:border-slate-900 transition-all hover:bg-slate-200">
                                         {{ $label }}
                                     </span>
                                 </label>
@@ -107,7 +107,7 @@
         </div>
 
         {{-- Generar Rotación --}}
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div class="bg-slate-900 px-6 py-4 border-b border-slate-800">
                 <h2 class="text-white font-black text-sm uppercase tracking-wider flex items-center gap-2">
                     <i class="fas fa-sync-alt"></i>
@@ -120,36 +120,36 @@
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Domingo Inicio</label>
+                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Domingo Inicio</label>
                             <div class="relative">
                                 <i class="fas fa-play-circle absolute left-3 top-3 text-slate-400 text-sm"></i>
                                 <input type="date" name="start_sunday" required 
-                                    class="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:bg-white focus:border-slate-500 focus:ring-2 focus:ring-slate-200 transition-all">
+                                    class="w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 focus:bg-white dark:bg-slate-900 focus:border-slate-500 focus:ring-2 focus:ring-slate-200 transition-all">
                             </div>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Hasta (Opcional)</label>
+                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Hasta (Opcional)</label>
                             <div class="relative">
                                 <i class="fas fa-stop-circle absolute left-3 top-3 text-slate-400 text-sm"></i>
                                 <input type="date" name="end_date" 
-                                    class="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:bg-white focus:border-slate-500 focus:ring-2 focus:ring-slate-200 transition-all">
+                                    class="w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 focus:bg-white dark:bg-slate-900 focus:border-slate-500 focus:ring-2 focus:ring-slate-200 transition-all">
                             </div>
                             <p class="text-[10px] text-slate-400 mt-1">Vacío = hasta fin de año</p>
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Orden de Rotación</label>
+                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Orden de Rotación</label>
                         <div class="space-y-2">
                             @foreach($guardias as $index => $g)
-                                <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                                <div class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
                                     <div class="w-8 h-8 rounded-lg bg-slate-700 text-white flex items-center justify-center text-xs font-black">
                                         {{ $index + 1 }}
                                     </div>
-                                    <span class="text-sm font-semibold text-slate-700">Semana {{ $index + 1 }}</span>
+                                    <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Semana {{ $index + 1 }}</span>
                                     <div class="flex-1">
                                         <select name="guardia_ids[]" required 
-                                            class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:border-slate-500 focus:ring-2 focus:ring-slate-200">
+                                            class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-300 focus:border-slate-500 focus:ring-2 focus:ring-slate-200">
                                             @foreach($guardias as $optionG)
                                                 <option value="{{ $optionG->id }}" {{ $g->id === $optionG->id ? 'selected' : '' }}>{{ $optionG->name }}</option>
                                             @endforeach
@@ -160,16 +160,16 @@
                         </div>
                     </div>
 
-                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                    <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
                         <label class="flex items-start gap-3 cursor-pointer">
-                            <input type="checkbox" name="send_email" value="1" class="mt-0.5 rounded text-slate-700 focus:ring-slate-500 h-4 w-4">
+                            <input type="checkbox" name="send_email" value="1" class="mt-0.5 rounded text-slate-700 dark:text-slate-300 focus:ring-slate-500 h-4 w-4">
                             <div>
-                                <div class="text-sm font-bold text-slate-700">Enviar resumen por correo</div>
-                                <div class="text-xs text-slate-500 mt-0.5">Se enviará el detalle de la rotación generada</div>
+                                <div class="text-sm font-bold text-slate-700 dark:text-slate-300">Enviar resumen por correo</div>
+                                <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Se enviará el detalle de la rotación generada</div>
                             </div>
                         </label>
                         <input type="text" name="email_recipients" 
-                            class="w-full mt-3 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-700 placeholder:text-slate-400"
+                            class="w-full mt-3 px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-700 dark:text-slate-300 placeholder:text-slate-400"
                             placeholder="usuario@ejemplo.com, otro@ejemplo.com">
                     </div>
 
@@ -183,7 +183,7 @@
     </div>
 
     {{-- Calendar Grid --}}
-    <div class="max-w-7xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+    <div class="max-w-7xl mx-auto bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
         @php
             $guardiaPalette = [
                 ['dot' => 'bg-blue-500', 'badge' => 'bg-blue-50 text-blue-700 border-blue-200', 'icon' => 'text-blue-600', 'card' => 'from-blue-500 to-blue-600', 'cardShadow' => 'shadow-blue-200', 'count' => 'text-blue-600'],
@@ -220,10 +220,10 @@
         </div>
 
         {{-- Weekday Headers --}}
-        <div class="grid grid-cols-7 bg-slate-50 border-b border-slate-200">
+        <div class="grid grid-cols-7 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
             @foreach(['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'] as $dayName)
-                <div class="px-1 py-2 sm:px-2 sm:py-3 text-center border-r border-slate-200 last:border-r-0">
-                    <div class="text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-wider">{{ $dayName }}</div>
+                <div class="px-1 py-2 sm:px-2 sm:py-3 text-center border-r border-slate-200 dark:border-slate-700 last:border-r-0">
+                    <div class="text-[9px] sm:text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ $dayName }}</div>
                 </div>
             @endforeach
         </div>
@@ -244,9 +244,9 @@
                     $isCurrentMonth = $cursor->month === $startOfMonth->month;
                     $isToday = $cursor->toDateString() === now()->toDateString();
                 @endphp
-                <div class="bg-white min-h-[60px] sm:min-h-[120px] p-1.5 sm:p-3 relative {{ !$isCurrentMonth ? 'bg-slate-50/70' : '' }} {{ $isToday ? 'ring-2 ring-inset ring-red-500' : '' }}">
+                <div class="bg-white dark:bg-slate-900 min-h-[60px] sm:min-h-[120px] p-1.5 sm:p-3 relative {{ !$isCurrentMonth ? 'bg-slate-50 dark:bg-slate-800/70' : '' }} {{ $isToday ? 'ring-2 ring-inset ring-red-500' : '' }}">
                     <div class="flex justify-between items-start mb-1 sm:mb-2">
-                        <span class="text-sm sm:text-lg font-black {{ $isCurrentMonth ? 'text-slate-800' : 'text-slate-300' }} {{ $isToday ? 'w-6 h-6 sm:w-8 sm:h-8 bg-red-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-base' : '' }}">
+                        <span class="text-sm sm:text-lg font-black {{ $isCurrentMonth ? 'text-slate-800 dark:text-white' : 'text-slate-300' }} {{ $isToday ? 'w-6 h-6 sm:w-8 sm:h-8 bg-red-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-base' : '' }}">
                             {{ $cursor->day }}
                         </span>
                         @if($isToday)
@@ -277,15 +277,15 @@
                 $daysCount = $calendarDays->filter(fn($d) => $d->guardia_id === $g->id)->count();
                 $summaryColors = $guardiaColors[$g->id] ?? $guardiaPalette[0];
             @endphp
-            <div class="bg-white rounded-xl border border-slate-200 p-4 flex items-center gap-4 shadow-sm">
+            <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-4 flex items-center gap-4 shadow-sm">
                 <div class="w-12 h-12 rounded-xl bg-gradient-to-br {{ $summaryColors['card'] }} text-white flex items-center justify-center shadow-lg {{ $summaryColors['cardShadow'] }}">
                     <i class="fas fa-shield text-lg"></i>
                 </div>
                 <div class="flex-1">
-                    <div class="text-base font-black text-slate-800">{{ $g->name }}</div>
+                    <div class="text-base font-black text-slate-800 dark:text-white">{{ $g->name }}</div>
                     <div class="flex items-center gap-2 mt-0.5">
                         <span class="text-2xl font-black {{ $summaryColors['count'] }}">{{ $daysCount }}</span>
-                        <span class="text-xs text-slate-500">días asignados</span>
+                        <span class="text-xs text-slate-500 dark:text-slate-400">días asignados</span>
                     </div>
                 </div>
                 <div class="text-right">
