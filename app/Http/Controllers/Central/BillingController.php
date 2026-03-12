@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Central;
 
 use App\Http\Controllers\Controller;
 use App\Models\Billing;
+use App\Models\Plan;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -21,7 +22,7 @@ class BillingController extends Controller
             'pagos_pendientes' => Billing::pendientes()->count(),
             'por_vencer' => Billing::porVencer(7)->count(),
             'vencidos' => Billing::vencidos()->count(),
-            'ingresos_estimados' => Billing::whereIn('estado_pago', ['pagado', 'pendiente'])->sum('monto'),
+            'ingresos_estimados' => Billing::whereIn('estado_pago', ['pagado', 'pendiente', 'trial'])->sum('monto'),
         ];
 
         $billings = Billing::with('tenant')
@@ -84,21 +85,28 @@ class BillingController extends Controller
     public function changePlan(Request $request, Billing $billing)
     {
         $validated = $request->validate([
-            'plan' => ['required', 'string', 'in:basico,profesional,enterprise'],
-            'monto' => ['required', 'numeric', 'min' => 0],
+            'plan' => ['required', 'string', 'in:basico,profesional,enterprise,trial'],
         ]);
+
+        // Get plan price automatically
+        $plan = Plan::where('slug', $validated['plan'])->first();
+        $nuevoMonto = $plan?->precio_mensual ?? 0;
+        $montoAnterior = $billing->monto;
 
         $billing->update([
             'plan' => $validated['plan'],
-            'monto' => $validated['monto'],
+            'monto' => $nuevoMonto,
         ]);
 
         // Update tenant plan as well
-        $billing->tenant->update(['plan' => $validated['plan']]);
+        $billing->tenant->update([
+            'plan' => $validated['plan'],
+            'plan_id' => $plan?->id,
+        ]);
 
         return redirect()
             ->route('central.billing.index')
-            ->with('success', 'Plan actualizado correctamente.');
+            ->with('success', "Plan cambiado a {$validated['plan']}. Monto actualizado: \${$montoAnterior} → \${$nuevoMonto}");
     }
 
     /**

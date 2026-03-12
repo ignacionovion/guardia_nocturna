@@ -35,6 +35,18 @@
             </div>
         </div>
 
+        <div class="bg-white rounded-xl border border-blue-200 p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-slate-600">En Trial</p>
+                    <p class="text-2xl font-bold text-blue-600">{{ Billing::trial()->count() }}</p>
+                </div>
+                <div class="bg-blue-100 p-3 rounded-lg">
+                    <i class="fas fa-gift text-blue-600"></i>
+                </div>
+            </div>
+        </div>
+
         <div class="bg-white rounded-xl border border-amber-200 p-4">
             <div class="flex items-center justify-between">
                 <div>
@@ -153,7 +165,7 @@
                                         <i class="fas fa-calendar-plus"></i>
                                     </button>
 
-                                    <button onclick="openPlanModal({{ $billing->id }}, '{{ $billing->plan }}', {{ $billing->monto }})" class="text-purple-600 hover:text-purple-700 p-1" title="Cambiar plan">
+                                    <button onclick="openPlanModal({{ $billing->id }}, '{{ $billing->plan }}')" class="text-purple-600 hover:text-purple-700 p-1" title="Cambiar plan">
                                         <i class="fas fa-exchange-alt"></i>
                                     </button>
 
@@ -262,11 +274,9 @@
                         @foreach($planes as $plan)
                             <option value="{{ $plan }}">{{ ucfirst($plan) }}</option>
                         @endforeach
+                        <option value="trial">Trial</option>
                     </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Monto</label>
-                    <input type="number" name="monto" id="plan-monto" class="w-full rounded-lg border-slate-300" required min="0">
+                    <p class="text-xs text-slate-500 mt-1">El monto se actualizará automáticamente según el plan seleccionado.</p>
                 </div>
             </div>
             <div class="flex justify-end gap-3 mt-6">
@@ -314,10 +324,9 @@ function closeExtendModal() {
     document.getElementById('extend-modal').classList.add('hidden');
 }
 
-function openPlanModal(billingId, currentPlan, currentMonto) {
+function openPlanModal(billingId, currentPlan) {
     document.getElementById('plan-form').action = `/admin/billing/${billingId}/change-plan`;
     document.getElementById('plan-select').value = currentPlan;
-    document.getElementById('plan-monto').value = currentMonto;
     document.getElementById('plan-modal').classList.remove('hidden');
 }
 

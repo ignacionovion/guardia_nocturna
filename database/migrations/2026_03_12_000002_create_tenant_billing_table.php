@@ -13,15 +13,17 @@ return new class extends Migration
             $table->string('tenant_id');
             $table->string('plan')->default('basico');
             $table->decimal('monto', 10, 2)->default(0);
-            $table->enum('estado_pago', ['pagado', 'pendiente', 'vencido', 'suspendido'])->default('pendiente');
+            $table->enum('estado_pago', ['pagado', 'pendiente', 'vencido', 'suspendido', 'trial'])->default('pendiente');
             $table->date('fecha_vencimiento')->nullable();
             $table->date('fecha_ultimo_pago')->nullable();
+            $table->date('trial_ends_at')->nullable();
             $table->text('observacion')->nullable();
             $table->timestamps();
 
             $table->foreign('tenant_id')->references('id')->on('tenants')->onDelete('cascade');
             $table->index(['tenant_id', 'estado_pago']);
             $table->index('fecha_vencimiento');
+            $table->index('trial_ends_at');
         });
     }
 

@@ -21,6 +21,7 @@ class Billing extends Model
         'estado_pago',
         'fecha_vencimiento',
         'fecha_ultimo_pago',
+        'trial_ends_at',
         'observacion',
     ];
 
@@ -28,6 +29,7 @@ class Billing extends Model
         'monto' => 'decimal:2',
         'fecha_vencimiento' => 'date',
         'fecha_ultimo_pago' => 'date',
+        'trial_ends_at' => 'date',
     ];
 
     public function tenant(): BelongsTo
@@ -58,6 +60,34 @@ class Billing extends Model
     {
         return $query->where('fecha_vencimiento', '<=', now()->addDays($dias))
             ->where('fecha_vencimiento', '>=', now());
+    }
+
+    /**
+     * Scope for trial status
+     */
+    public function scopeTrial($query)
+    {
+        return $query->where('estado_pago', 'trial');
+    }
+
+    /**
+     * Check if trial has ended
+     */
+    public function trialTerminado(): bool
+    {
+        return $this->trial_ends_at && $this->trial_ends_at->isPast();
+    }
+
+    /**
+     * End trial and convert to pending
+     */
+    public function finalizarTrial(): void
+    {
+        $this->update([
+            'estado_pago' => 'pendiente',
+            'fecha_vencimiento' => now()->addDays(30),
+            'trial_ends_at' => null,
+        ]);
     }
 
     /**
@@ -116,6 +146,7 @@ class Billing extends Model
             'pendiente' => 'yellow',
             'vencido' => 'red',
             'suspendido' => 'gray',
+            'trial' => 'blue',
             default => 'gray',
         };
     }
@@ -130,6 +161,7 @@ class Billing extends Model
             'pendiente' => 'bg-yellow-100 text-yellow-800 border-yellow-200',
             'vencido' => 'bg-red-100 text-red-800 border-red-200',
             'suspendido' => 'bg-gray-100 text-gray-800 border-gray-200',
+            'trial' => 'bg-blue-100 text-blue-800 border-blue-200',
             default => 'bg-gray-100 text-gray-800 border-gray-200',
         };
     }

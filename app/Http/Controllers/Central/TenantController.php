@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Central;
 
 use App\Http\Controllers\Controller;
+use App\Models\Billing;
 use App\Models\Body;
 use App\Models\CentralAuditLog;
 use App\Models\Plan;
@@ -95,6 +96,30 @@ class TenantController extends Controller
                 'fecha_vencimiento' => $validated['fecha_vencimiento'] ?? null,
             ]);
             $steps[] = '✓ Registro tenant creado';
+
+            // Step 1b: Create billing record automatically
+            try {
+                $isTrial = $validated['plan'] === 'trial' || $request->boolean('trial');
+                $planPrice = $plan?->precio_mensual ?? 0;
+                
+                Billing::create([
+                    'tenant_id' => $tenant->id,
+                    'plan' => $validated['plan'],
+                    'monto' => $planPrice,
+                    'estado_pago' => $isTrial ? 'trial' : 'pendiente',
+                    'fecha_vencimiento' => $isTrial ? null : now()->addDays(30),
+                    'trial_ends_at' => $isTrial ? now()->addDays(30) : null,
+                    'fecha_ultimo_pago' => null,
+                    'observacion' => $isTrial ? 'Período de prueba 30 días' : null,
+                ]);
+                $steps[] = '✓ Registro de facturación creado';
+            } catch (\Throwable $e) {
+                Log::warning('Billing record creation failed', [
+                    'tenant_id' => $tenant->id,
+                    'error' => $e->getMessage(),
+                ]);
+                $steps[] = '⚠ Registro de facturación no creado (error)';
+            }
 
             // Step 2: Create domain (subdomain = tenant id)
             $tenant->domains()->create(['domain' => $validated['id']]);
