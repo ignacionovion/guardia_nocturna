@@ -12,39 +12,34 @@
     @if($activeTab === 'asistencia')
 
     {{-- Filtros --}}
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+    <x-ui.card>
         <form action="{{ route('admin.reports.attendance') }}" method="GET" class="flex flex-wrap items-end gap-4">
             <input type="hidden" name="tab" value="asistencia">
             
-            {{-- Select Guardia - ESTANDARIZADO --}}
+            {{-- Select Guardia --}}
             <div class="min-w-[220px]">
-                <label class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Guardia</label>
-                <div class="relative group">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                        <i class="fas fa-shield-alt text-slate-400 group-focus-within:text-red-500 transition-colors"></i>
+                <label class="form-label">Guardia</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-shield-alt text-slate-400"></i>
                     </div>
-                    <select name="guardia_id" class="w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 appearance-none cursor-pointer hover:bg-white dark:bg-slate-900 hover:border-slate-300 dark:border-slate-600 transition-all shadow-sm">
+                    <select name="guardia_id" class="form-select pl-10">
                         <option value="">Todas las Guardias</option>
                         @foreach($guardias as $g)
                             <option value="{{ $g->id }}" {{ $guardiaId == $g->id ? 'selected' : '' }}>{{ $g->name }}</option>
                         @endforeach
                     </select>
-                    <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
-                        <div class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                            <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
-                        </div>
-                    </div>
                 </div>
             </div>
 
-            {{-- Select Semana - ESTANDARIZADO --}}
+            {{-- Select Semana --}}
             <div class="min-w-[220px]">
-                <label class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Semana</label>
-                <div class="relative group">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                        <i class="fas fa-calendar-week text-slate-400 group-focus-within:text-red-500 transition-colors"></i>
+                <label class="form-label">Semana</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-calendar-week text-slate-400"></i>
                     </div>
-                    <select name="week" class="w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 appearance-none cursor-pointer hover:bg-white dark:bg-slate-900 hover:border-slate-300 dark:border-slate-600 transition-all shadow-sm">
+                    <select name="week" class="form-select pl-10">
                         <option value="">Todas las semanas</option>
                         @php
                             $currentWeek = now()->weekOfYear;
@@ -55,59 +50,60 @@
                             }
                         @endphp
                     </select>
-                    <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
-                        <div class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                            <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
-                        </div>
-                    </div>
                 </div>
             </div>
 
-            {{-- Fecha Desde - ESTANDARIZADO --}}
+            {{-- Fecha Desde --}}
             <div class="min-w-[160px]">
-                <label class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Desde</label>
-                <div class="relative group">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                        <i class="fas fa-calendar text-slate-400 group-focus-within:text-red-500 transition-colors"></i>
+                <label class="form-label">Desde</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-calendar text-slate-400"></i>
                     </div>
-                    <input type="date" name="from" value="{{ $from->format('Y-m-d') }}" class="w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 hover:bg-white dark:bg-slate-900 hover:border-slate-300 dark:border-slate-600 transition-all shadow-sm">
+                    <input type="date" name="from" value="{{ $from->format('Y-m-d') }}" class="form-input pl-10">
                 </div>
             </div>
 
-            {{-- Fecha Hasta - ESTANDARIZADO --}}
+            {{-- Fecha Hasta --}}
             <div class="min-w-[160px]">
-                <label class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Hasta</label>
-                <div class="relative group">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                        <i class="fas fa-calendar text-slate-400 group-focus-within:text-red-500 transition-colors"></i>
+                <label class="form-label">Hasta</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-calendar text-slate-400"></i>
                     </div>
-                    <input type="date" name="to" value="{{ $to->format('Y-m-d') }}" class="w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 hover:bg-white dark:bg-slate-900 hover:border-slate-300 dark:border-slate-600 transition-all shadow-sm">
+                    <input type="date" name="to" value="{{ $to->format('Y-m-d') }}" class="form-input pl-10">
                 </div>
             </div>
 
-            {{-- Botón Filtrar --}}
+            {{-- Botones --}}
             <div class="flex gap-2">
-                <button type="submit" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-900 text-white font-extrabold text-xs uppercase tracking-widest transition-all shadow-md hover:shadow-lg">
-                    <i class="fas fa-filter"></i> Filtrar
-                </button>
-                <a href="{{ route('admin.reports.attendance') }}" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 font-extrabold text-xs uppercase tracking-widest transition-all" title="Limpiar filtros">
-                    <i class="fas fa-undo"></i>
-                </a>
+                <x-ui.button type="submit" variant="primary" size="md" icon="fas fa-filter">
+                    Filtrar
+                </x-ui.button>
+                <x-ui.button variant="secondary" size="md" href="{{ route('admin.reports.attendance') }}" icon="fas fa-undo" title="Limpiar filtros">
+                </x-ui.button>
             </div>
 
-            {{-- Botones de Exportación Profesionales --}}
+            {{-- Botones de Exportación --}}
             <div class="ml-auto flex gap-2">
-                <a href="{{ route('admin.reports.attendance.export', ['format' => 'excel'] + request()->all()) }}" 
-                   class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-extrabold text-xs uppercase tracking-widest transition-all shadow-sm hover:shadow-md">
-                    <i class="fas fa-file-excel text-emerald-600"></i> Excel
-                </a>
-                <a href="{{ route('admin.reports.attendance.export', ['format' => 'pdf'] + request()->all()) }}" target="_blank"
-                   class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-extrabold text-xs uppercase tracking-widest transition-all shadow-sm hover:shadow-md">
-                    <i class="fas fa-file-pdf text-rose-600"></i> PDF
-                </a>
+                <x-ui.button 
+                    variant="success" 
+                    size="md" 
+                    icon="fas fa-file-excel"
+                    href="{{ route('admin.reports.attendance.export', ['format' => 'excel'] + request()->all()) }}">
+                    Excel
+                </x-ui.button>
+                <x-ui.button 
+                    variant="danger" 
+                    size="md" 
+                    icon="fas fa-file-pdf"
+                    href="{{ route('admin.reports.attendance.export', ['format' => 'pdf'] + request()->all()) }}"
+                    target="_blank">
+                    PDF
+                </x-ui.button>
             </div>
         </form>
-    </div>
+    </x-ui.card>
 
     {{-- SUB-TABS: Por Guardia / General --}}
     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-t-lg">
@@ -126,38 +122,27 @@
     </div>
 
     {{-- STATS CARDS --}}
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 bg-white dark:bg-slate-900 border border-t-0 border-slate-200 dark:border-slate-700 p-4 mb-6">
-        @php
-            $statCards = [
-                ['label' => 'Cumplidos',    'value' => $stats['fulfilled'] ?? 0,    'color' => 'emerald', 'icon' => 'check-circle'],
-                ['label' => 'Ausencias',    'value' => $stats['absences'] ?? 0,     'color' => 'rose',    'icon' => 'times-circle'],
-                ['label' => 'Permisos',     'value' => $stats['permissions'] ?? 0,  'color' => 'amber',   'icon' => 'calendar-check'],
-                ['label' => 'Licencias',    'value' => $stats['licenses'] ?? 0,     'color' => 'blue',    'icon' => 'file-medical'],
-                ['label' => 'Inhabilitados','value' => $stats['disabled'] ?? 0,     'color' => 'slate',   'icon' => 'ban'],
-                ['label' => 'Reemplazos',   'value' => $stats['replacements'] ?? 0, 'color' => 'purple',  'icon' => 'exchange-alt'],
-            ];
-        @endphp
-        @foreach($statCards as $card)
-        <div class="bg-slate-50 dark:bg-slate-800 rounded-lg p-3 border border-slate-100 dark:border-slate-800">
-            <div class="flex items-center justify-between mb-1">
-                <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">{{ $card['label'] }}</p>
-                <i class="fas fa-{{ $card['icon'] }} text-{{ $card['color'] }}-400 text-xs"></i>
-            </div>
-            <p class="text-2xl font-bold text-{{ $card['color'] }}-600">{{ $card['value'] }}</p>
-        </div>
-        @endforeach
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <x-ui.stat-card title="Cumplidos" :value="$stats['fulfilled'] ?? 0" icon="fas fa-check-circle" color="emerald" />
+        <x-ui.stat-card title="Ausencias" :value="$stats['absences'] ?? 0" icon="fas fa-times-circle" color="rose" />
+        <x-ui.stat-card title="Permisos" :value="$stats['permissions'] ?? 0" icon="fas fa-calendar-check" color="amber" />
+        <x-ui.stat-card title="Licencias" :value="$stats['licenses'] ?? 0" icon="fas fa-file-medical" color="blue" />
+        <x-ui.stat-card title="Inhabilitados" :value="$stats['disabled'] ?? 0" icon="fas fa-ban" color="slate" />
+        <x-ui.stat-card title="Reemplazos" :value="$stats['replacements'] ?? 0" icon="fas fa-exchange-alt" color="purple" />
     </div>
 
     {{-- INFORME GENERAL --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-base font-bold text-slate-800 dark:text-white uppercase tracking-wide">
-                    <i class="fas fa-chart-bar mr-2 text-red-500"></i>
-                    {{ $currentView === 'general' ? 'Consolidado General' : ($activeGuardia ? $activeGuardia->name : 'Sin Guardia') }}
-                </h3>
-                <span class="text-xs text-slate-400">{{ $from->format('d/m/Y') }} — {{ $to->format('d/m/Y') }}</span>
-            </div>
+        <x-ui.card class="lg:col-span-2">
+            <x-slot:header>
+                <div class="flex items-center justify-between w-full">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-chart-bar text-red-500"></i>
+                        <span class="text-title-sm">{{ $currentView === 'general' ? 'Consolidado General' : ($activeGuardia ? $activeGuardia->name : 'Sin Guardia') }}</span>
+                    </div>
+                    <span class="text-caption">{{ $from->format('d/m/Y') }} — {{ $to->format('d/m/Y') }}</span>
+                </div>
+            </x-slot:header>
             <div class="space-y-3">
                 @foreach($guardiaStats as $stat)
                 <div class="flex items-center gap-3">
@@ -172,10 +157,12 @@
                 </div>
                 @endforeach
             </div>
-        </div>
+        </x-ui.card>
 
-        <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-5">
-            <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4">Resumen</h3>
+        <x-ui.card>
+            <x-slot:header>
+                <div class="text-label">Resumen</div>
+            </x-slot:header>
             <div class="text-center mb-4">
                 <div class="text-5xl font-black text-slate-800 dark:text-white">{{ $generalPercentage }}%</div>
                 <div class="text-xs text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wide">Cumplimiento General</div>
@@ -198,7 +185,7 @@
                     <span class="font-bold text-teal-600">{{ $stats['reinforcements'] ?? 0 }}</span>
                 </div>
             </div>
-        </div>
+        </x-ui.card>
     </div>
 
     {{-- INFORME POR VOLUNTARIO --}}
@@ -287,17 +274,15 @@
         </div>
     </div>
 
-    {{-- ============================================================ --}}
     {{-- TAB: PERMISOS --}}
-    {{-- ============================================================ --}}
     @elseif($activeTab === 'permisos')
 
-    <div class="bg-white dark:bg-slate-900 border border-t-0 border-slate-200 dark:border-slate-700 p-4 mb-6">
+    <x-ui.card class="mb-6">
         <form action="{{ route('admin.reports.attendance') }}" method="GET" class="flex flex-wrap items-end gap-3">
             <input type="hidden" name="tab" value="permisos">
             <div>
-                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Guardia</label>
-                <select name="guardia_id" class="px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md text-sm w-44">
+                <label class="form-label">Guardia</label>
+                <select name="guardia_id" class="form-select w-44">
                     <option value="">Todas</option>
                     @foreach($guardias as $g)
                         <option value="{{ $g->id }}" {{ $guardiaId == $g->id ? 'selected' : '' }}>{{ $g->name }}</option>
@@ -305,25 +290,26 @@
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Desde</label>
-                <input type="date" name="from" value="{{ $from->format('Y-m-d') }}" class="px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md text-sm w-36">
+                <label class="form-label">Desde</label>
+                <input type="date" name="from" value="{{ $from->format('Y-m-d') }}" class="form-input w-36">
             </div>
             <div>
-                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Hasta</label>
-                <input type="date" name="to" value="{{ $to->format('Y-m-d') }}" class="px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md text-sm w-36">
+                <label class="form-label">Hasta</label>
+                <input type="date" name="to" value="{{ $to->format('Y-m-d') }}" class="form-input w-36">
             </div>
-            <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2 px-4 rounded-md text-sm flex items-center gap-2">
-                <i class="fas fa-filter"></i> Filtrar
-            </button>
+            <x-ui.button type="submit" variant="warning" size="md" icon="fas fa-filter">
+                Filtrar
+            </x-ui.button>
         </form>
-    </div>
+    </x-ui.card>
 
-    <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden mb-6">
-        <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
-            <h3 class="text-base font-bold text-slate-800 dark:text-white uppercase tracking-wide flex items-center gap-2">
-                <i class="fas fa-calendar-alt text-amber-500"></i> Permisos y Licencias
-            </h3>
-        </div>
+    <x-ui.card class="mb-6">
+        <x-slot:header>
+            <div class="flex items-center gap-2">
+                <i class="fas fa-calendar-alt text-amber-500"></i>
+                <span class="text-title-sm">Permisos y Licencias</span>
+            </div>
+        </x-slot:header>
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
                 <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
@@ -370,7 +356,7 @@
                 </tbody>
             </table>
         </div>
-    </div>
+    </x-ui.card>
 
     @endif
 </div>

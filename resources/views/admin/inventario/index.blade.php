@@ -2,61 +2,65 @@
 
 @section('content')
 <div class="w-full py-4">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-            <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Inventario</div>
-            <div class="text-2xl font-extrabold text-slate-900">Panel</div>
-            <div class="text-sm text-slate-600 dark:text-slate-400 mt-1">{{ $bodega->nombre }}</div>
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <div class="flex items-center gap-4">
+            <div class="icon-box icon-box-cyan icon-box-lg">
+                <i class="fas fa-boxes-stacked"></i>
+            </div>
+            <div>
+                <div class="text-label">Inventario</div>
+                <div class="text-title-lg">Panel</div>
+                <div class="text-body-sm">{{ $bodega->nombre }}</div>
+            </div>
         </div>
 
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-            <a href="{{ route('inventario.config.form') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-extrabold text-[11px] uppercase tracking-widest">
-                <i class="fas fa-gear"></i>
+            <x-ui.button variant="secondary" size="md" icon="fas fa-gear" href="{{ route('inventario.config.form') }}">
                 Administrar
-            </a>
-            <a href="{{ route('inventario.qr.admin') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-extrabold text-[11px] uppercase tracking-widest">
-                <i class="fas fa-qrcode"></i>
+            </x-ui.button>
+            <x-ui.button variant="secondary" size="md" icon="fas fa-qrcode" href="{{ route('inventario.qr.admin') }}">
                 QR fijo
-            </a>
-            <a href="{{ route('inventario.retiro.access') }}" class="inline-flex items-center justify-center gap-2 bg-slate-950 hover:bg-black text-white font-black py-3 px-5 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest border border-slate-800">
-                <i class="fas fa-arrow-right"></i>
+            </x-ui.button>
+            <x-ui.button variant="primary" size="md" icon="fas fa-arrow-right" href="{{ route('inventario.retiro.access') }}">
                 Ir a formulario
-            </a>
+            </x-ui.button>
         </div>
     </div>
 
-    <div class="mt-6 bg-white dark:bg-slate-900 rounded-2xl border border-teal-900/20 shadow-sm overflow-hidden">
-        <div class="p-6 border-b border-teal-900/20 bg-sky-100">
-            <div class="text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">Stock actual</div>
-            <div class="text-sm text-slate-600 dark:text-slate-400 mt-1">Bodega actual.</div>
-        </div>
+    <x-ui.card class="!border-sky-200 dark:!border-sky-800">
+        <x-slot:header class="!bg-sky-50 dark:!bg-sky-900/20 !border-sky-200 dark:!border-sky-800">
+            <div class="text-label">Stock actual</div>
+            <div class="text-body-sm">Bodega actual</div>
+        </x-slot:header>
 
         <div class="overflow-x-auto">
             <table class="min-w-full text-sm">
-                <thead class="bg-sky-50 border-b border-teal-900/20">
-                    <tr class="text-xs font-black uppercase tracking-widest text-slate-700 dark:text-slate-300">
+                <thead class="bg-sky-50/50 dark:bg-sky-900/10 border-b border-sky-200 dark:border-sky-800">
+                    <tr class="text-label">
                         <th class="text-left px-6 py-3">Ítem</th>
                         <th class="text-left px-6 py-3">Categoría</th>
                         <th class="text-left px-6 py-3">Unidad</th>
                         <th class="text-right px-6 py-3">Stock</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                     @forelse($items as $item)
-                        <tr class="hover:bg-sky-50">
-                            <td class="px-6 py-4 font-bold text-slate-900">{{ $item->display_name }}</td>
-                            <td class="px-6 py-4 text-slate-700 dark:text-slate-300">{{ $item->categoria ?? '—' }}</td>
-                            <td class="px-6 py-4 text-slate-700 dark:text-slate-300">{{ $item->unidad ?? '—' }}</td>
-                            <td class="px-6 py-4 text-right font-extrabold text-slate-900">{{ $item->stock }}</td>
+                        <tr class="hover:bg-sky-50 dark:hover:bg-sky-900/10 transition-colors">
+                            <td class="px-6 py-4 font-semibold text-slate-900 dark:text-white">{{ $item->display_name }}</td>
+                            <td class="px-6 py-4 text-body-sm">{{ $item->categoria ?? '—' }}</td>
+                            <td class="px-6 py-4 text-body-sm">{{ $item->unidad ?? '—' }}</td>
+                            <td class="px-6 py-4 text-right font-bold text-slate-900 dark:text-white">{{ $item->stock }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-6 py-10 text-center text-slate-500 dark:text-slate-400">No hay ítems activos.</td>
+                            <td colspan="4" class="px-6 py-10 text-center text-slate-500 dark:text-slate-400">
+                                <x-ui.empty-state icon="fas fa-box-open" message="No hay ítems activos." />
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-    </div>
+    </x-ui.card>
 </div>
 @endsection

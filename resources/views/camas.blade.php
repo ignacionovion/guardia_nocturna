@@ -6,28 +6,33 @@
 @section('content')
     <div class="mb-8">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Dormitorios</span>
-                <h1 class="text-3xl font-black text-slate-800 dark:text-white tracking-tight uppercase leading-none flex items-center gap-3">
-                    <span class="text-red-700">Gestión</span> de Camas
-                    <span class="text-xs font-black text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-lg">{{ $totalBeds ?? $beds->count() }} camas</span>
-                </h1>
-                <p class="text-slate-500 dark:text-slate-400 font-medium text-sm mt-2">Control de ocupación y asignaciones en tiempo real</p>
+            <div class="flex items-center gap-4">
+                <div class="icon-box icon-box-emerald icon-box-lg">
+                    <i class="fas fa-bed"></i>
+                </div>
+                <div>
+                    <span class="text-label mb-1 block">Dormitorios</span>
+                    <h1 class="text-title-lg uppercase flex items-center gap-3">
+                        <span class="text-emerald-600">Gestión</span> de Camas
+                        <x-ui.badge variant="default" size="sm">{{ $totalBeds ?? $beds->count() }} camas</x-ui.badge>
+                    </h1>
+                    <p class="text-body-sm mt-2">Control de ocupación y asignaciones en tiempo real</p>
+                </div>
             </div>
             
             <!-- Status Legend -->
-            <div class="flex items-center gap-2 bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                <div class="flex items-center px-3 py-1.5 bg-emerald-50 rounded-lg border border-emerald-100">
+            <div class="flex items-center gap-2 card-base p-2.5">
+                <div class="flex items-center px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
                     <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full mr-2 shadow-[0_0_6px_rgba(16,185,129,0.5)]"></span>
-                    <span class="text-[11px] font-black text-emerald-700 uppercase tracking-wide">Disponible</span>
+                    <span class="text-caption text-emerald-700">Disponible</span>
                 </div>
-                <div class="flex items-center px-3 py-1.5 bg-red-50 rounded-lg border border-red-100">
+                <div class="flex items-center px-3 py-1.5 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
                     <span class="w-2.5 h-2.5 bg-red-500 rounded-full mr-2 shadow-[0_0_6px_rgba(239,68,68,0.5)]"></span>
-                    <span class="text-[11px] font-black text-red-700 uppercase tracking-wide">Ocupada</span>
+                    <span class="text-caption text-red-700">Ocupada</span>
                 </div>
                 <div class="flex items-center px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
                     <span class="w-2.5 h-2.5 bg-slate-400 rounded-full mr-2"></span>
-                    <span class="text-[11px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-wide">Mantención</span>
+                    <span class="text-caption text-slate-600 dark:text-slate-400">Mantención</span>
                 </div>
             </div>
         </div>
@@ -99,8 +104,8 @@
                         </div>
                         
                         <!-- Status Icon -->
-                        <div class="w-10 h-10 rounded-xl bg-{{ $statusColor }}-100 flex items-center justify-center text-{{ $statusColor }}-500 group-hover:scale-110 transition-transform">
-                            <i class="fas fa-bed text-lg"></i>
+                        <div class="icon-box icon-box-{{ $statusColor }} icon-box-sm group-hover:scale-110 transition-transform">
+                            <i class="fas fa-bed"></i>
                         </div>
                     </div>
                     
@@ -114,39 +119,39 @@
                             @endphp
                             
                             <!-- Occupant Card -->
-                            <div class="bg-white dark:bg-slate-900 rounded-xl p-4 border border-red-100 shadow-sm mb-3">
+                            <div class="card !bg-white dark:!bg-slate-900 !border-red-200 dark:!border-red-800 mb-3">
                                 <div class="flex items-center gap-3">
                                     @if($firefighter?->photo_path)
                                         <img src="{{ url('media/' . ltrim($firefighter->photo_path, '/')) }}" class="w-12 h-12 rounded-xl object-cover border border-red-200 shadow-md" alt="{{ $fullName }}">
                                     @else
-                                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-red-600 text-white flex items-center justify-center font-black text-sm shadow-md">
+                                        <div class="icon-box icon-box-red icon-box-sm">
                                             {{ $initials ?: '?' }}
                                         </div>
                                     @endif
                                     <div class="flex-1 min-w-0">
-                                        <p class="text-[10px] font-black text-red-400 uppercase tracking-wide mb-0.5">Ocupante</p>
-                                        <p class="font-bold text-slate-800 dark:text-white text-sm truncate leading-tight">{{ $fullName }}</p>
+                                        <p class="text-caption text-red-500">Ocupante</p>
+                                        <p class="text-sm font-bold text-slate-800 dark:text-white truncate">{{ $fullName }}</p>
                                         @if($firefighter?->cargo_texto)
-                                            <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">{{ $firefighter->cargo_texto }}</p>
+                                            <p class="text-body-xs">{{ $firefighter->cargo_texto }}</p>
                                         @endif
                                     </div>
                                 </div>
                             </div>
                             
                             <!-- Time Info -->
-                            <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 rounded-lg px-3 py-2 mb-3">
+                            <div class="flex items-center gap-2 text-body-xs bg-slate-50 dark:bg-slate-800 rounded-lg px-3 py-2 mb-3">
                                 <i class="fas fa-clock text-slate-400"></i>
-                                <span>Ingreso: <span class="font-bold text-slate-700 dark:text-slate-300">{{ $bed->currentAssignment->assigned_at->format('H:i') }}</span> hrs</span>
+                                <span>Ingreso: <span class="font-semibold text-slate-700 dark:text-slate-300">{{ $bed->currentAssignment->assigned_at->format('H:i') }}</span> hrs</span>
                                 <span class="mx-1 text-slate-300">|</span>
                                 <span class="text-slate-400">{{ $bed->currentAssignment->assigned_at->diffForHumans() }}</span>
                             </div>
 
                             <!-- Notes -->
                             @if($bed->currentAssignment->notes)
-                                <div class="relative bg-amber-50 rounded-xl p-3 border border-amber-100">
+                                <div class="card !bg-amber-50 dark:!bg-amber-900/20 !border-amber-200 dark:!border-amber-800">
                                     <div class="flex items-start gap-2">
-                                        <i class="fas fa-sticky-note text-amber-400 mt-0.5 text-xs"></i>
-                                        <p class="text-xs text-amber-800 leading-relaxed">{{ $bed->currentAssignment->notes }}</p>
+                                        <i class="fas fa-sticky-note text-amber-500 mt-0.5 text-xs"></i>
+                                        <p class="text-xs text-amber-800 dark:text-amber-200 leading-relaxed">{{ $bed->currentAssignment->notes }}</p>
                                     </div>
                                 </div>
                             @endif
@@ -154,19 +159,19 @@
                         @elseif($isAvailable)
                             <!-- Available State -->
                             <div class="h-full flex flex-col items-center justify-center py-8 text-center">
-                                <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-100 to-emerald-50 text-emerald-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg border-2 border-emerald-200">
+                                <div class="icon-box icon-box-emerald icon-box-xl mb-4 group-hover:scale-110 transition-transform shadow-lg">
                                     <i class="fas fa-bed text-3xl"></i>
                                 </div>
-                                <p class="text-sm font-black text-emerald-700 uppercase tracking-wide">Cama Disponible</p>
+                                <p class="text-sm font-bold text-emerald-700 uppercase">Cama Disponible</p>
                                 <p class="text-xs text-slate-400 mt-1">Listo para asignar</p>
                             </div>
                         @else
                             <!-- Maintenance State -->
                             <div class="h-full flex flex-col items-center justify-center py-8 text-center">
-                                <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-slate-200 to-slate-100 text-slate-400 flex items-center justify-center mb-4 shadow-md border-2 border-slate-300 dark:border-slate-600">
+                                <div class="icon-box icon-box-slate icon-box-xl mb-4 shadow-md">
                                     <i class="fas fa-tools text-3xl"></i>
                                 </div>
-                                <p class="text-sm font-black text-slate-500 dark:text-slate-400 uppercase tracking-wide">Fuera de Servicio</p>
+                                <p class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase">Fuera de Servicio</p>
                                 @if($bed->description)
                                     <p class="text-xs text-slate-400 mt-1">{{ $bed->description }}</p>
                                 @endif
@@ -178,18 +183,14 @@
                     <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                         @if($isAvailable)
                             <div class="grid grid-cols-1 {{ auth()->user()->role === 'super_admin' ? 'sm:grid-cols-2' : '' }} gap-2">
-                                <button onclick="openAssignModal('{{ $bed->id }}', '{{ $bed->number }}')" 
-                                    class="group/btn w-full bg-slate-900 hover:bg-emerald-600 text-white font-bold py-3 px-4 rounded-xl text-xs transition-all shadow-md hover:shadow-lg flex items-center justify-center uppercase tracking-wider">
-                                    <i class="fas fa-user-plus mr-2 group-hover/btn:scale-110 transition-transform"></i>
-                                    <span>Asignar</span>
-                                </button>
+                                <x-ui.button variant="primary" size="sm" icon="fas fa-user-plus" class="w-full" onclick="openAssignModal('{{ $bed->id }}', '{{ $bed->number }}')">
+                                    Asignar
+                                </x-ui.button>
 
                                 @if(auth()->user()->role === 'super_admin')
-                                    <button onclick="openQrModal('{{ $bed->id }}', '{{ $bed->number }}')" 
-                                        class="group/btn w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-4 rounded-xl text-xs transition-all shadow-md hover:shadow-lg flex items-center justify-center uppercase tracking-wider">
-                                        <i class="fas fa-qrcode mr-2 group-hover/btn:scale-110 transition-transform"></i>
-                                        <span>Ver QR</span>
-                                    </button>
+                                    <x-ui.button variant="info" size="sm" icon="fas fa-qrcode" class="w-full" onclick="openQrModal('{{ $bed->id }}', '{{ $bed->number }}')">
+                                        Ver QR
+                                    </x-ui.button>
                                 @endif
                             </div>
                             
@@ -197,10 +198,9 @@
                                 <form action="{{ route('beds.maintenance', $bed->id) }}" method="POST" onsubmit="return confirm('¿Marcar cama #{{ $bed->number }} en mantención?');" class="m-0 mt-2">
                                     @csrf
                                     @method('PUT')
-                                    <button type="submit" class="group/btn w-full bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 font-bold py-3 px-4 rounded-xl text-xs transition-all shadow-sm hover:shadow flex items-center justify-center uppercase tracking-wider">
-                                        <i class="fas fa-tools mr-2 text-slate-400 group-hover/btn:text-slate-600 dark:text-slate-400 transition-colors"></i>
-                                        <span>Mantención</span>
-                                    </button>
+                                    <x-ui.button type="submit" variant="ghost" size="sm" icon="fas fa-tools" class="w-full">
+                                        Mantención
+                                    </x-ui.button>
                                 </form>
                             @endif
                         @elseif($isOccupied)
@@ -209,13 +209,12 @@
                                     @csrf
                                     @method('PUT')
                                     <input type="hidden" name="release" value="1">
-                                    <button type="submit" class="group/btn w-full bg-white dark:bg-slate-900 hover:bg-red-50 text-slate-600 dark:text-slate-400 hover:text-red-600 border border-slate-200 dark:border-slate-700 hover:border-red-200 font-bold py-3 px-4 rounded-xl text-xs transition-all shadow-sm hover:shadow flex items-center justify-center uppercase tracking-wider">
-                                        <i class="fas fa-right-from-bracket mr-2 group-hover/btn:scale-110 transition-transform"></i>
-                                        <span>Liberar</span>
-                                    </button>
+                                    <x-ui.button type="submit" variant="danger" size="sm" icon="fas fa-right-from-bracket" class="w-full">
+                                        Liberar
+                                    </x-ui.button>
                                 </form>
                             @else
-                                <div class="w-full bg-red-50 text-red-400 font-bold py-3 px-4 rounded-xl text-[10px] text-center uppercase tracking-wide border border-red-100 cursor-help" title="Error de integridad: Cama ocupada sin asignación">
+                                <div class="w-full bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-bold py-3 px-4 rounded-xl text-[10px] text-center uppercase border border-red-200 dark:border-red-800 cursor-help" title="Error de integridad: Cama ocupada sin asignación">
                                     <i class="fas fa-exclamation-circle mr-1"></i> Error Datos
                                 </div>
                             @endif
@@ -224,15 +223,14 @@
                                 <form action="{{ route('beds.available', $bed->id) }}" method="POST" onsubmit="return confirm('¿Habilitar cama #{{ $bed->number }} como disponible?');" class="m-0">
                                     @csrf
                                     @method('PUT')
-                                    <button type="submit" class="group/btn w-full bg-white dark:bg-slate-900 hover:bg-emerald-50 text-slate-600 dark:text-slate-400 hover:text-emerald-700 border border-slate-200 dark:border-slate-700 hover:border-emerald-200 font-bold py-3 px-4 rounded-xl text-xs transition-all shadow-sm hover:shadow flex items-center justify-center uppercase tracking-wider">
-                                        <i class="fas fa-check-circle mr-2 text-emerald-500 group-hover/btn:scale-110 transition-transform"></i>
-                                        <span>Habilitar</span>
-                                    </button>
+                                    <x-ui.button type="submit" variant="success" size="sm" icon="fas fa-check-circle" class="w-full">
+                                        Habilitar
+                                    </x-ui.button>
                                 </form>
                             @else
-                                <button disabled class="w-full bg-slate-100 dark:bg-slate-800 text-slate-400 font-bold py-3 px-4 rounded-xl text-xs cursor-not-allowed uppercase tracking-wider flex items-center justify-center border border-slate-200 dark:border-slate-700">
-                                    <i class="fas fa-ban mr-2"></i> No Disponible
-                                </button>
+                                <x-ui.button variant="ghost" size="sm" icon="fas fa-ban" class="w-full" disabled>
+                                    No Disponible
+                                </x-ui.button>
                             @endif
                         @endif
                     </div>
@@ -243,7 +241,7 @@
 
     <!-- Modal Asignación -->
     <div id="assignModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center transition-all duration-300 opacity-0">
-        <div class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden transform scale-95 transition-all duration-300">
+        <div class="relative card w-full max-w-md mx-4 overflow-hidden transform scale-95 transition-all duration-300">
             <!-- Modal Header -->
             <div class="bg-slate-900 px-6 py-4 flex justify-between items-center">
                 <h3 class="text-white font-bold text-sm uppercase tracking-wide flex items-center">
@@ -255,16 +253,16 @@
             </div>
 
             <!-- Modal Body -->
-            <div class="p-6">
+            <div class="card-body">
                 <form id="assignForm" method="POST" action="{{ route('beds.assign') }}">
                     @csrf
                     <input type="hidden" name="bed_id" id="modalBedId">
                     
                     <div class="mb-5">
-                        <label class="block text-slate-700 dark:text-slate-300 text-xs font-bold mb-2 uppercase tracking-wide">Voluntario</label>
+                        <label class="form-label">Voluntario</label>
                         <div class="relative">
                             <i class="fas fa-user absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                            <select name="firefighter_id" class="w-full pl-9 pr-4 py-2.5 text-sm border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-slate-50 dark:bg-slate-800 transition-colors cursor-pointer hover:bg-white" required>
+                            <select name="firefighter_id" class="form-select pl-9" required>
                                 <option value="">Seleccione voluntario...</option>
                                 @foreach($users as $user)
                                     <option value="{{ $user->id }}">{{ $user->nombres }} {{ $user->apellido_paterno }}</option>
@@ -274,21 +272,20 @@
                     </div>
                     
                     <div class="mb-6">
-                        <label class="block text-slate-700 dark:text-slate-300 text-xs font-bold mb-2 uppercase tracking-wide">Comentario / Nota <span class="text-slate-400 font-normal normal-case">(Opcional)</span></label>
+                        <label class="form-label">Comentario / Nota <span class="text-slate-400 font-normal normal-case">(Opcional)</span></label>
                         <div class="relative">
                             <i class="fas fa-comment-dots absolute left-3 top-3 text-slate-400 text-xs"></i>
-                            <textarea name="notes" class="w-full pl-9 pr-4 py-2.5 text-sm border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-slate-50 dark:bg-slate-800 min-h-[80px] hover:bg-white dark:bg-slate-900 transition-colors" placeholder="Ej: Se retira a las 07:00 hrs..."></textarea>
+                            <textarea name="notes" class="form-input pl-9 min-h-[80px]" placeholder="Ej: Se retira a las 07:00 hrs..."></textarea>
                         </div>
                     </div>
 
                     <div class="flex gap-3 pt-2">
-                        <button type="button" onclick="closeAssignModal()" class="w-1/2 py-2.5 px-4 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-xs font-bold rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors uppercase tracking-wide">
+                        <x-ui.button type="button" variant="ghost" size="sm" class="w-1/2" onclick="closeAssignModal()">
                             Cancelar
-                        </button>
-                        <button type="submit" class="w-1/2 py-2.5 px-4 bg-slate-900 text-white text-xs font-bold rounded-lg hover:bg-slate-800 transition-colors shadow-md uppercase tracking-wide flex items-center justify-center gap-2">
-                            <span>Confirmar</span>
-                            <i class="fas fa-check text-emerald-400"></i>
-                        </button>
+                        </x-ui.button>
+                        <x-ui.button type="submit" variant="primary" size="sm" icon="fas fa-check" class="w-1/2">
+                            Confirmar
+                        </x-ui.button>
                     </div>
                 </form>
             </div>
@@ -297,7 +294,7 @@
 
     <!-- Modal QR -->
     <div id="qrModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center transition-all duration-300 opacity-0">
-        <div class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden transform scale-95 transition-all duration-300">
+        <div class="relative card w-full max-w-md mx-4 overflow-hidden transform scale-95 transition-all duration-300">
             <!-- Modal Header -->
             <div class="bg-slate-900 px-6 py-4 flex justify-between items-center">
                 <h3 class="text-white font-bold text-sm uppercase tracking-wide flex items-center">
@@ -309,8 +306,8 @@
             </div>
 
             <!-- Modal Body -->
-            <div class="p-6 text-center">
-                <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">Escanea este código con tu teléfono para asignarte esta cama</p>
+            <div class="card-body text-center">
+                <p class="text-body-sm mb-4">Escanea este código con tu teléfono para asignarte esta cama</p>
                 
                 <!-- QR Code Container -->
                 <div class="bg-slate-100 dark:bg-slate-800 rounded-xl p-6 mb-4 inline-block">
@@ -318,8 +315,8 @@
                 </div>
                 
                 <!-- URL -->
-                <div class="bg-slate-50 dark:bg-slate-800 rounded-lg p-3 mb-4">
-                    <p class="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold mb-1">URL</p>
+                <div class="card !bg-slate-50 dark:!bg-slate-800 mb-4">
+                    <p class="text-caption mb-1">URL</p>
                     <a id="qrUrl" href="#" target="_blank" class="text-sm text-cyan-600 font-mono break-all hover:text-cyan-500 transition-colors"></a>
                 </div>
 
@@ -328,9 +325,9 @@
                     Imprimir
                 </a>
 
-                <button onclick="closeQrModal()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-6 rounded-xl text-xs transition-all uppercase tracking-wide">
+                <x-ui.button variant="primary" size="sm" class="w-full" onclick="closeQrModal()">
                     Cerrar
-                </button>
+                </x-ui.button>
             </div>
         </div>
     </div>

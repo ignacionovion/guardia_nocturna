@@ -2,46 +2,44 @@
 
 @section('content')
     <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 border-b border-slate-200 dark:border-slate-700 pb-6">
-        <div>
-            <h1 class="text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight flex items-center uppercase">
-                <i class="fas fa-users-gear mr-3 text-red-700"></i> Dotaciones
-            </h1>
-            <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium">Asignación de personal a guardias</p>
+        <div class="flex items-center gap-4">
+            <div class="icon-box icon-box-gradient-red icon-box-lg">
+                <i class="fas fa-users-gear"></i>
+            </div>
+            <div>
+                <h1 class="text-title-lg uppercase">Dotaciones</h1>
+                <p class="text-body-sm">Asignación de personal a guardias</p>
+            </div>
         </div>
     </div>
 
     @if(session('success'))
-        <div class="bg-green-50 border-l-4 border-green-500 text-green-800 p-4 mb-6 rounded-r shadow-sm flex items-center" role="alert">
-            <i class="fas fa-check-circle mr-3 text-xl"></i>
-            <span class="font-medium">{{ session('success') }}</span>
-        </div>
+        <x-ui.alert type="success" icon="fas fa-check-circle" class="mb-6">
+            {{ session('success') }}
+        </x-ui.alert>
     @endif
 
     @if($errors->any())
-        <div class="bg-red-50 border-l-4 border-red-500 text-red-800 p-4 mb-6 rounded-r shadow-sm" role="alert">
-            <div class="flex items-center mb-2">
-                <i class="fas fa-exclamation-triangle mr-2 text-xl"></i>
-                <p class="font-bold">Error:</p>
-            </div>
-            <ul class="list-disc list-inside ml-2">
+        <x-ui.alert type="danger" icon="fas fa-exclamation-triangle" class="mb-6">
+            <ul class="list-disc list-inside">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
             </ul>
-        </div>
+        </x-ui.alert>
     @endif
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         @foreach($guardias as $guardia)
-            <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-                <div class="bg-slate-900 text-white p-4 border-b border-slate-800 flex items-center justify-between">
+            <x-ui.card>
+                <x-slot:header class="!bg-slate-900 !text-white !border-slate-800">
                     <div>
-                        <h2 class="text-lg font-black tracking-tight uppercase">{{ $guardia->name }}</h2>
-                        <p class="text-slate-400 text-xs mt-1 font-medium flex items-center">
+                        <h2 class="text-title-sm uppercase">{{ $guardia->name }}</h2>
+                        <p class="text-caption flex items-center mt-1">
                             <i class="fas fa-users mr-2 opacity-50"></i> {{ $guardia->bomberos->count() }} Asignados
                         </p>
                     </div>
-                </div>
+                </x-slot:header>
 
                 <div class="p-4 space-y-4">
                     <form action="{{ route('admin.guardias.assign') }}" method="POST" class="space-y-3" onsubmit="return validateDotacionesForm(this)">
@@ -49,11 +47,11 @@
                         <input type="hidden" name="guardia_id" value="{{ $guardia->id }}">
 
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">Voluntario</label>
+                            <label class="form-label">Voluntario</label>
                             <div class="relative">
                                 <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                                 <input name="firefighter_id_display" autocomplete="off" data-dotaciones-volunteer-input data-guardia-id="{{ $guardia->id }}"
-                                       class="w-full text-sm border-slate-300 dark:border-slate-600 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 pl-9 py-2.5 bg-slate-50 dark:bg-slate-800"
+                                       class="form-input pl-9"
                                        placeholder="Buscar por nombre, apellido o RUT..." required>
                                 <input type="hidden" name="firefighter_id" id="firefighter_id_input_{{ $guardia->id }}" required>
 
@@ -62,35 +60,35 @@
                             <div class="hidden text-xs text-red-700 font-bold mt-2" data-dotaciones-error data-guardia-id="{{ $guardia->id }}"></div>
                         </div>
 
-                        <button type="submit" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-2.5 px-4 rounded-lg text-xs transition duration-150 shadow-md hover:shadow-lg flex items-center justify-center uppercase tracking-wider">
-                            <i class="fas fa-plus mr-2"></i> Asignar a Guardia
-                        </button>
+                        <x-ui.button type="submit" variant="primary" size="md" icon="fas fa-plus" class="w-full">
+                            Asignar a Guardia
+                        </x-ui.button>
                     </form>
 
                     <div class="border-t border-slate-100 dark:border-slate-800 pt-4">
-                        <h3 class="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3">Personal asignado</h3>
+                        <h3 class="text-label mb-3">Personal asignado</h3>
                         <div class="space-y-2">
                             @forelse($guardia->bomberos as $user)
                                 <div class="flex items-center justify-between bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2">
                                     <div>
                                         <p class="text-sm font-bold text-slate-800 dark:text-white">{{ $user->nombres }} {{ $user->apellido_paterno }}</p>
                                         @if($user->cargo_texto)
-                                            <p class="text-[11px] text-slate-600 dark:text-slate-400 font-black uppercase tracking-widest">{{ $user->cargo_texto }}</p>
+                                            <p class="text-caption">{{ $user->cargo_texto }}</p>
                                         @endif
-                                        <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide">
+                                        <p class="text-caption">
                                             {{ $user->es_jefe_guardia ? 'Jefe de Guardia' : 'Bombero' }}
                                         </p>
                                         <div class="flex gap-1 mt-1">
                                             @if($user->es_conductor)
-                                                <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[9px] font-bold border border-blue-200" title="Conductor">
+                                                <span class="w-5 h-5 rounded-full icon-box icon-box-blue icon-box-xs" title="Conductor">
                                                     <i class="fas fa-car text-[9px]"></i>
                                                 </span>
                                             @endif
                                             @if($user->es_operador_rescate)
-                                                <span class="w-5 h-5 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-[9px] font-bold border border-orange-200" title="Operador de Rescate">R</span>
+                                                <span class="w-5 h-5 rounded-full icon-box icon-box-amber icon-box-xs" title="Operador de Rescate">R</span>
                                             @endif
                                             @if($user->es_asistente_trauma)
-                                                <span class="w-5 h-5 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-[9px] font-bold border border-red-200" title="Asistente de Trauma">T</span>
+                                                <span class="w-5 h-5 rounded-full icon-box icon-box-red icon-box-xs" title="Asistente de Trauma">T</span>
                                             @endif
                                         </div>
                                     </div>
@@ -104,12 +102,12 @@
                                     </form>
                                 </div>
                             @empty
-                                <div class="text-sm text-slate-400">Sin personal asignado</div>
+                                <div class="text-body-sm text-slate-400">Sin personal asignado</div>
                             @endforelse
                         </div>
                     </div>
                 </div>
-            </div>
+            </x-ui.card>
         @endforeach
     </div>
 

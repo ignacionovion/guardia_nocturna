@@ -8,18 +8,18 @@
     {{-- Header --}}
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center shadow-lg shadow-indigo-500/25">
+            <div class="icon-box icon-box-gradient-blue icon-box-lg">
                 <i class="fas fa-chart-line text-white text-lg"></i>
             </div>
             <div>
-                <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Reportes de Asistencia</h1>
-                <p class="text-sm text-slate-500 dark:text-slate-400">Análisis detallado por guardia, semana y período</p>
+                <h1 class="text-title-lg">Reportes de Asistencia</h1>
+                <p class="text-body-sm">Análisis detallado por guardia, semana y período</p>
             </div>
         </div>
         
         {{-- Filtros --}}
         <form action="{{ route('admin.reports.index') }}" method="GET" class="flex flex-wrap items-center gap-3">
-            <div class="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+            <div class="flex items-center gap-2 px-4 py-2.5 card-base">
                 <i class="fas fa-calendar text-slate-400 text-sm"></i>
                 <select name="month" class="bg-transparent border-0 text-sm font-medium text-slate-700 dark:text-slate-300 focus:ring-0 cursor-pointer pr-8">
                     @foreach(range(1, 12) as $m)
@@ -30,7 +30,7 @@
                 </select>
             </div>
             
-            <div class="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+            <div class="flex items-center gap-2 px-4 py-2.5 card-base">
                 <select name="year" class="bg-transparent border-0 text-sm font-medium text-slate-700 dark:text-slate-300 focus:ring-0 cursor-pointer pr-8">
                     @foreach(range(now()->year - 2, now()->year) as $y)
                         <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>{{ $y }}</option>
@@ -38,10 +38,9 @@
                 </select>
             </div>
 
-            <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-semibold rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-all shadow-sm">
-                <i class="fas fa-search text-xs"></i>
-                <span>Aplicar</span>
-            </button>
+            <x-ui.button type="submit" variant="primary" size="md" icon="fas fa-search">
+                Aplicar
+            </x-ui.button>
         </form>
     </div>
 
@@ -51,55 +50,40 @@
     {{-- KPIs --}}
     @isset($selectedMonthKpis)
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
-            <div class="flex items-center justify-between mb-3">
-                <div class="w-10 h-10 rounded-xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
-                    <i class="fas fa-right-left text-violet-600 dark:text-violet-400"></i>
-                </div>
-                <span class="text-2xl font-black text-slate-900 dark:text-white">{{ $selectedMonthKpis['reemplazo'] ?? 0 }}</span>
-            </div>
-            <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Reemplazos</p>
-        </div>
+        <x-ui.stat-card
+            title="Reemplazos"
+            :value="$selectedMonthKpis['reemplazo'] ?? 0"
+            icon="fas fa-right-left"
+            color="purple"
+        />
 
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
-            <div class="flex items-center justify-between mb-3">
-                <div class="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center">
-                    <i class="fas fa-user-slash text-rose-600 dark:text-rose-400"></i>
-                </div>
-                <span class="text-2xl font-black text-slate-900 dark:text-white">{{ $selectedMonthKpis['ausente'] ?? 0 }}</span>
-            </div>
-            <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Ausentes</p>
-        </div>
+        <x-ui.stat-card
+            title="Ausentes"
+            :value="$selectedMonthKpis['ausente'] ?? 0"
+            icon="fas fa-user-slash"
+            color="rose"
+        />
 
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
-            <div class="flex items-center justify-between mb-3">
-                <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                    <i class="fas fa-id-badge text-amber-600 dark:text-amber-400"></i>
-                </div>
-                <span class="text-2xl font-black text-slate-900 dark:text-white">{{ $selectedMonthKpis['permiso'] ?? 0 }}</span>
-            </div>
-            <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Permisos</p>
-        </div>
+        <x-ui.stat-card
+            title="Permisos"
+            :value="$selectedMonthKpis['permiso'] ?? 0"
+            icon="fas fa-id-badge"
+            color="amber"
+        />
 
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
-            <div class="flex items-center justify-between mb-3">
-                <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                    <i class="fas fa-notes-medical text-blue-600 dark:text-blue-400"></i>
-                </div>
-                <span class="text-2xl font-black text-slate-900 dark:text-white">{{ $selectedMonthKpis['licencia'] ?? 0 }}</span>
-            </div>
-            <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Licencias</p>
-        </div>
+        <x-ui.stat-card
+            title="Licencias"
+            :value="$selectedMonthKpis['licencia'] ?? 0"
+            icon="fas fa-notes-medical"
+            color="blue"
+        />
 
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
-            <div class="flex items-center justify-between mb-3">
-                <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                    <i class="fas fa-user-lock text-slate-600 dark:text-slate-400"></i>
-                </div>
-                <span class="text-2xl font-black text-slate-900 dark:text-white">{{ $selectedMonthKpis['disabled'] ?? 0 }}</span>
-            </div>
-            <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Inhabilitados</p>
-        </div>
+        <x-ui.stat-card
+            title="Inhabilitados"
+            :value="$selectedMonthKpis['disabled'] ?? 0"
+            icon="fas fa-user-lock"
+            color="slate"
+        />
     </div>
     @endisset
 

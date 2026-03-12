@@ -2,83 +2,82 @@
 
 @section('content')
     <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-800 dark:text-white">Emergencias</h1>
-            <p class="text-gray-500 dark:text-slate-400 text-sm mt-1">Registro de emergencias transcurridas en guardias nocturnas</p>
+        <div class="flex items-center gap-4">
+            <div class="icon-box icon-box-amber icon-box-lg">
+                <i class="fas fa-truck-medical"></i>
+            </div>
+            <div>
+                <h1 class="text-title-lg">Emergencias</h1>
+                <p class="text-body-sm">Registro de emergencias transcurridas en guardias nocturnas</p>
+            </div>
         </div>
 
         <div class="flex flex-wrap gap-3 items-center">
             @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'capitania'], true))
-                <a href="{{ route('admin.emergency-keys.index') }}" class="inline-flex items-center bg-slate-700 hover:bg-slate-800 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200">
-                    <i class="fas fa-key mr-2"></i> Claves Radiales
-                </a>
-                <a href="{{ route('admin.emergency-units.index') }}" class="inline-flex items-center bg-slate-700 hover:bg-slate-800 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200">
-                    <i class="fas fa-truck mr-2"></i> Unidades
-                </a>
+                <x-ui.button variant="secondary" size="md" icon="fas fa-key" href="{{ route('admin.emergency-keys.index') }}">
+                    Claves Radiales
+                </x-ui.button>
+                <x-ui.button variant="secondary" size="md" icon="fas fa-truck" href="{{ route('admin.emergency-units.index') }}">
+                    Unidades
+                </x-ui.button>
             @endif
-            <a href="{{ route('admin.emergencies.create') }}" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200 transform hover:-translate-y-0.5">
-                <i class="fas fa-plus mr-2"></i> Nueva Emergencia
-            </a>
+            <x-ui.button variant="primary" size="md" icon="fas fa-plus" href="{{ route('admin.emergencies.create') }}">
+                Nueva Emergencia
+            </x-ui.button>
         </div>
     </div>
 
-    <div class="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm mb-8 border border-gray-100 dark:border-slate-800">
+    <x-ui.card class="mb-8">
         <form action="{{ route('admin.emergencies.index') }}" method="GET" class="relative">
             <div class="flex items-center">
-                <i class="fas fa-search absolute left-4 text-gray-400"></i>
+                <i class="fas fa-search absolute left-4 text-slate-400"></i>
                 <input type="text" name="search" value="{{ request('search') }}"
                     placeholder="Buscar por clave o detalle del llamado..."
-                    class="w-full pl-11 pr-4 py-3 border-gray-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-colors text-gray-700 dark:text-slate-300">
+                    class="form-input pl-11 flex-1">
 
                 @if(request('search'))
-                    <a href="{{ route('admin.emergencies.index') }}" class="absolute right-20 text-gray-400 hover:text-gray-600 dark:text-slate-400 p-2">
+                    <a href="{{ route('admin.emergencies.index') }}" class="absolute right-24 text-slate-400 hover:text-slate-600 dark:text-slate-400 p-2">
                         <i class="fas fa-times"></i>
                     </a>
                 @endif
 
-                <button type="submit" class="ml-3 bg-slate-800 hover:bg-slate-700 text-white font-medium py-3 px-6 rounded-lg transition-colors">
+                <x-ui.button type="submit" variant="primary" size="md" class="ml-3">
                     Buscar
-                </button>
+                </x-ui.button>
             </div>
         </form>
-    </div>
+    </x-ui.card>
 
     @if($emergencies->isEmpty())
-        <div class="text-center py-16 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-dashed border-slate-300 dark:border-slate-600">
-            <div class="bg-slate-50 dark:bg-slate-800 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-truck-medical text-slate-400 text-3xl"></i>
-            </div>
-            <h3 class="text-lg font-medium text-slate-900">No hay emergencias registradas</h3>
-            <p class="text-slate-500 dark:text-slate-400 mt-1">Registra una emergencia para comenzar el historial.</p>
-        </div>
+        <x-ui.empty-state icon="fas fa-truck-medical" title="No hay emergencias registradas" message="Registra una emergencia para comenzar el historial." />
     @else
-        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <x-ui.card>
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-slate-200">
-                    <thead class="bg-slate-50 dark:bg-slate-800">
-                        <tr>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Clave</th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">H. salida</th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">H. llegada</th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Unidades</th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">A cargo</th>
-                            <th scope="col" class="px-6 py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acciones</th>
+                <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
+                    <thead class="bg-slate-50 dark:bg-slate-800/50">
+                        <tr class="text-label">
+                            <th scope="col" class="px-6 py-4 text-left">Clave</th>
+                            <th scope="col" class="px-6 py-4 text-left">H. salida</th>
+                            <th scope="col" class="px-6 py-4 text-left">H. llegada</th>
+                            <th scope="col" class="px-6 py-4 text-left">Unidades</th>
+                            <th scope="col" class="px-6 py-4 text-left">A cargo</th>
+                            <th scope="col" class="px-6 py-4 text-right">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-200">
+                    <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
                         @foreach($emergencies as $emergency)
-                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                                 <td class="px-6 py-4 align-top">
-                                    <div class="text-sm font-bold text-slate-900">{{ $emergency->key?->code ?? '-' }}</div>
+                                    <div class="text-sm font-bold text-slate-900 dark:text-white">{{ $emergency->key?->code ?? '-' }}</div>
                                     <div class="text-xs text-slate-500 dark:text-slate-400">{{ \Illuminate\Support\Str::limit($emergency->key?->description ?? '', 60) }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap align-top">
-                                    <div class="text-sm font-semibold text-slate-900">{{ $emergency->dispatched_at?->format('d-m-Y') }}</div>
+                                    <div class="text-sm font-semibold text-slate-900 dark:text-white">{{ $emergency->dispatched_at?->format('d-m-Y') }}</div>
                                     <div class="text-xs text-slate-500 dark:text-slate-400 font-mono">{{ $emergency->dispatched_at?->format('H:i') }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap align-top">
                                     @if($emergency->arrived_at)
-                                        <div class="text-sm font-semibold text-slate-900">{{ $emergency->arrived_at->format('d-m-Y') }}</div>
+                                        <div class="text-sm font-semibold text-slate-900 dark:text-white">{{ $emergency->arrived_at->format('d-m-Y') }}</div>
                                         <div class="text-xs text-slate-500 dark:text-slate-400 font-mono">{{ $emergency->arrived_at->format('H:i') }}</div>
                                     @else
                                         <span class="text-xs text-slate-400 italic">Pendiente</span>
@@ -87,9 +86,7 @@
                                 <td class="px-6 py-4 align-top">
                                     <div class="flex flex-wrap gap-1 max-w-sm">
                                         @forelse($emergency->units as $unit)
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-100">
-                                                {{ $unit->name }}
-                                            </span>
+                                            <x-ui.badge variant="info" size="xs">{{ $unit->name }}</x-ui.badge>
                                         @empty
                                             <span class="text-xs text-slate-400 italic">-</span>
                                         @endforelse
@@ -97,7 +94,7 @@
                                 </td>
                                 <td class="px-6 py-4 align-top">
                                     @if($emergency->officerInChargeFirefighter || $emergency->officerInCharge)
-                                        <div class="text-sm font-medium text-slate-900">{{ $emergency->officerInChargeFirefighter?->nombres ?? $emergency->officerInCharge?->name }} {{ $emergency->officerInChargeFirefighter?->apellido_paterno ?? '' }}</div>
+                                        <div class="text-sm font-medium text-slate-900 dark:text-white">{{ $emergency->officerInChargeFirefighter?->nombres ?? $emergency->officerInCharge?->name }} {{ $emergency->officerInChargeFirefighter?->apellido_paterno ?? '' }}</div>
                                         <div class="text-xs text-slate-500 dark:text-slate-400">{{ $emergency->guardia?->name ?? '-' }}</div>
                                     @else
                                         <span class="text-xs text-slate-400 italic">-</span>
@@ -123,9 +120,9 @@
                 </table>
             </div>
 
-            <div class="bg-slate-50 dark:bg-slate-800 px-6 py-4 border-t border-slate-200 dark:border-slate-700">
+            <x-slot:footer>
                 {{ $emergencies->links() }}
-            </div>
-        </div>
+            </x-slot:footer>
+        </x-ui.card>
     @endif
 @endsection

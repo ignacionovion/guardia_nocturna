@@ -66,66 +66,66 @@
                 'falta' => $activeStaff->where('estado_asistencia', 'falta')->count(),
             ];
         @endphp
-        <!-- VISTA ESPECÍFICA PARA CUENTA DE GUARDIA (FULLSCREEN TARJETAS) -->
-        <div id="guardia-dashboard-root" class="w-full min-h-screen px-4 md:px-6 lg:px-8 py-4 pt-[calc(env(safe-area-inset-top)+1.25rem)] bg-slate-900 text-slate-100">
-            <div class="sticky top-0 z-40 flex flex-col md:flex-row md:items-center md:justify-between mb-5 gap-4 border-b border-slate-800 pb-4 bg-slate-900">
+        <!-- VISTA ESPECÍFICA PARA CUENTA DE GUARDIA -->
+        <div id="guardia-dashboard-root" class="w-full min-h-screen px-4 md:px-6 lg:px-8 py-4 pt-[calc(env(safe-area-inset-top)+1.25rem)] bg-slate-950 text-slate-100">
+            <div class="sticky top-0 z-40 flex flex-col md:flex-row md:items-center md:justify-between mb-5 gap-4 border-b border-slate-800 pb-4 bg-slate-950">
                 <div class="flex items-center gap-3 min-w-0">
-                    <div class="bg-red-700 p-2 rounded-lg text-white shadow-lg border border-red-600 shrink-0">
-                        <i class="fas fa-gauge-high text-lg"></i>
+                    <div class="icon-box icon-box-gradient-red icon-box-md">
+                        <i class="fas fa-gauge-high"></i>
                     </div>
                     <div class="min-w-0">
-                        <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Panel de Control</div>
+                        <div class="text-label">Panel de Control</div>
                         <div class="mt-0.5 flex items-center gap-3 min-w-0">
-                            <div class="text-2xl md:text-3xl font-black tracking-tight text-slate-100 uppercase truncate">{{ $myGuardia->name }}</div>
+                            <div class="text-title-md text-white uppercase truncate">{{ $myGuardia->name }}</div>
                             @if(isset($isMyGuardiaOnDuty) && $isMyGuardiaOnDuty)
-                                <span class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-green-200 bg-green-50 text-green-700 shrink-0">SEMANA DE GUARDIA</span>
+                                <x-ui.badge variant="success" size="sm">SEMANA DE GUARDIA</x-ui.badge>
                             @else
-                                <span class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 shrink-0">FUERA DE TURNO</span>
+                                <x-ui.badge variant="default" size="sm">FUERA DE TURNO</x-ui.badge>
                             @endif
                         </div>
-                        <div class="mt-0.5 text-xs font-medium text-slate-500 dark:text-slate-400">{{ $visibleStaffCount }} en pantalla | {{ $presentStaffCount }} presentes</div>
+                        <div class="mt-0.5 text-body-sm text-slate-400">{{ $visibleStaffCount }} en pantalla | {{ $presentStaffCount }} presentes</div>
                     </div>
                 </div>
 
                 <div id="attendance-stale-banner" class="hidden fixed inset-0 z-[55] flex items-center justify-center">
                     <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeAttendanceStaleBanner()"></div>
-                    <div class="relative w-full max-w-lg mx-4 px-6 py-5 rounded-2xl border border-amber-200 bg-amber-50 text-amber-900 shadow-2xl">
-                        <button onclick="closeAttendanceStaleBanner()" class="absolute top-3 right-3 w-8 h-8 rounded-lg bg-amber-100 hover:bg-amber-200 flex items-center justify-center border border-amber-200 text-amber-700 transition-colors">
+                    <div class="relative w-full max-w-lg mx-4 p-6 rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 shadow-2xl">
+                        <button onclick="closeAttendanceStaleBanner()" class="absolute top-3 right-3 w-8 h-8 rounded-lg icon-box icon-box-amber icon-box-sm">
                             <i class="fas fa-times"></i>
                         </button>
                         <div class="flex items-start gap-4">
-                            <div class="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center shrink-0 border border-amber-200">
+                            <div class="icon-box icon-box-amber icon-box-md shrink-0">
                                 <i class="fas fa-triangle-exclamation text-xl"></i>
                             </div>
                             <div class="min-w-0 pt-1">
-                                <div class="text-sm font-black uppercase tracking-widest mb-1">Asistencia desactualizada</div>
-                                <div class="text-base font-bold leading-snug">Se detectaron cambios después de guardar la asistencia. Debes presionar <span class="font-black text-amber-700">Guardar Asistencia</span> nuevamente para confirmar.</div>
+                                <div class="text-title-sm text-amber-900 dark:text-amber-200 mb-2">Asistencia desactualizada</div>
+                                <div class="text-body text-amber-800 dark:text-amber-300">Se detectaron cambios después de guardar la asistencia. Debes presionar <span class="font-semibold text-amber-700 dark:text-amber-200">Guardar Asistencia</span> nuevamente para confirmar.</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="w-full md:flex-1 flex items-center justify-start md:justify-center">
-                    <div class="flex items-center gap-2 sm:gap-3 w-full md:w-auto overflow-x-auto md:overflow-visible -mx-1 px-1">
-                        <button type="button" onclick="toggleFullscreen()" class="w-9 h-9 sm:w-10 sm:h-10 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center" title="Pantalla completa">
-                            <i class="fas fa-expand text-[14px] text-slate-200"></i>
-                        </button>
-                        <a href="{{ route('guardia.aseo') }}" class="w-9 h-9 sm:w-10 sm:h-10 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center" title="Asignación de Aseo">
-                            <i class="fas fa-broom text-[14px] text-red-300"></i>
-                        </a>
-                        <button type="button" onclick="openCalendarPopup()" class="w-9 h-9 sm:w-10 sm:h-10 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center" title="Calendario de Guardias">
-                            <i class="fas fa-calendar-days text-[14px] text-emerald-300"></i>
-                        </button>
+                    <div class="flex items-center gap-2">
+                        <x-ui.button variant="secondary" size="sm" onclick="toggleFullscreen()" class="!w-10 !h-10 !p-0" title="Pantalla completa">
+                            <i class="fas fa-expand text-sm"></i>
+                        </x-ui.button>
+                        <x-ui.button variant="secondary" size="sm" href="{{ route('guardia.aseo') }}" class="!w-10 !h-10 !p-0" title="Asignación de Aseo">
+                            <i class="fas fa-broom text-sm text-red-400"></i>
+                        </x-ui.button>
+                        <x-ui.button variant="secondary" size="sm" onclick="openCalendarPopup()" class="!w-10 !h-10 !p-0" title="Calendario de Guardias">
+                            <i class="fas fa-calendar-days text-sm text-emerald-400"></i>
+                        </x-ui.button>
                         @if(feature('emergencias'))
-                        <a href="{{ route('admin.emergencies.index') }}" class="w-9 h-9 sm:w-10 sm:h-10 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center" title="Emergencias">
-                            <i class="fas fa-truck-medical text-[14px] text-amber-300"></i>
-                        </a>
+                        <x-ui.button variant="secondary" size="sm" href="{{ route('admin.emergencies.index') }}" class="!w-10 !h-10 !p-0" title="Emergencias">
+                            <i class="fas fa-truck-medical text-sm text-amber-400"></i>
+                        </x-ui.button>
                         @endif
-                        <button type="button" onclick="openRefuerzoModal()" class="w-9 h-9 sm:w-10 sm:h-10 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center" title="Refuerzo">
-                            <i class="fas fa-user-plus text-[14px] text-sky-300"></i>
-                        </button>
-                        <button id="guardia-attendance-submit" form="guardia-attendance-form" type="submit" @if(!$attendanceEnabled) disabled @endif class="w-9 h-9 sm:w-10 sm:h-10 {{ $attendanceEnabled ? 'bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700 shadow-sm' : 'bg-slate-200 text-slate-500 dark:text-slate-400 border-slate-300 dark:border-slate-600 shadow-sm cursor-not-allowed' }} rounded-xl transition-all border flex items-center justify-center" title="Guardar Asistencia">
-                            <i class="fas fa-floppy-disk text-[14px] {{ $attendanceEnabled ? 'text-emerald-300' : '' }}"></i>
+                        <x-ui.button variant="secondary" size="sm" onclick="openRefuerzoModal()" class="!w-10 !h-10 !p-0" title="Refuerzo">
+                            <i class="fas fa-user-plus text-sm text-sky-400"></i>
+                        </x-ui.button>
+                        <button id="guardia-attendance-submit" form="guardia-attendance-form" type="submit" @if(!$attendanceEnabled) disabled @endif class="w-10 h-10 rounded-xl flex items-center justify-center transition-all border {{ $attendanceEnabled ? 'bg-slate-800 hover:bg-slate-700 text-white border-slate-700' : 'bg-slate-800/50 text-slate-500 border-slate-800 cursor-not-allowed' }}">
+                            <i class="fas fa-floppy-disk text-sm {{ $attendanceEnabled ? 'text-emerald-400' : 'text-slate-500' }}"></i>
                         </button>
                     </div>
                 </div>
@@ -139,48 +139,41 @@
                         $isAfter2200 = $localNow->hour >= 22;
                         $isAttendanceWindowOpen = $attendanceEnabled;
                         
-                        // Determinar mensaje apropiado
+                        // Determinar mensaje y variante del badge
                         $attendanceMessage = '';
-                        $attendanceBadgeClass = '';
+                        $attendanceVariant = 'default';
                         
                         if (!$isAttendanceWindowOpen) {
                             $attendanceMessage = 'FUERA DE HORARIO DE REGISTRO';
-                            $attendanceBadgeClass = 'border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400';
+                            $attendanceVariant = 'default';
                         } elseif (isset($hasAttendanceSavedToday) && $hasAttendanceSavedToday && !empty($attendanceIsStale)) {
-                            // Asistencia guardada pero roster cambió (refuerzo/reemplazo agregado después)
                             $attendanceMessage = 'ASISTENCIA DESACTUALIZADA';
-                            $attendanceBadgeClass = 'border-amber-200 bg-amber-50 text-amber-800';
+                            $attendanceVariant = 'warning';
                         } elseif (isset($hasAttendanceSavedToday) && $hasAttendanceSavedToday) {
-                            // Asistencia guardada correctamente
-                            $attendanceMessage = 'ASISTENCIA REGISTRADA CORRECTAMENTE';
-                            $attendanceBadgeClass = 'border-emerald-200 bg-emerald-50 text-emerald-700';
+                            $attendanceMessage = 'ASISTENCIA REGISTRADA';
+                            $attendanceVariant = 'success';
                         } elseif ($shiftClosedForToday) {
-                            $attendanceMessage = 'RECORDAR REGISTRAR GUARDIA A LAS 22:00';
-                            $attendanceBadgeClass = 'border-amber-200 bg-amber-50 text-amber-800';
+                            $attendanceMessage = 'RECORDAR REGISTRO 22:00';
+                            $attendanceVariant = 'warning';
                         } else {
-                            if ($isAfter2200) {
-                                $attendanceMessage = 'GUARDA LA ASISTENCIA ANTES DE IRTE';
-                                $attendanceBadgeClass = 'border-red-200 bg-red-50 text-red-700';
-                            } else {
-                                $attendanceMessage = 'SIN REGISTRAR ASISTENCIA';
-                                $attendanceBadgeClass = 'border-red-200 bg-red-50 text-red-700';
-                            }
+                            $attendanceVariant = 'danger';
+                            $attendanceMessage = $isAfter2200 ? 'GUARDAR ANTES DE IRTE' : 'SIN REGISTRAR';
                         }
                     @endphp
-                    <span id="attendance-saved-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border {{ $attendanceBadgeClass }} shrink-0">{{ $attendanceMessage }}</span>
+                    <x-ui.badge id="attendance-saved-badge" :variant="$attendanceVariant" size="sm">{{ $attendanceMessage }}</x-ui.badge>
 
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="h-9 sm:h-10 px-3 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-xl border border-slate-700 shadow-sm flex items-center justify-center gap-2" title="Cerrar sesión">
-                            <i class="fas fa-right-from-bracket text-[14px] text-rose-300"></i>
-                            <span class="hidden sm:inline text-[10px] font-black uppercase tracking-widest">Salir</span>
-                        </button>
+                        <x-ui.button variant="secondary" size="sm" type="submit" class="!h-10" title="Cerrar sesión">
+                            <i class="fas fa-right-from-bracket text-sm text-rose-400"></i>
+                            <span class="hidden sm:inline">Salir</span>
+                        </x-ui.button>
                     </form>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-4">
-                <div class="bg-slate-800 border border-slate-700 rounded-xl p-4 md:p-5 shadow-sm">
+                <x-ui.card class="!bg-slate-900 !border-slate-800">
                     <form id="guardia-attendance-form" method="POST" action="{{ route('admin.guardias.bulk_update', $myGuardia->id) }}">
                         @csrf
 
@@ -451,65 +444,66 @@
                 </div>
 
                 <div class="space-y-4">
-                    <div class="bg-slate-800 rounded-2xl shadow-sm border border-slate-700 overflow-hidden">
-                        <div class="flex items-center justify-between px-5 py-4 border-b border-slate-800 bg-slate-950">
-                            <div class="text-sm font-black text-slate-200 uppercase tracking-widest">Hora Local</div>
-                            <div class="text-xs font-black text-red-600 uppercase tracking-widest">EN LÍNEA</div>
-                        </div>
-                        <div class="p-5">
+                    <x-ui.card class="!bg-slate-900 !border-slate-800">
+                        <x-slot:header>
+                            <div class="flex items-center justify-between w-full">
+                                <div class="text-label">Hora Local</div>
+                                <x-ui.badge variant="success" size="xs">EN LÍNEA</x-ui.badge>
+                            </div>
+                        </x-slot:header>
+                        <div class="text-center">
                             @if(!$attendanceEnabled)
-                                <div class="flex justify-end mb-3">
-                                    <span class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-amber-300/30 bg-amber-500/10 text-amber-200">HABILITADO DESDE LAS {{ $attendanceEnableTime }} HASTA LAS {{ $attendanceDisableTime }}</span>
-                                </div>
+                                <x-ui.badge variant="warning" size="xs" class="mb-3">HABILITADO {{ $attendanceEnableTime }} - {{ $attendanceDisableTime }}</x-ui.badge>
                             @endif
-                            <div class="bg-slate-900 text-white px-5 py-3 rounded-lg shadow-lg border-2 border-slate-700 flex items-center justify-center">
-                                <span id="digital-clock" class="text-2xl md:text-3xl font-mono font-bold tracking-widest text-white drop-shadow-md">--:--:--</span>
+                            <div class="bg-slate-950 border-2 border-slate-800 rounded-xl py-4 px-6 flex items-center justify-center">
+                                <span id="digital-clock" class="text-2xl md:text-3xl font-mono font-bold tracking-widest text-white">--:--:--</span>
                             </div>
                         </div>
-                    </div>
+                    </x-ui.card>
 
-                    <div class="bg-slate-900 rounded-2xl shadow-sm border border-slate-800 overflow-hidden">
-                        <div class="flex items-center justify-between px-5 py-4 border-b border-slate-800 bg-slate-950">
-                            <div class="text-sm font-black text-slate-200 uppercase tracking-widest">Próximos Cumpleaños</div>
-                            <div class="text-xs font-black text-slate-400">{{ mb_strtoupper(\Carbon\Carbon::now()->locale('es')->translatedFormat('F'), 'UTF-8') }}</div>
-                        </div>
-                        <div class="p-5">
-                            @php
-                                $birthdaysList = $birthdaysThisMonth ?? $birthdays;
-                            @endphp
-                            @if($birthdaysList->isEmpty())
-                                <div class="text-sm text-slate-400">Sin cumpleaños este mes.</div>
-                            @else
-                                <div class="space-y-4">
-                                    @foreach($birthdaysList->take(5) as $user)
-                                        <div class="flex items-center justify-between gap-3">
-                                            <div class="min-w-0">
-                                                <div class="text-sm font-black text-slate-100 truncate">{{ $user->nombres }} {{ $user->apellido_paterno }}</div>
-                                                <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Bombero</div>
-                                            </div>
-                                            <div class="text-sm font-black text-slate-600 dark:text-slate-400">
-                                                {{ \Carbon\Carbon::parse($user->fecha_nacimiento)->format('d') }}
-                                            </div>
+                    <x-ui.card class="!bg-slate-900 !border-slate-800">
+                        <x-slot:header>
+                            <div class="flex items-center justify-between w-full">
+                                <div class="text-label">Próximos Cumpleaños</div>
+                                <div class="text-caption">{{ mb_strtoupper(\Carbon\Carbon::now()->locale('es')->translatedFormat('F'), 'UTF-8') }}</div>
+                            </div>
+                        </x-slot:header>
+                        @php
+                            $birthdaysList = $birthdaysThisMonth ?? $birthdays;
+                        @endphp
+                        @if($birthdaysList->isEmpty())
+                            <div class="text-body text-slate-400">Sin cumpleaños este mes.</div>
+                        @else
+                            <div class="space-y-3">
+                                @foreach($birthdaysList->take(5) as $user)
+                                    <div class="flex items-center justify-between gap-3">
+                                        <div class="min-w-0">
+                                            <div class="text-body font-semibold text-white truncate">{{ $user->nombres }} {{ $user->apellido_paterno }}</div>
+                                            <div class="text-caption">Bombero</div>
                                         </div>
-                                    @endforeach
-                                </div>
-                            @endif
-                        </div>
-                    </div>
+                                        <div class="text-body font-semibold text-slate-400">
+                                            {{ \Carbon\Carbon::parse($user->fecha_nacimiento)->format('d') }}
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                    </x-ui.card>
 
-                    <div class="bg-slate-900 rounded-2xl shadow-sm border border-slate-800 overflow-hidden">
-                        <div class="flex items-center justify-between px-5 py-4 border-b border-slate-800 bg-slate-950">
-                            <div class="text-sm font-black text-slate-200 uppercase tracking-widest">Bitácora de Novedades</div>
-                            <button onclick="openNoveltyModal()" class="text-xs font-black text-blue-400 hover:text-blue-300 uppercase tracking-widest">Registrar</button>
-                        </div>
-                        <div class="p-5">
-                            @php
-                                $guardiaNoveltiesList = $guardiaNovelties ?? $novelties;
-                            @endphp
-                            @if($guardiaNoveltiesList->isEmpty())
-                                <div class="text-sm text-slate-400">Sin novedades recientes.</div>
-                            @else
-                                <div class="space-y-4">
+                    <x-ui.card class="!bg-slate-900 !border-slate-800">
+                        <x-slot:header>
+                            <div class="flex items-center justify-between w-full">
+                                <div class="text-label">Bitácora de Novedades</div>
+                                <button onclick="openNoveltyModal()" class="text-xs font-semibold text-blue-400 hover:text-blue-300 uppercase tracking-wider">Registrar</button>
+                            </div>
+                        </x-slot:header>
+                        @php
+                            $guardiaNoveltiesList = $guardiaNovelties ?? $novelties;
+                        @endphp
+                        @if($guardiaNoveltiesList->isEmpty())
+                            <div class="text-body text-slate-400">Sin novedades recientes.</div>
+                        @else
+                            <div class="space-y-4">
                                     @foreach($guardiaNoveltiesList as $novelty)
                                         @php
                                             $noveltyColors = [
@@ -666,68 +660,33 @@
                 
                 <!-- Tarjetas KPI Principales -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <!-- Guardia Activa -->
-                    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm hover:shadow-md transition-all">
-                        <div class="flex items-start justify-between">
-                            <div>
-                                <p class="text-xs font-black text-slate-400 uppercase tracking-wider mb-1">Guardia en Servicio</p>
-                                <h3 class="text-lg font-black text-slate-900">
-                                    {{ $guardiaEnServicio?->name ?? 'Sin asignar' }}
-                                </h3>
-                            </div>
-                            <div class="bg-red-100 p-2 rounded-lg text-red-700">
-                                <i class="fas fa-shield text-lg"></i>
-                            </div>
-                        </div>
-                        @if($guardiaEnServicio)
-                            <div class="mt-3 flex items-center gap-2">
-                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-                                <span class="text-xs font-bold text-slate-600 dark:text-slate-400">Operativa</span>
-                            </div>
-                        @endif
-                    </div>
+                    <x-ui.stat-card
+                        title="Guardia en Servicio"
+                        :value="$guardiaEnServicio?->name ?? 'Sin asignar'"
+                        icon="fas fa-shield"
+                        color="red"
+                    />
 
-                    <!-- Personal en Turno -->
-                    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm hover:shadow-md transition-all">
-                        <div class="flex items-start justify-between">
-                            <div>
-                                <p class="text-xs font-black text-slate-400 uppercase tracking-wider mb-1">Personal en Guardia Nocturna</p>
-                                <h3 class="text-2xl font-black text-slate-900">{{ $onDutyCount }}</h3>
-                            </div>
-                            <div class="bg-blue-100 p-2 rounded-lg text-blue-700">
-                                <i class="fas fa-users text-lg"></i>
-                            </div>
-                        </div>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Bomberos activos</p>
-                    </div>
+                    <x-ui.stat-card
+                        title="Personal en Guardia Nocturna"
+                        :value="$onDutyCount"
+                        icon="fas fa-users"
+                        color="blue"
+                    />
 
-                    <!-- Camas Disponibles -->
-                    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm hover:shadow-md transition-all">
-                        <div class="flex items-start justify-between">
-                            <div>
-                                <p class="text-xs font-black text-slate-400 uppercase tracking-wider mb-1">Camas Libres</p>
-                                <h3 class="text-2xl font-black text-slate-900">{{ $availableBeds }}<span class="text-sm text-slate-400 font-normal">/{{ $totalBeds }}</span></h3>
-                            </div>
-                            <div class="bg-emerald-100 p-2 rounded-lg text-emerald-700">
-                                <i class="fas fa-bed text-lg"></i>
-                            </div>
-                        </div>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">{{ $occupiedBeds }} ocupadas</p>
-                    </div>
+                    <x-ui.stat-card
+                        title="Camas Libres"
+                        :value="$availableBeds . '/' . $totalBeds"
+                        icon="fas fa-bed"
+                        color="emerald"
+                    />
 
-                    <!-- Novedades -->
-                    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm hover:shadow-md transition-all">
-                        <div class="flex items-start justify-between">
-                            <div>
-                                <p class="text-xs font-black text-slate-400 uppercase tracking-wider mb-1">Novedades</p>
-                                <h3 class="text-2xl font-black text-slate-900">{{ $novelties->count() }}</h3>
-                            </div>
-                            <div class="bg-amber-100 p-2 rounded-lg text-amber-700">
-                                <i class="fas fa-clipboard-list text-lg"></i>
-                            </div>
-                        </div>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Últimas 24 horas</p>
-                    </div>
+                    <x-ui.stat-card
+                        title="Novedades"
+                        :value="$novelties->count()"
+                        icon="fas fa-clipboard-list"
+                        color="amber"
+                    />
                 </div>
 
                 <!-- Panel de Movimientos - Estilo Reporte Profesional -->

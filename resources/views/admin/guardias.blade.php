@@ -2,11 +2,14 @@
 
 @section('content')
     <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 border-b border-slate-200 dark:border-slate-700 pb-6">
-        <div>
-            <h1 class="text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight flex items-center uppercase">
-                <i class="fas fa-shield mr-3 text-red-700"></i> Administración de Guardias
-            </h1>
-            <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium">Gestión de equipos</p>
+        <div class="flex items-center gap-4">
+            <div class="icon-box icon-box-gradient-red icon-box-lg">
+                <i class="fas fa-shield"></i>
+            </div>
+            <div>
+                <h1 class="text-title-lg uppercase">Administración de Guardias</h1>
+                <p class="text-body-sm">Gestión de equipos</p>
+            </div>
         </div>
 
         <!-- Formulario Crear Guardia -->
@@ -14,11 +17,11 @@
             <form action="{{ route('admin.guardias.store') }}" method="POST" class="flex gap-2 w-full md:w-auto">
                 @csrf
                 <input type="text" name="name" placeholder="NOMBRE NUEVA GUARDIA..." required
-                    class="rounded-lg border-slate-300 dark:border-slate-600 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 px-4 py-2.5 text-sm w-full md:w-64"
-                    style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase();">
-                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-6 rounded-lg text-sm transition shadow-md flex items-center">
-                    <i class="fas fa-plus mr-2"></i> Crear
-                </button>
+                    class="form-input w-full md:w-64 uppercase"
+                    oninput="this.value = this.value.toUpperCase();">
+                <x-ui.button type="submit" variant="success" size="md" icon="fas fa-plus">
+                    Crear
+                </x-ui.button>
             </form>
         @endif
     </div>
@@ -73,24 +76,19 @@
     </div>
 
     @if(session('success'))
-        <div class="bg-green-50 border-l-4 border-green-500 text-green-800 p-4 mb-6 rounded-r shadow-sm flex items-center" role="alert">
-            <i class="fas fa-check-circle mr-3 text-xl"></i>
-            <span class="font-medium">{{ session('success') }}</span>
-        </div>
+        <x-ui.alert type="success" icon="fas fa-check-circle" class="mb-6">
+            {{ session('success') }}
+        </x-ui.alert>
     @endif
     
     @if($errors->any())
-        <div class="bg-red-50 border-l-4 border-red-500 text-red-800 p-4 mb-6 rounded-r shadow-sm" role="alert">
-            <div class="flex items-center mb-2">
-                <i class="fas fa-exclamation-triangle mr-2 text-xl"></i>
-                <p class="font-bold">Error:</p>
-            </div>
-            <ul class="list-disc list-inside ml-2">
+        <x-ui.alert type="danger" icon="fas fa-exclamation-triangle" class="mb-6">
+            <ul class="list-disc list-inside">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
             </ul>
-        </div>
+        </x-ui.alert>
     @endif
 
     <div class="w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 overflow-y-auto max-h-[650px] pr-2 flex-grow p-3 items-start">
