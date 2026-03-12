@@ -2,78 +2,77 @@
 
 @section('content')
     <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-800 dark:text-white">Usuarios del Sistema</h1>
-            <p class="text-gray-500 dark:text-slate-400 text-sm mt-1">Administración de cuentas con acceso al sistema</p>
+        <div class="flex items-center gap-4">
+            <div class="icon-box icon-box-indigo icon-box-lg">
+                <i class="fas fa-user-shield"></i>
+            </div>
+            <div>
+                <h1 class="text-title-lg">Usuarios del Sistema</h1>
+                <p class="text-body-sm">Administración de cuentas con acceso al sistema</p>
+            </div>
         </div>
 
         <div class="flex flex-wrap gap-3 items-center">
             @if(!plan_exceeded('users'))
-            <a href="{{ route('admin.users.create') }}" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200 transform hover:-translate-y-0.5">
-                <i class="fas fa-plus mr-2"></i> Nuevo Usuario
-            </a>
+            <x-ui.button variant="primary" size="md" icon="fas fa-plus" href="{{ route('admin.users.create') }}">
+                Nuevo Usuario
+            </x-ui.button>
             @else
-            <div class="px-4 py-2 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 text-sm">
-                <i class="fas fa-exclamation-triangle mr-2"></i> Límite de usuarios alcanzado
-            </div>
+            <x-ui.alert type="warning" icon="fas fa-exclamation-triangle" class="!py-2 !px-4">
+                Límite de usuarios alcanzado
+            </x-ui.alert>
             @endif
-            <a href="{{ route('admin.roles.index') }}" class="inline-flex items-center bg-slate-800 hover:bg-slate-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200 transform hover:-translate-y-0.5">
-                <i class="fas fa-user-gear mr-2"></i> Roles
-            </a>
+            <x-ui.button variant="secondary" size="md" icon="fas fa-user-gear" href="{{ route('admin.roles.index') }}">
+                Roles
+            </x-ui.button>
         </div>
     </div>
 
-    <div class="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm mb-8 border border-gray-100 dark:border-slate-800">
+    <x-ui.card class="mb-8">
         <form action="{{ route('admin.users.index') }}" method="GET" class="relative">
             <div class="flex items-center">
-                <i class="fas fa-search absolute left-4 text-gray-400"></i>
+                <i class="fas fa-search absolute left-4 text-slate-400"></i>
                 <input type="text" name="search" value="{{ request('search') }}"
                     placeholder="Buscar por nombre o email..."
-                    class="w-full pl-11 pr-4 py-3 border-gray-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-colors text-gray-700 dark:text-slate-300">
+                    class="form-input pl-11 flex-1">
 
                 @if(request('search'))
-                    <a href="{{ route('admin.users.index') }}" class="absolute right-20 text-gray-400 hover:text-gray-600 dark:text-slate-400 p-2">
+                    <a href="{{ route('admin.users.index') }}" class="absolute right-24 text-slate-400 hover:text-slate-600 dark:text-slate-400 p-2">
                         <i class="fas fa-times"></i>
                     </a>
                 @endif
 
-                <button type="submit" class="ml-3 bg-slate-800 hover:bg-slate-700 text-white font-medium py-3 px-6 rounded-lg transition-colors">
+                <x-ui.button type="submit" variant="primary" size="md" class="ml-3">
                     Buscar
-                </button>
+                </x-ui.button>
             </div>
         </form>
-    </div>
+    </x-ui.card>
 
     @if($users->isEmpty())
-        <div class="text-center py-16 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-dashed border-slate-300 dark:border-slate-600">
-            <div class="bg-slate-50 dark:bg-slate-800 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-user-shield text-slate-400 text-3xl"></i>
-            </div>
-            <h3 class="text-lg font-medium text-slate-900">No se encontraron usuarios</h3>
-            <p class="text-slate-500 dark:text-slate-400 mt-1">Intenta ajustar el buscador o crea un nuevo usuario.</p>
-        </div>
+        <x-ui.empty-state icon="fas fa-user-shield" title="No se encontraron usuarios" message="Intenta ajustar el buscador o crea un nuevo usuario." />
     @else
-        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <x-ui.card>
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-slate-200">
-                    <thead class="bg-slate-50 dark:bg-slate-800">
-                        <tr>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Usuario</th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Rol</th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Guardia</th>
-                            <th scope="col" class="px-6 py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acciones</th>
+                <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
+                    <thead class="bg-slate-50 dark:bg-slate-800/50">
+                        <tr class="text-label">
+                            <th scope="col" class="px-6 py-4 text-left">Usuario</th>
+                            <th scope="col" class="px-6 py-4 text-left">Rol</th>
+                            <th scope="col" class="px-6 py-4 text-left">Guardia</th>
+                            <th scope="col" class="px-6 py-4 text-right">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-200">
+                    <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
                         @foreach($users as $user)
-                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 dark:text-slate-400 font-bold border border-slate-300 dark:border-slate-600 shadow-sm text-sm">
+                                        <div class="icon-box icon-box-slate icon-box-sm">
                                             {{ substr($user->name, 0, 1) }}
                                         </div>
                                         <div class="ml-4">
-                                            <div class="text-sm font-bold text-slate-900">{{ $user->name }}</div>
+                                            <div class="text-sm font-bold text-slate-900 dark:text-white">{{ $user->name }}</div>
                                             <div class="text-xs text-slate-500 dark:text-slate-400 font-mono">{{ $user->email }}</div>
                                         </div>
                                     </div>

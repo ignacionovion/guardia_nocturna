@@ -5,74 +5,77 @@
 
 @section('content')
     <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-800 dark:text-white">Gestión de Voluntarios</h1>
-            <p class="text-gray-500 dark:text-slate-400 text-sm mt-1">Administración del personal del cuerpo de bomberos</p>
+        <div class="flex items-center gap-4">
+            <div class="icon-box icon-box-rose icon-box-lg">
+                <i class="fas fa-users"></i>
+            </div>
+            <div>
+                <h1 class="text-title-lg">Gestión de Voluntarios</h1>
+                <p class="text-body-sm">Administración del personal del cuerpo de bomberos</p>
+            </div>
         </div>
         
         <div class="flex flex-wrap gap-3 items-center">
             <!-- Botón de Eliminación Masiva -->
-            <button type="button" id="btn-bulk-delete" style="display: none;" class="items-center bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200 transform hover:-translate-y-0.5" onclick="confirmBulkDelete()">
-                <i class="fas fa-trash-can mr-2"></i> Eliminar (<span id="selected-count">0</span>)
-            </button>
+            <x-ui.button id="btn-bulk-delete" variant="danger" size="md" icon="fas fa-trash-can" onclick="confirmBulkDelete()" style="display: none;">
+                Eliminar (<span id="selected-count">0</span>)
+            </x-ui.button>
 
             @if(auth()->check() && auth()->user()->role === 'super_admin')
-                <button type="button" class="inline-flex items-center bg-rose-700 hover:bg-rose-800 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200 transform hover:-translate-y-0.5" onclick="openPurgeModal()">
-                    <i class="fas fa-bomb mr-2"></i> Eliminar todos
-                </button>
+                <x-ui.button variant="danger" size="md" icon="fas fa-bomb" onclick="openPurgeModal()">
+                    Eliminar todos
+                </x-ui.button>
             @endif
 
             @if(feature('inventario') || feature('gestion_bomberos'))
-            <a href="{{ route('admin.volunteers.import') }}" class="inline-flex items-center bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200 transform hover:-translate-y-0.5">
-                <i class="fas fa-file-excel mr-2"></i> Importar Excel
-            </a>
+            <x-ui.button variant="success" size="md" icon="fas fa-file-excel" href="{{ route('admin.volunteers.import') }}">
+                Importar Excel
+            </x-ui.button>
             @endif
             @if(!plan_exceeded('guardias'))
-            <a href="{{ route('admin.volunteers.create') }}" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200 transform hover:-translate-y-0.5">
-                <i class="fas fa-plus mr-2"></i> Nuevo Voluntario
-            </a>
+            <x-ui.button variant="primary" size="md" icon="fas fa-plus" href="{{ route('admin.volunteers.create') }}">
+                Nuevo Voluntario
+            </x-ui.button>
             @else
-            <div class="px-4 py-2 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 text-sm">
-                <i class="fas fa-exclamation-triangle mr-2"></i> Límite de guardias alcanzado
-            </div>
+            <x-ui.alert type="warning" icon="fas fa-exclamation-triangle" class="!py-2 !px-4">
+                Límite de guardias alcanzado
+            </x-ui.alert>
             @endif
         </div>
     </div>
 
     <!-- Buscador -->
-    <div class="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm mb-8 border border-gray-100 dark:border-slate-800">
+    <x-ui.card class="mb-8">
         <form action="{{ route('admin.volunteers.index') }}" method="GET" class="relative" id="volunteer-search-form">
             <div class="flex items-center">
-                <i class="fas fa-search absolute left-4 text-gray-400"></i>
+                <i class="fas fa-search absolute left-4 text-slate-400"></i>
                 <input type="text" name="search" value="{{ request('search') }}" id="volunteer-search-input"
                     placeholder="Buscar por nombre, RUT o cargo..." 
-                    class="w-full pl-11 pr-4 py-3 border-gray-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-colors text-gray-700 dark:text-slate-300">
+                    class="form-input pl-11 flex-1">
                 
                 @if(request('search'))
-                    <a href="{{ route('admin.volunteers.index') }}" class="absolute right-20 text-gray-400 hover:text-gray-600 dark:text-slate-400 p-2">
+                    <a href="{{ route('admin.volunteers.index') }}" class="absolute right-24 text-slate-400 hover:text-slate-600 dark:text-slate-400 p-2">
                         <i class="fas fa-times"></i>
                     </a>
                 @endif
                 
-                <button type="submit" class="ml-3 bg-slate-800 hover:bg-slate-700 text-white font-medium py-3 px-6 rounded-lg transition-colors">
+                <x-ui.button type="submit" variant="primary" size="md" class="ml-3">
                     Buscar
-                </button>
+                </x-ui.button>
             </div>
         </form>
-    </div>
+    </x-ui.card>
 
     @if(session('success'))
-        <div class="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-r-lg mb-8 shadow-sm flex items-center animate-fade-in-down" role="alert">
-            <i class="fas fa-check-circle mr-3 text-xl"></i>
-            <span class="block sm:inline font-medium">{{ session('success') }}</span>
-        </div>
+        <x-ui.alert type="success" icon="fas fa-check-circle" class="mb-8">
+            {{ session('success') }}
+        </x-ui.alert>
     @endif
     
     @if(session('warning'))
-        <div class="bg-yellow-50 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-r-lg mb-8 shadow-sm flex items-center animate-fade-in-down" role="alert">
-            <i class="fas fa-exclamation-triangle mr-3 text-xl"></i>
-            <span class="block sm:inline font-medium">{{ session('warning') }}</span>
-        </div>
+        <x-ui.alert type="warning" icon="fas fa-exclamation-triangle" class="mb-8">
+            {{ session('warning') }}
+        </x-ui.alert>
     @endif
 
     @if($volunteers->isEmpty())

@@ -8,149 +8,78 @@
     @include('admin.reports._tabs')
 
     {{-- Filtros --}}
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+    <x-ui.card>
         <form action="{{ route('admin.reports.emergencias') }}" method="GET" class="flex flex-wrap items-end gap-4">
             
-            {{-- Select Mes - ESTANDARIZADO --}}
+            {{-- Select Mes --}}
             <div class="min-w-[160px]">
-                <label class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Mes</label>
-                <div class="relative group">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                        <i class="fas fa-calendar text-slate-400 group-focus-within:text-red-500 transition-colors"></i>
-                    </div>
-                    <select name="month" class="w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 appearance-none cursor-pointer hover:bg-white dark:bg-slate-900 hover:border-slate-300 dark:border-slate-600 transition-all shadow-sm">
+                <label class="form-label">Mes</label>
+                <div class="relative">
+                    <i class="fas fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <select name="month" class="form-select pl-10">
                         @foreach(range(1, 12) as $m)
                             <option value="{{ $m }}" {{ $m == ($month ?? now()->month) ? 'selected' : '' }}>
                                 {{ Carbon\Carbon::create()->month($m)->locale('es')->monthName }}
                             </option>
                         @endforeach
                     </select>
-                    <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
-                        <div class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                            <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
-                        </div>
-                    </div>
                 </div>
             </div>
 
-            {{-- Select Año - ESTANDARIZADO --}}
+            {{-- Select Año --}}
             <div class="min-w-[140px]">
-                <label class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Año</label>
-                <div class="relative group">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                        <i class="fas fa-calendar-alt text-slate-400 group-focus-within:text-red-500 transition-colors"></i>
-                    </div>
-                    <select name="year" class="w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 appearance-none cursor-pointer hover:bg-white dark:bg-slate-900 hover:border-slate-300 dark:border-slate-600 transition-all shadow-sm">
+                <label class="form-label">Año</label>
+                <div class="relative">
+                    <i class="fas fa-calendar-alt absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <select name="year" class="form-select pl-10">
                         @foreach(range(now()->year - 2, now()->year + 1) as $y)
                             <option value="{{ $y }}" {{ $y == ($year ?? now()->year) ? 'selected' : '' }}>{{ $y }}</option>
                         @endforeach
                     </select>
-                    <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
-                        <div class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                            <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
-                        </div>
-                    </div>
                 </div>
             </div>
 
-            {{-- Select Guardia - ESTANDARIZADO --}}
+            {{-- Select Guardia --}}
             <div class="min-w-[220px]">
-                <label class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Guardia</label>
-                <div class="relative group">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                        <i class="fas fa-shield-alt text-slate-400 group-focus-within:text-red-500 transition-colors"></i>
-                    </div>
-                    <select name="guardia_id" class="w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 appearance-none cursor-pointer hover:bg-white dark:bg-slate-900 hover:border-slate-300 dark:border-slate-600 transition-all shadow-sm">
+                <label class="form-label">Guardia</label>
+                <div class="relative">
+                    <i class="fas fa-shield-alt absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <select name="guardia_id" class="form-select pl-10">
                         <option value="">Todas las Guardias</option>
                         @foreach($guardias ?? [] as $g)
                             <option value="{{ $g->id }}" {{ ($guardiaId ?? '') == $g->id ? 'selected' : '' }}>{{ $g->name }}</option>
                         @endforeach
                     </select>
-                    <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
-                        <div class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                            <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
-                        </div>
-                    </div>
                 </div>
             </div>
 
             {{-- Botón Filtrar --}}
             <div class="flex gap-2">
-                <button type="submit" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-900 text-white font-extrabold text-xs uppercase tracking-widest transition-all shadow-md hover:shadow-lg">
-                    <i class="fas fa-filter"></i> Filtrar
-                </button>
-                <a href="{{ route('admin.reports.emergencias') }}" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 font-extrabold text-xs uppercase tracking-widest transition-all" title="Limpiar filtros">
-                    <i class="fas fa-undo"></i>
-                </a>
+                <x-ui.button type="submit" variant="primary" size="md" icon="fas fa-filter">
+                    Filtrar
+                </x-ui.button>
+                <x-ui.button variant="secondary" size="md" icon="fas fa-undo" href="{{ route('admin.reports.emergencias') }}" title="Limpiar filtros">
+                </x-ui.button>
             </div>
 
-            {{-- Botones de Exportación Profesionales --}}
+            {{-- Botones de Exportación --}}
             <div class="ml-auto flex gap-2">
-                <a href="{{ route('admin.reports.emergencias.export', ['format' => 'excel'] + request()->all()) }}" 
-                   class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-extrabold text-xs uppercase tracking-widest transition-all shadow-sm hover:shadow-md">
-                    <i class="fas fa-file-excel text-emerald-600"></i> Excel
-                </a>
-                <a href="{{ route('admin.reports.emergencias.export', ['format' => 'pdf'] + request()->all()) }}" target="_blank"
-                   class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-extrabold text-xs uppercase tracking-widest transition-all shadow-sm hover:shadow-md">
-                    <i class="fas fa-file-pdf text-rose-600"></i> PDF
-                </a>
+                <x-ui.button variant="success" size="md" icon="fas fa-file-excel" href="{{ route('admin.reports.emergencias.export', ['format' => 'excel'] + request()->all()) }}">
+                    Excel
+                </x-ui.button>
+                <x-ui.button variant="danger" size="md" icon="fas fa-file-pdf" href="{{ route('admin.reports.emergencias.export', ['format' => 'pdf'] + request()->all()) }}" target="_blank">
+                    PDF
+                </x-ui.button>
             </div>
         </form>
-    </div>
+    </x-ui.card>
 
     {{-- KPIs --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {{-- Total Emergencias --}}
-        <div class="bg-white dark:bg-slate-900 rounded-xl border-l-4 border-red-500 shadow-sm p-5">
-            <div class="flex items-center">
-                <div class="flex-shrink-0 w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-ambulance text-xl text-red-600"></i>
-                </div>
-                <div class="ml-4">
-                    <p class="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Emergencias</p>
-                    <p class="text-2xl font-bold text-slate-800 dark:text-white">{{ $kpis['total_emergencies'] }}</p>
-                </div>
-            </div>
-        </div>
-
-        {{-- Período --}}
-        <div class="bg-white dark:bg-slate-900 rounded-xl border-l-4 border-blue-500 shadow-sm p-5">
-            <div class="flex items-center">
-                <div class="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-calendar text-xl text-blue-600"></i>
-                </div>
-                <div class="ml-4">
-                    <p class="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">Período</p>
-                    <p class="text-lg font-bold text-slate-800 dark:text-white">{{ Carbon\Carbon::create()->month($month)->locale('es')->monthName }} {{ $year }}</p>
-                </div>
-            </div>
-        </div>
-
-        {{-- Guardia Filtrada --}}
-        <div class="bg-white dark:bg-slate-900 rounded-xl border-l-4 border-cyan-500 shadow-sm p-5">
-            <div class="flex items-center">
-                <div class="flex-shrink-0 w-12 h-12 bg-cyan-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-shield-alt text-xl text-cyan-600"></i>
-                </div>
-                <div class="ml-4">
-                    <p class="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">Guardia</p>
-                    <p class="text-lg font-bold text-slate-800 dark:text-white">{{ $kpis['guardia_filter'] }}</p>
-                </div>
-            </div>
-        </div>
-
-        {{-- Claves Distintas --}}
-        <div class="bg-white dark:bg-slate-900 rounded-xl border-l-4 border-amber-500 shadow-sm p-5">
-            <div class="flex items-center">
-                <div class="flex-shrink-0 w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-key text-xl text-amber-600"></i>
-                </div>
-                <div class="ml-4">
-                    <p class="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">Claves Distintas</p>
-                    <p class="text-2xl font-bold text-slate-800 dark:text-white">{{ $topKeys->count() }}</p>
-                </div>
-            </div>
-        </div>
+        <x-ui.stat-card title="Total Emergencias" :value="$kpis['total_emergencies']" icon="fas fa-ambulance" color="red" />
+        <x-ui.stat-card title="Período" :value="Carbon\Carbon::create()->month($month)->locale('es')->monthName . ' ' . $year" icon="fas fa-calendar" color="blue" />
+        <x-ui.stat-card title="Guardia" :value="$kpis['guardia_filter']" icon="fas fa-shield-alt" color="cyan" />
+        <x-ui.stat-card title="Claves Distintas" :value="$topKeys->count()" icon="fas fa-key" color="amber" />
     </div>
 
     {{-- GRÁFICOS --}}
