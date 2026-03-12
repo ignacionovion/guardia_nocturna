@@ -101,7 +101,6 @@
                             </div>
                         </div>
 
-                        @if(feature('guardia') || feature('camas') || feature('now'))
                         <div class="relative group">
                             <button type="button" class="px-3 py-2 rounded-md text-sm font-semibold transition-colors text-slate-200 hover:bg-slate-800 hover:text-white">
                                 <i class="fas fa-shield-halved mr-1.5 opacity-80"></i>
@@ -132,7 +131,6 @@
                                 @endif
                             </div>
                         </div>
-                        @endif
 
                         @if(feature('preventiva'))
                         <div class="relative group">
