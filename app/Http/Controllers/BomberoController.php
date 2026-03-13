@@ -122,6 +122,19 @@ class BomberoController extends Controller
         if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
+        
+        // Diagnóstico temporal - verificar contexto de datos
+        dd([
+            'id_recibido' => $id,
+            'host' => request()->getHost(),
+            'tenant_id' => tenant()?->id ?? 'sin tenant',
+            'db_connection' => config('database.default'),
+            'bombero_find' => Bombero::find($id)?->toArray() ?? 'NO ENCONTRADO',
+            'bombero_findOrFail' => 'ejecutando...',
+            'total_bomberos' => Bombero::count(),
+            'primeros_5_bomberos' => Bombero::limit(5)->pluck('id')->toArray(),
+        ]);
+        
         $volunteer = Bombero::findOrFail($id);
         $guardias = Guardia::all();
         return view('admin.volunteers.edit', compact('volunteer', 'guardias'));
