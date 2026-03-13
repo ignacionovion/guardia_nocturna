@@ -1,10 +1,3 @@
-{{--
-    Dashboard de Guardia - Vista Principal Refactorizada
-    
-    Este archivo prepara las variables necesarias y delega a parciales.
-    La lógica compleja se mueve a un bloque @php inicial.
---}}
-
 @php
     // === CONFIGURACIÓN DE ZONA HORARIA ===
     $guardiaTz = SystemSetting::getValue('guardia_schedule_tz', env('GUARDIA_SCHEDULE_TZ', config('app.timezone')));
