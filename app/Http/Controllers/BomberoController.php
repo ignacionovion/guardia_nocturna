@@ -117,26 +117,24 @@ class BomberoController extends Controller
         return view('admin.volunteers.show', compact('volunteer'));
     }
 
-    public function edit($id)
+    public function edit(Bombero $volunteer)
     {
         if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
-        $volunteer = Bombero::findOrFail($id);
         $guardias = Guardia::all();
         return view('admin.volunteers.edit', compact('volunteer', 'guardias'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Bombero $volunteer)
     {
         if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
-        $volunteer = Bombero::findOrFail($id);
         
         $request->validate([
             'nombres' => 'required|string|max:255',
-            'rut' => 'nullable|string|unique:bomberos,rut,'.$id,
+            'rut' => 'nullable|string|unique:bomberos,rut,'.$volunteer->id,
             'numero_registro' => 'nullable|string|max:255',
             'correo' => 'nullable|email',
             'photo' => 'nullable|image|max:2048',
@@ -190,12 +188,11 @@ class BomberoController extends Controller
         return redirect()->route('admin.volunteers.index')->with('success', 'Voluntario actualizado exitosamente.');
     }
 
-    public function destroy($id)
+    public function destroy(Bombero $volunteer)
     {
         if (auth()->user()->role !== 'super_admin') {
             abort(403, 'No autorizado.');
         }
-        $volunteer = Bombero::findOrFail($id);
         $volunteer->delete();
         return redirect()->route('admin.volunteers.index')->with('success', 'Voluntario eliminado exitosamente.');
     }
