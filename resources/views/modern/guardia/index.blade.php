@@ -43,21 +43,41 @@
 
     {{-- Quick Stats --}}
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 p-4 text-center">
-            <div class="text-3xl font-bold text-emerald-600 dark:text-emerald-400">{{ $totalPresentes ?? 12 }}</div>
-            <div class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1">Presentes</div>
+        <div class="bg-white dark:bg-slate-800 rounded-xl border-l-4 border-emerald-500 shadow-sm p-4 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
+                <i class="fas fa-user-check text-emerald-600 dark:text-emerald-400 text-xl"></i>
+            </div>
+            <div>
+                <div class="text-2xl font-bold text-slate-900 dark:text-white">{{ $totalPresentes ?? 12 }}</div>
+                <div class="text-sm font-medium text-slate-500 dark:text-slate-400">Presentes</div>
+            </div>
         </div>
-        <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 p-4 text-center">
-            <div class="text-3xl font-bold text-amber-600 dark:text-amber-400">{{ $totalReemplazos ?? 2 }}</div>
-            <div class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1">Reemplazos</div>
+        <div class="bg-white dark:bg-slate-800 rounded-xl border-l-4 border-amber-500 shadow-sm p-4 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
+                <i class="fas fa-people-arrows text-amber-600 dark:text-amber-400 text-xl"></i>
+            </div>
+            <div>
+                <div class="text-2xl font-bold text-slate-900 dark:text-white">{{ $totalReemplazos ?? 2 }}</div>
+                <div class="text-sm font-medium text-slate-500 dark:text-slate-400">Reemplazos</div>
+            </div>
         </div>
-        <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 p-4 text-center">
-            <div class="text-3xl font-bold text-blue-600 dark:text-blue-400">{{ $totalRefuerzos ?? 1 }}</div>
-            <div class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1">Refuerzos</div>
+        <div class="bg-white dark:bg-slate-800 rounded-xl border-l-4 border-blue-500 shadow-sm p-4 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center shrink-0">
+                <i class="fas fa-user-plus text-blue-600 dark:text-blue-400 text-xl"></i>
+            </div>
+            <div>
+                <div class="text-2xl font-bold text-slate-900 dark:text-white">{{ $totalRefuerzos ?? 1 }}</div>
+                <div class="text-sm font-medium text-slate-500 dark:text-slate-400">Refuerzos</div>
+            </div>
         </div>
-        <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 p-4 text-center">
-            <div class="text-3xl font-bold text-purple-600 dark:text-purple-400">{{ $totalPermisos ?? 3 }}</div>
-            <div class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1">Permisos</div>
+        <div class="bg-white dark:bg-slate-800 rounded-xl border-l-4 border-purple-500 shadow-sm p-4 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center shrink-0">
+                <i class="fas fa-clipboard-check text-purple-600 dark:text-purple-400 text-xl"></i>
+            </div>
+            <div>
+                <div class="text-2xl font-bold text-slate-900 dark:text-white">{{ $totalPermisos ?? 3 }}</div>
+                <div class="text-sm font-medium text-slate-500 dark:text-slate-400">Permisos</div>
+            </div>
         </div>
     </div>
 
