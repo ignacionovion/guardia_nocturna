@@ -1,4 +1,7 @@
 @php
+use App\Models\SystemSetting;
+    use Carbon\Carbon;
+    
     // === CONFIGURACIÓN DE ZONA HORARIA ===
     $guardiaTz = SystemSetting::getValue('guardia_schedule_tz', env('GUARDIA_SCHEDULE_TZ', config('app.timezone')));
     $localNow = now()->copy()->setTimezone($guardiaTz);
