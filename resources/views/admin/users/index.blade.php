@@ -105,6 +105,6 @@
             <div class="bg-slate-50 dark:bg-slate-800 px-6 py-4 border-t border-slate-200 dark:border-slate-700">
                 {{ $users->links() }}
             </div>
-        </div>
+        </x-ui.card>
     @endif
 @endsection

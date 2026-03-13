@@ -22,77 +22,95 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         @foreach($guardias as $guardia)
             <x-ui.card>
-                <x-slot:header class="!bg-slate-900 !text-white !border-slate-800">
-                    <div>
-                        <h2 class="text-title-sm uppercase">{{ $guardia->name }}</h2>
-                        <p class="text-caption flex items-center mt-1">
-                            <i class="fas fa-users mr-2 opacity-50"></i> {{ $guardia->bomberos->count() }} Asignados
-                        </p>
+                <x-slot:header class="!bg-gradient-to-r !from-red-700 !to-red-600 !text-white !border-red-800">
+                    <div class="flex items-center justify-between w-full">
+                        <div>
+                            <h2 class="text-title-sm uppercase tracking-wide">{{ $guardia->name }}</h2>
+                            <p class="text-caption flex items-center mt-1 text-white/80">
+                                <i class="fas fa-users mr-2 opacity-70"></i> {{ $guardia->bomberos->count() }} Asignados
+                            </p>
+                        </div>
+                        <div class="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
+                            <i class="fas fa-shield-halved text-white"></i>
+                        </div>
                     </div>
                 </x-slot:header>
 
-                <div class="p-4 space-y-4">
-                    <form action="{{ route('admin.guardias.assign') }}" method="POST" class="space-y-3" onsubmit="return validateDotacionesForm(this)">
+                <div class="p-5 space-y-5">
+                    <form action="{{ route('admin.guardias.assign') }}" method="POST" class="space-y-4" onsubmit="return validateDotacionesForm(this)">
                         @csrf
                         <input type="hidden" name="guardia_id" value="{{ $guardia->id }}">
 
-                        <div>
-                            <label class="form-label">Voluntario</label>
+                        <div class="space-y-2">
+                            <label class="form-label">Buscar voluntario</label>
                             <div class="relative">
-                                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
                                 <input name="firefighter_id_display" autocomplete="off" data-dotaciones-volunteer-input data-guardia-id="{{ $guardia->id }}"
-                                       class="form-input pl-9"
-                                       placeholder="Buscar por nombre, apellido o RUT..." required>
+                                       class="form-input pl-10"
+                                       placeholder="Escribe nombre, apellido o RUT..." required>
                                 <input type="hidden" name="firefighter_id" id="firefighter_id_input_{{ $guardia->id }}" required>
 
-                                <div id="volunteer_dropdown_{{ $guardia->id }}" class="hidden absolute left-0 right-0 mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg z-20 max-h-60 overflow-auto"></div>
+                                <div id="volunteer_dropdown_{{ $guardia->id }}" class="hidden absolute left-0 right-0 mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-20 max-h-60 overflow-auto"></div>
                             </div>
-                            <div class="hidden text-xs text-red-700 font-bold mt-2" data-dotaciones-error data-guardia-id="{{ $guardia->id }}"></div>
+                            <div class="hidden text-xs text-red-600 dark:text-red-400 font-semibold mt-1" data-dotaciones-error data-guardia-id="{{ $guardia->id }}"></div>
                         </div>
 
-                        <x-ui.button type="submit" variant="primary" size="md" icon="fas fa-plus" class="w-full">
-                            Asignar a Guardia
+                        <x-ui.button type="submit" variant="primary" size="md" icon="fas fa-user-plus" class="w-full">
+                            Asignar a {{ $guardia->name }}
                         </x-ui.button>
                     </form>
 
-                    <div class="border-t border-slate-100 dark:border-slate-800 pt-4">
-                        <h3 class="text-label mb-3">Personal asignado</h3>
-                        <div class="space-y-2">
+                    <div class="border-t border-slate-200 dark:border-slate-700 pt-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-label uppercase tracking-wide text-slate-500 dark:text-slate-400">Personal asignado</h3>
+                            @if($guardia->bomberos->count() > 0)
+                                <x-ui.badge variant="success" size="xs">{{ $guardia->bomberos->count() }} activos</x-ui.badge>
+                            @endif
+                        </div>
+                        <div class="space-y-2 max-h-64 overflow-y-auto pr-1">
                             @forelse($guardia->bomberos as $user)
-                                <div class="flex items-center justify-between bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2">
-                                    <div>
-                                        <p class="text-sm font-bold text-slate-800 dark:text-white">{{ $user->nombres }} {{ $user->apellido_paterno }}</p>
-                                        @if($user->cargo_texto)
-                                            <p class="text-caption">{{ $user->cargo_texto }}</p>
-                                        @endif
-                                        <p class="text-caption">
-                                            {{ $user->es_jefe_guardia ? 'Jefe de Guardia' : 'Bombero' }}
-                                        </p>
-                                        <div class="flex gap-1 mt-1">
-                                            @if($user->es_conductor)
-                                                <span class="w-5 h-5 rounded-full icon-box icon-box-blue icon-box-xs" title="Conductor">
-                                                    <i class="fas fa-car text-[9px]"></i>
+                                <div class="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-3 hover:bg-white dark:hover:bg-slate-800 transition-colors">
+                                    <div class="flex items-center gap-3">
+                                        <div class="h-9 w-9 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-400 font-bold text-sm">
+                                            {{ substr($user->nombres, 0, 1) }}{{ substr($user->apellido_paterno, 0, 1) }}
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-bold text-slate-800 dark:text-white">{{ $user->nombres }} {{ $user->apellido_paterno }}</p>
+                                            <div class="flex items-center gap-2 mt-0.5">
+                                                @if($user->cargo_texto)
+                                                    <span class="text-caption text-slate-500">{{ $user->cargo_texto }}</span>
+                                                @endif
+                                                <span class="text-caption {{ $user->es_jefe_guardia ? 'text-amber-600 dark:text-amber-400 font-semibold' : 'text-slate-400' }}">
+                                                    {{ $user->es_jefe_guardia ? 'Jefe de Guardia' : 'Bombero' }}
                                                 </span>
-                                            @endif
-                                            @if($user->es_operador_rescate)
-                                                <span class="w-5 h-5 rounded-full icon-box icon-box-amber icon-box-xs" title="Operador de Rescate">R</span>
-                                            @endif
-                                            @if($user->es_asistente_trauma)
-                                                <span class="w-5 h-5 rounded-full icon-box icon-box-red icon-box-xs" title="Asistente de Trauma">T</span>
-                                            @endif
+                                            </div>
+                                            <div class="flex gap-1 mt-1.5">
+                                                @if($user->es_conductor)
+                                                    <x-ui.badge variant="info" size="xs" icon="fas fa-car">Cond</x-ui.badge>
+                                                @endif
+                                                @if($user->es_operador_rescate)
+                                                    <x-ui.badge variant="warning" size="xs">Rescate</x-ui.badge>
+                                                @endif
+                                                @if($user->es_asistente_trauma)
+                                                    <x-ui.badge variant="danger" size="xs">Trauma</x-ui.badge>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
-                                    <form action="{{ route('admin.guardias.unassign') }}" method="POST" onsubmit="return confirm('¿Quitar a este voluntario de la guardia?');">
+                                    <form action="{{ route('admin.guardias.unassign') }}" method="POST" onsubmit="return confirm('¿Quitar a {{ $user->nombres }} {{ $user->apellido_paterno }} de esta guardia?');">
                                         @csrf
                                         <input type="hidden" name="guardia_id" value="{{ $guardia->id }}">
                                         <input type="hidden" name="firefighter_id" value="{{ $user->id }}">
-                                        <button type="submit" class="text-slate-400 hover:text-red-600 p-2 rounded-md hover:bg-white dark:bg-slate-900 transition-all" title="Quitar de guardia">
+                                        <button type="submit" class="text-slate-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-all" title="Quitar de guardia">
                                             <i class="fas fa-user-minus"></i>
                                         </button>
                                     </form>
                                 </div>
                             @empty
-                                <div class="text-body-sm text-slate-400">Sin personal asignado</div>
+                                <div class="text-center py-6 bg-slate-50 dark:bg-slate-800/30 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
+                                    <i class="fas fa-users-slash text-slate-300 dark:text-slate-600 text-2xl mb-2"></i>
+                                    <p class="text-body-sm text-slate-400">Sin personal asignado</p>
+                                </div>
                             @endforelse
                         </div>
                     </div>

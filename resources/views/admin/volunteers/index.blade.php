@@ -34,22 +34,23 @@
         </div>
     </x-ui.page-header>
 
-    <!-- Buscador -->
+    <!-- Buscador Mejorado -->
     <x-ui.card class="mb-8">
         <form action="{{ route('admin.volunteers.index') }}" method="GET" class="relative" id="volunteer-search-form">
-            <div class="flex items-center">
-                <i class="fas fa-search absolute left-4 text-slate-400"></i>
-                <input type="text" name="search" value="{{ request('search') }}" id="volunteer-search-input"
-                    placeholder="Buscar por nombre, RUT o cargo..." 
-                    class="form-input pl-11 flex-1">
-                
-                @if(request('search'))
-                    <a href="{{ route('admin.volunteers.index') }}" class="absolute right-24 text-slate-400 hover:text-slate-600 dark:text-slate-400 p-2">
-                        <i class="fas fa-times"></i>
-                    </a>
-                @endif
-                
-                <x-ui.button type="submit" variant="primary" size="md" class="ml-3">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <div class="relative flex-1">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" name="search" value="{{ request('search') }}" id="volunteer-search-input"
+                        placeholder="Buscar por nombre, RUT o cargo..." 
+                        class="form-input pl-11 w-full"
+                        autocomplete="off">
+                    @if(request('search'))
+                        <a href="{{ route('admin.volunteers.index') }}" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:text-slate-400 p-1">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    @endif
+                </div>
+                <x-ui.button type="submit" variant="primary" size="md" icon="fas fa-search" class="sm:w-auto w-full">
                     Buscar
                 </x-ui.button>
             </div>
@@ -69,23 +70,17 @@
     @endif
 
     @if($volunteers->isEmpty())
-        <div class="text-center py-16 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-dashed border-slate-300 dark:border-slate-600">
-            <div class="bg-slate-50 dark:bg-slate-800 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-users text-slate-400 text-3xl"></i>
-            </div>
-            <h3 class="text-lg font-medium text-slate-900">No se encontraron voluntarios</h3>
-            <p class="text-slate-500 dark:text-slate-400 mt-1">Intenta ajustar los filtros de búsqueda o agrega un nuevo voluntario.</p>
-        </div>
+        <x-ui.empty-state icon="fas fa-users" title="No se encontraron voluntarios" message="Intenta ajustar los filtros de búsqueda o agrega un nuevo voluntario." action-text="Nuevo Voluntario" action-url="{{ route('admin.volunteers.create') }}" />
     @else
         <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-slate-200">
-                    <thead class="bg-slate-50 dark:bg-slate-800">
+                <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
+                    <thead class="bg-slate-50 dark:bg-slate-800/50">
                         <tr>
-                            <th scope="col" class="px-3 md:px-6 py-4 text-left">
-                                <input type="checkbox" id="select-all" class="rounded border-gray-300 dark:border-slate-600 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 w-5 h-5">
+                            <th scope="col" class="px-3 md:px-6 py-4 text-left w-12">
+                                <input type="checkbox" id="select-all" class="rounded border-slate-300 dark:border-slate-600 text-blue-600 shadow-sm focus:ring-blue-500 w-4 h-4">
                             </th>
-                            <th scope="col" class="px-3 md:px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Identificación</th>
+                            <th scope="col" class="px-3 md:px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Voluntario</th>
                             <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden md:table-cell">Cargo / Rol</th>
                             <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">N° Registro</th>
                             <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">Especialidades</th>
@@ -93,7 +88,7 @@
                             <th scope="col" class="px-3 md:px-6 py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-200" id="volunteer-table-body">
+                    <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-200 dark:divide-slate-800" id="volunteer-table-body">
                         @foreach($volunteers as $volunteer)
                             <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                                 <td class="px-3 md:px-6 py-4 whitespace-nowrap">
