@@ -58,7 +58,7 @@
 <input type="hidden" name="users[{{ $staff->id }}][confirm_token]" id="confirm-token-{{ $staff->id }}" value="">
 
 <div id="guardia-card-{{ $staff->id }}" 
-     class="group bg-gradient-to-b from-slate-800/90 to-slate-900 rounded-2xl border {{ $cardBorderClass }} overflow-hidden flex flex-col h-full shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-black/30 transition-all duration-300 card-hover" 
+     class="group bg-gradient-to-b from-slate-800/90 to-slate-900 rounded-2xl border {{ $cardBorderClass }} overflow-hidden flex flex-col shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-black/30 transition-all duration-300 card-hover h-[380px]" 
      data-card-user="{{ $staff->id }}" 
      data-requires-confirmation="{{ $requiresConfirmation ? '1' : '0' }}" 
      data-is-confirmed="0">
@@ -88,9 +88,9 @@
         </div>
     </a>
 
-    <div class="p-2.5 flex-1 flex flex-col">
+    <div class="p-2.5 flex-1 flex flex-col min-h-0 overflow-hidden">
         {{-- Foto con overlay mejorado y enlace al perfil --}}
-        <a href="{{ route('admin.volunteers.show', $staff->id) }}" class="relative bg-slate-950 rounded-xl border border-slate-700/50 overflow-hidden w-full h-[200px] mb-3 shrink-0 shadow-inner block group/foto cursor-pointer">
+        <a href="{{ route('admin.volunteers.show', $staff->id) }}" class="relative bg-slate-950 rounded-xl border border-slate-700/50 overflow-hidden w-full h-[180px] mb-3 shrink-0 shadow-inner block group/foto cursor-pointer">
             @if($staff->photo_path)
                 <img src="{{ route('media', $staff->photo_path) }}" class="w-full h-full object-cover object-center group-hover/foto:scale-105 transition-transform duration-500" alt="Foto">
             @else
