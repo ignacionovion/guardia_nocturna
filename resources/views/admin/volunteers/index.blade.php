@@ -97,7 +97,7 @@
                                 <td class="px-3 md:px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         @if($volunteer->photo_path)
-                                            <img src="{{ url('media/' . ltrim($volunteer->photo_path, '/')) }}" class="flex-shrink-0 h-10 w-10 rounded-full object-cover border border-slate-300 dark:border-slate-600 shadow-sm" alt="Foto">
+                                            <img src="{{ route('media', $volunteer->photo_path) }}" class="flex-shrink-0 h-10 w-10 rounded-full object-cover border border-slate-300 dark:border-slate-600 shadow-sm" alt="Foto">
                                         @else
                                             <div class="flex-shrink-0 h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 dark:text-slate-400 font-bold border border-slate-300 dark:border-slate-600 shadow-sm text-sm">
                                                 {{ substr($volunteer->nombres, 0, 1) }}{{ substr($volunteer->apellido_paterno, 0, 1) }}

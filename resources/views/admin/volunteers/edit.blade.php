@@ -48,7 +48,7 @@
                                 <div id="photoPreviewContainer" class="relative w-40 h-40 mb-4">
                                     @if($volunteer->photo_path)
                                         <img id="photoPreview" 
-                                             src="{{ Storage::url($volunteer->photo_path) }}" 
+                                             src="{{ route('media', $volunteer->photo_path) }}" 
                                              class="w-full h-full rounded-2xl object-cover border-4 border-white dark:border-slate-700 shadow-lg"
                                              alt="Foto de {{ $volunteer->nombres }}">
                                     @else

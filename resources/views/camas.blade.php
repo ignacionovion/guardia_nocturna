@@ -105,7 +105,7 @@
                             <div class="card !bg-white dark:!bg-slate-900 !border-red-200 dark:!border-red-800 mb-3">
                                 <div class="flex items-center gap-3">
                                     @if($firefighter?->photo_path)
-                                        <img src="{{ url('media/' . ltrim($firefighter->photo_path, '/')) }}" class="w-12 h-12 rounded-xl object-cover border border-red-200 shadow-md" alt="{{ $fullName }}">
+                                        <img src="{{ route('media', $firefighter->photo_path) }}" class="w-12 h-12 rounded-xl object-cover border border-red-200 shadow-md" alt="{{ $fullName }}">
                                     @else
                                         <div class="icon-box icon-box-red icon-box-sm">
                                             {{ $initials ?: '?' }}

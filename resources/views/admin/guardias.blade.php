@@ -159,7 +159,7 @@
                                         <!-- Avatar (Centered) -->
                                         <div class="relative mt-1">
                                             @if($user->photo_path)
-                                                <img src="{{ url('media/' . ltrim($user->photo_path, '/')) }}" class="w-12 h-12 rounded-2xl object-cover border border-slate-200 dark:border-slate-700 shadow-sm mx-auto" alt="Foto">
+                                                <img src="{{ route('media', $user->photo_path) }}" class="w-12 h-12 rounded-2xl object-cover border border-slate-200 dark:border-slate-700 shadow-sm mx-auto" alt="Foto">
                                             @else
                                                 <div class="w-12 h-12 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 font-bold border border-slate-200 dark:border-slate-700 text-xl shadow-sm uppercase tracking-wider mx-auto">
                                                     {{ substr($user->nombres, 0, 1) }}{{ substr($user->apellido_paterno, 0, 1) }}

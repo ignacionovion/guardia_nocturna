@@ -92,7 +92,7 @@
         {{-- Foto con overlay mejorado y enlace al perfil --}}
         <a href="{{ route('admin.volunteers.show', $staff->id) }}" class="relative bg-slate-950 rounded-xl border border-slate-700/50 overflow-hidden w-full h-[200px] mb-3 shrink-0 shadow-inner block group/foto cursor-pointer">
             @if($staff->photo_path)
-                <img src="{{ url('media/' . ltrim($staff->photo_path, '/')) }}" class="w-full h-full object-cover object-center group-hover/foto:scale-105 transition-transform duration-500" alt="Foto">
+                <img src="{{ route('media', $staff->photo_path) }}" class="w-full h-full object-cover object-center group-hover/foto:scale-105 transition-transform duration-500" alt="Foto">
             @else
                 <div class="w-full h-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center">
                     <span class="text-4xl font-bold text-slate-500">{{ strtoupper(substr($staff->nombres, 0, 1) . substr($staff->apellido_paterno, 0, 1)) }}</span>

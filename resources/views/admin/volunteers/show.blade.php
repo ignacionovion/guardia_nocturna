@@ -22,7 +22,7 @@
                     {{-- Foto grande --}}
                     <div class="shrink-0">
                         @if($volunteer->photo_path)
-                            <img src="{{ url('media/' . ltrim($volunteer->photo_path, '/')) }}" class="w-32 h-32 rounded-2xl object-cover border-2 border-slate-200 dark:border-slate-700 shadow-lg" alt="Foto de {{ $volunteer->nombres }}">
+                            <img src="{{ route('media', $volunteer->photo_path) }}" class="w-32 h-32 rounded-2xl object-cover border-2 border-slate-200 dark:border-slate-700 shadow-lg" alt="Foto de {{ $volunteer->nombres }}">
                         @else
                             <div class="w-32 h-32 rounded-2xl bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 font-bold text-3xl border-2 border-slate-300 dark:border-slate-600 shadow-lg">
                                 {{ substr($volunteer->nombres, 0, 1) }}{{ substr($volunteer->apellido_paterno, 0, 1) }}
