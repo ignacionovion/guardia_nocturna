@@ -92,10 +92,15 @@ use App\Models\SystemSetting;
     $attendanceDisableTime = $attendanceDisableTime ?? $disableTime;
 @endphp
 
-<div id="guardia-dashboard-root" class="w-full min-h-screen px-4 md:px-6 lg:px-8 py-4 pt-[calc(env(safe-area-inset-top)+1.25rem)] bg-slate-950 text-slate-100"> 
-    @include('dashboard.partials.guardia._header') 
-    <div class="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-4">
-         @include('dashboard.partials.guardia._staff_grid') 
-         @include('dashboard.partials.guardia._sidebar') 
-    </div>
+<div id="guardia-dashboard-root" class="w-full min-h-screen">
+    
+    @include('dashboard.partials.guardia._header')
+
+    {{-- Main Content Area --}}
+    <main class="px-4 md:px-6 lg:px-8 py-6">
+        <div class="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-6">
+            @include('dashboard.partials.guardia._staff_grid')
+            @include('dashboard.partials.guardia._sidebar')
+        </div>
+    </main>
 </div>

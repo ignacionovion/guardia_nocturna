@@ -1,10 +1,17 @@
-@extends('layouts.modern')
+@php
+    $isGuardiaView = Auth::check() && Auth::user()->role === 'guardia' && isset($myGuardia) && $myGuardia;
+@endphp
 
-@section('title', 'Dashboard - ' . branding()->nombre_empresa)
-@section('page-title', 'Dashboard')
+@extends($isGuardiaView ? 'layouts.guardia-panel' : 'layouts.modern')
+
+@section('title', $isGuardiaView ? 'Panel de Control - ' . ($myGuardia->name ?? 'Guardia') : 'Dashboard - ' . branding()->nombre_empresa)
+
+@unless($isGuardiaView)
+    @section('page-title', 'Dashboard')
+@endunless
 
 @section('content')
-    @if(Auth::check() && Auth::user()->role === 'guardia' && isset($myGuardia) && $myGuardia)
+    @if($isGuardiaView)
         @include('dashboard._guardia')
     @else
         @include('dashboard._admin')
