@@ -106,7 +106,7 @@ class BomberoController extends Controller
         return redirect()->route('admin.volunteers.index')->with('success', 'Voluntario creado exitosamente.');
     }
 
-    public function show($id)
+    public function show($tenant, $id)
     {
         if (!in_array(auth()->user()->role, ['super_admin', 'capitania', 'guardia'], true)) {
             abort(403, 'No autorizado.');
@@ -117,30 +117,17 @@ class BomberoController extends Controller
         return view('admin.volunteers.show', compact('volunteer'));
     }
 
-    public function edit($id)
+    public function edit($tenant, $id)
     {
         if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
-        
-        // Diagnóstico temporal - verificar contexto de datos
-        dd([
-            'id_recibido' => $id,
-            'host' => request()->getHost(),
-            'tenant_id' => tenant()?->id ?? 'sin tenant',
-            'db_connection' => config('database.default'),
-            'bombero_find' => Bombero::find($id)?->toArray() ?? 'NO ENCONTRADO',
-            'bombero_findOrFail' => 'ejecutando...',
-            'total_bomberos' => Bombero::count(),
-            'primeros_5_bomberos' => Bombero::limit(5)->pluck('id')->toArray(),
-        ]);
-        
         $volunteer = Bombero::findOrFail($id);
         $guardias = Guardia::all();
         return view('admin.volunteers.edit', compact('volunteer', 'guardias'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, $tenant, $id)
     {
         if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
@@ -203,7 +190,7 @@ class BomberoController extends Controller
         return redirect()->route('admin.volunteers.index')->with('success', 'Voluntario actualizado exitosamente.');
     }
 
-    public function destroy($id)
+    public function destroy($tenant, $id)
     {
         if (auth()->user()->role !== 'super_admin') {
             abort(403, 'No autorizado.');
