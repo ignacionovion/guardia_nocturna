@@ -58,7 +58,7 @@
 <input type="hidden" name="users[{{ $staff->id }}][confirm_token]" id="confirm-token-{{ $staff->id }}" value="">
 
 <div id="guardia-card-{{ $staff->id }}" 
-     class="group bg-gradient-to-b from-slate-800/90 to-slate-900 rounded-2xl border {{ $cardBorderClass }} overflow-hidden flex flex-col shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-black/30 transition-all duration-300 card-hover h-[380px]" 
+     class="group bg-gradient-to-b from-slate-800/90 to-slate-900 rounded-2xl border {{ $cardBorderClass }} overflow-hidden flex flex-col shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-black/30 transition-all duration-300 card-hover" 
      data-card-user="{{ $staff->id }}" 
      data-requires-confirmation="{{ $requiresConfirmation ? '1' : '0' }}" 
      data-is-confirmed="0">
