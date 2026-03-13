@@ -97,19 +97,14 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 // Broadcasting authentication routes
 Illuminate\Support\Facades\Broadcast::routes(['middleware' => ['auth']]);
 
-// Ruta media con middleware tenant-aware
-Route::middleware([
-    'web',
-    InitializeTenancyByDomain::class,
-])->group(function () {
-    Route::get('/media/{path}', function (string $tenant, string $path) {
-        abort_unless(Storage::disk('public')->exists($path), 404);
+// Ruta media (ya dentro de contexto tenant via tenant.php)
+Route::get('/media/{path}', function (string $tenant, string $path) {
+    abort_unless(Storage::disk('public')->exists($path), 404);
 
-        return response()->file(
-            Storage::disk('public')->path($path)
-        );
-    })->where('path', '.*')->name('media');
-});
+    return response()->file(
+        Storage::disk('public')->path($path)
+    );
+})->where('path', '.*')->name('media');
 
 // Rutas Protegidas (Dashboard)
 use App\Http\Controllers\NotificationController;
