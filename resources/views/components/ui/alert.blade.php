@@ -1,11 +1,15 @@
 @props([
     'variant' => 'info',
+    'type' => null,
     'title' => null,
     'icon' => null,
     'dismissible' => false,
 ])
 
 @php
+// Support both 'type' and 'variant' props
+$variant = $type ?? $variant;
+
 $variants = [
     'info' => [
         'wrapper' => 'bg-blue-50 dark:bg-slate-800/50 border-blue-200 dark:border-blue-800/30',
