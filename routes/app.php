@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
+use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 
 use App\Http\Controllers\TableroController;
 use App\Http\Controllers\AuthController;
@@ -95,36 +97,19 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 // Broadcasting authentication routes
 Illuminate\Support\Facades\Broadcast::routes(['middleware' => ['auth']]);
 
-Route::get('/media/{path}', function (string $path) {
-    $path = str_replace(['%2F', '%2f'], '/', $path);
-    $path = rawurldecode($path);
+// Ruta media con middleware tenant-aware
+Route::middleware([
+    'web',
+    InitializeTenancyByDomain::class,
+])->group(function () {
+    Route::get('/media/{path}', function (string $path) {
+        abort_unless(Storage::disk('public')->exists($path), 404);
 
-    if ($path === '' || str_contains($path, '..') || str_starts_with($path, '/')) {
-        abort(404);
-    }
-
-    $disk = \Illuminate\Support\Facades\Storage::disk('public');
-    if (!$disk->exists($path)) {
-        abort(404);
-    }
-
-    $stream = $disk->readStream($path);
-    if ($stream === false) {
-        abort(404);
-    }
-
-    $mime = $disk->mimeType($path) ?: 'application/octet-stream';
-
-    return response()->stream(function () use ($stream) {
-        fpassthru($stream);
-        if (is_resource($stream)) {
-            fclose($stream);
-        }
-    }, 200, [
-        'Content-Type' => $mime,
-        'Cache-Control' => 'public, max-age=31536000',
-    ]);
-})->where('path', '.*')->name('media');
+        return response()->file(
+            Storage::disk('public')->path($path)
+        );
+    })->where('path', '.*')->name('media');
+});
 
 // Rutas Protegidas (Dashboard)
 use App\Http\Controllers\NotificationController;
