@@ -103,11 +103,14 @@ Route::middleware([
     InitializeTenancyByDomain::class,
 ])->group(function () {
     Route::get('/media/{path}', function (string $path) {
-        abort_unless(Storage::disk('public')->exists($path), 404);
-
-        return response()->file(
-            Storage::disk('public')->path($path)
-        );
+        dd([
+            'tenant' => tenant('id') ?? null,
+            'path' => $path,
+            'exists' => Storage::disk('public')->exists($path),
+            'full_path' => Storage::disk('public')->path($path),
+            'default_disk' => config('filesystems.default'),
+            'public_disk' => config('filesystems.disks.public'),
+        ]);
     })->where('path', '.*')->name('media');
 });
 
