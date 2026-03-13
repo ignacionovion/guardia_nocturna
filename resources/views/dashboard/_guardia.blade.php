@@ -249,11 +249,11 @@
                                             $serviceLabel = $diff ? trim($yearsLabel . ' ' . $monthsLabel) : '—';
                                         @endphp
                                         <div class="absolute inset-x-0 bottom-0 p-2">
-                                            <div class="text-xs font-black text-white leading-tight truncate drop-shadow-md">
+                                            <div class="text-xs font-semibold text-white leading-tight" title="{{ $staff->nombres }} {{ $staff->apellido_paterno }}">
                                                 {{ $staff->nombres }} {{ $staff->apellido_paterno }}
                                             </div>
                                             <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                                                <span class="text-[10px] font-black text-white/90 uppercase tracking-wider truncate drop-shadow">
+                                                <span class="text-[10px] font-medium text-white/90 uppercase tracking-wider">
                                                     {{ $staff->cargo_texto ?: ($staff->es_jefe_guardia ? 'Jefe de Guardia' : 'Bombero') }}
                                                 </span>
                                                 @if($staff->es_permanente)
@@ -264,9 +264,9 @@
                                                 @endif
                                             </div>
                                             <div class="flex items-center gap-1.5 mt-0.5">
-                                                <span class="text-[10px] font-black text-white/70 uppercase tracking-wider truncate">{{ $serviceLabel }}</span>
+                                                <span class="text-[10px] font-medium text-white/70 uppercase tracking-wider">{{ $serviceLabel }}</span>
                                                 <span class="text-white/40 text-[10px]">·</span>
-                                                <span class="text-[10px] font-black text-white/70 uppercase tracking-wider truncate">{{ $staff->numero_portatil ?: '—' }}</span>
+                                                <span class="text-[10px] font-medium text-white/70 uppercase tracking-wider">{{ $staff->numero_portatil ?: '—' }}</span>
                                             </div>
                                         </div>
 
@@ -418,10 +418,10 @@
                                     @foreach($outOfServiceStaff as $staff)
                                         <div class="bg-slate-900 rounded-xl shadow-sm border border-slate-800 overflow-hidden flex flex-col p-3">
                                             <div class="flex items-center justify-between">
-                                                <div class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest truncate">{{ $staff->cargo_texto ?? 'Bombero' }}</div>
+                                                <div class="text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ $staff->cargo_texto ?? 'Bombero' }}</div>
                                                 <div class="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-red-50 text-red-700 border border-red-100">INHABILITADO</div>
                                             </div>
-                                            <div class="mt-2 text-sm font-black text-slate-100 leading-tight truncate" title="{{ $staff->nombres }} {{ $staff->apellido_paterno }}">
+                                            <div class="mt-2 text-sm font-semibold text-slate-100 leading-tight" title="{{ $staff->nombres }} {{ $staff->apellido_paterno }}">
                                                 {{ $staff->apellido_paterno }}{{ $staff->apellido_materno ? ' ' . $staff->apellido_materno : '' }}, {{ $staff->nombres }}
                                             </div>
                                             @if(in_array(Auth::user()->role, ['super_admin','capitania','guardia'], true))
