@@ -248,13 +248,9 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
     Route::post('/admin/guardias/replacement', [AdministradorController::class, 'assignReplacement'])->name('admin.guardias.replacement'); // Nueva ruta
     Route::post('/admin/guardias/replacement/{replacement}/undo', [AdministradorController::class, 'undoReplacement'])->name('admin.guardias.replacement.undo');
     Route::post('/admin/guardias/{guardia}/replacements/cleanup', [AdministradorController::class, 'cleanupReplacements'])->name('admin.guardias.replacements.cleanup');
-    Route::post('/admin/bomberos', [BomberoController::class, 'store'])->name('admin.bomberos.store');
     
-    // Editar y Eliminar Bomberos
-    Route::get('/admin/bomberos/{id}/edit', [BomberoController::class, 'edit'])->name('admin.bomberos.edit');
-    Route::put('/admin/bomberos/{id}', [BomberoController::class, 'update'])->name('admin.bomberos.update');
-    Route::delete('/admin/bomberos/{id}', [BomberoController::class, 'destroy'])->name('admin.bomberos.destroy');
-    Route::post('/admin/bomberos/{id}/toggle-titular', [AdministradorController::class, 'toggleTitular'])->name('admin.bomberos.toggle_titular'); // Nueva ruta
+    // Rutas legacy de bomberos - mantener solo las que no están en el resource
+    Route::post('/admin/bomberos/{id}/toggle-titular', [AdministradorController::class, 'toggleTitular'])->name('admin.bomberos.toggle_titular');
     Route::post('/admin/bomberos/{id}/toggle-fuera-servicio', [AdministradorController::class, 'toggleFueraDeServicio'])->name('admin.bomberos.toggle_fuera_servicio');
 
     // Rutas de Reportes
