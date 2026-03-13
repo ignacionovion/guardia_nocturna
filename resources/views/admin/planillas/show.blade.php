@@ -2,56 +2,49 @@
 
 @section('content')
 <div class="w-full py-4">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-            <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Planillas</div>
-            <div class="text-2xl font-extrabold text-slate-900">{{ $planilla->unidad }} · {{ $planilla->fecha_revision?->format('d-m-Y H:i') }}</div>
-            <div class="text-sm text-slate-600 dark:text-slate-400 mt-1">Registrada por: {{ $planilla->creador?->name ?? trim((string)($planilla->bombero?->nombres ?? '') . ' ' . (string)($planilla->bombero?->apellido_paterno ?? '')) ?: '—' }}</div>
-            <div class="mt-2">
-                @if(($planilla->estado ?? '') === 'finalizado')
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest bg-emerald-100 text-emerald-900 border border-emerald-200">Finalizado</span>
-                @else
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest bg-amber-100 text-amber-900 border border-amber-200">En edición</span>
-                @endif
-            </div>
-        </div>
-
-        <div class="flex items-center gap-2">
+    <x-ui.page-header title="{{ $planilla->unidad }} · {{ $planilla->fecha_revision?->format('d-m-Y H:i') }}" subtitle="Registrada por: {{ $planilla->creador?->name ?? trim((string)($planilla->bombero?->nombres ?? '') . ' ' . (string)($planilla->bombero?->apellido_paterno ?? '')) ?: '—' }}" icon="fas fa-clipboard-list" iconVariant="cyan">
+        <div class="flex flex-wrap items-center gap-2">
             @if(($planilla->estado ?? '') !== 'finalizado')
-                <a href="{{ route('admin.planillas.edit', $planilla) }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-teal-900/20 bg-sky-50 hover:bg-sky-100 text-slate-900 font-extrabold text-xs">
-                    <i class="fas fa-pen"></i>
+                <x-ui.button variant="secondary" size="sm" icon="fas fa-pen" href="{{ route('admin.planillas.edit', $planilla) }}">
                     Continuar
-                </a>
+                </x-ui.button>
             @endif
-            <a href="{{ route('admin.planillas.compare', $planilla) }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-purple-200 bg-purple-50 hover:bg-purple-100 text-purple-800 font-extrabold text-xs" title="Comparar con versiones anteriores">
-                <i class="fas fa-exchange-alt"></i>
+            <x-ui.button variant="secondary" size="sm" icon="fas fa-exchange-alt" href="{{ route('admin.planillas.compare', $planilla) }}">
                 Comparar
-            </a>
+            </x-ui.button>
             <form method="POST" action="{{ route('admin.planillas.destroy', $planilla) }}" class="inline" onsubmit="return confirm('¿Eliminar esta planilla? Esta acción no se puede deshacer.')">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-800 font-extrabold text-xs">
-                    <i class="fas fa-trash"></i>
+                <x-ui.button type="submit" variant="danger" size="sm" icon="fas fa-trash">
                     Eliminar
-                </button>
+                </x-ui.button>
             </form>
-            <a href="{{ route('admin.planillas.index') }}" class="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs">Volver</a>
-            <a href="{{ route('admin.planillas.create', ['unidad' => $planilla->unidad]) }}" class="inline-flex items-center gap-2 bg-slate-950 hover:bg-black text-white font-black py-3 px-5 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest border border-slate-800">
-                <i class="fas fa-plus"></i>
+            <x-ui.button variant="secondary" size="sm" icon="fas fa-arrow-left" href="{{ route('admin.planillas.index') }}">
+                Volver
+            </x-ui.button>
+            <x-ui.button variant="primary" size="sm" icon="fas fa-plus" href="{{ route('admin.planillas.create', ['unidad' => $planilla->unidad]) }}">
                 Nueva planilla
-            </a>
+            </x-ui.button>
         </div>
+    </x-ui.page-header>
+
+    <div class="mb-4">
+        @if(($planilla->estado ?? '') === 'finalizado')
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest bg-emerald-100 text-emerald-900 border border-emerald-200">Finalizado</span>
+        @else
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest bg-amber-100 text-amber-900 border border-amber-200">En edición</span>
+        @endif
     </div>
 
     @if(session('success'))
-        <div class="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-6 py-4 text-emerald-900">
-            <div class="text-sm font-extrabold">{{ session('success') }}</div>
-        </div>
+        <x-ui.alert type="success" icon="fas fa-check-circle" class="mb-6">
+            {{ session('success') }}
+        </x-ui.alert>
     @endif
     @if(session('warning'))
-        <div class="mt-6 rounded-2xl border border-amber-200 bg-amber-50 px-6 py-4 text-amber-900">
-            <div class="text-sm font-extrabold">{{ session('warning') }}</div>
-        </div>
+        <x-ui.alert type="warning" icon="fas fa-exclamation-triangle" class="mb-6">
+            {{ session('warning') }}
+        </x-ui.alert>
     @endif
 
     <div class="mt-6 bg-white dark:bg-slate-900 rounded-2xl border border-teal-900/20 shadow-sm overflow-hidden">

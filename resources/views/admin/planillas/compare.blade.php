@@ -2,26 +2,18 @@
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="flex items-center justify-between mb-6">
-        <div>
-            <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Comparación de Planillas</div>
-            <div class="text-2xl font-extrabold text-slate-900">{{ $planilla->unidad }}</div>
-            <div class="text-sm text-slate-600 dark:text-slate-400 mt-1">Fecha: {{ $planilla->fecha_revision->format('d/m/Y H:i') }}</div>
-        </div>
-        <div class="flex items-center gap-3">
-            <a href="{{ route('admin.planillas.show', $planilla) }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-bold text-xs">
-                <i class="fas fa-arrow-left"></i>
-                Volver
-            </a>
-        </div>
-    </div>
+    <x-ui.page-header title="{{ $planilla->unidad }}" subtitle="Comparación de Planillas · {{ $planilla->fecha_revision->format('d/m/Y H:i') }}" icon="fas fa-exchange-alt" iconVariant="violet">
+        <x-ui.button variant="secondary" size="md" icon="fas fa-arrow-left" href="{{ route('admin.planillas.show', $planilla) }}">
+            Volver
+        </x-ui.button>
+    </x-ui.page-header>
 
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 mb-6">
-        <div class="text-sm font-extrabold text-slate-900 mb-4">Seleccionar planilla para comparar</div>
+        <div class="text-sm font-extrabold text-slate-900 dark:text-white mb-4">Seleccionar planilla para comparar</div>
         <form method="GET" action="{{ route('admin.planillas.compare', $planilla) }}" class="flex items-end gap-4">
             <div class="flex-1">
-                <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">Planilla anterior</label>
-                <select name="comparar_con" class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 font-semibold">
+                <label class="form-label">Planilla anterior</label>
+                <select name="comparar_con" class="form-input appearance-none">
                     <option value="">Seleccionar planilla...</option>
                     @foreach($historial as $p)
                         <option value="{{ $p->id }}" {{ request('comparar_con') == $p->id ? 'selected' : '' }}>
@@ -30,10 +22,9 @@
                     @endforeach
                 </select>
             </div>
-            <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-teal-900/20 bg-sky-50 hover:bg-sky-100 text-slate-900 font-extrabold text-xs">
-                <i class="fas fa-exchange-alt"></i>
+            <x-ui.button type="submit" variant="primary" size="md" icon="fas fa-exchange-alt">
                 Comparar
-            </button>
+            </x-ui.button>
         </form>
     </div>
 

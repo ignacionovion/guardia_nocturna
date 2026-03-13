@@ -2,21 +2,11 @@
 
 @section('content')
     <div class="max-w-6xl mx-auto py-10">
-        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 border-b border-slate-200 dark:border-slate-700 pb-6">
-            <div>
-                <h1 class="text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight flex items-center uppercase">
-                    <i class="fas fa-folder-open mr-3 text-red-700"></i> Archivo - {{ $guardia->name }}
-                </h1>
-                <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium">{{ $archive->archived_at?->format('Y-m-d H:i') }}{{ $archive->label ? ' - ' . $archive->label : '' }}</p>
-            </div>
-
-            <div class="flex items-center gap-2">
-                <a href="{{ route('admin.guardias.history.index', $guardia->id) }}" class="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold py-2.5 px-4 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 flex items-center gap-2 uppercase text-xs tracking-widest">
-                    <i class="fas fa-arrow-left"></i>
-                    Volver
-                </a>
-            </div>
-        </div>
+        <x-ui.page-header title="Archivo - {{ $guardia->name }}" subtitle="{{ $archive->archived_at?->format('Y-m-d H:i') }}{{ $archive->label ? ' - ' . $archive->label : '' }}" icon="fas fa-folder-open" iconVariant="red">
+            <x-ui.button variant="secondary" size="md" icon="fas fa-arrow-left" href="{{ route('admin.guardias.history.index', $guardia->id) }}">
+                Volver
+            </x-ui.button>
+        </x-ui.page-header>
 
         <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div class="px-6 py-5 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
@@ -25,8 +15,8 @@
 
             <form method="GET" action="{{ route('admin.guardias.history.show', [$guardia->id, $archive->id]) }}" class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Bombero</label>
-                    <select name="firefighter_id" class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-semibold">
+                    <label class="form-label">Bombero</label>
+                    <select name="firefighter_id" class="form-input appearance-none">
                         <option value="">Todos</option>
                         @foreach(($firefighters ?? collect()) as $ff)
                             <option value="{{ $ff->id }}" @if((string)($filters['firefighter_id'] ?? '') === (string)$ff->id) selected @endif>
@@ -37,8 +27,8 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Tipo</label>
-                    <select name="entity_type" class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-semibold">
+                    <label class="form-label">Tipo</label>
+                    <select name="entity_type" class="form-input appearance-none">
                         <option value="">Todos</option>
                         @foreach(($entityTypes ?? collect()) as $t)
                             <option value="{{ $t }}" @if((string)($filters['entity_type'] ?? '') === (string)$t) selected @endif>{{ $t }}</option>
@@ -47,10 +37,9 @@
                 </div>
 
                 <div class="flex items-end">
-                    <button type="submit" class="w-full inline-flex items-center justify-center gap-2 bg-slate-950 hover:bg-black text-white font-black py-3 px-6 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest border border-slate-800">
-                        <i class="fas fa-filter"></i>
+                    <x-ui.button type="submit" variant="primary" size="md" icon="fas fa-filter" class="w-full">
                         Aplicar
-                    </button>
+                    </x-ui.button>
                 </div>
             </form>
         </div>

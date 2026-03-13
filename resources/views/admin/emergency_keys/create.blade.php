@@ -2,39 +2,37 @@
 
 @section('content')
     <div class="max-w-4xl mx-auto">
-        <div class="flex items-center justify-between mb-8">
-            <div>
-                <h1 class="text-3xl font-bold text-slate-800 dark:text-white">Nueva Clave</h1>
-                <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Agrega una clave para emergencias</p>
-            </div>
-            <a href="{{ route('admin.emergency-keys.index') }}" class="inline-flex items-center text-slate-600 dark:text-slate-400 hover:text-slate-900">
-                <i class="fas fa-arrow-left mr-2"></i> Volver
-            </a>
-        </div>
+        <x-ui.page-header title="Nueva Clave" subtitle="Agrega una clave para emergencias" icon="fas fa-key" iconVariant="amber">
+            <x-ui.button variant="secondary" size="md" icon="fas fa-arrow-left" href="{{ route('admin.emergency-keys.index') }}">
+                Volver
+            </x-ui.button>
+        </x-ui.page-header>
 
-        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border-2 border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div class="card-base overflow-hidden">
             <form method="POST" action="{{ route('admin.emergency-keys.store') }}" class="p-8">
                 @csrf
 
                 <div class="grid grid-cols-1 gap-6">
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Código</label>
+                        <label class="form-label">Código</label>
                         <input type="text" name="code" value="{{ old('code') }}" required
-                            class="w-full px-4 py-3 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-slate-700 dark:text-slate-300 bg-white">
+                            class="form-input">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Descripción</label>
+                        <label class="form-label">Descripción</label>
                         <textarea name="description" rows="4" required
-                            class="w-full px-4 py-3 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-slate-700 dark:text-slate-300 bg-white">{{ old('description') }}</textarea>
+                            class="form-input">{{ old('description') }}</textarea>
                     </div>
                 </div>
 
                 <div class="mt-8 flex items-center justify-end gap-3">
-                    <a href="{{ route('admin.emergency-keys.index') }}" class="px-5 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-semibold transition-colors">Cancelar</a>
-                    <button type="submit" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-md transition-all duration-200">
-                        <i class="fas fa-save mr-2"></i> Guardar
-                    </button>
+                    <x-ui.button variant="secondary" size="md" href="{{ route('admin.emergency-keys.index') }}">
+                        Cancelar
+                    </x-ui.button>
+                    <x-ui.button type="submit" variant="primary" size="md" icon="fas fa-save">
+                        Guardar
+                    </x-ui.button>
                 </div>
             </form>
         </div>

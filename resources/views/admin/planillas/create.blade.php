@@ -2,15 +2,11 @@
 
 @section('content')
 <div class="w-full py-4">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-            <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Planillas</div>
-            <div class="text-2xl font-extrabold text-slate-900">Nueva planilla</div>
-            <div class="text-sm text-slate-600 dark:text-slate-400 mt-1">Completa la revisión semanal de la unidad.</div>
-        </div>
-
-        <a href="{{ route('admin.planillas.index') }}" class="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs">Volver</a>
-    </div>
+    <x-ui.page-header title="Nueva planilla" subtitle="Completa la revisión semanal de la unidad." icon="fas fa-clipboard-list" iconVariant="cyan">
+        <x-ui.button variant="secondary" size="md" icon="fas fa-arrow-left" href="{{ route('admin.planillas.index') }}">
+            Volver
+        </x-ui.button>
+    </x-ui.page-header>
 
     <div class="mt-6 bg-white dark:bg-slate-900 rounded-2xl border border-teal-900/20 shadow-sm overflow-hidden">
         <div class="px-6 py-4 bg-sky-100 border-b border-teal-900/20">
@@ -20,8 +16,8 @@
         <div class="p-6">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                    <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">Unidad</div>
-                    <select id="unidadSelector" class="w-full px-4 py-3 border-2 border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                    <label class="form-label">Unidad</label>
+                    <select id="unidadSelector" class="form-input appearance-none">
                         <option value="">Seleccionar…</option>
                         @foreach($unidades as $u)
                             <option value="{{ $u }}" {{ ($unidad ?? '') === $u ? 'selected' : '' }}>{{ $u }}</option>
@@ -39,8 +35,8 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                            <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">Fecha y hora de revisión</div>
-                            <input type="text" id="fechaRevisionDisplay" class="w-full px-4 py-3 border-2 border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value="{{ old('fecha_revision_display', '') }}" disabled>
+                            <label class="form-label">Fecha y hora de revisión</label>
+                            <input type="text" id="fechaRevisionDisplay" class="form-input" value="{{ old('fecha_revision_display', '') }}" disabled>
                             <input type="hidden" id="fechaRevisionHidden" name="fecha_revision" value="{{ old('fecha_revision', '') }}" required>
                             <div class="text-xs text-slate-500 dark:text-slate-400 mt-2 font-semibold">Se toma automáticamente la hora actual del sistema.</div>
                         </div>
@@ -59,15 +55,13 @@
                     </div>
 
                     <div class="mt-6 flex flex-col md:flex-row items-stretch md:items-center justify-end gap-3">
-                        <button type="submit" name="guardar_continuar" value="1" class="inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-black text-white font-black py-3 px-6 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest">
-                            <i class="fas fa-pause"></i>
+                        <x-ui.button type="submit" name="guardar_continuar" value="1" variant="secondary" size="md" icon="fas fa-pause">
                             Guardar y continuar después
-                        </button>
+                        </x-ui.button>
 
-                        <button type="submit" name="guardar_finalizar" value="1" class="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 px-6 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest">
-                            <i class="fas fa-check"></i>
+                        <x-ui.button type="submit" name="guardar_finalizar" value="1" variant="success" size="md" icon="fas fa-check">
                             Guardar y finalizar
-                        </button>
+                        </x-ui.button>
                     </div>
                 </form>
             @else

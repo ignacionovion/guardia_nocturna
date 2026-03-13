@@ -2,37 +2,24 @@
 
 @section('content')
     {{-- Header --}}
-    <div class="max-w-7xl mx-auto mb-6">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-600 to-red-700 text-white flex items-center justify-center shadow-lg shadow-red-200">
-                    <i class="fas fa-calendar-alt text-xl"></i>
-                </div>
-                <div>
-                    <h1 class="text-2xl font-black text-slate-900 tracking-tight">Calendario de Guardias</h1>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm">Planificación semanal y asignación de dotaciones</p>
-                </div>
-            </div>
-
-            {{-- Month/Year Selector --}}
+    <div class="max-w-7xl mx-auto">
+        <x-ui.page-header title="Calendario de Guardias" subtitle="Planificación semanal y asignación de dotaciones" icon="fas fa-calendar-alt" iconVariant="red">
             <form action="{{ route('admin.calendario') }}" method="GET" class="flex items-center gap-2 bg-white dark:bg-slate-900 p-1.5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
-                <select name="month" class="px-3 py-2 bg-slate-50 dark:bg-slate-800 border-0 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:ring-2 focus:ring-blue-500">
+                <select name="month" class="form-input !w-auto !py-2 !px-3 !rounded-lg appearance-none">
                     @foreach(range(1, 12) as $m)
                         <option value="{{ $m }}" {{ $month == $m ? 'selected' : '' }}>
                             {{ ucfirst(\Carbon\Carbon::create()->month($m)->locale('es')->monthName) }}
                         </option>
                     @endforeach
                 </select>
-                <select name="year" class="px-3 py-2 bg-slate-50 dark:bg-slate-800 border-0 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:ring-2 focus:ring-blue-500">
+                <select name="year" class="form-input !w-auto !py-2 !px-3 !rounded-lg appearance-none">
                     @foreach(range(now()->year - 2, now()->year + 1) as $y)
                         <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>{{ $y }}</option>
                     @endforeach
                 </select>
-                <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white font-semibold py-2 px-4 rounded-lg text-sm transition">
-                    <i class="fas fa-eye"></i>
-                </button>
+                <x-ui.button type="submit" variant="primary" size="sm" icon="fas fa-eye" />
             </form>
-        </div>
+        </x-ui.page-header>
     </div>
 
     {{-- Action Cards --}}
@@ -51,29 +38,29 @@
                     
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Fecha Inicio</label>
+                            <label class="form-label">Fecha Inicio</label>
                             <div class="relative">
                                 <i class="fas fa-calendar absolute left-3 top-3 text-slate-400 text-sm"></i>
                                 <input type="date" name="from" required 
-                                    class="w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 focus:bg-white dark:bg-slate-900 focus:border-slate-500 focus:ring-2 focus:ring-slate-200 transition-all">
+                                    class="form-input pl-10">
                             </div>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Fecha Fin</label>
+                            <label class="form-label">Fecha Fin</label>
                             <div class="relative">
                                 <i class="fas fa-calendar absolute left-3 top-3 text-slate-400 text-sm"></i>
                                 <input type="date" name="to" required 
-                                    class="w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 focus:bg-white dark:bg-slate-900 focus:border-slate-500 focus:ring-2 focus:ring-slate-200 transition-all">
+                                    class="form-input pl-10">
                             </div>
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Guardia Asignada</label>
+                        <label class="form-label">Guardia Asignada</label>
                         <div class="relative">
                             <i class="fas fa-shield absolute left-3 top-3 text-slate-400 text-sm"></i>
                             <select name="guardia_id" required 
-                                class="w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 focus:bg-white dark:bg-slate-900 focus:border-slate-500 focus:ring-2 focus:ring-slate-200 transition-all appearance-none">
+                                class="form-input pl-10 appearance-none">
                                 @foreach($guardias as $g)
                                     <option value="{{ $g->id }}">{{ $g->name }}</option>
                                 @endforeach
@@ -83,7 +70,7 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Días de la Semana</label>
+                        <label class="form-label">Días de la Semana</label>
                         <div class="grid grid-cols-4 sm:grid-cols-7 gap-2">
                             @foreach([
                                 ['1', 'Lun'], ['2', 'Mar'], ['3', 'Mié'], ['4', 'Jue'], ['5', 'Vie'], ['6', 'Sáb'], ['0', 'Dom']
@@ -98,16 +85,15 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-black py-3 px-4 rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-wider">
-                        <i class="fas fa-check-circle"></i>
+                    <x-ui.button type="submit" variant="primary" size="md" icon="fas fa-check-circle" class="w-full">
                         Aplicar Asignación
-                    </button>
+                    </x-ui.button>
                 </form>
             </div>
         </div>
 
         {{-- Generar Rotación --}}
-        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div class="card-base overflow-hidden">
             <div class="bg-slate-900 px-6 py-4 border-b border-slate-800">
                 <h2 class="text-white font-black text-sm uppercase tracking-wider flex items-center gap-2">
                     <i class="fas fa-sync-alt"></i>
@@ -120,26 +106,26 @@
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Domingo Inicio</label>
+                            <label class="form-label">Domingo Inicio</label>
                             <div class="relative">
                                 <i class="fas fa-play-circle absolute left-3 top-3 text-slate-400 text-sm"></i>
                                 <input type="date" name="start_sunday" required 
-                                    class="w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 focus:bg-white dark:bg-slate-900 focus:border-slate-500 focus:ring-2 focus:ring-slate-200 transition-all">
+                                    class="form-input pl-10">
                             </div>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Hasta (Opcional)</label>
+                            <label class="form-label">Hasta (Opcional)</label>
                             <div class="relative">
                                 <i class="fas fa-stop-circle absolute left-3 top-3 text-slate-400 text-sm"></i>
                                 <input type="date" name="end_date" 
-                                    class="w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 focus:bg-white dark:bg-slate-900 focus:border-slate-500 focus:ring-2 focus:ring-slate-200 transition-all">
+                                    class="form-input pl-10">
                             </div>
                             <p class="text-[10px] text-slate-400 mt-1">Vacío = hasta fin de año</p>
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Orden de Rotación</label>
+                        <label class="form-label">Orden de Rotación</label>
                         <div class="space-y-2">
                             @foreach($guardias as $index => $g)
                                 <div class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
@@ -149,7 +135,7 @@
                                     <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Semana {{ $index + 1 }}</span>
                                     <div class="flex-1">
                                         <select name="guardia_ids[]" required 
-                                            class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-300 focus:border-slate-500 focus:ring-2 focus:ring-slate-200">
+                                            class="form-input !py-2 appearance-none">
                                             @foreach($guardias as $optionG)
                                                 <option value="{{ $optionG->id }}" {{ $g->id === $optionG->id ? 'selected' : '' }}>{{ $optionG->name }}</option>
                                             @endforeach
@@ -169,14 +155,13 @@
                             </div>
                         </label>
                         <input type="text" name="email_recipients" 
-                            class="w-full mt-3 px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-700 dark:text-slate-300 placeholder:text-slate-400"
+                            class="form-input mt-3"
                             placeholder="usuario@ejemplo.com, otro@ejemplo.com">
                     </div>
 
-                    <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-black py-3 px-4 rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-wider">
-                        <i class="fas fa-magic"></i>
+                    <x-ui.button type="submit" variant="primary" size="md" icon="fas fa-magic" class="w-full">
                         Generar Rotación
-                    </button>
+                    </x-ui.button>
                 </form>
             </div>
         </div>

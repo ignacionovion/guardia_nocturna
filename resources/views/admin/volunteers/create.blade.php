@@ -1,21 +1,14 @@
 @extends('layouts.modern')
 
 @section('content')
-    <div class="max-w-5xl mx-auto py-8">
-        <!-- Header con navegación -->
-        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-800 dark:text-white tracking-tight">Nuevo Voluntario</h1>
-                <p class="text-gray-500 dark:text-slate-400 mt-1 text-sm">Complete el formulario para registrar un nuevo miembro en el sistema.</p>
-            </div>
-            <a href="{{ route('admin.volunteers.index') }}" class="inline-flex items-center text-gray-600 dark:text-slate-400 hover:text-blue-600 font-medium transition-colors bg-white dark:bg-slate-900 px-4 py-2 rounded-lg border border-gray-200 dark:border-slate-700 hover:border-blue-300 shadow-sm">
-                <i class="fas fa-arrow-left mr-2"></i> Volver al listado
-            </a>
-        </div>
+    <div class="max-w-5xl mx-auto">
+        <x-ui.page-header title="Nuevo Voluntario" subtitle="Complete el formulario para registrar un nuevo miembro en el sistema" icon="fas fa-user-plus" iconVariant="blue">
+            <x-ui.button variant="secondary" size="md" icon="fas fa-arrow-left" href="{{ route('admin.volunteers.index') }}">
+                Volver al listado
+            </x-ui.button>
+        </x-ui.page-header>
 
-        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-lg overflow-hidden border border-slate-200 dark:border-slate-700">
-            <!-- Barra superior decorativa -->
-            <div class="h-2 bg-red-700"></div>
+        <div class="card-base overflow-hidden">
 
             <form action="{{ route('admin.volunteers.store') }}" method="POST" enctype="multipart/form-data" class="p-8">
                 @csrf
@@ -31,36 +24,36 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="md:col-span-3 space-y-2">
-                            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Nombres <span class="text-red-500">*</span></label>
+                            <label class="form-label">Nombres <span class="text-red-500">*</span></label>
                             <input type="text" name="nombres" value="{{ old('nombres') }}" required
-                                class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all">
+                                class="form-input">
                         </div>
                         <div class="space-y-2">
-                            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Apellido Paterno</label>
+                            <label class="form-label">Apellido Paterno</label>
                             <input type="text" name="apellido_paterno" value="{{ old('apellido_paterno') }}"
-                                class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all">
+                                class="form-input">
                         </div>
                         <div class="space-y-2">
-                            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Apellido Materno</label>
+                            <label class="form-label">Apellido Materno</label>
                             <input type="text" name="apellido_materno" value="{{ old('apellido_materno') }}"
-                                class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all">
+                                class="form-input">
                         </div>
                         <div class="space-y-2">
-                            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">RUT <span class="text-red-500">*</span></label>
+                            <label class="form-label">RUT <span class="text-red-500">*</span></label>
                             <input type="text" name="rut" value="{{ old('rut') }}" placeholder="12.345.678-9"
-                                class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all text-slate-700 dark:text-slate-300 font-medium">
+                                class="form-input font-medium">
                         </div>
                         <div class="space-y-2">
-                            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Número de Registro</label>
+                            <label class="form-label">Número de Registro</label>
                             <input type="text" name="numero_registro" value="{{ old('numero_registro') }}" placeholder="Ej: 611"
-                                class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all">
+                                class="form-input">
                         </div>
                         <div class="md:col-span-3 space-y-2">
-                            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Cargo</label>
+                            <label class="form-label">Cargo</label>
                             <div class="relative" id="cargoComboboxCreate">
                                 <div class="relative">
                                     <input type="text" name="cargo_texto" value="{{ old('cargo_texto') }}" autocomplete="off" id="cargoInputCreate"
-                                        class="w-full px-4 py-2.5 pr-11 rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all">
+                                        class="form-input pr-11">
                                     <button type="button" id="cargoToggleCreate" class="absolute inset-y-0 right-0 flex items-center px-3 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-300">
                                         <i class="fas fa-chevron-down"></i>
                                     </button>
@@ -71,25 +64,25 @@
                             </div>
                         </div>
                         <div class="space-y-2">
-                            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Portátil</label>
+                            <label class="form-label">Portátil</label>
                             <input type="text" name="numero_portatil" value="{{ old('numero_portatil') }}" placeholder="364 / 37-D"
-                                class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all">
+                                class="form-input">
                         </div>
                         <div class="space-y-2">
-                            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Fecha Cumpleaños</label>
+                            <label class="form-label">Fecha Cumpleaños</label>
                             <input type="date" name="fecha_nacimiento" value="{{ old('fecha_nacimiento') }}"
-                                class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all text-slate-600 dark:text-slate-400">
+                                class="form-input">
                         </div>
                         <div class="md:col-span-3 space-y-2">
-                            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Email</label>
+                            <label class="form-label">Email</label>
                             <input type="email" name="correo" value="{{ old('correo') }}"
-                                class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all">
+                                class="form-input">
                         </div>
 
                         <div class="md:col-span-3 space-y-2">
-                            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Foto</label>
+                            <label class="form-label">Foto</label>
                             <input type="file" name="photo" accept="image/*"
-                                class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all">
+                                class="form-input file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-slate-100 dark:file:bg-slate-700 file:text-slate-700 dark:file:text-slate-300">
                             @error('photo') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                         </div>
                     </div>
@@ -106,14 +99,14 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="space-y-2">
-                            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Fecha Ingreso</label>
+                            <label class="form-label">Fecha Ingreso</label>
                             <input type="date" name="fecha_ingreso" value="{{ old('fecha_ingreso') }}" 
-                                class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all text-slate-600 dark:text-slate-400">
+                                class="form-input">
                         </div>
                         <div class="space-y-2">
-                            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">¿El voluntario es guardián permanente?</label>
+                            <label class="form-label">¿El voluntario es guardián permanente?</label>
                             <div class="relative">
-                                <select name="es_permanente" class="w-full appearance-none px-4 py-2.5 pr-10 rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all bg-white">
+                                <select name="es_permanente" class="form-input appearance-none pr-10">
                                     <option value="0" {{ old('es_permanente', '0') === '0' ? 'selected' : '' }}>No</option>
                                     <option value="1" {{ old('es_permanente') === '1' ? 'selected' : '' }}>Sí</option>
                                 </select>
@@ -123,9 +116,9 @@
                             </div>
                         </div>
                         <div class="md:col-span-2 space-y-2">
-                            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Guardia Asignada</label>
+                            <label class="form-label">Guardia Asignada</label>
                             <div class="relative">
-                                <select name="guardia_id" class="w-full appearance-none px-4 py-2.5 pr-10 rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all bg-white">
+                                <select name="guardia_id" class="form-input appearance-none pr-10">
                                     <option value="">Sin Asignar</option>
                                     @foreach($guardias as $guardia)
                                         <option value="{{ $guardia->id }}" {{ old('guardia_id') == $guardia->id ? 'selected' : '' }}>
@@ -140,10 +133,10 @@
                         </div>
 
                         <div class="md:col-span-3">
-                            <label class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                            <label class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700/50 transition">
                                 <input type="checkbox" name="fuera_de_servicio" value="1" {{ old('fuera_de_servicio') ? 'checked' : '' }} class="rounded text-red-600 focus:ring-red-500 h-5 w-5 border-slate-300 dark:border-slate-600">
                                 <div class="min-w-0">
-                                    <div class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wide">Fuera de servicio</div>
+                                    <div class="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wide">Fuera de servicio</div>
                                     <div class="text-xs text-slate-500 dark:text-slate-400">No aparecerá en listas operativas (turno, emergencias, academias, reemplazos, refuerzos).</div>
                                 </div>
                             </label>
@@ -176,7 +169,7 @@
                                 </label>
                                 <input type="hidden" name="conductor_carros_bomba" id="conductor_carros_bomba" value="">
                                 <div id="conductor_disponibilidad" class="hidden rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3">
-                                    <div class="text-xs font-black uppercase tracking-wide text-slate-500 dark:text-slate-400">Disponibilidad</div>
+                                    <div class="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Disponibilidad</div>
                                     <div id="conductor_disponibilidad_text" class="mt-1 text-sm font-bold text-slate-700 dark:text-slate-300"></div>
                                 </div>
                                 <label class="flex items-center p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg hover:border-orange-400 cursor-pointer transition-all shadow-sm group">
@@ -202,12 +195,12 @@
 
                 <!-- Footer Acciones -->
                 <div class="flex items-center justify-end gap-4 pt-6 mt-6 border-t border-slate-100 dark:border-slate-800">
-                    <a href="{{ route('admin.volunteers.index') }}" class="px-6 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-400 font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                    <x-ui.button variant="secondary" size="md" href="{{ route('admin.volunteers.index') }}">
                         Cancelar
-                    </a>
-                    <button type="submit" class="bg-slate-800 hover:bg-slate-700 text-white font-bold py-2.5 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 flex items-center uppercase tracking-wide text-sm">
-                        <i class="fas fa-save mr-2"></i> Registrar Voluntario
-                    </button>
+                    </x-ui.button>
+                    <x-ui.button type="submit" variant="primary" size="md" icon="fas fa-save">
+                        Registrar Voluntario
+                    </x-ui.button>
                 </div>
             </form>
         </div>

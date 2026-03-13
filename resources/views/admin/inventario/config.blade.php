@@ -30,7 +30,7 @@
 
         <div class="p-4">
             <div class="mb-4">
-                <input id="invStockSearch" type="text" class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-semibold text-sm" placeholder="Buscar por nombre, categoría o unidad..." autocomplete="off" />
+                <input id="invStockSearch" type="text" class="form-input" placeholder="Buscar por nombre, categoría o unidad..." autocomplete="off" />
             </div>
             <div class="overflow-y-auto" style="max-height: 420px;">
                 <div id="invStockGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">

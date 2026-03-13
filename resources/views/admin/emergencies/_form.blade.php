@@ -8,7 +8,7 @@
 
 <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
     <div class="lg:col-span-2">
-        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border-2 border-slate-200 dark:border-slate-700 overflow-visible">
+        <div class="card-base shadow-sm overflow-visible">
             <div class="bg-slate-900 px-5 py-4 border-b-4 border-red-700">
                 <div class="flex items-center justify-between">
                     <div>
@@ -26,7 +26,7 @@
 
                         <input type="hidden" name="emergency_key_id" id="emergency_key_id" value="{{ $selectedKeyId }}">
 
-                        <button type="button" id="btn-pick-key" class="w-full text-left px-4 py-3 border-2 border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 transition">
+                        <button type="button" id="btn-pick-key" class="w-full text-left px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
                             <div class="flex items-start justify-between gap-3">
                                 <div>
                                     <div class="text-sm font-bold text-slate-900" id="key-code">{{ $selectedKeyId ? optional($keys->firstWhere('id', (int)$selectedKeyId))->code : 'Seleccionar clave...' }}</div>
@@ -44,20 +44,20 @@
                             <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">H. salida</label>
                             <input type="datetime-local" name="dispatched_at"
                                 value="{{ old('dispatched_at', isset($emergency) && $emergency->dispatched_at ? $emergency->dispatched_at->format('Y-m-d\TH:i') : now()->format('Y-m-d\TH:i')) }}"
-                                class="w-full px-3 py-3 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-slate-700 dark:text-slate-300 bg-white">
+                                class="form-input">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">H. llegada</label>
                             <input type="datetime-local" name="arrived_at"
                                 value="{{ old('arrived_at', isset($emergency) && $emergency->arrived_at ? $emergency->arrived_at->format('Y-m-d\TH:i') : '') }}"
-                                class="w-full px-3 py-3 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-slate-700 dark:text-slate-300 bg-white">
+                                class="form-input">
                         </div>
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">Unidades</label>
 
-                        <button type="button" id="btn-pick-units" class="w-full text-left px-4 py-3 border-2 border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 transition">
+                        <button type="button" id="btn-pick-units" class="w-full text-left px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
                             <div class="flex items-start justify-between gap-3">
                                 <div>
                                     <div class="text-sm font-bold text-slate-900">Seleccionar unidades</div>
@@ -91,7 +91,7 @@
                             <div class="relative">
                                 <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                                 <input type="text" id="officer-search-input"
-                                    class="w-full text-sm border-2 border-slate-200 dark:border-slate-700 rounded-xl shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 pl-9 pr-10 py-3 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 placeholder:text-slate-500 dark:text-slate-400 cursor-pointer touch-manipulation"
+                                    class="form-input pl-9 pr-10 cursor-pointer touch-manipulation"
                                     placeholder="Buscar oficial..." autocomplete="off" readonly
                                     value="{{ $selectedOfficerId ? optional($onDutyUsers->firstWhere('id', $selectedOfficerId))->nombres . ' ' . optional($onDutyUsers->firstWhere('id', $selectedOfficerId))->apellido_paterno : 'Sin asignar' }}">
                                 <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
@@ -157,22 +157,24 @@
     </div>
 
     <div class="lg:col-span-3">
-        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border-2 border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div class="bg-slate-50 dark:bg-slate-800 px-6 py-4 border-b border-slate-200 dark:border-slate-700">
+        <div class="card-base shadow-sm overflow-hidden">
+            <div class="card-header">
                 <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Detalles del llamado</h3>
             </div>
-            <div class="p-6">
+            <div class="card-body">
                 <textarea name="details" rows="14"
                     placeholder="Describe el llamado: dirección, tipo de incidente, observaciones relevantes, personas involucradas, etc."
-                    class="w-full px-4 py-3 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-slate-700 dark:text-slate-300 text-sm bg-white">{{ old('details', isset($emergency) ? $emergency->details : '') }}</textarea>
+                    class="form-input">{{ old('details', isset($emergency) ? $emergency->details : '') }}</textarea>
             </div>
         </div>
 
         <div class="mt-6 flex items-center justify-end gap-3">
-            <a href="{{ route('admin.emergencies.index') }}" class="px-5 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-semibold transition-colors">Cancelar</a>
-            <button type="submit" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-md transition-all duration-200">
-                <i class="fas fa-save mr-2"></i> Guardar
-            </button>
+            <x-ui.button variant="secondary" size="md" href="{{ route('admin.emergencies.index') }}">
+                Cancelar
+            </x-ui.button>
+            <x-ui.button type="submit" variant="primary" size="md" icon="fas fa-save">
+                Guardar
+            </x-ui.button>
         </div>
     </div>
 </div>
