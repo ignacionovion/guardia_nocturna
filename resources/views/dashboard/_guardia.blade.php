@@ -1,4 +1,11 @@
-    @if(Auth::check() && Auth::user()->role === 'guardia' && isset($myGuardia) && $myGuardia)
+    @php
+    $showGuardiaPanel = Auth::check()
+        && Auth::user()->role === 'guardia'
+        && isset($myGuardia)
+        && $myGuardia;
+@endphp
+
+@if($showGuardiaPanel)
         @php
             $guardiaTz = \App\Models\SystemSetting::getValue('guardia_schedule_tz', env('GUARDIA_SCHEDULE_TZ', config('app.timezone')));
             $guardiaDailyEndTime = \App\Models\SystemSetting::getValue('guardia_daily_end_time', '07:00');
