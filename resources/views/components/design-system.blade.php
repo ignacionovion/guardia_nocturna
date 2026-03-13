@@ -333,4 +333,27 @@
     .scrollbar-thin::-webkit-scrollbar-thumb:hover {
         @apply bg-slate-400 dark:bg-slate-600;
     }
+    
+    /* ========================================
+       PAGINACIÓN TEMA OSCURO
+       ======================================== */
+    
+    .dark-pagination nav {
+        background: transparent;
+    }
+    .dark-pagination nav a,
+    .dark-pagination nav span {
+        background-color: #1e293b !important;
+        color: #94a3b8 !important;
+        border-color: #334155 !important;
+    }
+    .dark-pagination nav a:hover {
+        background-color: #334155 !important;
+        color: #e2e8f0 !important;
+    }
+    .dark-pagination nav span.relative.z-10 {
+        background-color: #3b82f6 !important;
+        color: white !important;
+        border-color: #3b82f6 !important;
+    }
 </style>
