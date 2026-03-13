@@ -224,16 +224,16 @@
                                 </h3>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     @foreach($dashboardActiveRefuerzos as $refuerzo)
-                                        <div class="bg-sky-50 rounded-xl border border-sky-200 p-4">
+                                        <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 shadow-sm">
                                             <div class="flex items-center gap-3">
-                                                <div class="w-10 h-10 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-sm">
+                                                <div class="w-10 h-10 rounded-full bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400 flex items-center justify-center font-bold text-sm">
                                                     {{ substr($refuerzo->nombres, 0, 1) }}{{ substr($refuerzo->apellido_paterno, 0, 1) }}
                                                 </div>
                                                 <div class="flex-1 min-w-0">
-                                                    <div class="font-bold text-slate-900 truncate">{{ $refuerzo->nombres }} {{ $refuerzo->apellido_paterno }}</div>
+                                                    <div class="font-semibold text-slate-900 dark:text-white truncate">{{ $refuerzo->nombres }} {{ $refuerzo->apellido_paterno }}</div>
                                                     <div class="text-xs text-slate-500 dark:text-slate-400">{{ $refuerzo->rut ?? 'Sin RUT' }}</div>
                                                 </div>
-                                                <span class="text-[10px] font-black uppercase tracking-widest text-sky-700 bg-sky-100 px-2 py-1 rounded">REFUERZO</span>
+                                                <span class="text-[10px] font-semibold uppercase tracking-wider text-sky-700 dark:text-sky-400 bg-sky-100 dark:bg-sky-900/30 px-2 py-1 rounded">Refuerzo</span>
                                             </div>
                                         </div>
                                     @endforeach
