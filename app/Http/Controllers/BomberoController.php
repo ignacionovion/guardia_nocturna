@@ -106,6 +106,17 @@ class BomberoController extends Controller
         return redirect()->route('admin.volunteers.index')->with('success', 'Voluntario creado exitosamente.');
     }
 
+    public function show($id)
+    {
+        if (!in_array(auth()->user()->role, ['super_admin', 'capitania', 'guardia'], true)) {
+            abort(403, 'No autorizado.');
+        }
+        
+        $volunteer = Bombero::with('guardia')->findOrFail($id);
+        
+        return view('admin.volunteers.show', compact('volunteer'));
+    }
+
     public function edit($id)
     {
         if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {

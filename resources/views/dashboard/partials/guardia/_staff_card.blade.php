@@ -63,8 +63,8 @@
      data-requires-confirmation="{{ $requiresConfirmation ? '1' : '0' }}" 
      data-is-confirmed="0">
     
-    {{-- Header con gradiente --}}
-    <div id="card-header-{{ $staff->id }}" class="{{ $statusHeaderClass }} text-white px-3 py-2.5 flex items-center justify-between">
+    {{-- Header con gradiente y enlace al perfil --}}
+    <a href="{{ route('admin.volunteers.show', $staff->id) }}" class="{{ $statusHeaderClass }} text-white px-3 py-2.5 flex items-center justify-between hover:bg-white/5 transition-colors cursor-pointer" id="card-header-{{ $staff->id }}">
         <div class="min-w-0 flex-1">
             <div class="text-sm font-bold text-white leading-tight tracking-wide" title="{{ $staff->nombres }} {{ $staff->apellido_paterno }}">
                 {{ strtoupper($staff->apellido_paterno ?: $staff->nombres) }}
@@ -79,24 +79,35 @@
             @endif
         </div>
         <div class="flex items-center gap-2">
+            <i class="fas fa-external-link-alt text-[10px] text-white/50"></i>
             @if($canInhabilitar)
-                <button type="button" onclick="toggleInhabilitado('{{ $staff->id }}')" class="h-7 px-2.5 rounded-lg border border-slate-600/50 bg-slate-800/80 hover:bg-slate-700 text-[10px] font-semibold uppercase tracking-wider text-slate-300 transition-colors">
+                <button type="button" onclick="event.preventDefault(); event.stopPropagation(); toggleInhabilitado('{{ $staff->id }}')" class="h-7 px-2.5 rounded-lg border border-slate-600/50 bg-slate-800/80 hover:bg-slate-700 text-[10px] font-semibold uppercase tracking-wider text-slate-300 transition-colors">
                     Inhabilitar
                 </button>
             @endif
         </div>
-    </div>
+    </a>
 
     <div class="p-2.5 flex-1 flex flex-col">
-        {{-- Foto con overlay mejorado --}}
-        <div class="relative bg-slate-950 rounded-xl border border-slate-700/50 overflow-hidden w-full h-[200px] mb-3 shrink-0 shadow-inner">
+        {{-- Foto con overlay mejorado y enlace al perfil --}}
+        <a href="{{ route('admin.volunteers.show', $staff->id) }}" class="relative bg-slate-950 rounded-xl border border-slate-700/50 overflow-hidden w-full h-[200px] mb-3 shrink-0 shadow-inner block group/foto cursor-pointer">
             @if($staff->photo_path)
-                <img src="{{ url('media/' . ltrim($staff->photo_path, '/')) }}" class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500" alt="Foto">
+                <img src="{{ url('media/' . ltrim($staff->photo_path, '/')) }}" class="w-full h-full object-cover object-center group-hover/foto:scale-105 transition-transform duration-500" alt="Foto">
             @else
                 <div class="w-full h-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center">
                     <span class="text-4xl font-bold text-slate-500">{{ strtoupper(substr($staff->nombres, 0, 1) . substr($staff->apellido_paterno, 0, 1)) }}</span>
                 </div>
             @endif
+            
+            {{-- Icono de ver perfil en hover --}}
+            <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover/foto:opacity-100 transition-opacity">
+                <div class="flex flex-col items-center gap-2">
+                    <div class="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                        <i class="fas fa-external-link-alt text-white text-xl"></i>
+                    </div>
+                    <span class="text-xs font-semibold text-white">Ver Perfil</span>
+                </div>
+            </div>
 
             {{-- Gradient overlay más pronunciado --}}
             <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black via-black/70 to-transparent"></div>
