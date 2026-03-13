@@ -66,7 +66,7 @@ $theme = $variants[$variant] ?? $variants['default'];
 <div {{ $attributes->merge(['class' => 'relative rounded-xl border p-4 ' . $theme['bg'] . ' ' . $theme['border'] . ' border-l-4 ' . $theme['accent']]) }}>
     <div class="flex items-start justify-between">
         <div class="min-w-0 flex-1">
-            <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider truncate">
+            <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider leading-tight">
                 {{ $label }}
             </p>
             <p class="mt-1 text-2xl font-bold text-slate-900 dark:text-white tracking-tight">

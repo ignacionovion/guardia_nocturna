@@ -1,48 +1,41 @@
 @extends('layouts.modern')
 
 @section('content')
-    <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-800 dark:text-white">Unidades de Emergencia</h1>
-            <p class="text-gray-500 dark:text-slate-400 text-sm mt-1">Catálogo de carros/unidades disponibles</p>
-        </div>
-
-        <div class="flex flex-wrap gap-3 items-center">
-            <a href="{{ route('admin.emergencies.index') }}" class="inline-flex items-center bg-slate-700 hover:bg-slate-800 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200">
-                <i class="fas fa-arrow-left mr-2"></i> Volver a Emergencias
-            </a>
-            <button type="button" onclick="openCreateUnitModal()" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200 transform hover:-translate-y-0.5">
-                <i class="fas fa-plus mr-2"></i> Nueva Unidad
-            </button>
-        </div>
-    </div>
+    <x-ui.page-header title="Unidades de Emergencia" subtitle="Catálogo de carros/unidades disponibles" icon="fas fa-truck" iconVariant="amber">
+        <x-ui.button variant="secondary" size="md" icon="fas fa-arrow-left" href="{{ route('admin.emergencies.index') }}">
+            Volver a Emergencias
+        </x-ui.button>
+        <x-ui.button variant="primary" size="md" icon="fas fa-plus" onclick="openCreateUnitModal()">
+            Nueva Unidad
+        </x-ui.button>
+    </x-ui.page-header>
 
     @if(session('success'))
-        <div class="mb-6 px-4 py-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-medium">
-            <i class="fas fa-check-circle mr-2"></i>{{ session('success') }}
-        </div>
+        <x-ui.alert type="success" icon="fas fa-check-circle" class="mb-6">
+            {{ session('success') }}
+        </x-ui.alert>
     @endif
 
-    <div class="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm mb-8 border border-gray-100 dark:border-slate-800">
+    <x-ui.card class="mb-8">
         <form action="{{ route('admin.emergency-units.index') }}" method="GET" class="relative">
             <div class="flex items-center">
-                <i class="fas fa-search absolute left-4 text-gray-400"></i>
+                <i class="fas fa-search absolute left-4 text-slate-400"></i>
                 <input type="text" name="search" value="{{ request('search') }}"
                     placeholder="Buscar por nombre o descripción..."
-                    class="w-full pl-11 pr-4 py-3 border-gray-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-colors text-gray-700 dark:text-slate-300">
+                    class="form-input pl-11 flex-1">
 
                 @if(request('search'))
-                    <a href="{{ route('admin.emergency-units.index') }}" class="absolute right-20 text-gray-400 hover:text-gray-600 dark:text-slate-400 p-2">
+                    <a href="{{ route('admin.emergency-units.index') }}" class="absolute right-24 text-slate-400 hover:text-slate-600 dark:text-slate-400 p-2">
                         <i class="fas fa-times"></i>
                     </a>
                 @endif
 
-                <button type="submit" class="ml-3 bg-slate-800 hover:bg-slate-700 text-white font-medium py-3 px-6 rounded-lg transition-colors">
+                <x-ui.button type="submit" variant="primary" size="md" class="ml-3">
                     Buscar
-                </button>
+                </x-ui.button>
             </div>
         </form>
-    </div>
+    </x-ui.card>
 
     @if($units->isEmpty())
         <div class="text-center py-16 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-dashed border-slate-300 dark:border-slate-600">
@@ -58,16 +51,16 @@
                 <table class="min-w-full divide-y divide-slate-200">
                     <thead class="bg-slate-50 dark:bg-slate-800">
                         <tr>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Nombre</th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Descripción</th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Estado</th>
-                            <th scope="col" class="px-6 py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acciones</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Nombre</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Descripción</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Estado</th>
+                            <th scope="col" class="px-6 py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acciones</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-200">
                         @foreach($units as $unit)
                             <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors {{ ($unit->status ?? 'active') !== 'active' ? 'opacity-60' : '' }}">
-                                <td class="px-6 py-4 whitespace-nowrap font-bold text-slate-900">{{ $unit->name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap font-semibold text-slate-900 dark:text-white">{{ $unit->name }}</td>
                                 <td class="px-6 py-4 text-slate-700 dark:text-slate-300">{{ $unit->description ?? '-' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @if(($unit->status ?? 'active') === 'active')
@@ -139,23 +132,23 @@
                     <i class="fas fa-ban text-red-600"></i>
                 </div>
                 <div>
-                    <div class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wide">Poner fuera de servicio</div>
+                    <div class="text-sm font-bold text-slate-900 dark:text-white">Poner fuera de servicio</div>
                     <div class="text-xs text-slate-500 dark:text-slate-400" id="disable-unit-name"></div>
                 </div>
             </div>
             <form id="disable-unit-form" method="POST" action="">
                 @csrf
                 <div class="mb-5">
-                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">Motivo</label>
-                    <select name="reason" required class="w-full px-4 py-3 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 text-sm">
+                    <label class="form-label">Motivo</label>
+                    <select name="reason" required class="form-input">
                         <option value="">Seleccione motivo...</option>
                         <option value="6-11">6-11</option>
                         <option value="mantencion">Mantención</option>
                     </select>
                 </div>
                 <div class="flex gap-3">
-                    <button type="button" onclick="closeDisableModal()" class="flex-1 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-sm">Cancelar</button>
-                    <button type="submit" class="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold transition-colors text-sm">Confirmar</button>
+                    <x-ui.button type="button" variant="secondary" size="md" onclick="closeDisableModal()" class="flex-1">Cancelar</x-ui.button>
+                    <x-ui.button type="submit" variant="danger" size="md" class="flex-1">Confirmar</x-ui.button>
                 </div>
             </form>
         </div>
@@ -171,7 +164,7 @@
                     <i class="fas fa-truck text-blue-600"></i>
                 </div>
                 <div>
-                    <div class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wide">Nueva Unidad</div>
+                    <div class="text-sm font-bold text-slate-900 dark:text-white">Nueva Unidad</div>
                     <div class="text-xs text-slate-500 dark:text-slate-400">Agrega una unidad/carro para emergencias</div>
                 </div>
             </div>
@@ -180,28 +173,18 @@
                 @csrf
 
                 <div class="grid grid-cols-1 gap-5">
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Nombre</label>
-                        <input type="text" name="name" value="{{ old('name') }}" required class="w-full px-4 py-3 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-slate-700 dark:text-slate-300 bg-white">
-                        @error('name')
-                            <div class="mt-2 text-sm font-semibold text-rose-600">{{ $message }}</div>
-                        @enderror
-                    </div>
+                    <x-ui.form-group label="Nombre" for="unit-name" :error="$errors->first('name')">
+                        <input type="text" id="unit-name" name="name" value="{{ old('name') }}" required class="form-input">
+                    </x-ui.form-group>
 
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Descripción (opcional)</label>
-                        <input type="text" name="description" value="{{ old('description') }}" class="w-full px-4 py-3 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-slate-700 dark:text-slate-300 bg-white">
-                        @error('description')
-                            <div class="mt-2 text-sm font-semibold text-rose-600">{{ $message }}</div>
-                        @enderror
-                    </div>
+                    <x-ui.form-group label="Descripción (opcional)" for="unit-desc" :error="$errors->first('description')">
+                        <input type="text" id="unit-desc" name="description" value="{{ old('description') }}" class="form-input">
+                    </x-ui.form-group>
                 </div>
 
                 <div class="mt-6 flex items-center justify-end gap-3">
-                    <button type="button" onclick="closeCreateUnitModal()" class="px-5 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-semibold transition-colors">Cancelar</button>
-                    <button type="submit" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-md transition-all duration-200">
-                        <i class="fas fa-save mr-2"></i> Guardar
-                    </button>
+                    <x-ui.button type="button" variant="secondary" size="md" onclick="closeCreateUnitModal()">Cancelar</x-ui.button>
+                    <x-ui.button type="submit" variant="primary" size="md" icon="fas fa-save">Guardar</x-ui.button>
                 </div>
             </form>
         </div>

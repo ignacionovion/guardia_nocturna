@@ -1,34 +1,28 @@
 @extends('layouts.modern')
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
-    <div class="flex items-center justify-between">
-        <div>
-            <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Guardias Preventivas</div>
-            <div class="text-2xl font-extrabold text-slate-900">Eventos</div>
-        </div>
-
-        <a href="{{ route('admin.preventivas.create') }}" class="inline-flex items-center gap-2 bg-slate-950 hover:bg-black text-white font-black py-3 px-5 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest border border-slate-800">
-            <i class="fas fa-plus"></i>
+<div class="w-full">
+    <x-ui.page-header title="Guardias Preventivas" subtitle="Registro de eventos preventivos" icon="fas fa-shield-halved" iconVariant="amber">
+        <x-ui.button variant="primary" size="md" icon="fas fa-plus" href="{{ route('admin.preventivas.create') }}">
             Crear Preventiva
-        </a>
-    </div>
+        </x-ui.button>
+    </x-ui.page-header>
 
-    <div class="mt-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+    <x-ui.card>
         <div class="overflow-x-auto">
             <table class="min-w-full text-sm">
-                <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                <thead class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
                     <tr>
-                        <th class="text-left px-6 py-3 text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">Evento</th>
-                        <th class="text-left px-6 py-3 text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">Rango</th>
-                        <th class="text-left px-6 py-3 text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">Estado</th>
-                        <th class="text-right px-6 py-3 text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">Acciones</th>
+                        <th class="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Evento</th>
+                        <th class="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Rango</th>
+                        <th class="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Estado</th>
+                        <th class="text-right px-6 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse($events as $event)
-                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800">
-                            <td class="px-6 py-4 font-bold text-slate-900">
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td class="px-6 py-4 font-semibold text-slate-900 dark:text-white">
                                 {{ $event->title }}
                             </td>
                             <td class="px-6 py-4 text-slate-700 dark:text-slate-300">
@@ -46,15 +40,14 @@
                                         ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
                                         : ($status === 'closed' ? 'bg-red-50 text-red-800 border border-red-200' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700');
                                 @endphp
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-widest {{ $cls }}">
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold {{ $cls }}">
                                     {{ $label }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-right">
-                                <a href="{{ route('admin.preventivas.show', $event) }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-bold text-xs">
-                                    <i class="fas fa-arrow-right"></i>
+                                <x-ui.button variant="secondary" size="sm" icon="fas fa-arrow-right" href="{{ route('admin.preventivas.show', $event) }}">
                                     Abrir
-                                </a>
+                                </x-ui.button>
                             </td>
                         </tr>
                     @empty
@@ -68,9 +61,9 @@
             </table>
         </div>
 
-        <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+        <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
             {{ $events->links() }}
         </div>
-    </div>
+    </x-ui.card>
 </div>
 @endsection

@@ -4,39 +4,22 @@
 @section('page-title', 'Gestión de Camas')
 
 @section('content')
-    <div class="mb-8">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div class="flex items-center gap-4">
-                <div class="icon-box icon-box-emerald icon-box-lg">
-                    <i class="fas fa-bed"></i>
-                </div>
-                <div>
-                    <span class="text-label mb-1 block">Dormitorios</span>
-                    <h1 class="text-title-lg uppercase flex items-center gap-3">
-                        <span class="text-emerald-600">Gestión</span> de Camas
-                        <x-ui.badge variant="default" size="sm">{{ $totalBeds ?? $beds->count() }} camas</x-ui.badge>
-                    </h1>
-                    <p class="text-body-sm mt-2">Control de ocupación y asignaciones en tiempo real</p>
-                </div>
+    <x-ui.page-header title="Gestión de Camas" subtitle="Control de ocupación y asignaciones en tiempo real" icon="fas fa-bed" iconVariant="emerald">
+        <div class="flex items-center gap-2 card-base p-2.5">
+            <div class="flex items-center px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full mr-2 shadow-[0_0_6px_rgba(16,185,129,0.5)]"></span>
+                <span class="text-caption text-emerald-700 dark:text-emerald-400">Disponible</span>
             </div>
-            
-            <!-- Status Legend -->
-            <div class="flex items-center gap-2 card-base p-2.5">
-                <div class="flex items-center px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
-                    <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full mr-2 shadow-[0_0_6px_rgba(16,185,129,0.5)]"></span>
-                    <span class="text-caption text-emerald-700">Disponible</span>
-                </div>
-                <div class="flex items-center px-3 py-1.5 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
-                    <span class="w-2.5 h-2.5 bg-red-500 rounded-full mr-2 shadow-[0_0_6px_rgba(239,68,68,0.5)]"></span>
-                    <span class="text-caption text-red-700">Ocupada</span>
-                </div>
-                <div class="flex items-center px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
-                    <span class="w-2.5 h-2.5 bg-slate-400 rounded-full mr-2"></span>
-                    <span class="text-caption text-slate-600 dark:text-slate-400">Mantención</span>
-                </div>
+            <div class="flex items-center px-3 py-1.5 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                <span class="w-2.5 h-2.5 bg-red-500 rounded-full mr-2 shadow-[0_0_6px_rgba(239,68,68,0.5)]"></span>
+                <span class="text-caption text-red-700 dark:text-red-400">Ocupada</span>
+            </div>
+            <div class="flex items-center px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                <span class="w-2.5 h-2.5 bg-slate-400 rounded-full mr-2"></span>
+                <span class="text-caption text-slate-600 dark:text-slate-400">Mantención</span>
             </div>
         </div>
-    </div>
+    </x-ui.page-header>
 
     <!-- Beds Grid - Modern Professional Design -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
@@ -77,7 +60,7 @@
                             <!-- Bed Number Badge -->
                             <div class="relative">
                                 <div class="w-14 h-14 rounded-2xl bg-white dark:bg-slate-900 border-2 border-{{ $statusColor }}-200 shadow-lg flex items-center justify-center">
-                                    <span class="text-2xl font-black text-{{ $statusColor }}-600">{{ $bed->number }}</span>
+                                    <span class="text-2xl font-bold text-{{ $statusColor }}-600">{{ $bed->number }}</span>
                                 </div>
                                 @if($isOccupied)
                                     <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center border-2 border-white shadow-md">
@@ -90,14 +73,14 @@
                                 @endif
                             </div>
                             <div>
-                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Cama N°</span>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Cama N°</span>
                                 <div class="flex items-center gap-2">
                                     @if($isAvailable)
-                                        <span class="text-xs font-black text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full uppercase">Libre</span>
+                                        <span class="text-xs font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full uppercase">Libre</span>
                                     @elseif($isOccupied)
-                                        <span class="text-xs font-black text-red-600 bg-red-100 px-2 py-0.5 rounded-full uppercase">Ocupada</span>
+                                        <span class="text-xs font-bold text-red-600 bg-red-100 dark:bg-red-900/30 px-2 py-0.5 rounded-full uppercase">Ocupada</span>
                                     @else
-                                        <span class="text-xs font-black text-slate-500 dark:text-slate-400 bg-slate-200 px-2 py-0.5 rounded-full uppercase">Mantención</span>
+                                        <span class="text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-200 dark:bg-slate-800 px-2 py-0.5 rounded-full uppercase">Mantención</span>
                                     @endif
                                 </div>
                             </div>
@@ -320,10 +303,9 @@
                     <a id="qrUrl" href="#" target="_blank" class="text-sm text-cyan-600 font-mono break-all hover:text-cyan-500 transition-colors"></a>
                 </div>
 
-                <a id="qrPrintLink" href="#" target="_blank" class="w-full inline-flex items-center justify-center gap-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-6 rounded-xl text-xs transition-all uppercase tracking-wide mb-3">
-                    <i class="fas fa-print"></i>
+                <x-ui.button variant="info" size="md" icon="fas fa-print" class="w-full mb-3" id="qrPrintLink" href="#" target="_blank">
                     Imprimir
-                </a>
+                </x-ui.button>
 
                 <x-ui.button variant="primary" size="sm" class="w-full" onclick="closeQrModal()">
                     Cerrar

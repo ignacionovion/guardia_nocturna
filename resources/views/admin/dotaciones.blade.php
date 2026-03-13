@@ -1,17 +1,7 @@
 @extends('layouts.modern')
 
 @section('content')
-    <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 border-b border-slate-200 dark:border-slate-700 pb-6">
-        <div class="flex items-center gap-4">
-            <div class="icon-box icon-box-gradient-red icon-box-lg">
-                <i class="fas fa-users-gear"></i>
-            </div>
-            <div>
-                <h1 class="text-title-lg uppercase">Dotaciones</h1>
-                <p class="text-body-sm">Asignación de personal a guardias</p>
-            </div>
-        </div>
-    </div>
+    <x-ui.page-header title="Dotaciones" subtitle="Asignación de personal a guardias" icon="fas fa-users-gear" iconVariant="red" />
 
     @if(session('success'))
         <x-ui.alert type="success" icon="fas fa-check-circle" class="mb-6">
@@ -211,7 +201,7 @@
                 left.appendChild(name);
 
                 const right = document.createElement('div');
-                right.className = 'text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-3 shrink-0';
+                right.className = 'text-[10px] font-medium text-slate-400 dark:text-slate-500 ml-3 shrink-0';
                 right.textContent = '#' + v.id;
 
                 btn.appendChild(left);

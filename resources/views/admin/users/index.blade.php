@@ -1,17 +1,7 @@
 @extends('layouts.modern')
 
 @section('content')
-    <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-        <div class="flex items-center gap-4">
-            <div class="icon-box icon-box-indigo icon-box-lg">
-                <i class="fas fa-user-shield"></i>
-            </div>
-            <div>
-                <h1 class="text-title-lg">Usuarios del Sistema</h1>
-                <p class="text-body-sm">Administración de cuentas con acceso al sistema</p>
-            </div>
-        </div>
-
+    <x-ui.page-header title="Usuarios del Sistema" subtitle="Administración de cuentas con acceso al sistema" icon="fas fa-user-shield" iconVariant="red">
         <div class="flex flex-wrap gap-3 items-center">
             @if(!plan_exceeded('users'))
             <x-ui.button variant="primary" size="md" icon="fas fa-plus" href="{{ route('admin.users.create') }}">
@@ -26,7 +16,7 @@
                 Roles
             </x-ui.button>
         </div>
-    </div>
+    </x-ui.page-header>
 
     <x-ui.card class="mb-8">
         <form action="{{ route('admin.users.index') }}" method="GET" class="relative">
@@ -78,24 +68,18 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-100">
-                                        {{ str_replace('_', ' ', $user->role) }}
-                                    </span>
+                                    <x-ui.badge variant="danger" size="sm">{{ str_replace('_', ' ', $user->role) }}</x-ui.badge>
                                     @if($user->roleEntity)
                                         <div class="mt-1">
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-100 dark:border-slate-800">
-                                                {{ $user->roleEntity->name }}
-                                            </span>
+                                            <x-ui.badge variant="default" size="xs">{{ $user->roleEntity->name }}</x-ui.badge>
                                         </div>
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
                                     @if($user->guardia)
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                            {{ $user->guardia->name }}
-                                        </span>
+                                        <x-ui.badge variant="success" size="sm">{{ $user->guardia->name }}</x-ui.badge>
                                     @else
-                                        <span class="text-slate-400 text-xs italic">-</span>
+                                        <span class="text-slate-400 dark:text-slate-500 text-xs">—</span>
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

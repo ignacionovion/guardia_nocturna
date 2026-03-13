@@ -1,39 +1,32 @@
 @extends('layouts.modern')
 
 @section('content')
-    <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-800 dark:text-white">Roles</h1>
-            <p class="text-gray-500 dark:text-slate-400 text-sm mt-1">Gestión de roles y permisos por secciones</p>
-        </div>
+    <x-ui.page-header title="Roles" subtitle="Gestión de roles y permisos por secciones" icon="fas fa-user-gear" iconVariant="red">
+        <x-ui.button variant="primary" size="md" icon="fas fa-plus" href="{{ route('admin.roles.create') }}">
+            Nuevo Rol
+        </x-ui.button>
+    </x-ui.page-header>
 
-        <div class="flex flex-wrap gap-3 items-center">
-            <a href="{{ route('admin.roles.create') }}" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200 transform hover:-translate-y-0.5">
-                <i class="fas fa-plus mr-2"></i> Nuevo Rol
-            </a>
-        </div>
-    </div>
-
-    <div class="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm mb-8 border border-gray-100 dark:border-slate-800">
+    <x-ui.card class="mb-8">
         <form action="{{ route('admin.roles.index') }}" method="GET" class="relative">
             <div class="flex items-center">
-                <i class="fas fa-search absolute left-4 text-gray-400"></i>
+                <i class="fas fa-search absolute left-4 text-slate-400"></i>
                 <input type="text" name="search" value="{{ request('search') }}"
                     placeholder="Buscar por nombre o slug..."
-                    class="w-full pl-11 pr-4 py-3 border-gray-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-colors text-gray-700 dark:text-slate-300">
+                    class="form-input pl-11 flex-1">
 
                 @if(request('search'))
-                    <a href="{{ route('admin.roles.index') }}" class="absolute right-20 text-gray-400 hover:text-gray-600 dark:text-slate-400 p-2">
+                    <a href="{{ route('admin.roles.index') }}" class="absolute right-24 text-slate-400 hover:text-slate-600 dark:text-slate-400 p-2">
                         <i class="fas fa-times"></i>
                     </a>
                 @endif
 
-                <button type="submit" class="ml-3 bg-slate-800 hover:bg-slate-700 text-white font-medium py-3 px-6 rounded-lg transition-colors">
+                <x-ui.button type="submit" variant="primary" size="md" class="ml-3">
                     Buscar
-                </button>
+                </x-ui.button>
             </div>
         </form>
-    </div>
+    </x-ui.card>
 
     @if($roles->isEmpty())
         <div class="text-center py-16 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-dashed border-slate-300 dark:border-slate-600">
@@ -49,10 +42,10 @@
                 <table class="min-w-full divide-y divide-slate-200">
                     <thead class="bg-slate-50 dark:bg-slate-800">
                         <tr>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Nombre</th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Slug</th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Permisos</th>
-                            <th scope="col" class="px-6 py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acciones</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Nombre</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Slug</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Permisos</th>
+                            <th scope="col" class="px-6 py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acciones</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-200">

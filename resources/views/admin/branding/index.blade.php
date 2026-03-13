@@ -3,16 +3,8 @@
 @section('title', 'Marca Personalizada - GuardiAPP')
 
 @section('content')
-<div class="container mx-auto px-4 py-6">
-    <div class="flex items-center gap-4 mb-6">
-        <div class="icon-box icon-box-purple icon-box-lg">
-            <i class="fas fa-paint-brush"></i>
-        </div>
-        <div>
-            <h1 class="text-title-lg">Marca Personalizada</h1>
-            <p class="text-body-sm">Personaliza la apariencia de GuardiAPP con los colores y logo de tu compañía.</p>
-        </div>
-    </div>
+<div class="w-full">
+    <x-ui.page-header title="Marca Personalizada" subtitle="Personaliza la apariencia de GuardiAPP con los colores y logo de tu compañía" icon="fas fa-paint-brush" iconVariant="violet" />
 
     @if(session('success'))
         <x-ui.alert type="success" icon="fas fa-check-circle" class="mb-6">

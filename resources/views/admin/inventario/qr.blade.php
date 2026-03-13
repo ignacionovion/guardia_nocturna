@@ -2,35 +2,20 @@
 
 @section('content')
 <div class="w-full py-4">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-            <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Inventario</div>
-            <div class="text-2xl font-extrabold text-slate-900">QR fijo</div>
-            <div class="text-sm text-slate-600 dark:text-slate-400 mt-1">Escanea para ir directo al formulario de retiro.</div>
-        </div>
-
+    <x-ui.page-header title="QR Fijo" subtitle="Escanea para ir directo al formulario de retiro." icon="fas fa-qrcode" iconVariant="purple">
         <div class="flex items-center gap-2">
-            <a href="{{ route('inventario.config.form') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-bold text-xs">
-                <i class="fas fa-gear"></i>
-                Configuración
-            </a>
-            <a href="{{ route('inventario.qr.print') }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-extrabold text-xs">
-                <i class="fas fa-print"></i>
-                Imprimir
-            </a>
+            <x-ui.button variant="secondary" size="sm" icon="fas fa-gear" href="{{ route('inventario.config.form') }}">Configuración</x-ui.button>
+            <x-ui.button variant="secondary" size="sm" icon="fas fa-print" href="{{ route('inventario.qr.print') }}" target="_blank">Imprimir</x-ui.button>
             <form method="POST" action="{{ route('inventario.qr.regenerar') }}" onsubmit="return confirm('¿Regenerar QR? El código anterior dejará de funcionar.')">
                 @csrf
-                <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-800 font-extrabold text-xs">
-                    <i class="fas fa-rotate"></i>
-                    Regenerar
-                </button>
+                <x-ui.button type="submit" variant="danger" size="sm" icon="fas fa-rotate">Regenerar</x-ui.button>
             </form>
         </div>
-    </div>
+    </x-ui.page-header>
 
     <div class="mt-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
         <div class="p-6 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-slate-50 to-slate-100">
-            <div class="text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">Enlace</div>
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">Enlace</div>
             <div class="text-sm text-slate-700 dark:text-slate-300 mt-1 break-all font-mono">{{ $url }}</div>
         </div>
 

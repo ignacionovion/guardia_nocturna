@@ -1,56 +1,41 @@
 @extends('layouts.modern')
 
 @section('content')
-<div class="w-full py-4">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-            <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Planillas</div>
-            <div class="text-2xl font-extrabold text-slate-900">Historial</div>
-            <div class="text-sm text-slate-600 dark:text-slate-400 mt-1">Registro semanal de revisión de unidades.</div>
-        </div>
-
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-            <a href="{{ route('admin.planillas.create') }}" class="inline-flex items-center justify-center gap-2 bg-slate-950 hover:bg-black text-white font-black py-3 px-5 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest border border-slate-800">
-                <i class="fas fa-plus"></i>
-                Nueva planilla
-            </a>
-            @if(auth()->check() && auth()->user()->role === 'super_admin')
-                <a href="{{ route('admin.planillas.listados.index') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-extrabold text-[11px] uppercase tracking-widest">
-                    <i class="fas fa-list-check"></i>
-                    Editar listados
-                </a>
-                <a href="{{ route('admin.planillas.qr_fijo') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-extrabold text-[11px] uppercase tracking-widest">
-                    <i class="fas fa-qrcode"></i>
-                    QR fijo
-                </a>
-            @endif
-        </div>
-    </div>
+<div class="w-full">
+    <x-ui.page-header title="Planillas" subtitle="Registro semanal de revisión de unidades" icon="fas fa-clipboard-list" iconVariant="emerald">
+        <x-ui.button variant="primary" size="md" icon="fas fa-plus" href="{{ route('admin.planillas.create') }}">
+            Nueva planilla
+        </x-ui.button>
+        @if(auth()->check() && auth()->user()->role === 'super_admin')
+            <x-ui.button variant="secondary" size="md" icon="fas fa-list-check" href="{{ route('admin.planillas.listados.index') }}">
+                Editar listados
+            </x-ui.button>
+            <x-ui.button variant="secondary" size="md" icon="fas fa-qrcode" href="{{ route('admin.planillas.qr_fijo') }}">
+                QR fijo
+            </x-ui.button>
+        @endif
+    </x-ui.page-header>
 
     @if(session('success'))
-        <div class="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-6 py-4 text-emerald-900">
-            <div class="text-sm font-extrabold">{{ session('success') }}</div>
-        </div>
+        <x-ui.alert type="success" icon="fas fa-check-circle" class="mb-6">
+            {{ session('success') }}
+        </x-ui.alert>
     @endif
 
-    <div class="mt-6 bg-white dark:bg-slate-900 rounded-2xl border border-teal-900/20 shadow-sm overflow-hidden">
-        <div class="p-6 border-b border-teal-900/20 bg-sky-100">
+    <x-ui.card class="mb-6">
+        <div class="p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
             <form method="GET" class="flex flex-col md:flex-row md:items-end gap-4">
                 <div class="flex-1">
-                    <div class="text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-2">Filtrar por unidad</div>
+                    <label class="form-label mb-2">Filtrar por unidad</label>
                     <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-                        <select name="unidad" class="w-full sm:w-56 px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-semibold text-sm">
+                        <select name="unidad" class="form-input w-full sm:w-56">
                             <option value="">Todas</option>
                             @foreach($unidades as $u)
                                 <option value="{{ $u }}" {{ ($unidadSeleccionada ?? '') === $u ? 'selected' : '' }}>{{ $u }}</option>
                             @endforeach
                         </select>
-                        <button type="submit" class="w-full sm:w-auto px-5 py-2 rounded-lg bg-slate-900 hover:bg-black text-white font-black text-[11px] uppercase tracking-widest">
-                            Filtrar
-                        </button>
-                        <a href="{{ route('admin.planillas.index') }}" class="w-full sm:w-auto px-5 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-extrabold text-[11px] uppercase tracking-widest text-center">
-                            Limpiar
-                        </a>
+                        <x-ui.button type="submit" variant="primary" size="md">Filtrar</x-ui.button>
+                        <x-ui.button variant="secondary" size="md" href="{{ route('admin.planillas.index') }}">Limpiar</x-ui.button>
                     </div>
                 </div>
             </form>
@@ -58,8 +43,8 @@
 
         <div class="overflow-x-auto">
             <table class="min-w-full text-sm">
-                <thead class="bg-sky-50 border-b border-teal-900/20">
-                    <tr class="text-xs font-black uppercase tracking-widest text-slate-700 dark:text-slate-300">
+                <thead class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+                    <tr class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                         <th class="text-left px-6 py-3">Fecha</th>
                         <th class="text-left px-6 py-3">Unidad</th>
                         <th class="text-left px-6 py-3">Estado</th>
@@ -69,14 +54,14 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse($planillas as $p)
-                        <tr class="hover:bg-sky-50">
-                            <td class="px-6 py-4 font-bold text-slate-900">{{ $p->fecha_revision?->format('d-m-Y H:i') }}</td>
-                            <td class="px-6 py-4 text-slate-700 dark:text-slate-300 font-bold">{{ $p->unidad }}</td>
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td class="px-6 py-4 font-semibold text-slate-900 dark:text-white">{{ $p->fecha_revision?->format('d-m-Y H:i') }}</td>
+                            <td class="px-6 py-4 text-slate-700 dark:text-slate-300 font-semibold">{{ $p->unidad }}</td>
                             <td class="px-6 py-4">
                                 <form method="POST" action="{{ route('admin.planillas.estado.update', $p) }}" class="inline">
                                     @csrf
                                     @method('PUT')
-                                    <select name="estado" class="px-3 py-2 rounded-full text-xs font-black uppercase tracking-widest border {{ ($p->estado ?? '') === 'finalizado' ? 'bg-emerald-100 text-emerald-900 border-emerald-200' : 'bg-amber-100 text-amber-900 border-amber-200' }}" onchange="this.form.submit()">
+                                    <select name="estado" class="px-3 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider border {{ ($p->estado ?? '') === 'finalizado' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800' : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800' }}" onchange="this.form.submit()">
                                         <option value="en_edicion" {{ ($p->estado ?? '') !== 'finalizado' ? 'selected' : '' }}>En edición</option>
                                         <option value="finalizado" {{ ($p->estado ?? '') === 'finalizado' ? 'selected' : '' }}>Finalizado</option>
                                     </select>
@@ -86,28 +71,21 @@
                             <td class="px-6 py-4 text-right">
                                 <div class="inline-flex items-center gap-2">
                                     @if(($p->estado ?? '') !== 'finalizado')
-                                        <a href="{{ route('admin.planillas.edit', $p) }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-teal-900/20 bg-sky-50 hover:bg-sky-100 text-slate-900 font-extrabold text-xs">
-                                            <i class="fas fa-pen"></i>
+                                        <x-ui.button variant="secondary" size="sm" icon="fas fa-pen" href="{{ route('admin.planillas.edit', $p) }}">
                                             Continuar
-                                        </a>
+                                        </x-ui.button>
                                     @endif
-                                    <a href="{{ route('admin.planillas.show', $p) }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-bold text-xs">
-                                        <i class="fas fa-eye"></i>
+                                    <x-ui.button variant="secondary" size="sm" icon="fas fa-eye" href="{{ route('admin.planillas.show', $p) }}">
                                         Ver
-                                    </a>
-                                    <a href="{{ route('admin.planillas.email', $p) }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-800 font-extrabold text-xs" title="Enviar por email">
-                                        <i class="fas fa-envelope"></i>
-                                    </a>
-                                    <a href="{{ route('admin.planillas.pdf', $p) }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-red-200 bg-red-50 hover:bg-red-100 text-red-800 font-extrabold text-xs" title="Descargar PDF" target="_blank">
-                                        <i class="fas fa-file-pdf"></i>
-                                    </a>
+                                    </x-ui.button>
+                                    <x-ui.button variant="ghost" size="sm" icon="fas fa-envelope" href="{{ route('admin.planillas.email', $p) }}" title="Enviar por email" />
+                                    <x-ui.button variant="ghost" size="sm" icon="fas fa-file-pdf" href="{{ route('admin.planillas.pdf', $p) }}" title="Descargar PDF" target="_blank" />
                                     <form method="POST" action="{{ route('admin.planillas.destroy', $p) }}" class="inline" onsubmit="return confirm('¿Eliminar esta planilla? Esta acción no se puede deshacer.')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-800 font-extrabold text-xs">
-                                            <i class="fas fa-trash"></i>
+                                        <x-ui.button type="submit" variant="ghost" size="sm" icon="fas fa-trash" class="text-red-500 hover:text-red-700">
                                             Eliminar
-                                        </button>
+                                        </x-ui.button>
                                     </form>
                                 </div>
                             </td>
@@ -121,23 +99,23 @@
             </table>
         </div>
 
-        <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+        <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
             {{ $planillas->links() }}
         </div>
-    </div>
+    </x-ui.card>
 
     {{-- Sección Historial --}}
     <div class="mt-8">
-        <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-4">Historial de Actividad</div>
+        <h2 class="text-label mb-4">Historial de Actividad</h2>
         
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {{-- Grid 1: Planillas Semanales por Guardia --}}
             <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-                <div class="p-4 border-b border-slate-200 dark:border-slate-700 bg-emerald-50">
+                <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
-                            <i class="fas fa-clipboard-check text-emerald-600"></i>
-                            <div class="text-sm font-extrabold text-slate-900">Planillas Semanales</div>
+                            <i class="fas fa-clipboard-check text-emerald-600 dark:text-emerald-400"></i>
+                            <div class="text-sm font-bold text-slate-900 dark:text-white">Planillas Semanales</div>
                         </div>
                         <span class="text-xs text-slate-500 dark:text-slate-400">{{ $inicioSemana->format('d/m') }} - {{ $finSemana->format('d/m') }}</span>
                     </div>
@@ -194,16 +172,16 @@
 
             {{-- Grid 2: Bitácora / Nuevos Items --}}
             <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-                <div class="p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
                     <div class="flex items-center gap-2">
                         <i class="fas fa-clipboard-list text-slate-600 dark:text-slate-400"></i>
-                        <div class="text-sm font-extrabold text-slate-900">Bitácora - Novedades (Últimos 7 días)</div>
+                        <div class="text-sm font-bold text-slate-900 dark:text-white">Bitácora - Novedades (Últimos 7 días)</div>
                     </div>
                 </div>
                 <div class="overflow-x-auto max-h-96 overflow-y-auto">
                     <table class="min-w-full text-sm">
                         <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0">
-                            <tr class="text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">
+                            <tr class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                                 <th class="text-left px-4 py-2">Fecha</th>
                                 <th class="text-left px-4 py-2">Tipo</th>
                                 <th class="text-left px-4 py-2">Descripción</th>
@@ -212,7 +190,7 @@
                         </thead>
                         <tbody class="divide-y divide-slate-100">
                             @forelse($bitacora as $item)
-                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800">
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                                     <td class="px-4 py-3 text-xs text-slate-600 dark:text-slate-400">{{ $item['fecha']?->format('d/m H:i') }}</td>
                                     <td class="px-4 py-3">
                                         <span class="px-2 py-1 rounded text-xs font-bold uppercase

@@ -1,31 +1,19 @@
 @extends('layouts.modern')
 
 @section('content')
-    <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-        <div class="flex items-center gap-4">
-            <div class="icon-box icon-box-amber icon-box-lg">
-                <i class="fas fa-truck-medical"></i>
-            </div>
-            <div>
-                <h1 class="text-title-lg">Emergencias</h1>
-                <p class="text-body-sm">Registro de emergencias transcurridas en guardias nocturnas</p>
-            </div>
-        </div>
-
-        <div class="flex flex-wrap gap-3 items-center">
-            @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'capitania'], true))
-                <x-ui.button variant="secondary" size="md" icon="fas fa-key" href="{{ route('admin.emergency-keys.index') }}">
-                    Claves Radiales
-                </x-ui.button>
-                <x-ui.button variant="secondary" size="md" icon="fas fa-truck" href="{{ route('admin.emergency-units.index') }}">
-                    Unidades
-                </x-ui.button>
-            @endif
-            <x-ui.button variant="primary" size="md" icon="fas fa-plus" href="{{ route('admin.emergencies.create') }}">
-                Nueva Emergencia
+    <x-ui.page-header title="Emergencias" subtitle="Registro de emergencias transcurridas en guardias nocturnas" icon="fas fa-truck-medical" iconVariant="amber">
+        @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'capitania'], true))
+            <x-ui.button variant="secondary" size="md" icon="fas fa-key" href="{{ route('admin.emergency-keys.index') }}">
+                Claves Radiales
             </x-ui.button>
-        </div>
-    </div>
+            <x-ui.button variant="secondary" size="md" icon="fas fa-truck" href="{{ route('admin.emergency-units.index') }}">
+                Unidades
+            </x-ui.button>
+        @endif
+        <x-ui.button variant="primary" size="md" icon="fas fa-plus" href="{{ route('admin.emergencies.create') }}">
+            Nueva Emergencia
+        </x-ui.button>
+    </x-ui.page-header>
 
     <x-ui.card class="mb-8">
         <form action="{{ route('admin.emergencies.index') }}" method="GET" class="relative">

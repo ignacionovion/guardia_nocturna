@@ -210,13 +210,13 @@
                                             @if($staff->es_jefe_guardia)
                                                 <div class="flex items-center gap-2 text-xs text-slate-300">
                                                     <i class="fas fa-user-group opacity-70"></i>
-                                                    <span class="font-black">Jefe</span>
+                                                    <span class="font-bold">Jefe</span>
                                                 </div>
                                             @endif
                                         </div>
                                         <div class="flex items-center gap-2">
                                             @if(in_array(Auth::user()->role, ['super_admin','capitania','guardia'], true))
-                                                <button type="button" onclick="toggleInhabilitado('{{ $staff->id }}')" class="h-6 px-2 rounded-md border border-slate-700 bg-slate-900/60 hover:bg-slate-900 text-[9px] font-black uppercase tracking-widest text-slate-200">
+                                                <button type="button" onclick="toggleInhabilitado('{{ $staff->id }}')" class="h-6 px-2 rounded-md border border-slate-700 bg-slate-900/60 hover:bg-slate-900 text-[9px] font-bold uppercase tracking-wider text-slate-200">
                                                     Inhabilitar
                                                 </button>
                                             @endif
@@ -230,7 +230,7 @@
                                         @if($staff->photo_path)
                                             <img src="{{ url('media/' . ltrim($staff->photo_path, '/')) }}" class="w-full h-full object-cover object-center scale-100" alt="Foto">
                                         @else
-                                            <div class="w-full h-full bg-slate-900 flex items-center justify-center text-slate-200 font-black text-3xl">
+                                            <div class="w-full h-full bg-slate-900 flex items-center justify-center text-slate-200 font-bold text-3xl">
                                                 {{ strtoupper(substr($staff->nombres, 0, 1) . substr($staff->apellido_paterno, 0, 1)) }}
                                             </div>
                                         @endif
@@ -257,10 +257,10 @@
                                                     {{ $staff->cargo_texto ?: ($staff->es_jefe_guardia ? 'Jefe de Guardia' : 'Bombero') }}
                                                 </span>
                                                 @if($staff->es_permanente)
-                                                    <span class="text-[8px] font-black uppercase tracking-wider text-emerald-300 bg-emerald-500/30 border border-emerald-400/30 rounded px-1 py-0 leading-none">PERM</span>
+                                                    <span class="text-[8px] font-bold uppercase tracking-wider text-emerald-300 bg-emerald-500/30 border border-emerald-400/30 rounded px-1 py-0 leading-none">PERM</span>
                                                 @endif
                                                 @if($staff->es_refuerzo)
-                                                    <span class="text-[8px] font-black uppercase tracking-wider text-emerald-300 bg-emerald-500/30 border border-emerald-400/30 rounded px-1 py-0 leading-none">REF</span>
+                                                    <span class="text-[8px] font-bold uppercase tracking-wider text-emerald-300 bg-emerald-500/30 border border-emerald-400/30 rounded px-1 py-0 leading-none">REF</span>
                                                 @endif
                                             </div>
                                             <div class="flex items-center gap-1.5 mt-0.5">
@@ -273,7 +273,7 @@
                                         {{-- Badge cama arriba izquierda --}}
                                         @php $bedNum = isset($bedByFirefighter) ? ($bedByFirefighter[$staff->id] ?? null) : null; @endphp
                                         @if($bedNum !== null)
-                                            <div class="absolute top-1 left-1 bg-slate-900/80 backdrop-blur-sm border border-slate-600 rounded-md px-1.5 py-0.5 text-[9px] font-black text-slate-100 leading-none whitespace-nowrap">
+                                            <div class="absolute top-1 left-1 bg-slate-900/80 backdrop-blur-sm border border-slate-600 rounded-md px-1.5 py-0.5 text-[9px] font-bold text-slate-100 leading-none whitespace-nowrap">
                                                 🛏 #{{ $bedNum }}
                                             </div>
                                         @endif
@@ -340,15 +340,15 @@
 
                                     {{-- Estado - OCULTO para reemplazos --}}
                                     <div class="mt-1.5 {{ $repAsReplacement ? 'hidden' : '' }}">
-                                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Estado</label>
+                                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Estado</label>
                                         @if($lockAttendanceStatus)
                                             @if($repAsReplacement)
                                                 <div class="rounded-lg border border-purple-500/30 bg-purple-500/15 text-purple-200 px-3 py-2 text-center">
-                                                    <div class="text-sm font-black">REEMPLAZO</div>
+                                                    <div class="text-sm font-bold">REEMPLAZO</div>
                                                 </div>
                                             @else
                                                 <div class="rounded-lg border border-emerald-500/30 bg-emerald-500/15 text-emerald-200 px-3 py-2 text-center">
-                                                    <div class="text-sm font-black">CONSTITUYE</div>
+                                                    <div class="text-sm font-bold">CONSTITUYE</div>
                                                 </div>
                                             @endif
                                         @else
@@ -372,7 +372,7 @@
                                                     default => 'bg-emerald-500/80 text-white border-emerald-400/50',
                                                 };
                                             @endphp
-                                            <button type="button" id="status-cycle-{{ $staff->id }}" data-user-id="{{ $staff->id }}" data-status="{{ $status }}" onclick="cycleGuardiaStatus('{{ $staff->id }}')" class="w-full px-2 py-2 rounded-lg border text-[11px] font-black uppercase tracking-widest transition flex items-center justify-center gap-2 shadow-sm {{ $statusBtnClass }}">
+                                            <button type="button" id="status-cycle-{{ $staff->id }}" data-user-id="{{ $staff->id }}" data-status="{{ $status }}" onclick="cycleGuardiaStatus('{{ $staff->id }}')" class="w-full px-2 py-2 rounded-lg border text-[11px] font-bold uppercase tracking-wider transition flex items-center justify-center gap-2 shadow-sm {{ $statusBtnClass }}">
                                                 <span id="status-cycle-label-{{ $staff->id }}">{{ $statusLabel }}</span>
                                                 <i class="fas fa-rotate text-[10px] opacity-80"></i>
                                             </button>
@@ -386,7 +386,7 @@
                                                 data-open-replacement="1"
                                                 data-original-firefighter-id="{{ $staff->id }}"
                                                 data-original-user-name="{{ $staff->nombres }} {{ $staff->apellido_paterno }}"
-                                                class="w-full bg-purple-600 hover:bg-purple-700 text-white font-black uppercase tracking-widest text-[10px] py-1.5 rounded-lg flex items-center justify-center gap-2"
+                                                class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold uppercase tracking-wider text-[10px] py-1.5 rounded-lg flex items-center justify-center gap-2"
                                             >
                                                 <i class="fas fa-user-plus"></i>
                                                 Reemplazar
@@ -394,7 +394,7 @@
                                         @endif
 
                                         @if($staff->es_refuerzo)
-                                            <button type="button" onclick="removeRefuerzo('{{ $myGuardia->id }}', '{{ $staff->id }}')" class="w-full bg-slate-950 hover:bg-slate-900 text-slate-100 font-black uppercase tracking-widest text-[10px] py-1.5 rounded-lg border border-slate-800">
+                                            <button type="button" onclick="removeRefuerzo('{{ $myGuardia->id }}', '{{ $staff->id }}')" class="w-full bg-slate-950 hover:bg-slate-900 text-slate-100 font-bold uppercase tracking-wider text-[10px] py-1.5 rounded-lg border border-slate-800">
                                                 Quitar refuerzo
                                             </button>
                                         @endif
@@ -411,7 +411,7 @@
                         @if(isset($outOfServiceStaff) && $outOfServiceStaff->isNotEmpty())
                             <div class="mt-6">
                                 <div class="flex items-center justify-between mb-3">
-                                    <div class="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Inhabilitados</div>
+                                    <div class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Inhabilitados</div>
                                     <div class="text-[11px] font-bold text-slate-400">{{ $outOfServiceStaff->count() }}</div>
                                 </div>
                                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2">
@@ -419,13 +419,13 @@
                                         <div class="bg-slate-900 rounded-xl shadow-sm border border-slate-800 overflow-hidden flex flex-col p-3">
                                             <div class="flex items-center justify-between">
                                                 <div class="text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ $staff->cargo_texto ?? 'Bombero' }}</div>
-                                                <div class="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-red-50 text-red-700 border border-red-100">INHABILITADO</div>
+                                                <div class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-red-50 text-red-700 border border-red-100">INHABILITADO</div>
                                             </div>
                                             <div class="mt-2 text-sm font-semibold text-slate-100 leading-tight" title="{{ $staff->nombres }} {{ $staff->apellido_paterno }}">
                                                 {{ $staff->apellido_paterno }}{{ $staff->apellido_materno ? ' ' . $staff->apellido_materno : '' }}, {{ $staff->nombres }}
                                             </div>
                                             @if(in_array(Auth::user()->role, ['super_admin','capitania','guardia'], true))
-                                                <button type="button" onclick="toggleHabilitar('{{ $staff->id }}')" class="mt-3 w-full bg-slate-950 hover:bg-slate-900 text-green-300 font-black uppercase tracking-widest text-[10px] py-1.5 rounded-lg border border-green-900">
+                                                <button type="button" onclick="toggleHabilitar('{{ $staff->id }}')" class="mt-3 w-full bg-slate-950 hover:bg-slate-900 text-green-300 font-bold uppercase tracking-wider text-[10px] py-1.5 rounded-lg border border-green-900">
                                                     Habilitar
                                                 </button>
                                             @endif
@@ -516,9 +516,9 @@
                                                     <span class="text-[10px] font-bold text-purple-400 uppercase tracking-wider">PERMANENTE</span>
                                                 @endif
                                             </div>
-                                            <div class="text-sm font-black text-slate-100">{{ $novelty->title }}</div>
+                                            <div class="text-sm font-bold text-slate-100">{{ $novelty->title }}</div>
                                             <div class="text-xs text-slate-400 mt-1 line-clamp-2">{{ $novelty->description }}</div>
-                                            <div class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-2">
+                                            <div class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-2">
                                                 {{ $novelty->created_at->locale('es')->diffForHumans() }}
                                                 @if($novelty->user)
                                                     <span class="text-slate-600 dark:text-slate-400">|</span>
@@ -570,8 +570,8 @@
 
                     <div class="bg-slate-900 rounded-2xl shadow-sm border border-slate-800 overflow-hidden">
                         <div class="flex items-center justify-between px-5 py-4 border-b border-slate-800 bg-slate-950">
-                            <div class="text-sm font-black text-slate-200 uppercase tracking-widest">Academias Nocturnas</div>
-                            <button onclick="openAcademyModal()" class="text-xs font-black text-blue-400 hover:text-blue-300 uppercase tracking-widest">Registrar</button>
+                            <div class="text-sm font-bold text-slate-200 uppercase tracking-wider">Academias Nocturnas</div>
+                            <button onclick="openAcademyModal()" class="text-xs font-bold text-blue-400 hover:text-blue-300 uppercase tracking-wider">Registrar</button>
                         </div>
                         <div class="p-5">
                             @if(!isset($academies) || $academies->isEmpty())
@@ -580,14 +580,14 @@
                                 <div class="space-y-4">
                                     @foreach($academies->take(5) as $academy)
                                         <div class="border-l-2 border-slate-800 pl-4">
-                                            <div class="text-sm font-black text-slate-100">{{ $academy->title }}</div>
+                                            <div class="text-sm font-bold text-slate-100">{{ $academy->title }}</div>
                                             <div class="text-xs text-slate-400 mt-1 line-clamp-2">{{ $academy->description }}</div>
                                             <div class="flex items-center gap-2 mt-2">
                                                 <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
                                                     <i class="fas fa-clock text-[9px]"></i>
                                                     {{ ($academy->date ?? $academy->created_at)?->format('H:i') }}
                                                 </span>
-                                                <span class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                                                <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                                     {{ ($academy->date ?? $academy->created_at)?->locale('es')->diffForHumans() }}
                                                 </span>
                                             </div>
@@ -600,17 +600,17 @@
 
                     <div class="bg-slate-900 rounded-2xl shadow-sm border border-slate-800 overflow-hidden">
                         <div class="flex items-center justify-between px-5 py-4 border-b border-slate-800 bg-slate-950">
-                            <div class="text-sm font-black text-slate-200 uppercase tracking-widest">Camas</div>
+                            <div class="text-sm font-bold text-slate-200 uppercase tracking-wider">Camas</div>
                             <div class="flex items-center gap-2">
-                                <button type="button" onclick="sendBedReportEmail()" class="text-xs font-black text-emerald-400 hover:text-emerald-300 uppercase tracking-widest flex items-center gap-1" title="Enviar reporte por email">
+                                <button type="button" onclick="sendBedReportEmail()" class="text-xs font-bold text-emerald-400 hover:text-emerald-300 uppercase tracking-wider flex items-center gap-1" title="Enviar reporte por email">
                                     <i class="fas fa-paper-plane"></i>
                                 </button>
-                                <a href="{{ route('camas') }}" class="text-xs font-black text-blue-400 hover:text-blue-300 uppercase tracking-widest">Ver</a>
+                                <a href="{{ route('camas') }}" class="text-xs font-bold text-blue-400 hover:text-blue-300 uppercase tracking-wider">Ver</a>
                             </div>
                         </div>
                         <div class="p-5">
-                            <div class="text-4xl font-black text-slate-100">{{ $availableBeds }}<span class="text-lg text-slate-400 font-black">/{{ $totalBeds }}</span></div>
-                            <div class="text-xs font-black text-slate-400 uppercase tracking-widest mt-1">Disponibles</div>
+                            <div class="text-4xl font-bold text-slate-100">{{ $availableBeds }}<span class="text-lg text-slate-400 font-bold">/{{ $totalBeds }}</span></div>
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mt-1">Disponibles</div>
                         </div>
                     </div>
                 </div>

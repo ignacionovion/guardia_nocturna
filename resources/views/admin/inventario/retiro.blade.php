@@ -17,13 +17,13 @@
                     <i class="fas fa-boxes-stacked text-2xl text-slate-100"></i>
                 </div>
             @endif
-            <div class="-mt-3 text-xs font-black uppercase tracking-widest text-slate-400">Inventario</div>
+            <div class="-mt-3 text-xs font-bold uppercase tracking-wider text-slate-400">Inventario</div>
             <div class="text-2xl font-extrabold text-white">Retiro de bodega</div>
             <div class="text-sm text-slate-400 mt-1">{{ $bodega->nombre }}</div>
             @if(isset($bombero) && $bombero)
                 <div class="mt-3 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-emerald-100">
                     <i class="fas fa-id-card"></i>
-                    <div class="text-xs font-black uppercase tracking-widest">{{ $bombero->rut }}</div>
+                    <div class="text-xs font-bold uppercase tracking-wider">{{ $bombero->rut }}</div>
                     <div class="text-xs text-emerald-100/90 font-semibold">{{ trim((string)($bombero->nombres ?? '') . ' ' . (string)($bombero->apellido_paterno ?? '')) }}</div>
                 </div>
             @endif
@@ -31,7 +31,7 @@
 
         <div class="mt-8 bg-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
             <div class="p-6 border-b border-white/10 bg-white/5">
-                <div class="text-sm font-black uppercase tracking-widest text-slate-300">Registrar retiro</div>
+                <div class="text-sm font-bold uppercase tracking-wider text-slate-300">Registrar retiro</div>
                 <div class="text-sm text-slate-300 mt-1">Selecciona un ítem e ingresa la cantidad retirada.</div>
             </div>
 
@@ -51,14 +51,14 @@
                 @endif
 
                 <div>
-                    <label class="block text-xs font-black uppercase tracking-widest text-slate-300 mb-2">Item</label>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">Item</label>
                     <select id="inv_titulo" required class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 font-semibold">
                         <option value="">Seleccionar...</option>
                     </select>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-black uppercase tracking-widest text-slate-300 mb-2">Variante / Unidad</label>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">Variante / Unidad</label>
                     <select id="inv_variante" name="item_id" required disabled class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 font-semibold disabled:opacity-60">
                         <option value="">Seleccionar...</option>
                     </select>
@@ -66,16 +66,16 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-black uppercase tracking-widest text-slate-300 mb-2">Cantidad</label>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">Cantidad</label>
                     <input type="number" name="cantidad" min="1" value="{{ old('cantidad', 1) }}" required class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 font-semibold" />
                 </div>
 
                 <div>
-                    <label class="block text-xs font-black uppercase tracking-widest text-slate-300 mb-2">Nota (opcional)</label>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">Nota (opcional)</label>
                     <textarea name="nota" rows="3" class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 font-semibold" placeholder="Ej: Se retiró para atención de trauma">{{ old('nota') }}</textarea>
                 </div>
 
-                <button type="submit" class="mt-2 w-full inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 px-6 rounded-xl text-[12px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest">
+                <button type="submit" class="mt-2 w-full inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl text-[12px] transition-all shadow-md hover:shadow-lg uppercase tracking-wider">
                     <i class="fas fa-check"></i>
                     Registrar retiro
                 </button>

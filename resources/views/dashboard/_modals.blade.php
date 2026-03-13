@@ -61,8 +61,8 @@
             <div class="w-full rounded-3xl border border-slate-800 bg-slate-900 shadow-2xl overflow-hidden my-4">
                 <div class="sticky top-0 z-10 px-4 py-4 sm:px-6 bg-slate-900/95 backdrop-blur border-b border-slate-800 flex items-center justify-between gap-4">
                     <div>
-                        <div class="text-[10px] font-black text-emerald-300 uppercase tracking-[0.25em]">Calendario anual</div>
-                        <div class="text-lg sm:text-2xl font-black text-slate-100">Guardias {{ now()->year }}</div>
+                        <div class="text-[10px] font-bold text-emerald-300 uppercase tracking-[0.25em]">Calendario anual</div>
+                        <div class="text-lg sm:text-2xl font-bold text-slate-100">Guardias {{ now()->year }}</div>
                     </div>
                     <button type="button" onclick="closeCalendarPopup()" class="w-10 h-10 rounded-2xl border border-slate-700 bg-slate-950 text-slate-300 hover:bg-slate-800 hover:text-white transition-colors flex items-center justify-center">
                         <i class="fas fa-times"></i>
@@ -95,7 +95,7 @@
                             @php $legendColor = $yearGuardiaColors[$legendGuardia->id] ?? $yearGuardiaPalette[0]; @endphp
                             <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-700 bg-slate-950">
                                 <span class="w-2.5 h-2.5 rounded-full {{ $legendColor['dot'] }}"></span>
-                                <span class="text-[10px] font-black uppercase tracking-wide text-slate-200">{{ $legendGuardia->name }}</span>
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-200">{{ $legendGuardia->name }}</span>
                             </div>
                         @endforeach
                     </div>
@@ -113,11 +113,11 @@
                                     @php
                                         $spanishMonths = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
                                     @endphp
-                                    <div class="text-sm sm:text-base font-black uppercase tracking-wide text-slate-100">{{ $spanishMonths[$monthNumber - 1] }}</div>
+                                    <div class="text-sm sm:text-base font-bold uppercase tracking-wider text-slate-100">{{ $spanishMonths[$monthNumber - 1] }}</div>
                                 </div>
                                 <div class="grid grid-cols-7 bg-slate-900 border-b border-slate-800">
                                     @foreach(['D', 'L', 'M', 'M', 'J', 'V', 'S'] as $weekDay)
-                                        <div class="px-1 py-2 text-center text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase border-r border-slate-800 last:border-r-0">{{ $weekDay }}</div>
+                                        <div class="px-1 py-2 text-center text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase border-r border-slate-800 last:border-r-0">{{ $weekDay }}</div>
                                     @endforeach
                                 </div>
                                 <div class="grid grid-cols-7 gap-px bg-slate-800">
@@ -130,9 +130,9 @@
                                         @endphp
                                         <div class="min-h-[74px] p-1.5 sm:p-2 {{ $isCurrentMonthCell ? 'bg-slate-950' : 'bg-slate-900/60' }} {{ $isTodayCell ? 'ring-1 ring-inset ring-emerald-400' : '' }}">
                                             <div class="flex items-start justify-between gap-1">
-                                                <span class="text-[11px] sm:text-xs font-black {{ $isCurrentMonthCell ? 'text-slate-100' : 'text-slate-500 dark:text-slate-400' }}">{{ $monthCursor->day }}</span>
+                                                <span class="text-[11px] sm:text-xs font-bold {{ $isCurrentMonthCell ? 'text-slate-100' : 'text-slate-500 dark:text-slate-400' }}">{{ $monthCursor->day }}</span>
                                                 @if($isTodayCell)
-                                                    <span class="text-[8px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 font-black uppercase">Hoy</span>
+                                                    <span class="text-[8px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 font-bold uppercase">Hoy</span>
                                                 @endif
                                             </div>
                                             @if($calendarDay && $calendarDay->guardia)
@@ -211,7 +211,7 @@
             <div class="bg-slate-900 text-slate-100 rounded-xl shadow-2xl w-full max-w-md mx-4 transform scale-95 transition-transform duration-300 p-6 border border-slate-800">
                 <div class="flex justify-between items-start mb-4">
                     <div>
-                        <h3 class="text-lg font-black text-slate-100 uppercase tracking-tight">Agregar Refuerzo</h3>
+                        <h3 class="text-lg font-bold text-slate-100 uppercase tracking-tight">Agregar Refuerzo</h3>
                         <p class="text-sm text-slate-400 mt-1">El refuerzo se libera automáticamente a las 10:00 AM del día siguiente.</p>
                     </div>
                     <button type="button" onclick="closeRefuerzoModal()" class="text-slate-400 hover:text-slate-200 transition-colors">
@@ -295,9 +295,9 @@
             <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-rose-500/20 flex items-center justify-center">
                 <i class="fas fa-circle-xmark text-rose-500 text-2xl"></i>
             </div>
-            <h3 class="text-lg font-black text-white uppercase tracking-widest mb-2">Código Incorrecto</h3>
+            <h3 class="text-lg font-bold text-white uppercase tracking-wider mb-2">Código Incorrecto</h3>
             <p id="confirm-error-text" class="text-sm text-slate-400 mb-4">El código ingresado no es válido.</p>
-            <button onclick="closeConfirmErrorToast()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-black uppercase tracking-widest text-xs py-3 rounded-xl border border-rose-700">
+            <button onclick="closeConfirmErrorToast()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold uppercase tracking-wider text-xs py-3 rounded-xl border border-rose-700">
                 Aceptar
             </button>
         </div>
@@ -1508,16 +1508,16 @@
     <div id="undoReplacementModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center">
         <div class="{{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-900 border-slate-800' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700' }} rounded-2xl shadow-2xl w-full max-w-sm mx-4 border overflow-hidden">
             <div class="p-4">
-                <div class="text-sm font-black {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-100' : 'text-slate-900' }} uppercase tracking-widest">Confirmar acción</div>
+                <div class="text-sm font-bold {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-100' : 'text-slate-900' }} uppercase tracking-wider">Confirmar acción</div>
                 <div class="mt-2 text-sm {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-400' : 'text-slate-600 dark:text-slate-400' }}">¿Deshacer este reemplazo?</div>
             </div>
             <div class="p-4 pt-0 flex gap-2">
-                <button type="button" onclick="closeUndoReplacementModal()" class="w-1/2 font-black uppercase tracking-widest text-[10px] py-2 rounded-xl border {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 hover:bg-slate-900 text-slate-100 border-slate-800' : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-800 dark:text-white border-slate-200 dark:border-slate-700' }}">
+                <button type="button" onclick="closeUndoReplacementModal()" class="w-1/2 font-bold uppercase tracking-wider text-[10px] py-2 rounded-xl border {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 hover:bg-slate-900 text-slate-100 border-slate-800' : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-800 dark:text-white border-slate-200 dark:border-slate-700' }}">
                     Cancelar
                 </button>
                 <form id="undoReplacementModalForm" method="POST" class="w-1/2">
                     @csrf
-                    <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-black uppercase tracking-widest text-[10px] py-2 rounded-xl border border-purple-700">
+                    <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold uppercase tracking-wider text-[10px] py-2 rounded-xl border border-purple-700">
                         Confirmar
                     </button>
                 </form>
@@ -1530,7 +1530,7 @@
             <div class="bg-slate-900 text-slate-100 rounded-xl shadow-2xl w-full max-w-md mx-4 transform scale-95 transition-transform duration-300 p-6 border border-slate-800">
                 <div class="flex justify-between items-start mb-4">
                     <div>
-                        <h3 class="text-lg font-black text-slate-100 uppercase tracking-tight">Asignar Reemplazo</h3>
+                        <h3 class="text-lg font-bold text-slate-100 uppercase tracking-tight">Asignar Reemplazo</h3>
                         <p class="text-sm text-slate-400 mt-1">Selecciona el voluntario que cubrirá el turno.</p>
                     </div>
                     <button type="button" onclick="closeReplacementModal()" class="text-slate-400 hover:text-slate-200 transition-colors">

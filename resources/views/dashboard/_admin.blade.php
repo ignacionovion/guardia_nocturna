@@ -1,29 +1,17 @@
         <!-- VISTA ADMIN / GENERAL - DASHBOARD PROFESIONAL -->
         
-        <!-- Header Profesional -->
-        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4 pb-6 border-b border-slate-200 dark:border-slate-700">
-            <div>
-                <h1 class="text-2xl font-black text-slate-900 tracking-tight uppercase flex items-center gap-3">
-                    <i class="fas fa-gauge-high text-red-700"></i>
-                    Centro de Operaciones
-                </h1>
-                <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">Panel de control operativo del sistema</p>
-            </div>
-            
+        <x-ui.page-header title="Centro de Operaciones" subtitle="Panel de control operativo del sistema" icon="fas fa-gauge-high" iconVariant="red">
             <div class="flex items-center gap-4">
-                <!-- Estado del Sistema -->
-                <div class="flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 rounded-lg">
+                <div class="flex items-center gap-2 px-4 py-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
                     <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                    <span class="text-xs font-black text-green-700 uppercase tracking-wider">Sistema Operativo</span>
+                    <span class="text-xs font-bold text-green-700 dark:text-green-400 uppercase tracking-wider">Sistema Operativo</span>
                 </div>
-                
-                <!-- Reloj -->
                 <div class="bg-slate-900 text-white px-5 py-2.5 rounded-lg border border-slate-700 flex items-center gap-3">
                     <i class="fas fa-clock text-slate-400 text-sm"></i>
                     <span id="digital-clock" class="text-xl font-mono font-bold tracking-wider">--:--:--</span>
                 </div>
             </div>
-        </div>
+        </x-ui.page-header>
 
         <!-- Grid Principal: KPIs y Accesos -->
         <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
@@ -71,13 +59,13 @@
                                     <i class="fas fa-exchange-alt text-lg"></i>
                                 </div>
                                 <div>
-                                    <h2 class="font-black text-slate-900 uppercase tracking-wider text-sm">Reporte de Movimientos</h2>
+                                    <h2 class="font-bold text-slate-900 dark:text-white uppercase tracking-wider text-sm">Reporte de Movimientos</h2>
                                     <p class="text-xs text-slate-600 dark:text-slate-400">Reemplazos, refuerzos y personal fuera de servicio</p>
                                 </div>
                             </div>
                             <div class="flex items-center gap-2">
                                 <span class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Total reemplazos:</span>
-                                <span class="text-xl font-black text-purple-700">{{ $activeReplacementsCount }}</span>
+                                <span class="text-xl font-bold text-purple-700 dark:text-purple-400">{{ $activeReplacementsCount }}</span>
                             </div>
                         </div>
                     </div>
@@ -157,7 +145,7 @@
                         <!-- Lista Detallada de Reemplazos Activos -->
                         @if($dashboardActiveReplacements->isNotEmpty())
                             <div class="mb-6">
-                                <h3 class="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
                                     <i class="fas fa-list-ul"></i>
                                     Detalle de Reemplazos Activos
                                 </h3>
@@ -173,7 +161,7 @@
                                                             {{ substr($replacement->originalFirefighter?->nombres, 0, 1) }}{{ substr($replacement->originalFirefighter?->apellido_paterno, 0, 1) }}
                                                         </div>
                                                         <div>
-                                                            <div class="font-bold text-slate-900">{{ $replacement->originalFirefighter?->nombres }} {{ $replacement->originalFirefighter?->apellido_paterno }}</div>
+                                                            <div class="font-bold text-slate-900 dark:text-white">{{ $replacement->originalFirefighter?->nombres }} {{ $replacement->originalFirefighter?->apellido_paterno }}</div>
                                                             <div class="text-xs text-slate-500 dark:text-slate-400">{{ $replacement->originalFirefighter?->rut ?? 'Sin RUT' }}</div>
                                                         </div>
                                                     </div>
@@ -194,7 +182,7 @@
                                                             {{ substr($replacement->replacementFirefighter?->nombres, 0, 1) }}{{ substr($replacement->replacementFirefighter?->apellido_paterno, 0, 1) }}
                                                         </div>
                                                         <div>
-                                                            <div class="font-bold text-slate-900">{{ $replacement->replacementFirefighter?->nombres }} {{ $replacement->replacementFirefighter?->apellido_paterno }}</div>
+                                                            <div class="font-bold text-slate-900 dark:text-white">{{ $replacement->replacementFirefighter?->nombres }} {{ $replacement->replacementFirefighter?->apellido_paterno }}</div>
                                                             <div class="text-xs text-slate-500 dark:text-slate-400">{{ $replacement->replacementFirefighter?->rut ?? 'Sin RUT' }}</div>
                                                         </div>
                                                     </div>
@@ -218,7 +206,7 @@
                         <!-- Lista Detallada de Refuerzos Activos -->
                         @if($dashboardActiveRefuerzos->isNotEmpty())
                             <div class="mb-6">
-                                <h3 class="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
                                     <i class="fas fa-user-friends"></i>
                                     Detalle de Refuerzos Activos
                                 </h3>
@@ -270,7 +258,7 @@
                 <!-- Resumen de Personal -->
                 <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
                     <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
-                        <h2 class="font-black text-slate-800 dark:text-white uppercase tracking-wider text-sm flex items-center gap-2">
+                        <h2 class="font-bold text-slate-900 dark:text-white uppercase tracking-wider text-sm flex items-center gap-2">
                             <i class="fas fa-users text-slate-500 dark:text-slate-400"></i>
                             Resumen de Personal
                         </h2>
@@ -278,19 +266,19 @@
                     <div class="p-6">
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                             <div class="text-center">
-                                <p class="text-3xl font-black text-slate-900">{{ $totalFirefighters }}</p>
+                                <p class="text-3xl font-bold text-slate-900 dark:text-white">{{ $totalFirefighters }}</p>
                                 <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1">Total Bomberos</p>
                             </div>
                             <div class="text-center">
-                                <p class="text-3xl font-black text-emerald-600">{{ $activeFirefighters }}</p>
+                                <p class="text-3xl font-bold text-emerald-600">{{ $activeFirefighters }}</p>
                                 <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1">Habilitados</p>
                             </div>
                             <div class="text-center">
-                                <p class="text-3xl font-black text-slate-900">{{ $totalGuardias }}</p>
+                                <p class="text-3xl font-bold text-slate-900 dark:text-white">{{ $totalGuardias }}</p>
                                 <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1">Guardias</p>
                             </div>
                             <div class="text-center">
-                                <p class="text-3xl font-black text-amber-600">{{ $birthdaysMonthCount }}</p>
+                                <p class="text-3xl font-bold text-amber-600">{{ $birthdaysMonthCount }}</p>
                                 <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1">Cumpleaños Mes</p>
                             </div>
                         </div>
@@ -304,7 +292,7 @@
                             <i class="fas fa-shield"></i>
                         </div>
                         <div>
-                            <p class="font-black text-sm uppercase">Guardias</p>
+                            <p class="font-bold text-sm uppercase">Guardias</p>
                             <p class="text-xs text-slate-400">Administrar equipos</p>
                         </div>
                     </a>
@@ -314,7 +302,7 @@
                             <i class="fas fa-users-gear"></i>
                         </div>
                         <div>
-                            <p class="font-black text-sm uppercase">Dotaciones</p>
+                            <p class="font-bold text-sm uppercase">Dotaciones</p>
                             <p class="text-xs text-slate-500 dark:text-slate-400">Asignar personal</p>
                         </div>
                     </a>
@@ -324,7 +312,7 @@
                             <i class="fas fa-bed"></i>
                         </div>
                         <div>
-                            <p class="font-black text-sm uppercase">Camas</p>
+                            <p class="font-bold text-sm uppercase">Camas</p>
                             <p class="text-xs text-slate-500 dark:text-slate-400">{{ $availableBeds }} disponibles</p>
                         </div>
                     </a>
@@ -334,7 +322,7 @@
                             <i class="fas fa-truck-medical"></i>
                         </div>
                         <div>
-                            <p class="font-black text-sm uppercase">Emergencias</p>
+                            <p class="font-bold text-sm uppercase">Emergencias</p>
                             <p class="text-xs text-slate-500 dark:text-slate-400">Ver historial</p>
                         </div>
                     </a>
@@ -347,7 +335,7 @@
                 <!-- Estado del Turno -->
                 <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
                     <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
-                        <h2 class="font-black text-slate-800 dark:text-white uppercase tracking-wider text-xs flex items-center gap-2">
+                        <h2 class="font-bold text-slate-900 dark:text-white uppercase tracking-wider text-xs flex items-center gap-2">
                             <i class="fas fa-info-circle text-slate-500 dark:text-slate-400"></i>
                             Estado del Turno
                         </h2>
@@ -356,14 +344,14 @@
                         @if($currentShift)
                             <div class="flex items-center gap-3 mb-4">
                                 <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                                <p class="font-black text-slate-900">TURNO ACTIVO</p>
+                                <p class="font-bold text-slate-900 dark:text-white">TURNO ACTIVO</p>
                             </div>
                             <p class="text-sm text-slate-600 dark:text-slate-400 mb-1">Guardia constituida y operativa</p>
                             <p class="text-xs text-slate-400">Inicio: {{ $currentShift->created_at?->format('H:i') ?? '--:--' }}</p>
                         @else
                             <div class="flex items-center gap-3 mb-4">
                                 <div class="w-3 h-3 bg-amber-500 rounded-full"></div>
-                                <p class="font-black text-amber-700">SIN CONSTITUIR</p>
+                                <p class="font-bold text-amber-700 dark:text-amber-400">SIN CONSTITUIR</p>
                             </div>
                             <p class="text-sm text-slate-600 dark:text-slate-400">La guardia aún no ha sido constituida</p>
                         @endif
@@ -373,11 +361,11 @@
                 <!-- Próximos Cumpleaños -->
                 <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
                     <div class="px-5 py-4 border-b border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 flex justify-between items-center">
-                        <h2 class="font-black text-slate-800 dark:text-white uppercase tracking-wider text-xs flex items-center gap-2">
+                        <h2 class="font-bold text-slate-900 dark:text-white uppercase tracking-wider text-xs flex items-center gap-2">
                             <i class="fas fa-cake-candles text-amber-600"></i>
                             Cumpleaños
                         </h2>
-                        <span class="text-xs font-black text-slate-700 dark:text-slate-300">{{ $birthdaysMonthCount }} este mes</span>
+                        <span class="text-xs font-bold text-slate-700 dark:text-slate-300">{{ $birthdaysMonthCount }} este mes</span>
                     </div>
                     <div class="p-5">
                         @if($upcomingBirthdaysAll->isEmpty())
@@ -386,11 +374,11 @@
                             <div class="space-y-3">
                                 @foreach($upcomingBirthdaysAll as $b)
                                     <div class="flex items-center gap-3 p-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                                        <div class="w-8 h-8 rounded-full bg-amber-200 text-amber-800 flex items-center justify-center font-black text-xs border border-amber-300">
+                                        <div class="w-8 h-8 rounded-full bg-amber-200 text-amber-800 flex items-center justify-center font-bold text-xs border border-amber-300">
                                             {{ strtoupper(substr($b->nombres, 0, 1)) }}
                                         </div>
                                         <div class="flex-1 min-w-0">
-                                            <div class="text-sm font-black text-slate-900 truncate">{{ $b->nombres }} {{ $b->apellido_paterno }}</div>
+                                            <div class="text-sm font-bold text-slate-900 dark:text-white truncate">{{ $b->nombres }} {{ $b->apellido_paterno }}</div>
                                             <div class="text-xs font-semibold text-slate-700 dark:text-slate-300">{{ $b->next_birthday->format('d') }} de {{ $b->next_birthday->locale('es')->monthName }}</div>
                                         </div>
                                     </div>
@@ -403,11 +391,11 @@
                 <!-- Últimas Novedades -->
                 <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
                     <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex justify-between items-center">
-                        <h2 class="font-black text-slate-800 dark:text-white uppercase tracking-wider text-xs flex items-center gap-2">
+                        <h2 class="font-bold text-slate-900 dark:text-white uppercase tracking-wider text-xs flex items-center gap-2">
                             <i class="fas fa-bullhorn text-slate-500 dark:text-slate-400"></i>
                             Novedades Recientes
                         </h2>
-                        <button onclick="openNoveltyModal()" class="text-xs font-black text-blue-600 hover:text-blue-800 uppercase">Registrar</button>
+                        <button onclick="openNoveltyModal()" class="text-xs font-bold text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 uppercase">Registrar</button>
                     </div>
                     <div class="p-5">
                         @if($novelties->isEmpty())
@@ -439,7 +427,7 @@
                                                 </button>
                                             @endif
                                         </div>
-                                        <p class="font-bold text-slate-900 text-sm">{{ $novelty->title }}</p>
+                                        <p class="font-bold text-slate-900 dark:text-white text-sm">{{ $novelty->title }}</p>
                                         <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">{{ $novelty->created_at->locale('es')->diffForHumans() }}</p>
                                     </div>
                                 @endforeach

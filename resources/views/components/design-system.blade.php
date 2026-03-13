@@ -245,6 +245,15 @@
     .icon-box-violet {
         @apply bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400;
     }
+    .icon-box-cyan {
+        @apply bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400;
+    }
+    .icon-box-sky {
+        @apply bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400;
+    }
+    .icon-box-rose {
+        @apply bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400;
+    }
     .icon-box-gradient-red {
         @apply bg-gradient-to-br from-red-500 to-red-700 text-white shadow-lg shadow-red-500/25;
     }

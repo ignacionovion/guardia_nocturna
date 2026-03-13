@@ -1,62 +1,55 @@
 @extends('layouts.modern')
 
 @section('content')
-<div class="w-full py-4">
-    {{-- Header tipo planilla --}}
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-        <div>
-            <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Planillas</div>
-            <div class="text-2xl font-extrabold text-slate-900">Editar listados</div>
-            <div class="text-sm text-slate-600 dark:text-slate-400 mt-1">Arrastra las filas para reordenar los ítems del checklist</div>
-        </div>
-
-        <div class="flex items-center gap-2">
-            <a href="{{ route('admin.planillas.index') }}" class="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs">
-                <i class="fas fa-arrow-left mr-1"></i> Volver
-            </a>
-        </div>
-    </div>
+<div class="w-full">
+    <x-ui.page-header title="Editar Listados" subtitle="Arrastra las filas para reordenar los ítems del checklist" icon="fas fa-list-check" iconVariant="emerald">
+        <x-ui.button variant="secondary" size="md" icon="fas fa-arrow-left" href="{{ route('admin.planillas.index') }}">
+            Volver
+        </x-ui.button>
+    </x-ui.page-header>
 
     @if(session('success'))
-        <div class="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-900">
-            <div class="text-sm font-extrabold">{{ session('success') }}</div>
-        </div>
+        <x-ui.alert type="success" icon="fas fa-check-circle" class="mb-6">
+            {{ session('success') }}
+        </x-ui.alert>
     @endif
 
     {{-- Filtros --}}
-    <div class="mb-6 rounded-2xl border border-teal-900/30 bg-sky-100 p-4">
-        <div class="text-xs font-black uppercase tracking-widest text-slate-900 mb-3">Seleccionar Unidad y Sección</div>
-        <form method="GET" class="flex flex-col md:flex-row md:items-end gap-4">
-            <div>
-                <div class="text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-2">Unidad</div>
-                <select name="unidad" class="w-full md:w-56 px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-semibold text-sm">
-                    <option value="">Todas</option>
-                    @foreach($unidades as $u)
-                        <option value="{{ $u }}" {{ ($unidadSeleccionada ?? '') === $u ? 'selected' : '' }}>{{ $u }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div>
-                <div class="text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-2">Sección</div>
-                <select name="section" class="w-full md:w-56 px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-semibold text-sm">
-                    <option value="">Todas</option>
-                    @foreach($sections as $key => $label)
-                        <option value="{{ $key }}" {{ ($sectionSeleccionada ?? '') === $key ? 'selected' : '' }}>{{ $label }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="flex items-center gap-3">
-                <button type="submit" class="px-5 py-2 rounded-lg bg-slate-900 hover:bg-black text-white font-black text-[11px] uppercase tracking-widest">Filtrar</button>
-                <a href="{{ route('admin.planillas.listados.index') }}" class="px-5 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-extrabold text-[11px] uppercase tracking-widest text-center">Limpiar</a>
-            </div>
-        </form>
-    </div>
+    <x-ui.card class="mb-6">
+        <div class="p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
+            <div class="text-sm font-bold text-slate-900 dark:text-white mb-3">Seleccionar Unidad y Sección</div>
+            <form method="GET" class="flex flex-col md:flex-row md:items-end gap-4">
+                <div>
+                    <label class="form-label">Unidad</label>
+                    <select name="unidad" class="form-input w-full md:w-56">
+                        <option value="">Todas</option>
+                        @foreach($unidades as $u)
+                            <option value="{{ $u }}" {{ ($unidadSeleccionada ?? '') === $u ? 'selected' : '' }}>{{ $u }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label">Sección</label>
+                    <select name="section" class="form-input w-full md:w-56">
+                        <option value="">Todas</option>
+                        @foreach($sections as $key => $label)
+                            <option value="{{ $key }}" {{ ($sectionSeleccionada ?? '') === $key ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="flex items-center gap-3">
+                    <x-ui.button type="submit" variant="primary" size="md">Filtrar</x-ui.button>
+                    <x-ui.button variant="secondary" size="md" href="{{ route('admin.planillas.listados.index') }}">Limpiar</x-ui.button>
+                </div>
+            </form>
+        </div>
+    </x-ui.card>
 
     {{-- Agregar nuevo ítem + Restaurar estándar (al estilo planilla) --}}
     @if($unidadSeleccionada && $sectionSeleccionada)
-    <div class="mb-6 bg-white dark:bg-slate-900 rounded-2xl border border-teal-900/20 overflow-hidden shadow-sm">
-        <div class="px-4 py-3 bg-teal-800 border-b border-teal-900 flex items-center justify-between">
-            <div class="text-xs font-black uppercase tracking-widest text-white flex items-center gap-2">
+    <div class="mb-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
+        <div class="px-4 py-3 bg-slate-900 dark:bg-slate-800 border-b border-slate-800 dark:border-slate-700 flex items-center justify-between">
+            <div class="text-xs font-semibold uppercase tracking-wider text-white flex items-center gap-2">
                 <i class="fas fa-cog"></i>
                 Administrar {{ $sections[$sectionSeleccionada] ?? $sectionSeleccionada }} - {{ $unidadSeleccionada }}
             </div>
@@ -66,19 +59,18 @@
                     @csrf
                     <input type="hidden" name="unidad" value="{{ $unidadSeleccionada }}">
                     <input type="hidden" name="section" value="{{ $sectionSeleccionada }}">
-                    <button type="submit" class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white font-black py-2 px-4 rounded-lg text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest">
-                        <i class="fas fa-rotate-left"></i>
+                    <x-ui.button type="submit" variant="warning" size="sm" icon="fas fa-rotate-left">
                         Restaurar Estándar
-                    </button>
+                    </x-ui.button>
                 </form>
-                <button type="button" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-2 px-4 rounded-lg text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest" onclick="toggleSection('secNuevoItem')">
+                <button type="button" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-lg text-xs transition-all" onclick="toggleSection('secNuevoItem')">
                     <i class="fas fa-plus-circle"></i>
                     Agregar Ítem
                     <i class="fas fa-chevron-down text-white/80" id="iconNuevoItem"></i>
                 </button>
             </div>
         </div>
-        <div id="secNuevoItem" class="hidden p-4 bg-sky-50">
+        <div id="secNuevoItem" class="hidden p-4 bg-slate-50 dark:bg-slate-800/50">
             <form method="POST" action="{{ route('admin.planillas.listados.store') }}" class="space-y-4">
                 @csrf
                 <input type="hidden" name="unidad" value="{{ $unidadSeleccionada }}">
@@ -86,20 +78,19 @@
                 
                 <div class="grid grid-cols-12 gap-2 items-center rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-3">
                     <div class="col-span-12 md:col-span-5">
-                        <label class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1 block">Key (identificador)</label>
-                        <input name="item_key" class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-semibold text-sm" placeholder="ej: linterna_nightstick" required>
+                        <label class="form-label">Key (identificador)</label>
+                        <input name="item_key" class="form-input" placeholder="ej: linterna_nightstick" required>
                     </div>
                     <div class="col-span-12 md:col-span-7">
-                        <label class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1 block">Nombre del ítem</label>
-                        <input name="label" class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-semibold text-sm" placeholder="ej: Linterna NIGHTSTICK" required>
+                        <label class="form-label">Nombre del ítem</label>
+                        <input name="label" class="form-input" placeholder="ej: Linterna NIGHTSTICK" required>
                     </div>
                 </div>
                 
                 <div class="flex justify-end">
-                    <button type="submit" class="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 px-6 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest">
-                        <i class="fas fa-plus"></i>
+                    <x-ui.button type="submit" variant="success" size="md" icon="fas fa-plus">
                         Agregar ítem
-                    </button>
+                    </x-ui.button>
                 </div>
             </form>
         </div>
@@ -108,9 +99,9 @@
 
     {{-- Header tipo planilla --}}
     @if($unidadSeleccionada && $sectionSeleccionada)
-    <div class="mb-6 rounded-2xl border border-teal-900/30 bg-sky-100 p-4">
-        <div class="text-sm font-black uppercase tracking-widest text-slate-900">PLANILLA DE REVISIÓN DE NIVELES</div>
-        <div class="text-sm font-black uppercase tracking-widest text-slate-900 mt-1">{{ $unidadSeleccionada }}</div>
+    <div class="mb-6 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-4">
+        <div class="text-sm font-bold text-slate-900 dark:text-white">PLANILLA DE REVISIÓN DE NIVELES</div>
+        <div class="text-sm font-bold text-slate-900 dark:text-white mt-1">{{ $unidadSeleccionada }}</div>
         <div class="text-xs text-slate-700 dark:text-slate-300 mt-2 font-semibold">
             Sección: {{ $sections[$sectionSeleccionada] ?? $sectionSeleccionada }}
             <span class="ml-3 text-amber-600">
@@ -123,10 +114,10 @@
     {{-- Lista de items estilo planilla QR --}}
     @php($itemsCount = is_countable($items) ? count($items) : $items->count())
 
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-teal-900/20 overflow-hidden shadow-sm">
-        <div class="p-4 bg-sky-50">
-            <div class="rounded-xl border border-teal-900/20 bg-sky-100 px-4 py-2 mb-4">
-                <div class="text-xs font-black uppercase tracking-widest text-slate-900 flex items-center gap-2">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
+        <div class="p-4 bg-slate-50 dark:bg-slate-800/30">
+            <div class="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 px-4 py-2 mb-4">
+                <div class="text-xs font-semibold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-2">
                     <i class="fas fa-list-check"></i>
                     {{ $sections[$sectionSeleccionada] ?? $sectionSeleccionada }} - {{ $itemsCount }} ítems
                 </div>
@@ -153,11 +144,11 @@
                                             <i class="fas fa-grip-vertical"></i>
                                         </div>
                                     @endif
-                                    <div class="order-badge shrink-0 w-6 h-6 rounded bg-slate-800 text-white flex items-center justify-center text-xs font-black">
+                                    <div class="order-badge shrink-0 w-6 h-6 rounded bg-slate-800 text-white flex items-center justify-center text-xs font-bold">
                                         {{ $loop->iteration }}
                                     </div>
                                     <div class="flex-1 rounded-lg {{ $item['is_active'] ? 'bg-yellow-50' : 'bg-slate-100 dark:bg-slate-800' }} px-3 py-2 border {{ $item['is_active'] ? 'border-yellow-100' : 'border-slate-200 dark:border-slate-700' }}">
-                                        <div class="text-sm font-extrabold {{ $item['is_active'] ? 'text-slate-900' : 'text-slate-500 dark:text-slate-400' }}">{{ $item['label'] }}</div>
+                                        <div class="text-sm font-semibold {{ $item['is_active'] ? 'text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400' }}">{{ $item['label'] }}</div>
                                         @if(!$item['is_active'])
                                             <div class="text-[9px] font-bold text-red-500 uppercase tracking-tight">Inactivo</div>
                                         @endif
@@ -218,23 +209,23 @@
                                             @csrf
                                             @method('PUT')
                                             <div class="col-span-12 md:col-span-4">
-                                                <label class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1 block">Nombre</label>
-                                                <input name="label" value="{{ $item['label'] }}" class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-semibold text-sm">
+                                                <label class="form-label">Nombre</label>
+                                                <input name="label" value="{{ $item['label'] }}" class="form-input">
                                             </div>
                                             <div class="col-span-6 md:col-span-3">
-                                                <label class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1 block">Key</label>
-                                                <input name="item_key" value="{{ $item['item_key'] }}" disabled class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-mono text-sm cursor-not-allowed">
+                                                <label class="form-label">Key</label>
+                                                <input name="item_key" value="{{ $item['item_key'] }}" disabled class="form-input !bg-slate-100 dark:!bg-slate-800 text-slate-500 dark:text-slate-400 font-mono cursor-not-allowed">
                                             </div>
                                             <div class="col-span-6 md:col-span-2">
-                                                <label class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1 block">Orden</label>
-                                                <input type="number" name="sort_order" value="{{ $item['sort_order'] }}" class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-semibold text-sm">
+                                                <label class="form-label">Orden</label>
+                                                <input type="number" name="sort_order" value="{{ $item['sort_order'] }}" class="form-input">
                                             </div>
                                             <div class="col-span-12 md:col-span-3 flex gap-2">
                                                 <input type="hidden" name="is_active" value="{{ $item['is_active'] ? '1' : '0' }}">
-                                                <button type="submit" class="flex-1 px-4 py-2 rounded-lg bg-slate-900 text-white font-bold text-xs">
-                                                    <i class="fas fa-save mr-1"></i> Guardar
-                                                </button>
-                                                <button type="button" onclick="toggleEditItem({{ $item['id'] }})" class="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-bold text-xs">
+                                                <x-ui.button type="submit" variant="primary" size="sm" icon="fas fa-save">
+                                                    Guardar
+                                                </x-ui.button>
+                                                <button type="button" onclick="toggleEditItem({{ $item['id'] }})" class="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-semibold text-xs">
                                                     Cancelar
                                                 </button>
                                             </div>

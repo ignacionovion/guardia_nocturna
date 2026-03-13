@@ -6,18 +6,7 @@
 @section('content')
 <div class="space-y-6">
     {{-- Header --}}
-    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <div class="flex items-center gap-4">
-            <div class="icon-box icon-box-gradient-blue icon-box-lg">
-                <i class="fas fa-chart-line text-white text-lg"></i>
-            </div>
-            <div>
-                <h1 class="text-title-lg">Reportes de Asistencia</h1>
-                <p class="text-body-sm">Análisis detallado por guardia, semana y período</p>
-            </div>
-        </div>
-        
-        {{-- Filtros --}}
+    <x-ui.page-header title="Reportes de Asistencia" subtitle="Análisis detallado por guardia, semana y período" icon="fas fa-chart-line" iconVariant="blue">
         <form action="{{ route('admin.reports.index') }}" method="GET" class="flex flex-wrap items-center gap-3">
             <div class="flex items-center gap-2 px-4 py-2.5 card-base">
                 <i class="fas fa-calendar text-slate-400 text-sm"></i>
@@ -42,7 +31,7 @@
                 Aplicar
             </x-ui.button>
         </form>
-    </div>
+    </x-ui.page-header>
 
     {{-- Tabs --}}
     @include('admin.reports._tabs')

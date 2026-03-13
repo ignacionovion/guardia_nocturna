@@ -163,7 +163,7 @@
                                 <a href="{{ route('admin.preventivas.index') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                                     <i class="fas fa-list mr-2 text-slate-500"></i> Eventos
                                 </a>
-                                <div class="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-wider">Reportes por evento</div>
+                                <div class="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Reportes por evento</div>
                                 <div class="px-4 pb-2 text-xs text-slate-500">Ver reporte desde el detalle de cada evento</div>
                             </div>
                         </div>
@@ -190,7 +190,7 @@
                                 <a href="{{ route('admin.preventivas.index') }}" class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                                     <i class="fas fa-list mr-2 text-slate-500"></i> Eventos
                                 </a>
-                                <div class="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-wider">Reportes por evento</div>
+                                <div class="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Reportes por evento</div>
                                 <div class="px-4 pb-2 text-xs text-slate-500">Ver reporte desde el detalle de cada evento</div>
                             </div>
                         </div>
@@ -703,7 +703,7 @@
                             <i class="fas fa-check"></i>
                         </div>
                         <div class="min-w-0">
-                            <div class="text-xs font-black uppercase tracking-widest text-emerald-700">Operación exitosa</div>
+                            <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Operación exitosa</div>
                             <div class="text-sm font-semibold text-slate-800 mt-1 break-words">{{ session('success') }}</div>
                         </div>
                         <button type="button" onclick="document.getElementById('global-toast-success')?.remove()" class="text-slate-400 hover:text-slate-700 transition-colors">
@@ -729,7 +729,7 @@
                             <i class="fas fa-triangle-exclamation"></i>
                         </div>
                         <div class="min-w-0">
-                            <div class="text-xs font-black uppercase tracking-widest text-red-700">Atención</div>
+                            <div class="text-xs font-bold uppercase tracking-wider text-red-700">Atención</div>
                             <ul class="text-sm font-semibold text-slate-800 mt-1 space-y-1">
                                 @foreach($errors->all() as $error)
                                     <li class="break-words">{{ $error }}</li>
@@ -763,12 +763,12 @@
                                     <i class="{{ ($n->type === 'guardia') ? 'fas fa-bell' : 'fas fa-chalkboard-user' }}"></i>
                                 </div>
                                 <div class="min-w-0">
-                                    <div class="text-xs font-black uppercase tracking-widest text-slate-700">{{ $n->title }}</div>
+                                    <div class="text-xs font-bold uppercase tracking-wider text-slate-700">{{ $n->title }}</div>
                                     @if($n->message)
                                         <div class="text-sm font-semibold text-slate-800 mt-1 break-words">{{ $n->message }}</div>
                                     @endif
                                     @if($n->action_url)
-                                        <a href="{{ $n->action_url }}" class="inline-flex items-center gap-2 mt-2 text-xs font-black uppercase tracking-widest text-blue-600 hover:text-blue-800">
+                                        <a href="{{ $n->action_url }}" class="inline-flex items-center gap-2 mt-2 text-xs font-bold uppercase tracking-wider text-blue-600 hover:text-blue-800">
                                             Ir
                                             <i class="fas fa-arrow-right"></i>
                                         </a>

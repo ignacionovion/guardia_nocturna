@@ -2,24 +2,16 @@
 
 @section('content')
     <div class="max-w-5xl mx-auto">
-        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 border-b border-slate-200 dark:border-slate-700 pb-6">
-            <div>
-                <h1 class="text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight flex items-center uppercase">
-                    <i class="fas fa-shield-halved mr-3 text-red-700"></i> Administración del Sistema
-                </h1>
-                <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium">Acciones peligrosas. Usa con precaución.</p>
-            </div>
-
-            <a href="{{ route('dashboard') }}" class="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold py-2.5 px-4 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 flex items-center gap-2 uppercase text-xs tracking-widest">
-                <i class="fas fa-arrow-left"></i>
+        <x-ui.page-header title="Administración del Sistema" subtitle="Acciones peligrosas. Usa con precaución." icon="fas fa-shield-halved" iconVariant="red">
+            <x-ui.button variant="secondary" size="md" icon="fas fa-arrow-left" href="{{ route('dashboard') }}">
                 Volver
-            </a>
-        </div>
+            </x-ui.button>
+        </x-ui.page-header>
 
         <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div class="px-6 py-5 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
-                <div class="text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">Reset / Limpieza</div>
-                <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Para ejecutar, escribe <span class="font-black text-slate-700 dark:text-slate-300">CONFIRMAR</span> y selecciona una acción.</div>
+                <div class="text-sm font-bold text-slate-900 dark:text-white">Reset / Limpieza</div>
+                <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Para ejecutar, escribe <span class="font-bold text-slate-700 dark:text-slate-300">CONFIRMAR</span> y selecciona una acción.</div>
             </div>
 
             <form method="POST" action="{{ route('admin.system.purge') }}" class="p-6">
@@ -27,8 +19,8 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Acción</label>
-                        <select name="action" class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-semibold" required>
+                        <label class="form-label">Acción</label>
+                        <select name="action" class="form-input" required>
                             <option value="" disabled selected>Seleccionar...</option>
                             <option value="novelties">Eliminar Novedades + Academias</option>
                             <option value="shifts">Reiniciar Turnos (Shift + ShiftUsers)</option>
@@ -41,8 +33,8 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Confirmación</label>
-                        <input type="text" name="confirm_text" class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-semibold" placeholder="Escribe CONFIRMAR" required>
+                        <label class="form-label">Confirmación</label>
+                        <input type="text" name="confirm_text" class="form-input" placeholder="Escribe CONFIRMAR" required>
                     </div>
                 </div>
 
@@ -52,24 +44,23 @@
                             <i class="fas fa-triangle-exclamation"></i>
                         </div>
                         <div class="text-sm text-red-900">
-                            <div class="font-black uppercase tracking-widest text-[11px]">Advertencia</div>
-                            <div class="mt-1 font-semibold">Estas acciones pueden eliminar información de forma permanente.</div>
+                            <div class="font-bold text-xs uppercase tracking-wider">Advertencia</div>
+                            <div class="mt-1 font-medium">Estas acciones pueden eliminar información de forma permanente.</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="mt-6 flex items-center justify-end">
-                    <button type="submit" class="inline-flex items-center gap-2 bg-red-700 hover:bg-red-800 text-white font-black py-3 px-6 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest border border-red-800" onclick="return confirm('¿Seguro? Esta acción no se puede deshacer.');">
-                        <i class="fas fa-trash"></i>
+                    <x-ui.button type="submit" variant="danger" size="md" icon="fas fa-trash" onclick="return confirm('¿Seguro? Esta acción no se puede deshacer.');">
                         Ejecutar
-                    </button>
+                    </x-ui.button>
                 </div>
             </form>
         </div>
 
         <div class="mt-8 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div class="px-6 py-5 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
-                <div class="text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">Horarios del Sistema</div>
+                <div class="text-sm font-bold text-slate-900 dark:text-white">Horarios del Sistema</div>
                 <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Define ventanas y automatizaciones del sistema. Horario local según zona configurada.</div>
             </div>
 
@@ -78,58 +69,57 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Habilitar Guardar Asistencia (HH:MM)</label>
-                        <input type="time" name="attendance_enable_time" value="{{ old('attendance_enable_time', ($settings['attendance_enable_time'] ?? '22:00')) }}" class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-semibold" required>
+                        <label class="form-label">Habilitar Guardar Asistencia (HH:MM)</label>
+                        <input type="time" name="attendance_enable_time" value="{{ old('attendance_enable_time', ($settings['attendance_enable_time'] ?? '22:00')) }}" class="form-input" required>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Deshabilitar Guardar Asistencia (HH:MM)</label>
-                        <input type="time" name="attendance_disable_time" value="{{ old('attendance_disable_time', ($settings['attendance_disable_time'] ?? '07:00')) }}" class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-semibold" required>
+                        <label class="form-label">Deshabilitar Guardar Asistencia (HH:MM)</label>
+                        <input type="time" name="attendance_disable_time" value="{{ old('attendance_disable_time', ($settings['attendance_disable_time'] ?? '07:00')) }}" class="form-input" required>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Constitución diaria (Lun-Sáb) (HH:MM)</label>
-                        <input type="time" name="guardia_constitution_weekday_time" value="{{ old('guardia_constitution_weekday_time', ($settings['guardia_constitution_weekday_time'] ?? '23:00')) }}" class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-semibold" required>
+                        <label class="form-label">Constitución diaria (Lun-Sáb) (HH:MM)</label>
+                        <input type="time" name="guardia_constitution_weekday_time" value="{{ old('guardia_constitution_weekday_time', ($settings['guardia_constitution_weekday_time'] ?? '23:00')) }}" class="form-input" required>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Constitución domingo (HH:MM)</label>
-                        <input type="time" name="guardia_constitution_sunday_time" value="{{ old('guardia_constitution_sunday_time', ($settings['guardia_constitution_sunday_time'] ?? '22:00')) }}" class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-semibold" required>
+                        <label class="form-label">Constitución domingo (HH:MM)</label>
+                        <input type="time" name="guardia_constitution_sunday_time" value="{{ old('guardia_constitution_sunday_time', ($settings['guardia_constitution_sunday_time'] ?? '22:00')) }}" class="form-input" required>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Salida diaria del turno (HH:MM)</label>
-                        <input type="time" name="guardia_daily_end_time" value="{{ old('guardia_daily_end_time', ($settings['guardia_daily_end_time'] ?? '07:00')) }}" class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-semibold" required>
+                        <label class="form-label">Salida diaria del turno (HH:MM)</label>
+                        <input type="time" name="guardia_daily_end_time" value="{{ old('guardia_daily_end_time', ($settings['guardia_daily_end_time'] ?? '07:00')) }}" class="form-input" required>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Cambio guardia en turno (Semanal) (HH:MM)</label>
-                        <input type="time" name="guardia_week_transition_time" value="{{ old('guardia_week_transition_time', ($settings['guardia_week_transition_time'] ?? '18:00')) }}" class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-semibold" required>
+                        <label class="form-label">Cambio guardia en turno (Semanal) (HH:MM)</label>
+                        <input type="time" name="guardia_week_transition_time" value="{{ old('guardia_week_transition_time', ($settings['guardia_week_transition_time'] ?? '18:00')) }}" class="form-input" required>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Limpieza semanal (Domingo) (HH:MM)</label>
-                        <input type="time" name="guardia_week_cleanup_time" value="{{ old('guardia_week_cleanup_time', ($settings['guardia_week_cleanup_time'] ?? '18:00')) }}" class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-semibold" required>
+                        <label class="form-label">Limpieza semanal (Domingo) (HH:MM)</label>
+                        <input type="time" name="guardia_week_cleanup_time" value="{{ old('guardia_week_cleanup_time', ($settings['guardia_week_cleanup_time'] ?? '18:00')) }}" class="form-input" required>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Zona horaria scheduler</label>
-                        <input type="text" name="guardia_schedule_tz" value="{{ old('guardia_schedule_tz', ($settings['guardia_schedule_tz'] ?? config('app.timezone'))) }}" class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-semibold" placeholder="America/Santiago" required>
+                        <label class="form-label">Zona horaria scheduler</label>
+                        <input type="text" name="guardia_schedule_tz" value="{{ old('guardia_schedule_tz', ($settings['guardia_schedule_tz'] ?? config('app.timezone'))) }}" class="form-input" placeholder="America/Santiago" required>
                     </div>
                 </div>
 
                 <div class="mt-6 flex items-center justify-end">
-                    <button type="submit" class="inline-flex items-center gap-2 bg-slate-950 hover:bg-black text-white font-black py-3 px-6 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest border border-slate-800">
-                        <i class="fas fa-clock"></i>
+                    <x-ui.button type="submit" variant="primary" size="md" icon="fas fa-clock">
                         Guardar Horarios
-                    </button>
+                    </x-ui.button>
                 </div>
             </form>
         </div>
 
         <div class="mt-8 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div class="px-6 py-5 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
-                <div class="text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">Notificaciones por Correo</div>
+                <div class="text-sm font-bold text-slate-900 dark:text-white">Notificaciones por Correo</div>
                 <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Configura remitente, destinatarios y qué eventos disparan envíos automáticos.</div>
             </div>
 
@@ -138,23 +128,23 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Correo remitente</label>
-                        <input type="email" name="mail_from_address" value="{{ old('mail_from_address', ($settings['mail_from_address'] ?? 'no-responder@dev-app.cl')) }}" class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-semibold" required>
+                        <label class="form-label">Correo remitente</label>
+                        <input type="email" name="mail_from_address" value="{{ old('mail_from_address', ($settings['mail_from_address'] ?? 'no-responder@dev-app.cl')) }}" class="form-input" required>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Nombre remitente</label>
-                        <input type="text" name="mail_from_name" value="{{ old('mail_from_name', ($settings['mail_from_name'] ?? config('app.name', 'AppGuardia'))) }}" class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-semibold" required>
+                        <label class="form-label">Nombre remitente</label>
+                        <input type="text" name="mail_from_name" value="{{ old('mail_from_name', ($settings['mail_from_name'] ?? config('app.name', 'AppGuardia'))) }}" class="form-input" required>
                     </div>
 
                     <div class="md:col-span-2">
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Destinatarios (separados por coma)</label>
-                        <textarea name="mail_recipients" class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-semibold min-h-[90px]" placeholder="ej: ignacio.n12@gmail.com" required>{{ old('mail_recipients', ($settings['mail_recipients'] ?? '')) }}</textarea>
+                        <label class="form-label">Destinatarios (separados por coma)</label>
+                        <textarea name="mail_recipients" class="form-input min-h-[90px]" placeholder="ej: ignacio.n12@gmail.com" required>{{ old('mail_recipients', ($settings['mail_recipients'] ?? '')) }}</textarea>
                     </div>
 
                     <div class="md:col-span-2">
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Autorizados para gatillar envíos (emails separados por coma, opcional)</label>
-                        <textarea name="mail_allowed_trigger_emails" class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-semibold min-h-[70px]" placeholder="vacío = cualquiera con acceso puede gatillar">{{ old('mail_allowed_trigger_emails', ($settings['mail_allowed_trigger_emails'] ?? '')) }}</textarea>
+                        <label class="form-label">Autorizados para gatillar envíos (emails separados por coma, opcional)</label>
+                        <textarea name="mail_allowed_trigger_emails" class="form-input min-h-[70px]" placeholder="vacío = cualquiera con acceso puede gatillar">{{ old('mail_allowed_trigger_emails', ($settings['mail_allowed_trigger_emails'] ?? '')) }}</textarea>
                     </div>
                 </div>
 
@@ -162,7 +152,7 @@
                     <label class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition">
                         <input type="checkbox" name="mail_enabled_cleaning" value="1" {{ old('mail_enabled_cleaning', ($settings['mail_enabled_cleaning'] ?? '0')) === '1' ? 'checked' : '' }} class="rounded text-blue-600 focus:ring-blue-500 h-5 w-5 border-slate-300 dark:border-slate-600">
                         <div class="min-w-0">
-                            <div class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wide">Aseo</div>
+                            <div class="text-sm font-bold text-slate-800 dark:text-white">Aseo</div>
                             <div class="text-xs text-slate-500 dark:text-slate-400">Enviar al guardar asignaciones de aseo.</div>
                         </div>
                     </label>
@@ -170,7 +160,7 @@
                     <label class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition">
                         <input type="checkbox" name="mail_enabled_novelty" value="1" {{ old('mail_enabled_novelty', ($settings['mail_enabled_novelty'] ?? '0')) === '1' ? 'checked' : '' }} class="rounded text-indigo-600 focus:ring-indigo-500 h-5 w-5 border-slate-300 dark:border-slate-600">
                         <div class="min-w-0">
-                            <div class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wide">Novedades</div>
+                            <div class="text-sm font-bold text-slate-800 dark:text-white">Novedades</div>
                             <div class="text-xs text-slate-500 dark:text-slate-400">Enviar al registrar una novedad.</div>
                         </div>
                     </label>
@@ -178,7 +168,7 @@
                     <label class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition">
                         <input type="checkbox" name="mail_enabled_academy" value="1" {{ old('mail_enabled_academy', ($settings['mail_enabled_academy'] ?? '0')) === '1' ? 'checked' : '' }} class="rounded text-amber-600 focus:ring-amber-500 h-5 w-5 border-slate-300 dark:border-slate-600">
                         <div class="min-w-0">
-                            <div class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wide">Academias</div>
+                            <div class="text-sm font-bold text-slate-800 dark:text-white">Academias</div>
                             <div class="text-xs text-slate-500 dark:text-slate-400">Enviar al registrar una academia.</div>
                         </div>
                     </label>
@@ -186,7 +176,7 @@
                     <label class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition">
                         <input type="checkbox" name="mail_enabled_beds" value="1" {{ old('mail_enabled_beds', ($settings['mail_enabled_beds'] ?? '0')) === '1' ? 'checked' : '' }} class="rounded text-emerald-600 focus:ring-emerald-500 h-5 w-5 border-slate-300 dark:border-slate-600">
                         <div class="min-w-0">
-                            <div class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wide">Camas</div>
+                            <div class="text-sm font-bold text-slate-800 dark:text-white">Camas</div>
                             <div class="text-xs text-slate-500 dark:text-slate-400">Habilitar envío manual de reporte PDF desde el dashboard.</div>
                         </div>
                     </label>
@@ -194,7 +184,7 @@
                     <label class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition">
                         <input type="checkbox" name="mail_enabled_planilla" value="1" {{ old('mail_enabled_planilla', ($settings['mail_enabled_planilla'] ?? '0')) === '1' ? 'checked' : '' }} class="rounded text-sky-600 focus:ring-sky-500 h-5 w-5 border-slate-300 dark:border-slate-600">
                         <div class="min-w-0">
-                            <div class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wide">Planillas</div>
+                            <div class="text-sm font-bold text-slate-800 dark:text-white">Planillas</div>
                             <div class="text-xs text-slate-500 dark:text-slate-400">Enviar al presionar "Enviar correo" en planillas.</div>
                         </div>
                     </label>
@@ -202,24 +192,23 @@
                     <label class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition">
                         <input type="checkbox" name="mail_enabled_rotation" value="1" {{ old('mail_enabled_rotation', ($settings['mail_enabled_rotation'] ?? '0')) === '1' ? 'checked' : '' }} class="rounded text-purple-600 focus:ring-purple-500 h-5 w-5 border-slate-300 dark:border-slate-600">
                         <div class="min-w-0">
-                            <div class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wide">Rotación</div>
+                            <div class="text-sm font-bold text-slate-800 dark:text-white">Rotación</div>
                             <div class="text-xs text-slate-500 dark:text-slate-400">Enviar resumen al generar rotación semanal.</div>
                         </div>
                     </label>
                 </div>
 
                 <div class="mt-6 flex items-center justify-end">
-                    <button type="submit" class="inline-flex items-center gap-2 bg-slate-950 hover:bg-black text-white font-black py-3 px-6 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest border border-slate-800">
-                        <i class="fas fa-envelope"></i>
+                    <x-ui.button type="submit" variant="primary" size="md" icon="fas fa-envelope">
                         Guardar Configuración de Correo
-                    </button>
+                    </x-ui.button>
                 </div>
             </form>
         </div>
 
         <div class="mt-8 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div class="px-6 py-5 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
-                <div class="text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">Vaciar Guardias</div>
+                <div class="text-sm font-bold text-slate-900 dark:text-white">Vaciar Guardias</div>
                 <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Elimina datos operativos asociados a una guardia específica o a todas. No elimina bomberos ni usuarios del sistema.</div>
             </div>
 
@@ -228,16 +217,16 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Alcance</label>
-                        <select id="clear-guardias-scope" name="scope" class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-semibold" required>
+                        <label class="form-label">Alcance</label>
+                        <select id="clear-guardias-scope" name="scope" class="form-input" required>
                             <option value="one">Vaciar una guardia</option>
                             <option value="all">Vaciar todas las guardias</option>
                         </select>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Guardia</label>
-                        <select id="clear-guardias-guardia" name="guardia_id" class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-semibold">
+                        <label class="form-label">Guardia</label>
+                        <select id="clear-guardias-guardia" name="guardia_id" class="form-input">
                             <option value="">Seleccionar...</option>
                             @foreach(($guardias ?? collect()) as $g)
                                 <option value="{{ $g->id }}">{{ $g->name }}</option>
@@ -246,8 +235,8 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Confirmación</label>
-                        <input type="text" name="confirm_text" class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-semibold" placeholder="Escribe CONFIRMAR" required>
+                        <label class="form-label">Confirmación</label>
+                        <input type="text" name="confirm_text" class="form-input" placeholder="Escribe CONFIRMAR" required>
                     </div>
                 </div>
 
@@ -257,17 +246,16 @@
                             <i class="fas fa-triangle-exclamation"></i>
                         </div>
                         <div class="text-sm text-red-900">
-                            <div class="font-black uppercase tracking-widest text-[11px]">Advertencia</div>
-                            <div class="mt-1 font-semibold">Esta acción elimina turnos/dotación/asistencia/eventos/reemplazos de la(s) guardia(s). No se puede deshacer.</div>
+                            <div class="font-bold text-xs uppercase tracking-wider">Advertencia</div>
+                            <div class="mt-1 font-medium">Esta acción elimina turnos/dotación/asistencia/eventos/reemplazos de la(s) guardia(s). No se puede deshacer.</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="mt-6 flex items-center justify-end">
-                    <button type="submit" class="inline-flex items-center gap-2 bg-red-700 hover:bg-red-800 text-white font-black py-3 px-6 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest border border-red-800" onclick="return confirm('¿Seguro? Esta acción no se puede deshacer.');">
-                        <i class="fas fa-eraser"></i>
+                    <x-ui.button type="submit" variant="danger" size="md" icon="fas fa-eraser" onclick="return confirm('¿Seguro? Esta acción no se puede deshacer.');">
                         Vaciar Guardias
-                    </button>
+                    </x-ui.button>
                 </div>
             </form>
             <script>

@@ -2,18 +2,7 @@
 
 @section('content')
 <div class="w-full py-4">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-        <div class="flex items-center gap-4">
-            <div class="icon-box icon-box-cyan icon-box-lg">
-                <i class="fas fa-boxes-stacked"></i>
-            </div>
-            <div>
-                <div class="text-label">Inventario</div>
-                <div class="text-title-lg">Panel</div>
-                <div class="text-body-sm">{{ $bodega->nombre }}</div>
-            </div>
-        </div>
-
+    <x-ui.page-header title="Panel" subtitle="{{ $bodega->nombre }}" icon="fas fa-boxes-stacked" iconVariant="cyan">
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
             <x-ui.button variant="secondary" size="md" icon="fas fa-gear" href="{{ route('inventario.config.form') }}">
                 Administrar
@@ -25,7 +14,7 @@
                 Ir a formulario
             </x-ui.button>
         </div>
-    </div>
+    </x-ui.page-header>
 
     <x-ui.card class="!border-sky-200 dark:!border-sky-800">
         <x-slot:header class="!bg-sky-50 dark:!bg-sky-900/20 !border-sky-200 dark:!border-sky-800">

@@ -2,22 +2,13 @@
 
 @section('content')
 <div class="w-full py-4">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-            <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Inventario</div>
-            <div class="text-2xl font-extrabold text-slate-900">Importación</div>
-            <div class="text-sm text-slate-600 dark:text-slate-400 mt-1">Carga masiva de ítems para {{ $bodega->nombre }}.</div>
-        </div>
+    <x-ui.page-header title="Importación" subtitle="Carga masiva de ítems para {{ $bodega->nombre }}." icon="fas fa-file-import" iconVariant="amber">
+        <x-ui.button variant="secondary" size="md" icon="fas fa-arrow-left" href="{{ route('inventario.config.form') }}">Volver</x-ui.button>
+    </x-ui.page-header>
 
-        <a href="{{ route('inventario.config.form') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-bold text-xs">
-            <i class="fas fa-arrow-left"></i>
-            Volver
-        </a>
-    </div>
-
-    <div class="mt-6 bg-white dark:bg-slate-900 rounded-2xl border border-teal-900/20 shadow-sm overflow-hidden">
-        <div class="p-6 border-b border-teal-900/20 bg-sky-100">
-            <div class="text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">Formato</div>
+    <div class="mt-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+            <div class="text-sm font-bold text-slate-900 dark:text-white">Formato</div>
             <div class="text-sm text-slate-700 dark:text-slate-300 mt-2">
                 Columnas esperadas:
                 <div class="mt-2 text-sm text-slate-600 dark:text-slate-400">
@@ -31,21 +22,20 @@
                 @csrf
 
                 <div>
-                    <label class="block text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-2">Archivo</label>
-                    <input type="file" name="file" accept=".csv,.txt,.xlsx" class="w-full px-3 py-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 text-slate-800 dark:text-white font-semibold text-sm" required />
+                    <label class="form-label">Archivo</label>
+                    <input type="file" name="file" accept=".csv,.txt,.xlsx" class="form-input" required />
                     <div class="text-xs text-slate-500 dark:text-slate-400 mt-2">Formatos permitidos: .CSV, .XLSX</div>
                 </div>
 
                 <div class="pt-2">
-                    <button type="submit" class="w-full sm:w-auto inline-flex items-center gap-2 bg-slate-950 hover:bg-black text-white font-black py-3 px-5 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest border border-slate-800">
-                        <i class="fas fa-file-import"></i>
+                    <x-ui.button type="submit" variant="primary" size="md" icon="fas fa-file-import">
                         Iniciar importación
-                    </button>
+                    </x-ui.button>
                 </div>
             </form>
 
             <div id="progressBox" class="hidden mt-6 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-4">
-                <div class="text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">Progreso</div>
+                <div class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">Progreso</div>
                 <div class="mt-2 text-sm text-slate-700 dark:text-slate-300" id="progressText">Preparando...</div>
                 <div class="mt-3 h-3 rounded-full bg-slate-200 overflow-hidden">
                     <div id="progressBar" class="h-full bg-emerald-600" style="width: 0%"></div>
