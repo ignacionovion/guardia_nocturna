@@ -296,12 +296,12 @@
 
                                     @if($repAsReplacement)
                                         <div class="mt-2 rounded-lg border border-purple-200 bg-purple-50 px-2.5 py-2 text-purple-800">
-                                            <div class="text-[11px] font-black uppercase tracking-widest">Reemplaza a</div>
-                                            <div class="text-sm font-black leading-tight truncate">
+                                            <div class="text-[11px] font-semibold uppercase tracking-wide text-purple-700">Reemplaza a</div>
+                                            <div class="text-sm font-medium text-slate-800">
                                                 {{ explode(' ', trim((string) ($repAsReplacement->originalFirefighter?->nombres ?? '')))[0] ?? '' }} {{ explode(' ', trim((string) ($repAsReplacement->originalFirefighter?->apellido_paterno ?? '')))[0] ?? '' }}
                                             </div>
                                             <div class="mt-1">
-                                                <button type="button" onclick="openUndoReplacementModal('{{ route('admin.guardias.replacement.undo', $repAsReplacement->id) }}')" class="w-full bg-white dark:bg-slate-900 hover:bg-purple-100 text-purple-800 font-black uppercase tracking-widest text-[10px] py-1.5 rounded-lg border border-purple-200">
+                                                <button type="button" onclick="openUndoReplacementModal('{{ route('admin.guardias.replacement.undo', $repAsReplacement->id) }}')" class="w-full bg-white dark:bg-slate-900 hover:bg-purple-50 text-purple-700 font-medium uppercase text-[10px] py-1.5 rounded-lg border border-purple-200">
                                                     Deshacer reemplazo
                                                 </button>
                                             </div>
@@ -310,12 +310,12 @@
 
                                     @if($repAsOriginal)
                                         <div class="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-2 text-amber-800">
-                                            <div class="text-[11px] font-black uppercase tracking-widest">Reemplazado por</div>
-                                            <div class="text-sm font-black leading-tight truncate">
+                                            <div class="text-[11px] font-semibold uppercase tracking-wide text-amber-700">Reemplazado por</div>
+                                            <div class="text-sm font-medium text-slate-800">
                                                 {{ explode(' ', trim((string) ($repAsOriginal->replacementFirefighter?->nombres ?? '')))[0] ?? '' }} {{ explode(' ', trim((string) ($repAsOriginal->replacementFirefighter?->apellido_paterno ?? '')))[0] ?? '' }}
                                             </div>
                                             <div class="mt-1">
-                                                <button type="button" onclick="openUndoReplacementModal('{{ route('admin.guardias.replacement.undo', $repAsOriginal->id) }}')" class="w-full bg-white dark:bg-slate-900 hover:bg-amber-100 text-amber-800 font-black uppercase tracking-widest text-[10px] py-1.5 rounded-lg border border-amber-200">
+                                                <button type="button" onclick="openUndoReplacementModal('{{ route('admin.guardias.replacement.undo', $repAsOriginal->id) }}')" class="w-full bg-white dark:bg-slate-900 hover:bg-amber-100 text-amber-800 font-medium uppercase text-[10px] py-1.5 rounded-lg border border-amber-200">
                                                     Deshacer reemplazo
                                                 </button>
                                             </div>
