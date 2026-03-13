@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html lang="es" x-data="{ 
-    darkMode: localStorage.getItem('darkMode') === 'true',
     sidebarCollapsed: localStorage.getItem('sidebarCollapsed') === 'true',
     mobileSidebarOpen: false
-}" :class="{ 'dark': darkMode }" x-init="$watch('sidebarCollapsed', val => localStorage.setItem('sidebarCollapsed', val))">
+}" x-init="$watch('sidebarCollapsed', val => localStorage.setItem('sidebarCollapsed', val))">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">

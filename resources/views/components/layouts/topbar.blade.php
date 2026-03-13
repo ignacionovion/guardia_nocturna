@@ -51,12 +51,8 @@ $currentDate = now()->locale('es');
             </kbd>
         </div>
         
-        {{-- Theme toggle --}}
-        <button @click="darkMode = !darkMode; localStorage.setItem('darkMode', darkMode)" 
-                class="p-2.5 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                title="Cambiar tema">
-            <i class="fas text-sm" :class="darkMode ? 'fa-sun text-amber-500' : 'fa-moon'"></i>
-        </button>
+        {{-- Separator --}}
+        <div class="hidden sm:block w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1"></div>
         
         {{-- Notifications --}}
         @if(in_array($user->role ?? '', ['super_admin', 'capitania']))
