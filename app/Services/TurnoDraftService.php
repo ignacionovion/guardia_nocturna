@@ -53,6 +53,11 @@ class TurnoDraftService
 
     public function isEditableNow(?Carbon $now = null): bool
     {
+        // Para desarrollo/testing: si DRAFT_ALWAYS_EDITABLE=true, siempre es editable
+        if (env('DRAFT_ALWAYS_EDITABLE', false)) {
+            return true;
+        }
+
         $now = ($now ?: Carbon::now($this->timezone()))->copy()->setTimezone($this->timezone());
         $operationalDate = $this->resolveOperationalDate($now);
         [$openedAt, $closeAt] = $this->windowForOperationalDate($operationalDate);

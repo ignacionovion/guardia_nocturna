@@ -4,7 +4,7 @@
         @csrf
 
         {{-- Grid principal de bomberos - más columnas para tarjetas angostas --}}
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-6 gap-2.5">
             @forelse($activeStaff as $staff)
                 @include('dashboard.partials.guardia._staff_card', [
                     'staff' => $staff,
@@ -35,7 +35,7 @@
                     <span class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Inhabilitados</span>
                     <span class="px-2 py-0.5 rounded-lg bg-red-500/20 border border-red-500/30 text-xs font-bold text-red-400">{{ $outOfServiceStaff->count() }}</span>
                 </div>
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-6 gap-2.5">
                     @foreach($outOfServiceStaff as $staff)
                         <div class="bg-gradient-to-b from-slate-800/70 to-slate-900/70 rounded-xl border border-red-900/30 overflow-hidden p-3">
                             <div class="flex items-center justify-between mb-2">
