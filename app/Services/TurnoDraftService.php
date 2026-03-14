@@ -62,7 +62,23 @@ class TurnoDraftService
         $operationalDate = $this->resolveOperationalDate($now);
         [$openedAt, $closeAt] = $this->windowForOperationalDate($operationalDate);
 
-        return $now->greaterThanOrEqualTo($openedAt) && $now->lessThan($closeAt);
+        $isEditable = $now->greaterThanOrEqualTo($openedAt) && $now->lessThan($closeAt);
+
+        // DEBUG TEMPORAL - REMOVER DESPUÉS
+        \Log::info('TurnoDraftService::isEditableNow DEBUG', [
+            'timezone' => $this->timezone(),
+            'now_raw' => Carbon::now()->toIso8601String(),
+            'now_in_tz' => $now->toIso8601String(),
+            'now_hour' => $now->hour,
+            'operational_date' => $operationalDate->toDateString(),
+            'opened_at' => $openedAt->toIso8601String(),
+            'close_at' => $closeAt->toIso8601String(),
+            'is_editable' => $isEditable,
+            'now_gte_opened' => $now->greaterThanOrEqualTo($openedAt),
+            'now_lt_close' => $now->lessThan($closeAt),
+        ]);
+
+        return $isEditable;
     }
 
     public function getOrCreateDraftForGuardia(Guardia $guardia, ?int $userId = null): TurnoSession
