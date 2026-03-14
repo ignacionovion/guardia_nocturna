@@ -76,13 +76,18 @@ class Bombero extends Model
         }
         
         $diff = now()->diff($this->fecha_ingreso);
+        $parts = [];
         
         if ($diff->y > 0) {
-            return $diff->y . ' ' . ($diff->y == 1 ? 'año' : 'años');
+            $parts[] = $diff->y . ' ' . ($diff->y == 1 ? 'año' : 'años');
         }
         
         if ($diff->m > 0) {
-            return $diff->m . ' ' . ($diff->m == 1 ? 'mes' : 'meses');
+            $parts[] = $diff->m . ' ' . ($diff->m == 1 ? 'mes' : 'meses');
+        }
+        
+        if (count($parts) > 0) {
+            return implode(' ', $parts);
         }
         
         return 'Nuevo';

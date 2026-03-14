@@ -45,16 +45,16 @@
                     <button onclick="toggleFullscreen()" class="icon-btn" title="Pantalla completa">
                         <i class="fas fa-expand text-slate-400"></i>
                     </button>
-                    <a href="{{ route('guardia.aseo') }}" class="icon-btn" title="Asignación de Aseo">
+                    <button onclick="openAseoModal()" class="icon-btn" title="Asignación de Aseo">
                         <i class="fas fa-broom text-red-400"></i>
-                    </a>
+                    </button>
                     <button onclick="openCalendarPopup()" class="icon-btn" title="Calendario">
                         <i class="fas fa-calendar-days text-emerald-400"></i>
                     </button>
                     @if(feature('emergencias'))
-                        <a href="{{ route('admin.emergencies.index') }}" class="icon-btn" title="Emergencias">
+                        <button onclick="openEmergenciasModal()" class="icon-btn" title="Emergencias">
                             <i class="fas fa-truck-medical text-amber-400"></i>
-                        </a>
+                        </button>
                     @endif
                     <button onclick="openRefuerzoModal()" class="icon-btn" title="Agregar Refuerzo">
                         <i class="fas fa-user-plus text-sky-400"></i>

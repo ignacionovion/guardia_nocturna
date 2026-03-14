@@ -67,7 +67,7 @@
     {{-- Bloque de imagen grande con información overlay --}}
     <a href="{{ route('admin.volunteers.show', $staff->id) }}" class="relative block w-full h-48 bg-slate-800 overflow-hidden group/foto">
         @if($staff->photo_path)
-            <img src="{{ route('media', $staff->photo_path) }}" class="w-full h-full object-cover object-center group-hover/foto:scale-105 transition-transform duration-300" alt="Foto">
+            <img src="{{ route('media', $staff->photo_path) }}" class="w-full h-full object-cover group-hover/foto:scale-105 transition-transform duration-300" alt="Foto" style="object-position: center 20%;">
         @else
             <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-700 to-slate-800">
                 <span class="text-4xl font-bold text-slate-500">{{ strtoupper(substr($staff->nombres, 0, 1) . substr($staff->apellido_paterno, 0, 1)) }}</span>
@@ -78,21 +78,21 @@
         <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-900 via-slate-900/90 to-transparent pointer-events-none"></div>
         
         {{-- Información del bombero sobre la imagen --}}
-        <div class="absolute inset-x-0 bottom-0 px-2 py-2">
-            <div class="text-sm font-bold text-white leading-tight truncate drop-shadow-lg">
+        <div class="absolute inset-x-0 bottom-0 px-2.5 py-2.5">
+            <div class="text-base font-bold text-white leading-tight truncate drop-shadow-lg">
                 {{ $staff->nombres }} {{ $staff->apellido_paterno }}
             </div>
-            <div class="text-[11px] text-white/90 truncate mt-0.5">
+            <div class="text-sm text-white/90 truncate mt-0.5">
                 {{ $staff->cargo_texto ?: ($staff->es_jefe_guardia ? 'Jefe de Guardia' : 'Bombero') }}
             </div>
-            <div class="flex items-center gap-2 mt-1">
-                <div class="flex items-center gap-1 text-[10px] text-white/80">
-                    <i class="fas fa-calendar-alt text-[8px]"></i>
+            <div class="flex items-center gap-2 mt-1.5">
+                <div class="flex items-center gap-1 text-xs text-white/80">
+                    <i class="fas fa-calendar-alt text-[9px]"></i>
                     <span>{{ $serviceLabel }}</span>
                 </div>
                 @if($staff->numero_portatil)
-                    <div class="flex items-center gap-1 text-[10px] text-white/80">
-                        <i class="fas fa-radio text-[8px]"></i>
+                    <div class="flex items-center gap-1 text-xs text-white/80">
+                        <i class="fas fa-radio text-[9px]"></i>
                         <span>{{ $staff->numero_portatil }}</span>
                     </div>
                 @endif
@@ -172,8 +172,8 @@
                 <div id="confirm-box-{{ $staff->id }}" class="rounded border border-rose-500/30 bg-rose-500/10 px-1.5 py-1">
                     <div id="confirm-status-{{ $staff->id }}" class="text-[7px] font-bold uppercase text-rose-400">No Confirmado</div>
                     <div id="confirm-controls-{{ $staff->id }}" class="mt-1 flex items-center gap-1">
-                        <input type="password" inputmode="numeric" autocomplete="one-time-code" id="confirm-code-{{ $staff->id }}" placeholder="N° Registro" class="flex-1 min-w-0 px-1.5 py-0.5 rounded border border-slate-700 bg-slate-800/80 text-[9px] font-semibold text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-rose-500/50" onkeydown="if(event.key==='Enter'){event.preventDefault();confirmBombero({{ (int) $myGuardia->id }}, {{ (int) $staff->id }});}" />
-                        <button type="button" id="confirm-btn-{{ $staff->id }}" onclick="confirmBombero({{ (int) $myGuardia->id }}, {{ (int) $staff->id }})" class="shrink-0 px-1.5 py-0.5 rounded bg-rose-600 hover:bg-rose-500 text-white text-[8px] font-bold uppercase transition-colors">OK</button>
+                        <input type="password" inputmode="numeric" autocomplete="one-time-code" id="confirm-code-{{ $staff->id }}" placeholder="N° Registro" class="flex-1 min-w-0 px-2 py-1 rounded border border-slate-700 bg-slate-800/80 text-xs font-semibold text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-rose-500/50" onkeydown="if(event.key==='Enter'){event.preventDefault();confirmBombero({{ (int) $myGuardia->id }}, {{ (int) $staff->id }});}" />
+                        <button type="button" id="confirm-btn-{{ $staff->id }}" onclick="confirmBombero({{ (int) $myGuardia->id }}, {{ (int) $staff->id }})" class="shrink-0 px-2 py-1 rounded bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold uppercase transition-colors">OK</button>
                     </div>
                     <div id="confirm-msg-{{ $staff->id }}" class="mt-0.5 text-[8px] font-medium text-slate-400"></div>
                 </div>
@@ -193,10 +193,10 @@
                     </div>
                 @endif
             @else
-                <button type="button" id="status-cycle-{{ $staff->id }}" data-user-id="{{ $staff->id }}" data-status="{{ $status }}" onclick="cycleGuardiaStatus('{{ $staff->id }}')" class="w-full px-1.5 py-1 rounded text-[9px] font-bold uppercase tracking-wide transition-all flex items-center justify-center gap-1 {{ $statusBtnClass }}">
-                    <span id="status-cycle-label-{{ $staff->id }}">{{ $statusLabel }}</span>
-                    <i class="fas fa-rotate text-[7px] opacity-70"></i>
-                </button>
+                <button type="button" id="status-cycle-{{ $staff->id }}" onclick="cycleGuardiaStatus('{{ $staff->id }}')" class="w-full flex items-center justify-between gap-1.5 px-2.5 py-1.5 rounded-lg {{ $statusBtnClass }} font-bold uppercase text-xs transition-colors">
+                <span id="status-cycle-label-{{ $staff->id }}">{{ $statusLabel }}</span>
+                <i class="fas fa-rotate text-[9px]"></i>
+            </button>
             @endif
         @endunless
 

@@ -1336,6 +1336,34 @@
             modal.classList.add('hidden');
         }
 
+        window.openAseoModal = function() {
+            const modal = document.getElementById('aseoModal');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        window.closeAseoModal = function() {
+            const modal = document.getElementById('aseoModal');
+            if (!modal) return;
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        window.openEmergenciasModal = function() {
+            const modal = document.getElementById('emergenciasModal');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        window.closeEmergenciasModal = function() {
+            const modal = document.getElementById('emergenciasModal');
+            if (!modal) return;
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
         @if(Auth::check() && Auth::user()->role === 'guardia')
             async function kioskPing() {
                 try {
@@ -1618,6 +1646,44 @@
                         </div>
                     </div>
                 </form>
+            </div>
+        </div>
+    @endif
+
+    {{-- Modal Aseo --}}
+    <div id="aseoModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 items-center justify-center">
+        <div class="bg-slate-900 rounded-2xl shadow-2xl w-full max-w-5xl mx-4 border border-slate-800 overflow-hidden max-h-[90vh] flex flex-col">
+            <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+                <div>
+                    <h3 class="text-lg font-bold text-white uppercase tracking-tight">Asignación de Aseo</h3>
+                    <p class="text-sm text-slate-400 mt-1">Asignar tareas de limpieza al personal</p>
+                </div>
+                <button type="button" onclick="closeAseoModal()" class="text-slate-400 hover:text-white transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="flex-1 overflow-hidden">
+                <iframe src="{{ route('guardia.aseo') }}" class="w-full h-full border-0"></iframe>
+            </div>
+        </div>
+    </div>
+
+    {{-- Modal Emergencias --}}
+    @if(feature('emergencias'))
+        <div id="emergenciasModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 items-center justify-center">
+            <div class="bg-slate-900 rounded-2xl shadow-2xl w-full max-w-6xl mx-4 border border-slate-800 overflow-hidden max-h-[90vh] flex flex-col">
+                <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-bold text-white uppercase tracking-tight">Emergencias</h3>
+                        <p class="text-sm text-slate-400 mt-1">Gestión de emergencias y eventos</p>
+                    </div>
+                    <button type="button" onclick="closeEmergenciasModal()" class="text-slate-400 hover:text-white transition-colors">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div class="flex-1 overflow-hidden">
+                    <iframe src="{{ route('admin.emergencies.index') }}" class="w-full h-full border-0"></iframe>
+                </div>
             </div>
         </div>
     @endif
