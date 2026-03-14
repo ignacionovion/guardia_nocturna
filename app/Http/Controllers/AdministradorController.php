@@ -235,8 +235,12 @@ class AdministradorController extends Controller
         ReplacementService::expire();
     }
 
-    public function confirmBombero(Request $request, Guardia $guardia, Bombero $bombero)
+    public function confirmBombero(Request $request, $guardia, $bombero)
     {
+        // Resolución manual de modelos (implicit binding no funciona en contexto tenant subdomain)
+        $guardia = Guardia::findOrFail($guardia);
+        $bombero = Bombero::findOrFail($bombero);
+
         $user = auth()->user();
         if (!$user || !in_array($user->role, ['super_admin', 'capitania', 'guardia'], true)) {
             return response()->json(['ok' => false, 'message' => 'No autorizado'], 403);

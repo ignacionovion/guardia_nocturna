@@ -295,7 +295,7 @@
             <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-rose-500/20 flex items-center justify-center">
                 <i class="fas fa-circle-xmark text-rose-500 text-2xl"></i>
             </div>
-            <h3 class="text-lg font-bold text-white uppercase tracking-wider mb-2">Código Incorrecto</h3>
+            <h3 id="confirm-error-title" class="text-lg font-bold text-white uppercase tracking-wider mb-2">Error</h3>
             <p id="confirm-error-text" class="text-sm text-slate-400 mb-4">El código ingresado no es válido.</p>
             <button onclick="closeConfirmErrorToast()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold uppercase tracking-wider text-xs py-3 rounded-xl border border-rose-700">
                 Aceptar
@@ -1011,8 +1011,10 @@
             if (!window.__draftEditable) {
                 console.warn('[DEBUG setGuardiaStatus] BLOCKED by __draftEditable=false');
                 const toast = document.getElementById('confirm-error-toast');
+                const toastTitle = document.getElementById('confirm-error-title');
                 const toastText = document.getElementById('confirm-error-text');
                 if (toast && toastText) {
+                    if (toastTitle) toastTitle.textContent = 'Edición Bloqueada';
                     toastText.textContent = 'EDICIÓN BLOQUEADA FUERA DEL HORARIO 22:00 - 07:00.';
                     toast.classList.remove('hidden');
                     toast.classList.add('flex');
@@ -1213,8 +1215,10 @@
 
             if (!numeroRegistro) {
                 const toast = document.getElementById('confirm-error-toast');
+                const toastTitle = document.getElementById('confirm-error-title');
                 const toastText = document.getElementById('confirm-error-text');
                 if (toast && toastText) {
+                    if (toastTitle) toastTitle.textContent = 'Código Requerido';
                     toastText.textContent = 'INGRESA EL CÓDIGO DEL BOMBERO';
                     toast.classList.remove('hidden');
                     toast.classList.add('flex');
@@ -1224,8 +1228,10 @@
 
             if (!window.__draftEditable) {
                 const toast = document.getElementById('confirm-error-toast');
+                const toastTitle = document.getElementById('confirm-error-title');
                 const toastText = document.getElementById('confirm-error-text');
                 if (toast && toastText) {
+                    if (toastTitle) toastTitle.textContent = 'Edición Bloqueada';
                     toastText.textContent = 'EDICIÓN BLOQUEADA FUERA DEL HORARIO 22:00 - 07:00.';
                     toast.classList.remove('hidden');
                     toast.classList.add('flex');
@@ -1279,9 +1285,11 @@
                         debugInfo = ' [DEBUG: ' + JSON.stringify(data.debug) + ']';
                     }
                     const toast = document.getElementById('confirm-error-toast');
+                    const toastTitle = document.getElementById('confirm-error-title');
                     const toastText = document.getElementById('confirm-error-text');
                     if (toast && toastText) {
-                        toastText.textContent = String(errMsg).toUpperCase() + debugInfo;
+                        if (toastTitle) toastTitle.textContent = String(errMsg);
+                        toastText.textContent = debugInfo || String(errMsg).toUpperCase();
                         toast.classList.remove('hidden');
                         toast.classList.add('flex');
                     }
@@ -1302,8 +1310,10 @@
                 refreshAttendanceSubmitButton();
             } catch (e) {
                 const toast = document.getElementById('confirm-error-toast');
+                const toastTitle = document.getElementById('confirm-error-title');
                 const toastText = document.getElementById('confirm-error-text');
                 if (toast && toastText) {
+                    if (toastTitle) toastTitle.textContent = 'Error de Red';
                     toastText.textContent = 'ERROR AL CONFIRMAR';
                     toast.classList.remove('hidden');
                     toast.classList.add('flex');
