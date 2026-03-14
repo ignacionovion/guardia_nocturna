@@ -264,12 +264,46 @@ class AdministradorController extends Controller
         }
 
         $expected = trim((string) ($bombero->numero_registro ?? ''));
+
+        // DEBUG TEMPORAL - REMOVER DESPUÉS
+        \Log::info('confirmBombero DEBUG', [
+            'guardia_id' => $guardia->id,
+            'bombero_id' => $bombero->id,
+            'bombero_nombre' => $bombero->nombres . ' ' . $bombero->apellido_paterno,
+            'provided_raw' => $request->input('numero_registro'),
+            'provided_trimmed' => $provided,
+            'expected_raw' => $bombero->numero_registro,
+            'expected_trimmed' => $expected,
+            'expected_is_null' => is_null($bombero->numero_registro),
+            'match' => $provided === $expected,
+            'provided_len' => strlen($provided),
+            'expected_len' => strlen($expected),
+        ]);
+
         if ($expected === '') {
-            return response()->json(['ok' => false, 'message' => 'Bombero sin número de registro'], 422);
+            return response()->json([
+                'ok' => false,
+                'message' => 'Bombero sin número de registro configurado',
+                // DEBUG TEMPORAL
+                'debug' => [
+                    'bombero_id' => $bombero->id,
+                    'numero_registro_db' => $bombero->numero_registro,
+                ],
+            ], 422);
         }
 
         if ($provided !== $expected) {
-            return response()->json(['ok' => false, 'message' => 'Código inválido'], 422);
+            return response()->json([
+                'ok' => false,
+                'message' => 'Código inválido',
+                // DEBUG TEMPORAL
+                'debug' => [
+                    'provided' => $provided,
+                    'expected_length' => strlen($expected),
+                    'provided_length' => strlen($provided),
+                    'bombero_id' => $bombero->id,
+                ],
+            ], 422);
         }
 
         $ts = time();

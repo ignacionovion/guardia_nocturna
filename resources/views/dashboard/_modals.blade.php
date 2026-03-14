@@ -303,6 +303,28 @@
         </div>
     </div>
 
+    {{-- DEBUG TEMPORAL - Panel flotante de diagnóstico visible --}}
+    <div id="debug-action-panel" class="fixed bottom-0 left-0 right-0 z-[100] bg-slate-950 border-t-2 border-yellow-500 max-h-40 overflow-y-auto text-xs font-mono" style="pointer-events:auto;">
+        <div class="flex items-center justify-between px-3 py-1 bg-yellow-600 text-black font-bold">
+            <span>🔍 DEBUG ACCIONES EN VIVO</span>
+            <button onclick="document.getElementById('debug-action-panel').classList.toggle('hidden')" class="text-black font-bold px-2">✕</button>
+        </div>
+        <div id="debug-action-log" class="p-2 space-y-0.5 text-yellow-200"></div>
+    </div>
+    <script>
+        window.__debugLog = function(msg, color) {
+            const log = document.getElementById('debug-action-log');
+            if (!log) return;
+            const line = document.createElement('div');
+            line.style.color = color || '#fde68a';
+            const ts = new Date().toLocaleTimeString('es-CL');
+            line.textContent = '[' + ts + '] ' + msg;
+            log.prepend(line);
+            // Keep only last 20 entries
+            while (log.children.length > 20) log.removeChild(log.lastChild);
+        };
+    </script>
+
     <script>
         window.closeConfirmErrorToast = function() {
             const toast = document.getElementById('confirm-error-toast');
@@ -800,10 +822,15 @@
             };
 
             window.__persistDraftItemStatus = async function(userId, status) {
-                if (!window.__draftEditable) return;
+                if (!window.__draftEditable) {
+                    console.warn('[DEBUG __persistDraftItemStatus] BLOCKED - draftEditable=false');
+                    return;
+                }
 
                 try {
-                    await fetch('{{ route('draft.turno.item') }}', {
+                    console.log('[DEBUG __persistDraftItemStatus] POST', { userId, status, url: '{{ route('draft.turno.item') }}' });
+                    if (typeof __debugLog === 'function') __debugLog('PERSIST: POST userId=' + userId + ' status=' + status);
+                    const res = await fetch('{{ route('draft.turno.item') }}', {
                         method: 'POST',
                         headers: {
                             'Accept': 'application/json',
@@ -816,7 +843,11 @@
                             attendance_status: String(status || 'constituye').toLowerCase(),
                         }),
                     });
+                    const respData = await res.json().catch(() => null);
+                    console.log('[DEBUG __persistDraftItemStatus] Response', { status: res.status, ok: res.ok, data: respData });
+                    if (typeof __debugLog === 'function') __debugLog('PERSIST RESP: HTTP ' + res.status + ' ' + (res.ok ? 'OK' : 'ERROR'), res.ok ? '#34d399' : '#f87171');
                 } catch (e) {
+                    console.error('[DEBUG __persistDraftItemStatus] ERROR', e);
                 }
             };
 
@@ -971,7 +1002,14 @@
         });
 
         window.setGuardiaStatus = function(userId, status) {
+            // DEBUG TEMPORAL
+            const prevInput = document.getElementById('attendance-status-' + userId);
+            const prevStatus = prevInput ? prevInput.value : '(no input)';
+            console.log('[DEBUG setGuardiaStatus] CALLED', { userId, newStatus: status, prevStatus, draftEditable: window.__draftEditable });
+            if (typeof __debugLog === 'function') __debugLog('SET STATUS: userId=' + userId + ' ' + prevStatus + ' → ' + status + ' draftEditable=' + window.__draftEditable);
+
             if (!window.__draftEditable) {
+                console.warn('[DEBUG setGuardiaStatus] BLOCKED by __draftEditable=false');
                 const toast = document.getElementById('confirm-error-toast');
                 const toastText = document.getElementById('confirm-error-text');
                 if (toast && toastText) {
@@ -990,31 +1028,46 @@
 
             const input = document.getElementById('attendance-status-' + userId);
             if (!input) {
-                console.error('Input de estado no encontrado', { userId });
+                console.error('[DEBUG setGuardiaStatus] Input NOT FOUND', { userId });
                 return;
             }
 
+            console.log('[DEBUG setGuardiaStatus] Setting input.value =', status);
             input.value = status;
             clearConfirmation(userId);
             updateGuardiaCardUI(userId, status);
+            console.log('[DEBUG setGuardiaStatus] UI updated, calling markAttendanceDirty');
+            if (typeof __debugLog === 'function') __debugLog('SET STATUS: UI actualizado OK → ' + status, '#34d399');
             markAttendanceDirty();
 
             try {
                 if (typeof window.__persistDraftItemStatus === 'function') {
+                    console.log('[DEBUG setGuardiaStatus] Calling __persistDraftItemStatus', { userId, status });
                     window.__persistDraftItemStatus(userId, status);
+                } else {
+                    console.warn('[DEBUG setGuardiaStatus] __persistDraftItemStatus not available');
                 }
-            } catch (e) {}
+            } catch (e) {
+                console.error('[DEBUG setGuardiaStatus] persist error', e);
+            }
         }
 
         window.cycleGuardiaStatus = function(userId) {
+            console.log('[DEBUG cycleGuardiaStatus] CALLED', { userId });
+            if (typeof __debugLog === 'function') __debugLog('CYCLE: click en userId=' + userId);
             const input = document.getElementById('attendance-status-' + userId);
-            if (!input) return;
+            if (!input) {
+                console.error('[DEBUG cycleGuardiaStatus] Input NOT FOUND for userId:', userId);
+                return;
+            }
             const current = (input.value || 'constituye').toLowerCase();
 
             const order = ['constituye', 'permiso', 'ausente', 'licencia', 'falta'];
             const idx = order.indexOf(current);
             const next = order[(idx === -1 ? 0 : (idx + 1) % order.length)];
 
+            console.log('[DEBUG cycleGuardiaStatus]', { current, idx, next });
+            if (typeof __debugLog === 'function') __debugLog('CYCLE: ' + current + ' → ' + next);
             window.setGuardiaStatus(userId, next);
         }
 
@@ -1149,8 +1202,15 @@
             const codeEl = document.getElementById('confirm-code-' + bomberoId);
             const tokenEl = document.getElementById('confirm-token-' + bomberoId);
             const btnEl = document.getElementById('confirm-btn-' + bomberoId);
+            const msgEl = document.getElementById('confirm-msg-' + bomberoId);
 
             const numeroRegistro = (codeEl?.value || '').trim();
+
+            // DEBUG TEMPORAL - mostrar valores enviados
+            console.log('[DEBUG confirmBombero]', { guardiaId, bomberoId, numeroRegistro, draftEditable: window.__draftEditable });
+            if (typeof __debugLog === 'function') __debugLog('CONFIRM: guardiaId=' + guardiaId + ' bomberoId=' + bomberoId + ' código="' + numeroRegistro + '" draftEditable=' + window.__draftEditable);
+            if (msgEl) msgEl.textContent = 'Enviando: guardiaId=' + guardiaId + ' bomberoId=' + bomberoId + ' código=' + numeroRegistro;
+
             if (!numeroRegistro) {
                 const toast = document.getElementById('confirm-error-toast');
                 const toastText = document.getElementById('confirm-error-text');
@@ -1179,7 +1239,10 @@
                     btnEl.classList.add('opacity-60','cursor-not-allowed');
                 }
 
-                const res = await fetch(`/admin/guardias/${guardiaId}/bomberos/${bomberoId}/confirm`, {
+                const url = `/admin/guardias/${guardiaId}/bomberos/${bomberoId}/confirm`;
+                console.log('[DEBUG confirmBombero] POST', url, { numero_registro: numeroRegistro });
+
+                const res = await fetch(url, {
                     method: 'POST',
                     headers: {
                         'Accept': 'application/json',
@@ -1203,15 +1266,26 @@
                     data = null;
                 }
 
+                // DEBUG TEMPORAL - log respuesta completa
+                console.log('[DEBUG confirmBombero] Response', { status: res.status, ok: res.ok, data });
+                if (typeof __debugLog === 'function') __debugLog('CONFIRM RESP: HTTP ' + res.status + ' | ' + JSON.stringify(data), res.ok && data?.ok ? '#34d399' : '#f87171');
+                if (msgEl) msgEl.textContent = 'HTTP ' + res.status + ' | data: ' + JSON.stringify(data);
+
                 if (!res.ok || !data || !data.ok) {
                     const errMsg = (data && (data.message || data.error)) ? (data.message || data.error) : 'NO SE PUDO CONFIRMAR';
+                    // DEBUG: incluir debug info del backend si existe
+                    let debugInfo = '';
+                    if (data && data.debug) {
+                        debugInfo = ' [DEBUG: ' + JSON.stringify(data.debug) + ']';
+                    }
                     const toast = document.getElementById('confirm-error-toast');
                     const toastText = document.getElementById('confirm-error-text');
                     if (toast && toastText) {
-                        toastText.textContent = String(errMsg).toUpperCase();
+                        toastText.textContent = String(errMsg).toUpperCase() + debugInfo;
                         toast.classList.remove('hidden');
                         toast.classList.add('flex');
                     }
+                    console.error('[DEBUG confirmBombero] ERROR', { errMsg, debug: data?.debug });
                     clearConfirmation(bomberoId);
                     return;
                 }
