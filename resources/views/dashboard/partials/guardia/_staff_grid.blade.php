@@ -3,8 +3,8 @@
     <form id="guardia-attendance-form" method="POST" action="{{ route('admin.guardias.bulk_update', $myGuardia->id) }}">
         @csrf
 
-        {{-- Grid principal de bomberos --}}
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+        {{-- Grid principal de bomberos - más columnas para tarjetas angostas --}}
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
             @forelse($activeStaff as $staff)
                 @include('dashboard.partials.guardia._staff_card', [
                     'staff' => $staff,
@@ -35,18 +35,18 @@
                     <span class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Inhabilitados</span>
                     <span class="px-2 py-0.5 rounded-lg bg-red-500/20 border border-red-500/30 text-xs font-bold text-red-400">{{ $outOfServiceStaff->count() }}</span>
                 </div>
-                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
                     @foreach($outOfServiceStaff as $staff)
-                        <div class="bg-gradient-to-b from-slate-800/70 to-slate-900/70 rounded-xl border border-red-900/30 overflow-hidden p-4">
+                        <div class="bg-gradient-to-b from-slate-800/70 to-slate-900/70 rounded-xl border border-red-900/30 overflow-hidden p-3">
                             <div class="flex items-center justify-between mb-2">
-                                <span class="text-[10px] font-medium text-slate-500 uppercase tracking-wider">{{ $staff->cargo_texto ?? 'Bombero' }}</span>
-                                <span class="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-red-500/20 text-red-400 border border-red-500/30">Inhabilitado</span>
+                                <span class="text-[9px] font-medium text-slate-500 uppercase tracking-wider">{{ $staff->cargo_texto ?? 'Bombero' }}</span>
+                                <span class="text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30">Inhab.</span>
                             </div>
-                            <div class="text-sm font-semibold text-slate-300 leading-tight" title="{{ $staff->nombres }} {{ $staff->apellido_paterno }}">
-                                {{ $staff->apellido_paterno }}{{ $staff->apellido_materno ? ' ' . $staff->apellido_materno : '' }}, {{ $staff->nombres }}
+                            <div class="text-xs font-semibold text-slate-300 leading-tight truncate" title="{{ $staff->nombres }} {{ $staff->apellido_paterno }}">
+                                {{ $staff->apellido_paterno }}, {{ $staff->nombres }}
                             </div>
                             @if($canInhabilitar)
-                                <button type="button" onclick="toggleHabilitar('{{ $staff->id }}')" class="mt-3 w-full bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 font-semibold uppercase tracking-wider text-[10px] py-2 rounded-lg border border-emerald-500/30 transition-colors">
+                                <button type="button" onclick="toggleHabilitar('{{ $staff->id }}')" class="mt-2 w-full bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 font-semibold uppercase tracking-wider text-[9px] py-1.5 rounded border border-emerald-500/30 transition-colors">
                                     <i class="fas fa-user-check mr-1"></i> Habilitar
                                 </button>
                             @endif

@@ -1272,6 +1272,11 @@
                     falta: 'FALTA',
                 };
                 const themeRemove = [
+                    'bg-emerald-600','hover:bg-emerald-500',
+                    'bg-amber-600','hover:bg-amber-500',
+                    'bg-slate-600','hover:bg-slate-500',
+                    'bg-blue-600','hover:bg-blue-500',
+                    'bg-rose-600','hover:bg-rose-500',
                     'bg-emerald-500/80','border-emerald-400/50',
                     'bg-amber-500/80','border-amber-400/50',
                     'bg-slate-400/30','border-slate-500/30',
@@ -1282,11 +1287,11 @@
 
                 const s = (status || 'constituye').toLowerCase();
                 cycleLbl.textContent = labelMap[s] || 'CONSTITUYE';
-                if (s === 'constituye') cycleBtn.classList.add('bg-emerald-500/80','border-emerald-400/50');
-                else if (s === 'permiso') cycleBtn.classList.add('bg-amber-500/80','border-amber-400/50');
-                else if (s === 'ausente') cycleBtn.classList.add('bg-slate-400/30','border-slate-500/30');
-                else if (s === 'licencia') cycleBtn.classList.add('bg-blue-600/80','border-blue-400/50');
-                else if (s === 'falta') cycleBtn.classList.add('bg-red-600/80','border-red-400/50');
+                if (s === 'constituye') cycleBtn.classList.add('bg-emerald-600','hover:bg-emerald-500');
+                else if (s === 'permiso') cycleBtn.classList.add('bg-amber-600','hover:bg-amber-500');
+                else if (s === 'ausente') cycleBtn.classList.add('bg-slate-600','hover:bg-slate-500');
+                else if (s === 'licencia') cycleBtn.classList.add('bg-blue-600','hover:bg-blue-500');
+                else if (s === 'falta') cycleBtn.classList.add('bg-rose-600','hover:bg-rose-500');
 
                 if (lockEl) {
                     lockEl.style.display = (status === 'constituye' || status === 'reemplazo') ? 'none' : '';
