@@ -235,9 +235,10 @@ class AdministradorController extends Controller
         ReplacementService::expire();
     }
 
-    public function confirmBombero(Request $request, $guardia, $bombero)
+    public function confirmBombero(Request $request, $tenant, $guardia, $bombero)
     {
-        // Resolución manual de modelos (implicit binding no funciona en contexto tenant subdomain)
+        // $tenant es inyectado automáticamente por Route::domain('{tenant}...')
+        // Resolución manual de modelos
         $guardia = Guardia::findOrFail($guardia);
         $bombero = Bombero::findOrFail($bombero);
 
@@ -628,8 +629,11 @@ class AdministradorController extends Controller
         return redirect()->back()->with('success', "Reemplazo asignado: {$replacement->nombres} reemplaza a {$original->nombres}.");
     }
 
-    public function undoReplacement(Request $request, ReemplazoBombero $replacement)
+    public function undoReplacement(Request $request, $tenant, $replacement)
     {
+        // $tenant es inyectado automáticamente por Route::domain('{tenant}...')
+        $replacement = ReemplazoBombero::findOrFail($replacement);
+        
         $user = auth()->user();
 
         if (!in_array($user->role, ['super_admin', 'capitania', 'guardia'], true)) {
@@ -739,8 +743,11 @@ class AdministradorController extends Controller
         return redirect()->back()->with('success', 'Reemplazo deshecho correctamente.');
     }
 
-    public function cleanupReplacements(Request $request, Guardia $guardia)
+    public function cleanupReplacements(Request $request, $tenant, $guardia)
     {
+        // $tenant es inyectado automáticamente por Route::domain('{tenant}...')
+        $guardia = Guardia::findOrFail($guardia);
+        
         $user = auth()->user();
 
         if (!in_array($user->role, ['super_admin', 'capitania', 'guardia'], true)) {

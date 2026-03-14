@@ -27,8 +27,11 @@ class GuardiaArchiveController extends Controller
         }
     }
 
-    public function index(Request $request, Guardia $guardia)
+    public function index(Request $request, $tenant, $guardia)
     {
+        // $tenant es inyectado automáticamente por Route::domain('{tenant}...')
+        $guardia = Guardia::findOrFail($guardia);
+        
         $this->authorizeGuardiaAccess($guardia);
 
         $archives = GuardiaArchive::query()
@@ -39,8 +42,12 @@ class GuardiaArchiveController extends Controller
         return view('admin.guardias.history.index', compact('guardia', 'archives'));
     }
 
-    public function show(Request $request, Guardia $guardia, GuardiaArchive $archive)
+    public function show(Request $request, $tenant, $guardia, $archive)
     {
+        // $tenant es inyectado automáticamente por Route::domain('{tenant}...')
+        $guardia = Guardia::findOrFail($guardia);
+        $archive = GuardiaArchive::findOrFail($archive);
+        
         $this->authorizeGuardiaAccess($guardia);
 
         if ((int) $archive->guardia_id !== (int) $guardia->id) {
