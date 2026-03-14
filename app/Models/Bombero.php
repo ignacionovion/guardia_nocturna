@@ -68,4 +68,23 @@ class Bombero extends Model
     {
         return $this->hasOne(MapaBomberoUsuarioLegacy::class, 'firefighter_id');
     }
+    
+    public function getServiceLabelAttribute()
+    {
+        if (!$this->fecha_ingreso) {
+            return '—';
+        }
+        
+        $diff = now()->diff($this->fecha_ingreso);
+        
+        if ($diff->y > 0) {
+            return $diff->y . ' ' . ($diff->y == 1 ? 'año' : 'años');
+        }
+        
+        if ($diff->m > 0) {
+            return $diff->m . ' ' . ($diff->m == 1 ? 'mes' : 'meses');
+        }
+        
+        return 'Nuevo';
+    }
 }

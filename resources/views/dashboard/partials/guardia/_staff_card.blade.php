@@ -52,81 +52,95 @@
      data-requires-confirmation="{{ $requiresConfirmation ? '1' : '0' }}" 
      data-is-confirmed="0">
     
-    {{-- Header: Apellido + Inhabilitar --}}
-    <div class="flex items-center justify-between px-2 py-1.5 bg-slate-800/60 border-b border-slate-700/50">
-        <a href="{{ route('admin.volunteers.show', $staff->id) }}" class="text-[11px] font-bold text-white uppercase truncate hover:text-blue-400 transition-colors">
+    {{-- Header compacto: Apellido + Inhabilitar --}}
+    <div class="flex items-center justify-between px-2 py-1 bg-slate-800/60 border-b border-slate-700/50">
+        <a href="{{ route('admin.volunteers.show', $staff->id) }}" class="text-[10px] font-bold text-white uppercase truncate hover:text-blue-400 transition-colors">
             {{ strtoupper($staff->apellido_paterno ?: $staff->nombres) }}
         </a>
         @if($canInhabilitar)
-            <button type="button" onclick="toggleInhabilitado('{{ $staff->id }}')" class="text-[8px] font-semibold uppercase px-1.5 py-0.5 rounded bg-slate-700 hover:bg-slate-600 text-slate-400 hover:text-white transition-colors">
+            <button type="button" onclick="toggleInhabilitado('{{ $staff->id }}')" class="text-[8px] font-semibold uppercase px-1 py-0.5 rounded bg-slate-700 hover:bg-slate-600 text-slate-400 hover:text-white transition-colors">
                 Inhabilitar
             </button>
         @endif
     </div>
 
-    {{-- Bloque de imagen prominente con overlay --}}
-    <a href="{{ route('admin.volunteers.show', $staff->id) }}" class="relative block w-full aspect-[4/3] bg-slate-800 overflow-hidden group/foto">
+    {{-- Bloque de imagen grande con información overlay --}}
+    <a href="{{ route('admin.volunteers.show', $staff->id) }}" class="relative block w-full h-48 bg-slate-800 overflow-hidden group/foto">
         @if($staff->photo_path)
-            <img src="{{ route('media', $staff->photo_path) }}" class="w-full h-full object-cover object-top group-hover/foto:scale-105 transition-transform duration-300" alt="Foto">
+            <img src="{{ route('media', $staff->photo_path) }}" class="w-full h-full object-cover object-center group-hover/foto:scale-105 transition-transform duration-300" alt="Foto">
         @else
             <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-700 to-slate-800">
-                <span class="text-2xl font-bold text-slate-500">{{ strtoupper(substr($staff->nombres, 0, 1) . substr($staff->apellido_paterno, 0, 1)) }}</span>
+                <span class="text-4xl font-bold text-slate-500">{{ strtoupper(substr($staff->nombres, 0, 1) . substr($staff->apellido_paterno, 0, 1)) }}</span>
             </div>
         @endif
         
-        {{-- Badges esquina superior derecha --}}
-        <div class="absolute top-1 right-1 flex flex-col gap-0.5">
+        {{-- Gradient overlay inferior para legibilidad --}}
+        <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-900 via-slate-900/90 to-transparent pointer-events-none"></div>
+        
+        {{-- Información del bombero sobre la imagen --}}
+        <div class="absolute inset-x-0 bottom-0 px-2 py-2">
+            <div class="text-sm font-bold text-white leading-tight truncate drop-shadow-lg">
+                {{ $staff->nombres }} {{ $staff->apellido_paterno }}
+            </div>
+            <div class="text-[11px] text-white/90 truncate mt-0.5">
+                {{ $staff->cargo_texto ?: ($staff->es_jefe_guardia ? 'Jefe de Guardia' : 'Bombero') }}
+            </div>
+            <div class="flex items-center gap-2 mt-1">
+                <div class="flex items-center gap-1 text-[10px] text-white/80">
+                    <i class="fas fa-calendar-alt text-[8px]"></i>
+                    <span>{{ $serviceLabel }}</span>
+                </div>
+                @if($staff->numero_portatil)
+                    <div class="flex items-center gap-1 text-[10px] text-white/80">
+                        <i class="fas fa-radio text-[8px]"></i>
+                        <span>{{ $staff->numero_portatil }}</span>
+                    </div>
+                @endif
+            </div>
+        </div>
+        
+        {{-- Badges especiales esquina superior derecha --}}
+        <div class="absolute top-1.5 right-1.5 flex flex-col gap-1">
+            @if($staff->es_jefe_guardia)
+                <span class="w-5 h-5 rounded bg-amber-500/90 flex items-center justify-center shadow" title="Jefe de Guardia">
+                    <i class="fas fa-star text-[8px] text-white"></i>
+                </span>
+            @endif
             @if($staff->es_conductor)
-                <span class="w-4 h-4 rounded bg-sky-500/90 flex items-center justify-center shadow" title="Conductor">
-                    <i class="fas fa-car text-[7px] text-white"></i>
+                <span class="w-5 h-5 rounded bg-sky-500/90 flex items-center justify-center shadow" title="Conductor">
+                    <i class="fas fa-car text-[8px] text-white"></i>
                 </span>
             @endif
             @if($staff->es_operador_rescate)
-                <span class="w-4 h-4 rounded bg-amber-500/90 flex items-center justify-center shadow" title="Rescate">
-                    <span class="text-[7px] font-bold text-white">R</span>
+                <span class="w-5 h-5 rounded bg-orange-500/90 flex items-center justify-center shadow" title="Rescate">
+                    <span class="text-[8px] font-bold text-white">R</span>
                 </span>
             @endif
             @if($staff->es_asistente_trauma)
-                <span class="w-4 h-4 rounded bg-rose-500/90 flex items-center justify-center shadow" title="Trauma">
-                    <span class="text-[6px] font-bold text-white">AT</span>
+                <span class="w-5 h-5 rounded bg-rose-500/90 flex items-center justify-center shadow" title="Trauma">
+                    <span class="text-[7px] font-bold text-white">AT</span>
                 </span>
             @endif
         </div>
         
         {{-- Badge cama esquina superior izquierda --}}
         @if($bedNum !== null)
-            <div class="absolute top-1 left-1 flex items-center gap-0.5 bg-slate-900/80 backdrop-blur-sm rounded px-1 py-0.5">
-                <i class="fas fa-bed text-[7px] text-slate-400"></i>
-                <span class="text-[8px] font-bold text-white">#{{ $bedNum }}</span>
+            <div class="absolute top-1.5 left-1.5 flex items-center gap-1 bg-slate-900/80 backdrop-blur-sm rounded px-1.5 py-0.5 shadow">
+                <i class="fas fa-bed text-[8px] text-slate-400"></i>
+                <span class="text-[9px] font-bold text-white">#{{ $bedNum }}</span>
             </div>
         @endif
         
-        {{-- Indicador jefe de guardia --}}
-        @if($staff->es_jefe_guardia)
-            <div class="absolute top-1 left-1 {{ $bedNum !== null ? 'top-5' : '' }}">
-                <span class="w-4 h-4 rounded bg-amber-500/90 flex items-center justify-center shadow" title="Jefe de Guardia">
-                    <i class="fas fa-star text-[7px] text-white"></i>
-                </span>
+        {{-- Badge refuerzo si corresponde --}}
+        @if($staff->es_refuerzo)
+            <div class="absolute top-1.5 left-1.5 {{ $bedNum !== null ? 'top-7' : '' }}">
+                <span class="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded bg-sky-500/90 text-white shadow">REFUERZO</span>
             </div>
         @endif
     </a>
 
-    {{-- Info del bombero debajo de la imagen --}}
-    <div class="px-2 py-1.5 border-b border-slate-800">
-        <div class="text-[11px] font-semibold text-white leading-tight truncate">
-            {{ $staff->nombres }} {{ $staff->apellido_paterno }}
-        </div>
-        <div class="flex items-center gap-1 mt-0.5">
-            <span class="text-[9px] text-slate-400 truncate">{{ $staff->cargo_texto ?: 'Bombero' }}</span>
-            @if($staff->es_refuerzo)
-                <span class="text-[7px] font-bold uppercase px-1 rounded bg-sky-500/20 text-sky-400">REF</span>
-            @endif
-        </div>
-        <div class="text-[9px] text-slate-500 mt-0.5">{{ $serviceLabel }}</div>
-    </div>
-
-    {{-- Cuerpo compacto --}}
-    <div class="p-1.5 space-y-1.5">
+    {{-- Cuerpo de la tarjeta --}}
+    <div class="p-2 space-y-1.5">
         {{-- Info de reemplazo compacta --}}
         @if($repAsReplacement)
             <div class="rounded border border-purple-500/30 bg-purple-500/10 px-1.5 py-1">

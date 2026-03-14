@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class ReemplazoBombero extends Model
 {
     protected $table = 'reemplazos_bomberos';
+    
+    public function getRouteKeyName()
+    {
+        return 'id';
+    }
 
     protected $fillable = [
         'guardia_id',
