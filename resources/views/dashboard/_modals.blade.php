@@ -622,7 +622,8 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            window.__draftEditable = false;
+            // NOTA: window.__draftEditable ya está definido desde backend Laravel en _guardia.blade.php
+            // NO inicializar aquí para no sobrescribir el valor correcto del backend
 
             const csrf = () => (document.querySelector('meta[name="csrf-token"]')?.content || '');
 
@@ -650,7 +651,9 @@
                     const data = await res.json().catch(() => null);
                     if (!data || !data.ok) return;
 
-                    window.__draftEditable = !!data.editable;
+                    // NOTA: NO sobrescribir window.__draftEditable aquí
+                    // El valor correcto ya viene desde backend Laravel en _guardia.blade.php
+                    // Este fetch solo debe cargar los items del draft, no recalcular editable
 
                     const items = Array.isArray(data.items) ? data.items : [];
 

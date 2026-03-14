@@ -147,6 +147,9 @@ use App\Models\SystemSetting;
         </div>
     </div>
     <script>
+        // INYECTAR VALOR DESDE BACKEND - ÚNICA FUENTE DE VERDAD
+        window.__draftEditable = @json($draftEditable);
+        
         setTimeout(() => {
             const elem = document.getElementById('debug-js-editable');
             if (elem) {
