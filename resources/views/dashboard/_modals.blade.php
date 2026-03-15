@@ -28,7 +28,7 @@
                         <option value="Urgente" {{ old('type') == 'Urgente' ? 'selected' : '' }}>Urgente</option>
                         <option value="Permanente" {{ old('type') == 'Permanente' ? 'selected' : '' }}>Permanente (Todas las Guardias)</option>
                     </select>
-                    <div class="mt-1 text-[10px] text-slate-500 dark:text-slate-400">
+                    <div class="mt-1 text-sm text-slate-500 dark:text-slate-400">
                         <i class="fas fa-info-circle mr-1"></i> Las novedades "Permanentes" son visibles para todas las guardias. Solo admin/capitán pueden eliminarlas.
                     </div>
                     @error('type')
@@ -61,7 +61,7 @@
             <div class="w-full rounded-3xl border border-slate-800 bg-slate-900 shadow-2xl overflow-hidden my-4">
                 <div class="sticky top-0 z-10 px-4 py-4 sm:px-6 bg-slate-900/95 backdrop-blur border-b border-slate-800 flex items-center justify-between gap-4">
                     <div>
-                        <div class="text-[10px] font-bold text-emerald-300 uppercase tracking-[0.25em]">Calendario anual</div>
+                        <div class="text-xs font-bold text-emerald-300 uppercase tracking-[0.25em]">Calendario anual</div>
                         <div class="text-lg sm:text-2xl font-bold text-slate-100">Guardias {{ now()->year }}</div>
                     </div>
                     <button type="button" onclick="closeCalendarPopup()" class="w-10 h-10 rounded-2xl border border-slate-700 bg-slate-950 text-slate-300 hover:bg-slate-800 hover:text-white transition-colors flex items-center justify-center">
@@ -95,7 +95,7 @@
                             @php $legendColor = $yearGuardiaColors[$legendGuardia->id] ?? $yearGuardiaPalette[0]; @endphp
                             <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-700 bg-slate-950">
                                 <span class="w-2.5 h-2.5 rounded-full {{ $legendColor['dot'] }}"></span>
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-200">{{ $legendGuardia->name }}</span>
+                                <span class="text-xs font-bold uppercase tracking-wider text-slate-200">{{ $legendGuardia->name }}</span>
                             </div>
                         @endforeach
                     </div>
@@ -225,7 +225,7 @@
 
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">Voluntario</label>
+                            <label class="block text-sm font-bold text-slate-400 uppercase tracking-wide mb-2">Voluntario</label>
                             <!-- Custom Professional Dropdown -->
                             <div class="relative" id="refuerzo-select-container">
                                 <input type="hidden" name="firefighter_id" id="refuerzo_firefighter_id" required>
@@ -243,7 +243,7 @@
                                 <div id="refuerzo-dropdown" class="hidden absolute top-full left-0 right-0 mt-1 bg-slate-900 border border-slate-700 rounded-lg shadow-xl z-50 max-h-64 overflow-y-auto">
                                     <div class="p-2 sticky top-0 bg-slate-900 border-b border-slate-800">
                                         <input type="text" id="refuerzo-filter-input" 
-                                            class="w-full text-xs bg-slate-800 border-slate-700 rounded px-2 py-1.5 text-slate-200 placeholder:text-slate-500 dark:text-slate-400 focus:outline-none focus:border-sky-500"
+                                            class="w-full text-sm bg-slate-800 border-slate-700 rounded px-2 py-1.5 text-slate-200 placeholder:text-slate-500 dark:text-slate-400 focus:outline-none focus:border-sky-500"
                                             placeholder="Filtrar por nombre o RUT...">
                                     </div>
                                     <div id="refuerzo-options-list" class="py-1">
@@ -265,7 +265,7 @@
                                             </div>
                                         @endforeach
                                     </div>
-                                    <div id="refuerzo-no-results" class="hidden px-3 py-4 text-center text-xs text-slate-500 dark:text-slate-400">
+                                    <div id="refuerzo-no-results" class="hidden px-3 py-4 text-center text-sm text-slate-400">
                                         No se encontraron resultados
                                     </div>
                                 </div>
@@ -302,28 +302,6 @@
             </button>
         </div>
     </div>
-
-    {{-- DEBUG TEMPORAL - Panel flotante de diagnóstico visible --}}
-    <div id="debug-action-panel" class="fixed bottom-0 left-0 right-0 z-[100] bg-slate-950 border-t-2 border-yellow-500 max-h-40 overflow-y-auto text-xs font-mono" style="pointer-events:auto;">
-        <div class="flex items-center justify-between px-3 py-1 bg-yellow-600 text-black font-bold">
-            <span>🔍 DEBUG ACCIONES EN VIVO</span>
-            <button onclick="document.getElementById('debug-action-panel').classList.toggle('hidden')" class="text-black font-bold px-2">✕</button>
-        </div>
-        <div id="debug-action-log" class="p-2 space-y-0.5 text-yellow-200"></div>
-    </div>
-    <script>
-        window.__debugLog = function(msg, color) {
-            const log = document.getElementById('debug-action-log');
-            if (!log) return;
-            const line = document.createElement('div');
-            line.style.color = color || '#fde68a';
-            const ts = new Date().toLocaleTimeString('es-CL');
-            line.textContent = '[' + ts + '] ' + msg;
-            log.prepend(line);
-            // Keep only last 20 entries
-            while (log.children.length > 20) log.removeChild(log.lastChild);
-        };
-    </script>
 
     <script>
         window.closeConfirmErrorToast = function() {
@@ -1463,11 +1441,31 @@
             modal.classList.add('hidden');
         }
 
-        window.openAseoModal = function() {
+        window.openAseoModal = async function() {
             const modal = document.getElementById('aseoModal');
-            if (!modal) return;
+            const content = document.getElementById('aseoModalContent');
+            if (!modal || !content) return;
+            
             modal.classList.remove('hidden');
             modal.classList.add('flex');
+            
+            try {
+                const response = await fetch('{{ route('guardia.aseo.modal') }}', {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                if (response.ok) {
+                    const html = await response.text();
+                    content.innerHTML = html;
+                } else {
+                    content.innerHTML = '<div class="p-6 text-center text-slate-400">Error al cargar el contenido</div>';
+                }
+            } catch (error) {
+                console.error('Error loading aseo modal:', error);
+                content.innerHTML = '<div class="p-6 text-center text-slate-400">Error de conexión</div>';
+            }
         }
 
         window.closeAseoModal = function() {
@@ -1477,11 +1475,31 @@
             modal.classList.remove('flex');
         }
 
-        window.openEmergenciasModal = function() {
+        window.openEmergenciasModal = async function() {
             const modal = document.getElementById('emergenciasModal');
-            if (!modal) return;
+            const content = document.getElementById('emergenciasModalContent');
+            if (!modal || !content) return;
+            
             modal.classList.remove('hidden');
             modal.classList.add('flex');
+            
+            try {
+                const response = await fetch('{{ route('admin.emergencies.modal') }}', {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                if (response.ok) {
+                    const html = await response.text();
+                    content.innerHTML = html;
+                } else {
+                    content.innerHTML = '<div class="p-6 text-center text-slate-400">Error al cargar el contenido</div>';
+                }
+            } catch (error) {
+                console.error('Error loading emergencias modal:', error);
+                content.innerHTML = '<div class="p-6 text-center text-slate-400">Error de conexión</div>';
+            }
         }
 
         window.closeEmergenciasModal = function() {
@@ -1789,8 +1807,10 @@
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
-            <div class="flex-1 overflow-hidden">
-                <iframe src="{{ route('guardia.aseo') }}" class="w-full h-full border-0"></iframe>
+            <div id="aseoModalContent" class="flex-1 overflow-y-auto">
+                <div class="flex items-center justify-center py-12">
+                    <i class="fas fa-spinner fa-spin text-slate-400 text-2xl"></i>
+                </div>
             </div>
         </div>
     </div>
@@ -1808,8 +1828,10 @@
                         <i class="fas fa-times text-xl"></i>
                     </button>
                 </div>
-                <div class="flex-1 overflow-hidden">
-                    <iframe src="{{ route('admin.emergencies.index') }}" class="w-full h-full border-0"></iframe>
+                <div id="emergenciasModalContent" class="flex-1 overflow-y-auto">
+                    <div class="flex items-center justify-center py-12">
+                        <i class="fas fa-spinner fa-spin text-slate-400 text-2xl"></i>
+                    </div>
                 </div>
             </div>
         </div>

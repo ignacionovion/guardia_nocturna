@@ -159,23 +159,42 @@ class EmergencyController extends Controller
 
     public function index(Request $request)
     {
-        $query = Emergency::with(['key', 'units', 'guardia', 'officerInCharge', 'officerInChargeFirefighter'])
-            ->orderByDesc('dispatched_at');
+        $search = $request->input('search');
 
-        if ($request->filled('search')) {
-            $search = $request->string('search')->toString();
-            $query->where(function ($q) use ($search) {
-                $q->whereHas('key', function ($k) use ($search) {
-                    $k->where('code', 'like', "%{$search}%")
-                        ->orWhere('description', 'like', "%{$search}%");
-                })
-                ->orWhere('details', 'like', "%{$search}%");
-            });
-        }
-
-        $emergencies = $query->paginate(20);
+        $emergencies = Emergency::with(['key', 'units', 'guardia'])
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->whereHas('key', function ($keyQuery) use ($search) {
+                        $keyQuery->where('code', 'like', "%{$search}%")
+                            ->orWhere('description', 'like', "%{$search}%");
+                    })
+                    ->orWhere('call_details', 'like', "%{$search}%");
+                });
+            })
+            ->latest()
+            ->paginate(20);
 
         return view('admin.emergencies.index', compact('emergencies'));
+    }
+
+    public function modalContent(Request $request)
+    {
+        $search = $request->input('search');
+
+        $emergencies = Emergency::with(['key', 'units', 'guardia'])
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->whereHas('key', function ($keyQuery) use ($search) {
+                        $keyQuery->where('code', 'like', "%{$search}%")
+                            ->orWhere('description', 'like', "%{$search}%");
+                    })
+                    ->orWhere('call_details', 'like', "%{$search}%");
+                });
+            })
+            ->latest()
+            ->paginate(15);
+
+        return view('admin.emergencies._modal_content', compact('emergencies'));
     }
 
     public function show(string $id)

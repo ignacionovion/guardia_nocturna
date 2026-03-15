@@ -164,6 +164,7 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
     Route::get('/guardia/snapshot', [TableroController::class, 'guardiaSnapshot'])->name('guardia.snapshot');
 
     Route::get('/aseo', [CleaningWebController::class, 'index'])->name('guardia.aseo');
+    Route::get('/aseo/modal', [CleaningWebController::class, 'modalContent'])->name('guardia.aseo.modal');
     Route::post('/aseo', [CleaningWebController::class, 'store'])->name('guardia.aseo.store');
 
     // Draft persistente de Turno (Dashboard) - ventana 22:00-07:00
@@ -266,6 +267,7 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
 
     // Emergencias (Guardia + Super Admin)
     Route::middleware(['feature:emergencias', 'emergency_access'])->group(function () {
+        Route::get('admin/emergencies/modal', [App\Http\Controllers\Admin\EmergencyController::class, 'modalContent'])->name('admin.emergencies.modal');
         Route::resource('admin/emergencies', App\Http\Controllers\Admin\EmergencyController::class, ['as' => 'admin']);
     });
 

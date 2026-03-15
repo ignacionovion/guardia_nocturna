@@ -88,6 +88,58 @@ class CleaningWebController extends Controller
         return view('aseo', compact('date', 'tasks', 'users', 'assignmentsByTaskId'));
     }
 
+    public function modalContent(Request $request)
+    {
+        $user = auth()->user();
+        if (!$user || $user->role !== 'guardia') {
+            abort(403, 'No autorizado.');
+        }
+
+        $guardiaId = $this->resolveGuardiaIdForGuardiaUser($user);
+        if (!$guardiaId) {
+            abort(403, 'Cuenta de guardia sin guardia asignada.');
+        }
+
+        $date = $request->query('date')
+            ? Carbon::parse($request->query('date'))->startOfDay()
+            : now()->startOfDay();
+
+        $desiredTasks = [
+            ['name' => 'Aseo Pieza N°1', 'description' => null],
+            ['name' => 'Aseo Pieza N°2', 'description' => null],
+            ['name' => 'Aseo Pieza N°3', 'description' => null],
+            ['name' => 'Aseo Pieza N°4', 'description' => null],
+            ['name' => 'Aseo Pieza N°5', 'description' => null],
+            ['name' => 'Aseo Sector Duchas', 'description' => null],
+            ['name' => 'Aseo Sector Baños', 'description' => null],
+            ['name' => 'Aseo Sala de Estar', 'description' => null],
+            ['name' => 'Aseo Cocina Y Quincho', 'description' => null],
+        ];
+
+        foreach ($desiredTasks as $task) {
+            CleaningTask::firstOrCreate(['name' => $task['name']], ['description' => $task['description']]);
+        }
+
+        $tasks = CleaningTask::whereIn('name', array_map(fn ($t) => $t['name'], $desiredTasks))
+            ->orderByRaw('FIELD(name, ' . implode(',', array_fill(0, count($desiredTasks), '?')) . ')', array_map(fn ($t) => $t['name'], $desiredTasks))
+            ->get();
+
+        $users = Bombero::where('guardia_id', $guardiaId)
+            ->where('estado_asistencia', 'constituye')
+            ->orderBy('apellido_paterno')
+            ->orderBy('nombres')
+            ->get();
+
+        $assignments = CleaningAssignment::with(['cleaningTask', 'firefighter', 'user'])
+            ->whereDate('assigned_date', $date->toDateString())
+            ->whereIn('cleaning_task_id', $tasks->pluck('id'))
+            ->get();
+
+        $assignmentsByTaskId = $assignments->keyBy('cleaning_task_id');
+
+        return view('aseo._modal_content', compact('date', 'tasks', 'users', 'assignmentsByTaskId'));
+    }
+
     public function store(Request $request)
     {
         $user = auth()->user();
