@@ -392,7 +392,7 @@
             if (!isAttendanceWindowOpen()) {
                 if (badge) {
                     badge.classList.remove('border-emerald-200', 'bg-emerald-50', 'text-emerald-700', 'border-amber-200', 'bg-amber-50', 'text-amber-800');
-                    badge.classList.add('border-slate-300 dark:border-slate-600', 'bg-slate-100 dark:bg-slate-800', 'text-slate-500 dark:text-slate-400');
+                    badge.classList.add('border-slate-300', 'dark:border-slate-600', 'bg-slate-100', 'dark:bg-slate-800', 'text-slate-500', 'dark:text-slate-400');
                     badge.textContent = 'FUERA DE HORARIO DE REGISTRO';
                 }
                 // No mostrar el banner modal fuera de horario
@@ -465,7 +465,7 @@
                     if (submitBtn) {
                         submitBtn.setAttribute('disabled', 'disabled');
                         submitBtn.classList.remove('bg-slate-800','hover:bg-slate-700','text-slate-100','border-slate-700');
-                        submitBtn.classList.add('bg-slate-200','text-slate-500 dark:text-slate-400','border-slate-300 dark:border-slate-600','cursor-not-allowed');
+                        submitBtn.classList.add('bg-slate-200','text-slate-500','dark:text-slate-400','border-slate-300','dark:border-slate-600','cursor-not-allowed');
                     }
                 }, 0);
             };
@@ -1026,20 +1026,36 @@
                 return;
             }
 
-            // 1. Actualizar valor del input (estado interno)
-            console.log('[DEBUG setGuardiaStatus] Setting input.value =', status);
-            input.value = status;
-            
-            // 2. Limpiar confirmación si existía (cambio de estado invalida confirmación previa)
-            clearConfirmation(userId);
-            
-            // 3. Actualizar UI inmediatamente
-            updateGuardiaCardUI(userId, status);
-            console.log('[DEBUG setGuardiaStatus] UI updated immediately');
-            if (typeof __debugLog === 'function') __debugLog('SET STATUS: UI actualizado OK → ' + status, '#34d399');
+            // Actualizar UI con manejo de errores de render separado
+            try {
+                // 1. Actualizar valor del input (estado interno)
+                console.log('[DEBUG setGuardiaStatus] Step 1: Setting input.value =', status);
+                input.value = status;
+                
+                // 2. Limpiar confirmación si existía (cambio de estado invalida confirmación previa)
+                console.log('[DEBUG setGuardiaStatus] Step 2: Clearing confirmation');
+                clearConfirmation(userId);
+                
+                // 3. Actualizar UI inmediatamente
+                console.log('[DEBUG setGuardiaStatus] Step 3: Updating card UI');
+                updateGuardiaCardUI(userId, status);
+                
+                console.log('[DEBUG setGuardiaStatus] UI updated successfully');
+                if (typeof __debugLog === 'function') __debugLog('SET STATUS: UI actualizado OK → ' + status, '#34d399');
+                
+            } catch (uiError) {
+                // Error de render/UI - NO es error de red
+                console.error('[DEBUG setGuardiaStatus] UI RENDER ERROR (status change is still valid):', uiError);
+                if (typeof __debugLog === 'function') __debugLog('UI ERROR: ' + uiError.message + ' (cambio válido)', '#f59e0b');
+                // No mostrar modal de error - el cambio fue exitoso
+            }
             
             // 4. Marcar como sucio para deshabilitar polling
-            markAttendanceDirty();
+            try {
+                markAttendanceDirty();
+            } catch (dirtyError) {
+                console.error('[DEBUG setGuardiaStatus] markAttendanceDirty error:', dirtyError);
+            }
 
             // 5. Persistir en backend (sin bloquear UI)
             if (typeof window.__persistDraftItemStatus === 'function') {
@@ -1082,7 +1098,7 @@
             if (!isAttendanceWindowOpen()) {
                 submitBtn.setAttribute('disabled', 'disabled');
                 submitBtn.classList.remove('bg-slate-800','hover:bg-slate-700','text-slate-100','border-slate-700');
-                submitBtn.classList.add('bg-slate-200','text-slate-500 dark:text-slate-400','border-slate-300 dark:border-slate-600','cursor-not-allowed');
+                submitBtn.classList.add('bg-slate-200','text-slate-500','dark:text-slate-400','border-slate-300','dark:border-slate-600','cursor-not-allowed');
                 return;
             }
 
@@ -1096,19 +1112,19 @@
             if (window.__attendanceSavedToday && !window.__attendanceDirty && !hasUnconfirmed) {
                 submitBtn.setAttribute('disabled', 'disabled');
                 submitBtn.classList.remove('bg-slate-800','hover:bg-slate-700','text-slate-100','border-slate-700');
-                submitBtn.classList.add('bg-slate-200','text-slate-500 dark:text-slate-400','border-slate-300 dark:border-slate-600','cursor-not-allowed');
+                submitBtn.classList.add('bg-slate-200','text-slate-500','dark:text-slate-400','border-slate-300','dark:border-slate-600','cursor-not-allowed');
                 return;
             }
 
             // Si todos los que requieren confirmación están confirmados, habilitar
             if (!hasUnconfirmed) {
                 submitBtn.removeAttribute('disabled');
-                submitBtn.classList.remove('bg-slate-200','text-slate-500 dark:text-slate-400','border-slate-300 dark:border-slate-600','cursor-not-allowed');
+                submitBtn.classList.remove('bg-slate-200','text-slate-500','dark:text-slate-400','border-slate-300','dark:border-slate-600','cursor-not-allowed');
                 submitBtn.classList.add('bg-slate-800','hover:bg-slate-700','text-slate-100','border-slate-700');
             } else {
                 submitBtn.setAttribute('disabled', 'disabled');
                 submitBtn.classList.remove('bg-slate-800','hover:bg-slate-700','text-slate-100','border-slate-700');
-                submitBtn.classList.add('bg-slate-200','text-slate-500 dark:text-slate-400','border-slate-300 dark:border-slate-600','cursor-not-allowed');
+                submitBtn.classList.add('bg-slate-200','text-slate-500','dark:text-slate-400','border-slate-300','dark:border-slate-600','cursor-not-allowed');
             }
         }
 
@@ -1278,20 +1294,35 @@
                 console.log('[DEBUG confirmBombero] SUCCESS - updating UI');
                 if (typeof __debugLog === 'function') __debugLog('CONFIRM SUCCESS: bomberoId=' + bomberoId + ' token recibido', '#34d399');
                 
-                // 1. Guardar token
-                if (tokenEl) tokenEl.value = data.token || '';
-                
-                // 2. Marcar como confirmado visualmente
-                setConfirmState(bomberoId, true);
-                
-                // 3. Limpiar input de código
-                if (codeEl) codeEl.value = '';
-                
-                // 4. Actualizar mensaje de éxito
-                if (msgEl) {
-                    msgEl.textContent = 'CONFIRMADO ✓';
-                    msgEl.classList.remove('text-slate-400', 'text-rose-200');
-                    msgEl.classList.add('text-emerald-200');
+                // Actualizar UI con manejo de errores de render separado
+                try {
+                    // 1. Guardar token
+                    console.log('[DEBUG confirmBombero] Step 1: Saving token');
+                    if (tokenEl) tokenEl.value = data.token || '';
+                    
+                    // 2. Marcar como confirmado visualmente
+                    console.log('[DEBUG confirmBombero] Step 2: Calling setConfirmState');
+                    setConfirmState(bomberoId, true);
+                    
+                    // 3. Limpiar input de código
+                    console.log('[DEBUG confirmBombero] Step 3: Clearing code input');
+                    if (codeEl) codeEl.value = '';
+                    
+                    // 4. Actualizar mensaje de éxito
+                    console.log('[DEBUG confirmBombero] Step 4: Updating success message');
+                    if (msgEl) {
+                        msgEl.textContent = 'CONFIRMADO ✓';
+                        msgEl.classList.remove('text-slate-400', 'text-rose-200');
+                        msgEl.classList.add('text-emerald-200');
+                    }
+                    
+                    console.log('[DEBUG confirmBombero] UI update completed successfully');
+                    
+                } catch (uiError) {
+                    // Error de render/UI - NO es error de red
+                    console.error('[DEBUG confirmBombero] UI RENDER ERROR (confirmation is still valid):', uiError);
+                    if (typeof __debugLog === 'function') __debugLog('UI ERROR: ' + uiError.message + ' (confirmación válida)', '#f59e0b');
+                    // No mostrar modal de error - la confirmación fue exitosa
                 }
                 
                 // 5. Persistir en draft (sin bloquear UI si falla)
@@ -1303,7 +1334,12 @@
                 }
                 
                 // 6. Actualizar botón de guardar asistencia
-                refreshAttendanceSubmitButton();
+                try {
+                    console.log('[DEBUG confirmBombero] Step 5: Refreshing submit button');
+                    refreshAttendanceSubmitButton();
+                } catch (btnError) {
+                    console.error('[DEBUG confirmBombero] Submit button refresh error:', btnError);
+                }
                 
             } catch (e) {
                 console.error('[DEBUG confirmBombero] Network/Exception error', e);
