@@ -5,7 +5,7 @@
         <p class="text-sm text-slate-400 mt-1">Registra una emergencia ocurrida durante la guardia</p>
     </div>
 
-    <form id="emergency-create-form" method="POST" action="{{ route('admin.emergencies.store') }}">
+    <form id="emergency-create-form" method="POST" data-action-url="{{ route('admin.emergencies.store') }}">
         @csrf
         
         <div class="space-y-4 max-h-[55vh] overflow-y-auto pr-2">
@@ -80,47 +80,3 @@
         </div>
     </form>
 </div>
-
-<script>
-    // Handle form submission via AJAX
-    document.getElementById('emergency-create-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        const submitBtn = this.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-        
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
-        
-        fetch(this.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                closeEmergenciasModal();
-                if (typeof showSuccessToast === 'function') {
-                    showSuccessToast('Emergencia Guardada', 'La emergencia se registró correctamente');
-                }
-                // Reload emergency list
-                setTimeout(() => openEmergenciasModal(), 500);
-            } else {
-                alert(data.message || 'Error al guardar');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalText;
-            }
-        })
-        .catch(error => {
-            console.error('Error saving emergency:', error);
-            alert('Error de conexión al guardar');
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalText;
-        });
-    });
-</script>

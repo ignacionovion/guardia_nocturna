@@ -417,6 +417,10 @@
             form.setAttribute('data-bound', '1');
 
             const markSubmitting = function() {
+                console.log('[DEBUG] Attendance form submitting');
+                console.log('[DEBUG] Form action:', form.action);
+                console.log('[DEBUG] Form method:', form.method);
+                
                 window.__attendanceSubmitting = true;
                 window.__attendanceDirty = false;
                 window.__attendanceIsStale = false;
@@ -1474,6 +1478,127 @@
             modal.classList.add('hidden');
             modal.classList.remove('flex');
         }
+
+        // Global handler for aseo form submission
+        document.addEventListener('submit', async function(e) {
+            const form = e.target;
+            if (!form || form.id !== 'aseo-form') return;
+            
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            
+            const actionUrl = form.getAttribute('data-action-url');
+            if (!actionUrl) {
+                console.error('No action URL found on aseo form');
+                return;
+            }
+            
+            const formData = new FormData(form);
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn ? submitBtn.innerHTML : '';
+            
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+            }
+            
+            try {
+                const response = await fetch(actionUrl, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    closeAseoModal();
+                    if (typeof showSuccessToast === 'function') {
+                        showSuccessToast('Aseo Guardado', 'Las asignaciones se guardaron correctamente');
+                    }
+                } else {
+                    alert(data.message || 'Error al guardar');
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    }
+                }
+            } catch (error) {
+                console.error('Error saving aseo:', error);
+                alert('Error de conexión al guardar');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                }
+            }
+            
+            return false;
+        }, true);
+
+        // Global handler for emergency form submission
+        document.addEventListener('submit', async function(e) {
+            const form = e.target;
+            if (!form || form.id !== 'emergency-create-form') return;
+            
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            
+            const actionUrl = form.getAttribute('data-action-url');
+            if (!actionUrl) {
+                console.error('No action URL found on emergency form');
+                return;
+            }
+            
+            const formData = new FormData(form);
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn ? submitBtn.innerHTML : '';
+            
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+            }
+            
+            try {
+                const response = await fetch(actionUrl, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    if (typeof showSuccessToast === 'function') {
+                        showSuccessToast('Emergencia Guardada', 'La emergencia se registró correctamente');
+                    }
+                    // Reload emergency list after short delay
+                    setTimeout(() => openEmergenciasModal(), 500);
+                } else {
+                    alert(data.message || 'Error al guardar');
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    }
+                }
+            } catch (error) {
+                console.error('Error saving emergency:', error);
+                alert('Error de conexión al guardar');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                }
+            }
+            
+            return false;
+        }, true);
 
         window.openEmergenciasModal = async function() {
             const modal = document.getElementById('emergenciasModal');
