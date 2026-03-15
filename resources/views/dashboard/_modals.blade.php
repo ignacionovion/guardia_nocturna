@@ -1450,7 +1450,7 @@
             modal.classList.add('flex');
             
             try {
-                const response = await fetch('{{ route('guardia.aseo.modal') }}', {
+                const response = await fetch('/aseo/modal', {
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'
                     }
@@ -1484,7 +1484,7 @@
             modal.classList.add('flex');
             
             try {
-                const response = await fetch('{{ route('admin.emergencies.modal') }}', {
+                const response = await fetch('/admin/emergencies/modal', {
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'
                     }
