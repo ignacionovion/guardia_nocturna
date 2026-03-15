@@ -1010,15 +1010,7 @@
 
             if (!window.__draftEditable) {
                 console.warn('[DEBUG setGuardiaStatus] BLOCKED by __draftEditable=false');
-                const toast = document.getElementById('confirm-error-toast');
-                const toastTitle = document.getElementById('confirm-error-title');
-                const toastText = document.getElementById('confirm-error-text');
-                if (toast && toastText) {
-                    if (toastTitle) toastTitle.textContent = 'Edición Bloqueada';
-                    toastText.textContent = 'EDICIÓN BLOQUEADA FUERA DEL HORARIO 22:00 - 07:00.';
-                    toast.classList.remove('hidden');
-                    toast.classList.add('flex');
-                }
+                showErrorToast('Edición Bloqueada', 'EDICIÓN BLOQUEADA FUERA DEL HORARIO 22:00 - 07:00.');
                 return;
             }
 
@@ -1034,23 +1026,32 @@
                 return;
             }
 
+            // 1. Actualizar valor del input (estado interno)
             console.log('[DEBUG setGuardiaStatus] Setting input.value =', status);
             input.value = status;
+            
+            // 2. Limpiar confirmación si existía (cambio de estado invalida confirmación previa)
             clearConfirmation(userId);
+            
+            // 3. Actualizar UI inmediatamente
             updateGuardiaCardUI(userId, status);
-            console.log('[DEBUG setGuardiaStatus] UI updated, calling markAttendanceDirty');
+            console.log('[DEBUG setGuardiaStatus] UI updated immediately');
             if (typeof __debugLog === 'function') __debugLog('SET STATUS: UI actualizado OK → ' + status, '#34d399');
+            
+            // 4. Marcar como sucio para deshabilitar polling
             markAttendanceDirty();
 
-            try {
-                if (typeof window.__persistDraftItemStatus === 'function') {
-                    console.log('[DEBUG setGuardiaStatus] Calling __persistDraftItemStatus', { userId, status });
-                    window.__persistDraftItemStatus(userId, status);
-                } else {
-                    console.warn('[DEBUG setGuardiaStatus] __persistDraftItemStatus not available');
-                }
-            } catch (e) {
-                console.error('[DEBUG setGuardiaStatus] persist error', e);
+            // 5. Persistir en backend (sin bloquear UI)
+            if (typeof window.__persistDraftItemStatus === 'function') {
+                console.log('[DEBUG setGuardiaStatus] Calling __persistDraftItemStatus', { userId, status });
+                window.__persistDraftItemStatus(userId, status).catch(err => {
+                    console.error('[DEBUG setGuardiaStatus] Persist failed', err);
+                    if (typeof __debugLog === 'function') __debugLog('PERSIST ERROR: cambio de estado no se guardó en backend', '#f87171');
+                    // UI ya está actualizada, solo notificar el error de persistencia
+                    showErrorToast('Error de Persistencia', 'El cambio se muestra pero no se guardó. Recarga la página.');
+                });
+            } else {
+                console.warn('[DEBUG setGuardiaStatus] __persistDraftItemStatus not available');
             }
         }
 
@@ -1179,16 +1180,10 @@
         }
 
         function clearConfirmation(userId) {
+            console.log('[DEBUG clearConfirmation] Clearing confirmation for userId:', userId);
+            
             const tokenEl = document.getElementById('confirm-token-' + userId);
             if (tokenEl) tokenEl.value = '';
-
-            try {
-                const input = document.getElementById('attendance-status-' + userId);
-                const current = (input?.value || 'constituye').toLowerCase();
-                if (typeof window.__persistDraftItemStatus === 'function') {
-                    window.__persistDraftItemStatus(userId, current);
-                }
-            } catch (e) {}
 
             const msgEl = document.getElementById('confirm-msg-' + userId);
             if (msgEl) {
@@ -1196,6 +1191,10 @@
                 msgEl.classList.remove('text-emerald-200','text-rose-200');
                 msgEl.classList.add('text-slate-400');
             }
+            
+            const codeEl = document.getElementById('confirm-code-' + userId);
+            if (codeEl) codeEl.value = '';
+            
             setConfirmState(userId, false);
             refreshAttendanceSubmitButton();
         }
@@ -1211,40 +1210,25 @@
             // DEBUG TEMPORAL - mostrar valores enviados
             console.log('[DEBUG confirmBombero]', { guardiaId, bomberoId, numeroRegistro, draftEditable: window.__draftEditable });
             if (typeof __debugLog === 'function') __debugLog('CONFIRM: guardiaId=' + guardiaId + ' bomberoId=' + bomberoId + ' código="' + numeroRegistro + '" draftEditable=' + window.__draftEditable);
-            if (msgEl) msgEl.textContent = 'Enviando: guardiaId=' + guardiaId + ' bomberoId=' + bomberoId + ' código=' + numeroRegistro;
+            if (msgEl) msgEl.textContent = 'Enviando...';
 
             if (!numeroRegistro) {
-                const toast = document.getElementById('confirm-error-toast');
-                const toastTitle = document.getElementById('confirm-error-title');
-                const toastText = document.getElementById('confirm-error-text');
-                if (toast && toastText) {
-                    if (toastTitle) toastTitle.textContent = 'Código Requerido';
-                    toastText.textContent = 'INGRESA EL CÓDIGO DEL BOMBERO';
-                    toast.classList.remove('hidden');
-                    toast.classList.add('flex');
-                }
+                showErrorToast('Código Requerido', 'INGRESA EL CÓDIGO DEL BOMBERO');
                 return;
             }
 
             if (!window.__draftEditable) {
-                const toast = document.getElementById('confirm-error-toast');
-                const toastTitle = document.getElementById('confirm-error-title');
-                const toastText = document.getElementById('confirm-error-text');
-                if (toast && toastText) {
-                    if (toastTitle) toastTitle.textContent = 'Edición Bloqueada';
-                    toastText.textContent = 'EDICIÓN BLOQUEADA FUERA DEL HORARIO 22:00 - 07:00.';
-                    toast.classList.remove('hidden');
-                    toast.classList.add('flex');
-                }
+                showErrorToast('Edición Bloqueada', 'EDICIÓN BLOQUEADA FUERA DEL HORARIO 22:00 - 07:00.');
                 return;
             }
 
-            try {
-                if (btnEl) {
-                    btnEl.setAttribute('disabled', 'disabled');
-                    btnEl.classList.add('opacity-60','cursor-not-allowed');
-                }
+            // Deshabilitar botón durante request
+            if (btnEl) {
+                btnEl.setAttribute('disabled', 'disabled');
+                btnEl.classList.add('opacity-60','cursor-not-allowed');
+            }
 
+            try {
                 const url = `/admin/guardias/${guardiaId}/bomberos/${bomberoId}/confirm`;
                 console.log('[DEBUG confirmBombero] POST', url, { numero_registro: numeroRegistro });
 
@@ -1265,65 +1249,85 @@
                 }
 
                 let data = null;
-                const raw = await res.text().catch(() => '');
                 try {
+                    const raw = await res.text();
                     data = raw ? JSON.parse(raw) : null;
                 } catch (e) {
-                    data = null;
+                    console.error('[DEBUG confirmBombero] JSON parse error', e);
+                    throw new Error('Respuesta inválida del servidor');
                 }
 
                 // DEBUG TEMPORAL - log respuesta completa
                 console.log('[DEBUG confirmBombero] Response', { status: res.status, ok: res.ok, data });
                 if (typeof __debugLog === 'function') __debugLog('CONFIRM RESP: HTTP ' + res.status + ' | ' + JSON.stringify(data), res.ok && data?.ok ? '#34d399' : '#f87171');
-                if (msgEl) msgEl.textContent = 'HTTP ' + res.status + ' | data: ' + JSON.stringify(data);
 
+                // VALIDACIÓN EXPLÍCITA: solo éxito si res.ok Y data.ok
                 if (!res.ok || !data || !data.ok) {
                     const errMsg = (data && (data.message || data.error)) ? (data.message || data.error) : 'NO SE PUDO CONFIRMAR';
-                    // DEBUG: incluir debug info del backend si existe
                     let debugInfo = '';
                     if (data && data.debug) {
                         debugInfo = ' [DEBUG: ' + JSON.stringify(data.debug) + ']';
                     }
-                    const toast = document.getElementById('confirm-error-toast');
-                    const toastTitle = document.getElementById('confirm-error-title');
-                    const toastText = document.getElementById('confirm-error-text');
-                    if (toast && toastText) {
-                        if (toastTitle) toastTitle.textContent = String(errMsg);
-                        toastText.textContent = debugInfo || String(errMsg).toUpperCase();
-                        toast.classList.remove('hidden');
-                        toast.classList.add('flex');
-                    }
                     console.error('[DEBUG confirmBombero] ERROR', { errMsg, debug: data?.debug });
+                    showErrorToast(String(errMsg), debugInfo || String(errMsg).toUpperCase());
                     clearConfirmation(bomberoId);
                     return;
                 }
 
+                // ✅ ÉXITO CONFIRMADO - actualizar UI inmediatamente
+                console.log('[DEBUG confirmBombero] SUCCESS - updating UI');
+                if (typeof __debugLog === 'function') __debugLog('CONFIRM SUCCESS: bomberoId=' + bomberoId + ' token recibido', '#34d399');
+                
+                // 1. Guardar token
                 if (tokenEl) tokenEl.value = data.token || '';
+                
+                // 2. Marcar como confirmado visualmente
                 setConfirmState(bomberoId, true);
-
-                try {
-                    if (data.token && typeof window.__persistDraftConfirmation === 'function') {
-                        await window.__persistDraftConfirmation(bomberoId, data.token);
-                    }
-                } catch (e) {}
-
-                refreshAttendanceSubmitButton();
-            } catch (e) {
-                const toast = document.getElementById('confirm-error-toast');
-                const toastTitle = document.getElementById('confirm-error-title');
-                const toastText = document.getElementById('confirm-error-text');
-                if (toast && toastText) {
-                    if (toastTitle) toastTitle.textContent = 'Error de Red';
-                    toastText.textContent = 'ERROR AL CONFIRMAR';
-                    toast.classList.remove('hidden');
-                    toast.classList.add('flex');
+                
+                // 3. Limpiar input de código
+                if (codeEl) codeEl.value = '';
+                
+                // 4. Actualizar mensaje de éxito
+                if (msgEl) {
+                    msgEl.textContent = 'CONFIRMADO ✓';
+                    msgEl.classList.remove('text-slate-400', 'text-rose-200');
+                    msgEl.classList.add('text-emerald-200');
                 }
+                
+                // 5. Persistir en draft (sin bloquear UI si falla)
+                if (data.token && typeof window.__persistDraftConfirmation === 'function') {
+                    window.__persistDraftConfirmation(bomberoId, data.token).catch(err => {
+                        console.warn('[DEBUG confirmBombero] Persist failed but confirmation is valid', err);
+                        if (typeof __debugLog === 'function') __debugLog('PERSIST WARNING: confirmación válida pero persist falló', '#f59e0b');
+                    });
+                }
+                
+                // 6. Actualizar botón de guardar asistencia
+                refreshAttendanceSubmitButton();
+                
+            } catch (e) {
+                console.error('[DEBUG confirmBombero] Network/Exception error', e);
+                showErrorToast('Error de Red', 'ERROR AL CONFIRMAR: ' + (e.message || 'Error desconocido'));
                 clearConfirmation(bomberoId);
             } finally {
+                // Rehabilitar botón
                 if (btnEl) {
                     btnEl.removeAttribute('disabled');
                     btnEl.classList.remove('opacity-60','cursor-not-allowed');
                 }
+            }
+        }
+
+        // Helper para mostrar toast de error (DRY)
+        function showErrorToast(title, message) {
+            const toast = document.getElementById('confirm-error-toast');
+            const toastTitle = document.getElementById('confirm-error-title');
+            const toastText = document.getElementById('confirm-error-text');
+            if (toast && toastText) {
+                if (toastTitle) toastTitle.textContent = title;
+                toastText.textContent = message;
+                toast.classList.remove('hidden');
+                toast.classList.add('flex');
             }
         }
 
