@@ -60,7 +60,8 @@ use App\Models\SystemSetting;
     
     if ($currentSession) {
         $presentStaffCount = \App\Models\TurnoSessionItem::where('turno_session_id', $currentSession->id)
-            ->whereIn('status', ['constituye', 'reemplazo'])
+            ->whereIn('attendance_status', ['constituye', 'reemplazo'])
+            ->where('included', true)
             ->count();
     } else {
         // Fallback to bomberos table if no session exists
