@@ -12,7 +12,7 @@
         <span class="text-sm text-slate-400">{{ $date->translatedFormat('d \d\e F \d\e Y') }}</span>
     </div>
 
-    <form method="POST" action="{{ route('guardia.aseo.store') }}" id="aseo-form">
+    <form method="POST" id="aseo-form" data-action-url="{{ route('guardia.aseo.store') }}">
         @csrf
         <input type="hidden" name="assigned_date" value="{{ $date->toDateString() }}">
 
@@ -77,43 +77,54 @@
         }
     }
 
-    // Handle form submission via AJAX to avoid page reload
-    document.getElementById('aseo-form').addEventListener('submit', function(e) {
-        e.preventDefault();
+    // Handle form submission via AJAX using event delegation
+    (function() {
+        const form = document.getElementById('aseo-form');
+        if (!form) return;
         
-        const formData = new FormData(this);
-        const submitBtn = this.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-        
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
-        
-        fetch(this.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                closeAseoModal();
-                if (typeof showSuccessToast === 'function') {
-                    showSuccessToast('Aseo Guardado', 'Las asignaciones se guardaron correctamente');
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            
+            const actionUrl = this.getAttribute('data-action-url');
+            const formData = new FormData(this);
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+            
+            try {
+                const response = await fetch(actionUrl, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    closeAseoModal();
+                    if (typeof showSuccessToast === 'function') {
+                        showSuccessToast('Aseo Guardado', 'Las asignaciones se guardaron correctamente');
+                    }
+                } else {
+                    alert(data.message || 'Error al guardar');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
                 }
-            } else {
-                alert(data.message || 'Error al guardar');
+            } catch (error) {
+                console.error('Error saving aseo:', error);
+                alert('Error de conexión al guardar');
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
             }
-        })
-        .catch(error => {
-            console.error('Error saving aseo:', error);
-            alert('Error de conexión al guardar');
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalText;
-        });
-    });
+            
+            return false;
+        }, true);
+    })();
 </script>

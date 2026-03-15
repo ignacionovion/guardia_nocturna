@@ -96,28 +96,3 @@
         </button>
     </div>
 </div>
-
-<script>
-    window.loadEmergencyCreateForm = async function() {
-        const content = document.getElementById('emergenciasModalContent');
-        if (!content) return;
-        
-        content.innerHTML = '<div class="flex items-center justify-center py-12"><i class="fas fa-spinner fa-spin text-slate-400 text-2xl"></i></div>';
-        
-        try {
-            const response = await fetch('/admin/emergencies/create/modal', {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            });
-            
-            if (response.ok) {
-                const html = await response.text();
-                content.innerHTML = html;
-            } else {
-                content.innerHTML = '<div class="p-6 text-center text-slate-400">Error al cargar el formulario</div>';
-            }
-        } catch (error) {
-            console.error('Error loading emergency create form:', error);
-            content.innerHTML = '<div class="p-6 text-center text-slate-400">Error de conexión</div>';
-        }
-    }
-</script>

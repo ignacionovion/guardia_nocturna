@@ -52,8 +52,20 @@ use App\Models\SystemSetting;
     $onDutyStaff = $activeStaff->filter(fn($u) => in_array($u->estado_asistencia, ['constituye', 'reemplazo'], true));
     
     $visibleStaffCount = $activeStaff->count();
-    // Only count constituye and reemplazo as present (ausente is a different state)
-    $presentStaffCount = $onDutyStaff->count();
+    
+    // Count present staff from turno_session_items (real-time draft data)
+    $currentSession = \App\Models\TurnoSession::where('operational_date', $draftOpDate->toDateString())
+        ->where('status', 'draft')
+        ->first();
+    
+    if ($currentSession) {
+        $presentStaffCount = \App\Models\TurnoSessionItem::where('turno_session_id', $currentSession->id)
+            ->whereIn('status', ['constituye', 'reemplazo'])
+            ->count();
+    } else {
+        // Fallback to bomberos table if no session exists
+        $presentStaffCount = $onDutyStaff->count();
+    }
     
     // === ESTADO DE ASISTENCIA ===
     $isAfter2200 = $localNow->hour >= 22;

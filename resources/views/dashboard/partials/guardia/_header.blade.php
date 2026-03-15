@@ -42,22 +42,22 @@
             <div class="flex items-center gap-3">
                 {{-- Quick Actions --}}
                 <div class="flex items-center gap-2">
-                    <button onclick="toggleFullscreen()" class="icon-btn" title="Pantalla completa">
-                        <i class="fas fa-expand text-slate-400 text-lg"></i>
+                    <button onclick="toggleFullscreen()" class="icon-btn flex items-center justify-center" title="Pantalla completa">
+                        <i class="fas fa-expand text-slate-400 text-3xl"></i>
                     </button>
-                    <button onclick="openAseoModal()" class="icon-btn" title="Asignación de Aseo">
-                        <i class="fas fa-broom text-red-400 text-lg"></i>
+                    <button onclick="openAseoModal()" class="icon-btn flex items-center justify-center" title="Asignación de Aseo">
+                        <i class="fas fa-broom text-red-400 text-3xl"></i>
                     </button>
-                    <button onclick="openCalendarPopup()" class="icon-btn" title="Calendario">
-                        <i class="fas fa-calendar-days text-emerald-400 text-lg"></i>
+                    <button onclick="openCalendarPopup()" class="icon-btn flex items-center justify-center" title="Calendario">
+                        <i class="fas fa-calendar-days text-emerald-400 text-3xl"></i>
                     </button>
                     @if(feature('emergencias'))
-                        <button onclick="openEmergenciasModal()" class="icon-btn" title="Emergencias">
-                            <i class="fas fa-truck-medical text-amber-400 text-lg"></i>
+                        <button onclick="openEmergenciasModal()" class="icon-btn flex items-center justify-center" title="Emergencias">
+                            <i class="fas fa-truck-medical text-amber-400 text-3xl"></i>
                         </button>
                     @endif
-                    <button onclick="openRefuerzoModal()" class="icon-btn" title="Agregar Refuerzo">
-                        <i class="fas fa-user-plus text-sky-400 text-lg"></i>
+                    <button onclick="openRefuerzoModal()" class="icon-btn flex items-center justify-center" title="Agregar Refuerzo">
+                        <i class="fas fa-user-plus text-sky-400 text-3xl"></i>
                     </button>
                 </div>
                 

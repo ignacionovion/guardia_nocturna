@@ -1509,6 +1509,38 @@
             modal.classList.remove('flex');
         }
 
+        window.loadEmergencyCreateForm = async function() {
+            console.log('[DEBUG] loadEmergencyCreateForm called');
+            const content = document.getElementById('emergenciasModalContent');
+            if (!content) {
+                console.error('[DEBUG] emergenciasModalContent not found');
+                return;
+            }
+            
+            console.log('[DEBUG] Loading emergency create form...');
+            content.innerHTML = '<div class="flex items-center justify-center py-12"><i class="fas fa-spinner fa-spin text-slate-400 text-2xl"></i></div>';
+            
+            try {
+                const response = await fetch('/admin/emergencies/create/modal', {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                
+                console.log('[DEBUG] Response status:', response.status);
+                
+                if (response.ok) {
+                    const html = await response.text();
+                    console.log('[DEBUG] HTML received, length:', html.length);
+                    content.innerHTML = html;
+                } else {
+                    console.error('[DEBUG] Response not OK:', response.status);
+                    content.innerHTML = '<div class="p-6 text-center text-slate-400">Error al cargar el formulario (HTTP ' + response.status + ')</div>';
+                }
+            } catch (error) {
+                console.error('[DEBUG] Error loading emergency create form:', error);
+                content.innerHTML = '<div class="p-6 text-center text-slate-400">Error de conexión: ' + error.message + '</div>';
+            }
+        }
+
         @if(Auth::check() && Auth::user()->role === 'guardia')
             async function kioskPing() {
                 try {
