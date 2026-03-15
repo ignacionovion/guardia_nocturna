@@ -1,14 +1,14 @@
 {{-- Contenido del modal de Asignación de Aseo --}}
 <div class="p-6">
     <div class="mb-4 flex items-center gap-3">
-        <form method="GET" action="{{ route('guardia.aseo.modal') }}" class="flex items-center gap-2" id="aseo-date-form">
-            <input type="date" name="date" value="{{ $date->toDateString() }}" 
+        <div class="flex items-center gap-2">
+            <input type="date" name="date" value="{{ $date->toDateString() }}" id="aseo-date-input"
                 class="px-3 py-2 rounded-lg border border-slate-700 bg-slate-950 text-sm font-semibold text-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500" 
-                onchange="document.getElementById('aseo-date-form').submit()" />
-            <button type="submit" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-lg text-sm uppercase tracking-wide transition-colors">
+                onchange="reloadAseoModal(this.value)" />
+            <button type="button" onclick="reloadAseoModal(document.getElementById('aseo-date-input').value)" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-lg text-sm uppercase tracking-wide transition-colors">
                 Ver
             </button>
-        </form>
+        </div>
         <span class="text-sm text-slate-400">{{ $date->translatedFormat('d \d\e F \d\e Y') }}</span>
     </div>
 
@@ -56,11 +56,37 @@
 </div>
 
 <script>
+    // Reload modal content with new date
+    window.reloadAseoModal = async function(date) {
+        const content = document.getElementById('aseoModalContent');
+        if (!content) return;
+        
+        content.innerHTML = '<div class="flex items-center justify-center py-12"><i class="fas fa-spinner fa-spin text-slate-400 text-2xl"></i></div>';
+        
+        try {
+            const response = await fetch('/aseo/modal?date=' + date, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            
+            if (response.ok) {
+                const html = await response.text();
+                content.innerHTML = html;
+            }
+        } catch (error) {
+            console.error('Error reloading aseo modal:', error);
+        }
+    }
+
     // Handle form submission via AJAX to avoid page reload
     document.getElementById('aseo-form').addEventListener('submit', function(e) {
         e.preventDefault();
         
         const formData = new FormData(this);
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
         
         fetch(this.action, {
             method: 'POST',
@@ -74,14 +100,20 @@
         .then(data => {
             if (data.success) {
                 closeAseoModal();
-                // Optionally show success message
                 if (typeof showSuccessToast === 'function') {
                     showSuccessToast('Aseo Guardado', 'Las asignaciones se guardaron correctamente');
                 }
+            } else {
+                alert(data.message || 'Error al guardar');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
             }
         })
         .catch(error => {
             console.error('Error saving aseo:', error);
+            alert('Error de conexión al guardar');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
         });
     });
 </script>

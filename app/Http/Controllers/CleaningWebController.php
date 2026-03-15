@@ -239,6 +239,13 @@ class CleaningWebController extends Controller
             sourceLabel: 'Sistema de Gestión de Aseo'
         );
 
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Asignación de aseo guardada correctamente.'
+            ]);
+        }
+
         return redirect()->route('guardia.aseo', ['date' => $date->toDateString()])->with('success', 'Asignación de aseo guardada correctamente.');
     }
 }

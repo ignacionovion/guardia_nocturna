@@ -268,6 +268,7 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
     // Emergencias (Guardia + Super Admin)
     Route::middleware(['feature:emergencias', 'emergency_access'])->group(function () {
         Route::get('admin/emergencies/modal', [App\Http\Controllers\Admin\EmergencyController::class, 'modalContent'])->name('admin.emergencies.modal');
+        Route::get('admin/emergencies/create/modal', [App\Http\Controllers\Admin\EmergencyController::class, 'createModalContent'])->name('admin.emergencies.create.modal');
         Route::resource('admin/emergencies', App\Http\Controllers\Admin\EmergencyController::class, ['as' => 'admin']);
     });
 

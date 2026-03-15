@@ -84,11 +84,11 @@
     @endif
 
     <div class="mt-6 flex justify-between items-center">
-        <a href="{{ route('admin.emergencies.create') }}" 
+        <button type="button" onclick="loadEmergencyCreateForm()" 
             class="inline-flex items-center gap-2 px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg text-sm uppercase tracking-wide transition-colors shadow-md">
             <i class="fas fa-plus"></i>
             Nueva Emergencia
-        </a>
+        </button>
         
         <button type="button" onclick="closeEmergenciasModal()" 
             class="px-5 py-2.5 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 font-bold text-sm hover:bg-slate-900 transition-colors uppercase">
@@ -96,3 +96,28 @@
         </button>
     </div>
 </div>
+
+<script>
+    window.loadEmergencyCreateForm = async function() {
+        const content = document.getElementById('emergenciasModalContent');
+        if (!content) return;
+        
+        content.innerHTML = '<div class="flex items-center justify-center py-12"><i class="fas fa-spinner fa-spin text-slate-400 text-2xl"></i></div>';
+        
+        try {
+            const response = await fetch('/admin/emergencies/create/modal', {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            
+            if (response.ok) {
+                const html = await response.text();
+                content.innerHTML = html;
+            } else {
+                content.innerHTML = '<div class="p-6 text-center text-slate-400">Error al cargar el formulario</div>';
+            }
+        } catch (error) {
+            console.error('Error loading emergency create form:', error);
+            content.innerHTML = '<div class="p-6 text-center text-slate-400">Error de conexión</div>';
+        }
+    }
+</script>

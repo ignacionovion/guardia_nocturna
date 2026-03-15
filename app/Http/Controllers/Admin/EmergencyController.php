@@ -214,6 +214,18 @@ class EmergencyController extends Controller
         return view('admin.emergencies.create', compact('keys', 'units', 'shift', 'onDutyUsers'));
     }
 
+    public function createModalContent(Request $request)
+    {
+        $keys = EmergencyKey::orderBy('code')->get();
+        $units = EmergencyUnit::orderBy('name')->get();
+
+        $authUser = $request->user();
+        $shift = $authUser ? $this->resolveActiveShiftForUser($authUser) : null;
+        $onDutyUsers = $this->resolveOnDutyUsers($shift, $authUser);
+
+        return view('admin.emergencies._create_modal_content', compact('keys', 'units', 'shift', 'onDutyUsers'));
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -274,6 +286,14 @@ class EmergencyController extends Controller
             $emergencyKey?->description ?? 'Sin detalles',
             $guardiaId ? Guardia::find($guardiaId) : null
         );
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Emergencia registrada correctamente.',
+                'emergency_id' => $emergency->id
+            ]);
+        }
 
         return redirect()->route('admin.emergencies.index')->with('success', 'Emergencia registrada correctamente.');
     }
