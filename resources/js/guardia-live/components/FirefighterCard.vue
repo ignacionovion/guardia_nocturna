@@ -74,9 +74,13 @@ const cardBorderClass = computed(() => {
     return map[effectiveStatus.value] ?? 'border-slate-700/50';
 });
 
-const fullName = computed(() =>
-    [f.value.nombres, f.value.apellido_paterno].filter(Boolean).join(' ').toUpperCase()
-);
+const fullName = computed(() => {
+    const nombres = f.value.nombres ?? '';
+    const apellido = f.value.apellido_paterno ?? '';
+    // Take only first name if nombres contains multiple names
+    const firstName = nombres.trim().split(/\s+/)[0] || '';
+    return [firstName, apellido].filter(Boolean).join(' ').toUpperCase();
+});
 
 const initials = computed(() => {
     const first = (f.value.nombres ?? '').charAt(0);
@@ -90,13 +94,13 @@ const serviceLabel = computed(() => {
     const years = f.value.years_service;
     const months = f.value.months_service;
     if (years && months) {
-        return `${years}a ${months}m`;
+        return `${years} años ${months} meses`;
     } else if (years) {
         return `${years} años`;
     } else if (months) {
         return `${months} meses`;
     }
-    return '—';
+    return null;
 });
 
 const radialNumber = computed(() => f.value.numero_portatil ?? null);
@@ -149,7 +153,7 @@ onUnmounted(() => document.removeEventListener('click', onDocClick, true));
         <div v-if="isConfirmed" class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-400 z-20 animate-pulse"></div>
 
         <!-- Photo block with overlay info (like old dashboard) -->
-        <div class="relative w-full h-48 bg-slate-800 overflow-hidden">
+        <div class="relative w-full h-56 bg-slate-800 overflow-hidden">
             <!-- Photo or initials fallback -->
             <img
                 v-if="f.photo_url"
@@ -166,24 +170,24 @@ onUnmounted(() => document.removeEventListener('click', onDocClick, true));
             </div>
 
             <!-- Gradient overlay for text readability -->
-            <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-900 via-slate-900/90 to-transparent pointer-events-none"></div>
+            <div class="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-slate-900 via-slate-900/80 to-transparent pointer-events-none"></div>
 
             <!-- Firefighter info overlaid on photo -->
             <div class="absolute inset-x-0 bottom-0 px-2.5 py-2.5 z-10">
-                <div class="text-base font-bold text-white leading-tight truncate drop-shadow-lg">
+                <div class="text-base font-bold text-white leading-tight truncate drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
                     {{ fullName }}
                 </div>
-                <div v-if="f.cargo" class="text-sm text-white/90 truncate mt-0.5">
+                <div v-if="f.cargo" class="text-sm text-white/90 truncate mt-0.5 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                     {{ f.cargo }}
                 </div>
-                <div class="flex items-center gap-2 mt-1.5">
-                    <div v-if="serviceLabel" class="flex items-center gap-1 text-sm text-white/80">
+                <div class="flex items-center gap-2 mt-1.5 text-xs text-white/80 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                    <div v-if="serviceLabel" class="flex items-center gap-1">
                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                         <span>{{ serviceLabel }}</span>
                     </div>
-                    <div v-if="radialNumber" class="flex items-center gap-1 text-sm text-white/80">
+                    <div v-if="radialNumber" class="flex items-center gap-1">
                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
                         </svg>
@@ -302,7 +306,7 @@ onUnmounted(() => document.removeEventListener('click', onDocClick, true));
                 </div>
 
                 <!-- Not confirmed yet -->
-                <div class="rounded-lg border-2 border-rose-500/40 bg-rose-500/10 px-3 py-2 space-y-2 shadow-lg shadow-rose-900/30">
+                <div v-else class="rounded-lg border-2 border-rose-500/40 bg-rose-500/10 px-3 py-2 space-y-2 shadow-lg shadow-rose-900/30">
                     <p class="text-[11px] font-extrabold uppercase text-rose-400 text-center">Sin confirmar</p>
                     <div class="flex items-center gap-1.5">
                         <input
