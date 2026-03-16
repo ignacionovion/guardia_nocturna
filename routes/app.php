@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Storage;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 
 use App\Http\Controllers\TableroController;
+use App\Http\Controllers\GuardiaLiveController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdministradorController;
 use App\Http\Controllers\AdminCalendarController;
@@ -120,6 +121,8 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
     Route::post('/api/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark_all_read');
 
     Route::get('/dashboard', [TableroController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard-live', [GuardiaLiveController::class, 'index'])->name('dashboard.live');
+    Route::get('/api/guardia-live/state', [GuardiaLiveController::class, 'state'])->name('guardia.live.state');
     Route::get('/camas', [TableroController::class, 'camas'])->name('camas');
     Route::get('/guardia', [GuardiaController::class, 'index'])->name('guardia');
     Route::get('/now', [GuardiaController::class, 'now'])->name('guardia.now');
