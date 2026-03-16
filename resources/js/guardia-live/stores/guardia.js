@@ -83,6 +83,11 @@ export const useGuardiaStore = defineStore('guardia', () => {
     }
 
     async function refreshState() {
+        // Don't overwrite local state while there are unsaved changes
+        if (hasPendingChanges.value) {
+            console.log('[GuardiaLive] refreshState skipped: pending changes');
+            return;
+        }
         try {
             isLoading.value = true;
             const response = await fetch('/api/guardia-live/state', {
@@ -157,10 +162,12 @@ export const useGuardiaStore = defineStore('guardia', () => {
     }
 
     async function saveAttendance() {
+        console.log('[GuardiaLive] saveAttendance called', { isSaving: isSaving.value, url: bulkUpdateUrl.value, staffCount: staff.value.length });
         if (isSaving.value) return { ok: false, message: 'Ya guardando...' };
 
         const url = bulkUpdateUrl.value;
         if (!url) {
+            console.warn('[GuardiaLive] saveAttendance: no bulkUpdateUrl');
             saveResult.value = { ok: false, message: 'URL de guardado no disponible' };
             return { ok: false, message: 'URL de guardado no disponible' };
         }
