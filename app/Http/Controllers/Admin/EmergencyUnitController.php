@@ -9,6 +9,16 @@ use Illuminate\Validation\Rule;
 
 class EmergencyUnitController extends Controller
 {
+    public function apiIndex(Request $request)
+    {
+        // Return all emergency units for modals
+        $units = EmergencyUnit::select('id', 'name', 'description', 'is_active')
+            ->orderBy('name')
+            ->get();
+
+        return response()->json($units);
+    }
+
     public function index(Request $request)
     {
         $query = EmergencyUnit::query()->orderBy('name');

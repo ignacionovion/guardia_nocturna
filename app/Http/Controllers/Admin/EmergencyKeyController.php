@@ -10,6 +10,16 @@ use Shuchkin\SimpleXLSX;
 
 class EmergencyKeyController extends Controller
 {
+    public function apiIndex(Request $request)
+    {
+        // Return all emergency keys for modals
+        $keys = EmergencyKey::select('id', 'code', 'description')
+            ->orderBy('code')
+            ->get();
+
+        return response()->json($keys);
+    }
+
     public function index(Request $request)
     {
         $query = EmergencyKey::query()->orderBy('code');

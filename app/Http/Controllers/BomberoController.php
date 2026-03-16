@@ -13,6 +13,22 @@ use Shuchkin\SimpleXLSX;
 
 class BomberoController extends Controller
 {
+    public function apiIndex(Request $request)
+    {
+        // Return all firefighters for modals (refuerzo, reemplazo)
+        $bomberos = Bombero::select('id', 'nombres', 'apellido_paterno', 'apellido_materno', 'guardia_id', 'es_refuerzo', 'es_titular', 'cargo')
+            ->where(function ($q) {
+                $q->whereNull('fuera_de_servicio')
+                  ->orWhere('fuera_de_servicio', false);
+            })
+            ->orderBy('guardia_id')
+            ->orderBy('apellido_paterno')
+            ->orderBy('nombres')
+            ->get();
+
+        return response()->json($bomberos);
+    }
+
     public function index(Request $request)
     {
         if (!auth()->check() || !in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {

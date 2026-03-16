@@ -43,4 +43,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Turnos / Guardia
     Route::apiResource('shifts', TurnoController::class);
     Route::post('shifts/{id}/users', [TurnoController::class, 'addUser']);
+
+    // Phase 4: Operational modals data
+    Route::get('bomberos', [App\Http\Controllers\BomberoController::class, 'apiIndex']);
+    Route::get('emergency-keys', [App\Http\Controllers\Admin\EmergencyKeyController::class, 'apiIndex']);
+    Route::get('emergency-units', [App\Http\Controllers\Admin\EmergencyUnitController::class, 'apiIndex']);
 });
