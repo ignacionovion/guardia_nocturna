@@ -2,32 +2,30 @@
 <section>
     {{-- DEBUG PROFESIONAL: Panel de diagnóstico --}}
     @php
-        $generatedUrl = route('admin.guardias.bulk_update', ['tenant' => tenant('id'), 'id' => $myGuardia->id]);
+        $relativeUrl = '/admin/guardias/' . $myGuardia->id . '/bulk-update';
         $currentTenant = tenant('id');
         $currentDomain = request()->getHost();
-        $routeParams = ['tenant' => $currentTenant, 'id' => $myGuardia->id];
         \Log::info('=== DEBUG ASISTENCIA ===');
         \Log::info('Tenant: ' . $currentTenant);
         \Log::info('Domain: ' . $currentDomain);
         \Log::info('Guardia ID: ' . $myGuardia->id);
-        \Log::info('Generated URL: ' . $generatedUrl);
+        \Log::info('Relative URL: ' . $relativeUrl);
     @endphp
     
     @if(app()->environment('local') || request()->has('debug'))
     <div id="debug-asistencia-panel" style="background:#1e293b;border:2px solid #ef4444;border-radius:8px;padding:12px;margin-bottom:16px;font-family:monospace;font-size:12px;">
         <div style="color:#ef4444;font-weight:bold;margin-bottom:8px;">🔍 DEBUG ASISTENCIA</div>
-        <div style="color:#94a3b8;">URL Generada: <span style="color:#22d3ee;word-break:break-all;">{{ $generatedUrl }}</span></div>
+        <div style="color:#94a3b8;">URL Relativa: <span style="color:#22d3ee;word-break:break-all;">{{ $relativeUrl }}</span></div>
         <div style="color:#94a3b8;">Tenant: <span style="color:#22d3ee;">{{ $currentTenant }}</span></div>
         <div style="color:#94a3b8;">Dominio: <span style="color:#22d3ee;">{{ $currentDomain }}</span></div>
         <div style="color:#94a3b8;">Guardia ID: <span style="color:#22d3ee;">{{ $myGuardia->id }}</span></div>
-        <div style="color:#94a3b8;">Route Params: <span style="color:#22d3ee;">{{ json_encode($routeParams) }}</span></div>
         <button type="button" onclick="testAttendanceUrl()" style="margin-top:8px;background:#3b82f6;color:white;border:none;padding:4px 12px;border-radius:4px;cursor:pointer;">Test URL (Fetch)</button>
         <div id="debug-test-result" style="margin-top:8px;color:#fbbf24;"></div>
     </div>
     
     <script>
     function testAttendanceUrl() {
-        const url = '{{ $generatedUrl }}';
+        const url = '{{ $relativeUrl }}';
         const resultDiv = document.getElementById('debug-test-result');
         resultDiv.innerHTML = 'Testing...';
         
@@ -64,22 +62,13 @@
                 for (let [key, value] of data.entries()) {
                     console.log('  ' + key + ':', value);
                 }
-                
-                // Mostrar en panel debug
-                const panel = document.getElementById('debug-asistencia-panel');
-                if (panel) {
-                    const submitDebug = document.createElement('div');
-                    submitDebug.style.cssText = 'margin-top:8px;padding:8px;background:#0f172a;border-radius:4px;';
-                    submitDebug.innerHTML = '<div style="color:#fbbf24;">Submit detected!</div><div style="color:#94a3b8;font-size:10px;">Action: ' + form.action + '</div>';
-                    panel.appendChild(submitDebug);
-                }
             });
         }
     });
     </script>
     @endif
     
-    <form id="guardia-attendance-form" method="POST" action="{{ $generatedUrl }}">
+    <form id="guardia-attendance-form" method="POST" action="{{ $relativeUrl }}">
         @csrf
 
         {{-- Grid principal de bomberos - más columnas para tarjetas angostas --}}

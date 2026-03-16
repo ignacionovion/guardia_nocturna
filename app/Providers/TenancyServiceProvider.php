@@ -130,9 +130,9 @@ class TenancyServiceProvider extends ServiceProvider
         }
 
         // Tenant routes SECOND — wildcard subdomain match
+        // NOTE: tenant.php defines its own domain patterns
         if (file_exists(base_path('routes/tenant.php'))) {
-            Route::namespace(static::$controllerNamespace)
-                ->group(base_path('routes/tenant.php'));
+            Route::group([], base_path('routes/tenant.php'));
         }
     }
 
