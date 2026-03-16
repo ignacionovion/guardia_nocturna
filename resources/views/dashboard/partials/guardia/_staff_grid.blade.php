@@ -1,6 +1,13 @@
 {{-- Grid de personal activo - Diseño Premium --}}
 <section>
-    <form id="guardia-attendance-form" method="POST" action="{{ route('admin.guardias.bulk_update', $myGuardia->id) }}">
+    {{-- DEBUG: Verificar URL generada --}}
+    @php
+        $generatedUrl = route('admin.guardias.bulk_update', ['tenant' => tenant('id'), 'id' => $myGuardia->id]);
+        \Log::info('DEBUG bulk_update URL: ' . $generatedUrl);
+    @endphp
+    <!-- DEBUG URL: {{ $generatedUrl }} -->
+    
+    <form id="guardia-attendance-form" method="POST" action="{{ $generatedUrl }}">
         @csrf
 
         {{-- Grid principal de bomberos - más columnas para tarjetas angostas --}}

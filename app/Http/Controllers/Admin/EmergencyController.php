@@ -221,7 +221,25 @@ class EmergencyController extends Controller
 
         $authUser = $request->user();
         $shift = $authUser ? $this->resolveActiveShiftForUser($authUser) : null;
-        $onDutyUsers = $this->resolveOnDutyUsers($shift, $authUser);
+        
+        // Obtener todos los bomberos de la guardia activa (los del dashboard)
+        $guardiaId = $authUser?->guardia_id;
+        if (!$guardiaId && $authUser?->role === 'super_admin') {
+            $guardiaId = $this->resolveActiveGuardia(Carbon::now())?->id;
+        }
+        
+        $onDutyUsers = collect();
+        if ($guardiaId) {
+            // Todos los bomberos de la guardia (constituye, reemplazo, etc.) - sin restricción de confirmación
+            $onDutyUsers = Bombero::query()
+                ->where('guardia_id', $guardiaId)
+                ->where(function ($q) {
+                    $q->whereNull('fuera_de_servicio')->orWhere('fuera_de_servicio', false);
+                })
+                ->orderBy('apellido_paterno')
+                ->orderBy('nombres')
+                ->get();
+        }
 
         return view('admin.emergencies._create_modal_content', compact('keys', 'units', 'shift', 'onDutyUsers'));
     }
