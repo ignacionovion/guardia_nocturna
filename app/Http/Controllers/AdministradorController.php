@@ -1062,6 +1062,9 @@ class AdministradorController extends Controller
 
     public function bulkUpdateGuardia(Request $request, $id)
     {
+        // Domain routes inject {tenant} before path params — read {id} explicitly to avoid collision
+        $id = $request->route('id') ?? $id;
+
         if (!in_array(auth()->user()->role, ['super_admin', 'capitania', 'guardia'], true)) {
             abort(403, 'No autorizado.');
         }
