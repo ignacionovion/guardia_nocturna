@@ -115,8 +115,8 @@ use App\Http\Controllers\NotificationController;
 // Phase 4: Modal data endpoints (auth only, no guardia_on_duty restriction)
 Route::middleware(['auth'])->group(function () {
     Route::get('/api/bomberos', [BomberoController::class, 'apiIndex'])->name('api.bomberos');
-    Route::get('/api/emergency-keys', [Admin\EmergencyKeyController::class, 'apiIndex'])->name('api.emergency-keys');
-    Route::get('/api/emergency-units', [Admin\EmergencyUnitController::class, 'apiIndex'])->name('api.emergency-units');
+    Route::get('/api/emergency-keys', [EmergencyKeyController::class, 'apiIndex'])->name('api.emergency-keys');
+    Route::get('/api/emergency-units', [EmergencyUnitController::class, 'apiIndex'])->name('api.emergency-units');
 });
 
 Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
