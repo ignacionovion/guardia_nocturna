@@ -1,11 +1,83 @@
 {{-- Grid de personal activo - Diseño Premium --}}
 <section>
-    {{-- DEBUG: Verificar URL generada --}}
+    {{-- DEBUG PROFESIONAL: Panel de diagnóstico --}}
     @php
         $generatedUrl = route('admin.guardias.bulk_update', ['tenant' => tenant('id'), 'id' => $myGuardia->id]);
-        \Log::info('DEBUG bulk_update URL: ' . $generatedUrl);
+        $currentTenant = tenant('id');
+        $currentDomain = request()->getHost();
+        $routeParams = ['tenant' => $currentTenant, 'id' => $myGuardia->id];
+        \Log::info('=== DEBUG ASISTENCIA ===');
+        \Log::info('Tenant: ' . $currentTenant);
+        \Log::info('Domain: ' . $currentDomain);
+        \Log::info('Guardia ID: ' . $myGuardia->id);
+        \Log::info('Generated URL: ' . $generatedUrl);
     @endphp
-    <!-- DEBUG URL: {{ $generatedUrl }} -->
+    
+    @if(app()->environment('local') || request()->has('debug'))
+    <div id="debug-asistencia-panel" style="background:#1e293b;border:2px solid #ef4444;border-radius:8px;padding:12px;margin-bottom:16px;font-family:monospace;font-size:12px;">
+        <div style="color:#ef4444;font-weight:bold;margin-bottom:8px;">🔍 DEBUG ASISTENCIA</div>
+        <div style="color:#94a3b8;">URL Generada: <span style="color:#22d3ee;word-break:break-all;">{{ $generatedUrl }}</span></div>
+        <div style="color:#94a3b8;">Tenant: <span style="color:#22d3ee;">{{ $currentTenant }}</span></div>
+        <div style="color:#94a3b8;">Dominio: <span style="color:#22d3ee;">{{ $currentDomain }}</span></div>
+        <div style="color:#94a3b8;">Guardia ID: <span style="color:#22d3ee;">{{ $myGuardia->id }}</span></div>
+        <div style="color:#94a3b8;">Route Params: <span style="color:#22d3ee;">{{ json_encode($routeParams) }}</span></div>
+        <button type="button" onclick="testAttendanceUrl()" style="margin-top:8px;background:#3b82f6;color:white;border:none;padding:4px 12px;border-radius:4px;cursor:pointer;">Test URL (Fetch)</button>
+        <div id="debug-test-result" style="margin-top:8px;color:#fbbf24;"></div>
+    </div>
+    
+    <script>
+    function testAttendanceUrl() {
+        const url = '{{ $generatedUrl }}';
+        const resultDiv = document.getElementById('debug-test-result');
+        resultDiv.innerHTML = 'Testing...';
+        
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            },
+            body: new FormData()
+        }).then(r => {
+            resultDiv.innerHTML = '<span style="color:#4ade7d;">Status: ' + r.status + ' ' + r.statusText + '</span><br>Content-Type: ' + r.headers.get('content-type');
+            return r.text();
+        }).then(t => {
+            console.log('[DEBUG] Test response:', t.substring(0, 500));
+            resultDiv.innerHTML += '<br>Response length: ' + t.length;
+        }).catch(e => {
+            resultDiv.innerHTML = '<span style="color:#ef4444;">Error: ' + e.message + '</span>';
+            console.error('[DEBUG] Test error:', e);
+        });
+    }
+    
+    // Interceptar submit del form para debug
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('guardia-attendance-form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                console.log('=== FORM SUBMIT DEBUG ===');
+                console.log('Action:', form.action);
+                console.log('Method:', form.method);
+                console.log('Form data:');
+                const data = new FormData(form);
+                for (let [key, value] of data.entries()) {
+                    console.log('  ' + key + ':', value);
+                }
+                
+                // Mostrar en panel debug
+                const panel = document.getElementById('debug-asistencia-panel');
+                if (panel) {
+                    const submitDebug = document.createElement('div');
+                    submitDebug.style.cssText = 'margin-top:8px;padding:8px;background:#0f172a;border-radius:4px;';
+                    submitDebug.innerHTML = '<div style="color:#fbbf24;">Submit detected!</div><div style="color:#94a3b8;font-size:10px;">Action: ' + form.action + '</div>';
+                    panel.appendChild(submitDebug);
+                }
+            });
+        }
+    });
+    </script>
+    @endif
     
     <form id="guardia-attendance-form" method="POST" action="{{ $generatedUrl }}">
         @csrf

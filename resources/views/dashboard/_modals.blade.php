@@ -1586,9 +1586,20 @@
             e.stopPropagation();
             e.stopImmediatePropagation();
             
+            // DEBUG: Log form details
+            console.log('=== EMERGENCY FORM SUBMIT DEBUG ===');
+            console.log('Form action (from attribute):', form.getAttribute('action'));
+            
             // Use relative URL to avoid multi-tenant route issues
             const actionUrl = '/admin/emergencies';
+            console.log('Using actionUrl:', actionUrl);
+            
             const formData = new FormData(form);
+            console.log('Form data entries:');
+            for (let [key, value] of formData.entries()) {
+                console.log('  ' + key + ':', value);
+            }
+            
             const submitBtn = form.querySelector('button[type="submit"]');
             const originalText = submitBtn ? submitBtn.innerHTML : '';
             
@@ -1598,6 +1609,7 @@
             }
             
             try {
+                console.log('Fetching:', actionUrl);
                 const response = await fetch(actionUrl, {
                     method: 'POST',
                     body: formData,
@@ -1607,15 +1619,33 @@
                     }
                 });
                 
+                console.log('Response received:');
+                console.log('  Status:', response.status, response.statusText);
+                console.log('  URL:', response.url);
+                
+                // Get all headers
+                const headers = {};
+                response.headers.forEach((value, key) => {
+                    headers[key] = value;
+                });
+                console.log('  Headers:', headers);
+                
                 // Check if response is JSON
                 const contentType = response.headers.get('content-type');
+                console.log('  Content-Type:', contentType);
+                
                 if (!contentType || !contentType.includes('application/json')) {
                     const text = await response.text();
-                    console.error('[Emergency] Non-JSON response:', text.substring(0, 500));
-                    throw new Error('Respuesta no válida del servidor');
+                    console.error('[Emergency] Non-JSON response. Full text:');
+                    console.error(text);
+                    
+                    // Show debug info to user
+                    alert('Error: Respuesta no válida del servidor.\n\nStatus: ' + response.status + '\nContent-Type: ' + contentType + '\n\nVer consola (F12) para ver el HTML de error completo.');
+                    throw new Error('Respuesta no válida del servidor (ver consola para detalles)');
                 }
                 
                 const data = await response.json();
+                console.log('Response JSON:', data);
                 
                 if (data.success) {
                     showSuccessToast('Emergencia Guardada', 'La emergencia se registró correctamente');
