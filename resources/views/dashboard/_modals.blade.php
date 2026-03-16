@@ -312,6 +312,42 @@
             }
         }
 
+        // Simple success toast function
+        window.showSuccessToast = function(title, message) {
+            // Create toast container if it doesn't exist
+            let toastContainer = document.getElementById('success-toast-container');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.id = 'success-toast-container';
+                toastContainer.className = 'fixed top-4 right-4 z-[100] flex flex-col gap-2';
+                document.body.appendChild(toastContainer);
+            }
+            
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = 'bg-emerald-600 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 min-w-[300px] animate-fade-in';
+            toast.innerHTML = `
+                <i class="fas fa-check-circle text-xl"></i>
+                <div>
+                    <div class="font-bold text-sm">${title}</div>
+                    <div class="text-xs text-emerald-100">${message}</div>
+                </div>
+                <button onclick="this.parentElement.remove()" class="ml-auto text-emerald-200 hover:text-white">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
         window.closeAttendanceStaleBanner = function() {
             const banner = document.getElementById('attendance-stale-banner');
             if (banner) {
@@ -1488,12 +1524,8 @@
             e.stopPropagation();
             e.stopImmediatePropagation();
             
-            const actionUrl = form.getAttribute('data-action-url');
-            if (!actionUrl) {
-                console.error('No action URL found on aseo form');
-                return;
-            }
-            
+            // Use relative URL to avoid multi-tenant route issues
+            const actionUrl = '/aseo';
             const formData = new FormData(form);
             const submitBtn = form.querySelector('button[type="submit"]');
             const originalText = submitBtn ? submitBtn.innerHTML : '';
@@ -1513,13 +1545,19 @@
                     }
                 });
                 
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    console.error('[Aseo] Non-JSON response:', text.substring(0, 500));
+                    throw new Error('Respuesta no válida del servidor');
+                }
+                
                 const data = await response.json();
                 
                 if (data.success) {
                     closeAseoModal();
-                    if (typeof showSuccessToast === 'function') {
-                        showSuccessToast('Aseo Guardado', 'Las asignaciones se guardaron correctamente');
-                    }
+                    showSuccessToast('Aseo Guardado', 'Las asignaciones se guardaron correctamente');
                 } else {
                     alert(data.message || 'Error al guardar');
                     if (submitBtn) {
@@ -1528,8 +1566,8 @@
                     }
                 }
             } catch (error) {
-                console.error('Error saving aseo:', error);
-                alert('Error de conexión al guardar');
+                console.error('[Aseo] Error:', error);
+                alert('Error al guardar: ' + error.message);
                 if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalText;
@@ -1548,12 +1586,8 @@
             e.stopPropagation();
             e.stopImmediatePropagation();
             
-            const actionUrl = form.getAttribute('data-action-url');
-            if (!actionUrl) {
-                console.error('No action URL found on emergency form');
-                return;
-            }
-            
+            // Use relative URL to avoid multi-tenant route issues
+            const actionUrl = '/admin/emergencies';
             const formData = new FormData(form);
             const submitBtn = form.querySelector('button[type="submit"]');
             const originalText = submitBtn ? submitBtn.innerHTML : '';
@@ -1573,12 +1607,18 @@
                     }
                 });
                 
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    console.error('[Emergency] Non-JSON response:', text.substring(0, 500));
+                    throw new Error('Respuesta no válida del servidor');
+                }
+                
                 const data = await response.json();
                 
                 if (data.success) {
-                    if (typeof showSuccessToast === 'function') {
-                        showSuccessToast('Emergencia Guardada', 'La emergencia se registró correctamente');
-                    }
+                    showSuccessToast('Emergencia Guardada', 'La emergencia se registró correctamente');
                     // Reload emergency list after short delay
                     setTimeout(() => openEmergenciasModal(), 500);
                 } else {
@@ -1589,8 +1629,8 @@
                     }
                 }
             } catch (error) {
-                console.error('Error saving emergency:', error);
-                alert('Error de conexión al guardar');
+                console.error('[Emergency] Error:', error);
+                alert('Error al guardar: ' + error.message);
                 if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalText;
@@ -1691,6 +1731,11 @@
                 if (typeof window.bindAttendanceFormHandlers === 'function') {
                     window.bindAttendanceFormHandlers();
                 }
+
+                // Timer para habilitar el botón de guardar en tiempo real cuando llegue 22:00
+                setInterval(function() {
+                    refreshAttendanceSubmitButton();
+                }, 30000); // Revisar cada 30 segundos
             });
 
             kioskPing();
