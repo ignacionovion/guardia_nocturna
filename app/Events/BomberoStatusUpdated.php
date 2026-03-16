@@ -40,10 +40,11 @@ class BomberoStatusUpdated implements ShouldBroadcast
     {
         return [
             'bombero_id' => $this->bombero->id,
-            'status' => $this->bombero->status,
+            'estado_asistencia' => $this->bombero->estado_asistencia,
+            'nombres' => $this->bombero->nombres,
+            'apellido_paterno' => $this->bombero->apellido_paterno,
             'guardia_id' => $this->bombero->guardia_id,
             'es_refuerzo' => $this->bombero->es_refuerzo,
-            'es_reemplazo' => $this->bombero->es_reemplazo,
             'timestamp' => now()->toIso8601String(),
         ];
     }

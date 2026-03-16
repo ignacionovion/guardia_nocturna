@@ -11,87 +11,160 @@ import ReemplazoModal from '../components/ReemplazoModal.vue';
 
 const store = useGuardiaStore();
 let refreshInterval = null;
+let reconnectTimeout = null;
 const broadcastConnected = ref(false);
+const reconnectAttempts = ref(0);
+const maxReconnectAttempts = 5;
 
 // Phase 5: Initialize broadcasting with polling fallback
 function initBroadcasting() {
     if (!window.Echo || !store.guardiaId || !store.tenantId) {
-        console.warn('[Broadcasting] Echo not available or missing IDs');
+        console.warn('[Broadcasting] ⚠️ Echo not available or missing IDs', {
+            hasEcho: !!window.Echo,
+            guardiaId: store.guardiaId,
+            tenantId: store.tenantId
+        });
         return false;
     }
 
     try {
         const channelName = `tenant.${store.tenantId}.guardia.${store.guardiaId}`;
-        console.log('[Broadcasting] Connecting to channel:', channelName);
+        console.log('[Broadcasting] 🔌 Connecting to channel:', channelName);
 
         const channel = window.Echo.channel(channelName);
 
+        // Connection state listeners
+        if (window.Echo.connector && window.Echo.connector.pusher) {
+            window.Echo.connector.pusher.connection.bind('connected', () => {
+                console.log('[Broadcasting] ✅ WebSocket connected');
+                broadcastConnected.value = true;
+                reconnectAttempts.value = 0;
+                adjustPollingInterval(true);
+            });
+
+            window.Echo.connector.pusher.connection.bind('disconnected', () => {
+                console.warn('[Broadcasting] ❌ WebSocket disconnected');
+                broadcastConnected.value = false;
+                adjustPollingInterval(false);
+                attemptReconnect();
+            });
+
+            window.Echo.connector.pusher.connection.bind('error', (error) => {
+                console.error('[Broadcasting] 🔴 WebSocket error:', error);
+                broadcastConnected.value = false;
+            });
+        }
+
         // Listen to all events
         channel.listen('.bombero.status.updated', (event) => {
-            console.log('[Broadcasting] Bombero status updated:', event);
+            console.log('[Broadcasting] 📝 Bombero status updated:', event);
             store.refreshState();
         });
 
         channel.listen('.bombero.confirmed', (event) => {
-            console.log('[Broadcasting] Bombero confirmed:', event);
+            console.log('[Broadcasting] ✓ Bombero confirmed:', event);
             store.refreshState();
         });
 
         channel.listen('.refuerzo.added', (event) => {
-            console.log('[Broadcasting] Refuerzo added:', event);
+            console.log('[Broadcasting] 👤 Refuerzo added:', event);
             store.refreshState();
         });
 
         channel.listen('.replacement.assigned', (event) => {
-            console.log('[Broadcasting] Replacement assigned:', event);
+            console.log('[Broadcasting] 🔄 Replacement assigned:', event);
             store.refreshState();
         });
 
         channel.listen('.emergencia.created', (event) => {
-            console.log('[Broadcasting] Emergencia created:', event);
+            console.log('[Broadcasting] 🚨 Emergencia created:', event);
             store.refreshState();
         });
 
         channel.listen('.aseo.updated', (event) => {
-            console.log('[Broadcasting] Aseo updated:', event);
+            console.log('[Broadcasting] 🧹 Aseo updated:', event);
             store.refreshState();
         });
 
         broadcastConnected.value = true;
-        console.log('[Broadcasting] Connected successfully');
+        console.log('[Broadcasting] ✅ Connected successfully');
         return true;
     } catch (error) {
-        console.error('[Broadcasting] Failed to connect:', error);
+        console.error('[Broadcasting] 🔴 Failed to connect:', error);
         return false;
     }
 }
 
+// Adjust polling interval based on broadcast connection
+function adjustPollingInterval(connected) {
+    if (refreshInterval) {
+        clearInterval(refreshInterval);
+    }
+    
+    const pollingInterval = connected ? 60000 : 30000;
+    refreshInterval = setInterval(() => {
+        store.refreshState();
+    }, pollingInterval);
+    
+    console.log(`[Polling] 🔄 Interval adjusted to ${pollingInterval}ms (broadcasting: ${connected})`);
+}
+
+// Attempt to reconnect with exponential backoff
+function attemptReconnect() {
+    if (reconnectAttempts.value >= maxReconnectAttempts) {
+        console.warn('[Broadcasting] ⚠️ Max reconnection attempts reached');
+        return;
+    }
+    
+    reconnectAttempts.value++;
+    const delay = Math.min(1000 * Math.pow(2, reconnectAttempts.value - 1), 30000);
+    
+    console.log(`[Broadcasting] 🔄 Reconnecting in ${delay}ms (attempt ${reconnectAttempts.value}/${maxReconnectAttempts})`);
+    
+    if (reconnectTimeout) {
+        clearTimeout(reconnectTimeout);
+    }
+    
+    reconnectTimeout = setTimeout(() => {
+        console.log('[Broadcasting] 🔌 Attempting reconnection...');
+        initBroadcasting();
+    }, delay);
+}
+
 onMounted(() => {
+    console.log('[GuardiaLive] 🚀 Component mounted');
+    
     // Try to initialize broadcasting
     const connected = initBroadcasting();
 
     // Start polling with adaptive interval
-    // 60s if broadcasting is active, 30s if not
     const pollingInterval = connected ? 60000 : 30000;
     
     refreshInterval = setInterval(() => {
         store.refreshState();
     }, pollingInterval);
 
-    console.log(`[Polling] Started with ${pollingInterval}ms interval (broadcasting: ${connected})`);
+    console.log(`[Polling] ⏱️ Started with ${pollingInterval}ms interval (broadcasting: ${connected})`);
 });
 
 onUnmounted(() => {
+    console.log('[GuardiaLive] 🛑 Component unmounting');
+    
     if (refreshInterval) {
         clearInterval(refreshInterval);
-        console.log('[Polling] Stopped');
+        console.log('[Polling] ⏹️ Stopped');
+    }
+    
+    if (reconnectTimeout) {
+        clearTimeout(reconnectTimeout);
+        console.log('[Broadcasting] ⏹️ Reconnect timeout cleared');
     }
     
     // Disconnect from broadcasting
-    if (broadcastConnected.value && window.Echo && store.guardiaId && store.tenantId) {
+    if (window.Echo && store.guardiaId && store.tenantId) {
         const channelName = `tenant.${store.tenantId}.guardia.${store.guardiaId}`;
         window.Echo.leave(channelName);
-        console.log('[Broadcasting] Disconnected');
+        console.log('[Broadcasting] 👋 Disconnected from channel');
     }
 });
 </script>

@@ -21,6 +21,17 @@ Broadcast::channel('tenant.{tenantId}.guardia.{guardiaId}', function ($user, $te
     if (!$currentTenant || $currentTenant->id !== $tenantId) {
         return false;
     }
-    // Allow all authenticated users to listen to their guardia's channel
+    
+    // Super admin and capitania can access all guardias
+    if (in_array($user->role, ['super_admin', 'capitania'], true)) {
+        return true;
+    }
+    
+    // Guardia role users can only access their own guardia
+    if ($user->role === 'guardia' && $user->guardia_id) {
+        return (int) $user->guardia_id === (int) $guardiaId;
+    }
+    
+    // Allow authenticated users to view (read-only access)
     return $user !== null;
 });

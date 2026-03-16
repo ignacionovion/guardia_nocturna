@@ -318,6 +318,9 @@ class AdministradorController extends Controller
         $ts = time();
         $token = $this->makeAttendanceConfirmToken((int) $guardia->id, (int) $bombero->id, $ts);
 
+        // Broadcast event for real-time updates
+        broadcast(new BomberoConfirmed($bombero->id, $guardia->id))->toOthers();
+
         return response()->json([
             'ok' => true,
             'token' => $token,
@@ -1283,6 +1286,9 @@ class AdministradorController extends Controller
                 $firefighter->update([
                     'estado_asistencia' => $attendanceStatus,
                 ]);
+
+                // Broadcast event for real-time updates
+                broadcast(new BomberoStatusUpdated($firefighter, $guardia->id))->toOthers();
 
                 $userId = MapaBomberoUsuarioLegacy::where('firefighter_id', $firefighter->id)->value('user_id');
 
