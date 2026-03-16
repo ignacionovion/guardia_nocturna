@@ -1,0 +1,23 @@
+{
+  "resources/css/app.css": {
+    "file": "assets/app-CNNF8Go3.css",
+    "src": "resources/css/app.css",
+    "isEntry": true,
+    "name": "app",
+    "names": [
+      "app.css"
+    ]
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-BuG9aa18.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true
+  },
+  "resources/js/guardia-live/app.js": {
+    "file": "assets/app-BB-DWEqv.js",
+    "name": "app",
+    "src": "resources/js/guardia-live/app.js",
+    "isEntry": true
+  }
+}

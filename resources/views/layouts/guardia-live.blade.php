@@ -42,5 +42,27 @@
     <div id="guardia-live-app" class="min-h-screen"></div>
 
     @stack('scripts')
+
+    <script>
+    // ── DEBUG GUARDIA LIVE (remover después de verificar) ──────────────
+    document.addEventListener('DOMContentLoaded', function () {
+        var state = window.__GUARDIA_LIVE_INITIAL_STATE__;
+        console.log('[DEBUG] initialState.attendance_enabled =', state?.attendance_enabled);
+        console.log('[DEBUG] initialState.bulk_update_url    =', state?.bulk_update_url);
+        console.log('[DEBUG] initialState.staff.length       =', state?.staff?.length);
+        console.log('[DEBUG] initialState.draft_editable     =', state?.draft_editable);
+        console.log('[DEBUG] BUILD timestamp                 =', document.querySelector('script[src*="guardia"]')?.src ?? '(no match)');
+    });
+
+    document.addEventListener('click', function (e) {
+        var btn = e.target.closest('button');
+        if (!btn) return;
+        var txt = (btn.textContent || '').trim();
+        if (txt.includes('Guardar') || txt.includes('guardar')) {
+            console.log('[DEBUG] Guardar clicked — btn:', btn, '| disabled:', btn.disabled);
+        }
+    }, true);
+    // ─────────────────────────────────────────────────────────────────
+    </script>
 </body>
 </html>
