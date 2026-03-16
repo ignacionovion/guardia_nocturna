@@ -52,16 +52,16 @@
                                 <div class="text-sm text-slate-400">{{ \Illuminate\Support\Str::limit($emergency->key?->description ?? '', 40) }}</div>
                             </td>
                             <td class="px-4 py-3 align-top">
-                                <div class="text-sm text-slate-300">{{ $emergency->departure_time ? \Carbon\Carbon::parse($emergency->departure_time)->format('H:i') : '-' }}</div>
+                                <div class="text-sm text-slate-300">{{ $emergency->dispatched_at ? \Carbon\Carbon::parse($emergency->dispatched_at)->format('H:i') : '-' }}</div>
                             </td>
                             <td class="px-4 py-3 align-top">
-                                <div class="text-sm text-slate-300">{{ $emergency->arrival_time ? \Carbon\Carbon::parse($emergency->arrival_time)->format('H:i') : '-' }}</div>
+                                <div class="text-sm text-slate-300">{{ $emergency->arrived_at ? \Carbon\Carbon::parse($emergency->arrived_at)->format('H:i') : '-' }}</div>
                             </td>
                             <td class="px-4 py-3 align-top">
                                 <div class="text-sm text-slate-300">{{ $emergency->units->pluck('name')->join(', ') ?: '-' }}</div>
                             </td>
                             <td class="px-4 py-3 align-top">
-                                <div class="text-sm text-slate-300">{{ $emergency->in_charge ?? '-' }}</div>
+                                <div class="text-sm text-slate-300">{{ $emergency->officerInChargeFirefighter?->nombres ? $emergency->officerInChargeFirefighter->apellido_paterno . ', ' . $emergency->officerInChargeFirefighter->nombres : '-' }}</div>
                             </td>
                             <td class="px-4 py-3 align-top text-right">
                                 <a href="{{ route('admin.emergencies.edit', $emergency) }}" 
