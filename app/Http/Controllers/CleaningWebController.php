@@ -12,6 +12,7 @@ use App\Services\SystemEmailService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
+use App\Events\AseoUpdated;
 
 class CleaningWebController extends Controller
 {
@@ -238,6 +239,9 @@ class CleaningWebController extends Controller
             senderRole: $user->role ?? null,
             sourceLabel: 'Sistema de Gestión de Aseo'
         );
+
+        // Broadcast event for real-time updates
+        broadcast(new AseoUpdated($guardiaId, $date->toDateString(), $validated['assignments']))->toOthers();
 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([

@@ -37,6 +37,10 @@ export const useGuardiaStore = defineStore('guardia', () => {
     const activeModal = ref(null); // 'aseo' | 'emergencias' | 'refuerzo' | 'reemplazo' | null
     const modalContext = ref(null); // Context data for active modal (e.g., firefighter for replacement)
 
+    // Phase 5: Broadcasting state
+    const broadcastConnected = ref(false);
+    const echoChannel = ref(null);
+
     // ── Computed ───────────────────────────────────────────
     const PRESENT_STATUSES = ['constituye', 'reemplazo'];
 
@@ -49,6 +53,18 @@ export const useGuardiaStore = defineStore('guardia', () => {
 
     const presentCount = computed(() => presentStaff.value.length);
     const visibleCount = computed(() => staff.value.length);
+
+    // Phase 5: Computed properties for broadcasting
+    const guardiaId = computed(() => guardia.value?.id ?? null);
+    const tenantId = computed(() => {
+        // Extract tenant ID from current URL or meta tag
+        const hostname = window.location.hostname;
+        const parts = hostname.split('.');
+        if (parts.length >= 3) {
+            return parts[0]; // e.g., 'cuarta-temuco' from 'cuarta-temuco.sas.dev-app.cl'
+        }
+        return null;
+    });
 
     const attendanceVariantClasses = computed(() => {
         const map = {
@@ -457,6 +473,9 @@ export const useGuardiaStore = defineStore('guardia', () => {
         attendanceVariantClasses,
         guardiaName,
         guardiaNumber,
+        guardiaId,
+        tenantId,
+        broadcastConnected,
         // actions
         initFromServer,
         refreshState,

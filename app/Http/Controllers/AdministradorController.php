@@ -24,6 +24,10 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
+use App\Events\BomberoStatusUpdated;
+use App\Events\BomberoConfirmed;
+use App\Events\RefuerzoAdded;
+use App\Events\ReplacementAssigned;
 
 class AdministradorController extends Controller
 {
@@ -463,6 +467,9 @@ class AdministradorController extends Controller
         // Enviar notificación de refuerzo agregado
         \App\Services\NotificationService::refuerzoCreated($user, $firefighter, $guardia);
 
+        // Broadcast event for real-time updates
+        broadcast(new RefuerzoAdded($firefighter, $guardia->id))->toOthers();
+
         if ($request->wantsJson()) {
             return response()->json(['ok' => true, 'message' => "Refuerzo agregado: {$firefighter->nombres} {$firefighter->apellido_paterno}."]);
         }
@@ -632,6 +639,9 @@ class AdministradorController extends Controller
 
             // Enviar notificación de reemplazo efectuado
             \App\Services\NotificationService::replacementCreated($user, $original, $replacement, $guardia);
+
+            // Broadcast event for real-time updates
+            broadcast(new ReplacementAssigned($reemplazo, $guardia->id))->toOthers();
         });
 
         if ($request->wantsJson()) {

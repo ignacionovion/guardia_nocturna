@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, onUnmounted } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import { useGuardiaStore } from '../stores/guardia';
 import LiveHeader from '../components/LiveHeader.vue';
 import FirefighterGrid from '../components/FirefighterGrid.vue';
@@ -11,15 +11,88 @@ import ReemplazoModal from '../components/ReemplazoModal.vue';
 
 const store = useGuardiaStore();
 let refreshInterval = null;
+const broadcastConnected = ref(false);
+
+// Phase 5: Initialize broadcasting with polling fallback
+function initBroadcasting() {
+    if (!window.Echo || !store.guardiaId || !store.tenantId) {
+        console.warn('[Broadcasting] Echo not available or missing IDs');
+        return false;
+    }
+
+    try {
+        const channelName = `tenant.${store.tenantId}.guardia.${store.guardiaId}`;
+        console.log('[Broadcasting] Connecting to channel:', channelName);
+
+        const channel = window.Echo.channel(channelName);
+
+        // Listen to all events
+        channel.listen('.bombero.status.updated', (event) => {
+            console.log('[Broadcasting] Bombero status updated:', event);
+            store.refreshState();
+        });
+
+        channel.listen('.bombero.confirmed', (event) => {
+            console.log('[Broadcasting] Bombero confirmed:', event);
+            store.refreshState();
+        });
+
+        channel.listen('.refuerzo.added', (event) => {
+            console.log('[Broadcasting] Refuerzo added:', event);
+            store.refreshState();
+        });
+
+        channel.listen('.replacement.assigned', (event) => {
+            console.log('[Broadcasting] Replacement assigned:', event);
+            store.refreshState();
+        });
+
+        channel.listen('.emergencia.created', (event) => {
+            console.log('[Broadcasting] Emergencia created:', event);
+            store.refreshState();
+        });
+
+        channel.listen('.aseo.updated', (event) => {
+            console.log('[Broadcasting] Aseo updated:', event);
+            store.refreshState();
+        });
+
+        broadcastConnected.value = true;
+        console.log('[Broadcasting] Connected successfully');
+        return true;
+    } catch (error) {
+        console.error('[Broadcasting] Failed to connect:', error);
+        return false;
+    }
+}
 
 onMounted(() => {
+    // Try to initialize broadcasting
+    const connected = initBroadcasting();
+
+    // Start polling with adaptive interval
+    // 60s if broadcasting is active, 30s if not
+    const pollingInterval = connected ? 60000 : 30000;
+    
     refreshInterval = setInterval(() => {
         store.refreshState();
-    }, 30000);
+    }, pollingInterval);
+
+    console.log(`[Polling] Started with ${pollingInterval}ms interval (broadcasting: ${connected})`);
 });
 
 onUnmounted(() => {
-    if (refreshInterval) clearInterval(refreshInterval);
+    if (refreshInterval) {
+        clearInterval(refreshInterval);
+        console.log('[Polling] Stopped');
+    }
+    
+    // Disconnect from broadcasting
+    if (broadcastConnected.value && window.Echo && store.guardiaId && store.tenantId) {
+        const channelName = `tenant.${store.tenantId}.guardia.${store.guardiaId}`;
+        window.Echo.leave(channelName);
+        console.log('[Broadcasting] Disconnected');
+    }
 });
 </script>
 

@@ -16,6 +16,7 @@ use App\Models\MapaBomberoUsuarioLegacy;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
+use App\Events\EmergenciaCreated;
 
 class EmergencyController extends Controller
 {
@@ -304,6 +305,11 @@ class EmergencyController extends Controller
             $emergencyKey?->description ?? 'Sin detalles',
             $guardiaId ? Guardia::find($guardiaId) : null
         );
+
+        // Broadcast event for real-time updates
+        if ($guardiaId) {
+            broadcast(new EmergenciaCreated($emergency, $guardiaId))->toOthers();
+        }
 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
