@@ -46,17 +46,6 @@ function openModal(id) {
 <template>
     <header class="sticky top-0 z-40 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-b border-slate-700/60 backdrop-blur-sm">
 
-        <!-- Save result feedback bar -->
-        <div
-            v-if="store.saveResult"
-            class="px-4 py-1.5 text-xs font-semibold text-center transition-all"
-            :class="store.saveResult.ok
-                ? 'bg-emerald-600/20 text-emerald-300 border-b border-emerald-700/30'
-                : 'bg-red-600/20 text-red-300 border-b border-red-700/30'"
-        >
-            {{ store.saveResult.message }}
-        </div>
-
         <div class="px-4 md:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
 
             <!-- Left: brand + guardia info -->

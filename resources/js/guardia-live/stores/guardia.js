@@ -121,13 +121,16 @@ export const useGuardiaStore = defineStore('guardia', () => {
         if (idx === -1) return { ok: false, message: 'Bombero no encontrado' };
 
         const prev = { ...staff.value[idx] };
+        const prevPending = hasPendingChanges.value;
 
+        // Optimistic update: status + pending indicator appear immediately
         staff.value[idx] = {
             ...staff.value[idx],
             draft_attendance_status: newStatus,
             confirmed_at: null,
             confirm_token: null,
         };
+        hasPendingChanges.value = true;
 
         try {
             const res = await fetch('/draft/turno/item', {
@@ -141,19 +144,26 @@ export const useGuardiaStore = defineStore('guardia', () => {
 
             if (!res.ok || !data.ok) {
                 staff.value[idx] = prev;
+                hasPendingChanges.value = prevPending;
                 return { ok: false, message: data.message ?? `HTTP ${res.status}` };
             }
 
-            hasPendingChanges.value = true;
             return { ok: true };
         } catch (err) {
             staff.value[idx] = prev;
+            hasPendingChanges.value = prevPending;
             return { ok: false, message: err.message };
         }
     }
 
     async function saveAttendance() {
         if (isSaving.value) return { ok: false, message: 'Ya guardando...' };
+
+        const url = bulkUpdateUrl.value;
+        if (!url) {
+            saveResult.value = { ok: false, message: 'URL de guardado no disponible' };
+            return { ok: false, message: 'URL de guardado no disponible' };
+        }
 
         const users = {};
         for (const s of staff.value) {
@@ -168,9 +178,6 @@ export const useGuardiaStore = defineStore('guardia', () => {
         saveResult.value = null;
 
         try {
-            const url = bulkUpdateUrl.value;
-            if (!url) return { ok: false, message: 'URL de guardado no disponible' };
-
             const res = await fetch(url, {
                 method: 'POST',
                 headers: { ...JSON_HEADERS, 'X-CSRF-TOKEN': csrfToken() },
