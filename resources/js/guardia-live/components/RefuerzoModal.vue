@@ -21,11 +21,17 @@ const availableForRefuerzo = computed(() => {
 
 onMounted(async () => {
     // Fetch all firefighters
+    console.log('[RefuerzoModal] Fetching firefighters...');
     try {
         const res = await fetch('/api/bomberos', { credentials: 'same-origin' });
+        console.log('[RefuerzoModal] Response:', res.status, res.ok);
         if (res.ok) {
             const data = await res.json();
-            allFirefighters.value = data.data || data || [];
+            console.log('[RefuerzoModal] Data received:', data);
+            allFirefighters.value = Array.isArray(data) ? data : (data.data || []);
+            console.log('[RefuerzoModal] Firefighters loaded:', allFirefighters.value.length);
+        } else {
+            console.error('[RefuerzoModal] Fetch failed:', await res.text());
         }
     } catch (err) {
         console.error('[RefuerzoModal] Failed to load firefighters:', err);

@@ -27,20 +27,33 @@ const availableFirefighters = computed(() =>
 
 onMounted(async () => {
     // Fetch emergency keys and units
+    console.log('[EmergenciasModal] Fetching data...');
     try {
         const [keysRes, unitsRes] = await Promise.all([
             fetch('/api/emergency-keys', { credentials: 'same-origin' }),
             fetch('/api/emergency-units', { credentials: 'same-origin' }),
         ]);
 
+        console.log('[EmergenciasModal] Keys response:', keysRes.status, keysRes.ok);
+        console.log('[EmergenciasModal] Units response:', unitsRes.status, unitsRes.ok);
+
         if (keysRes.ok) {
             const keysData = await keysRes.json();
-            emergencyKeys.value = keysData.data || keysData || [];
+            console.log('[EmergenciasModal] Keys data:', keysData);
+            emergencyKeys.value = Array.isArray(keysData) ? keysData : (keysData.data || []);
+            console.log('[EmergenciasModal] Keys loaded:', emergencyKeys.value.length);
+        } else {
+            console.error('[EmergenciasModal] Keys fetch failed:', await keysRes.text());
         }
 
         if (unitsRes.ok) {
             const unitsData = await unitsRes.json();
-            emergencyUnits.value = (unitsData.data || unitsData || []).filter(u => u.is_active);
+            console.log('[EmergenciasModal] Units data:', unitsData);
+            const allUnits = Array.isArray(unitsData) ? unitsData : (unitsData.data || []);
+            emergencyUnits.value = allUnits.filter(u => u.is_active !== false);
+            console.log('[EmergenciasModal] Units loaded:', emergencyUnits.value.length);
+        } else {
+            console.error('[EmergenciasModal] Units fetch failed:', await unitsRes.text());
         }
     } catch (err) {
         console.error('[EmergenciasModal] Failed to load data:', err);

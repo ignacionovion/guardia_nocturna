@@ -16,6 +16,8 @@ use App\Http\Controllers\Admin\SystemAdminController;
 use App\Http\Controllers\AsignacionCamaController;
 use App\Http\Controllers\NovedadController;
 use App\Http\Controllers\Admin\GuardiaArchiveController;
+use App\Http\Controllers\Admin\EmergencyKeyController;
+use App\Http\Controllers\Admin\EmergencyUnitController;
 
 use App\Http\Controllers\Admin\PreventiveEventController;
 use App\Http\Controllers\Admin\PlanillaController;
@@ -123,6 +125,12 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
     Route::get('/dashboard', [TableroController::class, 'index'])->name('dashboard');
     Route::get('/dashboard-live', [GuardiaLiveController::class, 'index'])->name('dashboard.live');
     Route::get('/api/guardia-live/state', [GuardiaLiveController::class, 'state'])->name('guardia.live.state');
+    
+    // Phase 4: Modal data endpoints (session auth)
+    Route::get('/api/bomberos', [BomberoController::class, 'apiIndex'])->name('api.bomberos');
+    Route::get('/api/emergency-keys', [Admin\EmergencyKeyController::class, 'apiIndex'])->name('api.emergency-keys');
+    Route::get('/api/emergency-units', [Admin\EmergencyUnitController::class, 'apiIndex'])->name('api.emergency-units');
+    
     Route::get('/camas', [TableroController::class, 'camas'])->name('camas');
     Route::get('/guardia', [GuardiaController::class, 'index'])->name('guardia');
     Route::get('/now', [GuardiaController::class, 'now'])->name('guardia.now');

@@ -25,11 +25,17 @@ const availableReplacements = computed(() => {
 
 onMounted(async () => {
     // Fetch all firefighters
+    console.log('[ReemplazoModal] Fetching firefighters...');
     try {
         const res = await fetch('/api/bomberos', { credentials: 'same-origin' });
+        console.log('[ReemplazoModal] Response:', res.status, res.ok);
         if (res.ok) {
             const data = await res.json();
-            allFirefighters.value = data.data || data || [];
+            console.log('[ReemplazoModal] Data received:', data);
+            allFirefighters.value = Array.isArray(data) ? data : (data.data || []);
+            console.log('[ReemplazoModal] Firefighters loaded:', allFirefighters.value.length);
+        } else {
+            console.error('[ReemplazoModal] Fetch failed:', await res.text());
         }
     } catch (err) {
         console.error('[ReemplazoModal] Failed to load firefighters:', err);
