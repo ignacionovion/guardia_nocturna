@@ -35,12 +35,6 @@ function openFullscreen() {
         document.exitFullscreen().catch(() => {});
     }
 }
-
-function openModal(id) {
-    const el = document.getElementById(id);
-    if (el) el.dispatchEvent(new CustomEvent('open-modal'));
-    if (typeof window.openModal === 'function') window.openModal(id);
-}
 </script>
 
 <template>
@@ -129,7 +123,7 @@ function openModal(id) {
                         type="button"
                         class="w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 bg-slate-800/80 border border-slate-700/50 hover:bg-slate-700 hover:border-slate-600"
                         title="Aseo"
-                        @click="openModal('aseo-modal')"
+                        @click="store.openModal('aseo')"
                     >
                         <svg class="w-4 h-4 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -142,11 +136,24 @@ function openModal(id) {
                         type="button"
                         class="w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 bg-slate-800/80 border border-slate-700/50 hover:bg-red-900/40 hover:border-red-700/50"
                         title="Emergencias"
-                        @click="openModal('emergencias-modal')"
+                        @click="store.openModal('emergencias')"
                     >
                         <svg class="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </button>
+
+                    <!-- Refuerzo -->
+                    <button
+                        type="button"
+                        class="w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 bg-slate-800/80 border border-slate-700/50 hover:bg-purple-900/40 hover:border-purple-700/50"
+                        title="Agregar Refuerzo"
+                        @click="store.openModal('refuerzo')"
+                    >
+                        <svg class="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                         </svg>
                     </button>
 

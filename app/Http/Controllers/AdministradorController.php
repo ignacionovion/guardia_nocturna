@@ -463,6 +463,10 @@ class AdministradorController extends Controller
         // Enviar notificación de refuerzo agregado
         \App\Services\NotificationService::refuerzoCreated($user, $firefighter, $guardia);
 
+        if ($request->wantsJson()) {
+            return response()->json(['ok' => true, 'message' => "Refuerzo agregado: {$firefighter->nombres} {$firefighter->apellido_paterno}."]);
+        }
+
         return back()->with('success', "Refuerzo agregado: {$firefighter->nombres} {$firefighter->apellido_paterno}.");
     }
 
@@ -521,6 +525,10 @@ class AdministradorController extends Controller
                 'es_sancion' => false,
             ]);
         });
+
+        if ($request->wantsJson()) {
+            return response()->json(['ok' => true, 'message' => 'Refuerzo quitado correctamente.']);
+        }
 
         return back()->with('success', 'Refuerzo quitado correctamente. Cama liberada automáticamente.');
     }
@@ -625,6 +633,10 @@ class AdministradorController extends Controller
             // Enviar notificación de reemplazo efectuado
             \App\Services\NotificationService::replacementCreated($user, $original, $replacement, $guardia);
         });
+
+        if ($request->wantsJson()) {
+            return response()->json(['ok' => true, 'message' => "Reemplazo asignado: {$replacement->nombres} reemplaza a {$original->nombres}."]);
+        }
 
         return redirect()->back()->with('success', "Reemplazo asignado: {$replacement->nombres} reemplaza a {$original->nombres}.");
     }
@@ -739,6 +751,10 @@ class AdministradorController extends Controller
                     ]);
             }
         });
+
+        if ($request->wantsJson()) {
+            return response()->json(['ok' => true, 'message' => 'Reemplazo deshecho correctamente.']);
+        }
 
         return redirect()->back()->with('success', 'Reemplazo deshecho correctamente.');
     }

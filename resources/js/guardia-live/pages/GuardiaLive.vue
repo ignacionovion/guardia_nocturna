@@ -4,6 +4,10 @@ import { useGuardiaStore } from '../stores/guardia';
 import LiveHeader from '../components/LiveHeader.vue';
 import FirefighterGrid from '../components/FirefighterGrid.vue';
 import Sidebar from '../components/Sidebar.vue';
+import AseoModal from '../components/AseoModal.vue';
+import EmergenciasModal from '../components/EmergenciasModal.vue';
+import RefuerzoModal from '../components/RefuerzoModal.vue';
+import ReemplazoModal from '../components/ReemplazoModal.vue';
 
 const store = useGuardiaStore();
 let refreshInterval = null;
@@ -69,5 +73,11 @@ onUnmounted(() => {
                 </button>
             </div>
         </Transition>
+
+        <!-- Phase 4 Modals -->
+        <AseoModal />
+        <EmergenciasModal />
+        <RefuerzoModal />
+        <ReemplazoModal />
     </div>
 </template>

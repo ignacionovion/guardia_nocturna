@@ -33,6 +33,10 @@ export const useGuardiaStore = defineStore('guardia', () => {
     const isSaving = ref(false);
     const saveResult = ref(null);
 
+    // Phase 4: Modal state
+    const activeModal = ref(null); // 'aseo' | 'emergencias' | 'refuerzo' | 'reemplazo' | null
+    const modalContext = ref(null); // Context data for active modal (e.g., firefighter for replacement)
+
     // ── Computed ───────────────────────────────────────────
     const PRESENT_STATUSES = ['constituye', 'reemplazo'];
 
@@ -257,6 +261,172 @@ export const useGuardiaStore = defineStore('guardia', () => {
         }
     }
 
+    // ── Phase 4: Modal Management ──────────────────────────
+    function openModal(modalName, context = null) {
+        activeModal.value = modalName;
+        modalContext.value = context;
+    }
+
+    function closeModal() {
+        activeModal.value = null;
+        modalContext.value = null;
+    }
+
+    // ── Phase 4: Aseo ──────────────────────────────────────
+    async function saveAseo(assignments) {
+        try {
+            const res = await fetch('/aseo', {
+                method: 'POST',
+                headers: { ...JSON_HEADERS, 'X-CSRF-TOKEN': csrfToken() },
+                body: JSON.stringify({
+                    assigned_date: new Date().toISOString().split('T')[0],
+                    assignments,
+                }),
+                credentials: 'same-origin',
+            });
+
+            const data = await res.json().catch(() => ({}));
+
+            if (!res.ok || !data.success) {
+                return { ok: false, message: data.message ?? `HTTP ${res.status}` };
+            }
+
+            return { ok: true, message: data.message ?? 'Aseo guardado correctamente' };
+        } catch (err) {
+            return { ok: false, message: err.message };
+        }
+    }
+
+    // ── Phase 4: Emergencias ───────────────────────────────
+    async function saveEmergencia(emergencyData) {
+        try {
+            const res = await fetch('/admin/emergencies', {
+                method: 'POST',
+                headers: { ...JSON_HEADERS, 'X-CSRF-TOKEN': csrfToken() },
+                body: JSON.stringify(emergencyData),
+                credentials: 'same-origin',
+            });
+
+            const data = await res.json().catch(() => ({}));
+
+            if (!res.ok) {
+                return { ok: false, message: data.message ?? `HTTP ${res.status}` };
+            }
+
+            return { ok: true, message: 'Emergencia registrada correctamente' };
+        } catch (err) {
+            return { ok: false, message: err.message };
+        }
+    }
+
+    // ── Phase 4: Refuerzo ──────────────────────────────────
+    async function addRefuerzo(firefighterId) {
+        if (!guardia.value?.id) {
+            return { ok: false, message: 'Guardia no disponible' };
+        }
+
+        try {
+            const res = await fetch('/admin/guardias/refuerzo', {
+                method: 'POST',
+                headers: { ...JSON_HEADERS, 'X-CSRF-TOKEN': csrfToken() },
+                body: JSON.stringify({
+                    guardia_id: guardia.value.id,
+                    firefighter_id: firefighterId,
+                }),
+                credentials: 'same-origin',
+            });
+
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                return { ok: false, message: data.message ?? `HTTP ${res.status}` };
+            }
+
+            // Refresh state to show the new refuerzo in the grid
+            await refreshState();
+            return { ok: true, message: 'Refuerzo agregado correctamente' };
+        } catch (err) {
+            return { ok: false, message: err.message };
+        }
+    }
+
+    async function removeRefuerzo(firefighterId) {
+        if (!guardia.value?.id) {
+            return { ok: false, message: 'Guardia no disponible' };
+        }
+
+        try {
+            const res = await fetch('/admin/guardias/refuerzo/remove', {
+                method: 'POST',
+                headers: { ...JSON_HEADERS, 'X-CSRF-TOKEN': csrfToken() },
+                body: JSON.stringify({
+                    guardia_id: guardia.value.id,
+                    firefighter_id: firefighterId,
+                }),
+                credentials: 'same-origin',
+            });
+
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                return { ok: false, message: data.message ?? `HTTP ${res.status}` };
+            }
+
+            await refreshState();
+            return { ok: true, message: 'Refuerzo removido correctamente' };
+        } catch (err) {
+            return { ok: false, message: err.message };
+        }
+    }
+
+    // ── Phase 4: Reemplazo ─────────────────────────────────
+    async function assignReplacement(originalFirefighterId, replacementFirefighterId) {
+        if (!guardia.value?.id) {
+            return { ok: false, message: 'Guardia no disponible' };
+        }
+
+        try {
+            const res = await fetch('/admin/guardias/replacement', {
+                method: 'POST',
+                headers: { ...JSON_HEADERS, 'X-CSRF-TOKEN': csrfToken() },
+                body: JSON.stringify({
+                    guardia_id: guardia.value.id,
+                    original_firefighter_id: originalFirefighterId,
+                    replacement_firefighter_id: replacementFirefighterId,
+                }),
+                credentials: 'same-origin',
+            });
+
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                return { ok: false, message: data.message ?? `HTTP ${res.status}` };
+            }
+
+            await refreshState();
+            return { ok: true, message: 'Reemplazo asignado correctamente' };
+        } catch (err) {
+            return { ok: false, message: err.message };
+        }
+    }
+
+    async function undoReplacement(replacementId) {
+        try {
+            const res = await fetch(`/admin/guardias/replacement/${replacementId}/undo`, {
+                method: 'POST',
+                headers: { ...JSON_HEADERS, 'X-CSRF-TOKEN': csrfToken() },
+                credentials: 'same-origin',
+            });
+
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                return { ok: false, message: data.message ?? `HTTP ${res.status}` };
+            }
+
+            await refreshState();
+            return { ok: true, message: 'Reemplazo deshecho correctamente' };
+        } catch (err) {
+            return { ok: false, message: err.message };
+        }
+    }
+
     return {
         // state
         guardia,
@@ -278,6 +448,8 @@ export const useGuardiaStore = defineStore('guardia', () => {
         hasPendingChanges,
         isSaving,
         saveResult,
+        activeModal,
+        modalContext,
         // computed
         presentStaff,
         presentCount,
@@ -292,5 +464,14 @@ export const useGuardiaStore = defineStore('guardia', () => {
         updateStatus,
         confirmAttendance,
         saveAttendance,
+        // Phase 4 actions
+        openModal,
+        closeModal,
+        saveAseo,
+        saveEmergencia,
+        addRefuerzo,
+        removeRefuerzo,
+        assignReplacement,
+        undoReplacement,
     };
 });

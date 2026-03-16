@@ -39,6 +39,15 @@ const requiresConfirmation = computed(() => {
     return ['constituye', 'reemplazo'].includes(s) || f.value.es_refuerzo || f.value.es_reemplazo;
 });
 
+const canBeReplaced = computed(() => {
+    const s = effectiveStatus.value;
+    return s === 'constituye' && !f.value.es_refuerzo && !f.value.es_reemplazo;
+});
+
+function openReplacementModal() {
+    store.openModal('reemplazo', { firefighter: f.value });
+}
+
 // ── Status catalogue ───────────────────────────────────────
 const STATUSES = [
     { value: 'constituye', label: 'CONSTITUYE', btnClass: 'bg-emerald-600 hover:bg-emerald-500 text-white',  dot: 'bg-emerald-500' },
@@ -217,6 +226,19 @@ onUnmounted(() => document.removeEventListener('click', onDocClick, true));
 
             <!-- Status change error -->
             <p v-if="statusError" class="text-[10px] text-red-400 font-medium px-0.5">⚠ {{ statusError }}</p>
+
+            <!-- ── REPLACEMENT BUTTON ── -->
+            <button
+                v-if="canBeReplaced"
+                type="button"
+                class="w-full flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-colors bg-amber-600/20 hover:bg-amber-600/30 border border-amber-600/40 text-amber-400"
+                @click="openReplacementModal"
+            >
+                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                </svg>
+                <span>Reemplazar</span>
+            </button>
 
             <!-- ── CONFIRMATION BOX ── -->
             <template v-if="requiresConfirmation">
