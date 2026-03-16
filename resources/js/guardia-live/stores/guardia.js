@@ -1,6 +1,16 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 
+function csrfToken() {
+    return document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+}
+
+const JSON_HEADERS = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'X-Requested-With': 'XMLHttpRequest',
+};
+
 export const useGuardiaStore = defineStore('guardia', () => {
     // ── State ──────────────────────────────────────────────
     const guardia = ref(null);
@@ -97,6 +107,80 @@ export const useGuardiaStore = defineStore('guardia', () => {
         }
     }
 
+    async function updateStatus(firefighterId, newStatus) {
+        const idx = staff.value.findIndex(s => s.id === firefighterId);
+        if (idx === -1) return { ok: false, message: 'Bombero no encontrado' };
+
+        const prev = { ...staff.value[idx] };
+
+        staff.value[idx] = {
+            ...staff.value[idx],
+            draft_attendance_status: newStatus,
+            confirmed_at: null,
+            confirm_token: null,
+        };
+
+        try {
+            const res = await fetch('/draft/turno/item', {
+                method: 'POST',
+                headers: { ...JSON_HEADERS, 'X-CSRF-TOKEN': csrfToken() },
+                body: JSON.stringify({ firefighter_id: firefighterId, attendance_status: newStatus }),
+                credentials: 'same-origin',
+            });
+
+            const data = await res.json().catch(() => ({}));
+
+            if (!res.ok || !data.ok) {
+                staff.value[idx] = prev;
+                return { ok: false, message: data.message ?? `HTTP ${res.status}` };
+            }
+
+            return { ok: true };
+        } catch (err) {
+            staff.value[idx] = prev;
+            return { ok: false, message: err.message };
+        }
+    }
+
+    async function confirmAttendance(firefighterId, guardiaId, numeroRegistro) {
+        const idx = staff.value.findIndex(s => s.id === firefighterId);
+        if (idx === -1) return { ok: false, message: 'Bombero no encontrado' };
+
+        try {
+            const res = await fetch(`/admin/guardias/${guardiaId}/bomberos/${firefighterId}/confirm`, {
+                method: 'POST',
+                headers: { ...JSON_HEADERS, 'X-CSRF-TOKEN': csrfToken() },
+                body: JSON.stringify({ numero_registro: numeroRegistro }),
+                credentials: 'same-origin',
+            });
+
+            const data = await res.json().catch(() => ({}));
+
+            if (!res.ok || !data.ok) {
+                return { ok: false, message: data.message ?? 'Código inválido' };
+            }
+
+            const token = data.token;
+
+            fetch('/draft/turno/confirm', {
+                method: 'POST',
+                headers: { ...JSON_HEADERS, 'X-CSRF-TOKEN': csrfToken() },
+                body: JSON.stringify({ firefighter_id: firefighterId, confirm_token: token }),
+                credentials: 'same-origin',
+            }).catch(() => {});
+
+            staff.value[idx] = {
+                ...staff.value[idx],
+                confirmed_at: new Date().toISOString(),
+                confirm_token: token,
+            };
+
+            return { ok: true };
+        } catch (err) {
+            return { ok: false, message: err.message };
+        }
+    }
+
     return {
         // state
         guardia,
@@ -126,5 +210,7 @@ export const useGuardiaStore = defineStore('guardia', () => {
         initFromServer,
         refreshState,
         updateStaffAttendance,
+        updateStatus,
+        confirmAttendance,
     };
 });
