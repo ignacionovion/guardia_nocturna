@@ -112,6 +112,13 @@ Route::get('/media/{path}', function (string $tenant, string $path) {
 // Rutas Protegidas (Dashboard)
 use App\Http\Controllers\NotificationController;
 
+// Phase 4: Modal data endpoints (auth only, no guardia_on_duty restriction)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/api/bomberos', [BomberoController::class, 'apiIndex'])->name('api.bomberos');
+    Route::get('/api/emergency-keys', [Admin\EmergencyKeyController::class, 'apiIndex'])->name('api.emergency-keys');
+    Route::get('/api/emergency-units', [Admin\EmergencyUnitController::class, 'apiIndex'])->name('api.emergency-units');
+});
+
 Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
     Route::view('/guardia/fuera-de-servicio', 'guardia.off_duty')->name('guardia.off_duty');
     
@@ -125,11 +132,6 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
     Route::get('/dashboard', [TableroController::class, 'index'])->name('dashboard');
     Route::get('/dashboard-live', [GuardiaLiveController::class, 'index'])->name('dashboard.live');
     Route::get('/api/guardia-live/state', [GuardiaLiveController::class, 'state'])->name('guardia.live.state');
-    
-    // Phase 4: Modal data endpoints (session auth)
-    Route::get('/api/bomberos', [BomberoController::class, 'apiIndex'])->name('api.bomberos');
-    Route::get('/api/emergency-keys', [Admin\EmergencyKeyController::class, 'apiIndex'])->name('api.emergency-keys');
-    Route::get('/api/emergency-units', [Admin\EmergencyUnitController::class, 'apiIndex'])->name('api.emergency-units');
     
     Route::get('/camas', [TableroController::class, 'camas'])->name('camas');
     Route::get('/guardia', [GuardiaController::class, 'index'])->name('guardia');
