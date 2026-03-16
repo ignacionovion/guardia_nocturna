@@ -12,7 +12,8 @@ class EmergencyUnitController extends Controller
     public function apiIndex(Request $request)
     {
         // Return all emergency units for modals
-        $units = EmergencyUnit::select('id', 'name', 'description', 'is_active')
+        $units = EmergencyUnit::select('id', 'name', 'description', 'status')
+            ->where('status', 'active')
             ->orderBy('name')
             ->get();
 
