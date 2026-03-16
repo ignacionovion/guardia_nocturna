@@ -15,8 +15,6 @@ export const useGuardiaStore = defineStore('guardia', () => {
     // ── State ──────────────────────────────────────────────
     const guardia = ref(null);
     const staff = ref([]);
-    const visibleCount = ref(0);
-    const presentCount = ref(0);
     const novelties = ref([]);
     const academies = ref([]);
     const birthdaysThisMonth = ref([]);
@@ -31,11 +29,22 @@ export const useGuardiaStore = defineStore('guardia', () => {
     const bulkUpdateUrl = ref('');
     const isLoading = ref(false);
     const lastRefreshedAt = ref(null);
+    const hasPendingChanges = ref(false);
+    const isSaving = ref(false);
+    const saveResult = ref(null);
 
     // ── Computed ───────────────────────────────────────────
+    const PRESENT_STATUSES = ['constituye', 'reemplazo'];
+
     const presentStaff = computed(() =>
-        staff.value.filter(s => ['constituye', 'reemplazo'].includes(s.estado_asistencia))
+        staff.value.filter(s => {
+            const status = s.draft_attendance_status || s.estado_asistencia || 'constituye';
+            return PRESENT_STATUSES.includes(status);
+        })
     );
+
+    const presentCount = computed(() => presentStaff.value.length);
+    const visibleCount = computed(() => staff.value.length);
 
     const attendanceVariantClasses = computed(() => {
         const map = {
@@ -56,9 +65,9 @@ export const useGuardiaStore = defineStore('guardia', () => {
 
         guardia.value              = data.guardia;
         staff.value                = data.staff ?? [];
-        visibleCount.value         = data.visible_count ?? 0;
-        presentCount.value         = data.present_count ?? 0;
         novelties.value            = data.novelties ?? [];
+        hasPendingChanges.value    = false;
+        saveResult.value           = null;
         academies.value            = data.academies ?? [];
         birthdaysThisMonth.value   = data.birthdays_this_month ?? [];
         bedByFirefighter.value     = data.bed_by_firefighter ?? {};
@@ -135,10 +144,63 @@ export const useGuardiaStore = defineStore('guardia', () => {
                 return { ok: false, message: data.message ?? `HTTP ${res.status}` };
             }
 
+            hasPendingChanges.value = true;
             return { ok: true };
         } catch (err) {
             staff.value[idx] = prev;
             return { ok: false, message: err.message };
+        }
+    }
+
+    async function saveAttendance() {
+        if (isSaving.value) return { ok: false, message: 'Ya guardando...' };
+
+        const users = {};
+        for (const s of staff.value) {
+            const effectiveStatus = s.draft_attendance_status || s.estado_asistencia || 'constituye';
+            users[s.id] = {
+                estado_asistencia: effectiveStatus,
+                confirm_token: s.confirm_token ?? '',
+            };
+        }
+
+        isSaving.value = true;
+        saveResult.value = null;
+
+        try {
+            const url = bulkUpdateUrl.value;
+            if (!url) return { ok: false, message: 'URL de guardado no disponible' };
+
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { ...JSON_HEADERS, 'X-CSRF-TOKEN': csrfToken() },
+                body: JSON.stringify({ users }),
+                credentials: 'same-origin',
+            });
+
+            const data = await res.json().catch(() => ({}));
+
+            if (!res.ok || !data.ok) {
+                const msg = data.errors?.confirm?.[0]
+                    ?? data.message
+                    ?? `Error HTTP ${res.status}`;
+                saveResult.value = { ok: false, message: msg };
+                return { ok: false, message: msg };
+            }
+
+            hasPendingChanges.value = false;
+            attendanceSaved.value = true;
+            attendanceMessage.value = 'ASISTENCIA REGISTRADA';
+            attendanceVariant.value = 'success';
+            saveResult.value = { ok: true, message: 'Asistencia guardada ✓' };
+            setTimeout(() => { saveResult.value = null; }, 5000);
+            return { ok: true };
+        } catch (err) {
+            const msg = err.message ?? 'Error de red';
+            saveResult.value = { ok: false, message: msg };
+            return { ok: false, message: msg };
+        } finally {
+            isSaving.value = false;
         }
     }
 
@@ -185,8 +247,6 @@ export const useGuardiaStore = defineStore('guardia', () => {
         // state
         guardia,
         staff,
-        visibleCount,
-        presentCount,
         novelties,
         academies,
         birthdaysThisMonth,
@@ -201,8 +261,13 @@ export const useGuardiaStore = defineStore('guardia', () => {
         bulkUpdateUrl,
         isLoading,
         lastRefreshedAt,
+        hasPendingChanges,
+        isSaving,
+        saveResult,
         // computed
         presentStaff,
+        presentCount,
+        visibleCount,
         attendanceVariantClasses,
         guardiaName,
         guardiaNumber,
@@ -212,5 +277,6 @@ export const useGuardiaStore = defineStore('guardia', () => {
         updateStaffAttendance,
         updateStatus,
         confirmAttendance,
+        saveAttendance,
     };
 });

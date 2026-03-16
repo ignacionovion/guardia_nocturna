@@ -4,14 +4,29 @@ import { useGuardiaStore } from '../stores/guardia';
 
 const store = useGuardiaStore();
 
-const attendanceBtnClass = computed(() => {
-    if (!store.attendanceEnabled) {
-        return 'bg-slate-800/50 text-slate-500 border-slate-800 cursor-not-allowed opacity-60';
-    }
-    return 'bg-slate-800 hover:bg-slate-700 text-white border-slate-700 cursor-pointer';
+const saveBtnDisabled = computed(() =>
+    !store.attendanceEnabled || store.isSaving
+);
+
+const saveBtnClass = computed(() => {
+    if (store.isSaving) return 'bg-slate-700 text-slate-300 border-slate-600 cursor-wait opacity-80';
+    if (!store.attendanceEnabled) return 'bg-slate-800/50 text-slate-500 border-slate-800 cursor-not-allowed opacity-60';
+    if (store.hasPendingChanges) return 'bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-500 shadow-md shadow-emerald-900/50';
+    return 'bg-slate-800 hover:bg-slate-700 text-white border-slate-700';
+});
+
+const saveIconClass = computed(() => {
+    if (!store.attendanceEnabled) return 'text-slate-500';
+    if (store.hasPendingChanges) return 'text-white';
+    return 'text-emerald-400';
 });
 
 const attendanceBadgeClass = computed(() => store.attendanceVariantClasses);
+
+async function handleSave() {
+    if (saveBtnDisabled.value) return;
+    await store.saveAttendance();
+}
 
 function openFullscreen() {
     if (!document.fullscreenElement) {
@@ -24,13 +39,24 @@ function openFullscreen() {
 function openModal(id) {
     const el = document.getElementById(id);
     if (el) el.dispatchEvent(new CustomEvent('open-modal'));
-    // Fallback: trigger existing Blade modal if available
     if (typeof window.openModal === 'function') window.openModal(id);
 }
 </script>
 
 <template>
     <header class="sticky top-0 z-40 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-b border-slate-700/60 backdrop-blur-sm">
+
+        <!-- Save result feedback bar -->
+        <div
+            v-if="store.saveResult"
+            class="px-4 py-1.5 text-xs font-semibold text-center transition-all"
+            :class="store.saveResult.ok
+                ? 'bg-emerald-600/20 text-emerald-300 border-b border-emerald-700/30'
+                : 'bg-red-600/20 text-red-300 border-b border-red-700/30'"
+        >
+            {{ store.saveResult.message }}
+        </div>
+
         <div class="px-4 md:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
 
             <!-- Left: brand + guardia info -->
@@ -55,12 +81,23 @@ function openModal(id) {
                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                     <span class="text-xs font-semibold text-emerald-400 uppercase tracking-wide">Guardia en Vivo</span>
                 </div>
+
+                <!-- Reactive counters -->
                 <div class="flex items-center gap-1 text-sm text-slate-400">
                     <span class="font-semibold text-white">{{ store.visibleCount }}</span>
                     <span>en pantalla</span>
                     <span class="text-slate-600 mx-1">·</span>
-                    <span class="font-semibold text-emerald-400">{{ store.presentCount }}</span>
+                    <span class="font-semibold text-emerald-400 tabular-nums">{{ store.presentCount }}</span>
                     <span>presentes</span>
+                </div>
+
+                <!-- Pending changes indicator -->
+                <div
+                    v-if="store.hasPendingChanges"
+                    class="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/30 rounded-full px-2.5 py-1"
+                >
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                    <span class="text-[10px] font-bold text-amber-400 uppercase tracking-wide">Cambios pendientes</span>
                 </div>
             </div>
 
@@ -70,16 +107,21 @@ function openModal(id) {
                 <!-- Attendance save button -->
                 <button
                     type="button"
-                    :disabled="!store.attendanceEnabled"
+                    :disabled="saveBtnDisabled"
                     class="hidden sm:flex items-center gap-2 text-xs font-semibold px-3 py-2 rounded-lg border transition-all duration-200"
-                    :class="attendanceBtnClass"
-                    @click="openModal('guardia-attendance-modal')"
+                    :class="saveBtnClass"
+                    @click="handleSave"
                 >
-                    <svg class="w-4 h-4" :class="store.attendanceEnabled ? 'text-emerald-400' : 'text-slate-500'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <!-- Spinner when saving -->
+                    <svg v-if="store.isSaving" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                    </svg>
+                    <svg v-else class="w-4 h-4" :class="saveIconClass" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                     </svg>
-                    <span class="hidden md:inline">Guardar</span>
+                    <span class="hidden md:inline">{{ store.isSaving ? 'Guardando...' : 'Guardar' }}</span>
                 </button>
 
                 <!-- Attendance status badge -->

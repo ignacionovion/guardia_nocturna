@@ -1075,6 +1075,9 @@ class AdministradorController extends Controller
         })();
 
         if (!$attendanceEnabled) {
+            if ($request->wantsJson()) {
+                return response()->json(['ok' => false, 'message' => 'Edición bloqueada fuera del horario 22:00-07:00.'], 403);
+            }
             return redirect()->back()->with('warning', 'Edición/guardado bloqueado fuera del horario 22:00 - 07:00.');
         }
 
@@ -1332,6 +1335,9 @@ class AdministradorController extends Controller
             \App\Services\NotificationService::attendanceSaved(auth()->user(), $guardia, $confirmedCount);
         });
 
+        if ($request->wantsJson()) {
+            return response()->json(['ok' => true, 'message' => 'Asistencia guardada.']);
+        }
         return redirect()->back()->with('success', 'Asistencia guardada y registros históricos actualizados.');
     }
 }
