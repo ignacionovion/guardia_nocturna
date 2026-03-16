@@ -234,7 +234,7 @@ class GuardiaLiveController extends Controller
                 'fuera_de_servicio'      => (bool) ($b->fuera_de_servicio ?? false),
                 'es_titular'             => (bool) ($b->es_titular ?? true),
                 'bed_number'             => $bedByFirefighter->get($b->id),
-                'photo_url'              => $b->photo_url ?? null,
+                'photo_path'             => $b->photo_path ?? null,
                 'years_service'          => isset($b->fecha_ingreso)
                     ? (int) now()->diffInYears($b->fecha_ingreso)
                     : null,

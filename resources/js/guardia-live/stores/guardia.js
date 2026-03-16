@@ -84,7 +84,11 @@ export const useGuardiaStore = defineStore('guardia', () => {
         if (!data) return;
 
         guardia.value              = data.guardia;
-        staff.value                = data.staff ?? [];
+        // Process staff to add photo_url from photo_path
+        staff.value                = (data.staff ?? []).map(s => ({
+            ...s,
+            photo_url: s.photo_path ? `/media/${s.photo_path}` : null,
+        }));
         novelties.value            = data.novelties ?? [];
         hasPendingChanges.value    = false;
         saveResult.value           = null;
