@@ -1,6 +1,6 @@
 {
   "resources/css/app.css": {
-    "file": "assets/app-Ct1kCC9W.css",
+    "file": "assets/app-BRVXKcLg.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "name": "app",
@@ -15,7 +15,7 @@
     "isEntry": true
   },
   "resources/js/guardia-live/app.js": {
-    "file": "assets/app-DKRB7uWo.js",
+    "file": "assets/app-DFvJa3Ei.js",
     "name": "app",
     "src": "resources/js/guardia-live/app.js",
     "isEntry": true

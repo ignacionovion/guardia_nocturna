@@ -86,6 +86,21 @@ const initials = computed(() => {
 
 const yearsService = computed(() => f.value.years_service ?? null);
 
+const serviceLabel = computed(() => {
+    const years = f.value.years_service;
+    const months = f.value.months_service;
+    if (years && months) {
+        return `${years}a ${months}m`;
+    } else if (years) {
+        return `${years} años`;
+    } else if (months) {
+        return `${months} meses`;
+    }
+    return '—';
+});
+
+const radialNumber = computed(() => f.value.numero_portatil ?? null);
+
 // ── Actions ────────────────────────────────────────────────
 async function selectStatus(newStatus) {
     if (newStatus === effectiveStatus.value) { showStatusPicker.value = false; return; }
@@ -127,55 +142,90 @@ onUnmounted(() => document.removeEventListener('click', onDocClick, true));
 
 <template>
     <div
-        class="relative rounded-xl border bg-slate-800/90 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/50 h-full flex flex-col"
+        class="group relative rounded-lg border bg-slate-900 overflow-hidden shadow-md hover:shadow-xl transition-all duration-200 h-full flex flex-col"
         :class="cardBorderClass"
     >
         <!-- Confirmed strip -->
-        <div v-if="isConfirmed" class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-400 rounded-t-xl animate-pulse"></div>
+        <div v-if="isConfirmed" class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-400 z-20 animate-pulse"></div>
 
-        <!-- Top-left badges -->
-        <div class="absolute top-2 left-2 flex flex-col gap-1 z-10">
-            <span v-if="f.es_jefe_guardia" class="text-[10px] font-extrabold bg-amber-500 text-black px-2 py-1 rounded-md leading-none shadow-lg shadow-amber-900/50">JG</span>
-            <span v-if="f.es_refuerzo"     class="text-[10px] font-extrabold bg-sky-500 text-white px-2 py-1 rounded-md leading-none shadow-lg shadow-sky-900/50">RF</span>
-            <span v-if="f.es_reemplazo"    class="text-[10px] font-extrabold bg-purple-500 text-white px-2 py-1 rounded-md leading-none shadow-lg shadow-purple-900/50">RE</span>
-        </div>
+        <!-- Photo block with overlay info (like old dashboard) -->
+        <div class="relative w-full h-48 bg-slate-800 overflow-hidden">
+            <!-- Photo or initials fallback -->
+            <img
+                v-if="f.photo_url"
+                :src="f.photo_url"
+                :alt="fullName"
+                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                style="object-position: center 20%;"
+            />
+            <div
+                v-else
+                class="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-700 to-slate-800"
+            >
+                <span class="text-4xl font-bold text-slate-500">{{ initials }}</span>
+            </div>
 
-        <!-- Bed badge -->
-        <div v-if="bedNumber" class="absolute top-2 right-2 z-10">
-            <span class="text-[10px] font-extrabold bg-indigo-500 text-white px-2 py-1 rounded-md leading-none shadow-lg shadow-indigo-900/50">#{{ bedNumber }}</span>
-        </div>
+            <!-- Gradient overlay for text readability -->
+            <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-900 via-slate-900/90 to-transparent pointer-events-none"></div>
 
-        <!-- Avatar + name -->
-        <div class="flex flex-col items-center pt-6 pb-3 px-3">
-            <div class="relative">
-                <img
-                    v-if="f.photo_url"
-                    :src="f.photo_url"
-                    :alt="fullName"
-                    class="w-20 h-20 rounded-2xl object-cover border-3 transition-all duration-300 shadow-lg"
-                    :class="isConfirmed ? 'border-emerald-500 shadow-emerald-500/50' : 'border-slate-600 shadow-slate-900/50'"
-                />
-                <div
-                    v-else
-                    class="w-20 h-20 rounded-2xl flex items-center justify-center text-2xl font-extrabold border-3 transition-all duration-300 shadow-lg"
-                    :class="isConfirmed ? 'bg-emerald-900/50 border-emerald-500 text-emerald-300 shadow-emerald-500/50' : 'bg-slate-700/80 border-slate-600 text-slate-300 shadow-slate-900/50'"
-                >{{ initials }}</div>
-
-                <!-- Confirmed checkmark -->
-                <div v-if="isConfirmed" class="absolute -bottom-1.5 -right-1.5 w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg shadow-emerald-900/50 animate-pulse">
-                    <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
+            <!-- Firefighter info overlaid on photo -->
+            <div class="absolute inset-x-0 bottom-0 px-2.5 py-2.5 z-10">
+                <div class="text-base font-bold text-white leading-tight truncate drop-shadow-lg">
+                    {{ fullName }}
+                </div>
+                <div v-if="f.cargo" class="text-sm text-white/90 truncate mt-0.5">
+                    {{ f.cargo }}
+                </div>
+                <div class="flex items-center gap-2 mt-1.5">
+                    <div v-if="serviceLabel" class="flex items-center gap-1 text-sm text-white/80">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span>{{ serviceLabel }}</span>
+                    </div>
+                    <div v-if="radialNumber" class="flex items-center gap-1 text-sm text-white/80">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
+                        </svg>
+                        <span>{{ radialNumber }}</span>
+                    </div>
                 </div>
             </div>
 
-            <p class="mt-3 text-sm font-extrabold text-white text-center leading-tight line-clamp-2">{{ fullName }}</p>
-            <p v-if="f.cargo" class="text-[10px] text-slate-400 text-center mt-1 uppercase tracking-wider font-semibold">{{ f.cargo }}</p>
-            <p v-if="yearsService !== null" class="text-[10px] text-slate-500 mt-0.5 font-medium">{{ yearsService }} años</p>
+            <!-- Badges top-right corner -->
+            <div class="absolute top-1.5 right-1.5 flex flex-col gap-1 z-10">
+                <span v-if="f.es_jefe_guardia" class="w-5 h-5 rounded bg-amber-500/90 flex items-center justify-center shadow" title="Jefe de Guardia">
+                    <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                </span>
+            </div>
+
+            <!-- Badge bed top-left corner -->
+            <div v-if="bedNumber" class="absolute top-1.5 left-1.5 flex items-center gap-1 bg-slate-900/80 backdrop-blur-sm rounded px-1.5 py-0.5 shadow z-10">
+                <svg class="w-3 h-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                <span class="text-xs font-bold text-white">#{{ bedNumber }}</span>
+            </div>
+
+            <!-- Badge refuerzo/reemplazo -->
+            <div class="absolute top-1.5 left-1.5 flex flex-col gap-1 z-10" :class="bedNumber ? 'top-8' : ''">
+                <span v-if="f.es_refuerzo" class="text-xs font-bold uppercase px-1.5 py-0.5 rounded bg-sky-500/90 text-white shadow">REFUERZO</span>
+                <span v-if="f.es_reemplazo" class="text-xs font-bold uppercase px-1.5 py-0.5 rounded bg-purple-500/90 text-white shadow">REEMPLAZO</span>
+            </div>
+
+            <!-- Confirmed checkmark overlay -->
+            <div v-if="isConfirmed" class="absolute top-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-emerald-500/90 backdrop-blur-sm rounded-full px-2.5 py-1 shadow-lg z-10 animate-pulse">
+                <svg class="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <span class="text-xs font-bold text-white uppercase">Confirmado</span>
+            </div>
         </div>
 
         <!-- Card body -->
-        <div class="px-3 pb-3 space-y-2 flex-1 flex flex-col">
+        <div class="p-2 space-y-1.5 flex-1 flex flex-col">
 
             <!-- ── STATUS SELECTOR ── -->
             <div ref="pickerRef" class="relative">
