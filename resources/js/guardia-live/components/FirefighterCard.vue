@@ -48,6 +48,28 @@ function openReplacementModal() {
     store.openModal('reemplazo', { firefighter: f.value });
 }
 
+// ── Remove refuerzo ──────────────────────────────────────
+const isRemovingRefuerzo = ref(false);
+
+async function removeRefuerzo() {
+    if (!confirm('¿Estás seguro de que quieres quitar este refuerzo?')) {
+        return;
+    }
+    
+    isRemovingRefuerzo.value = true;
+    
+    const result = await store.removeRefuerzo(f.value.id);
+    
+    isRemovingRefuerzo.value = false;
+    
+    if (result.ok) {
+        store.saveResult = { ok: true, message: result.message };
+        setTimeout(() => { store.saveResult = null; }, 5000);
+    } else {
+        alert(result.message || 'Error al quitar refuerzo');
+    }
+}
+
 // ── Status catalogue ───────────────────────────────────────
 const STATUSES = [
     { value: 'constituye', label: 'CONSTITUYE', btnClass: 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/50',  dot: 'bg-emerald-500' },
@@ -251,6 +273,23 @@ onUnmounted(() => document.removeEventListener('click', onDocClick, true));
             <div class="absolute top-1.5 left-1.5 flex flex-col gap-1 z-10" :class="bedNumber ? 'top-8' : ''">
                 <span v-if="f.es_refuerzo" class="text-xs font-bold uppercase px-1.5 py-0.5 rounded bg-sky-500/90 text-white shadow">REFUERZO</span>
                 <span v-if="f.es_reemplazo" class="text-xs font-bold uppercase px-1.5 py-0.5 rounded bg-purple-500/90 text-white shadow">REEMPLAZO</span>
+                <!-- Remove refuerzo button -->
+                <button
+                    v-if="f.es_refuerzo"
+                    type="button"
+                    @click="removeRefuerzo"
+                    :disabled="isRemovingRefuerzo"
+                    class="mt-1 px-2 py-1 bg-red-600/90 hover:bg-red-700 disabled:bg-slate-600 text-white text-xs font-bold rounded shadow transition-colors flex items-center gap-1"
+                >
+                    <svg v-if="isRemovingRefuerzo" class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                    </svg>
+                    <svg v-else class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Quitar
+                </button>
             </div>
 
             <!-- Confirmed checkmark overlay -->

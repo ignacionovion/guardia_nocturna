@@ -1,8 +1,25 @@
 <script setup>
+import { computed } from 'vue';
 import { useGuardiaStore } from '../stores/guardia';
 import FirefighterCard from './FirefighterCard.vue';
 
 const store = useGuardiaStore();
+
+// Sort by seniority: higher years_service first (left to right)
+const sortedStaff = computed(() => {
+    return [...store.staff].sort((a, b) => {
+        const yearsA = a.years_service ?? 0;
+        const yearsB = b.years_service ?? 0;
+        const monthsA = a.months_service ?? 0;
+        const monthsB = b.months_service ?? 0;
+        
+        // Sort by years descending, then by months descending
+        if (yearsB !== yearsA) {
+            return yearsB - yearsA;
+        }
+        return monthsB - monthsA;
+    });
+});
 </script>
 
 <template>
@@ -44,7 +61,7 @@ const store = useGuardiaStore();
             class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4"
         >
             <FirefighterCard
-                v-for="member in store.staff"
+                v-for="member in sortedStaff"
                 :key="member.id"
                 :firefighter="member"
                 :bed-number="store.bedByFirefighter[member.id] ?? null"

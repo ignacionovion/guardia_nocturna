@@ -133,6 +133,7 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
     Route::get('/dashboard-live', [GuardiaLiveController::class, 'index'])->name('dashboard.live');
     Route::get('/api/guardia-live/state', [GuardiaLiveController::class, 'state'])->name('guardia.live.state');
     Route::get('/api/guardia-live/emergencies', [GuardiaLiveController::class, 'emergencies'])->name('guardia.live.emergencies');
+    Route::get('/api/guardia-live/cleaning-assignments', [GuardiaLiveController::class, 'cleaningAssignments'])->name('guardia.live.cleaning_assignments');
     
     Route::get('/camas', [TableroController::class, 'camas'])->name('camas');
     Route::get('/guardia', [GuardiaController::class, 'index'])->name('guardia');

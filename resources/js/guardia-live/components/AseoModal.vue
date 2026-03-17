@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useGuardiaStore } from '../stores/guardia';
 
 const store = useGuardiaStore();
@@ -19,6 +19,7 @@ const tasks = ref([
 const assignments = ref({});
 const isSaving = ref(false);
 const error = ref(null);
+const isLoading = ref(false);
 
 const availableFirefighters = computed(() => 
     store.presentStaff.filter(f => {
@@ -26,6 +27,44 @@ const availableFirefighters = computed(() =>
         return status === 'constituye';
     })
 );
+
+// Load existing assignments when modal opens
+async function loadAssignments() {
+    if (!store.guardia?.id) return;
+    
+    isLoading.value = true;
+    try {
+        const res = await fetch(`/api/guardia-live/cleaning-assignments?guardia_id=${store.guardia.id}`, { 
+            credentials: 'same-origin' 
+        });
+        
+        if (res.ok) {
+            const data = await res.json();
+            console.log('[AseoModal] Loaded assignments:', data);
+            
+            // Map task_id -> firefighter_id
+            if (data.assignments) {
+                assignments.value = { ...data.assignments };
+            }
+        }
+    } catch (err) {
+        console.error('[AseoModal] Failed to load assignments:', err);
+    }
+    isLoading.value = false;
+}
+
+// Watch for modal opening
+watch(() => store.activeModal, (newModal) => {
+    if (newModal === 'aseo') {
+        loadAssignments();
+    }
+});
+
+onMounted(() => {
+    if (store.activeModal === 'aseo') {
+        loadAssignments();
+    }
+});
 
 async function handleSave() {
     isSaving.value = true;

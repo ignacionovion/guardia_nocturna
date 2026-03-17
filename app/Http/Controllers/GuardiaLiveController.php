@@ -353,4 +353,69 @@ class GuardiaLiveController extends Controller
             ])->values(),
         ]));
     }
+
+    /**
+     * Get cleaning assignments for a specific guardia and date
+     */
+    public function cleaningAssignments(Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['ok' => false], 401);
+        }
+
+        if ($user->role !== 'guardia') {
+            return response()->json(['ok' => false], 403);
+        }
+
+        $guardiaId = $request->query('guardia_id');
+        if (!$guardiaId) {
+            return response()->json(['ok' => false, 'message' => 'Guardia ID required'], 400);
+        }
+
+        // Verify the guardia belongs to this user
+        $guardia = Guardia::where('id', $guardiaId)
+            ->whereHas('users', fn ($q) => $q->where('users.id', $user->id))
+            ->first();
+
+        if (!$guardia) {
+            return response()->json(['ok' => false, 'message' => 'Guardia not found'], 404);
+        }
+
+        $date = $request->query('date') 
+            ? Carbon::parse($request->query('date'))->startOfDay()
+            : now()->startOfDay();
+
+        $desiredTasks = [
+            'Aseo Pieza N°1',
+            'Aseo Pieza N°2', 
+            'Aseo Pieza N°3',
+            'Aseo Pieza N°4',
+            'Aseo Pieza N°5',
+            'Aseo Sector Duchas',
+            'Aseo Sector Baños',
+            'Aseo Sala de Estar',
+            'Aseo Cocina Y Quincho',
+        ];
+
+        $tasks = \App\Models\CleaningTask::whereIn('name', $desiredTasks)
+            ->orderByRaw('FIELD(name, ' . implode(',', array_fill(0, count($desiredTasks), '?')) . ')', $desiredTasks)
+            ->get();
+
+        $assignments = \App\Models\CleaningAssignment::whereDate('assigned_date', $date->toDateString())
+            ->whereIn('cleaning_task_id', $tasks->pluck('id'))
+            ->get();
+
+        $assignmentsByTaskId = [];
+        foreach ($assignments as $assignment) {
+            $assignmentsByTaskId[$assignment->cleaning_task_id] = $assignment->firefighter_id;
+        }
+
+        return response()->json([
+            'ok' => true,
+            'assignments' => $assignmentsByTaskId,
+            'date' => $date->toDateString(),
+        ]);
+    }
 }
