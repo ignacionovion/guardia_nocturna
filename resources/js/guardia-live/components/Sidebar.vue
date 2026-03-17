@@ -57,60 +57,57 @@ function formatTime(isoString) {
 </script>
 
 <template>
-    <aside class="flex flex-col gap-3 h-full overflow-y-auto">
+    <aside class="flex flex-col gap-4 h-full overflow-y-auto">
 
-        <!-- Clock widget - operational prominence -->
-        <div class="rounded-xl border-2 border-slate-700/50 bg-gradient-to-br from-slate-800 to-slate-900 p-5 shadow-2xl">
-            <div class="flex items-center justify-between mb-3">
-                <span class="text-xs font-bold text-slate-300 uppercase tracking-widest flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-lg shadow-emerald-500/50"></span>
+        <!-- Clock widget -->
+        <div class="rounded-xl border border-slate-700/50 bg-gradient-to-br from-slate-800 to-slate-900 p-4 shadow-xl">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wide flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                     Hora Local
                 </span>
-                <span class="text-[10px] text-slate-500 uppercase font-semibold">{{ store.guardiaTz }}</span>
             </div>
             <LiveClock size="large" />
         </div>
 
         <!-- Operational Status -->
-        <div class="rounded-xl border-2 bg-gradient-to-br p-4 shadow-xl"
+        <div class="rounded-xl border bg-gradient-to-br p-4 shadow-xl"
             :class="{
-                'border-emerald-500/40 from-emerald-900/20 to-slate-800': operationalStatus.statusColor === 'emerald',
-                'border-amber-500/40 from-amber-900/20 to-slate-800': operationalStatus.statusColor === 'amber',
-                'border-slate-600/40 from-slate-800 to-slate-900': operationalStatus.statusColor === 'slate',
+                'border-emerald-500/30 from-emerald-900/10 to-slate-800': operationalStatus.statusColor === 'emerald',
+                'border-amber-500/30 from-amber-900/10 to-slate-800': operationalStatus.statusColor === 'amber',
+                'border-slate-600/30 from-slate-800 to-slate-900': operationalStatus.statusColor === 'slate',
             }"
         >
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-lg"
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-lg flex items-center justify-center text-xl"
+                    :class="{
+                        'bg-emerald-500/20': operationalStatus.statusColor === 'emerald',
+                        'bg-amber-500/20': operationalStatus.statusColor === 'amber',
+                        'bg-slate-700/50': operationalStatus.statusColor === 'slate',
+                    }"
+                >
+                    {{ operationalStatus.statusColor === 'emerald' ? '✓' : operationalStatus.statusColor === 'amber' ? '⚠' : '○' }}
+                </div>
+                <div class="flex-1">
+                    <p class="text-[10px] text-slate-500 uppercase tracking-wide font-semibold">Estado</p>
+                    <p class="text-base font-bold uppercase tracking-wide"
                         :class="{
-                            'bg-emerald-500/20': operationalStatus.statusColor === 'emerald',
-                            'bg-amber-500/20': operationalStatus.statusColor === 'amber',
-                            'bg-slate-700/50': operationalStatus.statusColor === 'slate',
+                            'text-emerald-400': operationalStatus.statusColor === 'emerald',
+                            'text-amber-400': operationalStatus.statusColor === 'amber',
+                            'text-slate-400': operationalStatus.statusColor === 'slate',
                         }"
                     >
-                        {{ operationalStatus.statusColor === 'emerald' ? '✓' : operationalStatus.statusColor === 'amber' ? '⚠' : '○' }}
-                    </div>
-                    <div>
-                        <p class="text-xs text-slate-400 uppercase tracking-wide font-semibold">Estado</p>
-                        <p class="text-lg font-extrabold uppercase tracking-wide"
-                            :class="{
-                                'text-emerald-400': operationalStatus.statusColor === 'emerald',
-                                'text-amber-400': operationalStatus.statusColor === 'amber',
-                                'text-slate-400': operationalStatus.statusColor === 'slate',
-                            }"
-                        >
-                            {{ operationalStatus.statusText }}
-                        </p>
-                    </div>
+                        {{ operationalStatus.statusText }}
+                    </p>
                 </div>
             </div>
-            <div class="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-slate-700/30">
+            <div class="grid grid-cols-2 gap-2">
                 <div class="text-center p-2 rounded-lg bg-slate-800/50">
-                    <p class="text-xl font-bold text-emerald-400 tabular-nums">{{ store.presentCount }}</p>
+                    <p class="text-lg font-bold text-emerald-400 tabular-nums">{{ store.presentCount }}</p>
                     <p class="text-[10px] text-slate-500 uppercase tracking-wide">Presentes</p>
                 </div>
                 <div class="text-center p-2 rounded-lg bg-slate-800/50">
-                    <p class="text-xl font-bold tabular-nums"
+                    <p class="text-lg font-bold tabular-nums"
                         :class="store.unconfirmedCount > 0 ? 'text-amber-400' : 'text-emerald-400'"
                     >
                         {{ store.unconfirmedCount }}
@@ -121,18 +118,18 @@ function formatTime(isoString) {
         </div>
 
         <!-- Operational Activity Feed -->
-        <div v-if="operationalEvents.length > 0" class="rounded-xl border border-blue-500/30 bg-gradient-to-br from-blue-900/20 to-slate-800 p-4 shadow-xl">
-            <div class="flex items-center gap-2 mb-3">
-                <span class="text-lg">⚡</span>
-                <span class="text-xs font-bold text-blue-400 uppercase tracking-widest">Actividad Operativa</span>
+        <div v-if="operationalEvents.length > 0" class="rounded-xl border border-blue-500/30 bg-gradient-to-br from-blue-900/10 to-slate-800 p-3 shadow-lg">
+            <div class="flex items-center gap-2 mb-2">
+                <span class="text-base">⚡</span>
+                <span class="text-xs font-bold text-blue-400 uppercase tracking-wide">Actividad</span>
             </div>
-            <ul class="space-y-2">
+            <ul class="space-y-1.5">
                 <li
                     v-for="event in operationalEvents"
                     :key="event.id"
-                    class="flex items-start gap-2 p-2.5 rounded-lg bg-slate-800/50 border border-slate-700/30"
+                    class="flex items-start gap-2 p-2 rounded-lg bg-slate-800/50 border border-slate-700/30"
                 >
-                    <span class="text-base">{{ event.icon }}</span>
+                    <span class="text-sm">{{ event.icon }}</span>
                     <div class="flex-1 min-w-0">
                         <p class="text-xs font-medium leading-snug" :class="event.color">{{ event.message }}</p>
                         <span class="text-[10px] text-slate-500 mt-0.5 block">{{ formatTime(event.timestamp) }}</span>
@@ -141,70 +138,69 @@ function formatTime(isoString) {
             </ul>
         </div>
 
-        <!-- Camas - operational bed status -->
-        <div v-if="bedStats.total > 0" class="rounded-xl border border-slate-700/50 bg-slate-800/80 p-4 shadow-lg">
-            <div class="flex items-center justify-between mb-3">
+        <!-- Camas -->
+        <div v-if="bedStats.total > 0" class="rounded-xl border border-slate-700/50 bg-slate-800/80 p-3 shadow-lg">
+            <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-2">
-                    <span class="text-xl">🛏️</span>
-                    <span class="text-xs font-bold text-slate-300 uppercase tracking-widest">Camas</span>
+                    <span class="text-base">🛏️</span>
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wide">Camas</span>
                 </div>
-                <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-400">
+                <span class="text-xs font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400">
                     {{ bedStats.occupied }}/{{ bedStats.total }}
                 </span>
             </div>
-            <div class="grid grid-cols-5 gap-2">
+            <div class="grid grid-cols-5 gap-1.5">
                 <div
                     v-for="n in bedStats.total"
                     :key="n"
-                    class="aspect-square rounded-lg flex items-center justify-center text-sm font-bold transition-all shadow-md"
+                    class="aspect-square rounded flex items-center justify-center text-xs font-bold transition-all"
                     :class="Object.values(store.bedByFirefighter).includes(n) 
-                        ? 'bg-emerald-500/30 border-2 border-emerald-500/50 text-emerald-300 shadow-emerald-900/50' 
-                        : 'bg-slate-700/40 border-2 border-slate-600/40 text-slate-500'"
+                        ? 'bg-emerald-500/30 border border-emerald-500/50 text-emerald-300' 
+                        : 'bg-slate-700/40 border border-slate-600/40 text-slate-500'"
                 >
                     {{ n }}
                 </div>
             </div>
         </div>
 
-        <!-- Cumpleaños - operational prominence -->
-        <div v-if="store.birthdaysThisMonth.length > 0" class="rounded-xl border-2 border-amber-500/30 bg-gradient-to-br from-amber-900/20 to-slate-800 p-4 shadow-xl">
-            <div class="flex items-center justify-between mb-3">
+        <!-- Cumpleaños -->
+        <div v-if="store.birthdaysThisMonth.length > 0" class="rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-900/10 to-slate-800 p-3 shadow-lg">
+            <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-2">
-                    <span class="text-2xl">🎂</span>
-                    <span class="text-xs font-bold text-amber-400 uppercase tracking-widest">Cumpleaños</span>
+                    <span class="text-base">🎂</span>
+                    <span class="text-xs font-bold text-amber-400 uppercase tracking-wide">Cumpleaños</span>
                 </div>
-                <span class="text-[10px] text-amber-500/70 uppercase font-semibold px-2 py-1 rounded-lg bg-amber-500/10">Este mes</span>
+                <span class="text-[10px] text-amber-500/70 uppercase font-semibold">Este mes</span>
             </div>
-            <ul class="space-y-2">
+            <ul class="space-y-1.5">
                 <li
                     v-for="b in store.birthdaysThisMonth.slice(0, 3)"
                     :key="b.id"
-                    class="flex items-center gap-3 p-2 rounded-lg bg-slate-800/50 border border-slate-700/30"
+                    class="flex items-center gap-2 p-2 rounded-lg bg-slate-800/50 border border-slate-700/30"
                 >
-                    <div class="w-11 h-11 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-xl shadow-xl">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-base">
                         🎉
                     </div>
                     <div class="flex-1 min-w-0">
-                        <p class="text-sm font-bold text-white leading-tight truncate">{{ b.name }}</p>
-                        <p v-if="b.cargo" class="text-[10px] text-amber-400/70 uppercase font-semibold">{{ b.cargo }}</p>
+                        <p class="text-xs font-bold text-white leading-tight truncate">{{ b.name }}</p>
+                        <p v-if="b.cargo" class="text-[10px] text-amber-400/70 uppercase">{{ b.cargo }}</p>
                     </div>
-                    <div class="text-center px-2.5 py-1.5 rounded-lg bg-amber-500/20 border-2 border-amber-500/30">
-                        <span class="text-sm font-bold text-amber-300">{{ b.day }}</span>
-                        <span class="text-[10px] text-amber-500/70 block uppercase font-semibold">MAR</span>
+                    <div class="text-center px-2 py-1 rounded bg-amber-500/20">
+                        <span class="text-xs font-bold text-amber-300">{{ b.day }}</span>
                     </div>
                 </li>
             </ul>
         </div>
 
 
-        <!-- Novedades - operational presentation -->
-        <div class="rounded-xl border border-slate-700/50 bg-slate-800/80 p-4 shadow-lg">
-            <div class="flex items-center justify-between mb-3">
+        <!-- Novedades -->
+        <div class="rounded-xl border border-slate-700/50 bg-slate-800/80 p-3 shadow-lg">
+            <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-2">
-                    <span class="text-xl">📋</span>
-                    <span class="text-xs font-bold text-slate-300 uppercase tracking-widest">Novedades</span>
+                    <span class="text-base">📋</span>
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wide">Novedades</span>
                 </div>
-                <span v-if="store.novelties.length > 0" class="text-xs font-bold px-2.5 py-1 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400">
+                <span v-if="store.novelties.length > 0" class="text-xs font-bold px-2 py-0.5 rounded bg-blue-500/20 text-blue-400">
                     {{ store.novelties.length }}
                 </span>
             </div>
@@ -212,14 +208,14 @@ function formatTime(isoString) {
             <div v-if="store.novelties.length === 0" class="text-xs text-slate-600 py-3 text-center bg-slate-700/20 rounded-lg">
                 Sin novedades recientes
             </div>
-            <ul v-else class="space-y-2">
+            <ul v-else class="space-y-1.5">
                 <li
                     v-for="n in store.novelties.slice(0, 3)"
                     :key="n.id"
-                    class="group rounded-lg bg-slate-700/30 hover:bg-slate-700/50 px-3 py-2.5 border border-slate-700/30 transition-all cursor-pointer"
+                    class="rounded-lg bg-slate-700/30 hover:bg-slate-700/50 px-2.5 py-2 border border-slate-700/30 transition-all cursor-pointer"
                 >
-                    <p class="text-xs text-slate-300 leading-snug line-clamp-2 group-hover:text-white transition-colors">{{ n.content }}</p>
-                    <div class="flex items-center justify-between mt-1.5">
+                    <p class="text-xs text-slate-300 leading-snug line-clamp-2">{{ n.content }}</p>
+                    <div class="flex items-center justify-between mt-1">
                         <p v-if="n.user_name" class="text-[10px] text-slate-500">{{ n.user_name }}</p>
                         <span v-if="n.is_permanent" class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400">Permanente</span>
                     </div>
@@ -227,14 +223,14 @@ function formatTime(isoString) {
             </ul>
         </div>
 
-        <!-- Academias - operational presentation -->
-        <div class="rounded-xl border border-slate-700/50 bg-slate-800/80 p-4 shadow-lg">
-            <div class="flex items-center justify-between mb-3">
+        <!-- Academias -->
+        <div class="rounded-xl border border-slate-700/50 bg-slate-800/80 p-3 shadow-lg">
+            <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-2">
-                    <span class="text-xl">🎓</span>
-                    <span class="text-xs font-bold text-slate-300 uppercase tracking-widest">Academias</span>
+                    <span class="text-base">🎓</span>
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wide">Academias</span>
                 </div>
-                <span v-if="store.academies.length > 0" class="text-xs font-bold px-2.5 py-1 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400">
+                <span v-if="store.academies.length > 0" class="text-xs font-bold px-2 py-0.5 rounded bg-purple-500/20 text-purple-400">
                     {{ store.academies.length }}
                 </span>
             </div>
@@ -242,13 +238,13 @@ function formatTime(isoString) {
             <div v-if="store.academies.length === 0" class="text-xs text-slate-600 py-3 text-center bg-slate-700/20 rounded-lg">
                 Sin academias registradas
             </div>
-            <ul v-else class="space-y-2">
+            <ul v-else class="space-y-1.5">
                 <li
                     v-for="a in store.academies.slice(0, 3)"
                     :key="a.id"
-                    class="group rounded-lg bg-gradient-to-r from-purple-900/20 to-slate-700/30 hover:from-purple-900/30 hover:to-slate-700/40 px-3 py-2.5 border border-purple-500/20 transition-all cursor-pointer"
+                    class="rounded-lg bg-gradient-to-r from-purple-900/10 to-slate-700/30 hover:from-purple-900/20 hover:to-slate-700/40 px-2.5 py-2 border border-purple-500/20 transition-all cursor-pointer"
                 >
-                    <p class="text-xs text-slate-300 leading-snug line-clamp-2 group-hover:text-white transition-colors">{{ a.content }}</p>
+                    <p class="text-xs text-slate-300 leading-snug line-clamp-2">{{ a.content }}</p>
                     <p v-if="a.firefighter_name" class="text-[10px] text-purple-400/80 mt-1">
                         👤 {{ a.firefighter_name }}
                     </p>

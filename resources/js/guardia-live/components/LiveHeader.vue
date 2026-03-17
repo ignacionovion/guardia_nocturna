@@ -55,7 +55,7 @@ onUnmounted(() => {
 <template>
     <header 
         class="sticky top-0 z-40 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-b-2 border-slate-700/80 backdrop-blur-md shadow-2xl shadow-black/50 transition-all duration-300"
-        :class="{ 'py-2': isFullscreen, 'py-4': !isFullscreen }"
+        :class="{ 'py-3': isFullscreen, 'py-4': !isFullscreen }"
     >
 
         <div class="px-4 md:px-6 lg:px-8 flex items-center justify-between gap-4">
@@ -83,28 +83,19 @@ onUnmounted(() => {
             </div>
 
             <!-- Center: live badge + counters -->
-            <div class="hidden lg:flex items-center gap-4">
-                <div 
-                    class="flex items-center gap-2 bg-emerald-500/20 border-2 border-emerald-500/40 rounded-xl px-4 py-2 shadow-lg shadow-emerald-900/30"
-                    :class="{ 'scale-90': isFullscreen }"
-                >
-                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-lg shadow-emerald-500/50"></span>
-                    <span class="text-sm font-extrabold text-emerald-400 uppercase tracking-wider">EN VIVO</span>
+            <div class="hidden lg:flex items-center gap-3">
+                <div class="flex items-center gap-2 bg-emerald-500/20 border border-emerald-500/40 rounded-lg px-3 py-1.5 shadow-lg shadow-emerald-900/30">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-lg shadow-emerald-500/50"></span>
+                    <span class="text-xs font-bold text-emerald-400 uppercase tracking-wide">EN VIVO</span>
                 </div>
 
                 <!-- Reactive counters -->
-                <div class="flex items-center gap-3">
-                    <div 
-                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-700/50 border border-slate-600/50"
-                        :class="{ 'scale-90': isFullscreen }"
-                    >
+                <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-700/50 border border-slate-600/50">
                         <span class="text-sm font-bold text-white tabular-nums">{{ store.visibleCount }}</span>
                         <span class="text-xs text-slate-400">total</span>
                     </div>
-                    <div 
-                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30"
-                        :class="{ 'scale-90': isFullscreen }"
-                    >
+                    <div class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
                         <span class="text-sm font-bold text-emerald-400 tabular-nums">{{ store.presentCount }}</span>
                         <span class="text-xs text-emerald-500/70">presentes</span>
                     </div>
@@ -113,21 +104,19 @@ onUnmounted(() => {
                 <!-- Pending changes indicator -->
                 <div
                     v-if="store.hasPendingChanges"
-                    class="flex items-center gap-2 bg-amber-500/20 border-2 border-amber-500/40 rounded-xl px-3 py-1.5 shadow-lg shadow-amber-900/30 animate-pulse"
-                    :class="{ 'scale-90': isFullscreen }"
+                    class="flex items-center gap-2 bg-amber-500/20 border border-amber-500/40 rounded-lg px-2.5 py-1.5 shadow-lg shadow-amber-900/30"
                 >
-                    <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-                    <span class="text-xs font-extrabold text-amber-400 uppercase tracking-wide">Cambios pendientes</span>
+                    <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                    <span class="text-xs font-bold text-amber-400 uppercase tracking-wide">Cambios</span>
                 </div>
 
                 <!-- Unconfirmed count alert -->
                 <div
                     v-if="store.unconfirmedCount > 0"
-                    class="flex items-center gap-2 bg-red-500/20 border-2 border-red-500/40 rounded-xl px-3 py-1.5 shadow-lg shadow-red-900/30 animate-pulse"
-                    :class="{ 'scale-90': isFullscreen }"
+                    class="flex items-center gap-2 bg-red-500/20 border border-red-500/40 rounded-lg px-2.5 py-1.5 shadow-lg shadow-red-900/30"
                 >
-                    <span class="w-2 h-2 rounded-full bg-red-400"></span>
-                    <span class="text-xs font-extrabold text-red-400 uppercase tracking-wide">
+                    <span class="w-2 h-2 rounded-full bg-red-400 animate-pulse"></span>
+                    <span class="text-xs font-bold text-red-400 uppercase tracking-wide">
                         {{ store.unconfirmedCount }} sin confirmar
                     </span>
                 </div>
@@ -140,7 +129,7 @@ onUnmounted(() => {
                 <button
                     type="button"
                     :disabled="saveBtnDisabled"
-                    class="hidden sm:flex items-center gap-2 text-sm font-extrabold px-4 py-2.5 rounded-xl border-2 transition-all duration-200 shadow-lg"
+                    class="hidden sm:flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-lg border-2 transition-all duration-200 shadow-lg"
                     :class="saveBtnClass"
                     @click="handleSave"
                 >
