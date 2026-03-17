@@ -212,9 +212,12 @@ class GuardiaLiveController extends Controller
 
         // Serialize staff
         $staffData = $activeStaff->map(function (Bombero $b) use (
-            $bedByFirefighter, $draftItemsByFirefighterId, $replacementByReplacement
+            $bedByFirefighter, $draftItemsByFirefighterId, $replacementByReplacement, $shiftClosedForToday
         ) {
             $draftItem = $draftItemsByFirefighterId->get($b->id);
+
+            // When shift is closed (after 07:00), don't show confirmation status
+            $confirmedAt = $shiftClosedForToday ? null : $draftItem?->confirmed_at?->toISOString();
 
             return [
                 'id'                     => $b->id,
@@ -227,7 +230,7 @@ class GuardiaLiveController extends Controller
                 'draft_attendance_status'=> $draftItem?->attendance_status,
                 'draft_included'         => $draftItem ? (bool) $draftItem->included : null,
                 'confirm_token'          => $draftItem?->confirm_token,
-                'confirmed_at'           => $draftItem?->confirmed_at?->toISOString(),
+                'confirmed_at'           => $confirmedAt,
                 'es_jefe_guardia'        => (bool) ($b->es_jefe_guardia ?? false),
                 'es_refuerzo'            => (bool) ($b->es_refuerzo ?? false),
                 'es_reemplazo'           => $replacementByReplacement->has($b->id),
