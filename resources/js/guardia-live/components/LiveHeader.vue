@@ -1,8 +1,9 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref, onMounted, onUnmounted } from 'vue';
 import { useGuardiaStore } from '../stores/guardia';
 
 const store = useGuardiaStore();
+const isFullscreen = ref(false);
 
 const saveBtnDisabled = computed(() =>
     !store.attendanceEnabled || store.isSaving || !store.allConfirmed
@@ -36,16 +37,35 @@ function openFullscreen() {
         document.exitFullscreen().catch(() => {});
     }
 }
+
+function updateFullscreenState() {
+    isFullscreen.value = !!document.fullscreenElement;
+}
+
+onMounted(() => {
+    document.addEventListener('fullscreenchange', updateFullscreenState);
+    updateFullscreenState();
+});
+
+onUnmounted(() => {
+    document.removeEventListener('fullscreenchange', updateFullscreenState);
+});
 </script>
 
 <template>
-    <header class="sticky top-0 z-40 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-b-2 border-slate-700/80 backdrop-blur-md shadow-2xl shadow-black/50">
+    <header 
+        class="sticky top-0 z-40 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-b-2 border-slate-700/80 backdrop-blur-md shadow-2xl shadow-black/50 transition-all duration-300"
+        :class="{ 'py-2': isFullscreen, 'py-4': !isFullscreen }"
+    >
 
-        <div class="px-4 md:px-6 lg:px-8 py-4 flex items-center justify-between gap-4">
+        <div class="px-4 md:px-6 lg:px-8 flex items-center justify-between gap-4">
 
             <!-- Left: brand + guardia info -->
             <div class="flex items-center gap-4 min-w-0">
-                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-600 to-red-700 border-2 border-red-500/50 flex items-center justify-center flex-shrink-0 shadow-lg shadow-red-900/50">
+                <div 
+                    class="rounded-xl bg-gradient-to-br from-red-600 to-red-700 border-2 border-red-500/50 flex items-center justify-center flex-shrink-0 shadow-lg shadow-red-900/50 transition-all"
+                    :class="{ 'w-10 h-10': isFullscreen, 'w-12 h-12': !isFullscreen }"
+                >
                     <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
@@ -53,7 +73,10 @@ function openFullscreen() {
                 </div>
                 <div class="min-w-0">
                     <p class="text-xs text-slate-400 uppercase tracking-wider leading-none mb-1 font-semibold">Panel de Control</p>
-                    <h1 class="text-lg font-extrabold text-white truncate leading-tight">
+                    <h1 
+                        class="font-extrabold text-white truncate leading-tight transition-all"
+                        :class="{ 'text-base': isFullscreen, 'text-lg': !isFullscreen }"
+                    >
                         {{ store.guardiaName || 'Guardia' }}
                     </h1>
                 </div>
@@ -61,18 +84,27 @@ function openFullscreen() {
 
             <!-- Center: live badge + counters -->
             <div class="hidden lg:flex items-center gap-4">
-                <div class="flex items-center gap-2 bg-emerald-500/20 border-2 border-emerald-500/40 rounded-xl px-4 py-2 shadow-lg shadow-emerald-900/30">
+                <div 
+                    class="flex items-center gap-2 bg-emerald-500/20 border-2 border-emerald-500/40 rounded-xl px-4 py-2 shadow-lg shadow-emerald-900/30"
+                    :class="{ 'scale-90': isFullscreen }"
+                >
                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-lg shadow-emerald-500/50"></span>
                     <span class="text-sm font-extrabold text-emerald-400 uppercase tracking-wider">EN VIVO</span>
                 </div>
 
                 <!-- Reactive counters -->
                 <div class="flex items-center gap-3">
-                    <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-700/50 border border-slate-600/50">
+                    <div 
+                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-700/50 border border-slate-600/50"
+                        :class="{ 'scale-90': isFullscreen }"
+                    >
                         <span class="text-sm font-bold text-white tabular-nums">{{ store.visibleCount }}</span>
                         <span class="text-xs text-slate-400">total</span>
                     </div>
-                    <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
+                    <div 
+                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30"
+                        :class="{ 'scale-90': isFullscreen }"
+                    >
                         <span class="text-sm font-bold text-emerald-400 tabular-nums">{{ store.presentCount }}</span>
                         <span class="text-xs text-emerald-500/70">presentes</span>
                     </div>
@@ -82,9 +114,22 @@ function openFullscreen() {
                 <div
                     v-if="store.hasPendingChanges"
                     class="flex items-center gap-2 bg-amber-500/20 border-2 border-amber-500/40 rounded-xl px-3 py-1.5 shadow-lg shadow-amber-900/30 animate-pulse"
+                    :class="{ 'scale-90': isFullscreen }"
                 >
                     <span class="w-2 h-2 rounded-full bg-amber-400"></span>
                     <span class="text-xs font-extrabold text-amber-400 uppercase tracking-wide">Cambios pendientes</span>
+                </div>
+
+                <!-- Unconfirmed count alert -->
+                <div
+                    v-if="store.unconfirmedCount > 0"
+                    class="flex items-center gap-2 bg-red-500/20 border-2 border-red-500/40 rounded-xl px-3 py-1.5 shadow-lg shadow-red-900/30 animate-pulse"
+                    :class="{ 'scale-90': isFullscreen }"
+                >
+                    <span class="w-2 h-2 rounded-full bg-red-400"></span>
+                    <span class="text-xs font-extrabold text-red-400 uppercase tracking-wide">
+                        {{ store.unconfirmedCount }} sin confirmar
+                    </span>
                 </div>
             </div>
 
@@ -126,6 +171,7 @@ function openFullscreen() {
                     <button
                         type="button"
                         class="w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200 bg-slate-800/80 border-2 border-slate-700/50 hover:bg-slate-700 hover:border-slate-600 hover:scale-110 shadow-lg"
+                        :class="{ 'w-9 h-9': isFullscreen }"
                         title="Aseo"
                         @click="store.openModal('aseo')"
                     >
@@ -139,6 +185,7 @@ function openFullscreen() {
                     <button
                         type="button"
                         class="w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200 bg-red-900/20 border-2 border-red-700/50 hover:bg-red-900/40 hover:border-red-600/70 hover:scale-110 shadow-lg shadow-red-900/30"
+                        :class="{ 'w-9 h-9': isFullscreen }"
                         title="Emergencias"
                         @click="store.openModal('emergencias')"
                     >
@@ -152,6 +199,7 @@ function openFullscreen() {
                     <button
                         type="button"
                         class="w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200 bg-purple-900/20 border-2 border-purple-700/50 hover:bg-purple-900/40 hover:border-purple-600/70 hover:scale-110 shadow-lg shadow-purple-900/30"
+                        :class="{ 'w-9 h-9': isFullscreen }"
                         title="Agregar Refuerzo"
                         @click="store.openModal('refuerzo')"
                     >
@@ -164,13 +212,22 @@ function openFullscreen() {
                     <!-- Fullscreen -->
                     <button
                         type="button"
-                        class="w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200 bg-slate-800/80 border-2 border-slate-700/50 hover:bg-slate-700 hover:border-slate-600 hover:scale-110 shadow-lg"
-                        title="Pantalla completa"
+                        class="w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200 border-2 shadow-lg"
+                        :class="{ 
+                            'w-9 h-9': isFullscreen,
+                            'bg-slate-800/80 border-slate-700/50 hover:bg-slate-700 hover:border-slate-600 hover:scale-110': !isFullscreen,
+                            'bg-emerald-600/80 border-emerald-500/50 hover:bg-emerald-500': isFullscreen
+                        }"
+                        :title="isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'"
                         @click="openFullscreen"
                     >
-                        <svg class="w-5 h-5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg v-if="!isFullscreen" class="w-5 h-5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                        </svg>
+                        <svg v-else class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
 

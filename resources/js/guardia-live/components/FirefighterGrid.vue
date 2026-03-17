@@ -23,17 +23,28 @@ const sortedStaff = computed(() => {
 </script>
 
 <template>
-    <section>
-        <!-- Section header -->
-        <div class="flex items-center gap-3 mb-6">
-            <div class="w-1.5 h-6 bg-gradient-to-b from-red-500 to-red-600 rounded-full shadow-lg shadow-red-900/50"></div>
-            <h2 class="text-base font-extrabold text-white uppercase tracking-wider">
-                Personal en Guardia
-            </h2>
+    <section class="flex flex-col h-full">
+        <!-- Section header with stats -->
+        <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-3">
+                <div class="w-1.5 h-6 bg-gradient-to-b from-red-500 to-red-600 rounded-full shadow-lg shadow-red-900/50"></div>
+                <h2 class="text-base font-extrabold text-white uppercase tracking-wider">
+                    Personal en Guardia
+                </h2>
+                <span class="hidden sm:inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-800/50 border border-slate-700/50 text-xs text-slate-400">
+                    <span class="font-bold text-white">{{ store.visibleCount }}</span> total
+                </span>
+            </div>
+            
+            <!-- View density indicator for large screens -->
+            <div class="hidden 2xl:flex items-center gap-2 text-xs text-slate-500">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Modo Cuartel Activo</span>
+            </div>
         </div>
 
         <!-- Loading state -->
-        <div v-if="store.isLoading && store.staff.length === 0" class="flex items-center justify-center py-20">
+        <div v-if="store.isLoading && store.staff.length === 0" class="flex items-center justify-center py-20 flex-1">
             <div class="flex flex-col items-center gap-3 text-slate-500">
                 <svg class="w-8 h-8 animate-spin" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
@@ -46,7 +57,7 @@ const sortedStaff = computed(() => {
         <!-- Empty state -->
         <div
             v-else-if="store.staff.length === 0"
-            class="flex flex-col items-center justify-center py-16 rounded-xl border border-slate-700/50 bg-slate-800/30"
+            class="flex flex-col items-center justify-center py-16 rounded-xl border border-slate-700/50 bg-slate-800/30 flex-1"
         >
             <svg class="w-12 h-12 text-slate-600 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -55,17 +66,51 @@ const sortedStaff = computed(() => {
             <p class="text-slate-500 text-sm">Sin personal asignado</p>
         </div>
 
-        <!-- Grid -->
+        <!-- Grid - Optimized for large screens (modo cuartel) -->
         <div
             v-else
-            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4"
+            class="grid gap-3 2xl:gap-4 flex-1 content-start"
+            :class="{
+                // Mobile: 2 columns
+                'grid-cols-2': true,
+                // Small screens: 3 columns  
+                'sm:grid-cols-3': true,
+                // Medium screens: 4 columns
+                'md:grid-cols-4': true,
+                // Large screens: 4-5 columns
+                'lg:grid-cols-4': true,
+                'xl:grid-cols-5': true,
+                // Extra large: 6 columns (modo cuartel)
+                '2xl:grid-cols-6': true,
+                // Ultra wide: 7-8 columns for massive screens
+                '3xl:grid-cols-7': true,
+                '4xl:grid-cols-8': true,
+            }"
         >
             <FirefighterCard
                 v-for="member in sortedStaff"
                 :key="member.id"
                 :firefighter="member"
                 :bed-number="store.bedByFirefighter[member.id] ?? null"
+                class="h-full"
             />
+        </div>
+        
+        <!-- Footer info for large screens -->
+        <div class="hidden 2xl:flex items-center justify-between mt-4 pt-4 border-t border-slate-700/30">
+            <div class="flex items-center gap-4 text-xs text-slate-500">
+                <span class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    {{ store.presentCount }} presentes
+                </span>
+                <span v-if="store.unconfirmedCount > 0" class="flex items-center gap-1.5 text-amber-400">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                    {{ store.unconfirmedCount }} por confirmar
+                </span>
+            </div>
+            <div class="text-xs text-slate-600">
+                Ordenado por antigüedad
+            </div>
         </div>
     </section>
 </template>

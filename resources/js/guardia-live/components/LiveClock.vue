@@ -1,11 +1,24 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useGuardiaStore } from '../stores/guardia';
+
+const props = defineProps({
+    size: {
+        type: String,
+        default: 'normal', // 'normal' | 'large'
+    },
+});
 
 const store = useGuardiaStore();
 const displayTime = ref('--:--:--');
 const isOnline = ref(true);
 let timer = null;
+
+const timeClass = computed(() => {
+    return props.size === 'large' 
+        ? 'text-5xl font-black tracking-widest' 
+        : 'text-4xl font-black tracking-wider';
+});
 
 function tick() {
     const tz = store.guardiaTz || 'America/Santiago';
@@ -37,15 +50,30 @@ onUnmounted(() => {
 
 <template>
     <div class="text-center">
-        <div class="text-4xl font-black tabular-nums tracking-wider text-white font-mono">
+        <div 
+            class="tabular-nums text-white font-mono transition-all duration-300"
+            :class="timeClass"
+        >
             {{ displayTime }}
         </div>
-        <div class="mt-1 flex items-center justify-center gap-1.5">
+        <div 
+            class="mt-1 flex items-center justify-center gap-1.5"
+            :class="{ 'mt-2': size === 'large' }"
+        >
             <span
-                class="inline-block w-2 h-2 rounded-full"
-                :class="isOnline ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'"
+                class="inline-block rounded-full transition-all"
+                :class="[
+                    isOnline ? 'bg-emerald-400 animate-pulse' : 'bg-red-400',
+                    size === 'large' ? 'w-2.5 h-2.5' : 'w-2 h-2'
+                ]"
             ></span>
-            <span class="text-xs font-medium" :class="isOnline ? 'text-emerald-400' : 'text-red-400'">
+            <span 
+                class="font-medium transition-all" 
+                :class="[
+                    isOnline ? 'text-emerald-400' : 'text-red-400',
+                    size === 'large' ? 'text-sm font-bold' : 'text-xs'
+                ]"
+            >
                 {{ isOnline ? 'EN LÍNEA' : 'SIN CONEXIÓN' }}
             </span>
         </div>

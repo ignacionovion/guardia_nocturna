@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useGuardiaStore } from '../stores/guardia';
 
 const props = defineProps({
@@ -24,6 +24,12 @@ const isConfirming      = ref(false);
 const isChangingStatus  = ref(false);
 const pickerRef         = ref(null);
 
+// ── Microinteraction states ──────────────────────────────
+const highlightState    = ref(''); // 'confirmed' | 'refuerzo' | 'replacement' | 'status-change' | ''
+const isHighlighting    = ref(false);
+const prevStatus        = ref(null);
+const prevConfirmed     = ref(null);
+
 // ── Derived from prop (reactive via store updates) ─────────
 const f           = computed(() => props.firefighter);
 const guardiaId   = computed(() => store.guardia?.id);
@@ -37,6 +43,65 @@ const statusLocked         = computed(() => f.value.es_reemplazo || f.value.es_r
 const requiresConfirmation = computed(() => {
     const s = effectiveStatus.value;
     return ['constituye', 'reemplazo'].includes(s) || f.value.es_refuerzo || f.value.es_reemplazo;
+});
+
+// ── Watch for changes to trigger microinteractions ─────────
+watch(() => f.value.confirmed_at, (newVal, oldVal) => {
+    if (!oldVal && newVal) {
+        triggerHighlight('confirmed');
+    }
+}, { flush: 'post' });
+
+watch(() => f.value.es_refuerzo, (newVal, oldVal) => {
+    if (!oldVal && newVal) {
+        triggerHighlight('refuerzo');
+    }
+}, { flush: 'post' });
+
+watch(() => f.value.es_reemplazo, (newVal, oldVal) => {
+    if (!oldVal && newVal) {
+        triggerHighlight('replacement');
+    }
+}, { flush: 'post' });
+
+watch(() => f.value.draft_attendance_status || f.value.estado_asistencia, (newVal, oldVal) => {
+    if (oldVal && newVal && oldVal !== newVal) {
+        triggerHighlight('status-change');
+    }
+}, { flush: 'post' });
+
+// Trigger temporary highlight effect
+function triggerHighlight(type) {
+    highlightState.value = type;
+    isHighlighting.value = true;
+    setTimeout(() => {
+        isHighlighting.value = false;
+        setTimeout(() => {
+            if (highlightState.value === type) {
+                highlightState.value = '';
+            }
+        }, 300);
+    }, 1500);
+}
+
+// ── Highlight classes based on state ─────────────────────
+const highlightClasses = computed(() => {
+    if (!isHighlighting.value) return '';
+    
+    const baseClasses = 'ring-4 ring-offset-2 ring-offset-slate-900 animate-pulse';
+    
+    switch (highlightState.value) {
+        case 'confirmed':
+            return `${baseClasses} ring-emerald-500 shadow-[0_0_30px_rgba(16,185,129,0.4)]`;
+        case 'refuerzo':
+            return `${baseClasses} ring-sky-500 shadow-[0_0_30px_rgba(14,165,233,0.4)]`;
+        case 'replacement':
+            return `${baseClasses} ring-purple-500 shadow-[0_0_30px_rgba(168,85,247,0.4)]`;
+        case 'status-change':
+            return `${baseClasses} ring-amber-500 shadow-[0_0_30px_rgba(245,158,11,0.4)]`;
+        default:
+            return '';
+    }
 });
 
 const canBeReplaced = computed(() => {
@@ -179,8 +244,8 @@ onUnmounted(() => document.removeEventListener('click', onDocClick, true));
 
 <template>
     <div
-        class="group relative rounded-lg border bg-slate-900 overflow-hidden shadow-md hover:shadow-xl transition-all duration-200 h-full flex flex-col"
-        :class="cardBorderClass"
+        class="group relative rounded-lg border bg-slate-900 overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 h-full flex flex-col"
+        :class="[cardBorderClass, highlightClasses]"
     >
         <!-- Confirmed strip -->
         <div v-if="isConfirmed" class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-400 z-20 animate-pulse"></div>

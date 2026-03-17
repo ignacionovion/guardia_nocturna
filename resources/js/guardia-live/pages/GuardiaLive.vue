@@ -4,12 +4,15 @@ import { useGuardiaStore } from '../stores/guardia';
 import LiveHeader from '../components/LiveHeader.vue';
 import FirefighterGrid from '../components/FirefighterGrid.vue';
 import Sidebar from '../components/Sidebar.vue';
+import AlertContainer from '../components/AlertContainer.vue';
+import { useGuardiaAlerts } from '../composables/useGuardiaAlerts.js';
 import AseoModal from '../components/AseoModal.vue';
 import EmergenciasModal from '../components/EmergenciasModal.vue';
 import RefuerzoModal from '../components/RefuerzoModal.vue';
 import ReemplazoModal from '../components/ReemplazoModal.vue';
 
 const store = useGuardiaStore();
+const alerts = useGuardiaAlerts();
 let refreshInterval = null;
 let reconnectTimeout = null;
 const broadcastConnected = ref(false);
@@ -55,36 +58,50 @@ function initBroadcasting() {
             });
         }
 
-        // Listen to all events
+        // Listen to all events with visual alerts
         channel.listen('.bombero.status.updated', (event) => {
             console.log('[Broadcasting] 📝 Bombero status updated:', event);
+            alerts.info('Estado actualizado', `${event.firefighter_name || 'Bombero'} cambió de estado`);
             store.refreshState();
         });
 
         channel.listen('.bombero.confirmed', (event) => {
             console.log('[Broadcasting] ✓ Bombero confirmed:', event);
+            alerts.success('Bombero confirmado', `${event.firefighter_name || 'Bombero'} confirmó asistencia`);
             store.refreshState();
         });
 
         channel.listen('.refuerzo.added', (event) => {
             console.log('[Broadcasting] 👤 Refuerzo added:', event);
+            alerts.success('Refuerzo agregado', `${event.firefighter_name || 'Bombero'} se unió como refuerzo`);
             store.refreshState();
         });
 
         channel.listen('.replacement.assigned', (event) => {
             console.log('[Broadcasting] 🔄 Replacement assigned:', event);
+            alerts.info('Reemplazo asignado', `${event.replacement_name || 'Bombero'} reemplaza a ${event.original_name || 'titular'}`);
             store.refreshState();
         });
 
         channel.listen('.emergencia.created', (event) => {
             console.log('[Broadcasting] 🚨 Emergencia created:', event);
+            alerts.emergency('🚨 NUEVA EMERGENCIA', event.emergency_key?.description || 'Emergencia registrada');
             store.refreshState();
         });
 
         channel.listen('.aseo.updated', (event) => {
             console.log('[Broadcasting] 🧹 Aseo updated:', event);
+            alerts.success('Aseo actualizado', 'Las asignaciones de aseo fueron actualizadas');
             store.refreshState();
         });
+
+        // Listen for connection errors and show warning
+        if (window.Echo.connector && window.Echo.connector.pusher) {
+            window.Echo.connector.pusher.connection.bind('error', (error) => {
+                console.error('[Broadcasting] 🔴 Connection error:', error);
+                alerts.warning('Conexión inestable', 'Reconectando al servidor en tiempo real...');
+            });
+        }
 
         broadcastConnected.value = true;
         console.log('[Broadcasting] ✅ Connected successfully');
@@ -174,11 +191,14 @@ onUnmounted(() => {
         <LiveHeader />
 
         <main class="px-4 md:px-6 lg:px-8 py-6">
-            <div class="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-6">
+            <div class="grid grid-cols-1 xl:grid-cols-[1fr_380px] 2xl:grid-cols-[1fr_420px] gap-6">
                 <FirefighterGrid />
                 <Sidebar />
             </div>
         </main>
+
+        <!-- Alert Container for operational notifications -->
+        <AlertContainer />
 
         <!-- Save result toast (fixed, always visible) -->
         <Transition
