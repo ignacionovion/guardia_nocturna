@@ -198,9 +198,28 @@ onUnmounted(() => document.removeEventListener('click', onDocClick, true));
 
             <!-- Badges top-right corner -->
             <div class="absolute top-1.5 right-1.5 flex flex-col gap-1 z-10">
+                <!-- Jefe de Guardia -->
                 <span v-if="f.es_jefe_guardia" class="w-5 h-5 rounded bg-amber-500/90 flex items-center justify-center shadow" title="Jefe de Guardia">
                     <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                </span>
+                <!-- Conductor -->
+                <span v-if="f.es_conductor" class="w-5 h-5 rounded bg-blue-600/90 flex items-center justify-center shadow" title="Conductor">
+                    <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                </span>
+                <!-- Operador de Rescate -->
+                <span v-if="f.es_operador_rescate" class="w-5 h-5 rounded bg-red-600/90 flex items-center justify-center shadow" title="Operador de Rescate">
+                    <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                </span>
+                <!-- Asistente de Trauma -->
+                <span v-if="f.es_asistente_trauma" class="w-5 h-5 rounded bg-emerald-600/90 flex items-center justify-center shadow" title="Asistente de Trauma">
+                    <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                     </svg>
                 </span>
             </div>

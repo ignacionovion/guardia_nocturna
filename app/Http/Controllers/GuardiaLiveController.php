@@ -235,9 +235,16 @@ class GuardiaLiveController extends Controller
                 'es_titular'             => (bool) ($b->es_titular ?? true),
                 'bed_number'             => $bedByFirefighter->get($b->id),
                 'photo_path'             => $b->photo_path ?? null,
+                'numero_portatil'        => $b->numero_portatil ?? null,
                 'years_service'          => isset($b->fecha_ingreso)
                     ? (int) now()->diffInYears($b->fecha_ingreso)
                     : null,
+                'months_service'         => isset($b->fecha_ingreso)
+                    ? (int) now()->copy()->setDate(now()->year, $b->fecha_ingreso->month, $b->fecha_ingreso->day)->diffInMonths($b->fecha_ingreso) % 12
+                    : null,
+                'es_conductor'           => (bool) ($b->es_conductor ?? false),
+                'es_operador_rescate'    => (bool) ($b->es_operador_rescate ?? false),
+                'es_asistente_trauma'    => (bool) ($b->es_asistente_trauma ?? false),
             ];
         })->values();
 
