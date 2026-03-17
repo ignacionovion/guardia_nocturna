@@ -5,7 +5,7 @@ import { useGuardiaStore } from '../stores/guardia';
 const store = useGuardiaStore();
 
 const saveBtnDisabled = computed(() =>
-    !store.attendanceEnabled || store.isSaving
+    !store.attendanceEnabled || store.isSaving || !store.allConfirmed
 );
 
 const saveBtnClass = computed(() => {

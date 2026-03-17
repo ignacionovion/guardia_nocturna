@@ -240,11 +240,17 @@ class GuardiaLiveController extends Controller
                     ? (int) now()->diffInYears($b->fecha_ingreso)
                     : null,
                 'months_service'         => isset($b->fecha_ingreso)
-                    ? (int) now()->copy()->setDate(now()->year, $b->fecha_ingreso->month, $b->fecha_ingreso->day)->diffInMonths($b->fecha_ingreso) % 12
+                    ? (int) $b->fecha_ingreso->diffInMonths(now()) % 12
                     : null,
                 'es_conductor'           => (bool) ($b->es_conductor ?? false),
                 'es_operador_rescate'    => (bool) ($b->es_operador_rescate ?? false),
                 'es_asistente_trauma'    => (bool) ($b->es_asistente_trauma ?? false),
+                'replacement_info'       => $replacementByReplacement->has($b->id) 
+                    ? [
+                        'id' => $replacementByReplacement->get($b->id)->id,
+                        'original_name' => $replacementByReplacement->get($b->id)->originalFirefighter?->nombres . ' ' . $replacementByReplacement->get($b->id)->originalFirefighter?->apellido_paterno,
+                    ]
+                    : null,
             ];
         })->values();
 

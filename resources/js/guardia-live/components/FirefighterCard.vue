@@ -105,6 +105,17 @@ const serviceLabel = computed(() => {
 
 const radialNumber = computed(() => f.value.numero_portatil ?? null);
 
+// Position for fixed dropdown to avoid overflow
+const dropdownPosition = computed(() => {
+    if (!pickerRef.value) return {};
+    const rect = pickerRef.value.getBoundingClientRect();
+    return {
+        top: `${rect.bottom + 4}px`,
+        left: `${rect.left}px`,
+        width: `${rect.width}px`,
+    };
+});
+
 // ── Actions ────────────────────────────────────────────────
 async function selectStatus(newStatus) {
     if (newStatus === effectiveStatus.value) { showStatusPicker.value = false; return; }
@@ -189,14 +200,14 @@ onUnmounted(() => document.removeEventListener('click', onDocClick, true));
                     </div>
                     <div v-if="radialNumber" class="flex items-center gap-1">
                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5.636 18.364a9 9 0 010-12.728m12.728 0a9 9 0 010 12.728m-9.9-2.829a5 5 0 010-7.07m7.072 0a5 5 0 010 7.07M13 12a1 1 0 11-2 0 1 1 0 012 0z" />
                         </svg>
                         <span>{{ radialNumber }}</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Badges top-right corner -->
+            <!-- Badges top-right corner - matching old dashboard style -->
             <div class="absolute top-1.5 right-1.5 flex flex-col gap-1 z-10">
                 <!-- Jefe de Guardia -->
                 <span v-if="f.es_jefe_guardia" class="w-5 h-5 rounded bg-amber-500/90 flex items-center justify-center shadow" title="Jefe de Guardia">
@@ -205,22 +216,19 @@ onUnmounted(() => document.removeEventListener('click', onDocClick, true));
                     </svg>
                 </span>
                 <!-- Conductor -->
-                <span v-if="f.es_conductor" class="w-5 h-5 rounded bg-blue-600/90 flex items-center justify-center shadow" title="Conductor">
+                <span v-if="f.es_conductor" class="w-5 h-5 rounded bg-sky-500/90 flex items-center justify-center shadow" title="Conductor">
                     <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
                     </svg>
                 </span>
                 <!-- Operador de Rescate -->
-                <span v-if="f.es_operador_rescate" class="w-5 h-5 rounded bg-red-600/90 flex items-center justify-center shadow" title="Operador de Rescate">
-                    <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
+                <span v-if="f.es_operador_rescate" class="w-5 h-5 rounded bg-orange-500/90 flex items-center justify-center shadow" title="Operador de Rescate">
+                    <span class="text-xs font-bold text-white">R</span>
                 </span>
                 <!-- Asistente de Trauma -->
-                <span v-if="f.es_asistente_trauma" class="w-5 h-5 rounded bg-emerald-600/90 flex items-center justify-center shadow" title="Asistente de Trauma">
-                    <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
+                <span v-if="f.es_asistente_trauma" class="w-5 h-5 rounded bg-rose-500/90 flex items-center justify-center shadow" title="Asistente de Trauma">
+                    <span class="text-xs font-bold text-white">AT</span>
                 </span>
             </div>
 
@@ -250,6 +258,19 @@ onUnmounted(() => document.removeEventListener('click', onDocClick, true));
         <!-- Card body -->
         <div class="p-2 space-y-1.5 flex-1 flex flex-col">
 
+            <!-- Replacement info with undo button -->
+            <div v-if="f.replacement_info" class="rounded border border-purple-500/30 bg-purple-500/10 px-1.5 py-1">
+                <div class="text-xs font-bold uppercase text-purple-400">Reemplaza a</div>
+                <div class="text-sm font-semibold text-purple-200 truncate">{{ f.replacement_info.original_name }}</div>
+                <button 
+                    type="button" 
+                    @click="store.undoReplacement(f.replacement_info.id)"
+                    class="mt-1 w-full bg-purple-600/30 hover:bg-purple-600/50 text-purple-300 font-semibold uppercase text-xs py-0.5 rounded transition-colors"
+                >
+                    Deshacer
+                </button>
+            </div>
+
             <!-- ── STATUS SELECTOR ── -->
             <div ref="pickerRef" class="relative">
 
@@ -275,10 +296,12 @@ onUnmounted(() => document.removeEventListener('click', onDocClick, true));
                     </svg>
                 </button>
 
-                <!-- Status dropdown -->
+                <!-- Status dropdown - fixed position to avoid overflow -->
                 <div
                     v-if="showStatusPicker && !statusLocked"
-                    class="absolute left-0 right-0 top-full mt-1 rounded-lg border-2 border-slate-700 bg-slate-900 shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200"
+                    class="fixed rounded-lg border-2 border-slate-700 bg-slate-900 shadow-2xl z-[100] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200"
+                    style="min-width: 160px;"
+                    :style="dropdownPosition"
                 >
                     <button
                         v-for="s in STATUSES"

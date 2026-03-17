@@ -51,6 +51,16 @@ export const useGuardiaStore = defineStore('guardia', () => {
         })
     );
 
+    // Check if all present staff requiring confirmation are confirmed
+    const allConfirmed = computed(() => {
+        const requiringConfirmation = presentStaff.value.filter(s => {
+            const status = s.draft_attendance_status || s.estado_asistencia || 'constituye';
+            return ['constituye', 'reemplazo'].includes(status) || s.es_refuerzo || s.es_reemplazo;
+        });
+        if (requiringConfirmation.length === 0) return true;
+        return requiringConfirmation.every(s => !!s.confirmed_at);
+    });
+
     const presentCount = computed(() => presentStaff.value.length);
     const visibleCount = computed(() => staff.value.length);
 
@@ -474,6 +484,7 @@ export const useGuardiaStore = defineStore('guardia', () => {
         presentStaff,
         presentCount,
         visibleCount,
+        allConfirmed,
         attendanceVariantClasses,
         guardiaName,
         guardiaNumber,
