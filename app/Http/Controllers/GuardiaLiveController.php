@@ -236,12 +236,12 @@ class GuardiaLiveController extends Controller
                 'bed_number'             => $bedByFirefighter->get($b->id),
                 'photo_path'             => $b->photo_path ?? null,
                 'numero_portatil'        => $b->numero_portatil ?? null,
-                'years_service'          => isset($b->fecha_ingreso)
-                    ? (int) now()->diffInYears($b->fecha_ingreso)
-                    : null,
-                'months_service'         => isset($b->fecha_ingreso)
-                    ? (int) $b->fecha_ingreso->diffInMonths(now()) % 12
-                    : null,
+                'years_service' => isset($b->fecha_ingreso)
+                ? (int) Carbon::parse($b->fecha_ingreso)->diffInYears(now())
+                : null,
+            'months_service' => isset($b->fecha_ingreso)
+                ? (int) (Carbon::parse($b->fecha_ingreso)->diffInMonths(now()) % 12)
+                : null,
                 'es_conductor'           => (bool) ($b->es_conductor ?? false),
                 'es_operador_rescate'    => (bool) ($b->es_operador_rescate ?? false),
                 'es_asistente_trauma'    => (bool) ($b->es_asistente_trauma ?? false),
