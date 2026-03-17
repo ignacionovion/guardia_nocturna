@@ -11,6 +11,7 @@ const saveBtnDisabled = computed(() =>
 const saveBtnClass = computed(() => {
     if (store.isSaving) return 'bg-slate-700 text-slate-300 border-slate-600 cursor-wait opacity-80';
     if (!store.attendanceEnabled) return 'bg-slate-800/50 text-slate-500 border-slate-800 cursor-not-allowed opacity-60';
+    if (!store.allConfirmed) return 'bg-slate-700 text-slate-400 border-slate-600 cursor-not-allowed opacity-60';
     if (store.hasPendingChanges) return 'bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-500 shadow-md shadow-emerald-900/50';
     return 'bg-slate-800 hover:bg-slate-700 text-white border-slate-700';
 });

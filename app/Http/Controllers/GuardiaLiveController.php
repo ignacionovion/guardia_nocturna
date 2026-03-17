@@ -296,4 +296,61 @@ class GuardiaLiveController extends Controller
             'bulk_update_url'        => '/admin/guardias/' . $guardia->id . '/bulk-update',
         ];
     }
+
+    /**
+     * Get emergency history for a specific guardia
+     */
+    public function emergencies(Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['ok' => false], 401);
+        }
+
+        if ($user->role !== 'guardia') {
+            return response()->json(['ok' => false], 403);
+        }
+
+        $guardiaId = $request->query('guardia_id');
+        if (!$guardiaId) {
+            return response()->json(['ok' => false, 'message' => 'Guardia ID required'], 400);
+        }
+
+        // Verify the guardia belongs to this user
+        $guardia = Guardia::where('id', $guardiaId)
+            ->whereHas('users', fn ($q) => $q->where('users.id', $user->id))
+            ->first();
+
+        if (!$guardia) {
+            return response()->json(['ok' => false, 'message' => 'Guardia not found'], 404);
+        }
+
+        $emergencies = \App\Models\Emergency::with(['key', 'units', 'officerInChargeFirefighter'])
+            ->where('guardia_id', $guardiaId)
+            ->orderBy('dispatched_at', 'desc')
+            ->limit(50)
+            ->get();
+
+        return response()->json($emergencies->map(fn ($e) => [
+            'id' => $e->id,
+            'emergency_key' => $e->key ? [
+                'id' => $e->key->id,
+                'code' => $e->key->code,
+                'description' => $e->key->description,
+            ] : null,
+            'dispatched_at' => $e->dispatched_at?->toISOString(),
+            'arrived_at' => $e->arrived_at?->toISOString(),
+            'call_details' => $e->details,
+            'officer_in_charge' => $e->officerInChargeFirefighter ? [
+                'id' => $e->officerInChargeFirefighter->id,
+                'nombres' => $e->officerInChargeFirefighter->nombres,
+                'apellido_paterno' => $e->officerInChargeFirefighter->apellido_paterno,
+            ] : null,
+            'units' => $e->units->map(fn ($u) => [
+                'id' => $u->id,
+                'name' => $u->name,
+            ])->values(),
+        ]));
+    }
 }

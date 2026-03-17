@@ -8,6 +8,9 @@ const emergencyKeys = ref([]);
 const emergencyUnits = ref([]);
 const isSaving = ref(false);
 const error = ref(null);
+const activeTab = ref('register');
+const emergencyHistory = ref([]);
+const isLoadingHistory = ref(false);
 
 const formData = ref({
     emergency_key_id: null,
@@ -24,6 +27,21 @@ const availableFirefighters = computed(() =>
         return ['constituye', 'reemplazo'].includes(status);
     })
 );
+
+async function loadHistory() {
+    if (!store.guardia?.id) return;
+    isLoadingHistory.value = true;
+    try {
+        const res = await fetch(`/api/guardia-live/emergencies?guardia_id=${store.guardia.id}`, { credentials: 'same-origin' });
+        if (res.ok) {
+            const data = await res.json();
+            emergencyHistory.value = Array.isArray(data) ? data : (data.data || []);
+        }
+    } catch (err) {
+        console.error('[EmergenciasModal] Failed to load history:', err);
+    }
+    isLoadingHistory.value = false;
+}
 
 onMounted(async () => {
     // Fetch emergency keys and units
@@ -62,6 +80,9 @@ onMounted(async () => {
     // Set default dispatched_at to now
     const now = new Date();
     formData.value.dispatched_at = now.toISOString().slice(0, 16);
+
+    // Load history
+    loadHistory();
 });
 
 async function handleSave() {
@@ -131,8 +152,8 @@ function toggleUnit(unitId) {
                             </svg>
                         </div>
                         <div>
-                            <h2 class="text-lg font-bold text-slate-100">Registrar Emergencia</h2>
-                            <p class="text-xs text-slate-400">Ingresa los datos de la emergencia</p>
+                            <h2 class="text-lg font-bold text-slate-100">Emergencias</h2>
+                            <p class="text-xs text-slate-400">Registrar o ver historial</p>
                         </div>
                     </div>
                     <button
@@ -147,13 +168,33 @@ function toggleUnit(unitId) {
                     </button>
                 </div>
 
+                <!-- Tabs -->
+                <div class="px-6 pt-4 flex gap-2 border-b border-slate-700">
+                    <button
+                        type="button"
+                        @click="activeTab = 'register'"
+                        class="px-4 py-2 text-sm font-semibold transition-colors border-b-2"
+                        :class="activeTab === 'register' ? 'text-red-400 border-red-500' : 'text-slate-400 border-transparent hover:text-slate-300'"
+                    >
+                        Registrar
+                    </button>
+                    <button
+                        type="button"
+                        @click="activeTab = 'history'"
+                        class="px-4 py-2 text-sm font-semibold transition-colors border-b-2"
+                        :class="activeTab === 'history' ? 'text-red-400 border-red-500' : 'text-slate-400 border-transparent hover:text-slate-300'"
+                    >
+                        Historial ({{ emergencyHistory.length }})
+                    </button>
+                </div>
+
                 <!-- Error message -->
-                <div v-if="error" class="mx-6 mt-4 px-4 py-3 bg-red-900/30 border border-red-600/50 rounded-lg text-sm text-red-200">
+                <div v-if="error && activeTab === 'register'" class="mx-6 mt-4 px-4 py-3 bg-red-900/30 border border-red-600/50 rounded-lg text-sm text-red-200">
                     {{ error }}
                 </div>
 
-                <!-- Body -->
-                <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+                <!-- Body - Register Tab -->
+                <div v-if="activeTab === 'register'" class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
                     <!-- Clave de emergencia -->
                     <div>
                         <label class="block text-sm font-semibold text-slate-300 mb-2">Clave de Emergencia *</label>
@@ -230,6 +271,46 @@ function toggleUnit(unitId) {
                             class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"
                             placeholder="Dirección, detalles adicionales..."
                         ></textarea>
+                    </div>
+                </div>
+
+                <!-- Body - History Tab -->
+                <div v-else-if="activeTab === 'history'" class="flex-1 overflow-y-auto px-6 py-4">
+                    <div v-if="isLoadingHistory" class="flex items-center justify-center py-12">
+                        <svg class="w-8 h-8 animate-spin text-slate-500" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                        </svg>
+                    </div>
+                    <div v-else-if="emergencyHistory.length === 0" class="text-center py-12 text-slate-400">
+                        <svg class="w-12 h-12 mx-auto mb-3 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <p class="text-sm">Sin emergencias registradas</p>
+                    </div>
+                    <div v-else class="space-y-3">
+                        <div
+                            v-for="emergency in emergencyHistory"
+                            :key="emergency.id"
+                            class="bg-slate-700/50 border border-slate-600 rounded-lg p-4"
+                        >
+                            <div class="flex items-start justify-between mb-2">
+                                <div class="flex-1">
+                                    <div class="text-sm font-bold text-red-400">{{ emergency.emergency_key?.code || 'N/A' }}</div>
+                                    <div class="text-xs text-slate-400">{{ emergency.emergency_key?.description || '' }}</div>
+                                </div>
+                                <div class="text-xs text-slate-500">{{ new Date(emergency.dispatched_at).toLocaleString('es-CL') }}</div>
+                            </div>
+                            <div v-if="emergency.call_details" class="text-sm text-slate-300 mt-2">{{ emergency.call_details }}</div>
+                            <div class="flex items-center gap-4 mt-3 text-xs text-slate-400">
+                                <div v-if="emergency.officer_in_charge">
+                                    <span class="font-semibold">A cargo:</span> {{ emergency.officer_in_charge.nombres }} {{ emergency.officer_in_charge.apellido_paterno }}
+                                </div>
+                                <div v-if="emergency.units && emergency.units.length > 0">
+                                    <span class="font-semibold">Unidades:</span> {{ emergency.units.map(u => u.name).join(', ') }}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

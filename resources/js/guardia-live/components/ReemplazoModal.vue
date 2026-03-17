@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useGuardiaStore } from '../stores/guardia';
 
 const store = useGuardiaStore();
@@ -8,8 +8,15 @@ const allFirefighters = ref([]);
 const selectedReplacementId = ref(null);
 const isSaving = ref(false);
 const error = ref(null);
+const searchQuery = ref('');
+const isDropdownOpen = ref(false);
+const dropdownRef = ref(null);
 
 const originalFirefighter = computed(() => store.modalContext?.firefighter || null);
+
+const selectedReplacement = computed(() => {
+    return allFirefighters.value.find(f => f.id === selectedReplacementId.value);
+});
 
 const availableReplacements = computed(() => {
     if (!originalFirefighter.value) return [];
@@ -18,12 +25,50 @@ const availableReplacements = computed(() => {
     const originalId = originalFirefighter.value.id;
 
     // Firefighters from OTHER guardias who are not the original and not already in a replacement
-    return allFirefighters.value.filter(f => {
+    let filtered = allFirefighters.value.filter(f => {
         return f.id !== originalId && f.guardia_id !== currentGuardiaId;
     });
+
+    // Apply search filter
+    if (searchQuery.value.trim()) {
+        const query = searchQuery.value.toLowerCase();
+        filtered = filtered.filter(f => {
+            const fullName = `${f.nombres} ${f.apellido_paterno} ${f.apellido_materno || ''}`.toLowerCase();
+            return fullName.includes(query);
+        });
+    }
+
+    // Group by guardia
+    return filtered.reduce((acc, f) => {
+        const gid = f.guardia_id || 'sin-guardia';
+        if (!acc[gid]) acc[gid] = [];
+        acc[gid].push(f);
+        return acc;
+    }, {});
 });
 
+function toggleDropdown() {
+    isDropdownOpen.value = !isDropdownOpen.value;
+    if (isDropdownOpen.value) {
+        searchQuery.value = '';
+    }
+}
+
+function selectReplacement(firefighter) {
+    selectedReplacementId.value = firefighter.id;
+    isDropdownOpen.value = false;
+    searchQuery.value = '';
+}
+
+function handleClickOutside(event) {
+    if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
+        isDropdownOpen.value = false;
+    }
+}
+
 onMounted(async () => {
+    document.addEventListener('click', handleClickOutside);
+    
     // Fetch all firefighters
     console.log('[ReemplazoModal] Fetching firefighters...');
     try {
@@ -40,6 +85,10 @@ onMounted(async () => {
     } catch (err) {
         console.error('[ReemplazoModal] Failed to load firefighters:', err);
     }
+});
+
+onUnmounted(() => {
+    document.removeEventListener('click', handleClickOutside);
 });
 
 async function handleSave() {
@@ -134,25 +183,82 @@ function handleClose() {
                         </p>
                     </div>
 
-                    <!-- Replacement selection -->
-                    <div>
+                    <!-- Custom Dropdown with Search -->
+                    <div ref="dropdownRef" class="relative">
                         <label class="block text-sm font-semibold text-slate-300 mb-2">Reemplazante *</label>
-                        <select
-                            v-model="selectedReplacementId"
-                            class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        
+                        <!-- Dropdown Trigger -->
+                        <button
+                            type="button"
+                            @click="toggleDropdown"
+                            class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-sm text-left flex items-center justify-between transition-colors hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                            :class="selectedReplacementId ? 'text-slate-100' : 'text-slate-400'"
                         >
-                            <option :value="null">Seleccionar reemplazante</option>
-                            <optgroup v-for="(group, guardiaId) in availableReplacements.reduce((acc, f) => {
-                                const gid = f.guardia_id || 'sin-guardia';
-                                if (!acc[gid]) acc[gid] = [];
-                                acc[gid].push(f);
-                                return acc;
-                            }, {})" :key="guardiaId" :label="`Guardia ${guardiaId}`">
-                                <option v-for="ff in group" :key="ff.id" :value="ff.id">
-                                    {{ ff.nombres }} {{ ff.apellido_paterno }}
-                                </option>
-                            </optgroup>
-                        </select>
+                            <span>
+                                {{ selectedReplacement 
+                                    ? `${selectedReplacement.nombres} ${selectedReplacement.apellido_paterno}` 
+                                    : 'Seleccionar reemplazante' 
+                                }}
+                            </span>
+                            <svg 
+                                class="w-5 h-5 text-slate-400 transition-transform" 
+                                :class="{ 'rotate-180': isDropdownOpen }"
+                                fill="none" 
+                                viewBox="0 0 24 24" 
+                                stroke="currentColor" 
+                                stroke-width="2"
+                            >
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+
+                        <!-- Dropdown Menu -->
+                        <div
+                            v-if="isDropdownOpen"
+                            class="absolute z-50 w-full mt-1 bg-slate-700 border border-slate-600 rounded-lg shadow-xl max-h-80 overflow-hidden flex flex-col"
+                        >
+                            <!-- Search Input inside dropdown -->
+                            <div class="p-2 border-b border-slate-600">
+                                <div class="relative">
+                                    <input
+                                        v-model="searchQuery"
+                                        type="text"
+                                        placeholder="Buscar reemplazante..."
+                                        class="w-full px-3 py-2 pl-9 bg-slate-800 border border-slate-600 rounded-lg text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                                        @click.stop
+                                    />
+                                    <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <!-- Options List -->
+                            <div class="overflow-y-auto flex-1">
+                                <div v-if="Object.keys(availableReplacements).length === 0" class="px-3 py-4 text-sm text-slate-400 text-center">
+                                    No se encontraron reemplazantes
+                                </div>
+                                <template v-for="(group, guardiaId) in availableReplacements" :key="guardiaId">
+                                    <div class="px-3 py-1 text-xs font-bold text-slate-400 uppercase tracking-wider bg-slate-800/50">
+                                        Guardia {{ guardiaId === 'sin-guardia' ? 'Sin Guardia' : guardiaId }}
+                                    </div>
+                                    <button
+                                        v-for="ff in group"
+                                        :key="ff.id"
+                                        type="button"
+                                        @click="selectReplacement(ff)"
+                                        class="w-full px-3 py-2 text-left text-sm text-slate-200 hover:bg-amber-600/30 hover:text-white transition-colors flex items-center gap-2"
+                                        :class="{ 'bg-amber-600/20': selectedReplacementId === ff.id }"
+                                    >
+                                        <svg v-if="selectedReplacementId === ff.id" class="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        <span class="w-4" v-else></span>
+                                        {{ ff.nombres }} {{ ff.apellido_paterno }}
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="p-4 bg-slate-900/50 border border-slate-700 rounded-lg">
@@ -175,9 +281,9 @@ function handleClose() {
                     </button>
                     <button
                         type="button"
-                        class="px-5 py-2 bg-amber-600 hover:bg-amber-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg transition-colors flex items-center gap-2"
+                        class="px-5 py-2 bg-amber-600 hover:bg-amber-700 disabled:bg-slate-600 disabled:cursor-not-allowed disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition-colors flex items-center gap-2"
                         @click="handleSave"
-                        :disabled="isSaving"
+                        :disabled="isSaving || !selectedReplacementId"
                     >
                         <svg v-if="isSaving" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
