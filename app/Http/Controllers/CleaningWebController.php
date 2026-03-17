@@ -161,6 +161,33 @@ class CleaningWebController extends Controller
 
         $date = Carbon::parse($validated['assigned_date'])->startOfDay();
 
+        // Get or create tasks and map frontend indices (1-9) to actual DB task IDs
+        $desiredTasks = [
+            'Aseo Pieza N°1',
+            'Aseo Pieza N°2',
+            'Aseo Pieza N°3',
+            'Aseo Pieza N°4',
+            'Aseo Pieza N°5',
+            'Aseo Sector Duchas',
+            'Aseo Sector Baños',
+            'Aseo Sala de Estar',
+            'Aseo Cocina Y Quincho',
+        ];
+
+        foreach ($desiredTasks as $taskName) {
+            CleaningTask::firstOrCreate(['name' => $taskName], ['description' => null]);
+        }
+
+        $tasks = CleaningTask::whereIn('name', $desiredTasks)
+            ->orderByRaw('FIELD(name, ' . implode(',', array_fill(0, count($desiredTasks), '?')) . ')', $desiredTasks)
+            ->get();
+
+        // Map: frontend index (1-9) -> actual task ID
+        $taskIdByIndex = [];
+        foreach ($tasks as $index => $task) {
+            $taskIdByIndex[$index + 1] = $task->id;
+        }
+
         $firefighterIds = collect($validated['assignments'])->filter()->map(fn ($v) => (int) $v)->unique()->values();
         if ($firefighterIds->isNotEmpty()) {
             $validCount = Bombero::whereIn('id', $firefighterIds)
@@ -172,19 +199,27 @@ class CleaningWebController extends Controller
             }
         }
 
-        $taskIds = collect(array_keys($validated['assignments']))->map(fn ($v) => (int) $v)->values();
+        // Convert frontend indices to actual task IDs for deletion
+        $frontendIndices = collect(array_keys($validated['assignments']))->map(fn ($v) => (int) $v)->values();
+        $actualTaskIds = $frontendIndices->map(fn ($idx) => $taskIdByIndex[$idx] ?? null)->filter()->values();
 
-        CleaningAssignment::whereIn('cleaning_task_id', $taskIds)
+        CleaningAssignment::whereIn('cleaning_task_id', $actualTaskIds)
             ->whereDate('assigned_date', $date->toDateString())
             ->delete();
 
-        foreach ($validated['assignments'] as $taskId => $assignedUserId) {
+        foreach ($validated['assignments'] as $taskIndex => $assignedUserId) {
             if (!$assignedUserId) {
                 continue;
             }
 
+            // Map frontend index to actual task ID
+            $actualTaskId = $taskIdByIndex[(int) $taskIndex] ?? null;
+            if (!$actualTaskId) {
+                continue;
+            }
+
             $data = [
-                'cleaning_task_id' => (int) $taskId,
+                'cleaning_task_id' => $actualTaskId,
                 'firefighter_id' => (int) $assignedUserId,
                 'assigned_date' => $date->toDateString(),
                 'status' => 'pending',

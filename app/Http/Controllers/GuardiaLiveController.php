@@ -403,18 +403,29 @@ class GuardiaLiveController extends Controller
             ->orderByRaw('FIELD(name, ' . implode(',', array_fill(0, count($desiredTasks), '?')) . ')', $desiredTasks)
             ->get();
 
+        // Create mapping: 1-based index (like frontend) -> task_id
+        $taskIdByIndex = [];
+        foreach ($tasks as $index => $task) {
+            $taskIdByIndex[$index + 1] = $task->id; // Frontend uses 1-9
+        }
+
         $assignments = \App\Models\CleaningAssignment::whereDate('assigned_date', $date->toDateString())
             ->whereIn('cleaning_task_id', $tasks->pluck('id'))
             ->get();
 
-        $assignmentsByTaskId = [];
+        // Map assignments by frontend index (1-9) instead of DB task_id
+        $assignmentsByIndex = [];
         foreach ($assignments as $assignment) {
-            $assignmentsByTaskId[$assignment->cleaning_task_id] = $assignment->firefighter_id;
+            // Find which index (1-9) this task_id corresponds to
+            $index = array_search($assignment->cleaning_task_id, $taskIdByIndex);
+            if ($index !== false) {
+                $assignmentsByIndex[$index] = $assignment->firefighter_id;
+            }
         }
 
         return response()->json([
             'ok' => true,
-            'assignments' => $assignmentsByTaskId,
+            'assignments' => $assignmentsByIndex,
             'date' => $date->toDateString(),
         ]);
     }
