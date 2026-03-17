@@ -57,7 +57,9 @@ export const useGuardiaStore = defineStore('guardia', () => {
             const status = s.draft_attendance_status || s.estado_asistencia || 'constituye';
             return ['constituye', 'reemplazo'].includes(status) || s.es_refuerzo || s.es_reemplazo;
         });
-        if (requiringConfirmation.length === 0) return true;
+        // If no one requires confirmation, return false (button disabled)
+        if (requiringConfirmation.length === 0) return false;
+        // All must be confirmed
         return requiringConfirmation.every(s => !!s.confirmed_at);
     });
 

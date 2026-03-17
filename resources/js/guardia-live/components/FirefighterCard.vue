@@ -164,7 +164,7 @@ onUnmounted(() => document.removeEventListener('click', onDocClick, true));
         <div v-if="isConfirmed" class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-400 z-20 animate-pulse"></div>
 
         <!-- Photo block with overlay info (like old dashboard) -->
-        <div class="relative w-full h-56 bg-slate-800 overflow-hidden">
+        <div class="relative w-full h-64 bg-slate-800 overflow-hidden">
             <!-- Photo or initials fallback -->
             <img
                 v-if="f.photo_url"
@@ -263,7 +263,7 @@ onUnmounted(() => document.removeEventListener('click', onDocClick, true));
         </div>
 
         <!-- Card body -->
-        <div class="p-2 space-y-1.5 flex-1 flex flex-col">
+        <div class="p-2 space-y-1 flex-1 flex flex-col">
 
             <!-- Replacement info with undo button -->
             <div v-if="f.replacement_info" class="rounded border border-purple-500/30 bg-purple-500/10 px-1.5 py-1">

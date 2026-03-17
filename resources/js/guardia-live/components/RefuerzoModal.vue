@@ -8,15 +8,27 @@ const allFirefighters = ref([]);
 const selectedFirefighterId = ref(null);
 const isSaving = ref(false);
 const error = ref(null);
+const searchQuery = ref('');
 
 const availableForRefuerzo = computed(() => {
     const currentGuardiaId = store.guardia?.id;
     if (!currentGuardiaId) return [];
 
     // Firefighters from OTHER guardias who are not already in a replacement
-    return allFirefighters.value.filter(f => {
+    let filtered = allFirefighters.value.filter(f => {
         return f.guardia_id !== currentGuardiaId && !f.es_refuerzo;
     });
+
+    // Apply search filter
+    if (searchQuery.value.trim()) {
+        const query = searchQuery.value.toLowerCase();
+        filtered = filtered.filter(f => {
+            const fullName = `${f.nombres} ${f.apellido_paterno} ${f.apellido_materno || ''}`.toLowerCase();
+            return fullName.includes(query);
+        });
+    }
+
+    return filtered;
 });
 
 onMounted(async () => {
@@ -114,6 +126,22 @@ function handleClose() {
 
                 <!-- Body -->
                 <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+                    <!-- Search input -->
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-300 mb-2">Buscar Bombero</label>
+                        <div class="relative">
+                            <input
+                                v-model="searchQuery"
+                                type="text"
+                                placeholder="Buscar por nombre..."
+                                class="w-full px-3 py-2 pl-10 bg-slate-700 border border-slate-600 rounded-lg text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            />
+                            <svg class="w-5 h-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                    </div>
+
                     <div>
                         <label class="block text-sm font-semibold text-slate-300 mb-2">Bombero a Agregar como Refuerzo *</label>
                         <select

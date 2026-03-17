@@ -8,23 +8,11 @@ const store = useGuardiaStore();
 <template>
     <section>
         <!-- Section header -->
-        <div class="flex items-center justify-between mb-6">
-            <div class="flex items-center gap-3">
-                <div class="w-1.5 h-6 bg-gradient-to-b from-red-500 to-red-600 rounded-full shadow-lg shadow-red-900/50"></div>
-                <h2 class="text-base font-extrabold text-white uppercase tracking-wider">
-                    Personal en Guardia
-                </h2>
-            </div>
-            <div class="flex items-center gap-3 text-sm">
-                <div class="px-3 py-1.5 rounded-lg bg-slate-700/50 border border-slate-600/50">
-                    <span class="text-slate-300 font-semibold">{{ store.visibleCount }}</span>
-                    <span class="text-slate-500 ml-1">total</span>
-                </div>
-                <div class="px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
-                    <span class="text-emerald-400 font-bold">{{ store.presentCount }}</span>
-                    <span class="text-emerald-500/70 ml-1">presentes</span>
-                </div>
-            </div>
+        <div class="flex items-center gap-3 mb-6">
+            <div class="w-1.5 h-6 bg-gradient-to-b from-red-500 to-red-600 rounded-full shadow-lg shadow-red-900/50"></div>
+            <h2 class="text-base font-extrabold text-white uppercase tracking-wider">
+                Personal en Guardia
+            </h2>
         </div>
 
         <!-- Loading state -->
