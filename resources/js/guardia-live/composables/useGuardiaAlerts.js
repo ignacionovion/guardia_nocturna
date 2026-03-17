@@ -2,6 +2,7 @@ import { ref, provide, inject } from 'vue';
 
 const alerts = ref([]);
 let idCounter = 0;
+let globalApiInstance = null;
 
 const alertClasses = {
     emergency: 'bg-red-600/90 border-red-500 text-white shadow-red-900/50',
@@ -89,21 +90,26 @@ export function createGuardiaAlerts() {
 }
 
 export function provideGuardiaAlerts() {
-    const alertsApi = createGuardiaAlerts();
-    provide(GUARDIA_ALERTS_KEY, alertsApi);
-    return alertsApi;
+    if (!globalApiInstance) {
+        globalApiInstance = createGuardiaAlerts();
+    }
+    provide(GUARDIA_ALERTS_KEY, globalApiInstance);
+    return globalApiInstance;
 }
 
 export function useGuardiaAlerts() {
-    const alertsApi = inject(GUARDIA_ALERTS_KEY);
-    if (!alertsApi) {
-        // Fallback to window API if not provided
-        if (typeof window !== 'undefined' && window.guardiaLiveAlerts) {
-            return window.guardiaLiveAlerts;
-        }
-        throw new Error('useGuardiaAlerts must be used within a component that provides guardia alerts');
+    // Auto-create singleton if not exists
+    if (!globalApiInstance) {
+        globalApiInstance = createGuardiaAlerts();
     }
-    return alertsApi;
+    
+    const alertsApi = inject(GUARDIA_ALERTS_KEY, null);
+    if (alertsApi) {
+        return alertsApi;
+    }
+    
+    // Fallback to global singleton
+    return globalApiInstance;
 }
 
 // Get alerts array for use in AlertContainer component
