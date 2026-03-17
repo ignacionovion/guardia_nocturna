@@ -200,7 +200,14 @@ onUnmounted(() => document.removeEventListener('click', onDocClick, true));
                     </div>
                     <div v-if="radialNumber" class="flex items-center gap-1">
                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5.636 18.364a9 9 0 010-12.728m12.728 0a9 9 0 010 12.728m-9.9-2.829a5 5 0 010-7.07m7.072 0a5 5 0 010 7.07M13 12a1 1 0 11-2 0 1 1 0 012 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 4h4" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4V2" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6" />
+                            <rect x="7" y="7" width="10" height="13" rx="2" ry="2" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 11h4" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 14h4" />
+                            <circle cx="12" cy="17" r="1" fill="currentColor" stroke="none" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 10h1.5a1.5 1.5 0 010 3H17" />
                         </svg>
                         <span>{{ radialNumber }}</span>
                     </div>
