@@ -60,46 +60,35 @@ function formatTime(isoString) {
     <aside class="flex flex-col gap-4 h-full overflow-y-auto">
 
         <!-- Clock widget -->
-        <div class="rounded-xl border border-slate-700/50 bg-gradient-to-br from-slate-800 to-slate-900 p-4 shadow-xl">
-            <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wide flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    Hora Local
-                </span>
+        <div class="rounded-lg border border-slate-700/50 bg-slate-800/80 p-3 shadow-lg">
+            <div class="flex items-center gap-2 mb-2">
+                <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" stroke-linecap="round" stroke-linejoin="round"/>
+                    <polyline points="12 6 12 12 16 14" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Hora Local</span>
             </div>
             <LiveClock size="large" />
         </div>
 
         <!-- Operational Status -->
-        <div class="rounded-xl border bg-gradient-to-br p-4 shadow-xl"
-            :class="{
-                'border-emerald-500/30 from-emerald-900/10 to-slate-800': operationalStatus.statusColor === 'emerald',
-                'border-amber-500/30 from-amber-900/10 to-slate-800': operationalStatus.statusColor === 'amber',
-                'border-slate-600/30 from-slate-800 to-slate-900': operationalStatus.statusColor === 'slate',
-            }"
-        >
-            <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 rounded-lg flex items-center justify-center text-xl"
+        <div class="rounded-lg border border-slate-700/50 bg-slate-800/80 p-3 shadow-lg">
+            <div class="flex items-center gap-2 mb-3">
+                <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Estado Operativo</span>
+            </div>
+            <div class="mb-3">
+                <p class="text-base font-bold"
                     :class="{
-                        'bg-emerald-500/20': operationalStatus.statusColor === 'emerald',
-                        'bg-amber-500/20': operationalStatus.statusColor === 'amber',
-                        'bg-slate-700/50': operationalStatus.statusColor === 'slate',
+                        'text-emerald-400': operationalStatus.statusColor === 'emerald',
+                        'text-amber-400': operationalStatus.statusColor === 'amber',
+                        'text-slate-400': operationalStatus.statusColor === 'slate',
                     }"
                 >
-                    {{ operationalStatus.statusColor === 'emerald' ? '✓' : operationalStatus.statusColor === 'amber' ? '⚠' : '○' }}
-                </div>
-                <div class="flex-1">
-                    <p class="text-[10px] text-slate-500 uppercase tracking-wide font-semibold">Estado</p>
-                    <p class="text-base font-bold uppercase tracking-wide"
-                        :class="{
-                            'text-emerald-400': operationalStatus.statusColor === 'emerald',
-                            'text-amber-400': operationalStatus.statusColor === 'amber',
-                            'text-slate-400': operationalStatus.statusColor === 'slate',
-                        }"
-                    >
-                        {{ operationalStatus.statusText }}
-                    </p>
-                </div>
+                    {{ operationalStatus.statusText }}
+                </p>
             </div>
             <div class="grid grid-cols-2 gap-2">
                 <div class="text-center p-2 rounded-lg bg-slate-800/50">
@@ -118,10 +107,12 @@ function formatTime(isoString) {
         </div>
 
         <!-- Operational Activity Feed -->
-        <div v-if="operationalEvents.length > 0" class="rounded-xl border border-blue-500/30 bg-gradient-to-br from-blue-900/10 to-slate-800 p-3 shadow-lg">
+        <div v-if="operationalEvents.length > 0" class="rounded-lg border border-slate-700/50 bg-slate-800/80 p-3 shadow-lg">
             <div class="flex items-center gap-2 mb-2">
-                <span class="text-base">⚡</span>
-                <span class="text-xs font-bold text-blue-400 uppercase tracking-wide">Actividad</span>
+                <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Actividad</span>
             </div>
             <ul class="space-y-1.5">
                 <li
@@ -139,11 +130,15 @@ function formatTime(isoString) {
         </div>
 
         <!-- Camas -->
-        <div v-if="bedStats.total > 0" class="rounded-xl border border-slate-700/50 bg-slate-800/80 p-3 shadow-lg">
+        <div v-if="bedStats.total > 0" class="rounded-lg border border-slate-700/50 bg-slate-800/80 p-3 shadow-lg">
             <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-2">
-                    <span class="text-base">🛏️</span>
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wide">Camas</span>
+                    <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 20v-8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12V6a2 2 0 0 1 2-2h3" />
+                        <circle cx="7" cy="9" r="1" />
+                    </svg>
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Camas</span>
                 </div>
                 <span class="text-xs font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400">
                     {{ bedStats.occupied }}/{{ bedStats.total }}
@@ -164,13 +159,15 @@ function formatTime(isoString) {
         </div>
 
         <!-- Cumpleaños -->
-        <div v-if="store.birthdaysThisMonth.length > 0" class="rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-900/10 to-slate-800 p-3 shadow-lg">
+        <div v-if="store.birthdaysThisMonth.length > 0" class="rounded-lg border border-slate-700/50 bg-slate-800/80 p-3 shadow-lg">
             <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-2">
-                    <span class="text-base">🎂</span>
-                    <span class="text-xs font-bold text-amber-400 uppercase tracking-wide">Cumpleaños</span>
+                    <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                    </svg>
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Cumpleaños</span>
                 </div>
-                <span class="text-[10px] text-amber-500/70 uppercase font-semibold">Este mes</span>
+                <span class="text-[10px] text-slate-500 uppercase font-semibold">Este mes</span>
             </div>
             <ul class="space-y-1.5">
                 <li
@@ -178,8 +175,10 @@ function formatTime(isoString) {
                     :key="b.id"
                     class="flex items-center gap-2 p-2 rounded-lg bg-slate-800/50 border border-slate-700/30"
                 >
-                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-base">
-                        🎉
+                    <div class="w-8 h-8 rounded-full bg-slate-700/50 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                        </svg>
                     </div>
                     <div class="flex-1 min-w-0">
                         <p class="text-xs font-bold text-white leading-tight truncate">{{ b.name }}</p>
@@ -194,11 +193,13 @@ function formatTime(isoString) {
 
 
         <!-- Novedades -->
-        <div class="rounded-xl border border-slate-700/50 bg-slate-800/80 p-3 shadow-lg">
+        <div class="rounded-lg border border-slate-700/50 bg-slate-800/80 p-3 shadow-lg">
             <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-2">
-                    <span class="text-base">📋</span>
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wide">Novedades</span>
+                    <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Novedades</span>
                 </div>
                 <span v-if="store.novelties.length > 0" class="text-xs font-bold px-2 py-0.5 rounded bg-blue-500/20 text-blue-400">
                     {{ store.novelties.length }}
@@ -224,11 +225,14 @@ function formatTime(isoString) {
         </div>
 
         <!-- Academias -->
-        <div class="rounded-xl border border-slate-700/50 bg-slate-800/80 p-3 shadow-lg">
+        <div class="rounded-lg border border-slate-700/50 bg-slate-800/80 p-3 shadow-lg">
             <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-2">
-                    <span class="text-base">🎓</span>
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wide">Academias</span>
+                    <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                    </svg>
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Academias</span>
                 </div>
                 <span v-if="store.academies.length > 0" class="text-xs font-bold px-2 py-0.5 rounded bg-purple-500/20 text-purple-400">
                     {{ store.academies.length }}
@@ -242,7 +246,7 @@ function formatTime(isoString) {
                 <li
                     v-for="a in store.academies.slice(0, 3)"
                     :key="a.id"
-                    class="rounded-lg bg-gradient-to-r from-purple-900/10 to-slate-700/30 hover:from-purple-900/20 hover:to-slate-700/40 px-2.5 py-2 border border-purple-500/20 transition-all cursor-pointer"
+                    class="rounded-lg bg-slate-700/30 hover:bg-slate-700/50 px-2.5 py-2 border border-slate-700/30 transition-all cursor-pointer"
                 >
                     <p class="text-xs text-slate-300 leading-snug line-clamp-2">{{ a.content }}</p>
                     <p v-if="a.firefighter_name" class="text-[10px] text-purple-400/80 mt-1">

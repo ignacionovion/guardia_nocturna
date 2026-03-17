@@ -10,6 +10,7 @@ import AseoModal from '../components/AseoModal.vue';
 import EmergenciasModal from '../components/EmergenciasModal.vue';
 import RefuerzoModal from '../components/RefuerzoModal.vue';
 import ReemplazoModal from '../components/ReemplazoModal.vue';
+import CamasModal from '../components/CamasModal.vue';
 
 const store = useGuardiaStore();
 const alerts = useGuardiaAlerts();
@@ -271,9 +272,10 @@ onUnmounted(() => {
         </Transition>
 
         <!-- Phase 4 Modals -->
-        <AseoModal />
-        <EmergenciasModal />
-        <RefuerzoModal />
-        <ReemplazoModal />
+        <AseoModal v-if="store.activeModal === 'aseo'" @close="store.closeModal" />
+        <EmergenciasModal v-if="store.activeModal === 'emergencias'" @close="store.closeModal" />
+        <RefuerzoModal v-if="store.activeModal === 'refuerzo'" @close="store.closeModal" />
+        <ReemplazoModal v-if="store.activeModal === 'reemplazo'" @close="store.closeModal" />
+        <CamasModal v-if="store.activeModal === 'camas'" @close="store.closeModal" />
     </div>
 </template>

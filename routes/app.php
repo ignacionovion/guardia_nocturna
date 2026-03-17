@@ -135,6 +135,12 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
     Route::get('/api/guardia-live/emergencies', [GuardiaLiveController::class, 'emergencies'])->name('guardia.live.emergencies');
     Route::get('/api/guardia-live/cleaning-assignments', [GuardiaLiveController::class, 'cleaningAssignments'])->name('guardia.live.cleaning_assignments');
     
+    // Bed management API
+    Route::get('/api/beds', [\App\Http\Controllers\BedManagementController::class, 'index'])->name('api.beds.index');
+    Route::get('/api/beds/available-firefighters', [\App\Http\Controllers\BedManagementController::class, 'availableFirefighters'])->name('api.beds.available_firefighters');
+    Route::post('/api/beds/assign', [\App\Http\Controllers\BedManagementController::class, 'assign'])->name('api.beds.assign');
+    Route::post('/api/beds/release', [\App\Http\Controllers\BedManagementController::class, 'release'])->name('api.beds.release');
+    
     Route::get('/camas', [TableroController::class, 'camas'])->name('camas');
     Route::get('/guardia', [GuardiaController::class, 'index'])->name('guardia');
     Route::get('/now', [GuardiaController::class, 'now'])->name('guardia.now');
