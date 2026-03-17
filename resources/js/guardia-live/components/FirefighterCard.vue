@@ -171,7 +171,7 @@ onUnmounted(() => document.removeEventListener('click', onDocClick, true));
                 :src="f.photo_url"
                 :alt="fullName"
                 class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                style="object-position: center 20%;"
+                style="object-position: center 35%;"
             />
             <div
                 v-else
