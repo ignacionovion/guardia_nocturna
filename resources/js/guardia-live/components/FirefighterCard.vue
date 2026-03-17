@@ -70,7 +70,7 @@ watch(() => f.value.draft_attendance_status || f.value.estado_asistencia, (newVa
     }
 }, { flush: 'post' });
 
-// Trigger temporary highlight effect
+// Trigger temporary highlight effect - subtle and brief
 function triggerHighlight(type) {
     highlightState.value = type;
     isHighlighting.value = true;
@@ -80,25 +80,25 @@ function triggerHighlight(type) {
             if (highlightState.value === type) {
                 highlightState.value = '';
             }
-        }, 300);
-    }, 1500);
+        }, 200);
+    }, 800);
 }
 
-// ── Highlight classes based on state ─────────────────────
+// ── Highlight classes based on state - subtle effects ─────────────────────
 const highlightClasses = computed(() => {
     if (!isHighlighting.value) return '';
     
-    const baseClasses = 'ring-4 ring-offset-2 ring-offset-slate-900 animate-pulse';
+    const baseClasses = 'ring-2 ring-offset-1 ring-offset-slate-900 transition-all duration-200';
     
     switch (highlightState.value) {
         case 'confirmed':
-            return `${baseClasses} ring-emerald-500 shadow-[0_0_30px_rgba(16,185,129,0.4)]`;
+            return `${baseClasses} ring-emerald-500/60`;
         case 'refuerzo':
-            return `${baseClasses} ring-sky-500 shadow-[0_0_30px_rgba(14,165,233,0.4)]`;
+            return `${baseClasses} ring-sky-500/60`;
         case 'replacement':
-            return `${baseClasses} ring-purple-500 shadow-[0_0_30px_rgba(168,85,247,0.4)]`;
+            return `${baseClasses} ring-purple-500/60`;
         case 'status-change':
-            return `${baseClasses} ring-amber-500 shadow-[0_0_30px_rgba(245,158,11,0.4)]`;
+            return `${baseClasses} ring-amber-500/60`;
         default:
             return '';
     }

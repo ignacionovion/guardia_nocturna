@@ -58,40 +58,52 @@ function initBroadcasting() {
             });
         }
 
-        // Listen to all events with visual alerts
+        // Listen to all events - only show alerts for critical operational events
         channel.listen('.bombero.status.updated', (event) => {
             console.log('[Broadcasting] 📝 Bombero status updated:', event);
-            alerts.info('Estado actualizado', `${event.firefighter_name || 'Bombero'} cambió de estado`);
+            // No alert - routine operation, UI updates automatically
             store.refreshState();
         });
 
         channel.listen('.bombero.confirmed', (event) => {
             console.log('[Broadcasting] ✓ Bombero confirmed:', event);
-            alerts.success('Bombero confirmado', `${event.firefighter_name || 'Bombero'} confirmó asistencia`);
+            // No alert - routine operation, UI updates automatically
             store.refreshState();
         });
 
         channel.listen('.refuerzo.added', (event) => {
             console.log('[Broadcasting] 👤 Refuerzo added:', event);
-            alerts.success('Refuerzo agregado', `${event.firefighter_name || 'Bombero'} se unió como refuerzo`);
+            alerts.success('Refuerzo agregado', `${event.firefighter_name || 'Bombero'}`);
+            store.refreshState();
+        });
+
+        channel.listen('.refuerzo.removed', (event) => {
+            console.log('[Broadcasting] 👤 Refuerzo removed:', event);
+            // No alert - routine operation, UI updates automatically
             store.refreshState();
         });
 
         channel.listen('.replacement.assigned', (event) => {
             console.log('[Broadcasting] 🔄 Replacement assigned:', event);
-            alerts.info('Reemplazo asignado', `${event.replacement_name || 'Bombero'} reemplaza a ${event.original_name || 'titular'}`);
+            alerts.info('Reemplazo asignado', `${event.replacement_name || 'Bombero'} → ${event.original_name || 'Titular'}`);
+            store.refreshState();
+        });
+
+        channel.listen('.replacement.undone', (event) => {
+            console.log('[Broadcasting] 🔄 Replacement undone:', event);
+            // No alert - routine operation, UI updates automatically
             store.refreshState();
         });
 
         channel.listen('.emergencia.created', (event) => {
             console.log('[Broadcasting] 🚨 Emergencia created:', event);
-            alerts.emergency('🚨 NUEVA EMERGENCIA', event.emergency_key?.description || 'Emergencia registrada');
+            alerts.emergency('🚨 EMERGENCIA', event.emergency_key?.description || 'Nueva emergencia registrada');
             store.refreshState();
         });
 
         channel.listen('.aseo.updated', (event) => {
             console.log('[Broadcasting] 🧹 Aseo updated:', event);
-            alerts.success('Aseo actualizado', 'Las asignaciones de aseo fueron actualizadas');
+            // No alert - routine operation, UI updates automatically
             store.refreshState();
         });
 

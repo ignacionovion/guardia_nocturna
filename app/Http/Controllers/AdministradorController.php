@@ -511,6 +511,8 @@ class AdministradorController extends Controller
         }
 
         $prevGuardiaId = $firefighter->refuerzo_guardia_anterior_id;
+        $guardiaId = (int) $validated['guardia_id'];
+        $firefighterName = "{$firefighter->nombres} {$firefighter->apellido_paterno}";
 
         DB::transaction(function () use ($firefighter, $prevGuardiaId) {
             // Liberar cama automáticamente si está asignada
@@ -535,6 +537,9 @@ class AdministradorController extends Controller
                 'es_sancion' => false,
             ]);
         });
+
+        // Broadcast event for real-time updates
+        broadcast(new \App\Events\RefuerzoRemoved($firefighter->id, $guardiaId, $firefighterName))->toOthers();
 
         if ($request->wantsJson()) {
             return response()->json(['ok' => true, 'message' => 'Refuerzo quitado correctamente.']);
@@ -687,6 +692,8 @@ class AdministradorController extends Controller
             return back()->withErrors(['msg' => 'Reemplazo inválido (faltan datos de voluntarios).']);
         }
 
+        $originalName = "{$original->nombres} {$original->apellido_paterno}";
+        $replacementName = "{$replacer->nombres} {$replacer->apellido_paterno}";
         $shift = Shift::where('status', 'active')->latest()->first();
 
         DB::transaction(function () use ($replacement, $guardia, $original, $replacer, $shift) {
@@ -765,6 +772,9 @@ class AdministradorController extends Controller
                     ]);
             }
         });
+
+        // Broadcast event for real-time updates
+        broadcast(new \App\Events\ReplacementUndone($replacement->id, $guardia->id, $originalName, $replacementName))->toOthers();
 
         if ($request->wantsJson()) {
             return response()->json(['ok' => true, 'message' => 'Reemplazo deshecho correctamente.']);
