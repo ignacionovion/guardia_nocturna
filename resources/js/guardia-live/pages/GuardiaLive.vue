@@ -74,30 +74,43 @@ function initBroadcasting() {
         channel.listen('.refuerzo.added', (event) => {
             console.log('[Broadcasting] 👤 Refuerzo added:', event);
             alerts.success('Refuerzo agregado', `${event.firefighter_name || 'Bombero'}`);
+            if (window.addGuardiaEvent) {
+                window.addGuardiaEvent('refuerzo', `Refuerzo: ${event.firefighter_name || 'Bombero'}`, '👤', 'text-sky-400');
+            }
             store.refreshState();
         });
 
         channel.listen('.refuerzo.removed', (event) => {
             console.log('[Broadcasting] 👤 Refuerzo removed:', event);
-            // No alert - routine operation, UI updates automatically
+            if (window.addGuardiaEvent) {
+                window.addGuardiaEvent('refuerzo', `Refuerzo removido: ${event.firefighter_name || 'Bombero'}`, '👤', 'text-slate-400');
+            }
             store.refreshState();
         });
 
         channel.listen('.replacement.assigned', (event) => {
             console.log('[Broadcasting] 🔄 Replacement assigned:', event);
             alerts.info('Reemplazo asignado', `${event.replacement_name || 'Bombero'} → ${event.original_name || 'Titular'}`);
+            if (window.addGuardiaEvent) {
+                window.addGuardiaEvent('replacement', `Reemplazo: ${event.replacement_name || 'Bombero'} → ${event.original_name || 'Titular'}`, '🔄', 'text-purple-400');
+            }
             store.refreshState();
         });
 
         channel.listen('.replacement.undone', (event) => {
             console.log('[Broadcasting] 🔄 Replacement undone:', event);
-            // No alert - routine operation, UI updates automatically
+            if (window.addGuardiaEvent) {
+                window.addGuardiaEvent('replacement', `Reemplazo deshecho: ${event.original_name || 'Titular'}`, '🔄', 'text-slate-400');
+            }
             store.refreshState();
         });
 
         channel.listen('.emergencia.created', (event) => {
             console.log('[Broadcasting] 🚨 Emergencia created:', event);
             alerts.emergency('🚨 EMERGENCIA', event.emergency_key?.description || 'Nueva emergencia registrada');
+            if (window.addGuardiaEvent) {
+                window.addGuardiaEvent('emergency', `EMERGENCIA: ${event.emergency_key?.description || 'Registrada'}`, '🚨', 'text-red-400');
+            }
             store.refreshState();
         });
 
@@ -202,12 +215,17 @@ onUnmounted(() => {
     <div class="w-full min-h-screen text-slate-100" style="font-family: 'Inter', system-ui, sans-serif;">
         <LiveHeader />
 
-        <main class="px-4 md:px-6 lg:px-8 py-6">
-            <div class="grid grid-cols-1 xl:grid-cols-[1fr_380px] 2xl:grid-cols-[1fr_420px] gap-6">
+        <div class="flex-1 flex gap-4 2xl:gap-6 overflow-hidden">
+            <!-- Main content -->
+            <main class="flex-1 overflow-y-auto px-4 2xl:px-8 py-4 2xl:py-6">
                 <FirefighterGrid />
+            </main>
+
+            <!-- Sidebar - optimized for fullscreen -->
+            <aside class="hidden xl:block w-80 2xl:w-96 overflow-y-auto px-4 2xl:px-6 py-4 2xl:py-6 border-l-2 border-slate-700/50 bg-slate-900/40">
                 <Sidebar />
-            </div>
-        </main>
+            </aside>
+        </div>
 
         <!-- Alert Container for operational notifications -->
         <AlertContainer />

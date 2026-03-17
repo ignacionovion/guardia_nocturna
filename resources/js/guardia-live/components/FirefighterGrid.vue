@@ -24,22 +24,22 @@ const sortedStaff = computed(() => {
 
 <template>
     <section class="flex flex-col h-full">
-        <!-- Section header with stats -->
-        <div class="flex items-center justify-between mb-6">
-            <div class="flex items-center gap-3">
-                <div class="w-1.5 h-6 bg-gradient-to-b from-red-500 to-red-600 rounded-full shadow-lg shadow-red-900/50"></div>
-                <h2 class="text-base font-extrabold text-white uppercase tracking-wider">
+        <!-- Section header with stats - optimized for distance reading -->
+        <div class="flex items-center justify-between mb-4 2xl:mb-6">
+            <div class="flex items-center gap-3 2xl:gap-4">
+                <div class="w-1.5 h-6 2xl:h-8 bg-gradient-to-b from-red-500 to-red-600 rounded-full shadow-lg shadow-red-900/50"></div>
+                <h2 class="text-base 2xl:text-lg font-extrabold text-white uppercase tracking-wider">
                     Personal en Guardia
                 </h2>
-                <span class="hidden sm:inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-800/50 border border-slate-700/50 text-xs text-slate-400">
-                    <span class="font-bold text-white">{{ store.visibleCount }}</span> total
+                <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 2xl:px-3 2xl:py-2 rounded-lg bg-slate-800/50 border border-slate-700/50 text-xs 2xl:text-sm text-slate-400">
+                    <span class="font-bold text-white tabular-nums">{{ store.visibleCount }}</span> total
                 </span>
             </div>
             
             <!-- View density indicator for large screens -->
-            <div class="hidden 2xl:flex items-center gap-2 text-xs text-slate-500">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>Modo Cuartel Activo</span>
+            <div class="hidden 2xl:flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-lg shadow-emerald-500/50"></span>
+                <span class="text-sm font-bold text-emerald-400 uppercase tracking-wide">Modo Cuartel</span>
             </div>
         </div>
 
@@ -96,19 +96,27 @@ const sortedStaff = computed(() => {
             />
         </div>
         
-        <!-- Footer info for large screens -->
-        <div class="hidden 2xl:flex items-center justify-between mt-4 pt-4 border-t border-slate-700/30">
-            <div class="flex items-center gap-4 text-xs text-slate-500">
-                <span class="flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    {{ store.presentCount }} presentes
+        <!-- Footer info for large screens - operational stats -->
+        <div class="hidden 2xl:flex items-center justify-between mt-6 pt-4 border-t border-slate-700/30">
+            <div class="flex items-center gap-6">
+                <span class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/50"></span>
+                    <span class="text-sm font-bold text-emerald-400 tabular-nums">{{ store.presentCount }}</span>
+                    <span class="text-xs text-emerald-500/70 uppercase tracking-wide">Presentes</span>
                 </span>
-                <span v-if="store.unconfirmedCount > 0" class="flex items-center gap-1.5 text-amber-400">
-                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                    {{ store.unconfirmedCount }} por confirmar
+                <span v-if="store.unconfirmedCount > 0" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30">
+                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse shadow-lg shadow-amber-500/50"></span>
+                    <span class="text-sm font-bold text-amber-400 tabular-nums">{{ store.unconfirmedCount }}</span>
+                    <span class="text-xs text-amber-500/70 uppercase tracking-wide">Por confirmar</span>
+                </span>
+                <span v-else class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span class="text-xs text-emerald-400 uppercase tracking-wide font-bold">Todos confirmados</span>
                 </span>
             </div>
-            <div class="text-xs text-slate-600">
+            <div class="text-xs text-slate-600 uppercase tracking-wide">
                 Ordenado por antigüedad
             </div>
         </div>
