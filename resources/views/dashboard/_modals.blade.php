@@ -13,6 +13,7 @@
     $replacementByOriginal = $replacementByOriginal ?? collect();
     $hasAttendanceSavedToday = $hasAttendanceSavedToday ?? false;
     $latestDraftAt = $latestDraftAt ?? null;
+    $replacementCandidates = $replacementCandidates ?? collect();
 @endphp
     <div id="noveltyModal" class="fixed inset-0 bg-slate-900 bg-opacity-75 hidden overflow-y-auto h-full w-full z-50 flex items-center justify-center backdrop-blur-sm">
         <div class="relative p-6 border w-full max-w-lg shadow-2xl rounded-xl {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-900 border-slate-800' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700' }}">
