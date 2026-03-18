@@ -52,7 +52,12 @@ class NovedadController extends Controller
                     $novelty->firefighter_id = (int) $firefighterId;
                 }
                 $novelty->date = isset($validated['date']) ? \Carbon\Carbon::parse($validated['date']) : now();
-                // Las academias NO van en la bitácora de novedades, se manejan aparte
+                
+                // CRÍTICO: Asignar guardia_id para que aparezca en el sidebar
+                $authUser = auth()->user();
+                if ($authUser->role === 'guardia' && $authUser->guardia_id) {
+                    $novelty->guardia_id = $authUser->guardia_id;
+                }
             } else {
                 // Es una novedad regular (no academia)
                 $novelty->user_id = auth()->id();

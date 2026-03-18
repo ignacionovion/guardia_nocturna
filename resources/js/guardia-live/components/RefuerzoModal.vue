@@ -30,9 +30,14 @@ const availableForRefuerzo = computed(() => {
         return [];
     }
 
-    // Firefighters from OTHER guardias who are not already in a replacement
+    // Firefighters from OTHER guardias (or without guardia) who are not already in a replacement
     let filtered = allFirefighters.value.filter(f => {
-        return f.guardia_id !== currentGuardiaId && !f.es_refuerzo;
+        // Incluir bomberos de otras guardias O sin guardia asignada
+        const isDifferentGuardia = f.guardia_id && f.guardia_id !== currentGuardiaId;
+        const hasNoGuardia = !f.guardia_id;
+        const notAlreadyRefuerzo = !f.es_refuerzo;
+        
+        return (isDifferentGuardia || hasNoGuardia) && notAlreadyRefuerzo;
     });
     
     console.log('[RefuerzoModal] After filtering:', {
