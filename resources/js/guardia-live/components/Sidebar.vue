@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue';
 import { useGuardiaStore } from '../stores/guardia';
 import LiveClock from './LiveClock.vue';
+import NoveltyCard from './NoveltyCard.vue';
 
 const store = useGuardiaStore();
 
@@ -232,19 +233,13 @@ function formatTime(isoString) {
             <div v-if="store.novelties.length === 0" class="text-xs text-slate-600 py-3 text-center bg-slate-700/20 rounded-lg">
                 Sin novedades recientes
             </div>
-            <ul v-else class="space-y-1.5">
-                <li
-                    v-for="n in store.novelties.slice(0, 3)"
-                    :key="n.id"
-                    class="rounded-lg bg-slate-700/30 hover:bg-slate-700/50 px-2.5 py-2 border border-slate-700/30 transition-all cursor-pointer"
-                >
-                    <p class="text-xs text-slate-300 leading-snug line-clamp-2">{{ n.content }}</p>
-                    <div class="flex items-center justify-between mt-1">
-                        <p v-if="n.user_name" class="text-[10px] text-slate-500">{{ n.user_name }}</p>
-                        <span v-if="n.is_permanent" class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400">Permanente</span>
-                    </div>
-                </li>
-            </ul>
+            <div v-else class="space-y-2">
+                <NoveltyCard 
+                    v-for="n in store.novelties.slice(0, 3)" 
+                    :key="n.id" 
+                    :novelty="n" 
+                />
+            </div>
         </div>
 
         <!-- Academias -->

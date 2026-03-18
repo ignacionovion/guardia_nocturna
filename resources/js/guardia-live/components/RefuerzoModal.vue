@@ -18,11 +18,27 @@ const selectedFirefighter = computed(() => {
 
 const availableForRefuerzo = computed(() => {
     const currentGuardiaId = store.guardia?.id;
-    if (!currentGuardiaId) return [];
+    
+    console.log('[RefuerzoModal] Computing available:', {
+        currentGuardiaId,
+        totalFirefighters: allFirefighters.value.length,
+        hasGuardia: !!currentGuardiaId
+    });
+    
+    if (!currentGuardiaId) {
+        console.warn('[RefuerzoModal] No current guardia ID - returning empty');
+        return [];
+    }
 
     // Firefighters from OTHER guardias who are not already in a replacement
     let filtered = allFirefighters.value.filter(f => {
         return f.guardia_id !== currentGuardiaId && !f.es_refuerzo;
+    });
+    
+    console.log('[RefuerzoModal] After filtering:', {
+        filteredCount: filtered.length,
+        excludedSameGuardia: allFirefighters.value.filter(f => f.guardia_id === currentGuardiaId).length,
+        excludedAlreadyRefuerzo: allFirefighters.value.filter(f => f.es_refuerzo).length
     });
 
     // Apply search filter
@@ -32,15 +48,20 @@ const availableForRefuerzo = computed(() => {
             const fullName = `${f.nombres} ${f.apellido_paterno} ${f.apellido_materno || ''}`.toLowerCase();
             return fullName.includes(query);
         });
+        console.log('[RefuerzoModal] After search filter:', filtered.length);
     }
 
     // Group by guardia
-    return filtered.reduce((acc, f) => {
+    const grouped = filtered.reduce((acc, f) => {
         const gid = f.guardia_id || 'sin-guardia';
         if (!acc[gid]) acc[gid] = [];
         acc[gid].push(f);
         return acc;
     }, {});
+    
+    console.log('[RefuerzoModal] Grouped by guardia:', Object.keys(grouped).length, 'guardias');
+    
+    return grouped;
 });
 
 function toggleDropdown() {

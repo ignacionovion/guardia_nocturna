@@ -19,7 +19,17 @@ const selectedReplacement = computed(() => {
 });
 
 const availableReplacements = computed(() => {
-    if (!originalFirefighter.value) return [];
+    console.log('[ReemplazoModal] Computing available replacements:', {
+        hasOriginal: !!originalFirefighter.value,
+        originalId: originalFirefighter.value?.id,
+        currentGuardiaId: store.guardia?.id,
+        totalFirefighters: allFirefighters.value.length
+    });
+    
+    if (!originalFirefighter.value) {
+        console.warn('[ReemplazoModal] No original firefighter - returning empty');
+        return [];
+    }
 
     const currentGuardiaId = store.guardia?.id;
     const originalId = originalFirefighter.value.id;
@@ -27,6 +37,12 @@ const availableReplacements = computed(() => {
     // Firefighters from OTHER guardias who are not the original and not already in a replacement
     let filtered = allFirefighters.value.filter(f => {
         return f.id !== originalId && f.guardia_id !== currentGuardiaId;
+    });
+    
+    console.log('[ReemplazoModal] After filtering:', {
+        filteredCount: filtered.length,
+        excludedSameGuardia: allFirefighters.value.filter(f => f.guardia_id === currentGuardiaId).length,
+        excludedOriginal: allFirefighters.value.filter(f => f.id === originalId).length
     });
 
     // Apply search filter
@@ -36,15 +52,20 @@ const availableReplacements = computed(() => {
             const fullName = `${f.nombres} ${f.apellido_paterno} ${f.apellido_materno || ''}`.toLowerCase();
             return fullName.includes(query);
         });
+        console.log('[ReemplazoModal] After search filter:', filtered.length);
     }
 
     // Group by guardia
-    return filtered.reduce((acc, f) => {
+    const grouped = filtered.reduce((acc, f) => {
         const gid = f.guardia_id || 'sin-guardia';
         if (!acc[gid]) acc[gid] = [];
         acc[gid].push(f);
         return acc;
     }, {});
+    
+    console.log('[ReemplazoModal] Grouped by guardia:', Object.keys(grouped).length, 'guardias');
+    
+    return grouped;
 });
 
 function toggleDropdown() {

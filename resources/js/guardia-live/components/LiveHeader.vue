@@ -81,12 +81,8 @@ onUnmounted(() => {
                 </div>
             </div>
 
-            <!-- Center: live badge only -->
+            <!-- Center: empty (badge eliminado) -->
             <div class="hidden lg:flex items-center gap-2">
-                <div class="flex items-center gap-2 bg-emerald-500/20 border border-emerald-500/40 rounded-lg px-3 py-1.5">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span class="text-xs font-semibold text-emerald-400 uppercase tracking-wide">En vivo</span>
-                </div>
             </div>
 
             <!-- Right: toolbar -->

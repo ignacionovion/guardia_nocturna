@@ -33,10 +33,17 @@ async function loadAssignments() {
     if (!store.guardia?.id) return;
     
     isLoading.value = true;
+    error.value = null;
+    
+    const startTime = performance.now();
+    
     try {
         const res = await fetch(`/api/guardia-live/cleaning-assignments?guardia_id=${store.guardia.id}`, { 
             credentials: 'same-origin' 
         });
+        
+        const loadTime = performance.now() - startTime;
+        console.log(`[AseoModal] Load time: ${loadTime.toFixed(0)}ms`);
         
         if (res.ok) {
             const data = await res.json();
@@ -46,11 +53,15 @@ async function loadAssignments() {
             if (data.assignments) {
                 assignments.value = { ...data.assignments };
             }
+        } else {
+            error.value = 'Error al cargar asignaciones previas';
         }
     } catch (err) {
         console.error('[AseoModal] Failed to load assignments:', err);
+        error.value = 'Error de conexión al cargar asignaciones';
+    } finally {
+        isLoading.value = false;
     }
-    isLoading.value = false;
 }
 
 // Watch for modal opening
@@ -137,20 +148,31 @@ function handleClose() {
 
                 <!-- Body -->
                 <div class="flex-1 overflow-y-auto px-6 py-4 space-y-3">
-                    <div v-for="task in tasks" :key="task.id" class="flex items-center gap-3 p-3 bg-slate-900/50 rounded-lg border border-slate-700/50">
-                        <label class="flex-1 text-sm font-medium text-slate-300">
-                            {{ task.name }}
-                        </label>
-                        <select
-                            v-model="assignments[task.id]"
-                            class="px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[200px]"
-                        >
-                            <option :value="null">Sin asignar</option>
-                            <option v-for="ff in availableFirefighters" :key="ff.id" :value="ff.id">
-                                {{ ff.nombres }} {{ ff.apellido_paterno }}
-                            </option>
-                        </select>
-                    </div>
+                    <!-- Loading skeleton -->
+                    <template v-if="isLoading">
+                        <div v-for="i in 9" :key="`skeleton-${i}`" class="flex items-center gap-3 p-3 bg-slate-900/50 rounded-lg border border-slate-700/50 animate-pulse">
+                            <div class="flex-1 h-5 bg-slate-700/50 rounded"></div>
+                            <div class="w-[200px] h-9 bg-slate-700/50 rounded-lg"></div>
+                        </div>
+                    </template>
+                    
+                    <!-- Actual content -->
+                    <template v-else>
+                        <div v-for="task in tasks" :key="task.id" class="flex items-center gap-3 p-3 bg-slate-900/50 rounded-lg border border-slate-700/50">
+                            <label class="flex-1 text-sm font-medium text-slate-300">
+                                {{ task.name }}
+                            </label>
+                            <select
+                                v-model="assignments[task.id]"
+                                class="px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[200px]"
+                            >
+                                <option :value="null">Sin asignar</option>
+                                <option v-for="ff in availableFirefighters" :key="ff.id" :value="ff.id">
+                                    {{ ff.nombres }} {{ ff.apellido_paterno }}
+                                </option>
+                            </select>
+                        </div>
+                    </template>
                 </div>
 
                 <!-- Footer -->

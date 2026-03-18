@@ -35,11 +35,22 @@ async function loadBeds() {
 async function loadFirefighters() {
     try {
         const response = await fetch('/api/beds/available-firefighters');
-        if (!response.ok) throw new Error('Error al cargar bomberos');
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            console.error('[CamasModal] API error:', response.status, errorData);
+            throw new Error(errorData.error || 'Error al cargar bomberos');
+        }
         const data = await response.json();
+        console.log('[CamasModal] Firefighters loaded:', data.firefighters?.length || 0, 'items');
         firefighters.value = data.firefighters || [];
+        
+        // Si está vacío, mostrar mensaje informativo
+        if (firefighters.value.length === 0) {
+            errorMessage.value = 'No hay bomberos disponibles para asignar. Verifique que haya personal presente y no fuera de servicio.';
+        }
     } catch (error) {
-        console.error('Error loading firefighters:', error);
+        console.error('[CamasModal] Error loading firefighters:', error);
+        errorMessage.value = error.message || 'Error al cargar bomberos disponibles';
     }
 }
 

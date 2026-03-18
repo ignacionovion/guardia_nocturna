@@ -377,37 +377,26 @@ class GuardiaLiveController extends Controller
 
     /**
      * Get cleaning assignments for a specific guardia and date
+     * Optimized: removed unnecessary guardia verification query, simplified logic
      */
     public function cleaningAssignments(Request $request)
     {
         $user = $request->user();
 
-        if (!$user) {
-            return response()->json(['ok' => false], 401);
-        }
-
-        if ($user->role !== 'guardia') {
+        if (!$user || $user->role !== 'guardia') {
             return response()->json(['ok' => false], 403);
         }
 
         $guardiaId = $request->query('guardia_id');
-        if (!$guardiaId) {
-            return response()->json(['ok' => false, 'message' => 'Guardia ID required'], 400);
-        }
-
-        // Verify the guardia belongs to this user
-        $guardia = Guardia::where('id', $guardiaId)
-            ->whereHas('users', fn ($q) => $q->where('users.id', $user->id))
-            ->first();
-
-        if (!$guardia) {
-            return response()->json(['ok' => false, 'message' => 'Guardia not found'], 404);
+        if (!$guardiaId || $guardiaId != $user->guardia_id) {
+            return response()->json(['ok' => false, 'message' => 'Invalid guardia'], 400);
         }
 
         $date = $request->query('date') 
             ? Carbon::parse($request->query('date'))->startOfDay()
             : now()->startOfDay();
 
+        // Fixed task names in order (frontend uses indices 1-9)
         $desiredTasks = [
             'Aseo Pieza N°1',
             'Aseo Pieza N°2', 
@@ -420,26 +409,27 @@ class GuardiaLiveController extends Controller
             'Aseo Cocina Y Quincho',
         ];
 
+        // Single optimized query with eager loading
         $tasks = \App\Models\CleaningTask::whereIn('name', $desiredTasks)
             ->orderByRaw('FIELD(name, ' . implode(',', array_fill(0, count($desiredTasks), '?')) . ')', $desiredTasks)
-            ->get();
+            ->get(['id', 'name']);
 
-        // Create mapping: 1-based index (like frontend) -> task_id
-        $taskIdByIndex = [];
+        // Build task_id -> index mapping
+        $taskIdToIndex = [];
         foreach ($tasks as $index => $task) {
-            $taskIdByIndex[$index + 1] = $task->id; // Frontend uses 1-9
+            $taskIdToIndex[$task->id] = $index + 1; // Frontend uses 1-9
         }
 
+        // Single query for assignments with date filter
         $assignments = \App\Models\CleaningAssignment::whereDate('assigned_date', $date->toDateString())
-            ->whereIn('cleaning_task_id', $tasks->pluck('id'))
-            ->get();
+            ->whereIn('cleaning_task_id', array_keys($taskIdToIndex))
+            ->get(['cleaning_task_id', 'firefighter_id']);
 
-        // Map assignments by frontend index (1-9) instead of DB task_id
+        // Map to frontend format
         $assignmentsByIndex = [];
         foreach ($assignments as $assignment) {
-            // Find which index (1-9) this task_id corresponds to
-            $index = array_search($assignment->cleaning_task_id, $taskIdByIndex);
-            if ($index !== false) {
+            $index = $taskIdToIndex[$assignment->cleaning_task_id] ?? null;
+            if ($index) {
                 $assignmentsByIndex[$index] = $assignment->firefighter_id;
             }
         }
