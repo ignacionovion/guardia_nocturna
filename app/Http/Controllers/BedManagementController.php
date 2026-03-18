@@ -60,52 +60,85 @@ class BedManagementController extends Controller
 
     /**
      * Get available firefighters for bed assignment
+     * DEBUG: Full logging enabled for Fase 7.2
      */
     public function availableFirefighters(Request $request)
     {
-        $user = auth()->user();
-        $guardiaId = $user->guardia_id;
+        try {
+            $user = auth()->user();
+            $guardiaId = $user->guardia_id;
 
-        if (!$guardiaId) {
-            return response()->json(['error' => 'Usuario sin guardia asignada'], 403);
+            \Log::info('[BedManagement] availableFirefighters called', [
+                'user_id' => $user->id,
+                'guardia_id' => $guardiaId,
+            ]);
+
+            if (!$guardiaId) {
+                \Log::warning('[BedManagement] User has no guardia assigned');
+                return response()->json(['error' => 'Usuario sin guardia asignada'], 403);
+            }
+
+            // Get active replacements to exclude replaced firefighters
+            $activeReplacements = \App\Models\ReemplazoBombero::where('estado', 'activo')
+                ->whereHas('originalFirefighter', fn ($q) => $q->where('guardia_id', $guardiaId))
+                ->get();
+
+            $replacedIds = $activeReplacements->pluck('bombero_titular_id')->toArray();
+            
+            \Log::info('[BedManagement] Active replacements', [
+                'count' => $activeReplacements->count(),
+                'replaced_ids' => $replacedIds,
+            ]);
+
+            // Get all firefighters from this guardia
+            $allFromGuardia = Bombero::where('guardia_id', $guardiaId)->count();
+            
+            // Get all active firefighters from this guardia (excluding out-of-service and replaced)
+            $firefighters = Bombero::query()
+                ->where('guardia_id', $guardiaId)
+                ->whereNotIn('id', $replacedIds)
+                ->where(function ($q) {
+                    $q->where('fuera_de_servicio', false)
+                      ->orWhereNull('fuera_de_servicio');
+                })
+                ->orderBy('nombre_completo')
+                ->get()
+                ->map(function (Bombero $b) {
+                    // Check if already has a bed
+                    $currentBed = BedAssignment::query()
+                        ->where('firefighter_id', $b->id)
+                        ->whereNull('released_at')
+                        ->with('bed')
+                        ->first();
+
+                    return [
+                        'id' => $b->id,
+                        'nombre_completo' => $b->nombre_completo,
+                        'cargo' => $b->cargo,
+                        'current_bed' => $currentBed ? $currentBed->bed?->number : null,
+                    ];
+                });
+
+            \Log::info('[BedManagement] Firefighters result', [
+                'total_in_guardia' => $allFromGuardia,
+                'after_filters' => $firefighters->count(),
+                'excluded_replaced' => count($replacedIds),
+            ]);
+
+            return response()->json([
+                'firefighters' => $firefighters,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('[BedManagement] Exception in availableFirefighters', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+            
+            return response()->json([
+                'error' => 'Error al cargar bomberos: ' . $e->getMessage()
+            ], 500);
         }
-
-        // Get active replacements to exclude replaced firefighters
-        $activeReplacements = \App\Models\ReemplazoBombero::where('estado', 'activo')
-            ->whereHas('originalFirefighter', fn ($q) => $q->where('guardia_id', $guardiaId))
-            ->get();
-
-        $replacedIds = $activeReplacements->pluck('bombero_titular_id')->toArray();
-
-        // Get all active firefighters from this guardia (excluding out-of-service and replaced)
-        $firefighters = Bombero::query()
-            ->where('guardia_id', $guardiaId)
-            ->whereNotIn('id', $replacedIds)
-            ->where(function ($q) {
-                $q->where('fuera_de_servicio', false)
-                  ->orWhereNull('fuera_de_servicio');
-            })
-            ->orderBy('nombre_completo')
-            ->get()
-            ->map(function (Bombero $b) {
-                // Check if already has a bed
-                $currentBed = BedAssignment::query()
-                    ->where('firefighter_id', $b->id)
-                    ->whereNull('released_at')
-                    ->with('bed')
-                    ->first();
-
-                return [
-                    'id' => $b->id,
-                    'nombre_completo' => $b->nombre_completo,
-                    'cargo' => $b->cargo,
-                    'current_bed' => $currentBed ? $currentBed->bed?->number : null,
-                ];
-            });
-
-        return response()->json([
-            'firefighters' => $firefighters,
-        ]);
     }
 
     /**

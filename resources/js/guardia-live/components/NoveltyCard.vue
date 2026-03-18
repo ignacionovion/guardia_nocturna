@@ -104,11 +104,8 @@ onUnmounted(() => {
       isExpired ? 'opacity-50' : 'opacity-100'
     ]"
   >
-    <!-- Header: Título + Badge tipo -->
+    <!-- Header: Badge tipo -->
     <div class="flex items-start justify-between gap-2 mb-2">
-      <h4 class="font-bold text-sm leading-tight" :class="typeBadge.text">
-        {{ novelty.title || novelty.content?.substring(0, 50) || 'Sin título' }}
-      </h4>
       <span 
         class="text-[10px] px-1.5 py-0.5 rounded-full font-semibold whitespace-nowrap"
         :class="[typeBadge.bg, typeBadge.text, typeBadge.border, 'border']"
@@ -118,7 +115,7 @@ onUnmounted(() => {
     </div>
 
     <!-- Contenido -->
-    <p class="text-sm leading-relaxed mb-3" :class="typeBadge.text">
+    <p class="text-sm font-medium leading-relaxed mb-3" :class="typeBadge.text">
       {{ novelty.content }}
     </p>
 

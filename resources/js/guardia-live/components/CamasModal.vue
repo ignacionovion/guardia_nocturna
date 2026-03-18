@@ -33,24 +33,60 @@ async function loadBeds() {
 }
 
 async function loadFirefighters() {
+    errorMessage.value = null;
+    
     try {
-        const response = await fetch('/api/beds/available-firefighters');
+        console.log('[CamasModal] Fetching firefighters from /api/beds/available-firefighters');
+        const response = await fetch('/api/beds/available-firefighters', {
+            credentials: 'same-origin',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+        
+        console.log('[CamasModal] Response status:', response.status, response.statusText);
+        
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            console.error('[CamasModal] API error:', response.status, errorData);
-            throw new Error(errorData.error || 'Error al cargar bomberos');
+            console.error('[CamasModal] API error:', {
+                status: response.status,
+                statusText: response.statusText,
+                errorData
+            });
+            
+            // Mensajes específicos por código de error
+            if (response.status === 403) {
+                errorMessage.value = 'Sin permisos para acceder a bomberos';
+            } else if (response.status === 500) {
+                errorMessage.value = errorData.error || 'Error del servidor al cargar bomberos';
+            } else {
+                errorMessage.value = errorData.error || `Error ${response.status} al cargar bomberos`;
+            }
+            return;
         }
+        
         const data = await response.json();
-        console.log('[CamasModal] Firefighters loaded:', data.firefighters?.length || 0, 'items');
+        console.log('[CamasModal] Response data:', {
+            hasFirefighters: !!data.firefighters,
+            count: data.firefighters?.length || 0,
+            sample: data.firefighters?.[0]
+        });
+        
         firefighters.value = data.firefighters || [];
         
         // Si está vacío, mostrar mensaje informativo
         if (firefighters.value.length === 0) {
             errorMessage.value = 'No hay bomberos disponibles para asignar. Verifique que haya personal presente y no fuera de servicio.';
+            console.warn('[CamasModal] Empty firefighters list - check backend logs for filters applied');
+        } else {
+            console.log('[CamasModal] Successfully loaded', firefighters.value.length, 'firefighters');
         }
     } catch (error) {
-        console.error('[CamasModal] Error loading firefighters:', error);
-        errorMessage.value = error.message || 'Error al cargar bomberos disponibles';
+        console.error('[CamasModal] Exception loading firefighters:', {
+            message: error.message,
+            stack: error.stack
+        });
+        errorMessage.value = 'Error de conexión al cargar bomberos';
     }
 }
 
