@@ -38,7 +38,6 @@ class GuardiaLiveController extends Controller
         // Get active firefighters for academy modal
         $academyLeadersFirefighters = Bombero::query()
             ->where('guardia_id', $guardiaId)
-            ->where('activo', true)
             ->where(function ($q) {
                 $q->where('fuera_de_servicio', false)
                   ->orWhereNull('fuera_de_servicio');

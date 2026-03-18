@@ -80,7 +80,6 @@ class BedManagementController extends Controller
         // Get all active firefighters from this guardia (excluding out-of-service and replaced)
         $firefighters = Bombero::query()
             ->where('guardia_id', $guardiaId)
-            ->where('activo', true)
             ->whereNotIn('id', $replacedIds)
             ->where(function ($q) {
                 $q->where('fuera_de_servicio', false)
