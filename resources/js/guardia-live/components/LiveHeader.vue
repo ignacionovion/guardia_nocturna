@@ -30,6 +30,12 @@ async function handleSave() {
     await store.saveAttendance();
 }
 
+function openCalendarPopup() {
+    if (window.openCalendarPopup) {
+        window.openCalendarPopup();
+    }
+}
+
 function openFullscreen() {
     if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen().catch(() => {});
@@ -113,8 +119,9 @@ onUnmounted(() => {
                 <div class="flex items-center gap-2">
 
                     <!-- Calendario -->
-                    <a
-                        href="/guardias"
+                    <button
+                        type="button"
+                        @click="openCalendarPopup"
                         class="w-9 h-9 rounded-lg flex items-center justify-center transition-all bg-slate-800 border border-slate-700 hover:bg-slate-700"
                         title="Calendario de Guardias"
                     >
@@ -124,7 +131,7 @@ onUnmounted(() => {
                             <line x1="8" y1="2" x2="8" y2="6" stroke-linecap="round" stroke-linejoin="round"/>
                             <line x1="3" y1="10" x2="21" y2="10" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
-                    </a>
+                    </button>
 
                     <!-- Camas -->
                     <button

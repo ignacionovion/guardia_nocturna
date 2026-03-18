@@ -11,8 +11,6 @@ const error = ref(null);
 const searchQuery = ref('');
 const isDropdownOpen = ref(false);
 const dropdownRef = ref(null);
-const triggerRef = ref(null);
-const dropdownPosition = ref({ top: 0, left: 0, width: 0 });
 
 const originalFirefighter = computed(() => store.modalContext?.firefighter || null);
 
@@ -53,15 +51,6 @@ function toggleDropdown() {
     isDropdownOpen.value = !isDropdownOpen.value;
     if (isDropdownOpen.value) {
         searchQuery.value = '';
-        // Calculate position
-        if (triggerRef.value) {
-            const rect = triggerRef.value.getBoundingClientRect();
-            dropdownPosition.value = {
-                top: rect.bottom + 4,
-                left: rect.left,
-                width: rect.width
-            };
-        }
     }
 }
 
@@ -200,7 +189,6 @@ function handleClose() {
                         
                         <!-- Dropdown Trigger -->
                         <button
-                            ref="triggerRef"
                             type="button"
                             @click="toggleDropdown"
                             class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-sm text-left flex items-center justify-between transition-colors hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-amber-500"
@@ -224,18 +212,12 @@ function handleClose() {
                             </svg>
                         </button>
 
-                        <!-- Dropdown Menu - Fixed positioning to escape modal overflow -->
-                        <Teleport to="body">
-                            <div
-                                v-if="isDropdownOpen"
-                                ref="dropdownRef"
-                                class="fixed z-[9999] bg-slate-700 border border-slate-600 rounded-lg shadow-xl max-h-80 overflow-hidden flex flex-col"
-                                :style="{
-                                    top: dropdownPosition.top + 'px',
-                                    left: dropdownPosition.left + 'px',
-                                    width: dropdownPosition.width + 'px'
-                                }"
-                            >
+                        <!-- Dropdown Menu -->
+                        <div
+                            v-if="isDropdownOpen"
+                            ref="dropdownRef"
+                            class="absolute z-50 w-full mt-1 bg-slate-700 border border-slate-600 rounded-lg shadow-xl max-h-80 overflow-hidden flex flex-col"
+                        >
                             <!-- Search Input inside dropdown -->
                             <div class="p-2 border-b border-slate-600">
                                 <div class="relative">
@@ -277,8 +259,7 @@ function handleClose() {
                                     </button>
                                 </template>
                             </div>
-                            </div>
-                        </Teleport>
+                        </div>
                     </div>
 
                     <div class="p-4 bg-slate-900/50 border border-slate-700 rounded-lg">
