@@ -31,8 +31,27 @@ class GuardiaLiveController extends Controller
             abort(403, 'Cuenta de guardia sin guardia asignada.');
         }
 
+        // Variables needed for _modals.blade.php
+        $guardiaTz = SystemSetting::getValue('guardia_schedule_tz', env('GUARDIA_SCHEDULE_TZ', config('app.timezone')));
+        $guardiaId = $user->guardia_id;
+        
+        // Get active firefighters for academy modal
+        $academyLeadersFirefighters = Bombero::query()
+            ->where('guardia_id', $guardiaId)
+            ->where('activo', true)
+            ->where(function ($q) {
+                $q->where('fuera_de_servicio', false)
+                  ->orWhereNull('fuera_de_servicio');
+            })
+            ->orderBy('apellido_paterno')
+            ->orderBy('apellido_materno')
+            ->orderBy('nombres')
+            ->get();
+
         return view('dashboard.live', [
             'initialState' => $payload,
+            'guardiaTz' => $guardiaTz,
+            'academyLeadersFirefighters' => $academyLeadersFirefighters,
         ]);
     }
 

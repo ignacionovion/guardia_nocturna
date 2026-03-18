@@ -41,6 +41,9 @@
 
     <div id="guardia-live-app" class="min-h-screen"></div>
 
+    {{-- Include modals from dashboard for calendar, novelties, academies --}}
+    @include('dashboard._modals')
+
     @stack('scripts')
 
     <script>
