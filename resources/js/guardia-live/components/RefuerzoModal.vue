@@ -93,14 +93,20 @@ onMounted(async () => {
         console.log('[RefuerzoModal] Response:', res.status, res.ok);
         if (res.ok) {
             const data = await res.json();
-            console.log('[RefuerzoModal] Data received:', data);
+            console.log('[RefuerzoModal] Raw data received:', data);
+            console.log('[RefuerzoModal] Is array?', Array.isArray(data));
+            console.log('[RefuerzoModal] Has data property?', !!data.data);
             allFirefighters.value = Array.isArray(data) ? data : (data.data || []);
             console.log('[RefuerzoModal] Firefighters loaded:', allFirefighters.value.length);
+            console.log('[RefuerzoModal] Sample firefighter:', allFirefighters.value[0]);
+            console.log('[RefuerzoModal] Current guardia ID:', store.guardia?.id);
         } else {
-            console.error('[RefuerzoModal] Fetch failed:', await res.text());
+            console.error('[RefuerzoModal] Failed to load firefighters:', res.status);
+            error.value = `Error al cargar bomberos: ${res.status}`;
         }
     } catch (err) {
-        console.error('[RefuerzoModal] Failed to load firefighters:', err);
+        console.error('[RefuerzoModal] Error:', err);
+        error.value = 'Error de conexión al cargar bomberos';
     }
 });
 

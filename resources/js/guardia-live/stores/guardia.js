@@ -114,6 +114,7 @@ export const useGuardiaStore = defineStore('guardia', () => {
         hasPendingChanges.value    = false;
         saveResult.value           = null;
         academies.value            = data.academies ?? [];
+        console.log('[Store] Academies loaded:', academies.value.length, academies.value);
         birthdaysThisMonth.value   = data.birthdays_this_month ?? [];
         bedByFirefighter.value     = data.bed_by_firefighter ?? {};
         attendanceEnabled.value    = data.attendance_enabled ?? false;

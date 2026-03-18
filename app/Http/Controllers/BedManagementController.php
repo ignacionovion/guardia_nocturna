@@ -101,7 +101,8 @@ class BedManagementController extends Controller
                     $q->where('fuera_de_servicio', false)
                       ->orWhereNull('fuera_de_servicio');
                 })
-                ->orderBy('nombre_completo')
+                ->orderBy('nombres')
+                ->orderBy('apellido_paterno')
                 ->get()
                 ->map(function (Bombero $b) {
                     // Check if already has a bed

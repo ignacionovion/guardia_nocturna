@@ -69,6 +69,11 @@ class Bombero extends Model
         return $this->hasOne(MapaBomberoUsuarioLegacy::class, 'firefighter_id');
     }
     
+    public function getNombreCompletoAttribute()
+    {
+        return trim($this->nombres . ' ' . $this->apellido_paterno . ' ' . ($this->apellido_materno ?? ''));
+    }
+    
     public function getServiceLabelAttribute()
     {
         if (!$this->fecha_ingreso) {

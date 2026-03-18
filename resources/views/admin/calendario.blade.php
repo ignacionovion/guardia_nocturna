@@ -97,7 +97,7 @@
             <div class="bg-slate-900 px-6 py-4 border-b border-slate-800">
                 <h2 class="text-white font-black text-sm uppercase tracking-wider flex items-center gap-2">
                     <i class="fas fa-sync-alt"></i>
-                    Generar Rotación Semanal
+                    Generar Rotación Semanal - ANUAL
                 </h2>
             </div>
             <div class="p-6">

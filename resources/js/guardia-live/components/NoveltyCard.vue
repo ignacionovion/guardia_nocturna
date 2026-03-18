@@ -8,12 +8,14 @@ const props = defineProps({
   }
 });
 
-// Tiempo de expiración por tipo de novedad (en minutos)
-const EXPIRY_MINUTES = {
-  'Informativa': 60,
-  'Incidente': 120,
-  'Mantención': 180,
-  'default': 60
+// Tiempo de expiración por tipo de novedad
+// Informativa/Incidente: hasta fin de guardia (07:00 del día siguiente)
+// Mantención: 24 horas desde creación
+const EXPIRY_CONFIG = {
+  'Informativa': 'end_of_shift',
+  'Incidente': 'end_of_shift',
+  'Mantención': 1440, // 24 horas en minutos
+  'default': 'end_of_shift'
 };
 
 const timeLeft = ref('');
@@ -28,9 +30,22 @@ function updateCountdown() {
   }
 
   const createdAt = new Date(props.novelty.created_at);
-  const expiryMinutes = EXPIRY_MINUTES[props.novelty.type] || EXPIRY_MINUTES.default;
-  const expiryTime = new Date(createdAt.getTime() + expiryMinutes * 60000);
   const now = new Date();
+  const config = EXPIRY_CONFIG[props.novelty.type] || EXPIRY_CONFIG.default;
+  
+  let expiryTime;
+  
+  if (config === 'end_of_shift') {
+    // Calcular 07:00 del día siguiente desde la creación
+    const nextDay = new Date(createdAt);
+    nextDay.setDate(nextDay.getDate() + 1);
+    nextDay.setHours(7, 0, 0, 0);
+    expiryTime = nextDay;
+  } else {
+    // Usar minutos específicos (ej: Mantención = 24h)
+    expiryTime = new Date(createdAt.getTime() + config * 60000);
+  }
+  
   const diff = expiryTime - now;
 
   if (diff <= 0) {
@@ -42,13 +57,16 @@ function updateCountdown() {
 
   isExpired.value = false;
   
-  // Urgente si quedan menos de 10 minutos
-  isUrgent.value = diff < 10 * 60000;
+  // Urgente si quedan menos de 1 hora
+  isUrgent.value = diff < 60 * 60000;
 
-  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const minutes = Math.floor((diff % 3600000) / 60000);
   const seconds = Math.floor((diff % 60000) / 1000);
   
-  if (minutes > 0) {
+  if (hours > 0) {
+    timeLeft.value = `${hours}h ${minutes}m`;
+  } else if (minutes > 0) {
     timeLeft.value = `${minutes}m ${seconds}s`;
   } else {
     timeLeft.value = `${seconds}s`;
