@@ -2,6 +2,17 @@
     // Set default values for variables if not provided
     $guardiaTz = $guardiaTz ?? \App\Models\SystemSetting::getValue('guardia_schedule_tz', env('GUARDIA_SCHEDULE_TZ', config('app.timezone')));
     $academyLeadersFirefighters = $academyLeadersFirefighters ?? collect();
+    
+    // Get current user's guardia if not provided
+    $myGuardia = $myGuardia ?? (auth()->check() && auth()->user()->guardia_id 
+        ? \App\Models\Guardia::find(auth()->user()->guardia_id) 
+        : null);
+    
+    // Other variables needed by the modals
+    $myStaff = $myStaff ?? collect();
+    $replacementByOriginal = $replacementByOriginal ?? collect();
+    $hasAttendanceSavedToday = $hasAttendanceSavedToday ?? false;
+    $latestDraftAt = $latestDraftAt ?? null;
 @endphp
     <div id="noveltyModal" class="fixed inset-0 bg-slate-900 bg-opacity-75 hidden overflow-y-auto h-full w-full z-50 flex items-center justify-center backdrop-blur-sm">
         <div class="relative p-6 border w-full max-w-lg shadow-2xl rounded-xl {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-900 border-slate-800' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700' }}">
