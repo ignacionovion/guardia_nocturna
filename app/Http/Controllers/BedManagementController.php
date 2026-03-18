@@ -70,20 +70,21 @@ class BedManagementController extends Controller
             return response()->json(['error' => 'Usuario sin guardia asignada'], 403);
         }
 
-        $tz = $this->scheduleTimezone();
-        $now = Carbon::now($tz);
+        // Get active replacements to exclude replaced firefighters
+        $activeReplacements = \App\Models\ReemplazoBombero::where('estado', 'activo')
+            ->whereHas('originalFirefighter', fn ($q) => $q->where('guardia_id', $guardiaId))
+            ->get();
 
-        // Get firefighters from this guardia who are confirmed in current shift
+        $replacedIds = $activeReplacements->pluck('bombero_titular_id')->toArray();
+
+        // Get all active firefighters from this guardia (excluding out-of-service and replaced)
         $firefighters = Bombero::query()
             ->where('guardia_id', $guardiaId)
             ->where('activo', true)
-            ->whereHas('turnoSessionItems', function ($q) use ($now) {
-                $q->whereHas('turnoSession', function ($sq) use ($now) {
-                    $sq->where('status', 'draft')
-                        ->whereDate('operational_date', '=', $now->toDateString());
-                })
-                ->whereNotNull('confirmed_at')
-                ->whereIn('status', ['constituye', 'reemplazo', 'refuerzo']);
+            ->whereNotIn('id', $replacedIds)
+            ->where(function ($q) {
+                $q->where('fuera_de_servicio', false)
+                  ->orWhereNull('fuera_de_servicio');
             })
             ->orderBy('nombre_completo')
             ->get()
