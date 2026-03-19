@@ -22,6 +22,16 @@ function openAcademyModal() {
     }
 }
 
+function formatAcademyDate(isoString) {
+    if (!isoString) return '';
+    const date = new Date(isoString);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${day}/${month} ${hours}:${minutes}`;
+}
+
 function addOperationalEvent(type, message, icon, color) {
     operationalEvents.value.unshift({
         id: Date.now() + Math.random(),
@@ -271,16 +281,32 @@ function formatTime(isoString) {
             <div v-if="store.academies.length === 0" class="text-xs text-slate-600 py-3 text-center bg-slate-700/20 rounded-lg">
                 Sin academias registradas
             </div>
-            <ul v-else class="space-y-1.5">
+            <ul v-else class="space-y-2">
                 <li
                     v-for="a in store.academies.slice(0, 3)"
                     :key="a.id"
-                    class="rounded-lg bg-slate-700/30 hover:bg-slate-700/50 px-2.5 py-2 border border-slate-700/30 transition-all cursor-pointer"
+                    class="rounded-lg bg-gradient-to-br from-purple-900/20 to-purple-800/10 hover:from-purple-900/30 hover:to-purple-800/20 px-3 py-2.5 border border-purple-700/30 transition-all cursor-pointer shadow-sm"
                 >
-                    <p class="text-xs text-slate-300 leading-snug line-clamp-2">{{ a.content }}</p>
-                    <p v-if="a.firefighter_name" class="text-[10px] text-purple-400/80 mt-1">
-                        👤 {{ a.firefighter_name }}
-                    </p>
+                    <!-- Título -->
+                    <h4 v-if="a.title" class="text-xs font-bold text-purple-300 mb-1 line-clamp-1">
+                        {{ a.title }}
+                    </h4>
+                    
+                    <!-- Descripción -->
+                    <p class="text-xs text-slate-300 leading-snug line-clamp-2 mb-2">{{ a.content }}</p>
+                    
+                    <!-- Footer: Bombero + Fecha -->
+                    <div class="flex items-center justify-between gap-2 text-[10px]">
+                        <span v-if="a.firefighter_name" class="text-purple-400/90 font-medium flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+                            </svg>
+                            {{ a.firefighter_name }}
+                        </span>
+                        <span v-if="a.created_at" class="text-slate-500">
+                            {{ formatAcademyDate(a.created_at) }}
+                        </span>
+                    </div>
                 </li>
             </ul>
         </div>

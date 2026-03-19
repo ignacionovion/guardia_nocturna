@@ -363,30 +363,43 @@ export const useGuardiaStore = defineStore('guardia', () => {
 
     // ── Phase 4: Refuerzo ──────────────────────────────────
     async function addRefuerzo(firefighterId) {
+        console.log('[Store] addRefuerzo called:', { firefighterId, guardiaId: guardia.value?.id });
+        
         if (!guardia.value?.id) {
+            console.error('[Store] No guardia ID available');
             return { ok: false, message: 'Guardia no disponible' };
         }
 
         try {
+            const payload = {
+                guardia_id: guardia.value.id,
+                firefighter_id: firefighterId,
+            };
+            console.log('[Store] Sending refuerzo request:', payload);
+            
             const res = await fetch('/admin/guardias/refuerzo', {
                 method: 'POST',
                 headers: { ...JSON_HEADERS, 'X-CSRF-TOKEN': csrfToken() },
-                body: JSON.stringify({
-                    guardia_id: guardia.value.id,
-                    firefighter_id: firefighterId,
-                }),
+                body: JSON.stringify(payload),
                 credentials: 'same-origin',
             });
 
+            console.log('[Store] Refuerzo response:', res.status, res.statusText);
+
             if (!res.ok) {
                 const data = await res.json().catch(() => ({}));
+                console.error('[Store] Refuerzo failed:', data);
                 return { ok: false, message: data.message ?? `HTTP ${res.status}` };
             }
+
+            const data = await res.json();
+            console.log('[Store] Refuerzo success:', data);
 
             // Refresh state to show the new refuerzo in the grid
             await refreshState();
             return { ok: true, message: 'Refuerzo agregado correctamente' };
         } catch (err) {
+            console.error('[Store] Refuerzo error:', err);
             return { ok: false, message: err.message };
         }
     }
@@ -421,30 +434,47 @@ export const useGuardiaStore = defineStore('guardia', () => {
 
     // ── Phase 4: Reemplazo ─────────────────────────────────
     async function assignReplacement(originalFirefighterId, replacementFirefighterId) {
+        console.log('[Store] assignReplacement called:', { 
+            originalFirefighterId, 
+            replacementFirefighterId, 
+            guardiaId: guardia.value?.id 
+        });
+        
         if (!guardia.value?.id) {
+            console.error('[Store] No guardia ID available');
             return { ok: false, message: 'Guardia no disponible' };
         }
 
         try {
+            const payload = {
+                guardia_id: guardia.value.id,
+                original_firefighter_id: originalFirefighterId,
+                replacement_firefighter_id: replacementFirefighterId,
+            };
+            console.log('[Store] Sending replacement request:', payload);
+            
             const res = await fetch('/admin/guardias/replacement', {
                 method: 'POST',
                 headers: { ...JSON_HEADERS, 'X-CSRF-TOKEN': csrfToken() },
-                body: JSON.stringify({
-                    guardia_id: guardia.value.id,
-                    original_firefighter_id: originalFirefighterId,
-                    replacement_firefighter_id: replacementFirefighterId,
-                }),
+                body: JSON.stringify(payload),
                 credentials: 'same-origin',
             });
 
+            console.log('[Store] Replacement response:', res.status, res.statusText);
+
             if (!res.ok) {
                 const data = await res.json().catch(() => ({}));
+                console.error('[Store] Replacement failed:', data);
                 return { ok: false, message: data.message ?? `HTTP ${res.status}` };
             }
+
+            const data = await res.json();
+            console.log('[Store] Replacement success:', data);
 
             await refreshState();
             return { ok: true, message: 'Reemplazo asignado correctamente' };
         } catch (err) {
+            console.error('[Store] Replacement error:', err);
             return { ok: false, message: err.message };
         }
     }

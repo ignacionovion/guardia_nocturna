@@ -179,6 +179,7 @@ class GuardiaLiveController extends Controller
             ? ($nowMins >= $enableMins || $nowMins < $disableMins)
             : ($nowMins >= $enableMins && $nowMins < $disableMins);
 
+        // Verificar si existe registro de asistencia guardado para HOY
         $hasAttendanceSavedToday = GuardiaAttendanceRecord::where('guardia_id', $guardiaId)
             ->whereDate('date', Carbon::today()->toDateString())
             ->exists();
@@ -189,12 +190,13 @@ class GuardiaLiveController extends Controller
         $shiftClosedForToday = $now->greaterThanOrEqualTo($dailyEndAt);
         $isAfter2200         = $now->hour >= 22;
 
-        if (!$attendanceEnabled) {
-            $attendanceMessage = 'FUERA DE HORARIO DE REGISTRO';
-            $attendanceVariant = 'default';
-        } elseif ($hasAttendanceSavedToday) {
+        // Lógica corregida: solo mostrar "REGISTRADA" si realmente existe el registro
+        if ($hasAttendanceSavedToday) {
             $attendanceMessage = 'ASISTENCIA REGISTRADA';
             $attendanceVariant = 'success';
+        } elseif (!$attendanceEnabled) {
+            $attendanceMessage = 'FUERA DE HORARIO DE REGISTRO';
+            $attendanceVariant = 'default';
         } elseif ($shiftClosedForToday) {
             $attendanceMessage = 'RECORDAR REGISTRO 22:00';
             $attendanceVariant = 'warning';
@@ -294,6 +296,7 @@ class GuardiaLiveController extends Controller
             ])->values(),
             'academies'              => $academies->map(fn ($a) => [
                 'id'               => $a->id,
+                'title'            => $a->title ?? null,
                 'content'          => $a->content ?? $a->description ?? '',
                 'created_at'       => $a->created_at?->toISOString(),
                 'firefighter_name' => $a->firefighter

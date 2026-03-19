@@ -67,17 +67,31 @@ onUnmounted(() => {
         <div class="px-4 md:px-6 lg:px-8 flex items-center justify-between gap-4">
 
             <!-- Left: branding -->
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center shadow-lg border border-red-500/30">
-                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 12.75c1.148 0 2.278.08 3.383.237 1.037.146 1.866.966 1.866 2.013 0 3.728-2.35 6.75-5.25 6.75S6.75 18.728 6.75 15c0-1.046.83-1.867 1.866-2.013A24.204 24.204 0 0112 12.75zm4.911-6.836a.75.75 0 01-.744.832l-1.833-.24a.75.75 0 01-.661-.667l-.24-1.833a.75.75 0 01.832-.744l1.833.24a.75.75 0 01.667.661l.24 1.833z" />
-                    </svg>
+            <div class="flex items-center gap-4">
+                <!-- Logo profesional -->
+                <div class="relative">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-600 via-red-700 to-red-800 flex items-center justify-center shadow-xl border-2 border-red-500/40 relative overflow-hidden">
+                        <!-- Efecto de brillo -->
+                        <div class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent"></div>
+                        <svg class="w-6 h-6 text-white relative z-10" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 12.75c1.148 0 2.278.08 3.383.237 1.037.146 1.866.966 1.866 2.013 0 3.728-2.35 6.75-5.25 6.75S6.75 18.728 6.75 15c0-1.046.83-1.867 1.866-2.013A24.204 24.204 0 0112 12.75zm4.911-6.836a.75.75 0 01-.744.832l-1.833-.24a.75.75 0 01-.661-.667l-.24-1.833a.75.75 0 01.832-.744l1.833.24a.75.75 0 01.667.661l.24 1.833z" />
+                        </svg>
+                    </div>
+                    <!-- Indicador de estado -->
+                    <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-slate-900 shadow-lg animate-pulse"></div>
                 </div>
+                
+                <!-- Información de guardia -->
                 <div class="hidden sm:block">
-                    <h1 class="text-sm font-bold text-white">
-                        {{ store.guardia?.name || store.guardia?.nombre || 'Guardia' }}
-                    </h1>
-                    <p class="text-xs text-slate-500">Panel en vivo</p>
+                    <div class="flex items-center gap-2 mb-0.5">
+                        <h1 class="text-base font-black text-white tracking-tight">
+                            {{ store.guardia?.name || store.guardia?.nombre || 'Guardia' }}
+                        </h1>
+                        <span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase rounded-full border border-emerald-500/30">
+                            En Línea
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-400 font-medium">Sistema de Gestión en Vivo</p>
                 </div>
             </div>
 
