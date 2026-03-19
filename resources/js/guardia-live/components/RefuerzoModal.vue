@@ -79,9 +79,14 @@ const availableForRefuerzo = computed(() => {
 });
 
 function toggleDropdown() {
+    console.log('[RefuerzoModal] toggleDropdown called, current state:', isDropdownOpen.value);
     isDropdownOpen.value = !isDropdownOpen.value;
+    console.log('[RefuerzoModal] isDropdownOpen =', isDropdownOpen.value);
     if (isDropdownOpen.value) {
+        console.log('[RefuerzoModal] Opening dropdown, clearing search');
         searchQuery.value = '';
+    } else {
+        console.log('[RefuerzoModal] Closing dropdown');
     }
 }
 
@@ -93,6 +98,7 @@ function selectFirefighter(firefighter) {
 
 function handleClickOutside(event) {
     if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
+        console.log('[RefuerzoModal] Click outside detected, closing dropdown');
         isDropdownOpen.value = false;
     }
 }
@@ -211,7 +217,7 @@ function handleClose() {
                         <!-- Dropdown Trigger -->
                         <button
                             type="button"
-                            @click="toggleDropdown"
+                            @click.stop="toggleDropdown"
                             class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-sm text-left flex items-center justify-between transition-colors hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
                             :class="selectedFirefighterId ? 'text-slate-100' : 'text-slate-400'"
                         >
@@ -237,7 +243,8 @@ function handleClose() {
                         <div
                             v-if="isDropdownOpen"
                             ref="dropdownRef"
-                            class="absolute z-50 w-full mt-1 bg-slate-700 border border-slate-600 rounded-lg shadow-xl h-96 overflow-hidden flex flex-col"
+                            class="absolute z-50 w-full mt-1 bg-slate-700 border-4 border-red-500 rounded-lg shadow-xl h-96 overflow-hidden flex flex-col"
+                            style="background-color: rgba(255, 255, 0, 0.1);"
                         >
                             <!-- Search Input inside dropdown -->
                             <div class="p-2 border-b border-slate-600">
