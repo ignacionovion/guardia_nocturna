@@ -127,16 +127,16 @@ onUnmounted(() => {
                 </span>
 
                 <!-- Toolbar action icons -->
-                <div class="flex items-center gap-2">
+                <div class="flex flex-col gap-3">
 
                     <!-- Calendario -->
                     <button
                         type="button"
                         @click="openCalendarPopup"
-                        class="w-9 h-9 rounded-lg flex items-center justify-center transition-all bg-slate-800 border border-slate-700 hover:bg-slate-700"
+                        class="w-12 h-12 rounded-xl flex items-center justify-center transition-all bg-slate-800 border border-slate-700 hover:bg-slate-700"
                         title="Calendario de Guardias"
                     >
-                        <svg class="w-4 h-4 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
+                        <svg class="w-5 h-5 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
                         </svg>
                     </button>
@@ -144,11 +144,11 @@ onUnmounted(() => {
                     <!-- Camas -->
                     <button
                         type="button"
-                        class="w-9 h-9 rounded-lg flex items-center justify-center transition-all bg-slate-800 border border-slate-700 hover:bg-slate-700"
+                        class="w-12 h-12 rounded-xl flex items-center justify-center transition-all bg-slate-800 border border-slate-700 hover:bg-slate-700"
                         title="Gestión de Camas"
                         @click="store.openModal('camas')"
                     >
-                        <svg class="w-4 h-4 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
+                        <svg class="w-5 h-5 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
                         </svg>
                     </button>
@@ -156,11 +156,11 @@ onUnmounted(() => {
                     <!-- Aseo -->
                     <button
                         type="button"
-                        class="w-9 h-9 rounded-lg flex items-center justify-center transition-all bg-slate-800 border border-slate-700 hover:bg-slate-700"
+                        class="w-12 h-12 rounded-xl flex items-center justify-center transition-all bg-slate-800 border border-slate-700 hover:bg-slate-700"
                         title="Aseo"
                         @click="store.openModal('aseo')"
                     >
-                        <svg class="w-4 h-4 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
+                        <svg class="w-5 h-5 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                         </svg>
                     </button>
@@ -168,11 +168,11 @@ onUnmounted(() => {
                     <!-- Emergencias -->
                     <button
                         type="button"
-                        class="w-9 h-9 rounded-lg flex items-center justify-center transition-all bg-slate-800 border border-slate-700 hover:bg-slate-700"
+                        class="w-12 h-12 rounded-xl flex items-center justify-center transition-all bg-slate-800 border border-slate-700 hover:bg-slate-700"
                         title="Emergencias"
                         @click="store.openModal('emergencias')"
                     >
-                        <svg class="w-4 h-4 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
+                        <svg class="w-5 h-5 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" />
                         </svg>
                     </button>
@@ -180,11 +180,11 @@ onUnmounted(() => {
                     <!-- Refuerzo -->
                     <button
                         type="button"
-                        class="w-9 h-9 rounded-lg flex items-center justify-center transition-all bg-slate-800 border border-slate-700 hover:bg-slate-700"
+                        class="w-12 h-12 rounded-xl flex items-center justify-center transition-all bg-slate-800 border border-slate-700 hover:bg-slate-700"
                         title="Agregar Refuerzo"
                         @click="store.openModal('refuerzo')"
                     >
-                        <svg class="w-4 h-4 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
+                        <svg class="w-5 h-5 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
                         </svg>
                     </button>
@@ -192,7 +192,7 @@ onUnmounted(() => {
                     <!-- Fullscreen -->
                     <button
                         type="button"
-                        class="w-9 h-9 rounded-lg flex items-center justify-center transition-all border"
+                        class="w-12 h-12 rounded-xl flex items-center justify-center transition-all border"
                         :class="isFullscreen
                             ? 'bg-emerald-600 border-emerald-500 hover:bg-emerald-500'
                             : 'bg-slate-800 border-slate-700 hover:bg-slate-700'"
