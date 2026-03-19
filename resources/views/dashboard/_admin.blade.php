@@ -1,76 +1,89 @@
-        <!-- VISTA ADMIN / GENERAL - DASHBOARD PROFESIONAL -->
-        
-        <x-ui.page-header title="Centro de Operaciones" subtitle="Panel de control operativo del sistema" icon="fas fa-gauge-high" iconVariant="red">
-            <div class="flex items-center gap-4">
-                <div class="flex items-center gap-2 px-4 py-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+<x-ui.page-container>
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-semibold text-slate-900 mb-1">Centro de Operaciones</h1>
+                <p class="text-sm text-slate-500">Panel de control operativo del sistema</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2 px-3 py-1.5 bg-green-50 border border-green-200 rounded-lg">
                     <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                    <span class="text-xs font-bold text-green-700 dark:text-green-400 uppercase tracking-wider">Sistema Operativo</span>
+                    <span class="text-xs font-semibold text-green-700">Sistema Operativo</span>
                 </div>
-                <div class="bg-slate-900 text-white px-5 py-2.5 rounded-lg border border-slate-700 flex items-center gap-3">
-                    <i class="fas fa-clock text-slate-400 text-sm"></i>
-                    <span id="digital-clock" class="text-xl font-mono font-bold tracking-wider">--:--:--</span>
+                <div class="bg-slate-900 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+                    <i class="fas fa-clock text-slate-400 text-xs"></i>
+                    <span id="digital-clock" class="text-lg font-mono font-semibold">--:--:--</span>
                 </div>
             </div>
-        </x-ui.page-header>
+        </div>
+    </div>
 
-        <!-- Grid Principal: KPIs y Accesos -->
-        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
-            
-            <!-- Columna Izquierda: Estado Operativo -->
+    <div class="space-y-8">
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
             <div class="xl:col-span-2 space-y-6">
                 
-                <!-- Tarjetas KPI Principales -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <x-ui.stat-card
-                        title="Guardia en Servicio"
-                        :value="$guardiaEnServicio?->name ?? 'Sin asignar'"
-                        icon="fas fa-shield"
-                        color="red"
-                    />
+                <!-- Métricas Principales -->
+                <div class="grid-4">
+                    <div class="metric-card">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <div class="metric-label mb-2">Guardia en Servicio</div>
+                                <div class="text-xl font-semibold text-slate-900">{{ $guardiaEnServicio?->name ?? 'Sin asignar' }}</div>
+                            </div>
+                            <div class="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center shrink-0">
+                                <i class="fas fa-shield text-red-600 text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
 
-                    <x-ui.stat-card
-                        title="Personal en Guardia Nocturna"
-                        :value="$onDutyCount"
-                        icon="fas fa-users"
-                        color="blue"
-                    />
+                    <div class="metric-card">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <div class="metric-label mb-2">Personal en Guardia</div>
+                                <div class="metric-value">{{ $onDutyCount }}</div>
+                            </div>
+                            <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center shrink-0">
+                                <i class="fas fa-users text-blue-600 text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
 
-                    <x-ui.stat-card
-                        title="Camas Libres"
-                        :value="$availableBeds . '/' . $totalBeds"
-                        icon="fas fa-bed"
-                        color="emerald"
-                    />
+                    <div class="metric-card">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <div class="metric-label mb-2">Camas Disponibles</div>
+                                <div class="metric-value">{{ $availableBeds }}<span class="text-lg text-slate-400">/{{ $totalBeds }}</span></div>
+                            </div>
+                            <div class="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center shrink-0">
+                                <i class="fas fa-bed text-emerald-600 text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
 
-                    <x-ui.stat-card
-                        title="Novedades"
-                        :value="$novelties->count()"
-                        icon="fas fa-clipboard-list"
-                        color="amber"
-                    />
+                    <div class="metric-card">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <div class="metric-label mb-2">Novedades</div>
+                                <div class="metric-value">{{ $novelties->count() }}</div>
+                            </div>
+                            <div class="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center shrink-0">
+                                <i class="fas fa-clipboard-list text-amber-600 text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Panel de Movimientos -->
-                <x-ui.card padding="none">
-                    <x-slot:header>
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="bg-purple-600 p-2 rounded-lg text-white shadow-sm">
-                                    <i class="fas fa-exchange-alt text-lg"></i>
-                                </div>
-                                <div>
-                                    <h2 class="font-bold text-slate-900 uppercase tracking-wider text-sm">Reporte de Movimientos</h2>
-                                    <p class="text-xs text-slate-500">Reemplazos, refuerzos y personal fuera de servicio</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-xs font-bold text-slate-500 uppercase">Total reemplazos:</span>
-                                <span class="text-xl font-bold text-purple-700">{{ $activeReplacementsCount }}</span>
-                            </div>
+                <x-ui.card>
+                    <div class="mb-6">
+                        <div class="flex items-center justify-between mb-1">
+                            <h2 class="text-lg font-semibold text-slate-900">Movimientos de Personal</h2>
+                            <span class="badge-neutral">{{ $activeReplacementsCount }} reemplazos</span>
                         </div>
-                    </x-slot:header>
+                        <p class="text-sm text-slate-500">Reemplazos, refuerzos y personal fuera de servicio</p>
+                    </div>
 
-                    <div class="p-6">
+                    <div>
                         <!-- Estadísticas Rápidas -->
                         @php
                             // Usar statusCounts del controlador (disponible para todos los roles)
@@ -87,68 +100,49 @@
                                 : collect();
                         @endphp
                         <div class="grid grid-cols-3 gap-4 mb-6">
-                            <x-ui.metric-card
-                                :value="$activeReplacementsCount"
-                                label="Reemplazos"
-                                icon="fas fa-exchange-alt"
-                                variant="purple"
-                            />
-                            <x-ui.metric-card
-                                :value="$activeRefuerzosCount"
-                                label="Refuerzos"
-                                icon="fas fa-user-plus"
-                                variant="sky"
-                            />
-                            <x-ui.metric-card
-                                :value="$outOfServiceFirefighters"
-                                label="Fuera de Servicio"
-                                icon="fas fa-ban"
-                                variant="danger"
-                            />
-                        </div>
-                        <div class="grid grid-cols-5 gap-3 mb-6">
-                            <x-ui.metric-card
-                                :value="$countConstituye"
-                                label="Constituyen"
-                                icon="fas fa-check-circle"
-                                variant="success"
-                            />
-                            <x-ui.metric-card
-                                :value="$countPermiso"
-                                label="Permiso"
-                                icon="fas fa-clipboard"
-                                variant="warning"
-                            />
-                            <x-ui.metric-card
-                                :value="$countAusente"
-                                label="Ausente"
-                                icon="fas fa-minus-circle"
-                                variant="default"
-                            />
-                            <x-ui.metric-card
-                                :value="$countLicencia"
-                                label="Licencia"
-                                icon="fas fa-file-medical"
-                                variant="primary"
-                            />
-                            <x-ui.metric-card
-                                :value="$countFalta"
-                                label="Falta"
-                                icon="fas fa-times-circle"
-                                variant="danger"
-                            />
+                            <div class="text-center p-4 bg-slate-50 rounded-lg">
+                                <div class="metric-value text-purple-600">{{ $activeReplacementsCount }}</div>
+                                <div class="metric-label mt-1">Reemplazos</div>
+                            </div>
+                            <div class="text-center p-4 bg-slate-50 rounded-lg">
+                                <div class="metric-value text-sky-600">{{ $activeRefuerzosCount }}</div>
+                                <div class="metric-label mt-1">Refuerzos</div>
+                            </div>
+                            <div class="text-center p-4 bg-slate-50 rounded-lg">
+                                <div class="metric-value text-red-600">{{ $outOfServiceFirefighters }}</div>
+                                <div class="metric-label mt-1">Fuera de Servicio</div>
+                            </div>
                         </div>
 
-                        <!-- Lista Detallada de Reemplazos Activos -->
+                        <div class="grid grid-cols-5 gap-3 mb-6">
+                            <div class="text-center p-3 bg-slate-50 rounded-lg">
+                                <div class="text-2xl font-black text-emerald-600">{{ $countConstituye }}</div>
+                                <div class="metric-label mt-1">Constituyen</div>
+                            </div>
+                            <div class="text-center p-3 bg-slate-50 rounded-lg">
+                                <div class="text-2xl font-black text-amber-600">{{ $countPermiso }}</div>
+                                <div class="metric-label mt-1">Permiso</div>
+                            </div>
+                            <div class="text-center p-3 bg-slate-50 rounded-lg">
+                                <div class="text-2xl font-black text-slate-600">{{ $countAusente }}</div>
+                                <div class="metric-label mt-1">Ausente</div>
+                            </div>
+                            <div class="text-center p-3 bg-slate-50 rounded-lg">
+                                <div class="text-2xl font-black text-blue-600">{{ $countLicencia }}</div>
+                                <div class="metric-label mt-1">Licencia</div>
+                            </div>
+                            <div class="text-center p-3 bg-slate-50 rounded-lg">
+                                <div class="text-2xl font-black text-red-600">{{ $countFalta }}</div>
+                                <div class="metric-label mt-1">Falta</div>
+                            </div>
+                        </div>
+
                         @if($dashboardActiveReplacements->isNotEmpty())
                             <div class="mb-6">
-                                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
-                                    <i class="fas fa-list-ul"></i>
-                                    Detalle de Reemplazos Activos
-                                </h3>
+                                <h3 class="text-sm font-semibold text-slate-900 mb-4">Detalle de Reemplazos Activos</h3>
                                 <div class="space-y-3">
                                     @foreach($dashboardActiveReplacements as $replacement)
-                                        <div class="card-base p-4">
+                                        <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
                                             <div class="flex items-start gap-4">
                                                 <!-- Reemplazado -->
                                                 <div class="flex-1">
@@ -200,16 +194,12 @@
                             </div>
                         @endif
 
-                        <!-- Lista Detallada de Refuerzos Activos -->
                         @if($dashboardActiveRefuerzos->isNotEmpty())
                             <div class="mb-6">
-                                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
-                                    <i class="fas fa-user-friends"></i>
-                                    Detalle de Refuerzos Activos
-                                </h3>
+                                <h3 class="text-sm font-semibold text-slate-900 mb-4">Detalle de Refuerzos Activos</h3>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     @foreach($dashboardActiveRefuerzos as $refuerzo)
-                                        <div class="card-base p-4">
+                                        <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
                                             <div class="flex items-center gap-3">
                                                 <div class="w-10 h-10 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-sm">
                                                     {{ substr($refuerzo->nombres, 0, 1) }}{{ substr($refuerzo->apellido_paterno, 0, 1) }}
@@ -227,23 +217,22 @@
                         @endif
 
                         @if($dashboardActiveReplacements->isEmpty() && $dashboardActiveRefuerzos->isEmpty())
-                            <div class="empty-state">
+                            <div class="text-center py-12">
                                 <div class="inline-flex items-center justify-center w-12 h-12 bg-slate-100 rounded-full mb-3">
                                     <i class="fas fa-check text-slate-400"></i>
                                 </div>
-                                <p class="empty-state-title">Sin movimientos activos</p>
-                                <p class="empty-state-description">No hay reemplazos ni refuerzos registrados</p>
+                                <p class="text-sm font-medium text-slate-900">Sin movimientos activos</p>
+                                <p class="text-sm text-slate-500 mt-1">No hay reemplazos ni refuerzos registrados</p>
                             </div>
                         @endif
 
-                        <!-- Acciones Rápidas -->
                         @if(Auth::check() && Auth::user()->role === 'guardia' && isset($myGuardia) && $myGuardia)
-                            <div class="flex gap-3 pt-4 border-t border-slate-200">
-                                <button onclick="openReplacementModal()" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 px-4 rounded-lg text-xs uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-2">
+                            <div class="flex gap-3 pt-6 mt-6 border-t border-slate-200">
+                                <button onclick="openReplacementModal()" class="btn-primary flex-1">
                                     <i class="fas fa-plus"></i>
                                     Nuevo Reemplazo
                                 </button>
-                                <button onclick="openRefuerzoModal()" class="flex-1 bg-sky-600 hover:bg-sky-700 text-white font-bold py-2.5 px-4 rounded-lg text-xs uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-2">
+                                <button onclick="openRefuerzoModal()" class="btn-primary flex-1 bg-sky-600 hover:bg-sky-700">
                                     <i class="fas fa-user-plus"></i>
                                     Agregar Refuerzo
                                 </button>
@@ -253,120 +242,101 @@
                 </x-ui.card>
 
                 <!-- Resumen de Personal -->
-                <x-ui.card padding="none">
-                    <x-slot:header>
-                        <h2 class="font-bold text-slate-900 uppercase tracking-wider text-sm flex items-center gap-2">
-                            <i class="fas fa-users text-slate-400"></i>
-                            Resumen de Personal
-                        </h2>
-                    </x-slot:header>
-                    <div class="p-6">
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                            <div class="text-center">
-                                <p class="metric-value">{{ $totalFirefighters }}</p>
-                                <p class="metric-label">Total Bomberos</p>
-                            </div>
-                            <div class="text-center">
-                                <p class="text-3xl font-black text-emerald-600">{{ $activeFirefighters }}</p>
-                                <p class="metric-label">Habilitados</p>
-                            </div>
-                            <div class="text-center">
-                                <p class="metric-value">{{ $totalGuardias }}</p>
-                                <p class="metric-label">Guardias</p>
-                            </div>
-                            <div class="text-center">
-                                <p class="text-3xl font-black text-amber-600">{{ $birthdaysMonthCount }}</p>
-                                <p class="metric-label">Cumpleaños Mes</p>
-                            </div>
+                <x-ui.card>
+                    <h2 class="text-lg font-semibold text-slate-900 mb-6">Resumen de Personal</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <div class="text-center">
+                            <p class="metric-value">{{ $totalFirefighters }}</p>
+                            <p class="metric-label mt-1">Total Bomberos</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-3xl font-black text-emerald-600">{{ $activeFirefighters }}</p>
+                            <p class="metric-label mt-1">Habilitados</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="metric-value">{{ $totalGuardias }}</p>
+                            <p class="metric-label mt-1">Guardias</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-3xl font-black text-amber-600">{{ $birthdaysMonthCount }}</p>
+                            <p class="metric-label mt-1">Cumpleaños Mes</p>
                         </div>
                     </div>
                 </x-ui.card>
 
                 <!-- Accesos Directos -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <a href="{{ route('admin.guardias') }}" class="card-base flex items-center gap-3 bg-slate-900 hover:bg-slate-800 text-white border-slate-700 no-underline">
-                        <div class="bg-white/10 p-2 rounded-lg shrink-0">
-                            <i class="fas fa-shield"></i>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <a href="{{ route('admin.guardias') }}" class="group p-4 bg-slate-900 hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-3 no-underline">
+                        <div class="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center shrink-0">
+                            <i class="fas fa-shield text-white text-sm"></i>
                         </div>
                         <div>
-                            <p class="font-bold text-sm uppercase">Guardias</p>
+                            <p class="font-semibold text-sm text-white">Guardias</p>
                             <p class="text-xs text-slate-400">Administrar equipos</p>
                         </div>
                     </a>
 
-                    <a href="{{ route('admin.dotaciones') }}" class="card-base flex items-center gap-3 no-underline">
-                        <div class="bg-slate-100 p-2 rounded-lg text-slate-600 shrink-0">
-                            <i class="fas fa-users-gear"></i>
+                    <a href="{{ route('admin.dotaciones') }}" class="group p-4 bg-white hover:bg-slate-50 rounded-lg border border-slate-200 transition-colors flex items-center gap-3 no-underline">
+                        <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center shrink-0">
+                            <i class="fas fa-users-gear text-slate-600 text-sm"></i>
                         </div>
                         <div>
-                            <p class="font-bold text-sm uppercase text-slate-800">Dotaciones</p>
+                            <p class="font-semibold text-sm text-slate-900">Dotaciones</p>
                             <p class="text-xs text-slate-500">Asignar personal</p>
                         </div>
                     </a>
 
-                    <a href="{{ route('camas') }}" class="card-base flex items-center gap-3 no-underline">
-                        <div class="bg-emerald-100 p-2 rounded-lg text-emerald-600 shrink-0">
-                            <i class="fas fa-bed"></i>
+                    <a href="{{ route('camas') }}" class="group p-4 bg-white hover:bg-slate-50 rounded-lg border border-slate-200 transition-colors flex items-center gap-3 no-underline">
+                        <div class="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center shrink-0">
+                            <i class="fas fa-bed text-emerald-600 text-sm"></i>
                         </div>
                         <div>
-                            <p class="font-bold text-sm uppercase text-slate-800">Camas</p>
+                            <p class="font-semibold text-sm text-slate-900">Camas</p>
                             <p class="text-xs text-slate-500">{{ $availableBeds }} disponibles</p>
                         </div>
                     </a>
 
-                    <a href="{{ route('admin.emergencies.index') }}" class="card-base flex items-center gap-3 no-underline">
-                        <div class="bg-amber-100 p-2 rounded-lg text-amber-600 shrink-0">
-                            <i class="fas fa-truck-medical"></i>
+                    <a href="{{ route('admin.emergencies.index') }}" class="group p-4 bg-white hover:bg-slate-50 rounded-lg border border-slate-200 transition-colors flex items-center gap-3 no-underline">
+                        <div class="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center shrink-0">
+                            <i class="fas fa-truck-medical text-amber-600 text-sm"></i>
                         </div>
                         <div>
-                            <p class="font-bold text-sm uppercase text-slate-800">Emergencias</p>
+                            <p class="font-semibold text-sm text-slate-900">Emergencias</p>
                             <p class="text-xs text-slate-500">Ver historial</p>
                         </div>
                     </a>
                 </div>
             </div>
 
-            <!-- Columna Derecha: Información y Alertas -->
+            <!-- Columna Derecha -->
             <div class="space-y-6">
                 
                 <!-- Estado del Turno -->
-                <x-ui.card padding="none">
-                    <x-slot:header>
-                        <h2 class="font-bold text-slate-900 uppercase tracking-wider text-xs flex items-center gap-2">
-                            <i class="fas fa-info-circle text-slate-400"></i>
-                            Estado del Turno
-                        </h2>
-                    </x-slot:header>
-                    <div class="p-5">
-                        @if($currentShift)
-                            <div class="flex items-center gap-3 mb-4">
-                                <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                                <p class="font-bold text-slate-900">TURNO ACTIVO</p>
-                            </div>
-                            <p class="text-sm text-slate-600 mb-1">Guardia constituida y operativa</p>
-                            <p class="text-xs text-slate-400">Inicio: {{ $currentShift->created_at?->format('H:i') ?? '--:--' }}</p>
-                        @else
-                            <div class="flex items-center gap-3 mb-4">
-                                <div class="w-3 h-3 bg-amber-500 rounded-full"></div>
-                                <p class="font-bold text-amber-700">SIN CONSTITUIR</p>
-                            </div>
-                            <p class="text-sm text-slate-600">La guardia aún no ha sido constituida</p>
-                        @endif
-                    </div>
+                <x-ui.card>
+                    <h2 class="text-lg font-semibold text-slate-900 mb-4">Estado del Turno</h2>
+                    @if($currentShift)
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                            <p class="font-semibold text-slate-900">TURNO ACTIVO</p>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-1">Guardia constituida y operativa</p>
+                        <p class="text-xs text-slate-400">Inicio: {{ $currentShift->created_at?->format('H:i') ?? '--:--' }}</p>
+                    @else
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-3 h-3 bg-amber-500 rounded-full"></div>
+                            <p class="font-semibold text-amber-700">SIN CONSTITUIR</p>
+                        </div>
+                        <p class="text-sm text-slate-600">La guardia aún no ha sido constituida</p>
+                    @endif
                 </x-ui.card>
 
                 <!-- Próximos Cumpleaños -->
-                <x-ui.card padding="none">
-                    <x-slot:header>
-                        <div class="flex items-center justify-between">
-                            <h2 class="font-bold text-slate-900 uppercase tracking-wider text-xs flex items-center gap-2">
-                                <i class="fas fa-cake-candles text-amber-500"></i>
-                                Cumpleaños
-                            </h2>
-                            <span class="badge-warning">{{ $birthdaysMonthCount }} este mes</span>
-                        </div>
-                    </x-slot:header>
-                    <div class="p-5">
+                <x-ui.card>
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-semibold text-slate-900">Cumpleaños</h2>
+                        <span class="badge-warning">{{ $birthdaysMonthCount }} este mes</span>
+                    </div>
+                    <div>
                         @if($upcomingBirthdaysAll->isEmpty())
                             <p class="text-sm text-slate-500 text-center">No hay cumpleaños próximos</p>
                         @else
@@ -388,17 +358,12 @@
                 </x-ui.card>
 
                 <!-- Últimas Novedades -->
-                <x-ui.card padding="none">
-                    <x-slot:header>
-                        <div class="flex items-center justify-between">
-                            <h2 class="font-bold text-slate-900 uppercase tracking-wider text-xs flex items-center gap-2">
-                                <i class="fas fa-bullhorn text-slate-400"></i>
-                                Novedades Recientes
-                            </h2>
-                            <button onclick="openNoveltyModal()" class="text-xs font-bold text-blue-600 hover:text-blue-800 uppercase">Registrar</button>
-                        </div>
-                    </x-slot:header>
-                    <div class="p-5">
+                <x-ui.card>
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-semibold text-slate-900">Novedades Recientes</h2>
+                        <button onclick="openNoveltyModal()" class="text-xs font-semibold text-blue-600 hover:text-blue-800">Registrar</button>
+                    </div>
+                    <div>
                         @if($novelties->isEmpty())
                             <p class="text-sm text-slate-500 text-center">Sin novedades recientes</p>
                         @else
@@ -438,4 +403,5 @@
                 </x-ui.card>
             </div>
         </div>
-
+    </div>
+</x-ui.page-container>
