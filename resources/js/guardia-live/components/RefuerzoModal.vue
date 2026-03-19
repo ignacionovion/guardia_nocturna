@@ -9,8 +9,6 @@ const selectedFirefighterId = ref(null);
 const isSaving = ref(false);
 const error = ref(null);
 const searchQuery = ref('');
-const isDropdownOpen = ref(false);
-const dropdownRef = ref(null);
 
 const selectedFirefighter = computed(() => {
     return allFirefighters.value.find(f => f.id === selectedFirefighterId.value);
@@ -64,47 +62,16 @@ const availableForRefuerzo = computed(() => {
         return acc;
     }, {});
     
-    console.log('[RefuerzoModal] ========== ESTRUCTURA FINAL ==========');
-    console.log('[RefuerzoModal] typeof grouped:', typeof grouped);
-    console.log('[RefuerzoModal] Array.isArray(grouped):', Array.isArray(grouped));
-    console.log('[RefuerzoModal] Object.keys(grouped):', Object.keys(grouped));
-    console.log('[RefuerzoModal] Object.keys(grouped).length:', Object.keys(grouped).length);
-    console.log('[RefuerzoModal] Primer grupo:', Object.keys(grouped)[0]);
-    console.log('[RefuerzoModal] Bomberos en primer grupo:', grouped[Object.keys(grouped)[0]]?.length);
-    console.log('[RefuerzoModal] Primer bombero del primer grupo:', grouped[Object.keys(grouped)[0]]?.[0]);
-    console.log('[RefuerzoModal] ESTRUCTURA COMPLETA:', JSON.stringify(grouped, null, 2));
-    console.log('[RefuerzoModal] =====================================');
     
     return grouped;
 });
 
-function toggleDropdown() {
-    console.log('[RefuerzoModal] toggleDropdown called, current state:', isDropdownOpen.value);
-    isDropdownOpen.value = !isDropdownOpen.value;
-    console.log('[RefuerzoModal] isDropdownOpen =', isDropdownOpen.value);
-    if (isDropdownOpen.value) {
-        console.log('[RefuerzoModal] Opening dropdown, clearing search');
-        searchQuery.value = '';
-    } else {
-        console.log('[RefuerzoModal] Closing dropdown');
-    }
-}
 
 function selectFirefighter(firefighter) {
     selectedFirefighterId.value = firefighter.id;
-    isDropdownOpen.value = false;
-    searchQuery.value = '';
-}
-
-function handleClickOutside(event) {
-    if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
-        console.log('[RefuerzoModal] Click outside detected, closing dropdown');
-        isDropdownOpen.value = false;
-    }
 }
 
 onMounted(async () => {
-    document.addEventListener('click', handleClickOutside);
     
     // Fetch all firefighters
     console.log('[RefuerzoModal] Fetching firefighters...');
@@ -130,9 +97,6 @@ onMounted(async () => {
     }
 });
 
-onUnmounted(() => {
-    document.removeEventListener('click', handleClickOutside);
-});
 
 async function handleSave() {
     if (!selectedFirefighterId.value) {
@@ -210,92 +174,66 @@ function handleClose() {
 
                 <!-- Body -->
                 <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-                    <!-- Custom Dropdown with Search -->
-                    <div class="relative">
-                        <label class="block text-sm font-semibold text-slate-300 mb-2">Bombero a Agregar como Refuerzo *</label>
-                        
-                        <!-- Dropdown Trigger -->
-                        <button
-                            type="button"
-                            @click.stop="toggleDropdown"
-                            class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-sm text-left flex items-center justify-between transition-colors hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            :class="selectedFirefighterId ? 'text-slate-100' : 'text-slate-400'"
-                        >
-                            <span>
-                                {{ selectedFirefighter 
-                                    ? `${selectedFirefighter.nombres} ${selectedFirefighter.apellido_paterno}` 
-                                    : 'Seleccionar bombero' 
-                                }}
-                            </span>
-                            <svg 
-                                class="w-5 h-5 text-slate-400 transition-transform" 
-                                :class="{ 'rotate-180': isDropdownOpen }"
-                                fill="none" 
-                                viewBox="0 0 24 24" 
-                                stroke="currentColor" 
-                                stroke-width="2"
-                            >
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                    <!-- Bombero seleccionado -->
+                    <div v-if="selectedFirefighter" class="p-3 bg-purple-900/20 border border-purple-600/30 rounded-lg">
+                        <p class="text-xs text-purple-300 mb-1 font-semibold">Bombero Seleccionado:</p>
+                        <p class="text-sm text-slate-100 font-medium">
+                            {{ selectedFirefighter.nombres }} {{ selectedFirefighter.apellido_paterno }}
+                        </p>
+                    </div>
+
+                    <!-- Buscador -->
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-300 mb-2">Buscar Bombero</label>
+                        <div class="relative">
+                            <input
+                                v-model="searchQuery"
+                                type="text"
+                                placeholder="Buscar por nombre..."
+                                class="w-full px-3 py-2 pl-9 bg-slate-700 border border-slate-600 rounded-lg text-sm text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            />
+                            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
-                        </button>
+                        </div>
+                    </div>
 
-                        <!-- Dropdown Menu -->
-                        <div
-                            v-if="isDropdownOpen"
-                            ref="dropdownRef"
-                            class="absolute z-50 w-full mt-1 bg-slate-700 border-4 border-red-500 rounded-lg shadow-xl h-96 overflow-hidden flex flex-col"
-                            style="background-color: rgba(255, 255, 0, 0.1);"
-                        >
-                            <!-- Search Input inside dropdown -->
-                            <div class="p-2 border-b border-slate-600">
-                                <div class="relative">
-                                    <input
-                                        v-model="searchQuery"
-                                        type="text"
-                                        placeholder="Buscar bombero..."
-                                        class="w-full px-3 py-2 pl-9 bg-slate-800 border border-slate-600 rounded-lg text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                        @click.stop
-                                    />
-                                    <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                    </svg>
-                                </div>
-                            </div>
-
-                            <!-- Options List -->
-                            <div class="overflow-y-auto flex-1 min-h-[200px]">
-                                <div v-if="Object.keys(availableForRefuerzo).length === 0" class="px-3 py-8 text-center">
+                    <!-- Lista de bomberos -->
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-300 mb-2">Bomberos Disponibles</label>
+                        <div class="bg-slate-700 border border-slate-600 rounded-lg overflow-hidden" style="height: 320px;">
+                            <div class="overflow-y-auto h-full">
+                                <div v-if="Object.keys(availableForRefuerzo).length === 0" class="px-4 py-12 text-center">
                                     <svg class="w-12 h-12 mx-auto mb-3 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
                                     </svg>
                                     <p class="text-sm font-semibold text-slate-300 mb-1">No hay bomberos disponibles</p>
-                                    <p class="text-xs text-slate-500">No se encontraron bomberos de otras guardias que puedan ser agregados como refuerzo</p>
+                                    <p class="text-xs text-slate-500">No se encontraron bomberos de otras guardias</p>
                                 </div>
-                                <div v-else class="py-1">
-                                    <template v-for="(group, guardiaId) in availableForRefuerzo" :key="guardiaId">
-                                        <div class="px-3 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider bg-slate-800/50 sticky top-0">
-                                            Guardia {{ guardiaId === 'sin-guardia' ? 'Sin Guardia' : guardiaId }}
-                                        </div>
-                                        <button
-                                            v-for="ff in group"
-                                            :key="ff.id"
-                                            type="button"
-                                            @click="selectFirefighter(ff)"
-                                            class="w-full px-3 py-2.5 text-left text-sm text-slate-200 hover:bg-purple-600/30 hover:text-white transition-colors flex items-center gap-2 border-b border-slate-700/30"
-                                            :class="{ 'bg-purple-600/20': selectedFirefighterId === ff.id }"
-                                        >
-                                            <svg v-if="selectedFirefighterId === ff.id" class="w-4 h-4 text-purple-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                            </svg>
-                                            <span class="w-4 flex-shrink-0" v-else></span>
-                                            <span class="flex-1">{{ ff.nombres }} {{ ff.apellido_paterno }}</span>
-                                        </button>
-                                    </template>
-                                </div>
+                                <template v-else v-for="(group, guardiaId) in availableForRefuerzo" :key="guardiaId">
+                                    <div class="px-3 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider bg-slate-800/70 sticky top-0">
+                                        {{ guardiaId === 'sin-guardia' ? 'Sin Guardia Asignada' : `Guardia ${guardiaId}` }}
+                                    </div>
+                                    <button
+                                        v-for="ff in group"
+                                        :key="ff.id"
+                                        type="button"
+                                        @click="selectFirefighter(ff)"
+                                        class="w-full px-3 py-2.5 text-left text-sm text-slate-200 hover:bg-purple-600/30 hover:text-white transition-colors flex items-center gap-2 border-b border-slate-700/30"
+                                        :class="{ 'bg-purple-600/20 text-white': selectedFirefighterId === ff.id }"
+                                    >
+                                        <svg v-if="selectedFirefighterId === ff.id" class="w-4 h-4 text-purple-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        <span class="w-4 flex-shrink-0" v-else></span>
+                                        <span class="flex-1">{{ ff.nombres }} {{ ff.apellido_paterno }}</span>
+                                    </button>
+                                </template>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Nota informativa -->
                     <div class="p-4 bg-slate-900/50 border border-slate-700 rounded-lg">
                         <p class="text-xs text-slate-400 leading-relaxed">
                             <strong class="text-slate-300">Nota:</strong> El bombero seleccionado será agregado temporalmente a esta guardia como refuerzo. 
