@@ -133,17 +133,17 @@
 
 /* Metric Card - Cards de métricas/estadísticas */
 .metric-card {
-    background-color: #ffffff;
-    border-radius: 0.75rem;
+    background-color: #dde6ef;
+    border-radius: 14px;
     padding: 1.5rem;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.08);
+    border: 1px solid #9fb0c3;
     transition: all 200ms;
 }
 
 .metric-card:hover {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    border-color: #cbd5e1;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.12);
+    border-color: #7d94ab;
     transform: translateY(-0.125rem);
 }
 

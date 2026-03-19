@@ -53,11 +53,11 @@ $items = $menuItems[$role] ?? $menuItems['guardia'];
 @endphp
 
 <aside id="sidebar" 
-       class="fixed inset-y-0 left-0 z-40 flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 shadow-sm"
+       class="fixed inset-y-0 left-0 z-40 flex flex-col bg-[#b7c4d3] border-r border-[#9fb0c3] transition-all duration-300 shadow-md"
        :class="sidebarCollapsed ? 'w-[72px]' : 'w-64'">
     
     {{-- Logo --}}
-    <div class="flex items-center h-16 px-4 border-b border-slate-200 dark:border-slate-800">
+    <div class="flex items-center h-16 px-4 border-b border-[#9fb0c3]">
         <a href="{{ route('dashboard') }}" class="flex items-center gap-3 group">
             @if(branding()->logo)
                 <img src="{{ branding()->logo }}" alt="{{ branding()->nombre_empresa }}" class="h-9 w-auto">
@@ -67,8 +67,8 @@ $items = $menuItems[$role] ?? $menuItems['guardia'];
                 </div>
             @endif
             <div x-show="!sidebarCollapsed" x-transition:enter="transition-opacity duration-200" x-transition:leave="transition-opacity duration-100" class="flex flex-col">
-                <span class="font-bold text-slate-900 dark:text-white text-base leading-tight">{{ branding()->nombre_empresa }}</span>
-                <span class="text-[10px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider">Centro de Comando</span>
+                <span class="font-bold text-[#1e293b] text-base leading-tight">{{ branding()->nombre_empresa }}</span>
+                <span class="text-[10px] font-medium text-[#475569] uppercase tracking-wider">Centro de Comando</span>
             </div>
         </a>
     </div>
@@ -79,10 +79,10 @@ $items = $menuItems[$role] ?? $menuItems['guardia'];
             @foreach($items as $item)
                 @if(isset($item['divider']))
                     <li class="pt-5 pb-2">
-                        <span x-show="!sidebarCollapsed" class="px-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                        <span x-show="!sidebarCollapsed" class="px-3 text-[10px] font-semibold uppercase tracking-widest text-[#475569]">
                             {{ $item['label'] }}
                         </span>
-                        <div x-show="sidebarCollapsed" class="h-px bg-slate-200 dark:bg-slate-800 mx-3 my-1"></div>
+                        <div x-show="sidebarCollapsed" class="h-px bg-[#9fb0c3] mx-3 my-1"></div>
                     </li>
                 @else
                     @if(!isset($item['feature']) || feature($item['feature']))
@@ -90,8 +90,8 @@ $items = $menuItems[$role] ?? $menuItems['guardia'];
                         <a href="{{ route($item['route']) }}" 
                            class="group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150
                                   {{ request()->routeIs($item['match']) 
-                                      ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-lg shadow-slate-900/10 dark:shadow-white/10' 
-                                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}"
+                                      ? 'bg-[#0f172a] text-white shadow-lg shadow-[#0f172a]/20' 
+                                      : 'text-[#1e293b] hover:bg-[#c3cfdb] hover:text-[#1e293b]' }}"
                            :class="sidebarCollapsed ? 'justify-center px-0' : ''"
                            title="{{ $item['label'] }}">
                             <span class="w-5 flex items-center justify-center shrink-0">
@@ -114,19 +114,19 @@ $items = $menuItems[$role] ?? $menuItems['guardia'];
     
     {{-- Status Card --}}
     <div x-show="!sidebarCollapsed" x-transition class="mx-3 mb-3">
-        <div class="p-3 rounded-xl bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-800/50 border border-slate-200 dark:border-slate-700">
+        <div class="p-3 rounded-xl bg-[#c3cfdb] border border-[#9fb0c3]">
             <div class="flex items-center gap-2 mb-2">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 status-pulse"></span>
-                <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">Cuartel Operativo</span>
+                <span class="text-xs font-semibold text-[#1e293b]">Cuartel Operativo</span>
             </div>
-            <p class="text-[10px] text-slate-500 dark:text-slate-400">Sistema funcionando correctamente</p>
+            <p class="text-[10px] text-[#475569]">Sistema funcionando correctamente</p>
         </div>
     </div>
     
     {{-- Collapse Button --}}
-    <div class="p-2 border-t border-slate-200 dark:border-slate-800">
+    <div class="p-2 border-t border-[#9fb0c3]">
         <button @click="sidebarCollapsed = !sidebarCollapsed" 
-                class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">
+                class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-[#475569] hover:bg-[#c3cfdb] hover:text-[#1e293b] transition-colors">
             <i class="fas text-[10px]" :class="sidebarCollapsed ? 'fa-angles-right' : 'fa-angles-left'"></i>
             <span x-show="!sidebarCollapsed" x-transition>Colapsar menú</span>
         </button>

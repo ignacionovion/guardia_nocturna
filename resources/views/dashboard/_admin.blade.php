@@ -2,8 +2,8 @@
     <div class="mb-8">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-3xl font-bold text-[#1f2937] mb-1">Centro de Operaciones</h1>
-                <p class="text-sm text-[#5b6b7c]">Panel de control operativo del sistema</p>
+                <h1 class="text-3xl font-bold text-[#1e293b] mb-1">Centro de Operaciones</h1>
+                <p class="text-sm text-[#475569]">Panel de control operativo del sistema</p>
             </div>
             <div class="flex items-center gap-3">
                 <div class="flex items-center gap-2 px-3 py-1.5 bg-green-50 border border-green-200 rounded-lg">
@@ -24,44 +24,44 @@
                 
                 <!-- Métricas Principales -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="bg-[#edf3f8] border border-[#bcc8d6] rounded-[14px] p-5 shadow-sm">
+                    <div class="bg-[#dde6ef] border border-[#9fb0c3] rounded-[14px] p-5 shadow-sm">
                         <div class="flex items-start justify-between mb-3">
-                            <div class="text-xs font-semibold text-[#5b6b7c] uppercase tracking-wide">Guardia en Servicio</div>
+                            <div class="text-xs font-semibold text-[#475569] uppercase tracking-wide">Guardia en Servicio</div>
                             <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center shrink-0">
                                 <i class="fas fa-shield text-red-600"></i>
                             </div>
                         </div>
-                        <div class="text-2xl font-bold text-[#1f2937]">{{ $guardiaEnServicio?->name ?? 'Sin asignar' }}</div>
+                        <div class="text-2xl font-bold text-[#1e293b]">{{ $guardiaEnServicio?->name ?? 'Sin asignar' }}</div>
                     </div>
 
-                    <div class="bg-[#edf3f8] border border-[#bcc8d6] rounded-[14px] p-5 shadow-sm">
+                    <div class="bg-[#dde6ef] border border-[#9fb0c3] rounded-[14px] p-5 shadow-sm">
                         <div class="flex items-start justify-between mb-3">
-                            <div class="text-xs font-semibold text-[#5b6b7c] uppercase tracking-wide">Personal en Guardia</div>
+                            <div class="text-xs font-semibold text-[#475569] uppercase tracking-wide">Personal en Guardia</div>
                             <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center shrink-0">
                                 <i class="fas fa-users text-blue-600"></i>
                             </div>
                         </div>
-                        <div class="text-3xl font-bold text-[#1f2937]">{{ $onDutyCount }}</div>
+                        <div class="text-3xl font-bold text-[#1e293b]">{{ $onDutyCount }}</div>
                     </div>
 
-                    <div class="bg-[#edf3f8] border border-[#bcc8d6] rounded-[14px] p-5 shadow-sm">
+                    <div class="bg-[#dde6ef] border border-[#9fb0c3] rounded-[14px] p-5 shadow-sm">
                         <div class="flex items-start justify-between mb-3">
-                            <div class="text-xs font-semibold text-[#5b6b7c] uppercase tracking-wide">Camas Disponibles</div>
+                            <div class="text-xs font-semibold text-[#475569] uppercase tracking-wide">Camas Disponibles</div>
                             <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center shrink-0">
                                 <i class="fas fa-bed text-emerald-600"></i>
                             </div>
                         </div>
-                        <div class="text-3xl font-bold text-[#1f2937]">{{ $availableBeds }}<span class="text-xl text-[#5b6b7c] font-normal">/{{ $totalBeds }}</span></div>
+                        <div class="text-3xl font-bold text-[#1e293b]">{{ $availableBeds }}<span class="text-xl text-[#475569] font-normal">/{{ $totalBeds }}</span></div>
                     </div>
 
-                    <div class="bg-[#edf3f8] border border-[#bcc8d6] rounded-[14px] p-5 shadow-sm">
+                    <div class="bg-[#dde6ef] border border-[#9fb0c3] rounded-[14px] p-5 shadow-sm">
                         <div class="flex items-start justify-between mb-3">
-                            <div class="text-xs font-semibold text-[#5b6b7c] uppercase tracking-wide">Novedades</div>
+                            <div class="text-xs font-semibold text-[#475569] uppercase tracking-wide">Novedades</div>
                             <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center shrink-0">
                                 <i class="fas fa-clipboard-list text-amber-600"></i>
                             </div>
                         </div>
-                        <div class="text-3xl font-bold text-[#1f2937]">{{ $novelties->count() }}</div>
+                        <div class="text-3xl font-bold text-[#1e293b]">{{ $novelties->count() }}</div>
                     </div>
                 </div>
 
@@ -69,10 +69,10 @@
                 <x-ui.card>
                     <div class="mb-6">
                         <div class="flex items-center justify-between mb-1">
-                            <h2 class="text-xl font-semibold text-[#1f2937]">Movimientos de Personal</h2>
+                            <h2 class="text-xl font-semibold text-[#1e293b]">Movimientos de Personal</h2>
                             <span class="badge-neutral">{{ $activeReplacementsCount }} reemplazos</span>
                         </div>
-                        <p class="text-sm text-[#5b6b7c]">Reemplazos, refuerzos y personal fuera de servicio</p>
+                        <p class="text-sm text-[#475569]">Reemplazos, refuerzos y personal fuera de servicio</p>
                     </div>
 
                     <div>
@@ -235,7 +235,7 @@
 
                 <!-- Resumen de Personal -->
                 <x-ui.card>
-                    <h2 class="text-xl font-semibold text-[#1f2937] mb-6">Resumen de Personal</h2>
+                    <h2 class="text-xl font-semibold text-[#1e293b] mb-6">Resumen de Personal</h2>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                         <div class="text-center">
                             <p class="metric-value">{{ $totalFirefighters }}</p>
@@ -258,7 +258,7 @@
 
                 <!-- Accesos Directos -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <a href="{{ route('admin.guardias') }}" class="group p-4 bg-[#0f172a] hover:bg-[#1e293b] rounded-[14px] transition-colors flex items-center gap-3 no-underline shadow-sm">
+                    <a href="{{ route('admin.guardias') }}" class="group p-4 bg-[#0f172a] hover:bg-[#1e293b] rounded-[14px] transition-colors flex items-center gap-3 no-underline shadow-md">
                         <div class="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center shrink-0">
                             <i class="fas fa-shield text-white"></i>
                         </div>
@@ -268,33 +268,33 @@
                         </div>
                     </a>
 
-                    <a href="{{ route('admin.dotaciones') }}" class="group p-4 bg-[#edf3f8] hover:bg-[#f3f7fb] rounded-[14px] border border-[#bcc8d6] transition-colors flex items-center gap-3 no-underline shadow-sm">
-                        <div class="w-10 h-10 bg-slate-200 rounded-lg flex items-center justify-center shrink-0">
-                            <i class="fas fa-users-gear text-slate-700"></i>
+                    <a href="{{ route('admin.dotaciones') }}" class="group p-4 bg-[#dde6ef] hover:bg-[#e7eef5] rounded-[14px] border border-[#9fb0c3] transition-colors flex items-center gap-3 no-underline shadow-sm">
+                        <div class="w-10 h-10 bg-[#c3cfdb] rounded-lg flex items-center justify-center shrink-0">
+                            <i class="fas fa-users-gear text-[#1e293b]"></i>
                         </div>
                         <div>
-                            <p class="font-semibold text-sm text-[#1f2937]">Dotaciones</p>
-                            <p class="text-xs text-[#5b6b7c]">Asignar personal</p>
+                            <p class="font-semibold text-sm text-[#1e293b]">Dotaciones</p>
+                            <p class="text-xs text-[#475569]">Asignar personal</p>
                         </div>
                     </a>
 
-                    <a href="{{ route('camas') }}" class="group p-4 bg-[#edf3f8] hover:bg-[#f3f7fb] rounded-[14px] border border-[#bcc8d6] transition-colors flex items-center gap-3 no-underline shadow-sm">
+                    <a href="{{ route('camas') }}" class="group p-4 bg-[#dde6ef] hover:bg-[#e7eef5] rounded-[14px] border border-[#9fb0c3] transition-colors flex items-center gap-3 no-underline shadow-sm">
                         <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center shrink-0">
                             <i class="fas fa-bed text-emerald-600"></i>
                         </div>
                         <div>
-                            <p class="font-semibold text-sm text-[#1f2937]">Camas</p>
-                            <p class="text-xs text-[#5b6b7c]">{{ $availableBeds }} disponibles</p>
+                            <p class="font-semibold text-sm text-[#1e293b]">Camas</p>
+                            <p class="text-xs text-[#475569]">{{ $availableBeds }} disponibles</p>
                         </div>
                     </a>
 
-                    <a href="{{ route('admin.emergencies.index') }}" class="group p-4 bg-[#edf3f8] hover:bg-[#f3f7fb] rounded-[14px] border border-[#bcc8d6] transition-colors flex items-center gap-3 no-underline shadow-sm">
+                    <a href="{{ route('admin.emergencies.index') }}" class="group p-4 bg-[#dde6ef] hover:bg-[#e7eef5] rounded-[14px] border border-[#9fb0c3] transition-colors flex items-center gap-3 no-underline shadow-sm">
                         <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center shrink-0">
                             <i class="fas fa-truck-medical text-amber-600"></i>
                         </div>
                         <div>
-                            <p class="font-semibold text-sm text-[#1f2937]">Emergencias</p>
-                            <p class="text-xs text-[#5b6b7c]">Ver historial</p>
+                            <p class="font-semibold text-sm text-[#1e293b]">Emergencias</p>
+                            <p class="text-xs text-[#475569]">Ver historial</p>
                         </div>
                     </a>
                 </div>
@@ -305,36 +305,36 @@
                 
                 <!-- Estado del Turno -->
                 <x-ui.card>
-                    <h2 class="text-xl font-semibold text-[#1f2937] mb-4">Estado del Turno</h2>
+                    <h2 class="text-xl font-semibold text-[#1e293b] mb-4">Estado del Turno</h2>
                     @if($currentShift)
                         <div class="flex items-center gap-3 mb-3">
                             <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                            <p class="font-semibold text-slate-900">TURNO ACTIVO</p>
+                            <p class="font-semibold text-[#1e293b]">TURNO ACTIVO</p>
                         </div>
-                        <p class="text-sm text-slate-600 mb-1">Guardia constituida y operativa</p>
-                        <p class="text-xs text-slate-400">Inicio: {{ $currentShift->created_at?->format('H:i') ?? '--:--' }}</p>
+                        <p class="text-sm text-[#475569] mb-1">Guardia constituida y operativa</p>
+                        <p class="text-xs text-[#475569]">Inicio: {{ $currentShift->created_at?->format('H:i') ?? '--:--' }}</p>
                     @else
                         <div class="flex items-center gap-3 mb-3">
                             <div class="w-3 h-3 bg-amber-500 rounded-full"></div>
                             <p class="font-semibold text-amber-700">SIN CONSTITUIR</p>
                         </div>
-                        <p class="text-sm text-slate-600">La guardia aún no ha sido constituida</p>
+                        <p class="text-sm text-[#475569]">La guardia aún no ha sido constituida</p>
                     @endif
                 </x-ui.card>
 
                 <!-- Próximos Cumpleaños -->
                 <x-ui.card>
                     <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-xl font-semibold text-[#1f2937]">Cumpleaños</h2>
+                        <h2 class="text-xl font-semibold text-[#1e293b]">Cumpleaños</h2>
                         <span class="badge-warning">{{ $birthdaysMonthCount }} este mes</span>
                     </div>
                     <div>
                         @if($upcomingBirthdaysAll->isEmpty())
-                            <p class="text-sm text-slate-500 text-center">No hay cumpleaños próximos</p>
+                            <p class="text-sm text-[#475569] text-center">No hay cumpleaños próximos</p>
                         @else
                             <div class="space-y-3">
                                 @foreach($upcomingBirthdaysAll as $b)
-                                    <div class="flex items-center gap-3 p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+                                    <div class="flex items-center gap-3 p-2.5 rounded-lg bg-[#e7eef5] border border-[#9fb0c3]">
                                         <div class="w-8 h-8 rounded-full bg-amber-200 text-amber-800 flex items-center justify-center font-bold text-xs border border-amber-300">
                                             {{ strtoupper(substr($b->nombres, 0, 1)) }}
                                         </div>
@@ -352,12 +352,12 @@
                 <!-- Últimas Novedades -->
                 <x-ui.card>
                     <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-xl font-semibold text-[#1f2937]">Novedades Recientes</h2>
+                        <h2 class="text-xl font-semibold text-[#1e293b]">Novedades Recientes</h2>
                         <button onclick="openNoveltyModal()" class="text-xs font-semibold text-blue-600 hover:text-blue-800">Registrar</button>
                     </div>
                     <div>
                         @if($novelties->isEmpty())
-                            <p class="text-sm text-slate-500 text-center">Sin novedades recientes</p>
+                            <p class="text-sm text-[#475569] text-center">Sin novedades recientes</p>
                         @else
                             <div class="space-y-4">
                                 @foreach($novelties->take(3) as $novelty)

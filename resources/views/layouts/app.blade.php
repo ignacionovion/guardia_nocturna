@@ -46,12 +46,12 @@
     </style>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-[#dfe6ee] text-[#1f2937] antialiased min-h-screen flex flex-col">
+<body class="bg-[#cfd8e3] text-[#1e293b] antialiased min-h-screen flex flex-col">
 
     @include('components.impersonation-banner')
 
     @if(Auth::check() && !(Auth::user()->role === 'guardia' && request()->routeIs('dashboard')))
-    <header class="h-16 bg-[#e9eff5] border-b border-[#bcc8d6] sticky top-0 z-50 shadow-sm">
+    <header class="h-16 bg-[#c7d2de] border-b border-[#9fb0c3] sticky top-0 z-50 shadow-sm">
         <div class="container mx-auto px-6 h-full">
             <div class="flex justify-between items-center h-full">
                 <!-- Logo / Marca -->
@@ -65,7 +65,7 @@
                             <div class="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
                                 <i class="fas fa-helmet-safety text-white text-sm"></i>
                             </div>
-                            <span class="text-slate-900 font-semibold text-base hidden sm:block">{{ branding()->nombre_empresa }}</span>
+                            <span class="text-[#1e293b] font-semibold text-base hidden sm:block">{{ branding()->nombre_empresa }}</span>
                         </div>
                     @endif
                 </a>
@@ -74,45 +74,45 @@
                 <div class="hidden md:flex items-center gap-1">
                     @auth
                     @if(Auth::user()->role === 'guardia')
-                        <a href="{{ route('dashboard') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('dashboard') ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                        <a href="{{ route('dashboard') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('dashboard') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3] hover:text-[#1e293b]' }}">
                             Inicio
                         </a>
-                        <a href="{{ route('camas') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('camas') ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                        <a href="{{ route('camas') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('camas') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3] hover:text-[#1e293b]' }}">
                             Camas
                         </a>
                     @elseif(Auth::user()->role === 'inventario')
-                        <a href="{{ route('inventario.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('inventario.*') ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                        <a href="{{ route('inventario.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('inventario.*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3] hover:text-[#1e293b]' }}">
                             Inventario
                         </a>
                     @elseif(Auth::user()->role === 'super_admin')
-                        <a href="{{ route('dashboard') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('dashboard') ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                        <a href="{{ route('dashboard') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('dashboard') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3] hover:text-[#1e293b]' }}">
                             Inicio
                         </a>
 
                         <div class="relative group">
-                            <button type="button" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900 flex items-center gap-1">
+                            <button type="button" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors text-[#1e293b] hover:bg-[#b7c4d3] flex items-center gap-1">
                                 Gestión
                                 <i class="fas fa-chevron-down text-xs"></i>
                             </button>
-                            <div class="hidden group-hover:block absolute left-0 top-full w-56 bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden mt-1">
+                            <div class="hidden group-hover:block absolute left-0 top-full w-56 bg-[#dde6ef] rounded-lg shadow-lg border border-[#9fb0c3] overflow-hidden mt-1">
                                 <div class="py-1"></div>
                                 @if(feature('voluntarios'))
-                                <a href="{{ route('admin.volunteers.index') }}" class="block px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                                <a href="{{ route('admin.volunteers.index') }}" class="block px-4 py-2 text-sm font-medium text-[#1e293b] hover:bg-[#c3cfdb]">
                                     Voluntarios
                                 </a>
                                 @endif
                                 @if(feature('emergencias'))
-                                <a href="{{ route('admin.emergencies.index') }}" class="block px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                                <a href="{{ route('admin.emergencies.index') }}" class="block px-4 py-2 text-sm font-medium text-[#1e293b] hover:bg-[#c3cfdb]">
                                     Emergencias
                                 </a>
                                 @endif
                                 @if(feature('dotaciones'))
-                                <a href="{{ route('admin.dotaciones') }}" class="block px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                                <a href="{{ route('admin.dotaciones') }}" class="block px-4 py-2 text-sm font-medium text-[#1e293b] hover:bg-[#c3cfdb]">
                                     Dotaciones
                                 </a>
                                 @endif
                                 @if(feature('calendario'))
-                                <a href="{{ route('admin.calendario') }}" class="block px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                                <a href="{{ route('admin.calendario') }}" class="block px-4 py-2 text-sm font-medium text-[#1e293b] hover:bg-[#c3cfdb]">
                                     Calendario
                                 </a>
                                 @endif
@@ -120,29 +120,29 @@
                         </div>
 
                         <div class="relative group">
-                            <button type="button" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900 flex items-center gap-1">
+                            <button type="button" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors text-[#1e293b] hover:bg-[#b7c4d3] flex items-center gap-1">
                                 Guardias
                                 <i class="fas fa-chevron-down text-xs"></i>
                             </button>
-                            <div class="hidden group-hover:block absolute left-0 top-full w-56 bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden mt-1">
+                            <div class="hidden group-hover:block absolute left-0 top-full w-56 bg-[#dde6ef] rounded-lg shadow-lg border border-[#9fb0c3] overflow-hidden mt-1">
                                 <div class="py-1"></div>
                                 @if(feature('now'))
-                                <a href="{{ route('guardia.now') }}" class="block px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                                <a href="{{ route('guardia.now') }}" class="block px-4 py-2 text-sm font-medium text-[#1e293b] hover:bg-[#c3cfdb]">
                                     Now
                                 </a>
                                 @endif
                                 @if(feature('guardia'))
-                                <a href="{{ route('admin.guardias') }}" class="block px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                                <a href="{{ route('admin.guardias') }}" class="block px-4 py-2 text-sm font-medium text-[#1e293b] hover:bg-[#c3cfdb]">
                                     Guardias
                                 </a>
                                 @endif
                                 @if(feature('camas'))
-                                <a href="{{ route('camas') }}" class="block px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                                <a href="{{ route('camas') }}" class="block px-4 py-2 text-sm font-medium text-[#1e293b] hover:bg-[#c3cfdb]">
                                     Camas
                                 </a>
                                 @endif
                                 @if(feature('reportes'))
-                                <a href="{{ route('admin.reports.index') }}" class="block px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                                <a href="{{ route('admin.reports.index') }}" class="block px-4 py-2 text-sm font-medium text-[#1e293b] hover:bg-[#c3cfdb]">
                                     Reportes
                                 </a>
                                 @endif
@@ -151,77 +151,77 @@
 
                         @if(feature('preventiva'))
                         <div class="relative group">
-                            <button type="button" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.preventivas*') ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }} flex items-center gap-1">
+                            <button type="button" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.preventivas*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }} flex items-center gap-1">
                                 Preventivas
                                 <i class="fas fa-chevron-down text-xs"></i>
                             </button>
-                            <div class="hidden group-hover:block absolute left-0 top-full w-56 bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden mt-1">
+                            <div class="hidden group-hover:block absolute left-0 top-full w-56 bg-[#dde6ef] rounded-lg shadow-lg border border-[#9fb0c3] overflow-hidden mt-1">
                                 <div class="py-1"></div>
-                                <a href="{{ route('admin.preventivas.index') }}" class="block px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                                <a href="{{ route('admin.preventivas.index') }}" class="block px-4 py-2 text-sm font-medium text-[#1e293b] hover:bg-[#c3cfdb]">
                                     Eventos
                                 </a>
-                                <div class="px-4 py-2 text-xs text-slate-500 border-t border-slate-100">Ver reportes desde el detalle de cada evento</div>
+                                <div class="px-4 py-2 text-xs text-[#475569] border-t border-[#9fb0c3]">Ver reportes desde el detalle de cada evento</div>
                             </div>
                         </div>
                         @endif
                         @if(feature('planilla'))
-                        <a href="{{ route('admin.planillas.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.planillas*') ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                        <a href="{{ route('admin.planillas.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.planillas*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">
                             Planillas
                         </a>
                         @endif
                         @if(feature('inventario'))
-                        <a href="{{ route('inventario.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('inventario.*') ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                        <a href="{{ route('inventario.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('inventario.*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">
                             Inventario
                         </a>
                         @endif
                     @elseif(Auth::user()->role === 'ayudante')
                         <div class="relative group">
-                            <button type="button" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.preventivas*') ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }} flex items-center gap-1">
+                            <button type="button" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.preventivas*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }} flex items-center gap-1">
                                 Preventivas
                                 <i class="fas fa-chevron-down text-xs"></i>
                             </button>
-                            <div class="hidden group-hover:block absolute left-0 top-full w-56 bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden mt-1">
+                            <div class="hidden group-hover:block absolute left-0 top-full w-56 bg-[#dde6ef] rounded-lg shadow-lg border border-[#9fb0c3] overflow-hidden mt-1">
                                 <div class="py-1"></div>
-                                <a href="{{ route('admin.preventivas.index') }}" class="block px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                                <a href="{{ route('admin.preventivas.index') }}" class="block px-4 py-2 text-sm font-medium text-[#1e293b] hover:bg-[#c3cfdb]">
                                     Eventos
                                 </a>
-                                <div class="px-4 py-2 text-xs text-slate-500 border-t border-slate-100">Ver reportes desde el detalle de cada evento</div>
+                                <div class="px-4 py-2 text-xs text-[#475569] border-t border-[#9fb0c3]">Ver reportes desde el detalle de cada evento</div>
                             </div>
                         </div>
                     @elseif(Auth::user()->role === 'capitania')
-                        <a href="{{ route('dashboard') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('dashboard') ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                        <a href="{{ route('dashboard') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('dashboard') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">
                             Inicio
                         </a>
                         @if(feature('camas'))
-                        <a href="{{ route('camas') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('camas') ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                        <a href="{{ route('camas') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('camas') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">
                             Camas
                         </a>
                         @endif
                         @if(feature('guardia'))
-                        <a href="{{ route('admin.guardias') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.guardias*') ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                        <a href="{{ route('admin.guardias') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.guardias*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">
                             Guardias
                         </a>
                         @endif
                         @if(feature('calendario'))
-                        <a href="{{ route('admin.calendario') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.calendario*') ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                        <a href="{{ route('admin.calendario') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.calendario*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">
                             Calendario
                         </a>
                         @endif
                         @if(feature('voluntarios'))
-                        <a href="{{ route('admin.volunteers.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.volunteers*') ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                        <a href="{{ route('admin.volunteers.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.volunteers*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">
                             Voluntarios
                         </a>
                         @endif
-                        <a href="{{ route('admin.users.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.users*') ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                        <a href="{{ route('admin.users.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.users*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">
                             Usuarios
                         </a>
                         @if(feature('emergencias'))
-                        <a href="{{ route('admin.emergencies.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.emergencies*') ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                        <a href="{{ route('admin.emergencies.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.emergencies*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">
                             Emergencias
                         </a>
                         @endif
                         @if(feature('reportes'))
-                        <a href="{{ route('admin.reports.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.reports*') ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                        <a href="{{ route('admin.reports.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.reports*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">
                             Reportes
                         </a>
                         @endif
@@ -232,7 +232,7 @@
                 <!-- Controles Mobile + Perfil -->
                 <div class="flex items-center gap-3">
                     <!-- Botón Menú (Mobile) -->
-                    <button type="button" id="mobile-menu-button" class="md:hidden p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors" aria-label="Abrir menú">
+                    <button type="button" id="mobile-menu-button" class="md:hidden p-2 text-[#1e293b] hover:text-[#1e293b] hover:bg-[#b7c4d3] rounded-lg transition-colors" aria-label="Abrir menú">
                         <i class="fas fa-bars"></i>
                     </button>
 
@@ -240,15 +240,15 @@
                         @if(in_array(Auth::user()->role, ['super_admin', 'capitania'], true))
                             <!-- Campana de Notificaciones -->
                             <div class="relative" id="notification-bell-root">
-                                <button type="button" id="notification-bell-btn" class="relative p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors" title="Notificaciones">
+                                <button type="button" id="notification-bell-btn" class="relative p-2 text-[#1e293b] hover:text-[#1e293b] hover:bg-[#b7c4d3] rounded-lg transition-colors" title="Notificaciones">
                                     <i class="fas fa-bell"></i>
                                     <span id="notification-badge" class="absolute -top-1 -right-1 w-5 h-5 bg-red-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center hidden">0</span>
                                 </button>
                                 
                                 <!-- Dropdown de Notificaciones -->
-                                <div id="notification-dropdown" class="hidden absolute right-0 top-full w-80 sm:w-96 mt-2 bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden z-50">
-                                    <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200">
-                                        <span class="text-sm font-semibold text-slate-900">Notificaciones</span>
+                                <div id="notification-dropdown" class="hidden absolute right-0 top-full w-80 sm:w-96 mt-2 bg-[#dde6ef] rounded-lg shadow-lg border border-[#9fb0c3] overflow-hidden z-50">
+                                    <div class="flex items-center justify-between px-4 py-3 border-b border-[#9fb0c3]">
+                                        <span class="text-sm font-semibold text-[#1e293b]">Notificaciones</span>
                                         <button type="button" id="mark-all-read" class="text-xs text-blue-600 hover:text-blue-800 font-medium">
                                             Marcar todas
                                         </button>
@@ -520,25 +520,25 @@
 
                     <!-- Perfil de Usuario -->
                     @auth
-                        <div class="flex items-center gap-3 pl-3 ml-3 border-l border-slate-200">
+                        <div class="flex items-center gap-3 pl-3 ml-3 border-l border-[#9fb0c3]">
                             <div class="relative hidden sm:block" id="user-menu-root">
-                                <button type="button" id="user-menu-button" class="flex flex-col items-end px-2 py-1 hover:bg-slate-100 rounded-lg transition-colors">
-                                    <span class="text-slate-900 text-sm font-medium">{{ Auth::user()->name }}</span>
-                                    <span class="text-slate-500 text-xs">{{ str_replace('_', ' ', Auth::user()->role) }}</span>
+                                <button type="button" id="user-menu-button" class="flex flex-col items-end px-2 py-1 hover:bg-[#b7c4d3] rounded-lg transition-colors">
+                                    <span class="text-[#1e293b] text-sm font-medium">{{ Auth::user()->name }}</span>
+                                    <span class="text-[#475569] text-xs">{{ str_replace('_', ' ', Auth::user()->role) }}</span>
                                 </button>
                                 @if(Auth::user()->role === 'super_admin')
                                     <div id="user-menu-dropdown" class="hidden absolute right-0 top-full w-64 mt-2">
-                                        <div class="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden">
+                                        <div class="bg-[#dde6ef] rounded-lg shadow-lg border border-[#9fb0c3] overflow-hidden">
                                             <div class="py-1">
-                                                <a href="{{ route('admin.system.index') }}" class="block px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                                                <a href="{{ route('admin.system.index') }}" class="block px-4 py-2 text-sm font-medium text-[#1e293b] hover:bg-[#c3cfdb]">
                                                     Administración del Sistema
                                                 </a>
                                                 @if(addon('custom_branding'))
-                                                <a href="{{ route('admin.branding.index') }}" class="block px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                                                <a href="{{ route('admin.branding.index') }}" class="block px-4 py-2 text-sm font-medium text-[#1e293b] hover:bg-[#c3cfdb]">
                                                     Marca Personalizada
                                                 </a>
                                                 @endif
-                                                <a href="{{ route('admin.users.index') }}" class="block px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                                                <a href="{{ route('admin.users.index') }}" class="block px-4 py-2 text-sm font-medium text-[#1e293b] hover:bg-[#c3cfdb]">
                                                     Usuarios
                                                 </a>
                                             </div>
@@ -548,7 +548,7 @@
                             </div>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <button type="submit" class="p-2 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Cerrar Sesión">
+                                <button type="submit" class="p-2 text-[#475569] hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Cerrar Sesión">
                                     <i class="fas fa-right-from-bracket"></i>
                                 </button>
                             </form>
@@ -559,24 +559,24 @@
         </div>
     </header>
 
-    <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-slate-200">
+    <div id="mobile-menu" class="hidden md:hidden bg-[#c7d2de] border-b border-[#9fb0c3]">
         <div class="container mx-auto px-6 py-4 space-y-1">
             @auth
             @if(Auth::user()->role === 'guardia')
-                <a href="{{ route('dashboard') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('dashboard') ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:bg-slate-100' }}">Inicio</a>
-                <a href="{{ route('camas') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('camas') ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:bg-slate-100' }}">Camas</a>
+                <a href="{{ route('dashboard') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('dashboard') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">Inicio</a>
+                <a href="{{ route('camas') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('camas') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">Camas</a>
             @elseif(Auth::user()->role === 'super_admin')
-                <a href="{{ route('dashboard') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('dashboard') ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:bg-slate-100' }}">Inicio</a>
+                <a href="{{ route('dashboard') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('dashboard') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">Inicio</a>
                 @if(feature('guardia'))
-                <a href="{{ route('admin.guardias') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('admin.guardias*') ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:bg-slate-100' }}">Guardias</a>
+                <a href="{{ route('admin.guardias') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('admin.guardias*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">Guardias</a>
                 @endif
                 @if(feature('calendario'))
-                <a href="{{ route('admin.calendario') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('admin.calendario*') ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:bg-slate-100' }}">Calendario</a>
+                <a href="{{ route('admin.calendario') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('admin.calendario*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">Calendario</a>
                 @endif
             @elseif(Auth::user()->role === 'capitania')
-                <a href="{{ route('dashboard') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('dashboard') ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:bg-slate-100' }}">Inicio</a>
+                <a href="{{ route('dashboard') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('dashboard') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">Inicio</a>
                 @if(feature('camas'))
-                <a href="{{ route('camas') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('camas') ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:bg-slate-100' }}">Camas</a>
+                <a href="{{ route('camas') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('camas') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">Camas</a>
                 @endif
             @endif
             @endauth
@@ -615,7 +615,7 @@
     </script>
     @endif
 
-    <main class="flex-1 bg-[#e6edf4]">
+    <main class="flex-1 bg-[#d9e2ec]">
         <div class="{{ Auth::check() && Auth::user()->role === 'guardia' && request()->routeIs('dashboard') ? 'w-full' : 'container mx-auto px-6 py-6' }}">
         <!-- Alertas Globales -->
         @if(session('success'))
@@ -735,14 +735,14 @@
     </main>
 
     @if(!(Auth::check() && Auth::user()->role === 'guardia' && request()->routeIs('dashboard')))
-    <footer class="bg-[#e9eff5] border-t border-[#bcc8d6] mt-auto">
+    <footer class="bg-[#c7d2de] border-t border-[#9fb0c3] mt-auto">
         <div class="container mx-auto py-6 px-6">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div class="flex items-center gap-2">
                     <i class="fas fa-helmet-safety text-red-600"></i>
-                    <span class="font-semibold text-[#1f2937]">{{ config('app.name', 'GuardiAPP') }}</span>
+                    <span class="font-semibold text-[#1e293b]">{{ config('app.name', 'GuardiAPP') }}</span>
                 </div>
-                <div class="text-sm text-[#5b6b7c]">
+                <div class="text-sm text-[#475569]">
                     © {{ date('Y') }} GuardiAPP – Plataforma SaaS para gestión de compañías de bomberos
                 </div>
             </div>

@@ -8,13 +8,13 @@
 
 <div>
     @if($label)
-    <label class="block text-xs font-semibold text-[#5b6b7c] uppercase tracking-wider mb-2">{{ $label }}</label>
+    <label class="block text-xs font-semibold text-[#475569] uppercase tracking-wider mb-2">{{ $label }}</label>
     @endif
     
     <div class="relative">
         @if($icon)
         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-            <i class="{{ $icon }} text-[#5b6b7c] text-sm"></i>
+            <i class="{{ $icon }} text-[#475569] text-sm"></i>
         </div>
         @endif
         
@@ -23,14 +23,14 @@
                 ($icon ? 'pl-10 pr-4 py-2.5' : 'px-4 py-2.5') . ' ' .
                 ($error 
                     ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20 bg-red-50' 
-                    : 'border-[#bcc8d6] focus:border-[#1f2937] focus:ring-[#1f2937]/10 bg-[#f3f7fb]'
+                    : 'border-[#9fb0c3] focus:border-[#1e293b] focus:ring-[#1e293b]/10 bg-[#e7eef5]'
                 ) .
-                ' text-[#1f2937] placeholder-[#5b6b7c] focus:outline-none focus:ring-4'
+                ' text-[#1e293b] placeholder-[#475569] focus:outline-none focus:ring-4'
         ]) }}>
     </div>
     
     @if($hint && !$error)
-    <p class="mt-1.5 text-xs text-[#5b6b7c]">{{ $hint }}</p>
+    <p class="mt-1.5 text-xs text-[#475569]">{{ $hint }}</p>
     @endif
     
     @if($error)
