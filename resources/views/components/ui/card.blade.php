@@ -14,8 +14,8 @@ $paddingClasses = match($padding) {
     default => 'p-5 sm:p-6',
 };
 
-$baseClasses = 'bg-[#f8fafc] rounded-[14px] border border-[#cbd5e1]';
-$shadowClasses = $elevated ? 'shadow-sm' : '';
+$baseClasses = 'bg-[#f1f5f9] rounded-[14px] border border-[#cbd5e1] shadow-sm';
+$shadowClasses = $elevated ? 'shadow-md' : '';
 $hoverClasses = $hover ? 'transition-all duration-200 hover:shadow-md hover:border-slate-400 cursor-pointer' : '';
 @endphp
 

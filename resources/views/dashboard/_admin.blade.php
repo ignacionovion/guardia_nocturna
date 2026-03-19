@@ -24,7 +24,7 @@
                 
                 <!-- Métricas Principales -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="bg-[#f8fafc] border border-[#cbd5e1] rounded-[14px] p-5">
+                    <div class="bg-[#f1f5f9] border border-[#cbd5e1] rounded-[14px] p-5 shadow-sm">
                         <div class="flex items-start justify-between mb-3">
                             <div class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Guardia en Servicio</div>
                             <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center shrink-0">
@@ -34,7 +34,7 @@
                         <div class="text-2xl font-bold text-slate-900">{{ $guardiaEnServicio?->name ?? 'Sin asignar' }}</div>
                     </div>
 
-                    <div class="bg-[#f8fafc] border border-[#cbd5e1] rounded-[14px] p-5">
+                    <div class="bg-[#f1f5f9] border border-[#cbd5e1] rounded-[14px] p-5 shadow-sm">
                         <div class="flex items-start justify-between mb-3">
                             <div class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Personal en Guardia</div>
                             <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center shrink-0">
@@ -44,17 +44,17 @@
                         <div class="text-3xl font-bold text-slate-900">{{ $onDutyCount }}</div>
                     </div>
 
-                    <div class="bg-[#f8fafc] border border-[#cbd5e1] rounded-[14px] p-5">
+                    <div class="bg-[#f1f5f9] border border-[#cbd5e1] rounded-[14px] p-5 shadow-sm">
                         <div class="flex items-start justify-between mb-3">
                             <div class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Camas Disponibles</div>
                             <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center shrink-0">
                                 <i class="fas fa-bed text-emerald-600"></i>
                             </div>
                         </div>
-                        <div class="text-3xl font-bold text-slate-900">{{ $availableBeds }}<span class="text-xl text-slate-500 font-normal">/{{ $totalBeds }}</span></div>
+                        <div class="text-3xl font-bold text-slate-900">{{ $availableBeds }}<span class="text-xl text-slate-600 font-normal">/{{ $totalBeds }}</span></div>
                     </div>
 
-                    <div class="bg-[#f8fafc] border border-[#cbd5e1] rounded-[14px] p-5">
+                    <div class="bg-[#f1f5f9] border border-[#cbd5e1] rounded-[14px] p-5 shadow-sm">
                         <div class="flex items-start justify-between mb-3">
                             <div class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Novedades</div>
                             <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center shrink-0">
@@ -258,7 +258,7 @@
 
                 <!-- Accesos Directos -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <a href="{{ route('admin.guardias') }}" class="group p-4 bg-slate-900 hover:bg-slate-800 rounded-[14px] transition-colors flex items-center gap-3 no-underline">
+                    <a href="{{ route('admin.guardias') }}" class="group p-4 bg-[#1e293b] hover:bg-[#334155] rounded-[14px] transition-colors flex items-center gap-3 no-underline shadow-sm">
                         <div class="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center shrink-0">
                             <i class="fas fa-shield text-white"></i>
                         </div>
@@ -268,7 +268,7 @@
                         </div>
                     </a>
 
-                    <a href="{{ route('admin.dotaciones') }}" class="group p-4 bg-[#f8fafc] hover:bg-white rounded-[14px] border border-[#cbd5e1] transition-colors flex items-center gap-3 no-underline">
+                    <a href="{{ route('admin.dotaciones') }}" class="group p-4 bg-[#f1f5f9] hover:bg-white rounded-[14px] border border-[#cbd5e1] transition-colors flex items-center gap-3 no-underline shadow-sm">
                         <div class="w-10 h-10 bg-slate-200 rounded-lg flex items-center justify-center shrink-0">
                             <i class="fas fa-users-gear text-slate-700"></i>
                         </div>
@@ -278,7 +278,7 @@
                         </div>
                     </a>
 
-                    <a href="{{ route('camas') }}" class="group p-4 bg-[#f8fafc] hover:bg-white rounded-[14px] border border-[#cbd5e1] transition-colors flex items-center gap-3 no-underline">
+                    <a href="{{ route('camas') }}" class="group p-4 bg-[#f1f5f9] hover:bg-white rounded-[14px] border border-[#cbd5e1] transition-colors flex items-center gap-3 no-underline shadow-sm">
                         <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center shrink-0">
                             <i class="fas fa-bed text-emerald-600"></i>
                         </div>
@@ -288,7 +288,7 @@
                         </div>
                     </a>
 
-                    <a href="{{ route('admin.emergencies.index') }}" class="group p-4 bg-[#f8fafc] hover:bg-white rounded-[14px] border border-[#cbd5e1] transition-colors flex items-center gap-3 no-underline">
+                    <a href="{{ route('admin.emergencies.index') }}" class="group p-4 bg-[#f1f5f9] hover:bg-white rounded-[14px] border border-[#cbd5e1] transition-colors flex items-center gap-3 no-underline shadow-sm">
                         <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center shrink-0">
                             <i class="fas fa-truck-medical text-amber-600"></i>
                         </div>
