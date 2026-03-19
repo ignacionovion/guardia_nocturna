@@ -237,7 +237,7 @@ function handleClose() {
                         <div
                             v-if="isDropdownOpen"
                             ref="dropdownRef"
-                            class="absolute z-50 w-full mt-1 bg-slate-700 border border-slate-600 rounded-lg shadow-xl max-h-80 overflow-hidden flex flex-col"
+                            class="absolute z-50 w-full mt-1 bg-slate-700 border border-slate-600 rounded-lg shadow-xl h-96 overflow-hidden flex flex-col"
                         >
                             <!-- Search Input inside dropdown -->
                             <div class="p-2 border-b border-slate-600">
