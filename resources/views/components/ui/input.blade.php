@@ -8,13 +8,13 @@
 
 <div>
     @if($label)
-    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">{{ $label }}</label>
+    <label class="block text-xs font-semibold text-[#5b6b7c] uppercase tracking-wider mb-2">{{ $label }}</label>
     @endif
     
     <div class="relative">
         @if($icon)
         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-            <i class="{{ $icon }} text-slate-400 dark:text-slate-500 text-sm"></i>
+            <i class="{{ $icon }} text-[#5b6b7c] text-sm"></i>
         </div>
         @endif
         
@@ -22,19 +22,19 @@
             'class' => 'w-full rounded-xl border text-sm transition-all duration-150 ' .
                 ($icon ? 'pl-10 pr-4 py-2.5' : 'px-4 py-2.5') . ' ' .
                 ($error 
-                    ? 'border-red-300 dark:border-red-700 focus:border-red-500 focus:ring-red-500/20 bg-red-50 dark:bg-red-900/10' 
-                    : 'border-slate-200 dark:border-slate-700 focus:border-slate-900 dark:focus:border-white focus:ring-slate-900/10 dark:focus:ring-white/10 bg-slate-50 dark:bg-slate-800'
+                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20 bg-red-50' 
+                    : 'border-[#bcc8d6] focus:border-[#1f2937] focus:ring-[#1f2937]/10 bg-[#f3f7fb]'
                 ) .
-                ' text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-4 focus:bg-white dark:focus:bg-slate-900'
+                ' text-[#1f2937] placeholder-[#5b6b7c] focus:outline-none focus:ring-4'
         ]) }}>
     </div>
     
     @if($hint && !$error)
-    <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400">{{ $hint }}</p>
+    <p class="mt-1.5 text-xs text-[#5b6b7c]">{{ $hint }}</p>
     @endif
     
     @if($error)
-    <p class="mt-1.5 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
+    <p class="mt-1.5 text-xs text-red-600 flex items-center gap-1">
         <i class="fas fa-exclamation-circle"></i>
         {{ $error }}
     </p>

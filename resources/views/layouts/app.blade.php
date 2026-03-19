@@ -46,12 +46,12 @@
     </style>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-[#e2e8f0] text-slate-900 antialiased min-h-screen flex flex-col">
+<body class="bg-[#dfe6ee] text-[#1f2937] antialiased min-h-screen flex flex-col">
 
     @include('components.impersonation-banner')
 
     @if(Auth::check() && !(Auth::user()->role === 'guardia' && request()->routeIs('dashboard')))
-    <header class="h-16 bg-white border-b border-[#cbd5e1] sticky top-0 z-50 shadow-sm">
+    <header class="h-16 bg-[#e9eff5] border-b border-[#bcc8d6] sticky top-0 z-50 shadow-sm">
         <div class="container mx-auto px-6 h-full">
             <div class="flex justify-between items-center h-full">
                 <!-- Logo / Marca -->
@@ -615,7 +615,7 @@
     </script>
     @endif
 
-    <main class="flex-1 bg-[#e8edf3]">
+    <main class="flex-1 bg-[#e6edf4]">
         <div class="{{ Auth::check() && Auth::user()->role === 'guardia' && request()->routeIs('dashboard') ? 'w-full' : 'container mx-auto px-6 py-6' }}">
         <!-- Alertas Globales -->
         @if(session('success'))
@@ -735,14 +735,14 @@
     </main>
 
     @if(!(Auth::check() && Auth::user()->role === 'guardia' && request()->routeIs('dashboard')))
-    <footer class="bg-white border-t border-[#cbd5e1] mt-auto">
+    <footer class="bg-[#e9eff5] border-t border-[#bcc8d6] mt-auto">
         <div class="container mx-auto py-6 px-6">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div class="flex items-center gap-2">
                     <i class="fas fa-helmet-safety text-red-600"></i>
-                    <span class="font-semibold text-slate-900">{{ config('app.name', 'GuardiAPP') }}</span>
+                    <span class="font-semibold text-[#1f2937]">{{ config('app.name', 'GuardiAPP') }}</span>
                 </div>
-                <div class="text-sm text-slate-500">
+                <div class="text-sm text-[#5b6b7c]">
                     © {{ date('Y') }} GuardiAPP – Plataforma SaaS para gestión de compañías de bomberos
                 </div>
             </div>

@@ -14,16 +14,16 @@ $paddingClasses = match($padding) {
     default => 'p-5 sm:p-6',
 };
 
-$baseClasses = 'bg-[#f1f5f9] rounded-[14px] border border-[#cbd5e1] shadow-sm';
+$baseClasses = 'bg-[#edf3f8] rounded-[14px] border border-[#bcc8d6] shadow-sm';
 $shadowClasses = $elevated ? 'shadow-md' : '';
-$hoverClasses = $hover ? 'transition-all duration-200 hover:shadow-md hover:border-slate-400 cursor-pointer' : '';
+$hoverClasses = $hover ? 'transition-all duration-200 hover:shadow-md hover:bg-[#f3f7fb] cursor-pointer' : '';
 @endphp
 
 <div {{ $attributes->merge([
     'class' => trim($baseClasses . ' ' . $shadowClasses . ' ' . $hoverClasses . ' ' . ($header || $footer ? '' : $paddingClasses))
 ]) }}>
     @if($header)
-    <div class="px-5 sm:px-6 py-4 border-b border-slate-300">
+    <div class="px-5 sm:px-6 py-4 border-b border-[#bcc8d6]">
         {{ $header }}
     </div>
     @endif
@@ -37,7 +37,7 @@ $hoverClasses = $hover ? 'transition-all duration-200 hover:shadow-md hover:bord
     @endif
     
     @if($footer)
-    <div class="px-5 sm:px-6 py-4 border-t border-slate-300 bg-slate-100/50 rounded-b-[14px]">
+    <div class="px-5 sm:px-6 py-4 border-t border-[#bcc8d6] bg-[#e6edf4] rounded-b-[14px]">
         {{ $footer }}
     </div>
     @endif
