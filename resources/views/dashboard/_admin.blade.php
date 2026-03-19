@@ -2,8 +2,8 @@
     <div class="mb-8">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-2xl font-semibold text-slate-900 mb-1">Centro de Operaciones</h1>
-                <p class="text-sm text-slate-500">Panel de control operativo del sistema</p>
+                <h1 class="text-3xl font-bold text-slate-900 mb-1">Centro de Operaciones</h1>
+                <p class="text-sm text-slate-600">Panel de control operativo del sistema</p>
             </div>
             <div class="flex items-center gap-3">
                 <div class="flex items-center gap-2 px-3 py-1.5 bg-green-50 border border-green-200 rounded-lg">
@@ -23,53 +23,45 @@
             <div class="xl:col-span-2 space-y-6">
                 
                 <!-- Métricas Principales -->
-                <div class="grid-4">
-                    <div class="metric-card">
-                        <div class="flex items-start justify-between">
-                            <div>
-                                <div class="metric-label mb-2">Guardia en Servicio</div>
-                                <div class="text-xl font-semibold text-slate-900">{{ $guardiaEnServicio?->name ?? 'Sin asignar' }}</div>
-                            </div>
-                            <div class="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center shrink-0">
-                                <i class="fas fa-shield text-red-600 text-sm"></i>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-[#f8fafc] border border-[#cbd5e1] rounded-[14px] p-5">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Guardia en Servicio</div>
+                            <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center shrink-0">
+                                <i class="fas fa-shield text-red-600"></i>
                             </div>
                         </div>
+                        <div class="text-2xl font-bold text-slate-900">{{ $guardiaEnServicio?->name ?? 'Sin asignar' }}</div>
                     </div>
 
-                    <div class="metric-card">
-                        <div class="flex items-start justify-between">
-                            <div>
-                                <div class="metric-label mb-2">Personal en Guardia</div>
-                                <div class="metric-value">{{ $onDutyCount }}</div>
-                            </div>
-                            <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center shrink-0">
-                                <i class="fas fa-users text-blue-600 text-sm"></i>
+                    <div class="bg-[#f8fafc] border border-[#cbd5e1] rounded-[14px] p-5">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Personal en Guardia</div>
+                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center shrink-0">
+                                <i class="fas fa-users text-blue-600"></i>
                             </div>
                         </div>
+                        <div class="text-3xl font-bold text-slate-900">{{ $onDutyCount }}</div>
                     </div>
 
-                    <div class="metric-card">
-                        <div class="flex items-start justify-between">
-                            <div>
-                                <div class="metric-label mb-2">Camas Disponibles</div>
-                                <div class="metric-value">{{ $availableBeds }}<span class="text-lg text-slate-400">/{{ $totalBeds }}</span></div>
-                            </div>
-                            <div class="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center shrink-0">
-                                <i class="fas fa-bed text-emerald-600 text-sm"></i>
+                    <div class="bg-[#f8fafc] border border-[#cbd5e1] rounded-[14px] p-5">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Camas Disponibles</div>
+                            <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center shrink-0">
+                                <i class="fas fa-bed text-emerald-600"></i>
                             </div>
                         </div>
+                        <div class="text-3xl font-bold text-slate-900">{{ $availableBeds }}<span class="text-xl text-slate-500 font-normal">/{{ $totalBeds }}</span></div>
                     </div>
 
-                    <div class="metric-card">
-                        <div class="flex items-start justify-between">
-                            <div>
-                                <div class="metric-label mb-2">Novedades</div>
-                                <div class="metric-value">{{ $novelties->count() }}</div>
-                            </div>
-                            <div class="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center shrink-0">
-                                <i class="fas fa-clipboard-list text-amber-600 text-sm"></i>
+                    <div class="bg-[#f8fafc] border border-[#cbd5e1] rounded-[14px] p-5">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Novedades</div>
+                            <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center shrink-0">
+                                <i class="fas fa-clipboard-list text-amber-600"></i>
                             </div>
                         </div>
+                        <div class="text-3xl font-bold text-slate-900">{{ $novelties->count() }}</div>
                     </div>
                 </div>
 
@@ -77,10 +69,10 @@
                 <x-ui.card>
                     <div class="mb-6">
                         <div class="flex items-center justify-between mb-1">
-                            <h2 class="text-lg font-semibold text-slate-900">Movimientos de Personal</h2>
+                            <h2 class="text-xl font-semibold text-slate-900">Movimientos de Personal</h2>
                             <span class="badge-neutral">{{ $activeReplacementsCount }} reemplazos</span>
                         </div>
-                        <p class="text-sm text-slate-500">Reemplazos, refuerzos y personal fuera de servicio</p>
+                        <p class="text-sm text-slate-600">Reemplazos, refuerzos y personal fuera de servicio</p>
                     </div>
 
                     <div>
@@ -243,7 +235,7 @@
 
                 <!-- Resumen de Personal -->
                 <x-ui.card>
-                    <h2 class="text-lg font-semibold text-slate-900 mb-6">Resumen de Personal</h2>
+                    <h2 class="text-xl font-semibold text-slate-900 mb-6">Resumen de Personal</h2>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                         <div class="text-center">
                             <p class="metric-value">{{ $totalFirefighters }}</p>
@@ -266,9 +258,9 @@
 
                 <!-- Accesos Directos -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <a href="{{ route('admin.guardias') }}" class="group p-4 bg-slate-900 hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-3 no-underline">
+                    <a href="{{ route('admin.guardias') }}" class="group p-4 bg-slate-900 hover:bg-slate-800 rounded-[14px] transition-colors flex items-center gap-3 no-underline">
                         <div class="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center shrink-0">
-                            <i class="fas fa-shield text-white text-sm"></i>
+                            <i class="fas fa-shield text-white"></i>
                         </div>
                         <div>
                             <p class="font-semibold text-sm text-white">Guardias</p>
@@ -276,33 +268,33 @@
                         </div>
                     </a>
 
-                    <a href="{{ route('admin.dotaciones') }}" class="group p-4 bg-white hover:bg-slate-50 rounded-lg border border-slate-200 transition-colors flex items-center gap-3 no-underline">
-                        <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center shrink-0">
-                            <i class="fas fa-users-gear text-slate-600 text-sm"></i>
+                    <a href="{{ route('admin.dotaciones') }}" class="group p-4 bg-[#f8fafc] hover:bg-white rounded-[14px] border border-[#cbd5e1] transition-colors flex items-center gap-3 no-underline">
+                        <div class="w-10 h-10 bg-slate-200 rounded-lg flex items-center justify-center shrink-0">
+                            <i class="fas fa-users-gear text-slate-700"></i>
                         </div>
                         <div>
                             <p class="font-semibold text-sm text-slate-900">Dotaciones</p>
-                            <p class="text-xs text-slate-500">Asignar personal</p>
+                            <p class="text-xs text-slate-600">Asignar personal</p>
                         </div>
                     </a>
 
-                    <a href="{{ route('camas') }}" class="group p-4 bg-white hover:bg-slate-50 rounded-lg border border-slate-200 transition-colors flex items-center gap-3 no-underline">
-                        <div class="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center shrink-0">
-                            <i class="fas fa-bed text-emerald-600 text-sm"></i>
+                    <a href="{{ route('camas') }}" class="group p-4 bg-[#f8fafc] hover:bg-white rounded-[14px] border border-[#cbd5e1] transition-colors flex items-center gap-3 no-underline">
+                        <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center shrink-0">
+                            <i class="fas fa-bed text-emerald-600"></i>
                         </div>
                         <div>
                             <p class="font-semibold text-sm text-slate-900">Camas</p>
-                            <p class="text-xs text-slate-500">{{ $availableBeds }} disponibles</p>
+                            <p class="text-xs text-slate-600">{{ $availableBeds }} disponibles</p>
                         </div>
                     </a>
 
-                    <a href="{{ route('admin.emergencies.index') }}" class="group p-4 bg-white hover:bg-slate-50 rounded-lg border border-slate-200 transition-colors flex items-center gap-3 no-underline">
-                        <div class="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center shrink-0">
-                            <i class="fas fa-truck-medical text-amber-600 text-sm"></i>
+                    <a href="{{ route('admin.emergencies.index') }}" class="group p-4 bg-[#f8fafc] hover:bg-white rounded-[14px] border border-[#cbd5e1] transition-colors flex items-center gap-3 no-underline">
+                        <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center shrink-0">
+                            <i class="fas fa-truck-medical text-amber-600"></i>
                         </div>
                         <div>
                             <p class="font-semibold text-sm text-slate-900">Emergencias</p>
-                            <p class="text-xs text-slate-500">Ver historial</p>
+                            <p class="text-xs text-slate-600">Ver historial</p>
                         </div>
                     </a>
                 </div>
@@ -313,7 +305,7 @@
                 
                 <!-- Estado del Turno -->
                 <x-ui.card>
-                    <h2 class="text-lg font-semibold text-slate-900 mb-4">Estado del Turno</h2>
+                    <h2 class="text-xl font-semibold text-slate-900 mb-4">Estado del Turno</h2>
                     @if($currentShift)
                         <div class="flex items-center gap-3 mb-3">
                             <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
@@ -333,7 +325,7 @@
                 <!-- Próximos Cumpleaños -->
                 <x-ui.card>
                     <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-lg font-semibold text-slate-900">Cumpleaños</h2>
+                        <h2 class="text-xl font-semibold text-slate-900">Cumpleaños</h2>
                         <span class="badge-warning">{{ $birthdaysMonthCount }} este mes</span>
                     </div>
                     <div>
@@ -360,7 +352,7 @@
                 <!-- Últimas Novedades -->
                 <x-ui.card>
                     <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-lg font-semibold text-slate-900">Novedades Recientes</h2>
+                        <h2 class="text-xl font-semibold text-slate-900">Novedades Recientes</h2>
                         <button onclick="openNoveltyModal()" class="text-xs font-semibold text-blue-600 hover:text-blue-800">Registrar</button>
                     </div>
                     <div>

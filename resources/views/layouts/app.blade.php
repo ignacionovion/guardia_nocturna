@@ -46,12 +46,12 @@
     </style>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-slate-50 text-slate-900 antialiased min-h-screen flex flex-col">
+<body class="bg-[#e9eef4] text-slate-900 antialiased min-h-screen flex flex-col">
 
     @include('components.impersonation-banner')
 
     @if(Auth::check() && !(Auth::user()->role === 'guardia' && request()->routeIs('dashboard')))
-    <header class="h-16 bg-white border-b border-slate-200 sticky top-0 z-50">
+    <header class="h-16 bg-white border-b border-slate-300 sticky top-0 z-50 shadow-sm">
         <div class="container mx-auto px-6 h-full">
             <div class="flex justify-between items-center h-full">
                 <!-- Logo / Marca -->
@@ -615,7 +615,7 @@
     </script>
     @endif
 
-    <main class="flex-1 bg-slate-50">
+    <main class="flex-1 bg-[#eef3f8]">
         <div class="{{ Auth::check() && Auth::user()->role === 'guardia' && request()->routeIs('dashboard') ? 'w-full' : 'container mx-auto px-6 py-6' }}">
         <!-- Alertas Globales -->
         @if(session('success'))
