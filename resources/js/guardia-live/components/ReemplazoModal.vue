@@ -63,7 +63,16 @@ const availableReplacements = computed(() => {
         return acc;
     }, {});
     
-    console.log('[ReemplazoModal] Grouped by guardia:', Object.keys(grouped).length, 'guardias');
+    console.log('[ReemplazoModal] ========== ESTRUCTURA FINAL ==========');
+    console.log('[ReemplazoModal] typeof grouped:', typeof grouped);
+    console.log('[ReemplazoModal] Array.isArray(grouped):', Array.isArray(grouped));
+    console.log('[ReemplazoModal] Object.keys(grouped):', Object.keys(grouped));
+    console.log('[ReemplazoModal] Object.keys(grouped).length:', Object.keys(grouped).length);
+    console.log('[ReemplazoModal] Primer grupo:', Object.keys(grouped)[0]);
+    console.log('[ReemplazoModal] Bomberos en primer grupo:', grouped[Object.keys(grouped)[0]]?.length);
+    console.log('[ReemplazoModal] Primer bombero del primer grupo:', grouped[Object.keys(grouped)[0]]?.[0]);
+    console.log('[ReemplazoModal] ESTRUCTURA COMPLETA:', JSON.stringify(grouped, null, 2));
+    console.log('[ReemplazoModal] =====================================');
     
     return grouped;
 });

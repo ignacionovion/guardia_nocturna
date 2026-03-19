@@ -64,7 +64,16 @@ const availableForRefuerzo = computed(() => {
         return acc;
     }, {});
     
-    console.log('[RefuerzoModal] Grouped by guardia:', Object.keys(grouped).length, 'guardias');
+    console.log('[RefuerzoModal] ========== ESTRUCTURA FINAL ==========');
+    console.log('[RefuerzoModal] typeof grouped:', typeof grouped);
+    console.log('[RefuerzoModal] Array.isArray(grouped):', Array.isArray(grouped));
+    console.log('[RefuerzoModal] Object.keys(grouped):', Object.keys(grouped));
+    console.log('[RefuerzoModal] Object.keys(grouped).length:', Object.keys(grouped).length);
+    console.log('[RefuerzoModal] Primer grupo:', Object.keys(grouped)[0]);
+    console.log('[RefuerzoModal] Bomberos en primer grupo:', grouped[Object.keys(grouped)[0]]?.length);
+    console.log('[RefuerzoModal] Primer bombero del primer grupo:', grouped[Object.keys(grouped)[0]]?.[0]);
+    console.log('[RefuerzoModal] ESTRUCTURA COMPLETA:', JSON.stringify(grouped, null, 2));
+    console.log('[RefuerzoModal] =====================================');
     
     return grouped;
 });
