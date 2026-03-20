@@ -224,7 +224,7 @@ class BedQrController extends Controller
         // Verificar si la cama ya está ocupada
         $currentAssignment = BedAssignment::query()
             ->where('bed_id', $bed->id)
-            ->whereNull('released_at')
+            ->whereNull('ended_at')
             ->first();
 
         return view('camas.assign', [
@@ -259,11 +259,12 @@ class BedQrController extends Controller
         // Liberar cama si está ocupada
         $currentAssignment = BedAssignment::query()
             ->where('bed_id', $bed->id)
-            ->whereNull('released_at')
+            ->whereNull('ended_at')
             ->first();
 
         if ($currentAssignment) {
             $currentAssignment->update([
+                'ended_at' => now(),
                 'released_at' => now(),
             ]);
             $bed->update(['status' => 'available']);
@@ -272,13 +273,14 @@ class BedQrController extends Controller
         // Verificar si el bombero ya tiene otra cama asignada
         $existingAssignment = BedAssignment::query()
             ->where('firefighter_id', $bombero->id)
-            ->whereNull('released_at')
+            ->whereNull('ended_at')
             ->with('bed')
             ->first();
 
         if ($existingAssignment) {
             // Liberar la cama anterior
             $existingAssignment->update([
+                'ended_at' => now(),
                 'released_at' => now(),
             ]);
             if ($existingAssignment->bed) {
@@ -290,6 +292,7 @@ class BedQrController extends Controller
         BedAssignment::create([
             'bed_id' => $bed->id,
             'firefighter_id' => $bombero->id,
+            'started_at' => now(),
             'assigned_at' => now(),
             'notes' => 'Asignado vía QR escaneado',
             'assigned_source' => 'qr',
@@ -304,7 +307,7 @@ class BedQrController extends Controller
         \App\Services\NotificationService::bedAssigned(
             auth()->user(), 
             $bombero, 
-            $bed->number ?? $bed->id, 
+            $bed->name ?? $bed->number ?? $bed->id, 
             $bombero->guardia_id ? \App\Models\Guardia::find($bombero->guardia_id) : null, 
             'QR'
         );

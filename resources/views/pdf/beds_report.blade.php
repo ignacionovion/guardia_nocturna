@@ -258,7 +258,7 @@
             @foreach($beds as $bed)
                 <div class="bed-card {{ $bed->status }}">
                     <div class="bed-header">
-                        <span class="bed-number">Cama #{{ $bed->number }}</span>
+                        <span class="bed-number">Cama #{{ $bed->name ?? $bed->number }}</span>
                         <span class="bed-status {{ $bed->status }}">
                             @if($bed->status === 'available')
                                 Disponible
@@ -277,9 +277,12 @@
                                 {{ $bed->currentAssignment->firefighter->apellido_paterno }}
                             </div>
                             <div>RUT: {{ $bed->currentAssignment->firefighter->rut ?? 'N/A' }}</div>
-                            <div>Asignada: {{ $bed->currentAssignment->assigned_at?->format('d/m/Y H:i') ?? 'N/A' }}</div>
+                            @php
+                                $startTime = $bed->currentAssignment->started_at ?? $bed->currentAssignment->assigned_at;
+                            @endphp
+                            <div>Asignada: {{ $startTime?->format('d/m/Y H:i') ?? 'N/A' }}</div>
                         @else
-                            <div>{{ $bed->description ?? 'Sin descripción' }}</div>
+                            <div>{{ $bed->notes ?? $bed->description ?? 'Sin descripción' }}</div>
                             @if($bed->status === 'maintenance')
                                 <div style="color: #f59e0b; font-weight: 600;">En mantención</div>
                             @endif

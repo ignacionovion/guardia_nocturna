@@ -9,10 +9,12 @@ class Bed extends Model
 {
     protected $fillable = [
         'name',
+        'number',
         'location',
         'gender',
         'status',
         'notes',
+        'description',
         'qr_token',
         'created_by'
     ];
@@ -20,6 +22,17 @@ class Bed extends Model
     protected $casts = [
         'created_by' => 'integer',
     ];
+
+    // Accessors para compatibilidad con esquema legacy
+    public function getNumberAttribute($value)
+    {
+        return $value ?? $this->attributes['name'] ?? null;
+    }
+
+    public function getDescriptionAttribute($value)
+    {
+        return $value ?? $this->attributes['notes'] ?? null;
+    }
 
     protected static function boot()
     {

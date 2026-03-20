@@ -10,16 +10,27 @@ class BedAssignment extends Model
         'bed_id',
         'volunteer_id',
         'firefighter_id',
+        'user_id',
         'assigned_by',
         'started_at',
         'ended_at',
+        'assigned_at',
+        'released_at',
         'notes',
+        'assigned_source',
+        'assigned_ip',
+        'assigned_user_agent',
     ];
 
     protected $casts = [
         'started_at' => 'datetime',
         'ended_at' => 'datetime',
+        'assigned_at' => 'datetime',
+        'released_at' => 'datetime',
         'assigned_by' => 'integer',
+        'volunteer_id' => 'integer',
+        'firefighter_id' => 'integer',
+        'user_id' => 'integer',
     ];
 
     public function bed()

@@ -30,24 +30,24 @@ class BedManagementController extends Controller
 
         // Get all beds
         $beds = Bed::query()
-            ->orderBy('number')
+            ->orderBy('name')
             ->get()
             ->map(function (Bed $bed) {
                 $assignment = BedAssignment::query()
                     ->where('bed_id', $bed->id)
-                    ->whereNull('released_at')
+                    ->whereNull('ended_at')
                     ->with('firefighter')
                     ->first();
 
                 return [
                     'id' => $bed->id,
-                    'number' => $bed->number,
+                    'number' => $bed->name ?? $bed->number,
                     'status' => $bed->status,
                     'assignment' => $assignment ? [
                         'id' => $assignment->id,
                         'firefighter_id' => $assignment->firefighter_id,
                         'firefighter_name' => $assignment->firefighter?->nombre_completo ?? 'Desconocido',
-                        'assigned_at' => $assignment->assigned_at?->toISOString(),
+                        'assigned_at' => $assignment->started_at?->toISOString() ?? $assignment->assigned_at?->toISOString(),
                         'assigned_source' => $assignment->assigned_source ?? 'manual',
                     ] : null,
                 ];
@@ -108,7 +108,7 @@ class BedManagementController extends Controller
                     // Check if already has a bed
                     $currentBed = BedAssignment::query()
                         ->where('firefighter_id', $b->id)
-                        ->whereNull('released_at')
+                        ->whereNull('ended_at')
                         ->with('bed')
                         ->first();
 
@@ -116,7 +116,7 @@ class BedManagementController extends Controller
                         'id' => $b->id,
                         'nombre_completo' => $b->nombre_completo,
                         'cargo' => $b->cargo,
-                        'current_bed' => $currentBed ? $currentBed->bed?->number : null,
+                        'current_bed' => $currentBed ? ($currentBed->bed?->name ?? $currentBed->bed?->number) : null,
                     ];
                 });
 
@@ -163,23 +163,29 @@ class BedManagementController extends Controller
         // Release current bed assignment if exists
         $currentAssignment = BedAssignment::query()
             ->where('bed_id', $bed->id)
-            ->whereNull('released_at')
+            ->whereNull('ended_at')
             ->first();
 
         if ($currentAssignment) {
-            $currentAssignment->update(['released_at' => now()]);
+            $currentAssignment->update([
+                'ended_at' => now(),
+                'released_at' => now(),
+            ]);
             $bed->update(['status' => 'available']);
         }
 
         // Release firefighter's previous bed if exists
         $firefighterPreviousBed = BedAssignment::query()
             ->where('firefighter_id', $firefighter->id)
-            ->whereNull('released_at')
+            ->whereNull('ended_at')
             ->with('bed')
             ->first();
 
         if ($firefighterPreviousBed) {
-            $firefighterPreviousBed->update(['released_at' => now()]);
+            $firefighterPreviousBed->update([
+                'ended_at' => now(),
+                'released_at' => now(),
+            ]);
             if ($firefighterPreviousBed->bed) {
                 $firefighterPreviousBed->bed->update(['status' => 'available']);
             }
@@ -189,6 +195,7 @@ class BedManagementController extends Controller
         $assignment = BedAssignment::create([
             'bed_id' => $bed->id,
             'firefighter_id' => $firefighter->id,
+            'started_at' => now(),
             'assigned_at' => now(),
             'notes' => 'Asignado manualmente desde panel live',
             'assigned_source' => 'manual',
@@ -203,7 +210,7 @@ class BedManagementController extends Controller
         \App\Services\NotificationService::bedAssigned(
             auth()->user(),
             $firefighter,
-            $bed->number ?? $bed->id,
+            $bed->name ?? $bed->number ?? $bed->id,
             $firefighter->guardia,
             'Manual'
         );
@@ -213,7 +220,7 @@ class BedManagementController extends Controller
             'message' => 'Cama asignada correctamente',
             'assignment' => [
                 'id' => $assignment->id,
-                'bed_number' => $bed->number,
+                'bed_number' => $bed->name ?? $bed->number,
                 'firefighter_name' => $firefighter->nombre_completo,
             ],
         ]);
@@ -232,14 +239,17 @@ class BedManagementController extends Controller
 
         $assignment = BedAssignment::query()
             ->where('bed_id', $bed->id)
-            ->whereNull('released_at')
+            ->whereNull('ended_at')
             ->first();
 
         if (!$assignment) {
             return response()->json(['error' => 'Cama no tiene asignación activa'], 404);
         }
 
-        $assignment->update(['released_at' => now()]);
+        $assignment->update([
+            'ended_at' => now(),
+            'released_at' => now(),
+        ]);
         $bed->update(['status' => 'available']);
 
         return response()->json([

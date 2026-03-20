@@ -60,7 +60,7 @@
                             <!-- Bed Number Badge -->
                             <div class="relative">
                                 <div class="w-14 h-14 rounded-2xl bg-white dark:bg-slate-900 border-2 border-{{ $statusColor }}-200 shadow-lg flex items-center justify-center">
-                                    <span class="text-2xl font-bold text-{{ $statusColor }}-600">{{ $bed->number }}</span>
+                                    <span class="text-2xl font-bold text-{{ $statusColor }}-600">{{ $bed->name ?? $bed->number }}</span>
                                 </div>
                                 @if($isOccupied)
                                     <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center border-2 border-white shadow-md">
@@ -124,9 +124,16 @@
                             <!-- Time Info -->
                             <div class="flex items-center gap-2 text-body-xs bg-slate-50 dark:bg-slate-800 rounded-lg px-3 py-2 mb-3">
                                 <i class="fas fa-clock text-slate-400"></i>
-                                <span>Ingreso: <span class="font-semibold text-slate-700 dark:text-slate-300">{{ $bed->currentAssignment->assigned_at->format('H:i') }}</span> hrs</span>
-                                <span class="mx-1 text-slate-300">|</span>
-                                <span class="text-slate-400">{{ $bed->currentAssignment->assigned_at->diffForHumans() }}</span>
+                                @php
+                                    $startTime = $bed->currentAssignment->started_at ?? $bed->currentAssignment->assigned_at;
+                                @endphp
+                                @if($startTime)
+                                    <span>Ingreso: <span class="font-semibold text-slate-700 dark:text-slate-300">{{ $startTime->format('H:i') }}</span> hrs</span>
+                                    <span class="mx-1 text-slate-300">|</span>
+                                    <span class="text-slate-400">{{ $startTime->diffForHumans() }}</span>
+                                @else
+                                    <span class="text-slate-400">Hora no disponible</span>
+                                @endif
                             </div>
 
                             <!-- Notes -->
@@ -155,8 +162,8 @@
                                     <i class="fas fa-tools text-3xl"></i>
                                 </div>
                                 <p class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase">Fuera de Servicio</p>
-                                @if($bed->description)
-                                    <p class="text-xs text-slate-400 mt-1">{{ $bed->description }}</p>
+                                @if($bed->notes ?? $bed->description)
+                                    <p class="text-xs text-slate-400 mt-1">{{ $bed->notes ?? $bed->description }}</p>
                                 @endif
                             </div>
                         @endif
@@ -166,19 +173,19 @@
                     <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                         @if($isAvailable)
                             <div class="grid grid-cols-1 {{ auth()->user()->role === 'super_admin' ? 'sm:grid-cols-2' : '' }} gap-2">
-                                <x-ui.button variant="primary" size="sm" icon="fas fa-user-plus" class="w-full" onclick="openAssignModal('{{ $bed->id }}', '{{ $bed->number }}')">
+                                <x-ui.button variant="primary" size="sm" icon="fas fa-user-plus" class="w-full" onclick="openAssignModal('{{ $bed->id }}', '{{ $bed->name ?? $bed->number }}')">
                                     Asignar
                                 </x-ui.button>
 
                                 @if(auth()->user()->role === 'super_admin')
-                                    <x-ui.button variant="info" size="sm" icon="fas fa-qrcode" class="w-full" onclick="openQrModal('{{ $bed->id }}', '{{ $bed->number }}')">
+                                    <x-ui.button variant="info" size="sm" icon="fas fa-qrcode" class="w-full" onclick="openQrModal('{{ $bed->id }}', '{{ $bed->name ?? $bed->number }}')">
                                         Ver QR
                                     </x-ui.button>
                                 @endif
                             </div>
                             
                             @if(auth()->user()->role === 'super_admin')
-                                <form action="{{ route('beds.maintenance', $bed->id) }}" method="POST" onsubmit="return confirm('¿Marcar cama #{{ $bed->number }} en mantención?');" class="m-0 mt-2">
+                                <form action="{{ route('beds.maintenance', $bed->id) }}" method="POST" onsubmit="return confirm('¿Marcar cama #{{ $bed->name ?? $bed->number }} en mantención?');" class="m-0 mt-2">
                                     @csrf
                                     @method('PUT')
                                     <x-ui.button type="submit" variant="ghost" size="sm" icon="fas fa-tools" class="w-full">
@@ -203,7 +210,7 @@
                             @endif
                         @else
                             @if(auth()->user()->role === 'super_admin')
-                                <form action="{{ route('beds.available', $bed->id) }}" method="POST" onsubmit="return confirm('¿Habilitar cama #{{ $bed->number }} como disponible?');" class="m-0">
+                                <form action="{{ route('beds.available', $bed->id) }}" method="POST" onsubmit="return confirm('¿Habilitar cama #{{ $bed->name ?? $bed->number }} como disponible?');" class="m-0">
                                     @csrf
                                     @method('PUT')
                                     <x-ui.button type="submit" variant="success" size="sm" icon="fas fa-check-circle" class="w-full">
