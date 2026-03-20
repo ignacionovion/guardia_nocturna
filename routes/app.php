@@ -84,6 +84,11 @@ Route::put('/planillas/qr/{token}/actualizar/{planilla}', [PlanillasQrController
     ->whereNumber('planilla')
     ->name('planillas.qr.update');
 
+// Ruta pública QR Camas 2.0 (por token)
+Route::get('/qr/{token}', [\App\Http\Controllers\QrBedController::class, 'show'])
+    ->where('token', '[A-Za-z0-9]{32}')
+    ->name('qr.bed.show');
+
 // Rutas QR para Camas (públicas, sin login)
 Route::get('/camas/scan/{bedId}', [BedQrController::class, 'scanForm'])->name('camas.scan.form');
 Route::post('/camas/scan/{bedId}/rut', [BedQrController::class, 'processRut'])->name('camas.scan.rut');
@@ -277,6 +282,25 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
         Route::get('/admin/calendario', [AdminCalendarController::class, 'index'])->name('admin.calendario');
         Route::post('/admin/calendario/assign-range', [AdminCalendarController::class, 'assignRange'])->name('admin.calendario.assign_range');
         Route::post('/admin/calendario/generate-rotation', [AdminCalendarController::class, 'generateRotation'])->name('admin.calendario.generate_rotation');
+    });
+
+    // Rutas Admin - Camas 2.0 (CRUD completo)
+    Route::prefix('admin/beds')->name('admin.beds.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\BedController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\BedController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\BedController::class, 'store'])->name('store');
+        Route::get('/{bed}/edit', [\App\Http\Controllers\BedController::class, 'edit'])->name('edit');
+        Route::put('/{bed}', [\App\Http\Controllers\BedController::class, 'update'])->name('update');
+        Route::get('/{bed}/qr', [\App\Http\Controllers\BedController::class, 'showQr'])->name('qr');
+        Route::get('/{bed}/qr/print', [\App\Http\Controllers\BedController::class, 'printQr'])->name('qr.print');
+        
+        // Rutas de asignación y liberación
+        Route::post('/{bed}/assign', [\App\Http\Controllers\BedAssignmentController::class, 'assign'])->name('assign');
+        Route::post('/{bed}/release', [\App\Http\Controllers\BedAssignmentController::class, 'release'])->name('release');
+        Route::get('/{bed}/history', [\App\Http\Controllers\BedAssignmentController::class, 'history'])->name('history');
+        
+        // API para obtener voluntarios disponibles
+        Route::get('/api/volunteers', [\App\Http\Controllers\BedAssignmentController::class, 'getAvailableVolunteers'])->name('api.volunteers');
     });
 
     // Rutas de Novedades

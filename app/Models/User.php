@@ -175,7 +175,18 @@ class User extends Authenticatable
 
     public function bedAssignments()
     {
-        return $this->hasMany(BedAssignment::class);
+        return $this->hasMany(BedAssignment::class, 'volunteer_id');
+    }
+
+    public function currentBedAssignment()
+    {
+        return $this->hasOne(BedAssignment::class, 'volunteer_id')->whereNull('ended_at')->latest();
+    }
+
+    public function getCurrentBedAttribute()
+    {
+        $assignment = $this->currentBedAssignment;
+        return $assignment ? $assignment->bed : null;
     }
 
     public function staffEvents()

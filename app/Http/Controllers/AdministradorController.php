@@ -188,7 +188,29 @@ class AdministradorController extends Controller
             ->orderBy($apellidoPaternoCol)
             ->get();
 
-        return view('admin.guardias', compact('guardias', 'volunteers', 'activeGuardia', 'replacementByOriginal', 'replacementByReplacement'));
+        // Cargar camas asignadas para cada bombero
+        $bedAssignments = [];
+        foreach ($guardias as $guardia) {
+            foreach ($guardia->bomberos as $bombero) {
+                $userId = \App\Models\MapaBomberoUsuarioLegacy::where('firefighter_id', $bombero->id)->value('user_id');
+                if ($userId) {
+                    $assignment = \App\Models\BedAssignment::with('bed')
+                        ->where('volunteer_id', $userId)
+                        ->whereNull('ended_at')
+                        ->first();
+                    if ($assignment) {
+                        $bedAssignments[$bombero->id] = $assignment;
+                    }
+                }
+            }
+        }
+
+        // Cargar camas disponibles para asignación rápida
+        $availableBeds = \App\Models\Bed::where('status', 'available')
+            ->orderBy('name')
+            ->get();
+
+        return view('admin.guardias', compact('guardias', 'volunteers', 'activeGuardia', 'replacementByOriginal', 'replacementByReplacement', 'bedAssignments', 'availableBeds'));
     }
 
     public function dotaciones()

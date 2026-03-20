@@ -221,6 +221,17 @@
                                                     <span class="text-[9px] font-bold">Cubierto por {{ substr($repAsOriginal->replacementFirefighter->nombres ?? '', 0, 1) }}. {{ $repAsOriginal->replacementFirefighter->apellido_paterno ?? '' }}</span>
                                                 </div>
                                             @endif
+
+                                            {{-- Cama Asignada --}}
+                                            @php
+                                                $bedAssignment = $bedAssignments[$user->id] ?? null;
+                                            @endphp
+                                            @if($bedAssignment && $bedAssignment->bed)
+                                                <div class="flex items-center gap-1 text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 shadow-sm mt-1">
+                                                    <i class="fas fa-bed text-[9px]"></i>
+                                                    <span class="text-[9px] font-bold">Cama: {{ $bedAssignment->bed->name }}</span>
+                                                </div>
+                                            @endif
                                         </div>
 
                                         <!-- Controls Area (Full Width) -->
@@ -304,6 +315,29 @@
                                                     <button type="button" id="btn-replacement-{{ $user->id }}" data-action="open-replacement-modal" data-guardia-id="{{ $guardia->id }}" data-user-id="{{ $user->id }}" data-user-name="{{ $user->nombres }} {{ $user->apellido_paterno }}" onclick="openReplacementModal(this.dataset.guardiaId, this.dataset.userId, this.dataset.userName)" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-3 rounded-lg text-[10px] transition shadow-sm uppercase tracking-wider">
                                                         <i class="fas fa-user-plus mr-2"></i> Reemplazar
                                                     </button>
+                                                @endif
+
+                                                {{-- Botones de Cama --}}
+                                                @php
+                                                    $bedAssignment = $bedAssignments[$user->id] ?? null;
+                                                    $canAssignBed = in_array($user->estado_asistencia, ['constituye', 'reemplazo', 'refuerzo']) && !$user->fuera_de_servicio;
+                                                    $userId = \App\Models\MapaBomberoUsuarioLegacy::where('firefighter_id', $user->id)->value('user_id');
+                                                @endphp
+                                                @if($userId)
+                                                    @if($bedAssignment && $bedAssignment->bed)
+                                                        {{-- Tiene cama asignada - botón liberar --}}
+                                                        <button type="button" onclick="quickReleaseBed({{ $userId }}, {{ $bedAssignment->bed->id }}, '{{ $bedAssignment->bed->name }}')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-3 rounded-lg text-[10px] transition shadow-sm uppercase tracking-wider">
+                                                            <i class="fas fa-bed mr-1"></i> Liberar Cama
+                                                        </button>
+                                                    @elseif($canAssignBed)
+                                                        {{-- No tiene cama - botón asignar --}}
+                                                        @php
+                                                            $userGender = \App\Models\User::find($userId)->gender ?? 'mixed';
+                                                        @endphp
+                                                        <button type="button" onclick="quickAssignBed({{ $userId }}, '{{ $user->nombres }} {{ $user->apellido_paterno }}', '{{ $userGender }}')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 rounded-lg text-[10px] transition shadow-sm uppercase tracking-wider">
+                                                            <i class="fas fa-bed mr-1"></i> Asignar Cama
+                                                        </button>
+                                                    @endif
                                                 @endif
                                             @endif
 
@@ -712,7 +746,230 @@
         });
     </div>
 
+    {{-- Modal Asignación Rápida de Cama --}}
+    <div id="quickBedAssignModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-50 flex items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-[#e7eef5] rounded-2xl shadow-xl w-full max-w-md mx-4 transform scale-95 transition-transform duration-300 border border-[#9fb0c3]">
+            <div class="flex justify-between items-start p-6 border-b border-[#9fb0c3]">
+                <div>
+                    <h3 class="text-lg font-bold text-[#1e293b]">Asignar Cama</h3>
+                    <p class="text-sm text-[#475569] mt-1" id="quickBedAssignVolunteerName"></p>
+                </div>
+                <button type="button" onclick="closeQuickBedAssignModal()" class="text-[#475569] hover:text-[#1e293b] transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <form id="quickBedAssignForm" method="POST">
+                @csrf
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="form-label">Seleccionar Cama</label>
+                        <select name="bed_id" id="quickBedSelect" class="form-select" required>
+                            <option value="">Cargando camas...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">Observaciones (opcional)</label>
+                        <textarea name="notes" rows="2" class="form-input" placeholder="Notas sobre la asignación..."></textarea>
+                    </div>
+                </div>
+                <div class="p-6 border-t border-[#9fb0c3] flex gap-3">
+                    <button type="button" onclick="closeQuickBedAssignModal()" class="flex-1 px-4 py-2 bg-[#c3cfdb] hover:bg-[#9fb0c3] text-[#1e293b] font-semibold rounded-xl transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors">
+                        Asignar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- Modal Liberación Rápida de Cama --}}
+    <div id="quickBedReleaseModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-50 flex items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-[#e7eef5] rounded-2xl shadow-xl w-full max-w-md mx-4 transform scale-95 transition-transform duration-300 border border-[#9fb0c3]">
+            <div class="flex justify-between items-start p-6 border-b border-[#9fb0c3]">
+                <div>
+                    <h3 class="text-lg font-bold text-[#1e293b]">Liberar Cama</h3>
+                    <p class="text-sm text-[#475569] mt-1" id="quickBedReleaseBedName"></p>
+                </div>
+                <button type="button" onclick="closeQuickBedReleaseModal()" class="text-[#475569] hover:text-[#1e293b] transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <form id="quickBedReleaseForm" method="POST">
+                @csrf
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="form-label">Observaciones (opcional)</label>
+                        <textarea name="notes" rows="2" class="form-input" placeholder="Notas sobre la liberación..."></textarea>
+                    </div>
+                </div>
+                <div class="p-6 border-t border-[#9fb0c3] flex gap-3">
+                    <button type="button" onclick="closeQuickBedReleaseModal()" class="flex-1 px-4 py-2 bg-[#c3cfdb] hover:bg-[#9fb0c3] text-[#1e293b] font-semibold rounded-xl transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-colors">
+                        Liberar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
+        // Camas disponibles (cargadas desde el servidor)
+        const availableBeds = @json($availableBeds);
+
+        // Función para asignar cama rápidamente
+        function quickAssignBed(firefighterId, volunteerName, gender) {
+            const modal = document.getElementById('quickBedAssignModal');
+            const form = document.getElementById('quickBedAssignForm');
+            const select = document.getElementById('quickBedSelect');
+            const nameDisplay = document.getElementById('quickBedAssignVolunteerName');
+
+            // Configurar modal
+            nameDisplay.textContent = volunteerName;
+
+            // Filtrar camas por género si es necesario
+            let filteredBeds = availableBeds;
+            if (gender && gender !== 'mixed') {
+                filteredBeds = availableBeds.filter(bed => {
+                    if (bed.gender === 'mixed') return true;
+                    if (gender === 'male' || gender === 'masculino') return bed.gender === 'male';
+                    if (gender === 'female' || gender === 'femenino') return bed.gender === 'female';
+                    return true;
+                });
+            }
+
+            // Poblar select
+            select.innerHTML = '<option value="">Seleccionar cama...</option>';
+            if (filteredBeds.length === 0) {
+                select.innerHTML = '<option value="">No hay camas disponibles</option>';
+                select.disabled = true;
+            } else {
+                select.disabled = false;
+                filteredBeds.forEach(bed => {
+                    const option = document.createElement('option');
+                    option.value = bed.id;
+                    option.textContent = `${bed.name} - ${bed.location || 'Sin ubicación'}`;
+                    select.appendChild(option);
+                });
+            }
+
+            // Configurar acción del formulario
+            form.onsubmit = async function(e) {
+                e.preventDefault();
+                const bedId = select.value;
+                if (!bedId) {
+                    alert('Debes seleccionar una cama');
+                    return;
+                }
+
+                const formData = new FormData(form);
+                formData.append('volunteer_id', firefighterId);
+
+                try {
+                    const response = await fetch(`/admin/beds/${bedId}/assign`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json',
+                        },
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        const data = await response.json();
+                        alert(data.message || 'Error al asignar cama');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error al asignar cama');
+                }
+            };
+
+            // Mostrar modal
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.querySelector('.transform').classList.remove('scale-95');
+            }, 10);
+        }
+
+        function closeQuickBedAssignModal() {
+            const modal = document.getElementById('quickBedAssignModal');
+            modal.classList.add('opacity-0');
+            modal.querySelector('.transform').classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.getElementById('quickBedAssignForm').reset();
+            }, 300);
+        }
+
+        // Función para liberar cama rápidamente
+        function quickReleaseBed(firefighterId, bedId, bedName) {
+            const modal = document.getElementById('quickBedReleaseModal');
+            const form = document.getElementById('quickBedReleaseForm');
+            const nameDisplay = document.getElementById('quickBedReleaseBedName');
+
+            // Configurar modal
+            nameDisplay.textContent = `Cama: ${bedName}`;
+
+            // Configurar acción del formulario
+            form.onsubmit = async function(e) {
+                e.preventDefault();
+                const formData = new FormData(form);
+
+                try {
+                    const response = await fetch(`/admin/beds/${bedId}/release`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json',
+                        },
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        const data = await response.json();
+                        alert(data.message || 'Error al liberar cama');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error al liberar cama');
+                }
+            };
+
+            // Mostrar modal
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.querySelector('.transform').classList.remove('scale-95');
+            }, 10);
+        }
+
+        function closeQuickBedReleaseModal() {
+            const modal = document.getElementById('quickBedReleaseModal');
+            modal.classList.add('opacity-0');
+            modal.querySelector('.transform').classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.getElementById('quickBedReleaseForm').reset();
+            }, 300);
+        }
+
+        // Cerrar modales con ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeQuickBedAssignModal();
+                closeQuickBedReleaseModal();
+            }
+        });
+
         function toggleFullscreen() {
             try {
                 if (!document.fullscreenElement) {

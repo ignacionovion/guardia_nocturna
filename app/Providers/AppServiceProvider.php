@@ -42,6 +42,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Registrar observer para liberación automática de camas
+        \App\Models\Bombero::observe(\App\Observers\BomberoObserver::class);
     }
 }

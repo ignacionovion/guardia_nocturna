@@ -13,10 +13,19 @@ return new class extends Migration
     {
         Schema::create('beds', function (Blueprint $table) {
             $table->id();
-            $table->string('number');
-            $table->enum('status', ['available', 'occupied', 'maintenance'])->default('available');
-            $table->text('description')->nullable();
+            $table->string('name');
+            $table->string('location')->nullable();
+            $table->enum('gender', ['male', 'female', 'mixed'])->default('mixed');
+            $table->enum('status', ['available', 'occupied', 'maintenance', 'disabled'])->default('available');
+            $table->text('notes')->nullable();
+            $table->string('qr_token')->unique();
+            $table->unsignedBigInteger('created_by')->nullable();
             $table->timestamps();
+
+            // Índices para optimización
+            $table->index('status');
+            $table->index('gender');
+            $table->index(['status', 'gender']);
         });
     }
 

@@ -3,26 +3,22 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Bombero;
-use App\Models\User;
 
 class BedAssignment extends Model
 {
     protected $fillable = [
         'bed_id',
-        'user_id',
-        'firefighter_id',
-        'assigned_at',
-        'released_at',
+        'volunteer_id',
+        'assigned_by',
+        'started_at',
+        'ended_at',
         'notes',
-        'assigned_source',
-        'assigned_ip',
-        'assigned_user_agent',
     ];
 
     protected $casts = [
-        'assigned_at' => 'datetime',
-        'released_at' => 'datetime',
+        'started_at' => 'datetime',
+        'ended_at' => 'datetime',
+        'assigned_by' => 'integer',
     ];
 
     public function bed()
@@ -30,13 +26,36 @@ class BedAssignment extends Model
         return $this->belongsTo(Bed::class);
     }
 
-    public function user()
+    public function volunteer()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'volunteer_id');
     }
 
-    public function firefighter()
+    public function assignedBy()
     {
-        return $this->belongsTo(Bombero::class, 'firefighter_id');
+        return $this->belongsTo(User::class, 'assigned_by');
+    }
+
+    // Scopes
+    public function scopeActive($query)
+    {
+        return $query->whereNull('ended_at');
+    }
+
+    public function scopeCompleted($query)
+    {
+        return $query->whereNotNull('ended_at');
+    }
+
+    // Helpers
+    public function isActive()
+    {
+        return is_null($this->ended_at);
+    }
+
+    public function getDurationAttribute()
+    {
+        $end = $this->ended_at ?? now();
+        return $this->started_at->diffForHumans($end, true);
     }
 }
