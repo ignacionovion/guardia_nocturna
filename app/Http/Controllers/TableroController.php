@@ -348,13 +348,13 @@ class TableroController extends Controller
 
                     // Liberar las camas asignadas a estos bomberos (reemplazos/refuerzos)
                     $assignmentsToRelease = \App\Models\BedAssignment::query()
-                        ->whereNull('released_at')
+                        ->whereNull('ended_at')
                         ->whereIn('firefighter_id', $resetBomberoIds)
                         ->with('bed')
                         ->get();
 
                     foreach ($assignmentsToRelease as $assignment) {
-                        $assignment->update(['released_at' => now()]);
+                        $assignment->update(['ended_at' => now(), 'released_at' => now()]);
                         if ($assignment->bed) {
                             $assignment->bed->update(['status' => 'available']);
                         }
@@ -641,12 +641,12 @@ class TableroController extends Controller
         // cuando el usuario cambia manualmente un estado después de guardar.
 
         // Mapa firefighter_id => bed number para mostrar badge en tarjetas
-        $bedByFirefighter = BedAssignment::whereNull('released_at')
+        $bedByFirefighter = BedAssignment::whereNull('ended_at')
             ->whereNotNull('firefighter_id')
             ->with('bed')
             ->get()
             ->keyBy('firefighter_id')
-            ->map(fn($a) => $a->bed?->number);
+            ->map(fn($a) => $a->bed?->name ?? $a->bed?->number);
 
         return response()
             ->view('dashboard', compact(
@@ -770,7 +770,7 @@ class TableroController extends Controller
             }
         }
         
-        $assignedFirefighterIds = \App\Models\BedAssignment::whereNull('released_at')
+        $assignedFirefighterIds = \App\Models\BedAssignment::whereNull('ended_at')
             ->whereNotNull('firefighter_id')
             ->pluck('firefighter_id')
             ->toArray();

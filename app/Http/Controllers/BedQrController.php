@@ -336,12 +336,17 @@ class BedQrController extends Controller
             'bed' => $bed,
             'bombero' => $bombero,
         ]);
+    }
 
-        return view('camas.qr_print', [
-            'bed' => $bed,
-            'url' => $url,
-            'qrSvg' => $qrSvg,
-        ]);
+    /**
+     * Muestra la página de impresión del QR de una cama
+     */
+    public function printQr(string $bedId)
+    {
+        $bed = Bed::query()->findOrFail((int) $bedId);
+        $url = route('camas.scan.form', ['bedId' => $bed->id]);
+
+        return view('admin.beds.qr-print', compact('bed', 'url'));
     }
 
     /**

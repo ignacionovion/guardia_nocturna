@@ -208,7 +208,7 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
 
     // Rutas de Gestión de Camas
     Route::post('/camas/asignar', [AsignacionCamaController::class, 'store'])->middleware('plan.limit:beds')->name('beds.assign');
-    Route::put('/camas/liberar/{id}', [AsignacionCamaController::class, 'update'])->name('beds.release');
+    Route::post('/camas/liberar/{id}', [AsignacionCamaController::class, 'update'])->name('beds.release');
     Route::put('/camas/{bed}/mantencion', [AsignacionCamaController::class, 'markMaintenance'])->name('beds.maintenance');
     Route::put('/camas/{bed}/habilitar', [AsignacionCamaController::class, 'markAvailable'])->name('beds.available');
     Route::post('/camas/reporte/email', [AsignacionCamaController::class, 'sendReportEmail'])->name('camas.report.email');
