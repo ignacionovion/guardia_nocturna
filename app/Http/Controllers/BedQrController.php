@@ -344,9 +344,8 @@ class BedQrController extends Controller
     public function printQr(string $bedId)
     {
         $bed = Bed::query()->findOrFail((int) $bedId);
-        $url = route('camas.scan.form', ['bedId' => $bed->id]);
-
-        return view('admin.beds.qr-print', compact('bed', 'url'));
+        
+        return view('camas.qr-print', compact('bed'));
     }
 
     /**
