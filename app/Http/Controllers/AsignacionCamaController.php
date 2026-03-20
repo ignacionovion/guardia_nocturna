@@ -66,7 +66,7 @@ class AsignacionCamaController extends Controller
 
                 // Validación: Verificar si el voluntario (o su usuario legacy) ya tiene una cama activa
                 $existingAssignment = BedAssignment::query()
-                    ->whereNull('released_at')
+                    ->whereNull('ended_at')
                     ->where(function ($q) use ($validated, $legacyUserId) {
                         $q->where('firefighter_id', $validated['firefighter_id']);
                         if ($legacyUserId) {
@@ -77,13 +77,14 @@ class AsignacionCamaController extends Controller
                     ->first();
 
                 if ($existingAssignment) {
-                    throw new \RuntimeException('Este voluntario ya tiene asignada la cama #' . ($existingAssignment->bed->number ?? $existingAssignment->bed_id));
+                    throw new \RuntimeException('Este voluntario ya tiene asignada la cama #' . ($existingAssignment->bed->name ?? $existingAssignment->bed->number ?? $existingAssignment->bed_id));
                 }
 
                 $data = [
                     'bed_id' => $validated['bed_id'],
                     'firefighter_id' => $validated['firefighter_id'],
                     'notes' => $validated['notes'] ?? null,
+                    'started_at' => now(),
                     'assigned_at' => now(),
                     'assigned_source' => 'manual',
                 ];
@@ -133,6 +134,7 @@ class AsignacionCamaController extends Controller
 
         if ($request->has('release') && $request->release) {
              $assignment->update([
+                 'ended_at' => now(),
                  'released_at' => now(),
              ]);
 
@@ -164,7 +166,7 @@ class AsignacionCamaController extends Controller
 
         $bed->update([
             'status' => 'maintenance',
-            'description' => $bed->description ?: 'En mantención',
+            'notes' => $bed->notes ?: 'En mantención',
         ]);
 
         return redirect()->route('camas')->with('success', 'Cama marcada en mantención.');
@@ -201,7 +203,7 @@ class AsignacionCamaController extends Controller
         try {
             // Obtener todas las camas con sus asignaciones actuales
             $beds = Bed::with(['currentAssignment.firefighter'])
-                ->orderBy('number')
+                ->orderBy('name')
                 ->get();
 
             $availableCount = $beds->where('status', 'available')->count();
@@ -244,7 +246,7 @@ class AsignacionCamaController extends Controller
                     default  => ' (' . $assignment->assigned_source . ')',
                 };
                 
-                $assignmentsList[] = '🛏️ Cama ' . $bed->number . ': ' . $firefighterName . $source;
+                $assignmentsList[] = '🛏️ Cama ' . ($bed->name ?? $bed->number) . ': ' . $firefighterName . $source;
             }
             
             $lines = [

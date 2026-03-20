@@ -107,9 +107,9 @@ class BedQrController extends Controller
     /**
      * Muestra el formulario para escanear QR de cama (pide RUT)
      */
-    public function scanForm(Request $request, int $bedId)
+    public function scanForm(Request $request, string $bedId)
     {
-        $bed = Bed::query()->findOrFail($bedId);
+        $bed = Bed::query()->findOrFail((int) $bedId);
 
         // Si viene el parámetro reset, limpiar la sesión del bombero
         if ($request->has('reset')) {
@@ -138,9 +138,9 @@ class BedQrController extends Controller
     /**
      * Procesa el RUT ingresado
      */
-    public function processRut(Request $request, int $bedId)
+    public function processRut(Request $request, string $bedId)
     {
-        $bed = Bed::query()->findOrFail($bedId);
+        $bed = Bed::query()->findOrFail((int) $bedId);
 
         if (!$this->isWithinGuardiaHours(Carbon::now($this->scheduleTimezone()))) {
             return redirect()->route('camas.scan.form', ['bedId' => $bedId]);
@@ -179,9 +179,9 @@ class BedQrController extends Controller
     /**
      * Muestra página cuando el bombero NO está en la guardia activa
      */
-    public function notInGuardia(Request $request, int $bedId)
+    public function notInGuardia(Request $request, string $bedId)
     {
-        $bed = Bed::query()->findOrFail($bedId);
+        $bed = Bed::query()->findOrFail((int) $bedId);
 
         $bombero = null;
         $bomberoId = $request->session()->get('bed_qr_bombero_id');
@@ -198,9 +198,9 @@ class BedQrController extends Controller
     /**
      * Muestra confirmación para asignar cama
      */
-    public function assignForm(Request $request, int $bedId)
+    public function assignForm(Request $request, string $bedId)
     {
-        $bed = Bed::query()->findOrFail($bedId);
+        $bed = Bed::query()->findOrFail((int) $bedId);
 
         if (!$this->isWithinGuardiaHours(Carbon::now($this->scheduleTimezone()))) {
             return redirect()->route('camas.scan.form', ['bedId' => $bedId]);
@@ -237,9 +237,9 @@ class BedQrController extends Controller
     /**
      * Asigna la cama al bombero
      */
-    public function assignStore(Request $request, int $bedId)
+    public function assignStore(Request $request, string $bedId)
     {
-        $bed = Bed::query()->findOrFail($bedId);
+        $bed = Bed::query()->findOrFail((int) $bedId);
 
         if (!$this->isWithinGuardiaHours(Carbon::now($this->scheduleTimezone()))) {
             return redirect()->route('camas.scan.form', ['bedId' => $bedId]);
@@ -322,9 +322,9 @@ class BedQrController extends Controller
     /**
      * Página de éxito
      */
-    public function success(Request $request, int $bedId)
+    public function success(Request $request, string $bedId)
     {
-        $bed = Bed::query()->findOrFail($bedId);
+        $bed = Bed::query()->findOrFail((int) $bedId);
 
         $bombero = null;
         $bomberoId = $request->session()->get('bed_qr_bombero_id');
@@ -336,20 +336,6 @@ class BedQrController extends Controller
             'bed' => $bed,
             'bombero' => $bombero,
         ]);
-    }
-
-    /**
-     * Vista imprimible del QR de una cama (para pegar físicamente)
-     */
-    public function printQr(Request $request, int $bedId)
-    {
-        $bed = Bed::query()->findOrFail($bedId);
-        $url = route('camas.scan.form', ['bedId' => $bed->id]);
-
-        $qrSvg = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')
-            ->size(520)
-            ->margin(1)
-            ->generate($url);
 
         return view('camas.qr_print', [
             'bed' => $bed,

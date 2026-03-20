@@ -230,7 +230,8 @@
     </div>
 
     <!-- Modal Asignación -->
-    <div id="assignModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center transition-all duration-300 opacity-0">
+    <div id="assignModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 transition-all duration-300 opacity-0">
+        <div class="flex items-center justify-center min-h-screen p-4">
         <div class="relative card w-full max-w-md mx-4 overflow-hidden transform scale-95 transition-all duration-300">
             <!-- Modal Header -->
             <div class="bg-slate-900 px-6 py-4 flex justify-between items-center">
@@ -280,10 +281,12 @@
                 </form>
             </div>
         </div>
+        </div>
     </div>
 
     <!-- Modal QR -->
-    <div id="qrModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center transition-all duration-300 opacity-0">
+    <div id="qrModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 transition-all duration-300 opacity-0">
+        <div class="flex items-center justify-center min-h-screen p-4">
         <div class="relative card w-full max-w-md mx-4 overflow-hidden transform scale-95 transition-all duration-300">
             <!-- Modal Header -->
             <div class="bg-slate-900 px-6 py-4 flex justify-between items-center">
@@ -318,6 +321,7 @@
                     Cerrar
                 </x-ui.button>
             </div>
+        </div>
         </div>
     </div>
 
