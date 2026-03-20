@@ -92,38 +92,38 @@
                                 : collect();
                         @endphp
                         <div class="grid grid-cols-3 gap-4 mb-6">
-                            <div class="text-center p-4 bg-slate-50 rounded-lg">
+                            <div class="text-center p-4 bg-[#e7eef5] border border-[#9fb0c3] rounded-[14px]">
                                 <div class="metric-value text-purple-600">{{ $activeReplacementsCount }}</div>
                                 <div class="metric-label mt-1">Reemplazos</div>
                             </div>
-                            <div class="text-center p-4 bg-slate-50 rounded-lg">
+                            <div class="text-center p-4 bg-[#e7eef5] border border-[#9fb0c3] rounded-[14px]">
                                 <div class="metric-value text-sky-600">{{ $activeRefuerzosCount }}</div>
                                 <div class="metric-label mt-1">Refuerzos</div>
                             </div>
-                            <div class="text-center p-4 bg-slate-50 rounded-lg">
+                            <div class="text-center p-4 bg-[#e7eef5] border border-[#9fb0c3] rounded-[14px]">
                                 <div class="metric-value text-red-600">{{ $outOfServiceFirefighters }}</div>
                                 <div class="metric-label mt-1">Fuera de Servicio</div>
                             </div>
                         </div>
 
                         <div class="grid grid-cols-5 gap-3 mb-6">
-                            <div class="text-center p-3 bg-slate-50 rounded-lg">
+                            <div class="text-center p-3 bg-[#e7eef5] border border-[#9fb0c3] rounded-[14px]">
                                 <div class="text-2xl font-black text-emerald-600">{{ $countConstituye }}</div>
                                 <div class="metric-label mt-1">Constituyen</div>
                             </div>
-                            <div class="text-center p-3 bg-slate-50 rounded-lg">
+                            <div class="text-center p-3 bg-[#e7eef5] border border-[#9fb0c3] rounded-[14px]">
                                 <div class="text-2xl font-black text-amber-600">{{ $countPermiso }}</div>
                                 <div class="metric-label mt-1">Permiso</div>
                             </div>
-                            <div class="text-center p-3 bg-slate-50 rounded-lg">
+                            <div class="text-center p-3 bg-[#e7eef5] border border-[#9fb0c3] rounded-[14px]">
                                 <div class="text-2xl font-black text-slate-600">{{ $countAusente }}</div>
                                 <div class="metric-label mt-1">Ausente</div>
                             </div>
-                            <div class="text-center p-3 bg-slate-50 rounded-lg">
+                            <div class="text-center p-3 bg-[#e7eef5] border border-[#9fb0c3] rounded-[14px]">
                                 <div class="text-2xl font-black text-blue-600">{{ $countLicencia }}</div>
                                 <div class="metric-label mt-1">Licencia</div>
                             </div>
-                            <div class="text-center p-3 bg-slate-50 rounded-lg">
+                            <div class="text-center p-3 bg-[#e7eef5] border border-[#9fb0c3] rounded-[14px]">
                                 <div class="text-2xl font-black text-red-600">{{ $countFalta }}</div>
                                 <div class="metric-label mt-1">Falta</div>
                             </div>
@@ -131,21 +131,21 @@
 
                         @if($dashboardActiveReplacements->isNotEmpty())
                             <div class="mb-6">
-                                <h3 class="text-sm font-semibold text-slate-900 mb-4">Detalle de Reemplazos Activos</h3>
+                                <h3 class="text-sm font-semibold text-[#1e293b] mb-4">Detalle de Reemplazos Activos</h3>
                                 <div class="space-y-3">
                                     @foreach($dashboardActiveReplacements as $replacement)
-                                        <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                                        <div class="p-4 bg-[#e7eef5] rounded-[14px] border border-[#9fb0c3]">
                                             <div class="flex items-start gap-4">
                                                 <!-- Reemplazado -->
                                                 <div class="flex-1">
-                                                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Titular Reemplazado</div>
+                                                    <div class="text-xs font-bold text-[#475569] uppercase tracking-wider mb-1">Titular Reemplazado</div>
                                                     <div class="flex items-center gap-3">
                                                         <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-sm">
                                                             {{ substr($replacement->originalFirefighter?->nombres, 0, 1) }}{{ substr($replacement->originalFirefighter?->apellido_paterno, 0, 1) }}
                                                         </div>
                                                         <div>
-                                                            <div class="font-bold text-slate-900">{{ $replacement->originalFirefighter?->nombres }} {{ $replacement->originalFirefighter?->apellido_paterno }}</div>
-                                                            <div class="text-xs text-slate-500">{{ $replacement->originalFirefighter?->rut ?? 'Sin RUT' }}</div>
+                                                            <div class="font-bold text-[#1e293b]">{{ $replacement->originalFirefighter?->nombres }} {{ $replacement->originalFirefighter?->apellido_paterno }}</div>
+                                                            <div class="text-xs text-[#475569]">{{ $replacement->originalFirefighter?->rut ?? 'Sin RUT' }}</div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -159,22 +159,22 @@
 
                                                 <!-- Reemplazante -->
                                                 <div class="flex-1">
-                                                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Reemplazante</div>
+                                                    <div class="text-xs font-bold text-[#475569] uppercase tracking-wider mb-1">Reemplazante</div>
                                                     <div class="flex items-center gap-3">
                                                         <div class="w-10 h-10 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-sm">
                                                             {{ substr($replacement->replacementFirefighter?->nombres, 0, 1) }}{{ substr($replacement->replacementFirefighter?->apellido_paterno, 0, 1) }}
                                                         </div>
                                                         <div>
-                                                            <div class="font-bold text-slate-900">{{ $replacement->replacementFirefighter?->nombres }} {{ $replacement->replacementFirefighter?->apellido_paterno }}</div>
-                                                            <div class="text-xs text-slate-500">{{ $replacement->replacementFirefighter?->rut ?? 'Sin RUT' }}</div>
+                                                            <div class="font-bold text-[#1e293b]">{{ $replacement->replacementFirefighter?->nombres }} {{ $replacement->replacementFirefighter?->apellido_paterno }}</div>
+                                                            <div class="text-xs text-[#475569]">{{ $replacement->replacementFirefighter?->rut ?? 'Sin RUT' }}</div>
                                                         </div>
                                                     </div>
                                                 </div>
 
                                                 <!-- Info adicional -->
                                                 <div class="text-right">
-                                                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Inicio</div>
-                                                    <div class="text-sm font-bold text-slate-700 dark:text-slate-300">{{ $replacement->inicio?->format('d/m/Y H:i') ?? 'N/A' }}</div>
+                                                    <div class="text-xs font-bold text-[#475569] uppercase tracking-wider mb-1">Inicio</div>
+                                                    <div class="text-sm font-bold text-[#1e293b]">{{ $replacement->inicio?->format('d/m/Y H:i') ?? 'N/A' }}</div>
                                                     <button type="button" onclick="openUndoReplacementModal('{{ route('admin.guardias.replacement.undo', $replacement->id) }}')" class="mt-2 text-xs font-bold text-purple-600 hover:text-purple-800 underline">
                                                         Deshacer
                                                     </button>
@@ -188,17 +188,17 @@
 
                         @if($dashboardActiveRefuerzos->isNotEmpty())
                             <div class="mb-6">
-                                <h3 class="text-sm font-semibold text-slate-900 mb-4">Detalle de Refuerzos Activos</h3>
+                                <h3 class="text-sm font-semibold text-[#1e293b] mb-4">Detalle de Refuerzos Activos</h3>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     @foreach($dashboardActiveRefuerzos as $refuerzo)
-                                        <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                                        <div class="p-3 bg-[#e7eef5] rounded-[14px] border border-[#9fb0c3]">
                                             <div class="flex items-center gap-3">
                                                 <div class="w-10 h-10 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-sm">
                                                     {{ substr($refuerzo->nombres, 0, 1) }}{{ substr($refuerzo->apellido_paterno, 0, 1) }}
                                                 </div>
                                                 <div class="flex-1 min-w-0">
-                                                    <div class="font-semibold text-slate-900 truncate">{{ $refuerzo->nombres }} {{ $refuerzo->apellido_paterno }}</div>
-                                                    <div class="text-xs text-slate-500">{{ $refuerzo->rut ?? 'Sin RUT' }}</div>
+                                                    <div class="font-semibold text-[#1e293b] truncate">{{ $refuerzo->nombres }} {{ $refuerzo->apellido_paterno }}</div>
+                                                    <div class="text-xs text-[#475569]">{{ $refuerzo->rut ?? 'Sin RUT' }}</div>
                                                 </div>
                                                 <span class="badge-info">Refuerzo</span>
                                             </div>
@@ -213,13 +213,13 @@
                                 <div class="inline-flex items-center justify-center w-12 h-12 bg-slate-100 rounded-full mb-3">
                                     <i class="fas fa-check text-slate-400"></i>
                                 </div>
-                                <p class="text-sm font-medium text-slate-900">Sin movimientos activos</p>
-                                <p class="text-sm text-slate-500 mt-1">No hay reemplazos ni refuerzos registrados</p>
+                                <p class="text-sm font-medium text-[#1e293b]">Sin movimientos activos</p>
+                                <p class="text-sm text-[#475569] mt-1">No hay reemplazos ni refuerzos registrados</p>
                             </div>
                         @endif
 
                         @if(Auth::check() && Auth::user()->role === 'guardia' && isset($myGuardia) && $myGuardia)
-                            <div class="flex gap-3 pt-6 mt-6 border-t border-slate-200">
+                            <div class="flex gap-3 pt-6 mt-6 border-t border-[#9fb0c3]">
                                 <button onclick="openReplacementModal()" class="btn-primary flex-1">
                                     <i class="fas fa-plus"></i>
                                     Nuevo Reemplazo
