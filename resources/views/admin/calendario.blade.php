@@ -4,7 +4,7 @@
     {{-- Header --}}
     <div class="max-w-7xl mx-auto">
         <x-ui.page-header title="Calendario de Guardias" subtitle="Planificación semanal y asignación de dotaciones" icon="fas fa-calendar-alt" iconVariant="red">
-            <form action="{{ route('admin.calendario') }}" method="GET" class="flex items-center gap-2 bg-white dark:bg-slate-900 p-1.5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+            <form action="{{ route('admin.calendario') }}" method="GET" class="flex items-center gap-2 bg-[#dde6ef] p-1.5 rounded-xl shadow-sm border border-[#9fb0c3]">
                 <select name="month" class="form-input !w-auto !py-2 !px-3 !rounded-lg appearance-none">
                     @foreach(range(1, 12) as $m)
                         <option value="{{ $m }}" {{ $month == $m ? 'selected' : '' }}>
@@ -25,7 +25,7 @@
     {{-- Action Cards --}}
     <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {{-- Asignar Rango --}}
-        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div class="bg-[#dde6ef] rounded-2xl shadow-sm border border-[#9fb0c3] overflow-hidden">
             <div class="bg-slate-900 px-6 py-4 border-b border-slate-800">
                 <h2 class="text-white font-black text-sm uppercase tracking-wider flex items-center gap-2">
                     <i class="fas fa-calendar-plus"></i>
@@ -40,7 +40,7 @@
                         <div>
                             <label class="form-label">Fecha Inicio</label>
                             <div class="relative">
-                                <i class="fas fa-calendar absolute left-3 top-3 text-slate-400 text-sm"></i>
+                                <i class="fas fa-calendar absolute left-3 top-3 text-[#475569] text-sm"></i>
                                 <input type="date" name="from" required 
                                     class="form-input pl-10">
                             </div>
@@ -48,7 +48,7 @@
                         <div>
                             <label class="form-label">Fecha Fin</label>
                             <div class="relative">
-                                <i class="fas fa-calendar absolute left-3 top-3 text-slate-400 text-sm"></i>
+                                <i class="fas fa-calendar absolute left-3 top-3 text-[#475569] text-sm"></i>
                                 <input type="date" name="to" required 
                                     class="form-input pl-10">
                             </div>
@@ -58,14 +58,14 @@
                     <div>
                         <label class="form-label">Guardia Asignada</label>
                         <div class="relative">
-                            <i class="fas fa-shield absolute left-3 top-3 text-slate-400 text-sm"></i>
+                            <i class="fas fa-shield absolute left-3 top-3 text-[#475569] text-sm"></i>
                             <select name="guardia_id" required 
                                 class="form-input pl-10 appearance-none">
                                 @foreach($guardias as $g)
                                     <option value="{{ $g->id }}">{{ $g->name }}</option>
                                 @endforeach
                             </select>
-                            <i class="fas fa-chevron-down absolute right-3 top-3 text-slate-400 text-xs"></i>
+                            <i class="fas fa-chevron-down absolute right-3 top-3 text-[#475569] text-xs"></i>
                         </div>
                     </div>
 
@@ -77,7 +77,7 @@
                             ] as [$val, $label])
                                 <label class="cursor-pointer">
                                     <input type="checkbox" name="weekdays[]" value="{{ $val }}" checked class="peer sr-only">
-                                    <span class="inline-flex w-full items-center justify-center h-10 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-bold uppercase border border-slate-200 dark:border-slate-700 peer-checked:bg-slate-900 peer-checked:text-white peer-checked:border-slate-900 transition-all hover:bg-slate-200">
+                                    <span class="inline-flex w-full items-center justify-center h-10 rounded-lg bg-[#c3cfdb] text-[#1e293b] text-xs font-bold uppercase border border-[#9fb0c3] peer-checked:bg-[#0f172a] peer-checked:text-white peer-checked:border-[#0f172a] transition-all hover:bg-[#b7c4d3]">
                                         {{ $label }}
                                     </span>
                                 </label>

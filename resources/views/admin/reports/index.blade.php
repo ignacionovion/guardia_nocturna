@@ -80,16 +80,16 @@
     <div class="space-y-6">
         @foreach($guardias as $guardia)
             @if($guardia->bomberos->count() > 0)
-            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+            <div class="bg-[#dde6ef] rounded-2xl border border-[#9fb0c3] shadow-sm overflow-hidden">
                 {{-- Header de Guardia --}}
-                <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                <div class="px-6 py-4 border-b border-[#9fb0c3] flex items-center justify-between">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center">
                             <i class="fas fa-shield-halved text-white text-sm"></i>
                         </div>
                         <div>
-                            <h2 class="text-lg font-bold text-slate-900 dark:text-white">{{ $guardia->name }}</h2>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">{{ $guardia->bomberos->count() }} voluntarios activos</p>
+                            <h2 class="text-lg font-bold text-[#1e293b]">{{ $guardia->name }}</h2>
+                            <p class="text-xs text-[#475569]">{{ $guardia->bomberos->count() }} voluntarios activos</p>
                         </div>
                     </div>
                 </div>
@@ -98,51 +98,51 @@
                 <div class="overflow-x-auto">
                     <table class="w-full">
                         <thead>
-                            <tr class="bg-slate-50 dark:bg-slate-800/50">
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider sticky left-0 bg-slate-50 dark:bg-slate-800/50 z-10 border-r border-slate-200 dark:border-slate-700">
+                            <tr class="bg-[#c3cfdb]">
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-[#475569] uppercase tracking-wider sticky left-0 bg-[#c3cfdb] z-10 border-r border-[#9fb0c3]">
                                     Voluntario
                                 </th>
                                 @foreach($weeksInMonth as $weekNum)
-                                <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                <th class="px-4 py-3 text-center text-xs font-semibold text-[#475569] uppercase tracking-wider">
                                     S{{ $weekNum }}
                                 </th>
                                 @endforeach
-                                <th class="px-5 py-3 text-center text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider bg-indigo-50 dark:bg-indigo-900/20">
+                                <th class="px-5 py-3 text-center text-xs font-semibold text-indigo-600 uppercase tracking-wider bg-indigo-50">
                                     Mes
                                 </th>
-                                <th class="px-5 py-3 text-center text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider bg-slate-100 dark:bg-slate-800">
+                                <th class="px-5 py-3 text-center text-xs font-semibold text-[#475569] uppercase tracking-wider bg-[#c3cfdb]">
                                     Año
                                 </th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                        <tbody class="divide-y divide-[#9fb0c3]">
                             @foreach($guardia->bomberos as $user)
-                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
-                                <td class="px-6 py-3 whitespace-nowrap sticky left-0 bg-white dark:bg-slate-900 group-hover:bg-slate-50 dark:group-hover:bg-slate-800/50 transition-colors z-10 border-r border-slate-100 dark:border-slate-800">
+                            <tr class="hover:bg-[#c3cfdb] transition-colors group">
+                                <td class="px-6 py-3 whitespace-nowrap sticky left-0 bg-[#e7eef5] group-hover:bg-[#c3cfdb] transition-colors z-10 border-r border-[#9fb0c3]">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-bold text-slate-600 dark:text-slate-400">
+                                        <div class="w-8 h-8 rounded-lg bg-[#c3cfdb] flex items-center justify-center text-xs font-bold text-[#1e293b]">
                                             {{ substr($user->nombres, 0, 1) }}{{ substr($user->apellido_paterno, 0, 1) }}
                                         </div>
-                                        <span class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ $user->nombres }} {{ $user->apellido_paterno }}</span>
+                                        <span class="text-sm font-medium text-[#1e293b]">{{ $user->nombres }} {{ $user->apellido_paterno }}</span>
                                     </div>
                                 </td>
                                 @foreach($weeksInMonth as $weekNum)
                                     @php $stats = $user->weekly_stats->get($weekNum); @endphp
                                 <td class="px-4 py-3 text-center">
                                     @if($stats && ($stats['shifts'] ?? 0) > 0)
-                                    <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-semibold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-semibold bg-emerald-100 text-emerald-700">
                                         {{ $stats['shifts'] }}
                                     </span>
                                     @else
-                                    <span class="text-slate-300 dark:text-slate-600">—</span>
+                                    <span class="text-[#9fb0c3]">—</span>
                                     @endif
                                 </td>
                                 @endforeach
-                                <td class="px-5 py-3 text-center bg-indigo-50/50 dark:bg-indigo-900/10">
-                                    <span class="text-sm font-bold text-indigo-700 dark:text-indigo-400">{{ $user->month_shifts ?? 0 }}</span>
+                                <td class="px-5 py-3 text-center bg-indigo-50/50">
+                                    <span class="text-sm font-bold text-indigo-700">{{ $user->month_shifts ?? 0 }}</span>
                                 </td>
-                                <td class="px-5 py-3 text-center bg-slate-50 dark:bg-slate-800/50">
-                                    <span class="text-sm font-semibold text-slate-600 dark:text-slate-400">{{ $user->year_shifts ?? 0 }}</span>
+                                <td class="px-5 py-3 text-center bg-[#c3cfdb]">
+                                    <span class="text-sm font-semibold text-[#475569]">{{ $user->year_shifts ?? 0 }}</span>
                                 </td>
                             </tr>
                             @endforeach
@@ -154,12 +154,12 @@
         @endforeach
 
         @if($guardias->isEmpty())
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-12 text-center">
-            <div class="w-16 h-16 mx-auto rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
-                <i class="fas fa-folder-open text-2xl text-slate-400"></i>
+        <div class="bg-[#dde6ef] rounded-2xl border border-[#9fb0c3] p-12 text-center">
+            <div class="w-16 h-16 mx-auto rounded-2xl bg-[#c3cfdb] flex items-center justify-center mb-4">
+                <i class="fas fa-folder-open text-2xl text-[#475569]"></i>
             </div>
-            <h3 class="text-lg font-bold text-slate-700 dark:text-slate-300 mb-2">Sin datos</h3>
-            <p class="text-sm text-slate-500 dark:text-slate-400">No se encontraron registros para el período seleccionado.</p>
+            <h3 class="text-lg font-bold text-[#1e293b] mb-2">Sin datos</h3>
+            <p class="text-sm text-[#475569]">No se encontraron registros para el período seleccionado.</p>
         </div>
         @endif
     </div>

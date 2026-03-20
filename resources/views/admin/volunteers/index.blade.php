@@ -72,50 +72,50 @@
     @if($volunteers->isEmpty())
         <x-ui.empty-state icon="fas fa-users" title="No se encontraron voluntarios" message="Intenta ajustar los filtros de búsqueda o agrega un nuevo voluntario." action-text="Nuevo Voluntario" action-url="{{ route('admin.volunteers.create') }}" />
     @else
-        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div class="bg-[#dde6ef] rounded-xl shadow-sm border border-[#9fb0c3] overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
-                    <thead class="bg-slate-50 dark:bg-slate-800/50">
+                <table class="min-w-full divide-y divide-[#9fb0c3]">
+                    <thead class="bg-[#c3cfdb]">
                         <tr>
                             <th scope="col" class="px-3 md:px-6 py-4 text-left w-12">
-                                <input type="checkbox" id="select-all" class="rounded border-slate-300 dark:border-slate-600 text-blue-600 shadow-sm focus:ring-blue-500 w-4 h-4">
+                                <input type="checkbox" id="select-all" class="rounded border-[#9fb0c3] text-blue-600 shadow-sm focus:ring-blue-500 w-4 h-4">
                             </th>
-                            <th scope="col" class="px-3 md:px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Voluntario</th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden md:table-cell">Cargo / Rol</th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">N° Registro</th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">Especialidades</th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden md:table-cell">Guardia</th>
-                            <th scope="col" class="px-3 md:px-6 py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acciones</th>
+                            <th scope="col" class="px-3 md:px-6 py-4 text-left text-xs font-semibold text-[#475569] uppercase tracking-wider">Voluntario</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-[#475569] uppercase tracking-wider hidden md:table-cell">Cargo / Rol</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-[#475569] uppercase tracking-wider hidden lg:table-cell">N° Registro</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-[#475569] uppercase tracking-wider hidden lg:table-cell">Especialidades</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-[#475569] uppercase tracking-wider hidden md:table-cell">Guardia</th>
+                            <th scope="col" class="px-3 md:px-6 py-4 text-right text-xs font-semibold text-[#475569] uppercase tracking-wider">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-200 dark:divide-slate-800" id="volunteer-table-body">
+                    <tbody class="bg-[#e7eef5] divide-y divide-[#9fb0c3]" id="volunteer-table-body">
                         @foreach($volunteers as $volunteer)
-                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                            <tr class="hover:bg-[#c3cfdb] transition-colors">
                                 <td class="px-3 md:px-6 py-4 whitespace-nowrap">
-                                    <input type="checkbox" name="selected_ids[]" value="{{ $volunteer->id }}" class="volunteer-checkbox rounded border-gray-300 dark:border-slate-600 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 w-5 h-5">
+                                    <input type="checkbox" name="selected_ids[]" value="{{ $volunteer->id }}" class="volunteer-checkbox rounded border-[#9fb0c3] text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 w-5 h-5">
                                 </td>
                                 <td class="px-3 md:px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         @if($volunteer->photo_path)
-                                            <img src="{{ route('media', $volunteer->photo_path) }}" class="flex-shrink-0 h-10 w-10 rounded-full object-cover border border-slate-300 dark:border-slate-600 shadow-sm" alt="Foto">
+                                            <img src="{{ route('media', $volunteer->photo_path) }}" class="flex-shrink-0 h-10 w-10 rounded-full object-cover border border-[#9fb0c3] shadow-sm" alt="Foto">
                                         @else
-                                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 dark:text-slate-400 font-bold border border-slate-300 dark:border-slate-600 shadow-sm text-sm">
+                                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-[#c3cfdb] flex items-center justify-center text-[#1e293b] font-bold border border-[#9fb0c3] shadow-sm text-sm">
                                                 {{ substr($volunteer->nombres, 0, 1) }}{{ substr($volunteer->apellido_paterno, 0, 1) }}
                                             </div>
                                         @endif
                                         <div class="ml-4">
-                                            <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                                            <div class="text-sm font-bold text-[#1e293b] flex items-center gap-2">
                                                 <span>{{ $volunteer->nombres }} {{ $volunteer->apellido_paterno }}</span>
                                                 @if($volunteer->es_permanente)
                                                     <x-ui.badge variant="success" size="xs">Permanente</x-ui.badge>
                                                 @endif
                                             </div>
-                                            <div class="text-xs text-slate-500 dark:text-slate-400 font-mono">{{ $volunteer->rut ?? 'S/RUT' }}</div>
+                                            <div class="text-xs text-[#475569] font-mono">{{ $volunteer->rut ?? 'S/RUT' }}</div>
 
-                                            <div class="md:hidden mt-1 text-[11px] text-slate-600 dark:text-slate-400 font-semibold uppercase tracking-wider">
+                                            <div class="md:hidden mt-1 text-[11px] text-[#475569] font-semibold uppercase tracking-wider">
                                                 {{ $volunteer->cargo_texto ?? '-' }}
                                             </div>
-                                            <div class="md:hidden text-[10px] text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide">
+                                            <div class="md:hidden text-[10px] text-[#475569] font-medium uppercase tracking-wide">
                                                 {{ $volunteer->es_jefe_guardia ? 'Jefe de Guardia' : '-' }}
                                             </div>
 
@@ -136,7 +136,7 @@
                                                     </span>
                                                 @endif
                                                 @if(!$volunteer->es_conductor && !$volunteer->es_operador_rescate && !$volunteer->es_asistente_trauma)
-                                                    <span class="text-xs text-slate-400 italic">-</span>
+                                                    <span class="text-xs text-[#475569] italic">-</span>
                                                 @endif
                                             </div>
 
@@ -146,24 +146,24 @@
                                                         {{ $volunteer->guardia->name }}
                                                     </span>
                                                 @else
-                                                    <span class="text-slate-400 text-xs italic">Sin asignar</span>
+                                                    <span class="text-[#475569] text-xs italic">Sin asignar</span>
                                                 @endif
                                             </div>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap hidden md:table-cell">
-                                    <div class="text-sm text-slate-900 font-medium">{{ $volunteer->cargo_texto ?? '-' }}</div>
-                                    <div class="text-xs text-slate-500 dark:text-slate-400">
+                                    <div class="text-sm text-[#1e293b] font-medium">{{ $volunteer->cargo_texto ?? '-' }}</div>
+                                    <div class="text-xs text-[#475569]">
                                         {{ $volunteer->es_jefe_guardia ? 'Jefe de Guardia' : '-' }}
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap hidden lg:table-cell">
-                                    <div class="text-sm text-slate-600 dark:text-slate-400 flex flex-col gap-1">
+                                    <div class="text-sm text-[#475569] flex flex-col gap-1">
                                         @if($volunteer->numero_registro)
-                                            <span class="flex items-center"><i class="fas fa-id-card text-slate-400 mr-2 w-4"></i> {{ $volunteer->numero_registro }}</span>
+                                            <span class="flex items-center"><i class="fas fa-id-card text-[#475569] mr-2 w-4"></i> {{ $volunteer->numero_registro }}</span>
                                         @else
-                                            <span class="text-slate-400">-</span>
+                                            <span class="text-[#475569]">-</span>
                                         @endif
                                     </div>
                                 </td>
@@ -185,26 +185,26 @@
                                             </span>
                                         @endif
                                         @if(!$volunteer->es_conductor && !$volunteer->es_operador_rescate && !$volunteer->es_asistente_trauma)
-                                            <span class="text-xs text-slate-400 italic">-</span>
+                                            <span class="text-xs text-[#475569] italic">-</span>
                                         @endif
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400 hidden md:table-cell">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-[#475569] hidden md:table-cell">
                                     @if($volunteer->guardia_id)
                                         <x-ui.badge variant="success" size="sm">{{ $volunteer->guardia->name }}</x-ui.badge>
                                     @else
-                                        <span class="text-slate-400 dark:text-slate-500 text-xs">Sin asignar</span>
+                                        <span class="text-[#475569] text-xs">Sin asignar</span>
                                     @endif
                                 </td>
                                 <td class="px-3 md:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div class="flex items-center justify-end gap-2">
-                                        <a href="{{ route('admin.volunteers.edit', $volunteer->id) }}" class="text-slate-400 hover:text-blue-600 transition-colors p-1" title="Editar">
+                                        <a href="{{ route('admin.volunteers.edit', $volunteer->id) }}" class="text-[#475569] hover:text-blue-600 transition-colors p-1" title="Editar">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <form action="{{ route('admin.volunteers.destroy', $volunteer->id) }}" method="POST" onsubmit="return confirm('¿Está seguro de eliminar a {{ $volunteer->nombres }}? Esta acción no se puede deshacer.');" class="inline">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="text-slate-400 hover:text-red-600 transition-colors p-1" title="Eliminar">
+                                            <button type="submit" class="text-[#475569] hover:text-red-600 transition-colors p-1" title="Eliminar">
                                                 <i class="fas fa-trash-can"></i>
                                             </button>
                                         </form>
@@ -217,7 +217,7 @@
             </div>
             
             <!-- Paginación Footer -->
-            <div class="bg-slate-50 dark:bg-slate-800 px-6 py-4 border-t border-slate-200 dark:border-slate-700">
+            <div class="bg-[#c3cfdb] px-6 py-4 border-t border-[#9fb0c3]">
                 {{ $volunteers->appends(request()->only('search'))->links() }}
             </div>
         </div>
@@ -320,10 +320,10 @@
         </script>
     @if(auth()->check() && auth()->user()->role === 'super_admin')
         <div id="purgeModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center">
-            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md mx-4 border border-slate-200 dark:border-slate-700 overflow-hidden">
-                <div class="p-5 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
-                    <div class="text-sm font-bold text-slate-900 dark:text-white">Eliminar todos los voluntarios</div>
-                    <div class="mt-2 text-sm text-slate-600 dark:text-slate-400">Esta acción es irreversible. Para confirmar escribe <span class="font-bold">ELIMINAR TODO</span>.</div>
+            <div class="bg-[#dde6ef] rounded-2xl shadow-2xl w-full max-w-md mx-4 border border-[#9fb0c3] overflow-hidden">
+                <div class="p-5 border-b border-[#9fb0c3] bg-[#c3cfdb]">
+                    <div class="text-sm font-bold text-[#1e293b]">Eliminar todos los voluntarios</div>
+                    <div class="mt-2 text-sm text-[#475569]">Esta acción es irreversible. Para confirmar escribe <span class="font-bold">ELIMINAR TODO</span>.</div>
                 </div>
                 <form method="POST" action="{{ route('admin.volunteers.purge') }}" class="p-5">
                     @csrf
