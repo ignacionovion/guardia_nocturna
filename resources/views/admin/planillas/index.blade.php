@@ -44,7 +44,7 @@
         <div class="overflow-x-auto">
             <table class="min-w-full text-sm">
                 <thead class="bg-[#c3cfdb] border-b border-[#9fb0c3]">
-                    <tr class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    <tr class="text-xs font-semibold uppercase tracking-wider text-[#475569]">
                         <th class="text-left px-6 py-3">Fecha</th>
                         <th class="text-left px-6 py-3">Unidad</th>
                         <th class="text-left px-6 py-3">Estado</th>
@@ -52,16 +52,16 @@
                         <th class="text-right px-6 py-3">Acciones</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="bg-[#e7eef5] divide-y divide-[#9fb0c3]">
                     @forelse($planillas as $p)
-                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                        <tr class="hover:bg-[#c3cfdb] transition-colors">
                             <td class="px-6 py-4 font-semibold text-[#1e293b]">{{ $p->fecha_revision?->format('d-m-Y H:i') }}</td>
                             <td class="px-6 py-4 text-[#1e293b] font-semibold">{{ $p->unidad }}</td>
                             <td class="px-6 py-4">
                                 <form method="POST" action="{{ route('admin.planillas.estado.update', $p) }}" class="inline">
                                     @csrf
                                     @method('PUT')
-                                    <select name="estado" class="px-3 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider border {{ ($p->estado ?? '') === 'finalizado' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800' : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800' }}" onchange="this.form.submit()">
+                                    <select name="estado" class="px-3 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider border {{ ($p->estado ?? '') === 'finalizado' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-amber-100 text-amber-700 border-amber-200' }}" onchange="this.form.submit()">
                                         <option value="en_edicion" {{ ($p->estado ?? '') !== 'finalizado' ? 'selected' : '' }}>En edición</option>
                                         <option value="finalizado" {{ ($p->estado ?? '') === 'finalizado' ? 'selected' : '' }}>Finalizado</option>
                                     </select>
@@ -110,8 +110,8 @@
         
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {{-- Grid 1: Planillas Semanales por Guardia --}}
-            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-                <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
+            <div class="bg-[#dde6ef] rounded-2xl border border-[#9fb0c3] shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-[#9fb0c3] bg-[#c3cfdb]">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <i class="fas fa-clipboard-check text-emerald-600"></i>
@@ -171,8 +171,8 @@
             </div>
 
             {{-- Grid 2: Bitácora / Nuevos Items --}}
-            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-                <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
+            <div class="bg-[#dde6ef] rounded-2xl border border-[#9fb0c3] shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-[#9fb0c3] bg-[#c3cfdb]">
                     <div class="flex items-center gap-2">
                         <i class="fas fa-clipboard-list text-[#475569]"></i>
                         <div class="text-sm font-bold text-[#1e293b]">Bitácora - Novedades (Últimos 7 días)</div>
@@ -188,7 +188,7 @@
                                 <th class="text-left px-4 py-2">Usuario</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-[#9fb0c3]">
+                        <tbody class="bg-[#e7eef5] divide-y divide-[#9fb0c3]">
                             @forelse($bitacora as $item)
                                 <tr class="hover:bg-[#c3cfdb] transition-colors">
                                     <td class="px-4 py-3 text-xs text-[#475569]">{{ $item['fecha']?->format('d/m H:i') }}</td>

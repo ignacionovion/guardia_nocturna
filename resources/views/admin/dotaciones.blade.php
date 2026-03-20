@@ -22,16 +22,16 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         @foreach($guardias as $guardia)
             <x-ui.card>
-                <x-slot:header class="!bg-gradient-to-r !from-red-700 !to-red-600 !text-white !border-red-800">
+                <x-slot:header class="!bg-[#c3cfdb] !border-[#9fb0c3]">
                     <div class="flex items-center justify-between w-full">
                         <div>
-                            <h2 class="text-title-sm uppercase tracking-wide">{{ $guardia->name }}</h2>
-                            <p class="text-caption flex items-center mt-1 text-white/80">
-                                <i class="fas fa-users mr-2 opacity-70"></i> {{ $guardia->bomberos->count() }} Asignados
+                            <h2 class="text-title-sm uppercase tracking-wide text-[#1e293b]">{{ $guardia->name }}</h2>
+                            <p class="text-caption flex items-center mt-1 text-[#475569]">
+                                <i class="fas fa-users mr-2"></i> {{ $guardia->bomberos->count() }} Asignados
                             </p>
                         </div>
-                        <div class="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
-                            <i class="fas fa-shield-halved text-white"></i>
+                        <div class="h-10 w-10 rounded-full bg-[#9fb0c3] flex items-center justify-center">
+                            <i class="fas fa-shield-halved text-[#1e293b]"></i>
                         </div>
                     </div>
                 </x-slot:header>
@@ -101,15 +101,15 @@
                                         @csrf
                                         <input type="hidden" name="guardia_id" value="{{ $guardia->id }}">
                                         <input type="hidden" name="firefighter_id" value="{{ $user->id }}">
-                                        <button type="submit" class="text-slate-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-all" title="Quitar de guardia">
+                                        <button type="submit" class="text-[#475569] hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition-all" title="Quitar de guardia">
                                             <i class="fas fa-user-minus"></i>
                                         </button>
                                     </form>
                                 </div>
                             @empty
-                                <div class="text-center py-6 bg-slate-50 dark:bg-slate-800/30 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
-                                    <i class="fas fa-users-slash text-slate-300 dark:text-slate-600 text-2xl mb-2"></i>
-                                    <p class="text-body-sm text-slate-400">Sin personal asignado</p>
+                                <div class="text-center py-6 bg-[#e7eef5] rounded-xl border border-dashed border-[#9fb0c3]">
+                                    <i class="fas fa-users-slash text-[#9fb0c3] text-2xl mb-2"></i>
+                                    <p class="text-body-sm text-[#475569]">Sin personal asignado</p>
                                 </div>
                             @endforelse
                         </div>
@@ -206,7 +206,7 @@
             for (const v of items) {
                 const btn = document.createElement('button');
                 btn.type = 'button';
-                btn.className = 'w-full text-left px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition flex items-center justify-between';
+                btn.className = 'w-full text-left px-3 py-2 hover:bg-[#c3cfdb] transition flex items-center justify-between';
                 btn.addEventListener('click', function () {
                     setSelectedVolunteer(guardiaId, v);
                 });
@@ -214,12 +214,12 @@
                 const left = document.createElement('div');
                 left.className = 'min-w-0';
                 const name = document.createElement('div');
-                name.className = 'text-sm font-bold text-slate-700 dark:text-slate-300 truncate';
+                name.className = 'text-sm font-bold text-[#1e293b] truncate';
                 name.textContent = formatVolunteerLabel(v);
                 left.appendChild(name);
 
                 const right = document.createElement('div');
-                right.className = 'text-[10px] font-medium text-slate-400 dark:text-slate-500 ml-3 shrink-0';
+                right.className = 'text-[10px] font-medium text-[#475569] ml-3 shrink-0';
                 right.textContent = '#' + v.id;
 
                 btn.appendChild(left);

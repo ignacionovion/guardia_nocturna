@@ -149,7 +149,7 @@
         @apply block text-xs font-semibold text-[#475569] uppercase tracking-wider mb-2;
     }
     .form-input {
-        @apply w-full px-4 py-2.5 bg-[#e7eef5] border border-[#9fb0c3] rounded-xl text-sm text-[#1e293b] placeholder-[#475569] focus:outline-none focus:ring-2 focus:ring-[#1e293b]/10 focus:border-[#1e293b] transition-all;
+        @apply w-full px-4 py-3 min-h-[44px] bg-[#e7eef5] border border-[#9fb0c3] rounded-xl text-sm text-[#1e293b] placeholder-[#475569] focus:outline-none focus:ring-2 focus:ring-[#1e293b]/10 focus:border-[#1e293b] transition-all;
     }
     .form-select {
         @apply form-input appearance-none cursor-pointer pr-10;

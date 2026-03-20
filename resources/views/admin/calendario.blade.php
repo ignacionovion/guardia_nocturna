@@ -205,16 +205,16 @@
         </div>
 
         {{-- Weekday Headers --}}
-        <div class="grid grid-cols-7 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+        <div class="grid grid-cols-7 bg-[#c3cfdb] border-b border-[#9fb0c3]">
             @foreach(['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'] as $dayName)
-                <div class="px-1 py-2 sm:px-2 sm:py-3 text-center border-r border-slate-200 dark:border-slate-700 last:border-r-0">
-                    <div class="text-[9px] sm:text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ $dayName }}</div>
+                <div class="px-1 py-2 sm:px-2 sm:py-3 text-center border-r border-[#9fb0c3] last:border-r-0">
+                    <div class="text-[9px] sm:text-[10px] font-black text-[#1e293b] uppercase tracking-wider">{{ $dayName }}</div>
                 </div>
             @endforeach
         </div>
 
         {{-- Calendar Days --}}
-        <div class="grid grid-cols-7 auto-rows-fr bg-slate-200 gap-px">
+        <div class="grid grid-cols-7 auto-rows-fr bg-[#9fb0c3] gap-px">
             @php
                 $firstDayOfMonth = $startOfMonth->copy()->startOfMonth();
                 $startOfGrid = $firstDayOfMonth->copy()->startOfWeek(\Carbon\Carbon::SUNDAY);
@@ -229,9 +229,9 @@
                     $isCurrentMonth = $cursor->month === $startOfMonth->month;
                     $isToday = $cursor->toDateString() === now()->toDateString();
                 @endphp
-                <div class="bg-white dark:bg-slate-900 min-h-[60px] sm:min-h-[120px] p-1.5 sm:p-3 relative {{ !$isCurrentMonth ? 'bg-slate-50 dark:bg-slate-800/70' : '' }} {{ $isToday ? 'ring-2 ring-inset ring-red-500' : '' }}">
+                <div class="min-h-[60px] sm:min-h-[120px] p-1.5 sm:p-3 relative {{ !$isCurrentMonth ? 'bg-[#c3cfdb]' : 'bg-[#e7eef5]' }} {{ $isToday ? 'ring-2 ring-inset ring-red-500' : '' }}">
                     <div class="flex justify-between items-start mb-1 sm:mb-2">
-                        <span class="text-sm sm:text-lg font-black {{ $isCurrentMonth ? 'text-slate-800 dark:text-white' : 'text-slate-300' }} {{ $isToday ? 'w-6 h-6 sm:w-8 sm:h-8 bg-red-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-base' : '' }}">
+                        <span class="text-sm sm:text-lg font-black {{ $isCurrentMonth ? 'text-[#1e293b]' : 'text-[#9fb0c3]' }} {{ $isToday ? 'w-6 h-6 sm:w-8 sm:h-8 bg-red-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-base' : '' }}">
                             {{ $cursor->day }}
                         </span>
                         @if($isToday)
@@ -247,7 +247,7 @@
                             </div>
                         </div>
                     @else
-                        <div class="mt-1 sm:mt-2 text-[9px] sm:text-xs text-slate-300 italic hidden sm:block">Sin asignar</div>
+                        <div class="mt-1 sm:mt-2 text-[9px] sm:text-xs text-[#9fb0c3] italic hidden sm:block">Sin asignar</div>
                     @endif
                 </div>
                 @php $cursor->addDay(); @endphp
@@ -262,19 +262,19 @@
                 $daysCount = $calendarDays->filter(fn($d) => $d->guardia_id === $g->id)->count();
                 $summaryColors = $guardiaColors[$g->id] ?? $guardiaPalette[0];
             @endphp
-            <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-4 flex items-center gap-4 shadow-sm">
+            <div class="bg-[#dde6ef] rounded-xl border border-[#9fb0c3] p-4 flex items-center gap-4 shadow-sm">
                 <div class="w-12 h-12 rounded-xl bg-gradient-to-br {{ $summaryColors['card'] }} text-white flex items-center justify-center shadow-lg {{ $summaryColors['cardShadow'] }}">
                     <i class="fas fa-shield text-lg"></i>
                 </div>
                 <div class="flex-1">
-                    <div class="text-base font-black text-slate-800 dark:text-white">{{ $g->name }}</div>
+                    <div class="text-base font-black text-[#1e293b]">{{ $g->name }}</div>
                     <div class="flex items-center gap-2 mt-0.5">
                         <span class="text-2xl font-black {{ $summaryColors['count'] }}">{{ $daysCount }}</span>
-                        <span class="text-xs text-slate-500 dark:text-slate-400">días asignados</span>
+                        <span class="text-xs text-[#475569]">días asignados</span>
                     </div>
                 </div>
                 <div class="text-right">
-                    <div class="text-xs font-bold text-slate-400 uppercase">{{ round(($daysCount / max($calendarDays->count(), 1)) * 100) }}%</div>
+                    <div class="text-xs font-bold text-[#475569] uppercase">{{ round(($daysCount / max($calendarDays->count(), 1)) * 100) }}%</div>
                 </div>
             </div>
         @endforeach
