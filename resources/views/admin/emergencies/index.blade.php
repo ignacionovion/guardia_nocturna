@@ -42,7 +42,7 @@
         <x-ui.card>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
-                    <thead class="bg-slate-50 dark:bg-slate-800/50">
+                    <thead class="bg-[#c3cfdb]">
                         <tr class="text-label">
                             <th scope="col" class="px-6 py-4 text-left">Clave</th>
                             <th scope="col" class="px-6 py-4 text-left">H. salida</th>
@@ -54,7 +54,7 @@
                     </thead>
                     <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
                         @foreach($emergencies as $emergency)
-                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <tr class="hover:bg-[#c3cfdb] transition-colors">
                                 <td class="px-6 py-4 align-top">
                                     <div class="text-sm font-bold text-slate-900 dark:text-white">{{ $emergency->key?->code ?? '-' }}</div>
                                     <div class="text-xs text-slate-500 dark:text-slate-400">{{ \Illuminate\Support\Str::limit($emergency->key?->description ?? '', 60) }}</div>

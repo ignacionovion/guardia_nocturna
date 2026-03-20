@@ -35,29 +35,29 @@
     </x-ui.card>
 
     @if($keys->isEmpty())
-        <div class="text-center py-16 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-dashed border-slate-300 dark:border-slate-600">
-            <div class="bg-slate-50 dark:bg-slate-800 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-key text-slate-400 text-3xl"></i>
+        <div class="text-center py-16 bg-[#dde6ef] rounded-xl shadow-sm border border-dashed border-[#9fb0c3]">
+            <div class="bg-[#c3cfdb] rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-key text-[#475569] text-3xl"></i>
             </div>
-            <h3 class="text-lg font-medium text-slate-900">No hay claves registradas</h3>
-            <p class="text-slate-500 dark:text-slate-400 mt-1">Crea una clave para poder seleccionarla en el formulario de emergencias.</p>
+            <h3 class="text-lg font-medium text-[#1e293b]">No hay claves registradas</h3>
+            <p class="text-[#475569] mt-1">Crea una clave para poder seleccionarla en el formulario de emergencias.</p>
         </div>
     @else
-        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div class="bg-[#dde6ef] rounded-xl shadow-sm border border-[#9fb0c3] overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-slate-200">
-                    <thead class="bg-slate-50 dark:bg-slate-800">
+                    <thead class="bg-[#c3cfdb]">
                         <tr>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Código</th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Descripción</th>
-                            <th scope="col" class="px-6 py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acciones</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-[#475569] uppercase tracking-wider">Código</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-[#475569] uppercase tracking-wider">Descripción</th>
+                            <th scope="col" class="px-6 py-4 text-right text-xs font-semibold text-[#475569] uppercase tracking-wider">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-200">
+                    <tbody class="bg-[#e7eef5] divide-y divide-[#9fb0c3]">
                         @foreach($keys as $key)
-                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                                <td class="px-6 py-4 whitespace-nowrap font-mono font-bold text-slate-900 dark:text-white">{{ $key->code }}</td>
-                                <td class="px-6 py-4 text-slate-700 dark:text-slate-300">{{ $key->description }}</td>
+                            <tr class="hover:bg-[#c3cfdb] transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap font-mono font-bold text-[#1e293b]">{{ $key->code }}</td>
+                                <td class="px-6 py-4 text-[#1e293b]">{{ $key->description }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div class="flex items-center justify-end gap-2">
                                         <a href="{{ route('admin.emergency-keys.edit', $key->id) }}" class="text-slate-400 hover:text-blue-600 transition-colors p-1" title="Editar">
@@ -78,7 +78,7 @@
                 </table>
             </div>
 
-            <div class="bg-slate-50 dark:bg-slate-800 px-6 py-4 border-t border-slate-200 dark:border-slate-700">
+            <div class="bg-[#c3cfdb] px-6 py-4 border-t border-[#9fb0c3]">
                 {{ $keys->links() }}
             </div>
         </div>

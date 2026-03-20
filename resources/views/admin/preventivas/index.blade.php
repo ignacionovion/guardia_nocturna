@@ -11,21 +11,21 @@
     <x-ui.card>
         <div class="overflow-x-auto">
             <table class="min-w-full text-sm">
-                <thead class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+                <thead class="bg-[#c3cfdb] border-b border-[#9fb0c3]">
                     <tr>
-                        <th class="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Evento</th>
-                        <th class="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Rango</th>
-                        <th class="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Estado</th>
-                        <th class="text-right px-6 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Acciones</th>
+                        <th class="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider text-[#475569]">Evento</th>
+                        <th class="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider text-[#475569]">Rango</th>
+                        <th class="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider text-[#475569]">Estado</th>
+                        <th class="text-right px-6 py-3 text-xs font-semibold uppercase tracking-wider text-[#475569]">Acciones</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="divide-y divide-[#9fb0c3]">
                     @forelse($events as $event)
-                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                            <td class="px-6 py-4 font-semibold text-slate-900 dark:text-white">
+                        <tr class="transition-colors">
+                            <td class="px-6 py-4 font-semibold text-[#1e293b]">
                                 {{ $event->title }}
                             </td>
-                            <td class="px-6 py-4 text-slate-700 dark:text-slate-300">
+                            <td class="px-6 py-4 text-sm text-[#475569]">
                                 {{ $event->start_date?->format('d-m-Y') }} → {{ $event->end_date?->format('d-m-Y') }}
                             </td>
                             <td class="px-6 py-4">
@@ -38,7 +38,7 @@
                                     $label = $status === 'active' ? 'Activa' : ($status === 'closed' ? 'Cerrada' : 'Borrador');
                                     $cls = $status === 'active'
                                         ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                                        : ($status === 'closed' ? 'bg-red-50 text-red-800 border border-red-200' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700');
+                                        : ($status === 'closed' ? 'bg-red-50 text-red-800 border border-red-200' : 'bg-[#c3cfdb] text-[#1e293b] border border-[#9fb0c3]');
                                 @endphp
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold {{ $cls }}">
                                     {{ $label }}
@@ -61,7 +61,7 @@
             </table>
         </div>
 
-        <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
+        <div class="px-6 py-4 border-t border-[#9fb0c3] bg-[#c3cfdb]">
             {{ $events->links() }}
         </div>
     </x-ui.card>

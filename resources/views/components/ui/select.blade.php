@@ -18,13 +18,13 @@
         @endif
 
         <select {{ $attributes->merge([
-            'class' => 'w-full rounded-xl border text-sm transition-all duration-150 appearance-none cursor-pointer ' .
-                ($icon ? 'pl-10 pr-10 py-2.5' : 'px-4 pr-10 py-2.5') . ' ' .
+            'class' => 'w-full rounded-xl border text-sm transition-all duration-150 appearance-none cursor-pointer min-h-[44px] ' .
+                ($icon ? 'pl-10 pr-10 py-3' : 'px-4 pr-10 py-3') . ' ' .
                 ($error
                     ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20 bg-red-50'
                     : 'border-[#9fb0c3] focus:border-[#1e293b] focus:ring-[#1e293b]/10 bg-[#e7eef5]'
                 ) .
-                ' text-[#1e293b] focus:outline-none focus:ring-4'
+                ' text-[#1e293b] focus:outline-none focus:ring-2'
         ]) }}>
             {{ $slot }}
         </select>

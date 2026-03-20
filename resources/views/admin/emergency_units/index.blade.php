@@ -38,30 +38,30 @@
     </x-ui.card>
 
     @if($units->isEmpty())
-        <div class="text-center py-16 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-dashed border-slate-300 dark:border-slate-600">
-            <div class="bg-slate-50 dark:bg-slate-800 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-truck text-slate-400 text-3xl"></i>
+        <div class="text-center py-16 bg-[#dde6ef] rounded-xl shadow-sm border border-dashed border-[#9fb0c3]">
+            <div class="bg-[#c3cfdb] rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-truck text-[#475569] text-3xl"></i>
             </div>
-            <h3 class="text-lg font-medium text-slate-900">No hay unidades registradas</h3>
-            <p class="text-slate-500 dark:text-slate-400 mt-1">Crea una unidad para poder seleccionarla en la emergencia.</p>
+            <h3 class="text-lg font-medium text-[#1e293b]">No hay unidades registradas</h3>
+            <p class="text-[#475569] mt-1">Crea una unidad para poder seleccionarla en la emergencia.</p>
         </div>
     @else
-        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div class="bg-[#dde6ef] rounded-xl shadow-sm border border-[#9fb0c3] overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-slate-200">
-                    <thead class="bg-slate-50 dark:bg-slate-800">
+                    <thead class="bg-[#c3cfdb]">
                         <tr>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Nombre</th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Descripción</th>
-                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Estado</th>
-                            <th scope="col" class="px-6 py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acciones</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-[#475569] uppercase tracking-wider">Nombre</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-[#475569] uppercase tracking-wider">Descripción</th>
+                            <th scope="col" class="px-6 py-4 text-center text-xs font-semibold text-[#475569] uppercase tracking-wider">Estado</th>
+                            <th scope="col" class="px-6 py-4 text-right text-xs font-semibold text-[#475569] uppercase tracking-wider">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-200">
+                    <tbody class="bg-[#e7eef5] divide-y divide-[#9fb0c3]">
                         @foreach($units as $unit)
-                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors {{ ($unit->status ?? 'active') !== 'active' ? 'opacity-60' : '' }}">
-                                <td class="px-6 py-4 whitespace-nowrap font-semibold text-slate-900 dark:text-white">{{ $unit->name }}</td>
-                                <td class="px-6 py-4 text-slate-700 dark:text-slate-300">{{ $unit->description ?? '-' }}</td>
+                            <tr class="hover:bg-[#c3cfdb] transition-colors {{ ($unit->status ?? 'active') !== 'active' ? 'opacity-60' : '' }}">
+                                <td class="px-6 py-4 whitespace-nowrap font-semibold text-[#1e293b]">{{ $unit->name }}</td>
+                                <td class="px-6 py-4 text-[#1e293b]">{{ $unit->description ?? '-' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @if(($unit->status ?? 'active') === 'active')
                                         <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">

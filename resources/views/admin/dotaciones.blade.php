@@ -44,15 +44,15 @@
                         <div class="space-y-2">
                             <label class="form-label">Buscar voluntario</label>
                             <div class="relative">
-                                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-[#475569]"></i>
                                 <input name="firefighter_id_display" autocomplete="off" data-dotaciones-volunteer-input data-guardia-id="{{ $guardia->id }}"
                                        class="form-input pl-10"
                                        placeholder="Escribe nombre, apellido o RUT..." required>
                                 <input type="hidden" name="firefighter_id" id="firefighter_id_input_{{ $guardia->id }}" required>
 
-                                <div id="volunteer_dropdown_{{ $guardia->id }}" class="hidden absolute left-0 right-0 mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-20 max-h-60 overflow-auto"></div>
+                                <div id="volunteer_dropdown_{{ $guardia->id }}" class="hidden absolute left-0 right-0 mt-1 bg-[#dde6ef] border border-[#9fb0c3] rounded-xl shadow-xl z-20 max-h-60 overflow-auto"></div>
                             </div>
-                            <div class="hidden text-xs text-red-600 dark:text-red-400 font-semibold mt-1" data-dotaciones-error data-guardia-id="{{ $guardia->id }}"></div>
+                            <div class="hidden text-xs text-red-600 font-semibold mt-1" data-dotaciones-error data-guardia-id="{{ $guardia->id }}"></div>
                         </div>
 
                         <x-ui.button type="submit" variant="primary" size="md" icon="fas fa-user-plus" class="w-full">
@@ -60,27 +60,27 @@
                         </x-ui.button>
                     </form>
 
-                    <div class="border-t border-slate-200 dark:border-slate-700 pt-4">
+                    <div class="border-t border-[#9fb0c3] pt-4">
                         <div class="flex items-center justify-between mb-3">
-                            <h3 class="text-label uppercase tracking-wide text-slate-500 dark:text-slate-400">Personal asignado</h3>
+                            <h3 class="text-label uppercase tracking-wide text-[#475569]">Personal asignado</h3>
                             @if($guardia->bomberos->count() > 0)
                                 <x-ui.badge variant="success" size="xs">{{ $guardia->bomberos->count() }} activos</x-ui.badge>
                             @endif
                         </div>
                         <div class="space-y-2 max-h-64 overflow-y-auto pr-1">
                             @forelse($guardia->bomberos as $user)
-                                <div class="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-3 hover:bg-white dark:hover:bg-slate-800 transition-colors">
+                                <div class="flex items-center justify-between bg-[#e7eef5] border border-[#9fb0c3] rounded-xl p-3 hover:bg-[#c3cfdb] transition-colors">
                                     <div class="flex items-center gap-3">
-                                        <div class="h-9 w-9 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-400 font-bold text-sm">
+                                        <div class="h-9 w-9 rounded-full bg-[#c3cfdb] flex items-center justify-center text-[#1e293b] font-bold text-sm">
                                             {{ substr($user->nombres, 0, 1) }}{{ substr($user->apellido_paterno, 0, 1) }}
                                         </div>
                                         <div>
-                                            <p class="text-sm font-bold text-slate-800 dark:text-white">{{ $user->nombres }} {{ $user->apellido_paterno }}</p>
+                                            <p class="text-sm font-bold text-[#1e293b]">{{ $user->nombres }} {{ $user->apellido_paterno }}</p>
                                             <div class="flex items-center gap-2 mt-0.5">
                                                 @if($user->cargo_texto)
-                                                    <span class="text-caption text-slate-500">{{ $user->cargo_texto }}</span>
+                                                    <span class="text-caption text-[#475569]">{{ $user->cargo_texto }}</span>
                                                 @endif
-                                                <span class="text-caption {{ $user->es_jefe_guardia ? 'text-amber-600 dark:text-amber-400 font-semibold' : 'text-slate-400' }}">
+                                                <span class="text-caption {{ $user->es_jefe_guardia ? 'text-amber-600 font-semibold' : 'text-[#475569]' }}">
                                                     {{ $user->es_jefe_guardia ? 'Jefe de Guardia' : 'Bombero' }}
                                                 </span>
                                             </div>

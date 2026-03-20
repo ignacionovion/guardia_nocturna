@@ -10,13 +10,13 @@
 
 @php
 $variants = [
-    'primary' => 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 shadow-sm',
-    'secondary' => 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700',
+    'primary' => 'bg-[#0f172a] text-white hover:bg-[#1e293b] shadow-sm',
+    'secondary' => 'bg-[#e7eef5] text-[#1e293b] hover:bg-[#dde6ef] border border-[#9fb0c3]',
     'danger' => 'bg-red-600 text-white hover:bg-red-700 shadow-sm',
     'success' => 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm',
     'warning' => 'bg-amber-500 text-white hover:bg-amber-600 shadow-sm',
-    'ghost' => 'bg-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white',
-    'outline' => 'bg-transparent border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600',
+    'ghost' => 'bg-transparent text-[#475569] hover:bg-[#c3cfdb] hover:text-[#1e293b]',
+    'outline' => 'bg-transparent border border-[#9fb0c3] text-[#1e293b] hover:bg-[#e7eef5] hover:border-[#7d94ab]',
 ];
 
 $sizes = [
@@ -33,7 +33,7 @@ $sizeClass = $sizes[$size] ?? $sizes['md'];
 
 @if($href)
 <a href="{{ $href }}" {{ $attributes->merge([
-    'class' => 'inline-flex items-center justify-center gap-2 font-semibold rounded-xl transition-all duration-150 focus:outline-none focus:ring-4 focus:ring-slate-900/10 dark:focus:ring-white/10 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none ' . $variantClass . ' ' . $sizeClass
+    'class' => 'inline-flex items-center justify-center gap-2 font-semibold rounded-xl transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#1e293b]/10 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none ' . $variantClass . ' ' . $sizeClass
 ]) }}>
     @if($loading)
     <i class="fas fa-spinner fa-spin"></i>
@@ -47,7 +47,7 @@ $sizeClass = $sizes[$size] ?? $sizes['md'];
 </a>
 @else
 <button type="{{ $type }}" {{ $attributes->merge([
-    'class' => 'inline-flex items-center justify-center gap-2 font-semibold rounded-xl transition-all duration-150 focus:outline-none focus:ring-4 focus:ring-slate-900/10 dark:focus:ring-white/10 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none ' . $variantClass . ' ' . $sizeClass
+    'class' => 'inline-flex items-center justify-center gap-2 font-semibold rounded-xl transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#1e293b]/10 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none ' . $variantClass . ' ' . $sizeClass
 ]) }}>
     @if($loading)
     <i class="fas fa-spinner fa-spin"></i>
