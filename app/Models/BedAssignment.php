@@ -9,6 +9,7 @@ class BedAssignment extends Model
     protected $fillable = [
         'bed_id',
         'volunteer_id',
+        'firefighter_id',
         'assigned_by',
         'started_at',
         'ended_at',
@@ -29,6 +30,16 @@ class BedAssignment extends Model
     public function volunteer()
     {
         return $this->belongsTo(User::class, 'volunteer_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'volunteer_id');
+    }
+
+    public function firefighter()
+    {
+        return $this->belongsTo(Bombero::class, 'firefighter_id');
     }
 
     public function assignedBy()
