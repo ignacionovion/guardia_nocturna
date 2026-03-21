@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Guardia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -22,12 +23,31 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
             
-            // Bloquear acceso a bomberos (solo son para registro)
-            if ($user->role === 'bombero') {
+            // Bloquear roles sin acceso al sistema
+            if (in_array($user->role, ['bombero', 'jefe_guardia', 'inventario'], true)) {
                 Auth::logout();
                 return back()->withErrors([
                     'username' => 'Su cuenta no tiene permisos para acceder al sistema.',
                 ])->onlyInput('username');
+            }
+
+            // Validar guardia activa antes de permitir login
+            if ($user->role === 'guardia') {
+                if (!$user->guardia_id) {
+                    Auth::logout();
+                    return back()->withErrors([
+                        'username' => 'Tu cuenta de guardia no está asociada a ninguna guardia.',
+                    ])->onlyInput('username');
+                }
+
+                $guardia = Guardia::find($user->guardia_id);
+
+                if (!$guardia || !$guardia->is_active_week) {
+                    Auth::logout();
+                    return back()->withErrors([
+                        'username' => 'Tu guardia no está activa en este momento. Contacta al capitán.',
+                    ])->onlyInput('username');
+                }
             }
 
             $request->session()->regenerate();

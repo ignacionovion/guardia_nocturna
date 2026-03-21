@@ -35,7 +35,7 @@ class CheckRolePermission
         $user = $request->user();
 
         // Super admin y capitania tienen acceso a todo
-        if ($user && in_array($user->role, ['super_admin', 'capitania'], true)) {
+        if ($user && in_array($user->role, ['capitan', 'super_admin', 'capitania'], true)) {
             return $next($request);
         }
 

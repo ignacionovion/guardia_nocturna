@@ -12,8 +12,8 @@ class NotificationController extends Controller
     {
         $user = auth()->user();
 
-        // Only super_admin and capitania can see notifications
-        if (!in_array($user->role, ['super_admin', 'capitania'], true)) {
+        // Only capitan and above can see notifications
+        if (!in_array($user->role, ['capitan', 'super_admin', 'capitania'], true)) {
             return response()->json(['notifications' => [], 'unread_count' => 0]);
         }
 
@@ -52,7 +52,7 @@ class NotificationController extends Controller
     {
         $user = auth()->user();
 
-        if (!in_array($user->role, ['super_admin', 'capitania'], true)) {
+        if (!in_array($user->role, ['capitan', 'super_admin', 'capitania'], true)) {
             return response()->json(['ok' => false, 'message' => 'No autorizado'], 403);
         }
 
@@ -71,7 +71,7 @@ class NotificationController extends Controller
     {
         $user = auth()->user();
 
-        if (!in_array($user->role, ['super_admin', 'capitania'], true)) {
+        if (!in_array($user->role, ['capitan', 'super_admin', 'capitania'], true)) {
             return response()->json(['ok' => false, 'message' => 'No autorizado'], 403);
         }
 
@@ -84,7 +84,7 @@ class NotificationController extends Controller
     {
         $user = auth()->user();
 
-        if (!in_array($user->role, ['super_admin', 'capitania'], true)) {
+        if (!in_array($user->role, ['capitan', 'super_admin', 'capitania'], true)) {
             return response()->json(['unread_count' => 0]);
         }
 

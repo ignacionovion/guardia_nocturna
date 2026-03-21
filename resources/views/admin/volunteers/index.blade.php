@@ -11,7 +11,7 @@
                 Eliminar (<span id="selected-count">0</span>)
             </x-ui.button>
 
-            @if(auth()->check() && auth()->user()->role === 'super_admin')
+            @if(auth()->check() && in_array(auth()->user()->role, ['capitan', 'super_admin']))
                 <x-ui.button variant="danger" size="md" icon="fas fa-bomb" onclick="openPurgeModal()">
                     Eliminar todos
                 </x-ui.button>
@@ -318,7 +318,7 @@
                 };
             });
         </script>
-    @if(auth()->check() && auth()->user()->role === 'super_admin')
+    @if(auth()->check() && in_array(auth()->user()->role, ['capitan', 'super_admin']))
         <div id="purgeModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center">
             <div class="bg-[#dde6ef] rounded-2xl shadow-2xl w-full max-w-md mx-4 border border-[#9fb0c3] overflow-hidden">
                 <div class="p-5 border-b border-[#9fb0c3] bg-[#c3cfdb]">
@@ -340,7 +340,7 @@
     @endif
 @endsection
 
-@if(auth()->check() && auth()->user()->role === 'super_admin')
+@if(auth()->check() && in_array(auth()->user()->role, ['capitan', 'super_admin']))
     <script>
         window.openPurgeModal = function () {
             const modal = document.getElementById('purgeModal');

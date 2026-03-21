@@ -91,7 +91,7 @@ class AdministradorController extends Controller
     public function toggleFueraDeServicio($id)
     {
         $user = auth()->user();
-        if (!in_array($user->role, ['super_admin', 'capitania', 'guardia'], true)) {
+        if (!in_array($user->role, ['capitan', 'super_admin', 'capitania', 'guardia'], true)) {
             abort(403, 'No autorizado.');
         }
 
@@ -148,7 +148,7 @@ class AdministradorController extends Controller
 
         $user = auth()->user();
 
-        if (!in_array($user->role, ['super_admin', 'capitania', 'guardia'], true)) {
+        if (!in_array($user->role, ['capitan', 'super_admin', 'capitania', 'guardia'], true)) {
             abort(403, 'No tienes permiso para acceder a esta sección.');
         }
 
@@ -219,7 +219,7 @@ class AdministradorController extends Controller
 
         $user = auth()->user();
 
-        if (!in_array($user->role, ['super_admin', 'capitania', 'guardia'], true)) {
+        if (!in_array($user->role, ['capitan', 'super_admin', 'capitania', 'guardia'], true)) {
             abort(403, 'No tienes permiso para acceder a esta sección.');
         }
 
@@ -269,7 +269,7 @@ class AdministradorController extends Controller
         $bombero = Bombero::findOrFail($bombero);
 
         $user = auth()->user();
-        if (!$user || !in_array($user->role, ['super_admin', 'capitania', 'guardia'], true)) {
+        if (!$user || !in_array($user->role, ['capitan', 'super_admin', 'capitania', 'guardia'], true)) {
             return response()->json(['ok' => false, 'message' => 'No autorizado'], 403);
         }
 
@@ -354,7 +354,7 @@ class AdministradorController extends Controller
     {
         $user = auth()->user();
 
-        if (!in_array($user->role, ['super_admin', 'capitania', 'guardia'], true)) {
+        if (!in_array($user->role, ['capitan', 'super_admin', 'capitania', 'guardia'], true)) {
             abort(403, 'No autorizado.');
         }
 
@@ -399,7 +399,7 @@ class AdministradorController extends Controller
             return redirect()->route('admin.dotaciones')->withErrors(['msg' => 'Acción inválida (método HTTP no permitido). Actualiza la página e intenta nuevamente.']);
         }
 
-        if (!in_array($user->role, ['super_admin', 'capitania', 'guardia'], true)) {
+        if (!in_array($user->role, ['capitan', 'super_admin', 'capitania', 'guardia'], true)) {
             abort(403, 'No autorizado.');
         }
 
@@ -442,7 +442,7 @@ class AdministradorController extends Controller
     {
         $user = auth()->user();
 
-        if (!in_array($user->role, ['super_admin', 'capitania', 'guardia'], true)) {
+        if (!in_array($user->role, ['capitan', 'super_admin', 'capitania', 'guardia'], true)) {
             abort(403, 'No autorizado.');
         }
 
@@ -506,7 +506,7 @@ class AdministradorController extends Controller
     {
         $user = auth()->user();
 
-        if (!in_array($user->role, ['super_admin', 'capitania', 'guardia'], true)) {
+        if (!in_array($user->role, ['capitan', 'super_admin', 'capitania', 'guardia'], true)) {
             abort(403, 'No autorizado.');
         }
 
@@ -573,7 +573,7 @@ class AdministradorController extends Controller
     public function toggleTitular($id)
     {
         $user = auth()->user();
-        if (!in_array($user->role, ['super_admin', 'capitania', 'guardia'], true)) {
+        if (!in_array($user->role, ['capitan', 'super_admin', 'capitania', 'guardia'], true)) {
             abort(403, 'No autorizado.');
         }
 
@@ -594,7 +594,7 @@ class AdministradorController extends Controller
     {
         $user = auth()->user();
 
-        if (!in_array($user->role, ['super_admin', 'capitania', 'guardia'], true)) {
+        if (!in_array($user->role, ['capitan', 'super_admin', 'capitania', 'guardia'], true)) {
             abort(403, 'No autorizado.');
         }
 
@@ -689,7 +689,7 @@ class AdministradorController extends Controller
         
         $user = auth()->user();
 
-        if (!in_array($user->role, ['super_admin', 'capitania', 'guardia'], true)) {
+        if (!in_array($user->role, ['capitan', 'super_admin', 'capitania', 'guardia'], true)) {
             abort(403, 'No autorizado.');
         }
 
@@ -812,7 +812,7 @@ class AdministradorController extends Controller
         
         $user = auth()->user();
 
-        if (!in_array($user->role, ['super_admin', 'capitania', 'guardia'], true)) {
+        if (!in_array($user->role, ['capitan', 'super_admin', 'capitania', 'guardia'], true)) {
             abort(403, 'No autorizado.');
         }
 
@@ -914,44 +914,95 @@ class AdministradorController extends Controller
 
     public function storeGuardia(Request $request)
     {
-        if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
+        if (!in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
 
         $request->validate(['name' => 'required|string|max:255|unique:guardias,name']);
 
-        $guardia = Guardia::create(['name' => $request->name]);
-
-        // Crear usuario automático para gestión de la guardia
-        $baseUsername = Str::slug((string) $request->name);
-        if ($baseUsername === '') {
-            $baseUsername = 'guardia';
-        }
-
-        $username = $baseUsername;
+        $slug = Guardia::generateSlug($request->name);
+        $baseSlug = $slug;
         $i = 2;
-        while (User::where('username', $username)->exists()) {
-            $username = $baseUsername . '-' . $i;
+        while (Guardia::where('slug', $slug)->exists()) {
+            $slug = $baseSlug . '-' . $i;
             $i++;
         }
 
-        User::create([
+        $tenantId = tenant('id') ?? 'guardia';
+        $username = Guardia::generateUsername($tenantId, $slug);
+        $counter = 2;
+        while (User::where('username', $username)->exists()) {
+            $username = Guardia::generateUsername($tenantId, $slug . '-' . $counter);
+            $counter++;
+        }
+
+        $plainPassword = Str::random(10);
+
+        $guardia = Guardia::create([
+            'name' => $request->name,
+            'slug' => $slug,
+            'access_username' => $username,
+            'access_password_encrypted' => \Illuminate\Support\Facades\Crypt::encryptString($plainPassword),
+        ]);
+
+        $user = User::create([
             'name' => $request->name,
             'username' => $username,
-            'email' => strtolower(str_replace(' ', '.', $request->name)) . '@guardianocturna.cl',
-            'password' => Hash::make('password'),
+            'email' => $slug . '@guardia.local',
+            'password' => Hash::make($plainPassword),
             'role' => 'guardia',
             'guardia_id' => $guardia->id,
             'years_of_service' => 0,
             'age' => 0,
         ]);
 
-        return redirect()->route('admin.guardias')->with('success', 'Nueva guardia y usuario de gestión creados correctamente.');
+        $guardia->update(['user_id' => $user->id]);
+
+        return redirect()->route('admin.guardias')
+            ->with('success', 'Guardia creada correctamente.')
+            ->with('new_credentials', [
+                'guardia' => $request->name,
+                'username' => $username,
+                'password' => $plainPassword,
+            ]);
+    }
+
+    public function regenerateCredentials($id)
+    {
+        if (!in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania'], true)) {
+            abort(403, 'No autorizado.');
+        }
+
+        $guardia = Guardia::findOrFail($id);
+        $plainPassword = Str::random(10);
+
+        $guardia->update([
+            'access_password_encrypted' => \Illuminate\Support\Facades\Crypt::encryptString($plainPassword),
+        ]);
+
+        if ($guardia->user_id) {
+            User::where('id', $guardia->user_id)->update([
+                'password' => Hash::make($plainPassword),
+            ]);
+        } else {
+            $user = User::where('guardia_id', $guardia->id)->where('role', 'guardia')->first();
+            if ($user) {
+                $user->update(['password' => Hash::make($plainPassword)]);
+            }
+        }
+
+        return redirect()->route('admin.guardias')
+            ->with('success', 'Credenciales regeneradas correctamente.')
+            ->with('new_credentials', [
+                'guardia' => $guardia->name,
+                'username' => $guardia->access_username,
+                'password' => $plainPassword,
+            ]);
     }
 
     public function editGuardia($id)
     {
-        if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
+        if (!in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
 
@@ -962,17 +1013,16 @@ class AdministradorController extends Controller
 
     public function updateGuardia(Request $request, $id)
     {
-         if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
+        if (!in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
 
         $guardia = Guardia::findOrFail($id);
-        
+
         $request->validate(['name' => 'required|string|max:255|unique:guardias,name,' . $id]);
 
         $guardia->update(['name' => $request->name]);
 
-        // Actualizar usuario de gestión asociado
         $guardiaUser = User::where('guardia_id', $guardia->id)->where('role', 'guardia')->first();
         if ($guardiaUser) {
             $guardiaUser->update([
@@ -986,7 +1036,7 @@ class AdministradorController extends Controller
 
     public function destroyGuardia($id)
     {
-         if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
+        if (!in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
 
@@ -1009,7 +1059,7 @@ class AdministradorController extends Controller
 
     public function activateWeek($id)
     {
-        if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
+        if (!in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
 
@@ -1127,7 +1177,7 @@ class AdministradorController extends Controller
         // Domain routes inject {tenant} before path params — read {id} explicitly to avoid collision
         $id = $request->route('id') ?? $id;
 
-        if (!in_array(auth()->user()->role, ['super_admin', 'capitania', 'guardia'], true)) {
+        if (!in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania', 'guardia'], true)) {
             abort(403, 'No autorizado.');
         }
 

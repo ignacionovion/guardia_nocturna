@@ -18,7 +18,7 @@ class GuardiaArchiveController extends Controller
             abort(403, 'No autorizado.');
         }
 
-        if (!in_array($user->role, ['super_admin', 'capitania', 'guardia'], true)) {
+        if (!in_array($user->role, ['capitan', 'super_admin', 'capitania', 'guardia'], true)) {
             abort(403, 'No autorizado.');
         }
 

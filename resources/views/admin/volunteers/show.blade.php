@@ -7,7 +7,7 @@
                 <x-ui.button variant="secondary" size="md" icon="fas fa-arrow-left" href="{{ route('admin.volunteers.index') }}">
                     Volver al listado
                 </x-ui.button>
-                @if(in_array(auth()->user()->role, ['super_admin', 'capitania'], true))
+                @if(in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania'], true))
                     <x-ui.button variant="primary" size="md" icon="fas fa-edit" href="{{ route('admin.volunteers.edit', $volunteer->id) }}">
                         Editar
                     </x-ui.button>
@@ -210,7 +210,7 @@
                     <x-ui.button variant="secondary" size="md" href="{{ route('admin.volunteers.index') }}">
                         Volver al listado
                     </x-ui.button>
-                    @if(in_array(auth()->user()->role, ['super_admin', 'capitania'], true))
+                    @if(in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania'], true))
                         <x-ui.button variant="primary" size="md" icon="fas fa-edit" href="{{ route('admin.volunteers.edit', $volunteer->id) }}">
                             Editar Voluntario
                         </x-ui.button>

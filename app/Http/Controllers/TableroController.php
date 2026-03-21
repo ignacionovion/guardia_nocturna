@@ -104,7 +104,7 @@ class TableroController extends Controller
             ->notAcademy()
             ->latest();
 
-        if (!in_array($user->role, ['super_admin', 'capitania'], true)) {
+        if (!in_array($user->role, ['capitan', 'super_admin', 'capitania'], true)) {
             // Guardia: ve sus propias novedades, las permanentes, y las ingresadas por admin/capitán (sin guardia asignada)
             $noveltiesQuery->where(function ($q) use ($user) {
                 $q->where('guardia_id', $user->guardia_id)
@@ -123,7 +123,7 @@ class TableroController extends Controller
                 ->notAcademy()
                 ->latest();
 
-            if (!in_array($user->role, ['super_admin', 'capitania'], true)) {
+            if (!in_array($user->role, ['capitan', 'super_admin', 'capitania'], true)) {
                 $guardiaQuery->where(function ($q) use ($user) {
                     $q->where('guardia_id', $user->guardia_id)
                       ->orWhere('is_permanent', true)
@@ -140,7 +140,7 @@ class TableroController extends Controller
             ->latest();
         
         // Filtrar academias por guardia si corresponde
-        if ($user->guardia_id && !in_array($user->role, ['super_admin', 'capitania'], true)) {
+        if ($user->guardia_id && !in_array($user->role, ['capitan', 'super_admin', 'capitania'], true)) {
             $academiesQuery->where('guardia_id', $user->guardia_id);
         }
         

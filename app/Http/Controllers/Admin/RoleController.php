@@ -37,24 +37,12 @@ class RoleController extends Controller
 
     public function create()
     {
-        return view('admin.roles.create');
+        abort(403, 'La creación de roles del sistema no está permitida. El sistema usa únicamente los roles CAPITÁN y GUARDIA.');
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'slug' => ['required', 'string', 'max:255', 'unique:roles,slug'],
-            'permissions' => ['nullable', 'array'],
-        ]);
-
-        Role::create([
-            'name' => $validated['name'],
-            'slug' => $validated['slug'],
-            'permissions' => $validated['permissions'] ?? [],
-        ]);
-
-        return redirect()->route('admin.roles.index')->with('success', 'Rol creado correctamente.');
+        abort(403, 'La creación de roles del sistema no está permitida.');
     }
 
     public function edit(string $id)
@@ -65,28 +53,11 @@ class RoleController extends Controller
 
     public function update(Request $request, string $id)
     {
-        $role = Role::findOrFail($id);
-
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'slug' => ['required', 'string', 'max:255', Rule::unique('roles', 'slug')->ignore($role->id)],
-            'permissions' => ['nullable', 'array'],
-        ]);
-
-        $role->update([
-            'name' => $validated['name'],
-            'slug' => $validated['slug'],
-            'permissions' => $validated['permissions'] ?? [],
-        ]);
-
-        return redirect()->route('admin.roles.index')->with('success', 'Rol actualizado correctamente.');
+        abort(403, 'La modificación de roles del sistema no está permitida.');
     }
 
     public function destroy(string $id)
     {
-        $role = Role::findOrFail($id);
-        $role->delete();
-
-        return redirect()->route('admin.roles.index')->with('success', 'Rol eliminado correctamente.');
+        abort(403, 'La eliminación de roles del sistema no está permitida.');
     }
 }

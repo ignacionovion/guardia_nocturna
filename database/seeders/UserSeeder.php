@@ -21,8 +21,9 @@ class UserSeeder extends Seeder
                 'name' => 'Administrador',
                 'email' => 'admin@' . tenant('id') . '.cl',
                 'password' => Hash::make('password'),
-                'role' => 'admin',
-                'active' => true,
+                'role' => 'capitan',
+                'years_of_service' => 0,
+                'age' => 0,
             ]
         );
     }

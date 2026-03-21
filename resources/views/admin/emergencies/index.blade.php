@@ -2,7 +2,7 @@
 
 @section('content')
     <x-ui.page-header title="Emergencias" subtitle="Registro de emergencias transcurridas en guardias nocturnas" icon="fas fa-truck-medical" iconVariant="amber">
-        @if(auth()->check() && in_array(auth()->user()->role, ['super_admin', 'capitania'], true))
+        @if(auth()->check() && in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania'], true))
             <x-ui.button variant="secondary" size="md" icon="fas fa-key" href="{{ route('admin.emergency-keys.index') }}">
                 Claves Radiales
             </x-ui.button>

@@ -202,7 +202,7 @@ class GuardiaDashboardData
      */
     public static function canInhabilitar(): bool
     {
-        return in_array(Auth::user()->role, ['super_admin', 'capitania', 'guardia'], true);
+        return in_array(Auth::user()->role, ['capitan', 'super_admin', 'capitania', 'guardia'], true);
     }
 
     /**

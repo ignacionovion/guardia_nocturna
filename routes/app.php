@@ -339,6 +339,7 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
     Route::put('/admin/guardias/{id}', [AdministradorController::class, 'updateGuardia'])->name('admin.guardias.update');
     Route::delete('/admin/guardias/{id}', [AdministradorController::class, 'destroyGuardia'])->name('admin.guardias.destroy');
     Route::post('/admin/guardias/{id}/activate-week', [AdministradorController::class, 'activateWeek'])->name('admin.guardias.activate_week');
+    Route::post('/admin/guardias/{id}/regenerate-credentials', [AdministradorController::class, 'regenerateCredentials'])->name('admin.guardias.regenerate_credentials');
     Route::post('/admin/guardias/{guardia}/bomberos/{bombero}/confirm', [AdministradorController::class, 'confirmBombero'])->name('admin.guardias.bomberos.confirm');
     Route::post('/admin/guardias/{id}/bulk-update', [AdministradorController::class, 'bulkUpdateGuardia'])->name('admin.guardias.bulk_update');
 

@@ -2,7 +2,7 @@
 
 @section('content')
     <x-ui.page-header title="Administración de Guardias" subtitle="Gestión de equipos y asistencia" icon="fas fa-shield" iconVariant="red">
-        @if(auth()->user()->role === 'super_admin')
+        @if(in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania']))
             <form action="{{ route('admin.guardias.store') }}" method="POST" class="flex gap-2 w-full md:w-auto">
                 @csrf
                 <input type="text" name="name" placeholder="Nombre nueva guardia..." required
@@ -68,6 +68,31 @@
             {{ session('success') }}
         </x-ui.alert>
     @endif
+
+    @if(session('new_credentials'))
+        @php $creds = session('new_credentials'); @endphp
+        <div class="mb-6 p-5 bg-emerald-50 border-2 border-emerald-400 rounded-2xl">
+            <div class="flex items-start gap-3">
+                <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-key text-emerald-700"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="font-bold text-emerald-800 text-sm mb-0.5">Credenciales de acceso generadas para <span class="uppercase">{{ $creds['guardia'] }}</span></p>
+                    <p class="text-xs text-emerald-700 mb-3">Guarda estas credenciales ahora. No se volverán a mostrar a menos que las regeneres.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="bg-white rounded-xl px-4 py-3 border border-emerald-300">
+                            <p class="text-xs font-semibold text-emerald-600 uppercase tracking-wide mb-1">Usuario</p>
+                            <p class="font-mono font-bold text-slate-900 text-sm select-all">{{ $creds['username'] }}</p>
+                        </div>
+                        <div class="bg-white rounded-xl px-4 py-3 border border-emerald-300">
+                            <p class="text-xs font-semibold text-emerald-600 uppercase tracking-wide mb-1">Contraseña</p>
+                            <p class="font-mono font-bold text-slate-900 text-sm select-all">{{ $creds['password'] }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
     
     @if($errors->any())
         <x-ui.alert type="danger" icon="fas fa-exclamation-triangle" class="mb-6">
@@ -115,6 +140,14 @@
                         <a href="{{ route('admin.guardias.edit', $guardia->id) }}" class="text-slate-400 hover:text-white p-2 rounded-md hover:bg-slate-700/50 transition-all" title="Editar">
                             <i class="fas fa-edit"></i>
                         </a>
+                        @if(in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania']))
+                        <form action="{{ route('admin.guardias.regenerate_credentials', $guardia->id) }}" method="POST" onsubmit="return confirm('¿Regenerar credenciales de acceso? La contraseña actual dejará de funcionar.');">
+                            @csrf
+                            <button type="submit" class="text-slate-400 hover:text-amber-400 p-2 rounded-md hover:bg-slate-700/50 transition-all" title="Regenerar credenciales">
+                                <i class="fas fa-key"></i>
+                            </button>
+                        </form>
+                        @endif
                         <form action="{{ route('admin.guardias.destroy', $guardia->id) }}" method="POST" onsubmit="return confirm('¿Eliminar esta guardia?');">
                             @csrf
                             @method('DELETE')

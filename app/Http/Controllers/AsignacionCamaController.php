@@ -247,7 +247,7 @@ class AsignacionCamaController extends Controller
     public function sendReportEmail(Request $request)
     {
         $user = auth()->user();
-        if (!$user || !in_array($user->role, ['super_admin', 'capitania', 'guardia'])) {
+        if (!$user || !in_array($user->role, ['capitan', 'super_admin', 'capitania', 'guardia'])) {
             return response()->json(['ok' => false, 'message' => 'No autorizado'], 403);
         }
 

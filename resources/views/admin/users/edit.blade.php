@@ -38,11 +38,11 @@
                         </label>
                         <select name="role" required
                             class="form-input appearance-none">
-                            <option value="super_admin" {{ old('role', $user->role) === 'super_admin' ? 'selected' : '' }}>Super Admin</option>
-                            <option value="capitania" {{ old('role', $user->role) === 'capitania' ? 'selected' : '' }}>Capitanía</option>
-                            <option value="guardia" {{ old('role', $user->role) === 'guardia' ? 'selected' : '' }}>Cuenta de Guardia</option>
-                            <option value="jefe_guardia" {{ old('role', $user->role) === 'jefe_guardia' ? 'selected' : '' }}>Jefe de Guardia</option>
-                            <option value="inventario" {{ old('role', $user->role) === 'inventario' ? 'selected' : '' }}>Inventario</option>
+                            <option value="capitan" {{ old('role', $user->role) === 'capitan' ? 'selected' : '' }}>Capitán (Acceso administrativo completo)</option>
+                            <option value="guardia" {{ old('role', $user->role) === 'guardia' ? 'selected' : '' }}>Guardia (Acceso operativo)</option>
+                            @if(in_array($user->role, ['super_admin', 'capitania', 'jefe_guardia', 'inventario']))
+                            <option value="{{ $user->role }}" selected>{{ ucfirst(str_replace('_', ' ', $user->role)) }} (heredado — migrar a Capitán)</option>
+                            @endif
                         </select>
                         <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Perfiles predefinidos con permisos generales de acceso</p>
                     </div>

@@ -12,7 +12,7 @@ class EnsureSuperAdmin
     {
         $user = $request->user();
 
-        if (!$user || !in_array($user->role, ['super_admin', 'capitania'], true)) {
+        if (!$user || !in_array($user->role, ['capitan', 'super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
 

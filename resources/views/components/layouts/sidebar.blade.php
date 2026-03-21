@@ -25,35 +25,15 @@ $menuItems = [
         ['route' => 'admin.users.index', 'icon' => 'fas fa-user-shield', 'label' => 'Usuarios', 'match' => 'admin.users*'],
         ['route' => 'admin.system.index', 'icon' => 'fas fa-sliders', 'label' => 'Configuración', 'match' => 'admin.system*'],
     ],
-    'capitania' => [
-        ['route' => 'dashboard', 'icon' => 'fas fa-gauge-high', 'label' => 'Dashboard', 'match' => 'dashboard'],
-        ['divider' => true, 'label' => 'Centro de Comando'],
-        ['route' => 'admin.guardias', 'icon' => 'fas fa-shield-halved', 'label' => 'Guardias', 'match' => 'admin.guardias*', 'feature' => 'guardia'],
-        ['route' => 'camas', 'icon' => 'fas fa-bed', 'label' => 'Camas', 'match' => 'camas', 'feature' => 'camas'],
-        ['route' => 'admin.calendario', 'icon' => 'fas fa-calendar-days', 'label' => 'Calendario', 'match' => 'admin.calendario*', 'feature' => 'calendario'],
-        ['divider' => true, 'label' => 'Personal'],
-        ['route' => 'admin.volunteers.index', 'icon' => 'fas fa-user-group', 'label' => 'Voluntarios', 'match' => 'admin.volunteers*', 'feature' => 'voluntarios'],
-        ['route' => 'admin.emergencies.index', 'icon' => 'fas fa-truck-medical', 'label' => 'Emergencias', 'match' => 'admin.emergencies*', 'feature' => 'emergencias'],
-        ['route' => 'admin.users.index', 'icon' => 'fas fa-user-shield', 'label' => 'Usuarios', 'match' => 'admin.users*'],
-        ['route' => 'admin.reports.index', 'icon' => 'fas fa-chart-line', 'label' => 'Reportes', 'match' => 'admin.reports*', 'feature' => 'reportes'],
-        ['divider' => true, 'label' => 'Configuración'],
-        ['route' => 'admin.beds.index', 'icon' => 'fas fa-bed', 'label' => 'Configurar Camas', 'match' => 'admin.beds*', 'feature' => 'camas'],
-    ],
     'guardia' => [
         ['route' => 'dashboard', 'icon' => 'fas fa-gauge-high', 'label' => 'Inicio', 'match' => 'dashboard'],
         ['route' => 'camas', 'icon' => 'fas fa-bed', 'label' => 'Camas', 'match' => 'camas*'],
     ],
-    'inventario' => [
-        ['route' => 'inventario.index', 'icon' => 'fas fa-warehouse', 'label' => 'Inventario', 'match' => 'inventario*'],
-        ['route' => 'admin.volunteers.index', 'icon' => 'fas fa-user-group', 'label' => 'Voluntarios', 'match' => 'admin.volunteers*'],
-        ['route' => 'admin.emergencies.index', 'icon' => 'fas fa-truck-medical', 'label' => 'Emergencias', 'match' => 'admin.emergencies*'],
-    ],
-    'ayudante' => [
-        ['route' => 'admin.preventivas.index', 'icon' => 'fas fa-clipboard-check', 'label' => 'Preventivas', 'match' => 'admin.preventivas*'],
-    ],
 ];
 
-$items = $menuItems[$role] ?? $menuItems['guardia'];
+// capitan (y roles heredados super_admin/capitania) → menú completo de administración
+$normalizedRole = in_array($role, ['capitan', 'super_admin', 'capitania'], true) ? 'super_admin' : $role;
+$items = $menuItems[$normalizedRole] ?? $menuItems['guardia'];
 @endphp
 
 <aside id="sidebar" 

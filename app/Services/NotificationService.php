@@ -10,7 +10,7 @@ use App\Models\User;
 
 class NotificationService
 {
-    private const SUPER_ADMIN_ROLES = ['super_admin', 'capitania'];
+    private const SUPER_ADMIN_ROLES = ['capitan', 'super_admin', 'capitania'];
 
     /**
      * Send notification to super admin and capitan roles

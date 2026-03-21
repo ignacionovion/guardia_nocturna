@@ -48,7 +48,7 @@
                 </a>
                 
                 {{-- Only show upgrade button if there's a plan upgrade path --}}
-                @if(auth()->user()->role === 'super_admin')
+                @if(in_array(auth()->user()->role, ['capitan', 'super_admin']))
                     <span class="text-slate-400 text-sm">
                         Contacta al administrador del sistema para actualizar tu plan.
                     </span>

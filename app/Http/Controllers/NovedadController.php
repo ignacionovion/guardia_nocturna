@@ -167,13 +167,13 @@ class NovedadController extends Controller
         $novelty = Novelty::findOrFail($id);
         
         // Solo admin/capitán pueden eliminar novedades permanentes
-        if ($novelty->is_permanent && !in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
+        if ($novelty->is_permanent && !in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania'], true)) {
             return response()->json(['error' => 'Solo administradores o capitanía pueden eliminar novedades permanentes.'], 403);
         }
         
         // Solo admin/capitán o el creador pueden eliminar novedades de su guardia
         $authUser = auth()->user();
-        if (!in_array($authUser->role, ['super_admin', 'capitania'], true)) {
+        if (!in_array($authUser->role, ['capitan', 'super_admin', 'capitania'], true)) {
             if ($novelty->guardia_id && $novelty->guardia_id !== $authUser->guardia_id) {
                 return response()->json(['error' => 'No puedes eliminar novedades de otra guardia.'], 403);
             }

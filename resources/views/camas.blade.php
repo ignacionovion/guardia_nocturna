@@ -5,7 +5,7 @@
 
 @section('content')
     <x-ui.page-header title="Gestión de Camas" subtitle="Control de ocupación y asignaciones en tiempo real" icon="fas fa-bed" iconVariant="emerald">
-        @if(in_array(auth()->user()->role, ['super_admin', 'capitania']))
+        @if(in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania']))
             <x-ui.button 
                 variant="info" 
                 size="sm" 
@@ -193,7 +193,7 @@
                                 <i class="fas fa-user-plus"></i>
                                 <span>Asignar</span>
                             </button>
-                            @if(auth()->user()->role === 'super_admin')
+                            @if(in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania']))
                                 <div class="flex gap-2">
                                     <button onclick="openQrModal('{{ $bed->id }}', '{{ $bed->name ?? $bed->number }}')" class="flex-1 px-2 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold rounded-lg text-xs transition-all">
                                         <i class="fas fa-qrcode"></i> QR
@@ -219,7 +219,7 @@
                                 </form>
                             @endif
                         @else
-                            @if(auth()->user()->role === 'super_admin')
+                            @if(in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania']))
                                 <form action="{{ route('beds.available', $bed->id) }}" method="POST" onsubmit="return confirm('¿Habilitar como disponible?');">
                                     @csrf
                                     @method('PUT')

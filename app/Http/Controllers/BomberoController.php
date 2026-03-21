@@ -31,7 +31,7 @@ class BomberoController extends Controller
 
     public function index(Request $request)
     {
-        if (!auth()->check() || !in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
+        if (!auth()->check() || !in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
 
@@ -124,7 +124,7 @@ class BomberoController extends Controller
 
     public function show($tenant, $id)
     {
-        if (!in_array(auth()->user()->role, ['super_admin', 'capitania', 'guardia'], true)) {
+        if (!in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania', 'guardia'], true)) {
             abort(403, 'No autorizado.');
         }
         
@@ -135,7 +135,7 @@ class BomberoController extends Controller
 
     public function edit($tenant, $id)
     {
-        if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
+        if (!in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
         $volunteer = Bombero::findOrFail($id);
@@ -145,7 +145,7 @@ class BomberoController extends Controller
 
     public function update(Request $request, $tenant, $id)
     {
-        if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
+        if (!in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
         $volunteer = Bombero::findOrFail($id);
@@ -208,7 +208,7 @@ class BomberoController extends Controller
 
     public function destroy($tenant, $id)
     {
-        if (auth()->user()->role !== 'super_admin') {
+        if (!in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
         $volunteer = Bombero::findOrFail($id);
@@ -218,7 +218,7 @@ class BomberoController extends Controller
 
     public function destroyPhoto(Bombero $volunteer)
     {
-        if (!in_array(auth()->user()->role, ['super_admin', 'capitania'], true)) {
+        if (!in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
 

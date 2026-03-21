@@ -98,7 +98,7 @@ use App\Models\SystemSetting;
     $attendanceIconClass = $attendanceEnabled ? 'text-emerald-400' : 'text-slate-500';
     
     // === PERMISOS ===
-    $canInhabilitar = in_array(Auth::user()->role, ['super_admin', 'capitania', 'guardia'], true);
+    $canInhabilitar = in_array(Auth::user()->role, ['capitan', 'super_admin', 'capitania', 'guardia'], true);
     
     // === DATOS DE WIDGETS ===
     $isMyGuardiaOnDuty = $isMyGuardiaOnDuty ?? false;

@@ -38,11 +38,8 @@
                         <select name="role" required
                             class="form-input appearance-none">
                             <option value="" disabled {{ old('role') ? '' : 'selected' }}>Seleccionar perfil...</option>
-                            <option value="super_admin" {{ old('role') === 'super_admin' ? 'selected' : '' }}>Super Admin</option>
-                            <option value="capitania" {{ old('role') === 'capitania' ? 'selected' : '' }}>Capitanía</option>
-                            <option value="guardia" {{ old('role') === 'guardia' ? 'selected' : '' }}>Cuenta de Guardia</option>
-                            <option value="jefe_guardia" {{ old('role') === 'jefe_guardia' ? 'selected' : '' }}>Jefe de Guardia</option>
-                            <option value="inventario" {{ old('role') === 'inventario' ? 'selected' : '' }}>Inventario</option>
+                            <option value="capitan" {{ old('role') === 'capitan' ? 'selected' : '' }}>Capitán (Acceso administrativo completo)</option>
+                            <option value="guardia" {{ old('role') === 'guardia' ? 'selected' : '' }}>Guardia (Acceso operativo)</option>
                         </select>
                         <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Perfiles predefinidos con permisos generales de acceso</p>
                     </div>

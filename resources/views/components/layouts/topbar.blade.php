@@ -55,7 +55,7 @@ $currentDate = now()->locale('es');
         <div class="hidden sm:block w-px h-6 bg-[#9fb0c3] mx-1"></div>
         
         {{-- Notifications --}}
-        @if(in_array($user->role ?? '', ['super_admin', 'capitania']))
+        @if(in_array($user->role ?? '', ['capitan', 'super_admin', 'capitania']))
         <div class="relative" x-data="{ open: false }">
             <button @click="open = !open" 
                     class="relative p-2.5 rounded-xl text-[#475569] hover:bg-[#b7c4d3] transition-colors">
@@ -123,7 +123,7 @@ $currentDate = now()->locale('es');
                     <div class="text-xs text-[#475569] truncate">{{ $user->email ?? '' }}</div>
                 </div>
                 <div class="py-1">
-                    @if(($user->role ?? '') === 'super_admin')
+                    @if(in_array($user->role ?? '', ['capitan', 'super_admin', 'capitania']))
                     <a href="{{ route('admin.system.index') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-[#1e293b] hover:bg-[#c3cfdb] transition-colors">
                         <i class="fas fa-sliders w-4 text-center text-[#475569]"></i>
                         Configuración

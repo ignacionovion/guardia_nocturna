@@ -17,7 +17,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    @if(in_array(Auth::user()->role ?? '', ['super_admin', 'capitania'], true))
+    @if(in_array(Auth::user()->role ?? '', ['capitan', 'super_admin', 'capitania'], true))
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.15.0/dist/echo.iife.js"></script>
     <script>
@@ -80,11 +80,7 @@
                         <a href="{{ route('camas') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('camas') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3] hover:text-[#1e293b]' }}">
                             Camas
                         </a>
-                    @elseif(Auth::user()->role === 'inventario')
-                        <a href="{{ route('inventario.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('inventario.*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3] hover:text-[#1e293b]' }}">
-                            Inventario
-                        </a>
-                    @elseif(Auth::user()->role === 'super_admin')
+                    @elseif(in_array(Auth::user()->role, ['capitan', 'super_admin', 'capitania'], true))
                         <a href="{{ route('dashboard') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('dashboard') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3] hover:text-[#1e293b]' }}">
                             Inicio
                         </a>
@@ -174,57 +170,6 @@
                             Inventario
                         </a>
                         @endif
-                    @elseif(Auth::user()->role === 'ayudante')
-                        <div class="relative group">
-                            <button type="button" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.preventivas*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }} flex items-center gap-1">
-                                Preventivas
-                                <i class="fas fa-chevron-down text-xs"></i>
-                            </button>
-                            <div class="hidden group-hover:block absolute left-0 top-full w-56 bg-[#dde6ef] rounded-lg shadow-lg border border-[#9fb0c3] overflow-hidden mt-1">
-                                <div class="py-1"></div>
-                                <a href="{{ route('admin.preventivas.index') }}" class="block px-4 py-2 text-sm font-medium text-[#1e293b] hover:bg-[#c3cfdb]">
-                                    Eventos
-                                </a>
-                                <div class="px-4 py-2 text-xs text-[#475569] border-t border-[#9fb0c3]">Ver reportes desde el detalle de cada evento</div>
-                            </div>
-                        </div>
-                    @elseif(Auth::user()->role === 'capitania')
-                        <a href="{{ route('dashboard') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('dashboard') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">
-                            Inicio
-                        </a>
-                        @if(feature('camas'))
-                        <a href="{{ route('camas') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('camas') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">
-                            Camas
-                        </a>
-                        @endif
-                        @if(feature('guardia'))
-                        <a href="{{ route('admin.guardias') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.guardias*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">
-                            Guardias
-                        </a>
-                        @endif
-                        @if(feature('calendario'))
-                        <a href="{{ route('admin.calendario') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.calendario*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">
-                            Calendario
-                        </a>
-                        @endif
-                        @if(feature('voluntarios'))
-                        <a href="{{ route('admin.volunteers.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.volunteers*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">
-                            Voluntarios
-                        </a>
-                        @endif
-                        <a href="{{ route('admin.users.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.users*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">
-                            Usuarios
-                        </a>
-                        @if(feature('emergencias'))
-                        <a href="{{ route('admin.emergencies.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.emergencies*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">
-                            Emergencias
-                        </a>
-                        @endif
-                        @if(feature('reportes'))
-                        <a href="{{ route('admin.reports.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.reports*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">
-                            Reportes
-                        </a>
-                        @endif
                     @endif
                     @endauth
                 </div>
@@ -237,7 +182,7 @@
                     </button>
 
                     @auth
-                        @if(in_array(Auth::user()->role, ['super_admin', 'capitania'], true))
+                        @if(in_array(Auth::user()->role, ['capitan', 'super_admin', 'capitania'], true))
                             <!-- Campana de Notificaciones -->
                             <div class="relative" id="notification-bell-root">
                                 <button type="button" id="notification-bell-btn" class="relative p-2 text-[#1e293b] hover:text-[#1e293b] hover:bg-[#b7c4d3] rounded-lg transition-colors" title="Notificaciones">
@@ -429,7 +374,7 @@
                                         })
                                         .catch(() => { lastUnreadCount = 0; });
 
-                                    @if(in_array(Auth::user()->role, ['super_admin', 'capitania']))
+                                    @if(in_array(Auth::user()->role, ['capitan', 'super_admin', 'capitania']))
                                     // WebSocket con Laravel Echo + Reverb (tiempo real)
                                     if (typeof window.Echo !== 'undefined') {
                                         window.Echo.private('tenant.{{ tenant("id") }}.notifications')
@@ -526,7 +471,7 @@
                                     <span class="text-[#1e293b] text-sm font-medium">{{ Auth::user()->name }}</span>
                                     <span class="text-[#475569] text-xs">{{ str_replace('_', ' ', Auth::user()->role) }}</span>
                                 </button>
-                                @if(Auth::user()->role === 'super_admin')
+                                @if(in_array(Auth::user()->role, ['capitan', 'super_admin', 'capitania'], true))
                                     <div id="user-menu-dropdown" class="hidden absolute right-0 top-full w-64 mt-2">
                                         <div class="bg-[#dde6ef] rounded-lg shadow-lg border border-[#9fb0c3] overflow-hidden">
                                             <div class="py-1">
@@ -565,18 +510,16 @@
             @if(Auth::user()->role === 'guardia')
                 <a href="{{ route('dashboard') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('dashboard') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">Inicio</a>
                 <a href="{{ route('camas') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('camas') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">Camas</a>
-            @elseif(Auth::user()->role === 'super_admin')
+            @elseif(in_array(Auth::user()->role, ['capitan', 'super_admin', 'capitania'], true))
                 <a href="{{ route('dashboard') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('dashboard') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">Inicio</a>
                 @if(feature('guardia'))
                 <a href="{{ route('admin.guardias') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('admin.guardias*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">Guardias</a>
                 @endif
-                @if(feature('calendario'))
-                <a href="{{ route('admin.calendario') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('admin.calendario*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">Calendario</a>
-                @endif
-            @elseif(Auth::user()->role === 'capitania')
-                <a href="{{ route('dashboard') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('dashboard') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">Inicio</a>
                 @if(feature('camas'))
                 <a href="{{ route('camas') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('camas') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">Camas</a>
+                @endif
+                @if(feature('calendario'))
+                <a href="{{ route('admin.calendario') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('admin.calendario*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">Calendario</a>
                 @endif
             @endif
             @endauth

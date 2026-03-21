@@ -6,7 +6,7 @@
         <x-ui.button variant="primary" size="md" icon="fas fa-plus" href="{{ route('admin.planillas.create') }}">
             Nueva planilla
         </x-ui.button>
-        @if(auth()->check() && auth()->user()->role === 'super_admin')
+        @if(auth()->check() && in_array(auth()->user()->role, ['capitan', 'super_admin']))
             <x-ui.button variant="secondary" size="md" icon="fas fa-list-check" href="{{ route('admin.planillas.listados.index') }}">
                 Editar listados
             </x-ui.button>

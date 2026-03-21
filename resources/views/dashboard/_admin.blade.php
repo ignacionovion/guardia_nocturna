@@ -370,7 +370,7 @@
                                             'Permanente' => ['text' => 'text-purple-600', 'bgLight' => 'bg-purple-50', 'border' => 'border-purple-200'],
                                         ];
                                         $colors = $noveltyColors[$novelty->type] ?? $noveltyColors['Informativa'];
-                                        $canDeleteNovelty = in_array(auth()->user()->role ?? null, ['super_admin', 'capitania']) || 
+                                        $canDeleteNovelty = in_array(auth()->user()->role ?? null, ['capitan', 'super_admin', 'capitania']) || 
                                             ($novelty->user_id === auth()->id() && !$novelty->is_permanent);
                                     @endphp
                                     <div class="border-l-2 border-slate-300 dark:border-slate-600 pl-3 py-2 relative group">
