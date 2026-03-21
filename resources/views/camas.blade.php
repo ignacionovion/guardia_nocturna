@@ -16,69 +16,62 @@
         @endif
     </x-ui.page-header>
 
-    {{-- Métricas Compactas --}}
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div class="card-base p-4">
-            <div class="flex items-center justify-between">
+    {{-- Dashboard Métricas + Filtros --}}
+    <div class="card-base p-5 mb-6">
+        {{-- Métricas Compactas --}}
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+            <div class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
+                <div class="w-12 h-12 bg-slate-200 dark:bg-slate-700 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-bed text-slate-700 dark:text-slate-300 text-lg"></i>
+                </div>
                 <div>
-                    <p class="text-caption text-slate-500 dark:text-slate-400 mb-1">Total</p>
+                    <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Total</p>
                     <p class="text-2xl font-bold text-slate-900 dark:text-white">{{ $totalBeds }}</p>
                 </div>
-                <div class="icon-box icon-box-slate icon-box-md">
-                    <i class="fas fa-bed"></i>
-                </div>
             </div>
-        </div>
-        <div class="card-base p-4">
-            <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3 p-3 bg-red-50 dark:bg-red-900/20 rounded-xl">
+                <div class="w-12 h-12 bg-red-200 dark:bg-red-800 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-user text-red-700 dark:text-red-300 text-lg"></i>
+                </div>
                 <div>
-                    <p class="text-caption text-slate-500 dark:text-slate-400 mb-1">Ocupadas</p>
-                    <p class="text-2xl font-bold text-red-600 dark:text-red-400">{{ $occupiedBeds }}</p>
-                </div>
-                <div class="icon-box icon-box-red icon-box-md">
-                    <i class="fas fa-user"></i>
+                    <p class="text-xs font-semibold text-red-600 dark:text-red-400 uppercase tracking-wide">Ocupadas</p>
+                    <p class="text-2xl font-bold text-red-700 dark:text-red-300">{{ $occupiedBeds }}</p>
                 </div>
             </div>
-        </div>
-        <div class="card-base p-4">
-            <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3 p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl">
+                <div class="w-12 h-12 bg-emerald-200 dark:bg-emerald-800 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-check-circle text-emerald-700 dark:text-emerald-300 text-lg"></i>
+                </div>
                 <div>
-                    <p class="text-caption text-slate-500 dark:text-slate-400 mb-1">Disponibles</p>
-                    <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ $availableBeds }}</p>
-                </div>
-                <div class="icon-box icon-box-emerald icon-box-md">
-                    <i class="fas fa-check-circle"></i>
+                    <p class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">Disponibles</p>
+                    <p class="text-2xl font-bold text-emerald-700 dark:text-emerald-300">{{ $availableBeds }}</p>
                 </div>
             </div>
-        </div>
-        <div class="card-base p-4">
-            <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
+                <div class="w-12 h-12 bg-amber-200 dark:bg-amber-800 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-tools text-amber-700 dark:text-amber-300 text-lg"></i>
+                </div>
                 <div>
-                    <p class="text-caption text-slate-500 dark:text-slate-400 mb-1">Mantención</p>
-                    <p class="text-2xl font-bold text-amber-600 dark:text-amber-400">{{ $maintenanceBeds }}</p>
-                </div>
-                <div class="icon-box icon-box-amber icon-box-md">
-                    <i class="fas fa-tools"></i>
+                    <p class="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wide">Mantención</p>
+                    <p class="text-2xl font-bold text-amber-700 dark:text-amber-300">{{ $maintenanceBeds }}</p>
                 </div>
             </div>
         </div>
-    </div>
 
-    {{-- Filtros Rápidos --}}
-    <div class="card-base p-4 mb-6">
-        <div class="flex flex-wrap items-center gap-3">
-            <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Filtrar:</span>
-            <a href="{{ route('camas') }}" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all {{ !request('status') ? 'bg-slate-900 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700' }}">
-                <i class="fas fa-list mr-2"></i>Todas
+        {{-- Filtros Rápidos Integrados --}}
+        <div class="flex flex-wrap items-center gap-2 pt-4 border-t border-slate-200 dark:border-slate-700">
+            <span class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mr-1">Filtrar:</span>
+            <a href="{{ route('camas') }}" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all {{ !request('status') ? 'bg-slate-900 text-white shadow-sm' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700' }}">
+                <i class="fas fa-list mr-1.5"></i>Todas
             </a>
-            <a href="{{ route('camas', ['status' => 'occupied']) }}" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all {{ request('status') === 'occupied' ? 'bg-red-600 text-white' : 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/30' }}">
-                <i class="fas fa-user mr-2"></i>Ocupadas
+            <a href="{{ route('camas', ['status' => 'occupied']) }}" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all {{ request('status') === 'occupied' ? 'bg-red-600 text-white shadow-sm' : 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/30' }}">
+                <i class="fas fa-user mr-1.5"></i>Ocupadas
             </a>
-            <a href="{{ route('camas', ['status' => 'available']) }}" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all {{ request('status') === 'available' ? 'bg-emerald-600 text-white' : 'bg-emerald-100 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-900/30' }}">
-                <i class="fas fa-check-circle mr-2"></i>Disponibles
+            <a href="{{ route('camas', ['status' => 'available']) }}" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all {{ request('status') === 'available' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-emerald-100 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-900/30' }}">
+                <i class="fas fa-check-circle mr-1.5"></i>Disponibles
             </a>
-            <a href="{{ route('camas', ['status' => 'maintenance']) }}" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all {{ request('status') === 'maintenance' ? 'bg-amber-600 text-white' : 'bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-900/30' }}">
-                <i class="fas fa-tools mr-2"></i>Mantención
+            <a href="{{ route('camas', ['status' => 'maintenance']) }}" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all {{ request('status') === 'maintenance' ? 'bg-amber-600 text-white shadow-sm' : 'bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-900/30' }}">
+                <i class="fas fa-tools mr-1.5"></i>Mantención
             </a>
         </div>
     </div>
@@ -110,47 +103,21 @@
                         : 'border-slate-200 dark:border-slate-700');
             @endphp
             
-            <div class="relative bg-gradient-to-br {{ $cardGradient }} rounded-2xl shadow-sm {{ $borderColor }} border overflow-hidden flex flex-col h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group">
-                
-                <!-- Status Indicator Top Line -->
-                <div class="absolute top-0 left-4 right-4 h-1 rounded-b-lg {{ $bed->status == 'available' ? 'bg-emerald-500' : ($bed->status == 'occupied' ? 'bg-red-500' : 'bg-slate-400') }}"></div>
-                
-                <div class="p-5 flex-grow flex flex-col">
-                    <!-- Header -->
-                    <div class="flex justify-between items-start mb-4">
+            <div class="card-base overflow-hidden flex flex-col h-full transition-all duration-200 hover:shadow-lg group {{ $isOccupied ? 'border-l-4 border-red-500' : ($isAvailable ? 'border-l-4 border-emerald-500' : 'border-l-4 border-slate-400') }}">
+                <div class="p-4 flex-grow flex flex-col">
+                    <!-- Header Compacto -->
+                    <div class="flex items-center justify-between mb-3">
                         <div class="flex items-center gap-3">
-                            <!-- Bed Number Badge -->
-                            <div class="relative">
-                                <div class="w-14 h-14 rounded-2xl bg-white dark:bg-slate-900 border-2 border-{{ $statusColor }}-200 shadow-lg flex items-center justify-center">
-                                    <span class="text-2xl font-bold text-{{ $statusColor }}-600">{{ $bed->name ?? $bed->number }}</span>
-                                </div>
-                                @if($isOccupied)
-                                    <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center border-2 border-white shadow-md">
-                                        <i class="fas fa-user text-[10px] text-white"></i>
-                                    </div>
-                                @elseif($isAvailable)
-                                    <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center border-2 border-white shadow-md">
-                                        <i class="fas fa-check text-[10px] text-white"></i>
-                                    </div>
-                                @endif
+                            <div class="w-12 h-12 rounded-xl {{ $isOccupied ? 'bg-red-100 dark:bg-red-900/30' : ($isAvailable ? 'bg-emerald-100 dark:bg-emerald-900/30' : 'bg-slate-100 dark:bg-slate-800') }} flex items-center justify-center flex-shrink-0">
+                                <span class="text-xl font-bold {{ $isOccupied ? 'text-red-700 dark:text-red-300' : ($isAvailable ? 'text-emerald-700 dark:text-emerald-300' : 'text-slate-600 dark:text-slate-400') }}">{{ $bed->name ?? $bed->number }}</span>
                             </div>
                             <div>
-                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Cama N°</span>
-                                <div class="flex items-center gap-2">
-                                    @if($isAvailable)
-                                        <span class="text-xs font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full uppercase">Libre</span>
-                                    @elseif($isOccupied)
-                                        <span class="text-xs font-bold text-red-600 bg-red-100 dark:bg-red-900/30 px-2 py-0.5 rounded-full uppercase">Ocupada</span>
-                                    @else
-                                        <span class="text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-200 dark:bg-slate-800 px-2 py-0.5 rounded-full uppercase">Mantención</span>
-                                    @endif
-                                </div>
+                                <p class="text-xs font-bold {{ $isOccupied ? 'text-red-600 dark:text-red-400' : ($isAvailable ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-600 dark:text-slate-400') }} uppercase tracking-wide">Cama</p>
+                                <p class="text-sm font-bold text-slate-900 dark:text-white">{{ $bed->name ?? 'N° ' . $bed->number }}</p>
                             </div>
                         </div>
-                        
-                        <!-- Status Icon -->
-                        <div class="icon-box icon-box-{{ $statusColor }} icon-box-sm group-hover:scale-110 transition-transform">
-                            <i class="fas fa-bed"></i>
+                        <div class="px-2.5 py-1 rounded-lg text-xs font-bold {{ $isOccupied ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' : ($isAvailable ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400') }}">
+                            {{ $isOccupied ? 'OCUPADA' : ($isAvailable ? 'LIBRE' : 'MANTENCIÓN') }}
                         </div>
                     </div>
                     
@@ -163,44 +130,30 @@
                                 $fullName = trim(($firefighter?->nombres ?? '') . ' ' . ($firefighter?->apellido_paterno ?? ''));
                             @endphp
                             
-                            <!-- Occupant Card (MEJORADO) -->
-                            <div class="card !bg-gradient-to-br !from-red-50 !to-red-100 dark:!from-red-900/30 dark:!to-red-900/20 !border-2 !border-red-300 dark:!border-red-700 mb-3 shadow-lg">
-                                <div class="flex items-center gap-3 mb-3">
+                            <!-- Ocupante Limpio -->
+                            <div class="bg-red-50 dark:bg-red-900/20 rounded-xl p-3 mb-3 border border-red-200 dark:border-red-800">
+                                <div class="flex items-center gap-2.5 mb-2">
                                     @if($firefighter?->photo_path)
-                                        <img src="{{ route('media', $firefighter->photo_path) }}" class="w-14 h-14 rounded-xl object-cover border-2 border-red-300 shadow-md" alt="{{ $fullName }}">
+                                        <img src="{{ route('media', $firefighter->photo_path) }}" class="w-10 h-10 rounded-lg object-cover" alt="{{ $fullName }}">
                                     @else
-                                        <div class="w-14 h-14 rounded-xl bg-red-200 dark:bg-red-800 flex items-center justify-center border-2 border-red-300 dark:border-red-600 shadow-md">
-                                            <span class="text-xl font-bold text-red-700 dark:text-red-300">{{ $initials ?: '?' }}</span>
+                                        <div class="w-10 h-10 rounded-lg bg-red-200 dark:bg-red-800 flex items-center justify-center">
+                                            <span class="text-sm font-bold text-red-700 dark:text-red-300">{{ $initials ?: '?' }}</span>
                                         </div>
                                     @endif
                                     <div class="flex-1 min-w-0">
-                                        <p class="text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-wider mb-1">Ocupante</p>
-                                        <p class="text-base font-bold text-red-900 dark:text-white truncate">{{ $fullName }}</p>
-                                        @if($firefighter?->cargo_texto)
-                                            <p class="text-xs text-red-700 dark:text-red-300">{{ $firefighter->cargo_texto }}</p>
-                                        @endif
+                                        <p class="text-xs font-semibold text-red-600 dark:text-red-400 uppercase tracking-wide">Ocupante</p>
+                                        <p class="text-sm font-bold text-red-900 dark:text-white truncate">{{ $fullName }}</p>
                                     </div>
                                 </div>
-                                
-                                <!-- Time Info (MEJORADO) -->
-                                <div class="bg-white dark:bg-red-950 rounded-lg px-3 py-2.5 border border-red-200 dark:border-red-800">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center gap-2">
-                                            <i class="fas fa-clock text-red-600 dark:text-red-400"></i>
-                                            @php
-                                                $startTime = $bed->currentAssignment->started_at ?? $bed->currentAssignment->assigned_at;
-                                            @endphp
-                                            @if($startTime)
-                                                <span class="text-xs text-slate-600 dark:text-slate-300">Ingreso: <span class="font-bold text-slate-900 dark:text-white">{{ $startTime->format('H:i') }}</span> hrs</span>
-                                            @else
-                                                <span class="text-xs text-slate-400">Hora no disponible</span>
-                                            @endif
-                                        </div>
-                                        @if($startTime)
-                                            <span class="text-xs font-semibold text-red-600 dark:text-red-400">{{ $startTime->diffForHumans() }}</span>
-                                        @endif
+                                @php
+                                    $startTime = $bed->currentAssignment->started_at ?? $bed->currentAssignment->assigned_at;
+                                @endphp
+                                @if($startTime)
+                                    <div class="flex items-center justify-between text-xs bg-white dark:bg-red-950 rounded-lg px-2.5 py-1.5">
+                                        <span class="text-slate-600 dark:text-slate-300"><i class="fas fa-clock mr-1 text-red-600 dark:text-red-400"></i>{{ $startTime->format('H:i') }} hrs</span>
+                                        <span class="font-bold text-red-700 dark:text-red-300">{{ $startTime->diffForHumans() }}</span>
                                     </div>
-                                </div>
+                                @endif
                             </div>
 
                             <!-- Notes -->
@@ -214,80 +167,70 @@
                             @endif
                             
                         @elseif($isAvailable)
-                            <!-- Available State -->
-                            <div class="h-full flex flex-col items-center justify-center py-8 text-center">
-                                <div class="icon-box icon-box-emerald icon-box-xl mb-4 group-hover:scale-110 transition-transform shadow-lg">
-                                    <i class="fas fa-bed text-3xl"></i>
+                            <!-- Estado Disponible -->
+                            <div class="flex flex-col items-center justify-center py-6 text-center">
+                                <div class="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center mb-3">
+                                    <i class="fas fa-check-circle text-emerald-600 dark:text-emerald-400 text-2xl"></i>
                                 </div>
-                                <p class="text-sm font-bold text-emerald-700 uppercase">Cama Disponible</p>
-                                <p class="text-xs text-slate-400 mt-1">Listo para asignar</p>
+                                <p class="text-sm font-bold text-emerald-700 dark:text-emerald-400">Disponible</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Lista para asignar</p>
                             </div>
                         @else
-                            <!-- Maintenance State -->
-                            <div class="h-full flex flex-col items-center justify-center py-8 text-center">
-                                <div class="icon-box icon-box-slate icon-box-xl mb-4 shadow-md">
-                                    <i class="fas fa-tools text-3xl"></i>
+                            <!-- Estado Mantención -->
+                            <div class="flex flex-col items-center justify-center py-6 text-center">
+                                <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center mb-3">
+                                    <i class="fas fa-tools text-slate-500 dark:text-slate-400 text-2xl"></i>
                                 </div>
-                                <p class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase">Fuera de Servicio</p>
+                                <p class="text-sm font-bold text-slate-600 dark:text-slate-400">En Mantención</p>
                                 @if($bed->notes ?? $bed->description)
-                                    <p class="text-xs text-slate-400 mt-1">{{ $bed->notes ?? $bed->description }}</p>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">{{ $bed->notes ?? $bed->description }}</p>
                                 @endif
                             </div>
                         @endif
                     </div>
 
-                    <!-- Actions Footer -->
-                    <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <!-- Acciones -->
+                    <div class="mt-auto pt-3 space-y-2">
                         @if($isAvailable)
-                            <div class="grid grid-cols-1 {{ auth()->user()->role === 'super_admin' ? 'sm:grid-cols-2' : '' }} gap-2">
-                                <x-ui.button variant="primary" size="sm" icon="fas fa-user-plus" class="w-full" onclick="openAssignModal('{{ $bed->id }}', '{{ $bed->name ?? $bed->number }}')">
-                                    Asignar
-                                </x-ui.button>
-
-                                @if(auth()->user()->role === 'super_admin')
-                                    <x-ui.button variant="info" size="sm" icon="fas fa-qrcode" class="w-full" onclick="openQrModal('{{ $bed->id }}', '{{ $bed->name ?? $bed->number }}')">
-                                        Ver QR
-                                    </x-ui.button>
-                                @endif
-                            </div>
-                            
+                            <button onclick="openAssignModal('{{ $bed->id }}', '{{ $bed->name ?? $bed->number }}')" class="w-full px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-sm transition-all flex items-center justify-center gap-2">
+                                <i class="fas fa-user-plus"></i>
+                                <span>Asignar</span>
+                            </button>
                             @if(auth()->user()->role === 'super_admin')
-                                <form action="{{ route('beds.maintenance', $bed->id) }}" method="POST" onsubmit="return confirm('¿Marcar cama #{{ $bed->name ?? $bed->number }} en mantención?');" class="m-0 mt-2">
-                                    @csrf
-                                    @method('PUT')
-                                    <x-ui.button type="submit" variant="ghost" size="sm" icon="fas fa-tools" class="w-full">
-                                        Mantención
-                                    </x-ui.button>
-                                </form>
+                                <div class="flex gap-2">
+                                    <button onclick="openQrModal('{{ $bed->id }}', '{{ $bed->name ?? $bed->number }}')" class="flex-1 px-2 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold rounded-lg text-xs transition-all">
+                                        <i class="fas fa-qrcode"></i> QR
+                                    </button>
+                                    <form action="{{ route('beds.maintenance', $bed->id) }}" method="POST" onsubmit="return confirm('¿Marcar en mantención?');" class="flex-1">
+                                        @csrf
+                                        @method('PUT')
+                                        <button type="submit" class="w-full px-2 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold rounded-lg text-xs transition-all">
+                                            <i class="fas fa-tools"></i> Mantención
+                                        </button>
+                                    </form>
+                                </div>
                             @endif
                         @elseif($isOccupied)
                             @if($bed->currentAssignment)
                                 <form action="{{ route('beds.release', $bed->currentAssignment->id) }}" method="POST" onsubmit="return confirm('¿Liberar esta cama?');">
                                     @csrf
                                     <input type="hidden" name="release" value="1">
-                                    <button type="submit" class="w-full inline-flex items-center justify-center gap-2 font-semibold rounded-xl transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#1e293b]/10 px-3 py-2 text-xs bg-red-600 text-white hover:bg-red-700 shadow-sm">
-                                        <i class="fas fa-right-from-bracket"></i>
-                                        Liberar
+                                    <button type="submit" class="w-full px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-sm transition-all flex items-center justify-center gap-2">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Liberar</span>
                                     </button>
                                 </form>
-                            @else
-                                <div class="w-full bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-bold py-3 px-4 rounded-xl text-[10px] text-center uppercase border border-red-200 dark:border-red-800 cursor-help" title="Error de integridad: Cama ocupada sin asignación">
-                                    <i class="fas fa-exclamation-circle mr-1"></i> Error Datos
-                                </div>
                             @endif
                         @else
                             @if(auth()->user()->role === 'super_admin')
-                                <form action="{{ route('beds.available', $bed->id) }}" method="POST" onsubmit="return confirm('¿Habilitar cama #{{ $bed->name ?? $bed->number }} como disponible?');" class="m-0">
+                                <form action="{{ route('beds.available', $bed->id) }}" method="POST" onsubmit="return confirm('¿Habilitar como disponible?');">
                                     @csrf
                                     @method('PUT')
-                                    <x-ui.button type="submit" variant="success" size="sm" icon="fas fa-check-circle" class="w-full">
-                                        Habilitar
-                                    </x-ui.button>
+                                    <button type="submit" class="w-full px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-sm transition-all flex items-center justify-center gap-2">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Habilitar</span>
+                                    </button>
                                 </form>
-                            @else
-                                <x-ui.button variant="ghost" size="sm" icon="fas fa-ban" class="w-full" disabled>
-                                    No Disponible
-                                </x-ui.button>
                             @endif
                         @endif
                     </div>
