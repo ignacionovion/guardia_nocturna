@@ -753,22 +753,37 @@ class TableroController extends Controller
         ]);
     }
 
-    public function camas()
+    public function camas(Request $request)
     {
         $user = auth()->user();
         $now = now();
 
         ReplacementService::expire($now);
-        $beds = Bed::with(['currentAssignment.firefighter', 'currentAssignment.user'])->get();
+        
+        // Filtro por estado
+        $statusFilter = $request->get('status');
+        
+        $bedsQuery = Bed::with(['currentAssignment.firefighter', 'currentAssignment.user']);
+        
+        if ($statusFilter && in_array($statusFilter, ['available', 'occupied', 'maintenance', 'disabled'])) {
+            $bedsQuery->where('status', $statusFilter);
+        }
+        
+        $beds = $bedsQuery->get();
         
         // Auto-fix: Corregir camas marcadas como ocupadas pero sin asignación activa
-        // Esto previene el error "Attempt to read property id on null" en la vista
         foreach ($beds as $bed) {
             if ($bed->status === 'occupied' && !$bed->currentAssignment) {
                 $bed->update(['status' => 'available']);
-                $bed->status = 'available'; // Actualizar en memoria para esta request
+                $bed->status = 'available';
             }
         }
+        
+        // Métricas
+        $totalBeds = Bed::count();
+        $occupiedBeds = Bed::where('status', 'occupied')->count();
+        $availableBeds = Bed::where('status', 'available')->count();
+        $maintenanceBeds = Bed::where('status', 'maintenance')->count();
         
         $assignedFirefighterIds = \App\Models\BedAssignment::whereNull('ended_at')
             ->whereNotNull('firefighter_id')
@@ -779,11 +794,9 @@ class TableroController extends Controller
             ->whereNotIn('id', $assignedFirefighterIds)
             ->whereIn('estado_asistencia', ['constituye', 'reemplazo', 'falta', 'refuerzo']);
 
-        // Si el usuario tiene guardia asignada, filtrar voluntarios de su guardia
         if ($user->guardia_id) {
             $usersQuery->where('guardia_id', $user->guardia_id);
         } else {
-            // Si es Admin, filtrar por la Guardia Activa de la semana
             $activeGuardia = $this->resolveActiveGuardia($now);
             if ($activeGuardia) {
                 $usersQuery->where('guardia_id', $activeGuardia->id);
@@ -792,7 +805,7 @@ class TableroController extends Controller
 
         $users = $usersQuery->orderBy('nombres')->orderBy('apellido_paterno')->get();
         
-        return view('camas', compact('beds', 'users'));
+        return view('camas', compact('beds', 'users', 'totalBeds', 'occupiedBeds', 'availableBeds', 'maintenanceBeds'));
     }
 
     public function guardia()

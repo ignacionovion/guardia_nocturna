@@ -4,22 +4,74 @@
 @section('page-title', 'Gestión de Camas')
 
 @section('content')
-    <x-ui.page-header title="Gestión de Camas" subtitle="Control de ocupación y asignaciones en tiempo real" icon="fas fa-bed" iconVariant="emerald">
-        <div class="flex items-center gap-2 card-base p-2.5">
-            <div class="flex items-center px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
-                <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full mr-2 shadow-[0_0_6px_rgba(16,185,129,0.5)]"></span>
-                <span class="text-caption text-emerald-700 dark:text-emerald-400">Disponible</span>
-            </div>
-            <div class="flex items-center px-3 py-1.5 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
-                <span class="w-2.5 h-2.5 bg-red-500 rounded-full mr-2 shadow-[0_0_6px_rgba(239,68,68,0.5)]"></span>
-                <span class="text-caption text-red-700 dark:text-red-400">Ocupada</span>
-            </div>
-            <div class="flex items-center px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
-                <span class="w-2.5 h-2.5 bg-slate-400 rounded-full mr-2"></span>
-                <span class="text-caption text-slate-600 dark:text-slate-400">Mantención</span>
+    <x-ui.page-header title="Gestión de Camas" subtitle="Control de ocupación y asignaciones en tiempo real" icon="fas fa-bed" iconVariant="emerald" />
+
+    {{-- Métricas Compactas --}}
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="card-base p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-caption text-slate-500 dark:text-slate-400 mb-1">Total</p>
+                    <p class="text-2xl font-bold text-slate-900 dark:text-white">{{ $totalBeds }}</p>
+                </div>
+                <div class="icon-box icon-box-slate icon-box-md">
+                    <i class="fas fa-bed"></i>
+                </div>
             </div>
         </div>
-    </x-ui.page-header>
+        <div class="card-base p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-caption text-slate-500 dark:text-slate-400 mb-1">Ocupadas</p>
+                    <p class="text-2xl font-bold text-red-600 dark:text-red-400">{{ $occupiedBeds }}</p>
+                </div>
+                <div class="icon-box icon-box-red icon-box-md">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+        </div>
+        <div class="card-base p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-caption text-slate-500 dark:text-slate-400 mb-1">Disponibles</p>
+                    <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ $availableBeds }}</p>
+                </div>
+                <div class="icon-box icon-box-emerald icon-box-md">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+            </div>
+        </div>
+        <div class="card-base p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-caption text-slate-500 dark:text-slate-400 mb-1">Mantención</p>
+                    <p class="text-2xl font-bold text-amber-600 dark:text-amber-400">{{ $maintenanceBeds }}</p>
+                </div>
+                <div class="icon-box icon-box-amber icon-box-md">
+                    <i class="fas fa-tools"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Filtros Rápidos --}}
+    <div class="card-base p-4 mb-6">
+        <div class="flex flex-wrap items-center gap-3">
+            <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Filtrar:</span>
+            <a href="{{ route('camas') }}" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all {{ !request('status') ? 'bg-slate-900 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700' }}">
+                <i class="fas fa-list mr-2"></i>Todas
+            </a>
+            <a href="{{ route('camas', ['status' => 'occupied']) }}" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all {{ request('status') === 'occupied' ? 'bg-red-600 text-white' : 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/30' }}">
+                <i class="fas fa-user mr-2"></i>Ocupadas
+            </a>
+            <a href="{{ route('camas', ['status' => 'available']) }}" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all {{ request('status') === 'available' ? 'bg-emerald-600 text-white' : 'bg-emerald-100 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-900/30' }}">
+                <i class="fas fa-check-circle mr-2"></i>Disponibles
+            </a>
+            <a href="{{ route('camas', ['status' => 'maintenance']) }}" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all {{ request('status') === 'maintenance' ? 'bg-amber-600 text-white' : 'bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-900/30' }}">
+                <i class="fas fa-tools mr-2"></i>Mantención
+            </a>
+        </div>
+    </div>
 
     <!-- Beds Grid - Modern Professional Design -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
@@ -101,39 +153,44 @@
                                 $fullName = trim(($firefighter?->nombres ?? '') . ' ' . ($firefighter?->apellido_paterno ?? ''));
                             @endphp
                             
-                            <!-- Occupant Card -->
-                            <div class="card !bg-white dark:!bg-slate-900 !border-red-200 dark:!border-red-800 mb-3">
-                                <div class="flex items-center gap-3">
+                            <!-- Occupant Card (MEJORADO) -->
+                            <div class="card !bg-gradient-to-br !from-red-50 !to-red-100 dark:!from-red-900/30 dark:!to-red-900/20 !border-2 !border-red-300 dark:!border-red-700 mb-3 shadow-lg">
+                                <div class="flex items-center gap-3 mb-3">
                                     @if($firefighter?->photo_path)
-                                        <img src="{{ route('media', $firefighter->photo_path) }}" class="w-12 h-12 rounded-xl object-cover border border-red-200 shadow-md" alt="{{ $fullName }}">
+                                        <img src="{{ route('media', $firefighter->photo_path) }}" class="w-14 h-14 rounded-xl object-cover border-2 border-red-300 shadow-md" alt="{{ $fullName }}">
                                     @else
-                                        <div class="icon-box icon-box-red icon-box-sm">
-                                            {{ $initials ?: '?' }}
+                                        <div class="w-14 h-14 rounded-xl bg-red-200 dark:bg-red-800 flex items-center justify-center border-2 border-red-300 dark:border-red-600 shadow-md">
+                                            <span class="text-xl font-bold text-red-700 dark:text-red-300">{{ $initials ?: '?' }}</span>
                                         </div>
                                     @endif
                                     <div class="flex-1 min-w-0">
-                                        <p class="text-caption text-red-500">Ocupante</p>
-                                        <p class="text-sm font-bold text-slate-800 dark:text-white truncate">{{ $fullName }}</p>
+                                        <p class="text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-wider mb-1">Ocupante</p>
+                                        <p class="text-base font-bold text-red-900 dark:text-white truncate">{{ $fullName }}</p>
                                         @if($firefighter?->cargo_texto)
-                                            <p class="text-body-xs">{{ $firefighter->cargo_texto }}</p>
+                                            <p class="text-xs text-red-700 dark:text-red-300">{{ $firefighter->cargo_texto }}</p>
                                         @endif
                                     </div>
                                 </div>
-                            </div>
-                            
-                            <!-- Time Info -->
-                            <div class="flex items-center gap-2 text-body-xs bg-slate-50 dark:bg-slate-800 rounded-lg px-3 py-2 mb-3">
-                                <i class="fas fa-clock text-slate-400"></i>
-                                @php
-                                    $startTime = $bed->currentAssignment->started_at ?? $bed->currentAssignment->assigned_at;
-                                @endphp
-                                @if($startTime)
-                                    <span>Ingreso: <span class="font-semibold text-slate-700 dark:text-slate-300">{{ $startTime->format('H:i') }}</span> hrs</span>
-                                    <span class="mx-1 text-slate-300">|</span>
-                                    <span class="text-slate-400">{{ $startTime->diffForHumans() }}</span>
-                                @else
-                                    <span class="text-slate-400">Hora no disponible</span>
-                                @endif
+                                
+                                <!-- Time Info (MEJORADO) -->
+                                <div class="bg-white dark:bg-red-950 rounded-lg px-3 py-2.5 border border-red-200 dark:border-red-800">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <i class="fas fa-clock text-red-600 dark:text-red-400"></i>
+                                            @php
+                                                $startTime = $bed->currentAssignment->started_at ?? $bed->currentAssignment->assigned_at;
+                                            @endphp
+                                            @if($startTime)
+                                                <span class="text-xs text-slate-600 dark:text-slate-300">Ingreso: <span class="font-bold text-slate-900 dark:text-white">{{ $startTime->format('H:i') }}</span> hrs</span>
+                                            @else
+                                                <span class="text-xs text-slate-400">Hora no disponible</span>
+                                            @endif
+                                        </div>
+                                        @if($startTime)
+                                            <span class="text-xs font-semibold text-red-600 dark:text-red-400">{{ $startTime->diffForHumans() }}</span>
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Notes -->
