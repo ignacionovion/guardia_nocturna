@@ -304,144 +304,148 @@
                             $bgClass = $bed->status === 'occupied' ? 'bg-red-50/40' : '';
                         @endphp
                         
-                        <x-ui.card class="hover:shadow-lg transition-all duration-200 {{ $borderClass }} {{ $bgClass }} !p-4">
-                            {{-- Header Compacto --}}
-                            <div class="flex items-center justify-between mb-3">
-                                <div class="flex items-center gap-2.5">
-                                    <div class="w-11 h-11 rounded-xl {{ $bed->status === 'occupied' ? 'bg-red-100' : ($bed->status === 'available' ? 'bg-emerald-100' : 'bg-slate-100') }} flex items-center justify-center">
-                                        <span class="text-lg font-bold {{ $bed->status === 'occupied' ? 'text-red-700' : ($bed->status === 'available' ? 'text-emerald-700' : 'text-slate-600') }}">{{ $bed->name }}</span>
+                        <x-ui.card class="hover:shadow-lg transition-all duration-200 {{ $borderClass }} {{ $bgClass }}">
+                            <div class="p-4 flex flex-col h-full">
+                                {{-- Header Compacto --}}
+                                <div class="flex items-center justify-between mb-3 flex-shrink-0">
+                                    <div class="flex items-center gap-2.5">
+                                        <div class="w-11 h-11 rounded-xl {{ $bed->status === 'occupied' ? 'bg-red-100' : ($bed->status === 'available' ? 'bg-emerald-100' : 'bg-slate-100') }} flex items-center justify-center">
+                                            <span class="text-lg font-bold {{ $bed->status === 'occupied' ? 'text-red-700' : ($bed->status === 'available' ? 'text-emerald-700' : 'text-slate-600') }}">{{ $bed->name }}</span>
+                                        </div>
+                                        <div class="min-w-0">
+                                            <p class="text-sm font-bold text-[#1e293b] truncate">{{ $bed->name }}</p>
+                                            @if($bed->location)
+                                                <p class="text-xs text-[#64748b] truncate"><i class="fas fa-map-marker-alt text-[9px] mr-1"></i>{{ $bed->location }}</p>
+                                            @endif
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p class="text-sm font-bold text-[#1e293b]">{{ $bed->name }}</p>
-                                        @if($bed->location)
-                                            <p class="text-xs text-[#64748b]"><i class="fas fa-map-marker-alt text-[9px] mr-1"></i>{{ $bed->location }}</p>
+                                    <div class="px-2 py-1 rounded-lg text-xs font-bold flex-shrink-0
+                                        {{ $bed->status === 'available' ? 'bg-emerald-100 text-emerald-700' : '' }}
+                                        {{ $bed->status === 'occupied' ? 'bg-red-100 text-red-700' : '' }}
+                                        {{ $bed->status === 'maintenance' ? 'bg-amber-100 text-amber-700' : '' }}
+                                        {{ $bed->status === 'disabled' ? 'bg-gray-100 text-gray-600' : '' }}">
+                                        {{ $bed->status_label }}
+                                    </div>
+                                </div>
+
+                                {{-- Género Badge --}}
+                                <div class="mb-3 flex-shrink-0">
+                                    <x-ui.badge variant="{{ $bed->gender_color }}" size="sm">
+                                        <i class="fas {{ $bed->gender === 'male' ? 'fa-mars' : ($bed->gender === 'female' ? 'fa-venus' : 'fa-venus-mars') }} mr-1"></i>
+                                        {{ $bed->gender_label }}
+                                    </x-ui.badge>
+                                </div>
+
+                                {{-- Contenido Flexible --}}
+                                <div class="flex-grow flex flex-col">
+                                    {{-- Ocupante Limpio --}}
+                                    @if($bed->is_occupied && $bed->current_occupant_name)
+                                        <div class="p-3 bg-red-50 rounded-xl border border-red-200">
+                                            <div class="flex items-center gap-2 mb-1.5">
+                                                <div class="w-8 h-8 bg-red-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                                                    <i class="fas fa-user text-red-700 text-sm"></i>
+                                                </div>
+                                                <div class="flex-1 min-w-0">
+                                                    <p class="text-xs font-semibold text-red-600 uppercase tracking-wide">Ocupante</p>
+                                                    <p class="text-sm font-bold text-red-900 truncate">{{ $bed->current_occupant_name }}</p>
+                                                </div>
+                                            </div>
+                                            @if($bed->currentAssignment && $bed->currentAssignment->started_at)
+                                                <div class="text-xs text-red-700 bg-white rounded-lg px-2 py-1">
+                                                    <i class="fas fa-clock mr-1"></i>
+                                                    <span class="font-semibold">{{ $bed->currentAssignment->started_at->diffForHumans() }}</span>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @elseif($bed->notes)
+                                        <div class="p-2.5 bg-blue-50 rounded-lg border border-blue-200">
+                                            <p class="text-xs text-blue-800 line-clamp-2">
+                                                <i class="fas fa-info-circle mr-1"></i>{{ $bed->notes }}
+                                            </p>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                {{-- Acciones Principales --}}
+                                <div class="mt-auto pt-3 space-y-2 flex-shrink-0">
+                                    @if($bed->is_occupied)
+                                        <button type="button" onclick="openReleaseModal({{ $bed->id }}, '{{ $bed->name }}')"
+                                            class="w-full px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-sm transition-all flex items-center justify-center gap-2">
+                                            <i class="fas fa-check-circle"></i>
+                                            <span>Liberar</span>
+                                        </button>
+                                    @elseif($bed->canBeAssigned())
+                                        <button type="button" onclick="openAssignModal({{ $bed->id }}, '{{ $bed->name }}', '{{ $bed->gender }}')"
+                                            class="w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-sm transition-all flex items-center justify-center gap-2">
+                                            <i class="fas fa-user-plus"></i>
+                                            <span>Asignar</span>
+                                        </button>
+                                    @else
+                                        <div class="w-full px-3 py-2 bg-gray-100 text-gray-500 font-semibold rounded-lg text-sm text-center">
+                                            <i class="fas fa-ban mr-1"></i>No asignable
+                                        </div>
+                                    @endif
+
+                                    {{-- Control de Estado --}}
+                                    @if($bed->status !== 'occupied')
+                                    <div class="flex flex-wrap gap-1.5">
+                                        @if($bed->status === 'disabled')
+                                            <form action="{{ route('admin.beds.status', $bed) }}" method="POST" class="flex-1">
+                                                @csrf
+                                                <input type="hidden" name="status" value="available">
+                                                <button type="submit" class="w-full px-2 py-1.5 text-xs font-bold rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-700 transition-all">
+                                                    <i class="fas fa-check"></i> Reactivar
+                                                </button>
+                                            </form>
+                                        @else
+                                            @if($bed->status !== 'available')
+                                            <form action="{{ route('admin.beds.status', $bed) }}" method="POST" class="flex-1">
+                                                @csrf
+                                                <input type="hidden" name="status" value="available">
+                                                <button type="submit" class="w-full px-2 py-1.5 text-xs font-bold rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-700 transition-all">
+                                                    <i class="fas fa-check"></i> Disponible
+                                                </button>
+                                            </form>
+                                            @endif
+                                            @if($bed->status !== 'maintenance')
+                                            <form action="{{ route('admin.beds.status', $bed) }}" method="POST" class="flex-1">
+                                                @csrf
+                                                <input type="hidden" name="status" value="maintenance">
+                                                <button type="submit" class="w-full px-2 py-1.5 text-xs font-bold rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-700 transition-all">
+                                                    <i class="fas fa-tools"></i> Mantención
+                                                </button>
+                                            </form>
+                                            @endif
+                                            <form action="{{ route('admin.beds.status', $bed) }}" method="POST" class="flex-1">
+                                                @csrf
+                                                <input type="hidden" name="status" value="disabled">
+                                                <button type="submit" class="w-full px-2 py-1.5 text-xs font-bold rounded-lg bg-red-100 hover:bg-red-200 text-red-700 transition-all">
+                                                    <i class="fas fa-ban"></i> Deshabilitar
+                                                </button>
+                                            </form>
                                         @endif
                                     </div>
-                                </div>
-                                <div class="px-2 py-1 rounded-lg text-xs font-bold 
-                                    {{ $bed->status === 'available' ? 'bg-emerald-100 text-emerald-700' : '' }}
-                                    {{ $bed->status === 'occupied' ? 'bg-red-100 text-red-700' : '' }}
-                                    {{ $bed->status === 'maintenance' ? 'bg-amber-100 text-amber-700' : '' }}
-                                    {{ $bed->status === 'disabled' ? 'bg-gray-100 text-gray-600' : '' }}">
-                                    {{ $bed->status_label }}
-                                </div>
-                            </div>
-
-                            {{-- Género Badge --}}
-                            <div class="mb-3">
-                                <x-ui.badge variant="{{ $bed->gender_color }}" size="sm">
-                                    <i class="fas {{ $bed->gender === 'male' ? 'fa-mars' : ($bed->gender === 'female' ? 'fa-venus' : 'fa-venus-mars') }} mr-1"></i>
-                                    {{ $bed->gender_label }}
-                                </x-ui.badge>
-                            </div>
-
-                            {{-- Ocupante Limpio --}}
-                            @if($bed->is_occupied && $bed->current_occupant_name)
-                                <div class="mb-3 p-3 bg-red-50 rounded-xl border border-red-200">
-                                    <div class="flex items-center gap-2 mb-1.5">
-                                        <div class="w-8 h-8 bg-red-200 rounded-lg flex items-center justify-center">
-                                            <i class="fas fa-user text-red-700 text-sm"></i>
-                                        </div>
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-xs font-semibold text-red-600 uppercase tracking-wide">Ocupante</p>
-                                            <p class="text-sm font-bold text-red-900 truncate">{{ $bed->current_occupant_name }}</p>
-                                        </div>
-                                    </div>
-                                    @if($bed->currentAssignment && $bed->currentAssignment->started_at)
-                                        <div class="text-xs text-red-700 bg-white rounded-lg px-2 py-1">
-                                            <i class="fas fa-clock mr-1"></i>
-                                            <span class="font-semibold">{{ $bed->currentAssignment->started_at->diffForHumans() }}</span>
-                                        </div>
                                     @endif
                                 </div>
-                            @elseif($bed->notes)
-                                <div class="mb-3 p-2.5 bg-blue-50 rounded-lg border border-blue-200">
-                                    <p class="text-xs text-blue-800 line-clamp-2">
-                                        <i class="fas fa-info-circle mr-1"></i>{{ $bed->notes }}
-                                    </p>
-                                </div>
-                            @endif
 
-                            {{-- Acción Principal --}}
-                            <div class="mb-3">
-                                @if($bed->is_occupied)
-                                    <button type="button" onclick="openReleaseModal({{ $bed->id }}, '{{ $bed->name }}')"
-                                        class="w-full px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-sm transition-all flex items-center justify-center gap-2">
-                                        <i class="fas fa-check-circle"></i>
-                                        <span>Liberar</span>
-                                    </button>
-                                @elseif($bed->canBeAssigned())
-                                    <button type="button" onclick="openAssignModal({{ $bed->id }}, '{{ $bed->name }}', '{{ $bed->gender }}')"
-                                        class="w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-sm transition-all flex items-center justify-center gap-2">
-                                        <i class="fas fa-user-plus"></i>
-                                        <span>Asignar</span>
-                                    </button>
-                                @else
-                                    <div class="w-full px-3 py-2 bg-gray-100 text-gray-500 font-semibold rounded-lg text-sm text-center">
-                                        <i class="fas fa-ban mr-1"></i>No asignable
-                                    </div>
-                                @endif
-                            </div>
-
-                            {{-- Control de Estado --}}
-                            @if($bed->status !== 'occupied')
-                            <div class="flex flex-wrap gap-1.5 mb-3">
-                                @if($bed->status === 'disabled')
-                                    <form action="{{ route('admin.beds.status', $bed) }}" method="POST" class="flex-1">
-                                        @csrf
-                                        <input type="hidden" name="status" value="available">
-                                        <button type="submit" class="w-full px-2 py-1.5 text-xs font-bold rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-700 transition-all">
-                                            <i class="fas fa-check"></i> Reactivar
-                                        </button>
-                                    </form>
-                                @else
-                                    @if($bed->status !== 'available')
-                                    <form action="{{ route('admin.beds.status', $bed) }}" method="POST" class="flex-1">
-                                        @csrf
-                                        <input type="hidden" name="status" value="available">
-                                        <button type="submit" class="w-full px-2 py-1.5 text-xs font-bold rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-700 transition-all">
-                                            <i class="fas fa-check"></i> Disponible
-                                        </button>
-                                    </form>
-                                    @endif
-                                    @if($bed->status !== 'maintenance')
-                                    <form action="{{ route('admin.beds.status', $bed) }}" method="POST" class="flex-1">
-                                        @csrf
-                                        <input type="hidden" name="status" value="maintenance">
-                                        <button type="submit" class="w-full px-2 py-1.5 text-xs font-bold rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-700 transition-all">
-                                            <i class="fas fa-tools"></i> Mantención
-                                        </button>
-                                    </form>
-                                    @endif
-                                    <form action="{{ route('admin.beds.status', $bed) }}" method="POST" class="flex-1">
-                                        @csrf
-                                        <input type="hidden" name="status" value="disabled">
-                                        <button type="submit" class="w-full px-2 py-1.5 text-xs font-bold rounded-lg bg-red-100 hover:bg-red-200 text-red-700 transition-all">
-                                            <i class="fas fa-ban"></i> Deshabilitar
-                                        </button>
-                                    </form>
-                                @endif
-                            </div>
-                            @endif
-
-                            {{-- Acciones Secundarias --}}
-                            <div class="grid grid-cols-4 gap-1.5 pt-3 border-t border-[#cbd5e1]">
-                                <a href="{{ route('admin.beds.edit', $bed) }}" class="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-slate-100 transition-all" title="Editar">
-                                    <i class="fas fa-pen text-slate-600 text-sm mb-1"></i>
-                                    <span class="text-[10px] font-semibold text-slate-600">Editar</span>
-                                </a>
-                                <a href="{{ route('admin.beds.history', $bed) }}" class="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-slate-100 transition-all" title="Historial">
-                                    <i class="fas fa-history text-slate-600 text-sm mb-1"></i>
-                                    <span class="text-[10px] font-semibold text-slate-600">Historial</span>
-                                </a>
-                                <a href="{{ route('admin.beds.qr', $bed) }}" class="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-slate-100 transition-all" title="Ver QR">
-                                    <i class="fas fa-qrcode text-slate-600 text-sm mb-1"></i>
-                                    <span class="text-[10px] font-semibold text-slate-600">QR</span>
-                                </a>
-                                <a href="{{ route('admin.beds.qr.print', $bed) }}" target="_blank" class="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-slate-100 transition-all" title="Imprimir">
-                                    <i class="fas fa-print text-slate-600 text-sm mb-1"></i>
-                                    <span class="text-[10px] font-semibold text-slate-600">Imprimir</span>
-                                </a>
+                                {{-- Acciones Secundarias --}}
+                                <div class="grid grid-cols-4 gap-1.5 pt-3 border-t border-[#cbd5e1] flex-shrink-0">
+                                    <a href="{{ route('admin.beds.edit', $bed) }}" class="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-slate-100 transition-all" title="Editar">
+                                        <i class="fas fa-pen text-slate-600 text-sm mb-1"></i>
+                                        <span class="text-[10px] font-semibold text-slate-600">Editar</span>
+                                    </a>
+                                    <a href="{{ route('admin.beds.history', $bed) }}" class="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-slate-100 transition-all" title="Historial">
+                                        <i class="fas fa-history text-slate-600 text-sm mb-1"></i>
+                                        <span class="text-[10px] font-semibold text-slate-600">Historial</span>
+                                    </a>
+                                    <a href="{{ route('admin.beds.qr', $bed) }}" class="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-slate-100 transition-all" title="Ver QR">
+                                        <i class="fas fa-qrcode text-slate-600 text-sm mb-1"></i>
+                                        <span class="text-[10px] font-semibold text-slate-600">QR</span>
+                                    </a>
+                                    <a href="{{ route('admin.beds.qr.print', $bed) }}" target="_blank" class="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-slate-100 transition-all" title="Imprimir">
+                                        <i class="fas fa-print text-slate-600 text-sm mb-1"></i>
+                                        <span class="text-[10px] font-semibold text-slate-600">Imprimir</span>
+                                    </a>
                                 </div>
                             </div>
                         </x-ui.card>

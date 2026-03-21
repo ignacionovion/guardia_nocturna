@@ -77,7 +77,7 @@
     </div>
 
     <!-- Beds Grid - Modern Professional Design -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         @foreach($beds as $bed)
             @php
                 $isAvailable = $bed->status == 'available';
@@ -103,10 +103,10 @@
                         : 'border-slate-200 dark:border-slate-700');
             @endphp
             
-            <div class="card-base overflow-hidden flex flex-col h-full transition-all duration-200 hover:shadow-lg group {{ $isOccupied ? 'border-l-4 border-red-500' : ($isAvailable ? 'border-l-4 border-emerald-500' : 'border-l-4 border-slate-400') }}">
-                <div class="p-4 flex-grow flex flex-col">
+            <div class="card-base overflow-hidden transition-all duration-200 hover:shadow-lg group {{ $isOccupied ? 'border-l-4 border-red-500' : ($isAvailable ? 'border-l-4 border-emerald-500' : 'border-l-4 border-slate-400') }}">
+                <div class="p-4 flex flex-col h-full">
                     <!-- Header Compacto -->
-                    <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center justify-between mb-3 flex-shrink-0">
                         <div class="flex items-center gap-3">
                             <div class="w-12 h-12 rounded-xl {{ $isOccupied ? 'bg-red-100 dark:bg-red-900/30' : ($isAvailable ? 'bg-emerald-100 dark:bg-emerald-900/30' : 'bg-slate-100 dark:bg-slate-800') }} flex items-center justify-center flex-shrink-0">
                                 <span class="text-xl font-bold {{ $isOccupied ? 'text-red-700 dark:text-red-300' : ($isAvailable ? 'text-emerald-700 dark:text-emerald-300' : 'text-slate-600 dark:text-slate-400') }}">{{ $bed->name ?? $bed->number }}</span>
@@ -122,7 +122,7 @@
                     </div>
                     
                     <!-- Content -->
-                    <div class="flex-grow">
+                    <div class="flex-grow flex flex-col">
                         @if($isOccupied && $bed->currentAssignment)
                             @php
                                 $firefighter = $bed->currentAssignment->firefighter;
@@ -131,7 +131,7 @@
                             @endphp
                             
                             <!-- Ocupante Limpio -->
-                            <div class="bg-red-50 dark:bg-red-900/20 rounded-xl p-3 mb-3 border border-red-200 dark:border-red-800">
+                            <div class="bg-red-50 dark:bg-red-900/20 rounded-xl p-3 border border-red-200 dark:border-red-800">
                                 <div class="flex items-center gap-2.5 mb-2">
                                     @if($firefighter?->photo_path)
                                         <img src="{{ route('media', $firefighter->photo_path) }}" class="w-10 h-10 rounded-lg object-cover" alt="{{ $fullName }}">
@@ -158,39 +158,36 @@
 
                             <!-- Notes -->
                             @if($bed->currentAssignment->notes)
-                                <div class="card !bg-amber-50 dark:!bg-amber-900/20 !border-amber-200 dark:!border-amber-800">
-                                    <div class="flex items-start gap-2">
-                                        <i class="fas fa-sticky-note text-amber-500 mt-0.5 text-xs"></i>
-                                        <p class="text-xs text-amber-800 dark:text-amber-200 leading-relaxed">{{ $bed->currentAssignment->notes }}</p>
-                                    </div>
+                                <div class="mt-2 p-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                                    <p class="text-xs text-amber-800 dark:text-amber-200 line-clamp-2"><i class="fas fa-sticky-note mr-1"></i>{{ $bed->currentAssignment->notes }}</p>
                                 </div>
                             @endif
                             
                         @elseif($isAvailable)
                             <!-- Estado Disponible -->
-                            <div class="flex flex-col items-center justify-center py-6 text-center">
-                                <div class="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center mb-3">
-                                    <i class="fas fa-check-circle text-emerald-600 dark:text-emerald-400 text-2xl"></i>
+                            <div class="flex flex-col items-center justify-center py-4 text-center">
+                                <div class="w-14 h-14 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center mb-2">
+                                    <i class="fas fa-check-circle text-emerald-600 dark:text-emerald-400 text-xl"></i>
                                 </div>
                                 <p class="text-sm font-bold text-emerald-700 dark:text-emerald-400">Disponible</p>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Lista para asignar</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Lista para asignar</p>
                             </div>
                         @else
                             <!-- Estado Mantención -->
-                            <div class="flex flex-col items-center justify-center py-6 text-center">
-                                <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center mb-3">
-                                    <i class="fas fa-tools text-slate-500 dark:text-slate-400 text-2xl"></i>
+                            <div class="flex flex-col items-center justify-center py-4 text-center">
+                                <div class="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center mb-2">
+                                    <i class="fas fa-tools text-slate-500 dark:text-slate-400 text-xl"></i>
                                 </div>
                                 <p class="text-sm font-bold text-slate-600 dark:text-slate-400">En Mantención</p>
                                 @if($bed->notes ?? $bed->description)
-                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">{{ $bed->notes ?? $bed->description }}</p>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">{{ $bed->notes ?? $bed->description }}</p>
                                 @endif
                             </div>
                         @endif
                     </div>
 
                     <!-- Acciones -->
-                    <div class="mt-auto pt-3 space-y-2">
+                    <div class="mt-auto pt-3 space-y-2 flex-shrink-0">
                         @if($isAvailable)
                             <button onclick="openAssignModal('{{ $bed->id }}', '{{ $bed->name ?? $bed->number }}')" class="w-full px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-sm transition-all flex items-center justify-center gap-2">
                                 <i class="fas fa-user-plus"></i>
