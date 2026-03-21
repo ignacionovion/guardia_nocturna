@@ -18,6 +18,16 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 */
 
 foreach (config('tenancy.central_domains') as $domain) {
+    // Rutas públicas QR (sin auth, sin tenant-active check)
+    // Solo inicializa tenant y web middleware
+    Route::domain('{tenant}.' . $domain)
+        ->middleware([
+            'web',
+            InitializeTenancyBySubdomain::class,
+        ])
+        ->group(base_path('routes/qr-public.php'));
+
+    // Rutas principales de la app (con auth y tenant-active check)
     Route::domain('{tenant}.' . $domain)
         ->middleware([
             'web',
