@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
-use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 
 use App\Http\Controllers\TableroController;
 use App\Http\Controllers\GuardiaLiveController;
@@ -220,19 +219,151 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
         ]);
     });
     
-    Route::get('/debug/camas/assignment/{id}', function ($id) {
-        $exists = \App\Models\BedAssignment::where('id', $id)->exists();
-        $assignment = $exists ? \App\Models\BedAssignment::with('bed')->find($id) : null;
+    Route::get('/debug/camas/middleware-check', function (\Illuminate\Http\Request $request) {
+        $route = $request->route();
         
         return response()->json([
+            'tenant_initialized' => tenancy()->initialized,
             'tenant_id' => tenant('id'),
             'db_connection' => DB::connection()->getDatabaseName(),
-            'assignment_exists' => $exists,
-            'assignment' => $assignment,
-            'all_assignment_ids' => \App\Models\BedAssignment::pluck('id')->toArray(),
+            'route_name' => $route?->getName(),
+            'current_url' => $request->url(),
+            'request_host' => $request->getHost(),
+            'request_http_host' => $request->getHttpHost(),
+            'middleware_stack' => $route?->gatherMiddleware() ?? [],
+            'expected_middleware' => [
+                'web',
+                \Stancl\Tenancy\Middleware\InitializeTenancyBySubdomain::class,
+                \Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains::class,
+                \App\Http\Middleware\EnsureTenantActive::class,
+            ],
+            'subdomain_extracted' => explode('.', $request->getHost())[0] ?? null,
         ]);
     });
     
+    Route::get('/debug/camas/assignment/{id}', function ($id) {
+        DB::enableQueryLog();
+
+        // 1. Inspección del parámetro
+        $paramInfo = [
+            'raw_value'  => $id,
+            'php_type'   => gettype($id),
+            'strlen'     => strlen((string) $id),
+            'hex'        => bin2hex((string) $id),
+            'trimmed'    => trim((string) $id),
+            'int_cast'   => (int) $id,
+        ];
+
+        // 2. Eloquent queries
+        $eloquentExists   = \App\Models\BedAssignment::where('id', $id)->exists();
+        $eloquentWhereKey = \App\Models\BedAssignment::whereKey($id)->exists();
+        $eloquentFind     = \App\Models\BedAssignment::find($id);
+        $eloquentFirst    = \App\Models\BedAssignment::query()->where('id', $id)->first();
+        $eloquentAll      = \App\Models\BedAssignment::pluck('id')->toArray();
+
+        // 3. Raw DB queries (bypass Eloquent)
+        $rawExists        = DB::table('bed_assignments')->where('id', $id)->exists();
+        $rawExistsInt     = DB::table('bed_assignments')->where('id', (int) $id)->exists();
+        $rawFirst         = DB::table('bed_assignments')->where('id', $id)->first();
+
+        // 4. Conexión exacta que usa el modelo
+        $modelConnection  = \App\Models\BedAssignment::query()->getConnection()->getDatabaseName();
+        $modelConnName    = \App\Models\BedAssignment::query()->getConnection()->getName();
+
+        $queryLog = DB::getQueryLog();
+        DB::disableQueryLog();
+
+        return response()->json([
+            'param_info'             => $paramInfo,
+            'tenant_initialized'     => tenancy()->initialized,
+            'tenant_id'              => tenant('id'),
+            'db_default_connection'  => DB::connection()->getDatabaseName(),
+            'model_connection_name'  => $modelConnName,
+            'model_connection_db'    => $modelConnection,
+            'eloquent_exists'        => $eloquentExists,
+            'eloquent_wherekey'      => $eloquentWhereKey,
+            'eloquent_find'          => $eloquentFind,
+            'eloquent_first'         => $eloquentFirst,
+            'eloquent_all_ids'       => $eloquentAll,
+            'raw_exists_string'      => $rawExists,
+            'raw_exists_int'         => $rawExistsInt,
+            'raw_first'              => $rawFirst,
+            'query_log'              => $queryLog,
+        ]);
+    });
+
+    Route::get('/debug/camas/liberar-check/{id}', function ($id) {
+        DB::enableQueryLog();
+
+        $paramInfo = [
+            'raw_value'  => $id,
+            'php_type'   => gettype($id),
+            'strlen'     => strlen((string) $id),
+            'hex'        => bin2hex((string) $id),
+            'int_cast'   => (int) $id,
+        ];
+
+        $eloquentExists   = \App\Models\BedAssignment::where('id', $id)->exists();
+        $eloquentWhereKey = \App\Models\BedAssignment::whereKey($id)->exists();
+        $eloquentFind     = \App\Models\BedAssignment::find($id);
+        $rawExists        = DB::table('bed_assignments')->where('id', $id)->exists();
+        $rawExistsInt     = DB::table('bed_assignments')->where('id', (int) $id)->exists();
+
+        $queryLog = DB::getQueryLog();
+        DB::disableQueryLog();
+
+        return response()->json([
+            'param_info'             => $paramInfo,
+            'tenant_initialized'     => tenancy()->initialized,
+            'tenant_id'              => tenant('id'),
+            'db_default_connection'  => DB::connection()->getDatabaseName(),
+            'model_connection_db'    => \App\Models\BedAssignment::query()->getConnection()->getDatabaseName(),
+            'eloquent_exists'        => $eloquentExists,
+            'eloquent_wherekey'      => $eloquentWhereKey,
+            'eloquent_find'          => $eloquentFind,
+            'raw_exists_string'      => $rawExists,
+            'raw_exists_int'         => $rawExistsInt,
+            'query_log'              => $queryLog,
+        ]);
+    });
+
+    Route::get('/debug/camas/scan-check/{bedId}', function ($bedId) {
+        DB::enableQueryLog();
+
+        $paramInfo = [
+            'raw_value'  => $bedId,
+            'php_type'   => gettype($bedId),
+            'strlen'     => strlen((string) $bedId),
+            'hex'        => bin2hex((string) $bedId),
+            'int_cast'   => (int) $bedId,
+        ];
+
+        $eloquentExists   = \App\Models\Bed::where('id', $bedId)->exists();
+        $eloquentWhereKey = \App\Models\Bed::whereKey($bedId)->exists();
+        $eloquentFind     = \App\Models\Bed::find($bedId);
+        $rawExists        = DB::table('beds')->where('id', $bedId)->exists();
+        $rawExistsInt     = DB::table('beds')->where('id', (int) $bedId)->exists();
+        $allIds           = \App\Models\Bed::pluck('id')->toArray();
+
+        $queryLog = DB::getQueryLog();
+        DB::disableQueryLog();
+
+        return response()->json([
+            'param_info'             => $paramInfo,
+            'tenant_initialized'     => tenancy()->initialized,
+            'tenant_id'              => tenant('id'),
+            'db_default_connection'  => DB::connection()->getDatabaseName(),
+            'model_connection_db'    => \App\Models\Bed::query()->getConnection()->getDatabaseName(),
+            'eloquent_exists'        => $eloquentExists,
+            'eloquent_wherekey'      => $eloquentWhereKey,
+            'eloquent_find'          => $eloquentFind,
+            'raw_exists_string'      => $rawExists,
+            'raw_exists_int'         => $rawExistsInt,
+            'all_bed_ids'            => $allIds,
+            'query_log'              => $queryLog,
+        ]);
+    });
+
     Route::get('/debug/camas/qr/{bedId}', function ($bedId) {
         $exists = \App\Models\Bed::where('id', $bedId)->exists();
         $bed = $exists ? \App\Models\Bed::find($bedId) : null;

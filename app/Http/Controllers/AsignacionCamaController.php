@@ -130,23 +130,56 @@ class AsignacionCamaController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        // DIAGNÓSTICO: Verificar conexión tenant
-        \Log::info('AsignacionCamaController::update INICIO', [
-            'id' => $id,
-            'tenant_initialized' => tenancy()->initialized,
-            'tenant_id' => tenant('id'),
-            'db_connection' => DB::connection()->getDatabaseName(),
-            'bed_assignment_connection' => BedAssignment::query()->getConnection()->getDatabaseName(),
-            'total_assignments' => BedAssignment::count(),
-            'assignment_exists' => BedAssignment::where('id', $id)->exists(),
+        DB::enableQueryLog();
+
+        // DIAGNÓSTICO COMPLETO
+        $paramInfo = [
+            'raw_value' => $id,
+            'php_type'  => gettype($id),
+            'strlen'    => strlen((string) $id),
+            'hex'       => bin2hex((string) $id),
+            'int_cast'  => (int) $id,
+        ];
+
+        $dbDefault   = DB::connection()->getDatabaseName();
+        $modelDb     = BedAssignment::query()->getConnection()->getDatabaseName();
+        $modelConn   = BedAssignment::query()->getConnection()->getName();
+
+        $step1Exists   = BedAssignment::where('id', $id)->exists();
+        $step2WKey     = BedAssignment::whereKey($id)->exists();
+        $step3RawStr   = DB::table('bed_assignments')->where('id', $id)->exists();
+        $step4RawInt   = DB::table('bed_assignments')->where('id', (int) $id)->exists();
+        $step5First    = BedAssignment::query()->where('id', $id)->first();
+        $step6Find     = BedAssignment::find($id);
+
+        $queryLog = DB::getQueryLog();
+        DB::disableQueryLog();
+
+        Log::info('AsignacionCamaController::update DIAGNÓSTICO', [
+            'param_info'            => $paramInfo,
+            'tenant_initialized'    => tenancy()->initialized,
+            'tenant_id'             => tenant('id'),
+            'db_default_connection' => $dbDefault,
+            'model_connection_name' => $modelConn,
+            'model_connection_db'   => $modelDb,
+            'step1_eloquent_exists' => $step1Exists,
+            'step2_wherekey_exists' => $step2WKey,
+            'step3_raw_str_exists'  => $step3RawStr,
+            'step4_raw_int_exists'  => $step4RawInt,
+            'step5_first'           => $step5First?->id,
+            'step6_find'            => $step6Find?->id,
+            'query_log'             => $queryLog,
         ]);
 
-        $assignment = BedAssignment::findOrFail($id);
+        // Si ningún método encuentra el registro, abortar con info
+        if (! $step6Find && ! $step5First) {
+            Log::error('AsignacionCamaController::update REGISTRO NO ENCONTRADO', [
+                'id' => $id, 'db' => $modelDb, 'all_ids' => BedAssignment::pluck('id')->toArray(),
+            ]);
+            abort(404, 'BedAssignment ' . $id . ' not found in ' . $modelDb);
+        }
 
-        \Log::info('AsignacionCamaController::update DESPUÉS DE findOrFail', [
-            'assignment_id' => $assignment->id,
-            'bed_id' => $assignment->bed_id,
-        ]);
+        $assignment = $step6Find ?? $step5First;
 
         if ($request->has('release') && $request->release) {
              $assignment->update([

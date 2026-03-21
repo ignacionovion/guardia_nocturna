@@ -110,23 +110,55 @@ class BedQrController extends Controller
      */
     public function scanForm(Request $request, string $bedId)
     {
-        // DIAGNÓSTICO: Verificar conexión tenant
-        \Log::info('BedQrController::scanForm INICIO', [
-            'bedId' => $bedId,
-            'tenant_initialized' => tenancy()->initialized,
-            'tenant_id' => tenant('id'),
-            'db_connection' => DB::connection()->getDatabaseName(),
-            'bed_connection' => Bed::query()->getConnection()->getDatabaseName(),
-            'total_beds' => Bed::count(),
-            'bed_exists' => Bed::where('id', (int) $bedId)->exists(),
+        DB::enableQueryLog();
+
+        // DIAGNÓSTICO COMPLETO
+        $paramInfo = [
+            'raw_value' => $bedId,
+            'php_type'  => gettype($bedId),
+            'strlen'    => strlen((string) $bedId),
+            'hex'       => bin2hex((string) $bedId),
+            'int_cast'  => (int) $bedId,
+        ];
+
+        $dbDefault  = DB::connection()->getDatabaseName();
+        $modelDb    = Bed::query()->getConnection()->getDatabaseName();
+        $modelConn  = Bed::query()->getConnection()->getName();
+
+        $step1Exists  = Bed::where('id', $bedId)->exists();
+        $step2WKey    = Bed::whereKey($bedId)->exists();
+        $step3RawStr  = DB::table('beds')->where('id', $bedId)->exists();
+        $step4RawInt  = DB::table('beds')->where('id', (int) $bedId)->exists();
+        $step5First   = Bed::query()->where('id', $bedId)->first();
+        $step6Find    = Bed::find((int) $bedId);
+
+        $queryLog = DB::getQueryLog();
+        DB::disableQueryLog();
+
+        \Log::info('BedQrController::scanForm DIAGNÓSTICO', [
+            'param_info'            => $paramInfo,
+            'tenant_initialized'    => tenancy()->initialized,
+            'tenant_id'             => tenant('id'),
+            'db_default_connection' => $dbDefault,
+            'model_connection_name' => $modelConn,
+            'model_connection_db'   => $modelDb,
+            'step1_eloquent_exists' => $step1Exists,
+            'step2_wherekey_exists' => $step2WKey,
+            'step3_raw_str_exists'  => $step3RawStr,
+            'step4_raw_int_exists'  => $step4RawInt,
+            'step5_first'           => $step5First?->id,
+            'step6_find'            => $step6Find?->id,
+            'query_log'             => $queryLog,
         ]);
 
-        $bed = Bed::query()->findOrFail((int) $bedId);
+        if (! $step6Find && ! $step5First) {
+            \Log::error('BedQrController::scanForm REGISTRO NO ENCONTRADO', [
+                'bedId' => $bedId, 'db' => $modelDb, 'all_ids' => Bed::pluck('id')->toArray(),
+            ]);
+            abort(404, 'Bed ' . $bedId . ' not found in ' . $modelDb);
+        }
 
-        \Log::info('BedQrController::scanForm DESPUÉS DE findOrFail', [
-            'bed_id' => $bed->id,
-            'bed_name' => $bed->name,
-        ]);
+        $bed = $step6Find ?? $step5First;
 
         // Si viene el parámetro reset, limpiar la sesión del bombero
         if ($request->has('reset')) {
