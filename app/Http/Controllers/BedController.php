@@ -21,12 +21,23 @@ class BedController extends Controller
             $query->byGender($request->gender);
         }
 
-        $beds = $query->orderBy('name')->get();
+        if ($request->filled('room')) {
+            $query->byRoom($request->room);
+        }
+
+        $beds = $query->orderBy('room')->orderBy('name')->get();
+
+        // Obtener lista de sectores/piezas para filtro
+        $rooms = Bed::select('room')
+            ->distinct()
+            ->whereNotNull('room')
+            ->orderBy('room')
+            ->pluck('room');
 
         // Obtener guardia activa para mostrar info
         $activeGuardia = \App\Models\Guardia::where('is_active_week', true)->first();
 
-        return view('admin.beds.index', compact('beds', 'activeGuardia'));
+        return view('admin.beds.index', compact('beds', 'activeGuardia', 'rooms'));
     }
 
     public function create()
@@ -38,6 +49,7 @@ class BedController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'room' => 'nullable|string|max:255',
             'location' => 'nullable|string|max:255',
             'gender' => 'required|in:male,female,mixed',
             'status' => 'required|in:available,occupied,maintenance,disabled',
@@ -73,6 +85,7 @@ class BedController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'room' => 'nullable|string|max:255',
             'location' => 'nullable|string|max:255',
             'gender' => 'required|in:male,female,mixed',
             'status' => 'required|in:available,occupied,maintenance,disabled',

@@ -52,6 +52,15 @@
         <div class="p-5 border-b border-[#9fb0c3] bg-[#c3cfdb]">
             <form method="GET" class="flex flex-col md:flex-row md:items-end gap-4">
                 <div class="flex-1">
+                    <label class="form-label mb-2">Sector / Pieza</label>
+                    <select name="room" class="form-select">
+                        <option value="">Todos</option>
+                        @foreach($rooms as $room)
+                            <option value="{{ $room }}" {{ request('room') === $room ? 'selected' : '' }}>{{ $room }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="flex-1">
                     <label class="form-label mb-2">Estado</label>
                     <select name="status" class="form-select">
                         <option value="">Todos</option>
@@ -93,8 +102,35 @@
             </div>
         </x-ui.card>
     @else
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            @foreach($beds as $bed)
+        @php
+            $bedsByRoom = $beds->groupBy('room');
+        @endphp
+
+        @foreach($bedsByRoom as $room => $roomBeds)
+            {{-- Header de Sector/Pieza --}}
+            <div class="mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-door-open text-blue-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-[#1e293b]">
+                                {{ $room ?: 'Sin sector asignado' }}
+                            </h3>
+                            <p class="text-sm text-[#475569]">
+                                {{ $roomBeds->count() }} {{ $roomBeds->count() === 1 ? 'cama' : 'camas' }}
+                                @if($roomBeds->where('status', 'occupied')->count() > 0)
+                                    · {{ $roomBeds->where('status', 'occupied')->count() }} ocupada(s)
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Grid de Camas del Sector --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    @foreach($roomBeds as $bed)
                 <x-ui.card class="hover:shadow-lg transition-shadow">
                     <div class="p-5">
                         {{-- Header --}}
@@ -215,8 +251,10 @@
                         </div>
                     </div>
                 </x-ui.card>
-            @endforeach
-        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endforeach
     @endif
 
     {{-- Modal Asignar Cama --}}

@@ -16,9 +16,10 @@ class BedAssignmentController extends Controller
         $bedId = $request->route('bed') ?? $bed;
         $bed = Bed::query()->findOrFail((int) $bedId);
 
-        // Validar que la cama puede ser asignada
-        if (!$bed->canBeAssigned()) {
-            if ($bed->is_occupied) {
+        // VALIDACIÓN 1: Disponibilidad real de la cama
+        // La cama solo puede asignarse si está disponible y sin ocupante
+        if ($bed->status !== 'available') {
+            if ($bed->status === 'occupied') {
                 return back()->with('error', 'Esta cama ya está ocupada.');
             }
             if ($bed->status === 'maintenance') {
@@ -27,6 +28,11 @@ class BedAssignmentController extends Controller
             if ($bed->status === 'disabled') {
                 return back()->with('error', 'No se puede asignar una cama deshabilitada.');
             }
+        }
+
+        // Verificar que no tenga asignación activa (doble check)
+        if ($bed->is_occupied) {
+            return back()->with('error', 'Esta cama tiene una asignación activa.');
         }
 
         $validated = $request->validate([
@@ -66,29 +72,36 @@ class BedAssignmentController extends Controller
             return back()->with('error', 'El voluntario está fuera de servicio.');
         }
 
-        // Validar género de la cama
-        if ($bed->gender !== 'mixed') {
-            $userGender = strtolower($volunteer->gender ?? '');
-            if ($bed->gender === 'male' && !in_array($userGender, ['masculino', 'male'])) {
-                return back()->with('error', 'Esta cama es solo para hombres.');
-            }
-            if ($bed->gender === 'female' && !in_array($userGender, ['femenino', 'female'])) {
-                return back()->with('error', 'Esta cama es solo para mujeres.');
-            }
-        }
-
-        // Validar que el voluntario no tenga otra cama asignada
-        $hasActiveBed = BedAssignment::where('volunteer_id', $volunteer->id)
+        // VALIDACIÓN 2: Unicidad de cama por voluntario
+        // Un voluntario no puede tener dos camas activas simultáneamente
+        $hasActiveBed = BedAssignment::query()
+            ->where(function ($query) use ($volunteer, $firefighterId) {
+                $query->where('volunteer_id', $volunteer->id)
+                    ->orWhere('user_id', $volunteer->id)
+                    ->orWhere('firefighter_id', $firefighterId);
+            })
             ->whereNull('ended_at')
             ->exists();
         
         if ($hasActiveBed) {
-            return back()->with('error', 'El voluntario ya tiene una cama asignada.');
+            return back()->with('error', 'El voluntario ya tiene una cama asignada. Debe liberarla antes de asignar otra.');
+        }
+
+        // VALIDACIÓN 3: Género de la cama vs voluntario
+        // Camas male/female solo aceptan el género correspondiente, mixed acepta cualquiera
+        if ($bed->gender !== 'mixed') {
+            $userGender = strtolower($volunteer->gender ?? '');
+            if ($bed->gender === 'male' && !in_array($userGender, ['masculino', 'male', 'm'])) {
+                return back()->with('error', 'Esta cama es exclusiva para hombres.');
+            }
+            if ($bed->gender === 'female' && !in_array($userGender, ['femenino', 'female', 'f'])) {
+                return back()->with('error', 'Esta cama es exclusiva para mujeres.');
+            }
         }
 
         DB::beginTransaction();
         try {
-            // Crear asignación
+            // Crear asignación (el observer actualiza automáticamente el estado a 'occupied')
             BedAssignment::create([
                 'bed_id' => $bed->id,
                 'volunteer_id' => $validated['volunteer_id'],
@@ -96,9 +109,6 @@ class BedAssignmentController extends Controller
                 'started_at' => now(),
                 'notes' => $validated['notes'] ?? null,
             ]);
-
-            // Actualizar estado de la cama
-            $bed->update(['status' => 'occupied']);
 
             DB::commit();
 
@@ -127,14 +137,11 @@ class BedAssignmentController extends Controller
         try {
             $assignment = $bed->currentAssignment;
             
-            // Cerrar asignación
+            // Cerrar asignación (el observer actualiza automáticamente el estado a 'available')
             $assignment->update([
                 'ended_at' => now(),
                 'notes' => $validated['notes'] ?? $assignment->notes,
             ]);
-
-            // Actualizar estado de la cama
-            $bed->update(['status' => 'available']);
 
             DB::commit();
 

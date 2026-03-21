@@ -11,6 +11,7 @@ class Bed extends Model
         'name',
         'number',
         'location',
+        'room',
         'gender',
         'status',
         'notes',
@@ -144,5 +145,10 @@ class Bed extends Model
     public function scopeByStatus($query, $status)
     {
         return $query->where('status', $status);
+    }
+
+    public function scopeByRoom($query, $room)
+    {
+        return $query->where('room', $room);
     }
 }

@@ -30,11 +30,19 @@
                         class="form-input" placeholder="Ej: Cama 1, Litera A, etc.">
                 </div>
 
+                {{-- Sector/Pieza --}}
+                <div>
+                    <label class="form-label">Sector / Pieza</label>
+                    <input type="text" name="room" value="{{ old('room') }}"
+                        class="form-input" placeholder="Ej: Dormitorio 1, Sala principal, Segundo piso, etc.">
+                    <p class="text-xs text-[#475569] mt-1">Agrupa las camas por sector o pieza del cuartel</p>
+                </div>
+
                 {{-- Ubicación --}}
                 <div>
-                    <label class="form-label">Ubicación</label>
+                    <label class="form-label">Ubicación (detalle adicional)</label>
                     <input type="text" name="location" value="{{ old('location') }}"
-                        class="form-input" placeholder="Ej: Dormitorio principal, Segundo piso, etc.">
+                        class="form-input" placeholder="Ej: Junto a la ventana, Esquina izquierda, etc.">
                 </div>
 
                 {{-- Género --}}

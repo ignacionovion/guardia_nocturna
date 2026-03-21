@@ -44,5 +44,8 @@ class AppServiceProvider extends ServiceProvider
     {
         // Registrar observer para liberación automática de camas
         \App\Models\Bombero::observe(\App\Observers\BomberoObserver::class);
+        
+        // Registrar observer para sincronización automática de estado de camas
+        \App\Models\BedAssignment::observe(\App\Observers\BedAssignmentObserver::class);
     }
 }
