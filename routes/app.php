@@ -472,6 +472,9 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
         Route::get('/{bed}/qr', [\App\Http\Controllers\BedController::class, 'showQr'])->name('qr');
         Route::get('/{bed}/qr/print', [\App\Http\Controllers\BedController::class, 'printQr'])->name('qr.print');
         
+        // Cambio rápido de estado (disponible / mantenimiento / deshabilitada)
+        Route::post('/{bed}/status', [\App\Http\Controllers\BedController::class, 'changeStatus'])->name('status');
+
         // Rutas de asignación y liberación
         Route::post('/{bed}/assign', [\App\Http\Controllers\BedAssignmentController::class, 'assign'])->name('assign');
         Route::post('/{bed}/release', [\App\Http\Controllers\BedAssignmentController::class, 'release'])->name('release');

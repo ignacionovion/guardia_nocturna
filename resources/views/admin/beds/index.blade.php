@@ -165,6 +165,47 @@
                             @endif
                         </div>
 
+                        {{-- Control de Estado --}}
+                        @if($bed->status !== 'occupied')
+                        <div class="flex gap-1.5 mb-3">
+                            @if($bed->status === 'disabled')
+                                <form action="{{ route('admin.beds.status', $bed) }}" method="POST" class="flex-1">
+                                    @csrf
+                                    <input type="hidden" name="status" value="available">
+                                    <button type="submit" class="w-full px-2 py-1.5 text-xs font-semibold rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-800 border border-emerald-300 transition-colors">
+                                        <i class="fas fa-check mr-1"></i>Reactivar
+                                    </button>
+                                </form>
+                            @else
+                                @if($bed->status !== 'available')
+                                <form action="{{ route('admin.beds.status', $bed) }}" method="POST" class="flex-1">
+                                    @csrf
+                                    <input type="hidden" name="status" value="available">
+                                    <button type="submit" class="w-full px-2 py-1.5 text-xs font-semibold rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-800 border border-emerald-300 transition-colors">
+                                        <i class="fas fa-check mr-1"></i>Disponible
+                                    </button>
+                                </form>
+                                @endif
+                                @if($bed->status !== 'maintenance')
+                                <form action="{{ route('admin.beds.status', $bed) }}" method="POST" class="flex-1">
+                                    @csrf
+                                    <input type="hidden" name="status" value="maintenance">
+                                    <button type="submit" class="w-full px-2 py-1.5 text-xs font-semibold rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-800 border border-amber-300 transition-colors">
+                                        <i class="fas fa-tools mr-1"></i>Mantenimiento
+                                    </button>
+                                </form>
+                                @endif
+                                <form action="{{ route('admin.beds.status', $bed) }}" method="POST" class="flex-1">
+                                    @csrf
+                                    <input type="hidden" name="status" value="disabled">
+                                    <button type="submit" class="w-full px-2 py-1.5 text-xs font-semibold rounded-lg bg-red-100 hover:bg-red-200 text-red-800 border border-red-300 transition-colors">
+                                        <i class="fas fa-ban mr-1"></i>Deshabilitar
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
+                        @endif
+
                         {{-- Acciones Secundarias --}}
                         <div class="flex gap-2 pt-4 border-t border-[#9fb0c3]">
                             <x-ui.button variant="ghost" size="sm" icon="fas fa-history" href="{{ route('admin.beds.history', $bed) }}" title="Historial" />

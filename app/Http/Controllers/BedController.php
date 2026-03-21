@@ -73,6 +73,27 @@ class BedController extends Controller
             ->with('success', 'Cama actualizada exitosamente.');
     }
 
+    public function changeStatus(Request $request, Bed $bed)
+    {
+        $bed_id = $request->route('bed');
+        if ($bed_id && ! ($bed instanceof Bed)) {
+            $bed = Bed::findOrFail($bed_id);
+        }
+
+        $validated = $request->validate([
+            'status' => 'required|in:available,maintenance,disabled',
+        ]);
+
+        if ($bed->status === 'occupied') {
+            return back()->with('error', 'No se puede cambiar el estado de una cama ocupada.');
+        }
+
+        $bed->update(['status' => $validated['status']]);
+
+        $labels = ['available' => 'disponible', 'maintenance' => 'en mantención', 'disabled' => 'deshabilitada'];
+        return back()->with('success', "Cama '{$bed->name}' marcada como {$labels[$validated['status']]}.");
+    }
+
     public function showQr(Bed $bed)
     {
         return view('admin.beds.qr', compact('bed'));
