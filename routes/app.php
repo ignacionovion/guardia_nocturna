@@ -241,7 +241,9 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
         ]);
     });
     
-    Route::get('/debug/camas/assignment/{id}', function ($id) {
+    Route::get('/debug/camas/assignment/{id}', function (\Illuminate\Http\Request $request, $id) {
+        $id = $request->route('id') ?? $id;
+
         DB::enableQueryLog();
 
         // 1. Inspección del parámetro
@@ -292,7 +294,9 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
         ]);
     });
 
-    Route::get('/debug/camas/liberar-check/{id}', function ($id) {
+    Route::get('/debug/camas/liberar-check/{id}', function (\Illuminate\Http\Request $request, $id) {
+        $id = $request->route('id') ?? $id;
+
         DB::enableQueryLog();
 
         $paramInfo = [
@@ -327,7 +331,9 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
         ]);
     });
 
-    Route::get('/debug/camas/scan-check/{bedId}', function ($bedId) {
+    Route::get('/debug/camas/scan-check/{bedId}', function (\Illuminate\Http\Request $request, $bedId) {
+        $bedId = $request->route('bedId') ?? $bedId;
+
         DB::enableQueryLog();
 
         $paramInfo = [
@@ -364,7 +370,8 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
         ]);
     });
 
-    Route::get('/debug/camas/qr/{bedId}', function ($bedId) {
+    Route::get('/debug/camas/qr/{bedId}', function (\Illuminate\Http\Request $request, $bedId) {
+        $bedId = $request->route('bedId') ?? $bedId;
         $exists = \App\Models\Bed::where('id', $bedId)->exists();
         $bed = $exists ? \App\Models\Bed::find($bedId) : null;
         

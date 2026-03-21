@@ -110,6 +110,8 @@ class BedQrController extends Controller
      */
     public function scanForm(Request $request, string $bedId)
     {
+        $bedId = $request->route('bedId') ?? $bedId;
+
         DB::enableQueryLog();
 
         // DIAGNÓSTICO COMPLETO
@@ -189,6 +191,8 @@ class BedQrController extends Controller
      */
     public function processRut(Request $request, string $bedId)
     {
+        $bedId = $request->route('bedId') ?? $bedId;
+
         $bed = Bed::query()->findOrFail((int) $bedId);
 
         if (!$this->isWithinGuardiaHours(Carbon::now($this->scheduleTimezone()))) {
@@ -230,6 +234,8 @@ class BedQrController extends Controller
      */
     public function notInGuardia(Request $request, string $bedId)
     {
+        $bedId = $request->route('bedId') ?? $bedId;
+
         $bed = Bed::query()->findOrFail((int) $bedId);
 
         $bombero = null;
@@ -249,6 +255,8 @@ class BedQrController extends Controller
      */
     public function assignForm(Request $request, string $bedId)
     {
+        $bedId = $request->route('bedId') ?? $bedId;
+
         $bed = Bed::query()->findOrFail((int) $bedId);
 
         if (!$this->isWithinGuardiaHours(Carbon::now($this->scheduleTimezone()))) {
@@ -288,6 +296,8 @@ class BedQrController extends Controller
      */
     public function assignStore(Request $request, string $bedId)
     {
+        $bedId = $request->route('bedId') ?? $bedId;
+
         $bed = Bed::query()->findOrFail((int) $bedId);
 
         if (!$this->isWithinGuardiaHours(Carbon::now($this->scheduleTimezone()))) {
@@ -373,6 +383,8 @@ class BedQrController extends Controller
      */
     public function success(Request $request, string $bedId)
     {
+        $bedId = $request->route('bedId') ?? $bedId;
+
         $bed = Bed::query()->findOrFail((int) $bedId);
 
         $bombero = null;
@@ -390,8 +402,10 @@ class BedQrController extends Controller
     /**
      * Muestra la página de impresión del QR de una cama
      */
-    public function printQr(string $bedId)
+    public function printQr(Request $request, string $bedId)
     {
+        $bedId = $request->route('bedId') ?? $bedId;
+
         $bed = Bed::query()->findOrFail((int) $bedId);
         
         return view('camas.qr-print', compact('bed'));

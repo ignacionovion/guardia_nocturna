@@ -130,6 +130,8 @@ class AsignacionCamaController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $id = $request->route('id') ?? $id;
+
         DB::enableQueryLog();
 
         // DIAGNÓSTICO COMPLETO
