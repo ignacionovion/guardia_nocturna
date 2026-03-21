@@ -130,7 +130,23 @@ class AsignacionCamaController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        // DIAGNÓSTICO: Verificar conexión tenant
+        \Log::info('AsignacionCamaController::update INICIO', [
+            'id' => $id,
+            'tenant_initialized' => tenancy()->initialized,
+            'tenant_id' => tenant('id'),
+            'db_connection' => DB::connection()->getDatabaseName(),
+            'bed_assignment_connection' => BedAssignment::query()->getConnection()->getDatabaseName(),
+            'total_assignments' => BedAssignment::count(),
+            'assignment_exists' => BedAssignment::where('id', $id)->exists(),
+        ]);
+
         $assignment = BedAssignment::findOrFail($id);
+
+        \Log::info('AsignacionCamaController::update DESPUÉS DE findOrFail', [
+            'assignment_id' => $assignment->id,
+            'bed_id' => $assignment->bed_id,
+        ]);
 
         if ($request->has('release') && $request->release) {
              $assignment->update([

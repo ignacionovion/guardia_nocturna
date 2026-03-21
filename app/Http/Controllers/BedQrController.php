@@ -13,6 +13,7 @@ use App\Models\TurnoSession;
 use App\Models\TurnoSessionItem;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class BedQrController extends Controller
@@ -109,7 +110,23 @@ class BedQrController extends Controller
      */
     public function scanForm(Request $request, string $bedId)
     {
+        // DIAGNÓSTICO: Verificar conexión tenant
+        \Log::info('BedQrController::scanForm INICIO', [
+            'bedId' => $bedId,
+            'tenant_initialized' => tenancy()->initialized,
+            'tenant_id' => tenant('id'),
+            'db_connection' => DB::connection()->getDatabaseName(),
+            'bed_connection' => Bed::query()->getConnection()->getDatabaseName(),
+            'total_beds' => Bed::count(),
+            'bed_exists' => Bed::where('id', (int) $bedId)->exists(),
+        ]);
+
         $bed = Bed::query()->findOrFail((int) $bedId);
+
+        \Log::info('BedQrController::scanForm DESPUÉS DE findOrFail', [
+            'bed_id' => $bed->id,
+            'bed_name' => $bed->name,
+        ]);
 
         // Si viene el parámetro reset, limpiar la sesión del bombero
         if ($request->has('reset')) {
