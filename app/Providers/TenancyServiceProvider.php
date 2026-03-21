@@ -123,9 +123,11 @@ class TenancyServiceProvider extends ServiceProvider
         // Central routes FIRST — exact domain match takes priority
         $centralDomains = config('tenancy.central_domains', []);
 
-        foreach ($centralDomains as $domain) {
-            Route::domain($domain)
+        // Load central.php ONCE with all domains (avoids duplicate route names)
+        if (!empty($centralDomains)) {
+            Route::domain('{domain}')
                 ->middleware('web')
+                ->where(['domain' => implode('|', array_map('preg_quote', $centralDomains))])
                 ->group(base_path('routes/central.php'));
         }
 
