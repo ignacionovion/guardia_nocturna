@@ -206,6 +206,46 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
     Route::post('/guardia/{id}/add-user', [GuardiaController::class, 'addUser'])->name('guardia.add_user');
     Route::post('/guardia/{shiftId}/remove-user/{userId}', [GuardiaController::class, 'removeUser'])->name('guardia.remove_user');
 
+    // DEBUG: Rutas temporales para diagnóstico (ELIMINAR después de verificar)
+    Route::get('/debug/camas/contexto', function () {
+        return response()->json([
+            'tenant_initialized' => tenancy()->initialized,
+            'tenant_id' => tenant('id'),
+            'tenant_key' => tenant()?->getTenantKey(),
+            'db_connection' => DB::connection()->getDatabaseName(),
+            'bed_connection' => \App\Models\Bed::query()->getConnection()->getDatabaseName(),
+            'bed_assignment_connection' => \App\Models\BedAssignment::query()->getConnection()->getDatabaseName(),
+            'total_beds' => \App\Models\Bed::count(),
+            'total_assignments' => \App\Models\BedAssignment::count(),
+        ]);
+    });
+    
+    Route::get('/debug/camas/assignment/{id}', function ($id) {
+        $exists = \App\Models\BedAssignment::where('id', $id)->exists();
+        $assignment = $exists ? \App\Models\BedAssignment::with('bed')->find($id) : null;
+        
+        return response()->json([
+            'tenant_id' => tenant('id'),
+            'db_connection' => DB::connection()->getDatabaseName(),
+            'assignment_exists' => $exists,
+            'assignment' => $assignment,
+            'all_assignment_ids' => \App\Models\BedAssignment::pluck('id')->toArray(),
+        ]);
+    });
+    
+    Route::get('/debug/camas/qr/{bedId}', function ($bedId) {
+        $exists = \App\Models\Bed::where('id', $bedId)->exists();
+        $bed = $exists ? \App\Models\Bed::find($bedId) : null;
+        
+        return response()->json([
+            'tenant_id' => tenant('id'),
+            'db_connection' => DB::connection()->getDatabaseName(),
+            'bed_exists' => $exists,
+            'bed' => $bed,
+            'all_bed_ids' => \App\Models\Bed::pluck('id')->toArray(),
+        ]);
+    });
+
     // Rutas de Gestión de Camas
     Route::post('/camas/asignar', [AsignacionCamaController::class, 'store'])->middleware('plan.limit:beds')->name('beds.assign');
     Route::post('/camas/liberar/{id}', [AsignacionCamaController::class, 'update'])->name('beds.release');
