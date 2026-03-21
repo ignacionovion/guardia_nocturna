@@ -4,7 +4,17 @@
 @section('page-title', 'Gestión de Camas')
 
 @section('content')
-    <x-ui.page-header title="Gestión de Camas" subtitle="Control de ocupación y asignaciones en tiempo real" icon="fas fa-bed" iconVariant="emerald" />
+    <x-ui.page-header title="Gestión de Camas" subtitle="Control de ocupación y asignaciones en tiempo real" icon="fas fa-bed" iconVariant="emerald">
+        @if(in_array(auth()->user()->role, ['super_admin', 'capitania']))
+            <x-ui.button 
+                variant="info" 
+                size="sm" 
+                icon="fas fa-cog" 
+                href="{{ route('admin.beds.index') }}">
+                Configurar Camas
+            </x-ui.button>
+        @endif
+    </x-ui.page-header>
 
     {{-- Métricas Compactas --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
