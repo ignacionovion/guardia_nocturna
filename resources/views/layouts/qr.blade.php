@@ -7,7 +7,7 @@
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-[#0b1220] text-white min-h-screen">
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
 
     @yield('content')
 

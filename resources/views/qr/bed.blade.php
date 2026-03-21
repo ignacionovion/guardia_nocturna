@@ -1,95 +1,110 @@
 @extends('layouts.qr')
 
 @section('content')
-<div class="min-h-screen flex items-center justify-center px-4 py-8">
-    <div class="w-full max-w-md">
+<div class="min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-sm">
         
-        <div class="bg-[#111827] rounded-2xl shadow-xl p-6 space-y-6">
+        {{-- Card principal --}}
+        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
             
-            {{-- Header --}}
-            <div class="text-center">
-                <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                    <i class="fas fa-bed text-white text-3xl"></i>
+            {{-- Header con icono --}}
+            <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-8 text-center">
+                <div class="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-bed text-white text-4xl"></i>
                 </div>
-                <h1 class="text-2xl font-bold text-white mb-2">{{ $bed->name }}</h1>
+                <h1 class="text-3xl font-bold text-white mb-2">{{ $bed->name }}</h1>
                 @if($bed->location)
-                    <p class="text-sm text-gray-400">
+                    <p class="text-blue-100 text-sm">
                         <i class="fas fa-map-marker-alt mr-1"></i>{{ $bed->location }}
                     </p>
                 @endif
             </div>
 
-            {{-- Estado Badge --}}
-            <div class="flex justify-center gap-2">
-                <span class="px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wider
-                    {{ $bed->status === 'available' ? 'bg-emerald-500/20 text-emerald-400 border-2 border-emerald-500/40' : '' }}
-                    {{ $bed->status === 'occupied' ? 'bg-red-500/20 text-red-400 border-2 border-red-500/40' : '' }}
-                    {{ $bed->status === 'maintenance' ? 'bg-amber-500/20 text-amber-400 border-2 border-amber-500/40' : '' }}
-                    {{ $bed->status === 'disabled' ? 'bg-gray-500/20 text-gray-400 border-2 border-gray-500/40' : '' }}">
-                    {{ $bed->status_label }}
-                </span>
-            </div>
-
-            {{-- Género --}}
-            <div class="text-center">
-                <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Género</p>
-                <p class="text-base font-semibold
-                    {{ $bed->gender === 'male' ? 'text-blue-400' : '' }}
-                    {{ $bed->gender === 'female' ? 'text-pink-400' : '' }}
-                    {{ $bed->gender === 'mixed' ? 'text-purple-400' : '' }}">
-                    {{ $bed->gender_label }}
-                </p>
-            </div>
-
-            {{-- Información según estado --}}
-            @if($bed->status === 'available')
-                <div class="text-center p-6 bg-emerald-500/10 rounded-xl border-2 border-emerald-500/30">
-                    <i class="fas fa-check-circle text-emerald-400 text-4xl mb-3"></i>
-                    <h3 class="text-lg font-bold text-emerald-400 mb-2">Disponible</h3>
-                    <p class="text-sm text-gray-400">Esta cama está lista para ser asignada</p>
-                </div>
-
-            @elseif($bed->status === 'occupied')
-                <div class="p-6 bg-red-500/10 rounded-xl border-2 border-red-500/30">
-                    <div class="text-center mb-4">
-                        <i class="fas fa-user-circle text-red-400 text-4xl mb-3"></i>
-                        <h3 class="text-lg font-bold text-red-400 mb-1">Ocupada</h3>
+            {{-- Contenido --}}
+            <div class="p-6 space-y-6">
+                
+                {{-- Estado --}}
+                <div class="text-center">
+                    <p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Estado</p>
+                    <div class="inline-flex items-center justify-center px-6 py-3 rounded-full text-base font-bold
+                        {{ $bed->status === 'available' ? 'bg-emerald-100 text-emerald-700' : '' }}
+                        {{ $bed->status === 'occupied' ? 'bg-red-100 text-red-700' : '' }}
+                        {{ $bed->status === 'maintenance' ? 'bg-amber-100 text-amber-700' : '' }}
+                        {{ $bed->status === 'disabled' ? 'bg-gray-100 text-gray-700' : '' }}">
+                        {{ $bed->status_label }}
                     </div>
-                    
-                    @if($bed->is_occupied && $bed->current_occupant_name)
-                        <div class="text-center">
-                            <p class="text-xs text-red-400 uppercase tracking-wider mb-2">Ocupada por</p>
-                            <p class="text-xl font-bold text-white mb-3">{{ $bed->current_occupant_name }}</p>
-                            
-                            @if($bed->currentAssignment && $bed->currentAssignment->started_at)
-                                <div class="space-y-1 text-sm text-gray-300">
-                                    <p>
-                                        <i class="fas fa-clock mr-1 text-red-400"></i>
-                                        {{ $bed->currentAssignment->started_at->diffForHumans() }}
-                                    </p>
-                                </div>
-                            @endif
+                </div>
+
+                {{-- Género --}}
+                <div class="text-center pb-6 border-b border-gray-200">
+                    <p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Género</p>
+                    <p class="text-lg font-bold
+                        {{ $bed->gender === 'male' ? 'text-blue-600' : '' }}
+                        {{ $bed->gender === 'female' ? 'text-pink-600' : '' }}
+                        {{ $bed->gender === 'mixed' ? 'text-purple-600' : '' }}">
+                        {{ $bed->gender_label }}
+                    </p>
+                </div>
+
+                {{-- Info según estado --}}
+                @if($bed->status === 'available')
+                    <div class="text-center py-8">
+                        <div class="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-check-circle text-emerald-600 text-4xl"></i>
                         </div>
-                    @endif
-                </div>
+                        <h3 class="text-2xl font-bold text-emerald-700 mb-2">Disponible</h3>
+                        <p class="text-gray-600">Lista para asignar</p>
+                    </div>
 
-            @elseif($bed->status === 'maintenance')
-                <div class="text-center p-6 bg-amber-500/10 rounded-xl border-2 border-amber-500/30">
-                    <i class="fas fa-tools text-amber-400 text-4xl mb-3"></i>
-                    <h3 class="text-lg font-bold text-amber-400 mb-2">En Mantención</h3>
-                    <p class="text-sm text-gray-400">Temporalmente fuera de servicio</p>
-                </div>
+                @elseif($bed->status === 'occupied')
+                    <div class="bg-red-50 rounded-2xl p-6">
+                        <div class="text-center mb-4">
+                            <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-user text-red-600 text-3xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-red-700 mb-1">Ocupada</h3>
+                        </div>
+                        
+                        @if($bed->is_occupied && $bed->current_occupant_name)
+                            <div class="text-center">
+                                <p class="text-xs text-red-600 uppercase tracking-wider mb-2">Ocupada por</p>
+                                <p class="text-2xl font-bold text-gray-900 mb-3">{{ $bed->current_occupant_name }}</p>
+                                
+                                @if($bed->currentAssignment && $bed->currentAssignment->started_at)
+                                    <div class="bg-white rounded-xl p-3">
+                                        <p class="text-sm text-gray-700">
+                                            <i class="fas fa-clock mr-1 text-red-600"></i>
+                                            {{ $bed->currentAssignment->started_at->diffForHumans() }}
+                                        </p>
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
+                    </div>
 
-            @else
-                <div class="text-center p-6 bg-gray-500/10 rounded-xl border-2 border-gray-500/30">
-                    <i class="fas fa-ban text-gray-400 text-4xl mb-3"></i>
-                    <h3 class="text-lg font-bold text-gray-400 mb-2">Deshabilitada</h3>
-                    <p class="text-sm text-gray-500">No disponible para uso</p>
-                </div>
-            @endif
+                @elseif($bed->status === 'maintenance')
+                    <div class="text-center py-8">
+                        <div class="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-tools text-amber-600 text-4xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-amber-700 mb-2">En Mantención</h3>
+                        <p class="text-gray-600">Fuera de servicio</p>
+                    </div>
+
+                @else
+                    <div class="text-center py-8">
+                        <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-ban text-gray-600 text-4xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-700 mb-2">Deshabilitada</h3>
+                        <p class="text-gray-600">No disponible</p>
+                    </div>
+                @endif
+
+            </div>
 
             {{-- Footer --}}
-            <div class="text-center pt-4 border-t border-gray-700">
+            <div class="bg-gray-50 px-6 py-4 text-center border-t border-gray-200">
                 <p class="text-xs text-gray-500">
                     EstacionAPP · Información en tiempo real
                 </p>
