@@ -11,8 +11,11 @@ use Illuminate\Support\Facades\DB;
 
 class BedAssignmentController extends Controller
 {
-    public function assign(Request $request, Bed $bed)
+    public function assign(Request $request, string $bed)
     {
+        $bedId = $request->route('bed') ?? $bed;
+        $bed = Bed::query()->findOrFail((int) $bedId);
+
         // Validar que la cama puede ser asignada
         if (!$bed->canBeAssigned()) {
             if ($bed->is_occupied) {
@@ -106,8 +109,11 @@ class BedAssignmentController extends Controller
         }
     }
 
-    public function release(Request $request, Bed $bed)
+    public function release(Request $request, string $bed)
     {
+        $bedId = $request->route('bed') ?? $bed;
+        $bed = Bed::query()->findOrFail((int) $bedId);
+
         // Validar que la cama está ocupada
         if (!$bed->is_occupied) {
             return back()->with('error', 'Esta cama no está ocupada.');
@@ -139,8 +145,11 @@ class BedAssignmentController extends Controller
         }
     }
 
-    public function history(Bed $bed)
+    public function history(Request $request, string $bed)
     {
+        $bedId = $request->route('bed') ?? $bed;
+        $bed = Bed::query()->findOrFail((int) $bedId);
+
         $assignments = $bed->assignments()
             ->with(['volunteer', 'assignedBy'])
             ->orderBy('started_at', 'desc')

@@ -58,13 +58,19 @@ class BedController extends Controller
             ->with('success', 'Cama creada exitosamente.');
     }
 
-    public function edit(Bed $bed)
+    public function edit(Request $request, string $bed)
     {
+        $bedId = $request->route('bed') ?? $bed;
+        $bed = Bed::query()->findOrFail((int) $bedId);
+
         return view('admin.beds.edit', compact('bed'));
     }
 
-    public function update(Request $request, Bed $bed)
+    public function update(Request $request, string $bed)
     {
+        $bedId = $request->route('bed') ?? $bed;
+        $bed = Bed::query()->findOrFail((int) $bedId);
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'location' => 'nullable|string|max:255',
@@ -106,13 +112,19 @@ class BedController extends Controller
         return back()->with('success', "Cama '{$bed->name}' marcada como {$labels[$validated['status']]}.");
     }
 
-    public function showQr(Bed $bed)
+    public function showQr(Request $request, string $bed)
     {
+        $bedId = $request->route('bed') ?? $bed;
+        $bed = Bed::query()->findOrFail((int) $bedId);
+
         return view('admin.beds.qr', compact('bed'));
     }
 
-    public function printQr(Bed $bed)
+    public function printQr(Request $request, string $bed)
     {
+        $bedId = $request->route('bed') ?? $bed;
+        $bed = Bed::query()->findOrFail((int) $bedId);
+
         return view('admin.beds.qr-print', compact('bed'));
     }
 }
