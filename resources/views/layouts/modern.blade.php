@@ -73,8 +73,8 @@
             to { opacity: 1; }
         }
         @keyframes pulse-slow {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.95; }
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.015); opacity: 0.9; }
         }
         .animate-slide-in { animation: slideIn 0.3s ease-out; }
         .animate-pulse-slow { animation: pulse-slow 3s ease-in-out infinite; }

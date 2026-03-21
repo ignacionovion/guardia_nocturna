@@ -310,9 +310,12 @@
                             
                             // Animación pulse solo para ocupadas
                             $pulseClass = $bed->status === 'occupied' ? 'animate-pulse-slow' : '';
+                            
+                            // Fondo leve para ocupadas
+                            $bgClass = $bed->status === 'occupied' ? 'bg-red-50/40' : '';
                         @endphp
                         
-                        <x-ui.card class="hover:shadow-xl transition-all duration-300 {{ $borderClass }} {{ $pulseClass }}">
+                        <x-ui.card class="hover:shadow-xl transition-all duration-300 {{ $borderClass }} {{ $pulseClass }} {{ $bgClass }}">
                             <div class="p-5">
                                 {{-- Header --}}
                                 <div class="flex items-start justify-between mb-3">
@@ -337,14 +340,26 @@
                                 </div>
 
                                 {{-- Estado Badge --}}
-                                <div class="mb-4">
-                                    <x-ui.badge variant="{{ $bed->status_color }}" size="md" class="font-semibold">
+                                <div class="mb-4 flex items-center gap-2">
+                                    <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold 
+                                        {{ $bed->status === 'available' ? 'bg-emerald-100 text-emerald-700' : '' }}
+                                        {{ $bed->status === 'occupied' ? 'bg-red-100 text-red-700' : '' }}
+                                        {{ $bed->status === 'maintenance' ? 'bg-amber-100 text-amber-700' : '' }}
+                                        {{ $bed->status === 'disabled' ? 'bg-gray-100 text-gray-600' : '' }}">
                                         {{ $bed->status_label }}
-                                    </x-ui.badge>
-                                    <x-ui.badge variant="{{ $bed->gender_color }}" size="sm" class="ml-2">
+                                    </div>
+                                    <x-ui.badge variant="{{ $bed->gender_color }}" size="sm">
                                         {{ $bed->gender_label }}
                                     </x-ui.badge>
                                 </div>
+
+                                {{-- Indicador Disponible --}}
+                                @if(!$bed->is_occupied && $bed->status === 'available')
+                                    <div class="text-xs text-emerald-600 font-semibold flex items-center gap-1 mb-3">
+                                        <i class="fas fa-circle text-[6px]"></i>
+                                        Disponible
+                                    </div>
+                                @endif
 
                                 {{-- Ocupante Actual (MEJORADO) --}}
                                 @if($bed->is_occupied && $bed->current_occupant_name)
