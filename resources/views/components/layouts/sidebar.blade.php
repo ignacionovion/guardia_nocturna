@@ -19,6 +19,8 @@ $menuItems = [
         ['route' => 'admin.planillas.index', 'icon' => 'fas fa-table-columns', 'label' => 'Planillas', 'match' => 'admin.planillas*', 'feature' => 'planilla'],
         ['route' => 'inventario.index', 'icon' => 'fas fa-warehouse', 'label' => 'Inventario', 'match' => 'inventario*', 'feature' => 'inventario'],
         ['route' => 'admin.reports.index', 'icon' => 'fas fa-chart-line', 'label' => 'Reportes', 'match' => 'admin.reports*', 'feature' => 'reportes'],
+        ['divider' => true, 'label' => 'Configuración'],
+        ['route' => 'admin.beds.index', 'icon' => 'fas fa-bed-pulse', 'label' => 'Configurar Camas', 'match' => 'admin.beds*', 'feature' => 'camas'],
         ['divider' => true, 'label' => 'Sistema'],
         ['route' => 'admin.users.index', 'icon' => 'fas fa-user-shield', 'label' => 'Usuarios', 'match' => 'admin.users*'],
         ['route' => 'admin.system.index', 'icon' => 'fas fa-sliders', 'label' => 'Configuración', 'match' => 'admin.system*'],

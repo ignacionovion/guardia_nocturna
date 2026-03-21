@@ -4,16 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Models\Bed;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class QrBedController extends Controller
 {
+    /**
+     * Redirige el QR público al flujo operativo unificado
+     * /qr/{token} → /camas/scan/{bedId}
+     */
     public function show(Request $request, string $token)
     {
         $token = $request->route('token') ?? $token;
 
         $bed = Bed::where('qr_token', $token)->firstOrFail();
 
-        return view('qr.bed', compact('bed'));
+        // Redirigir al flujo operativo correcto
+        return redirect()->route('camas.scan.form', ['bedId' => $bed->id]);
     }
 }
