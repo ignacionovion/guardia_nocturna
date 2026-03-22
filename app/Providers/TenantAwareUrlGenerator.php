@@ -8,12 +8,14 @@ use Illuminate\Routing\UrlGenerator;
 use Illuminate\Support\Facades\Route;
 
 /**
- * Extended UrlGenerator that automatically adds the 'tenant' parameter
+ * Extended UrlGenerator that automatically adds 'tenant' and 'domain' parameters
  * when generating URLs in the tenant context.
  * 
- * This solves the "Missing required parameter: tenant" error when using
- * route() helper in tenant views, since all tenant routes are scoped
- * under {tenant}.{domain} pattern.
+ * This solves the "Missing required parameter" errors when using route() helper
+ * in tenant views, since all tenant routes are scoped under {tenant}.{domain} pattern.
+ * 
+ * - Tenant parameter: injected from tenant() context
+ * - Domain parameter: extracted from current request host or config fallback
  */
 class TenantAwareUrlGenerator extends UrlGenerator
 {
@@ -36,6 +38,11 @@ class TenantAwareUrlGenerator extends UrlGenerator
         // If the route requires a 'tenant' parameter
         if ($this->routeNeedsTenantParameter($route)) {
             $parameters = $this->injectTenantParameter($parameters);
+        }
+
+        // If the route requires a 'domain' parameter
+        if ($this->routeNeedsDomainParameter($route)) {
+            $parameters = $this->injectDomainParameter($parameters);
         }
 
         return parent::toRoute($route, $parameters, $absolute);
@@ -76,6 +83,55 @@ class TenantAwareUrlGenerator extends UrlGenerator
         // Not in tenant context and no tenant parameter provided
         // This will cause the parent::toRoute to throw an exception
         // with a clear message about missing parameter
+        return $parameters;
+    }
+
+    /**
+     * Check if the route requires a 'domain' parameter.
+     */
+    protected function routeNeedsDomainParameter($route): bool
+    {
+        $parameterNames = $route->parameterNames();
+        
+        // Check if 'domain' is a required parameter
+        return in_array('domain', $parameterNames);
+    }
+
+    /**
+     * Inject the current domain into the parameters.
+     */
+    protected function injectDomainParameter($parameters): array
+    {
+        // Ensure parameters is an array
+        if (!is_array($parameters)) {
+            $parameters = $parameters ? [$parameters] : [];
+        }
+
+        // If domain parameter is already provided, don't override it
+        if (isset($parameters['domain'])) {
+            return $parameters;
+        }
+
+        // Extract domain from current request host
+        $host = $this->request->getHost();
+        
+        // For tenant routes: {tenant}.{domain} pattern
+        // Extract the domain part after the first dot
+        if (tenant() && str_contains($host, '.')) {
+            // Remove tenant subdomain to get base domain
+            $parts = explode('.', $host, 2);
+            if (count($parts) === 2) {
+                $parameters['domain'] = $parts[1];
+                return $parameters;
+            }
+        }
+
+        // Fallback: use first central domain from config
+        $centralDomains = config('tenancy.central_domains', []);
+        if (!empty($centralDomains)) {
+            $parameters['domain'] = $centralDomains[0];
+        }
+
         return $parameters;
     }
 }
