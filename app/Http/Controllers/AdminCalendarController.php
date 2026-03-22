@@ -15,7 +15,8 @@ class AdminCalendarController extends Controller
     private function assertSuperAdmin(): void
     {
         $user = auth()->user();
-        if (!$user || $user->role !== 'super_admin') {
+        // Allow capitan, super_admin, and capitania (legacy) - matching sidebar logic
+        if (!$user || !in_array($user->role, ['capitan', 'super_admin', 'capitania'], true)) {
             abort(403, 'No tienes permiso para acceder a esta sección.');
         }
     }
