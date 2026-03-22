@@ -114,3 +114,58 @@ if (!function_exists('addon')) {
     }
 }
 
+if (!function_exists('tenantRoute')) {
+    /**
+     * Generate a route URL with automatic tenant and domain injection.
+     * 
+     * Extracts tenant and domain from current request host and injects them
+     * automatically into route parameters for multi-tenant subdomain routing.
+     *
+     * Usage: tenantRoute('admin.guardias.regenerate_credentials', $guardia->id)
+     * 
+     * @param string $name Route name
+     * @param mixed $parameters Additional route parameters
+     * @param bool $absolute Generate absolute URL (default: true)
+     * @return string
+     */
+    function tenantRoute(string $name, mixed $parameters = [], bool $absolute = true): string
+    {
+        // Ensure parameters is an array
+        if (!is_array($parameters)) {
+            $parameters = $parameters ? [$parameters] : [];
+        }
+
+        // Extract tenant and domain from current request host
+        $host = request()->getHost();
+        
+        // For tenant routes: {tenant}.{domain} pattern
+        // Example: cuarta-temuco.sas.dev-app.cl → tenant: cuarta-temuco, domain: sas.dev-app.cl
+        if (tenant() && str_contains($host, '.')) {
+            $parts = explode('.', $host, 2);
+            if (count($parts) === 2) {
+                // Only inject if not already provided
+                if (!isset($parameters['tenant'])) {
+                    $parameters['tenant'] = $parts[0];
+                }
+                if (!isset($parameters['domain'])) {
+                    $parameters['domain'] = $parts[1];
+                }
+            }
+        }
+
+        // Fallback: use tenant() and config for missing parameters
+        if (!isset($parameters['tenant']) && tenant()) {
+            $parameters['tenant'] = tenant('id');
+        }
+        
+        if (!isset($parameters['domain'])) {
+            $centralDomains = config('tenancy.central_domains', []);
+            if (!empty($centralDomains)) {
+                $parameters['domain'] = $centralDomains[0];
+            }
+        }
+
+        return route($name, $parameters, $absolute);
+    }
+}
+
