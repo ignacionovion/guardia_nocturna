@@ -969,35 +969,121 @@ class AdministradorController extends Controller
 
     public function regenerateCredentials($id)
     {
-        if (!in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania'], true)) {
-            abort(403, 'No autorizado.');
-        }
-
-        $guardia = Guardia::findOrFail($id);
-        $plainPassword = Str::random(10);
-
-        $guardia->update([
-            'access_password_encrypted' => \Illuminate\Support\Facades\Crypt::encryptString($plainPassword),
-        ]);
-
-        if ($guardia->user_id) {
-            User::where('id', $guardia->user_id)->update([
-                'password' => Hash::make($plainPassword),
+        try {
+            \Log::info('=== REGENERATE CREDENTIALS START ===');
+            \Log::info('Request data', [
+                'id_received' => $id,
+                'method' => request()->method(),
+                'url' => request()->fullUrl(),
+                'host' => request()->getHost(),
+                'ip' => request()->ip(),
             ]);
-        } else {
-            $user = User::where('guardia_id', $guardia->id)->where('role', 'guardia')->first();
-            if ($user) {
-                $user->update(['password' => Hash::make($plainPassword)]);
+
+            // Check auth
+            $user = auth()->user();
+            if (!$user) {
+                \Log::error('No authenticated user');
+                abort(403, 'No autenticado.');
             }
-        }
 
-        return redirect()->route('admin.guardias')
-            ->with('success', 'Credenciales regeneradas correctamente.')
-            ->with('new_credentials', [
-                'guardia' => $guardia->name,
-                'username' => $guardia->access_username,
-                'password' => $plainPassword,
+            \Log::info('Authenticated user', [
+                'user_id' => $user->id,
+                'user_role' => $user->role,
+                'user_email' => $user->email ?? 'N/A',
             ]);
+
+            // Check tenant context
+            $tenant = tenant();
+            \Log::info('Tenant context', [
+                'tenant_id' => $tenant ? $tenant->id : 'NULL',
+                'tenant_exists' => $tenant !== null,
+            ]);
+
+            // Check role permission
+            if (!in_array($user->role, ['capitan', 'super_admin', 'capitania'], true)) {
+                \Log::warning('User lacks permission', [
+                    'user_id' => $user->id,
+                    'user_role' => $user->role,
+                    'required_roles' => ['capitan', 'super_admin', 'capitania'],
+                ]);
+                abort(403, 'No autorizado.');
+            }
+
+            \Log::info('Permission check passed');
+
+            // Find guardia
+            \Log::info('Looking for guardia', ['id' => $id]);
+            $guardia = Guardia::find($id);
+
+            if (!$guardia) {
+                \Log::error('Guardia not found', [
+                    'id' => $id,
+                    'guardias_count' => Guardia::count(),
+                ]);
+                abort(404, 'Guardia no encontrada.');
+            }
+
+            \Log::info('Guardia found', [
+                'guardia_id' => $guardia->id,
+                'guardia_name' => $guardia->name,
+                'guardia_user_id' => $guardia->user_id ?? 'NULL',
+                'access_username' => $guardia->access_username ?? 'NULL',
+            ]);
+
+            // Generate new password
+            $plainPassword = Str::random(10);
+            \Log::info('Generated new password', ['length' => strlen($plainPassword)]);
+
+            // Update guardia
+            \Log::info('Updating guardia access_password_encrypted');
+            $guardia->update([
+                'access_password_encrypted' => \Illuminate\Support\Facades\Crypt::encryptString($plainPassword),
+            ]);
+            \Log::info('Guardia updated successfully');
+
+            // Update user password
+            if ($guardia->user_id) {
+                \Log::info('Updating user via user_id', ['user_id' => $guardia->user_id]);
+                $updated = User::where('id', $guardia->user_id)->update([
+                    'password' => Hash::make($plainPassword),
+                ]);
+                \Log::info('User updated via user_id', ['rows_affected' => $updated]);
+            } else {
+                \Log::info('No user_id, searching by guardia_id');
+                $user = User::where('guardia_id', $guardia->id)->where('role', 'guardia')->first();
+                if ($user) {
+                    \Log::info('User found by guardia_id', ['user_id' => $user->id]);
+                    $user->update(['password' => Hash::make($plainPassword)]);
+                    \Log::info('User updated via guardia_id');
+                } else {
+                    \Log::warning('No user found for guardia', ['guardia_id' => $guardia->id]);
+                }
+            }
+
+            // Prepare redirect
+            \Log::info('Preparing redirect to admin.guardias');
+            $redirectUrl = route('admin.guardias');
+            \Log::info('Redirect URL generated', ['url' => $redirectUrl]);
+
+            \Log::info('=== REGENERATE CREDENTIALS SUCCESS ===');
+
+            return redirect()->route('admin.guardias')
+                ->with('success', 'Credenciales regeneradas correctamente.')
+                ->with('new_credentials', [
+                    'guardia' => $guardia->name,
+                    'username' => $guardia->access_username,
+                    'password' => $plainPassword,
+                ]);
+
+        } catch (\Exception $e) {
+            \Log::error('=== REGENERATE CREDENTIALS EXCEPTION ===', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            throw $e;
+        }
     }
 
     public function editGuardia($id)
