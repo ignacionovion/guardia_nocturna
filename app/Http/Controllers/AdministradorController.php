@@ -969,103 +969,78 @@ class AdministradorController extends Controller
 
     public function regenerateCredentials($id)
     {
+        // NOTE: \Log::info() is redirected to storage/tenant{id}/logs/tenants/{id}.log by TenantLogBootstrapper.
+        // Using file_put_contents() with base_path() to write to a FIXED path unaffected by FilesystemTenancyBootstrapper.
+        $debugLog = base_path('storage/logs/debug-regenerate.log');
+        $ts = date('[Y-m-d H:i:s]');
+
         try {
-            \Log::info('=== REGENERATE CREDENTIALS START ===');
-            \Log::info('Request data', [
-                'id_received' => $id,
-                'method' => request()->method(),
-                'url' => request()->fullUrl(),
-                'host' => request()->getHost(),
-                'ip' => request()->ip(),
-            ]);
+            file_put_contents($debugLog, "$ts [START] regenerateCredentials called\n", FILE_APPEND);
+            file_put_contents($debugLog, "$ts [REQUEST] method=" . request()->method() . " url=" . request()->fullUrl() . " host=" . request()->getHost() . " id=$id\n", FILE_APPEND);
 
             // Check auth
             $user = auth()->user();
             if (!$user) {
-                \Log::error('No authenticated user');
+                file_put_contents($debugLog, "$ts [ERROR] No authenticated user\n", FILE_APPEND);
                 abort(403, 'No autenticado.');
             }
 
-            \Log::info('Authenticated user', [
-                'user_id' => $user->id,
-                'user_role' => $user->role,
-                'user_email' => $user->email ?? 'N/A',
-            ]);
+            file_put_contents($debugLog, "$ts [AUTH] user_id={$user->id} role={$user->role} email=" . ($user->email ?? 'N/A') . "\n", FILE_APPEND);
 
             // Check tenant context
             $tenant = tenant();
-            \Log::info('Tenant context', [
-                'tenant_id' => $tenant ? $tenant->id : 'NULL',
-                'tenant_exists' => $tenant !== null,
-            ]);
+            file_put_contents($debugLog, "$ts [TENANT] tenant_id=" . ($tenant ? $tenant->id : 'NULL') . "\n", FILE_APPEND);
 
             // Check role permission
             if (!in_array($user->role, ['capitan', 'super_admin', 'capitania'], true)) {
-                \Log::warning('User lacks permission', [
-                    'user_id' => $user->id,
-                    'user_role' => $user->role,
-                    'required_roles' => ['capitan', 'super_admin', 'capitania'],
-                ]);
+                file_put_contents($debugLog, "$ts [BLOCKED] role={$user->role} not in allowed roles\n", FILE_APPEND);
                 abort(403, 'No autorizado.');
             }
 
-            \Log::info('Permission check passed');
+            file_put_contents($debugLog, "$ts [OK] Permission check passed\n", FILE_APPEND);
 
             // Find guardia
-            \Log::info('Looking for guardia', ['id' => $id]);
+            file_put_contents($debugLog, "$ts [DB] Looking for Guardia::find($id)\n", FILE_APPEND);
             $guardia = Guardia::find($id);
 
             if (!$guardia) {
-                \Log::error('Guardia not found', [
-                    'id' => $id,
-                    'guardias_count' => Guardia::count(),
-                ]);
+                $count = Guardia::count();
+                file_put_contents($debugLog, "$ts [ERROR] Guardia NOT found. id=$id total_guardias=$count\n", FILE_APPEND);
                 abort(404, 'Guardia no encontrada.');
             }
 
-            \Log::info('Guardia found', [
-                'guardia_id' => $guardia->id,
-                'guardia_name' => $guardia->name,
-                'guardia_user_id' => $guardia->user_id ?? 'NULL',
-                'access_username' => $guardia->access_username ?? 'NULL',
-            ]);
+            file_put_contents($debugLog, "$ts [DB] Guardia found: id={$guardia->id} name={$guardia->name} user_id=" . ($guardia->user_id ?? 'NULL') . "\n", FILE_APPEND);
 
             // Generate new password
             $plainPassword = Str::random(10);
-            \Log::info('Generated new password', ['length' => strlen($plainPassword)]);
+            file_put_contents($debugLog, "$ts [OK] Password generated\n", FILE_APPEND);
 
             // Update guardia
-            \Log::info('Updating guardia access_password_encrypted');
             $guardia->update([
                 'access_password_encrypted' => \Illuminate\Support\Facades\Crypt::encryptString($plainPassword),
             ]);
-            \Log::info('Guardia updated successfully');
+            file_put_contents($debugLog, "$ts [DB] Guardia updated\n", FILE_APPEND);
 
             // Update user password
             if ($guardia->user_id) {
-                \Log::info('Updating user via user_id', ['user_id' => $guardia->user_id]);
                 $updated = User::where('id', $guardia->user_id)->update([
                     'password' => Hash::make($plainPassword),
                 ]);
-                \Log::info('User updated via user_id', ['rows_affected' => $updated]);
+                file_put_contents($debugLog, "$ts [DB] User updated via user_id={$guardia->user_id} rows=$updated\n", FILE_APPEND);
             } else {
-                \Log::info('No user_id, searching by guardia_id');
-                $user = User::where('guardia_id', $guardia->id)->where('role', 'guardia')->first();
-                if ($user) {
-                    \Log::info('User found by guardia_id', ['user_id' => $user->id]);
-                    $user->update(['password' => Hash::make($plainPassword)]);
-                    \Log::info('User updated via guardia_id');
+                $userRecord = User::where('guardia_id', $guardia->id)->where('role', 'guardia')->first();
+                if ($userRecord) {
+                    $userRecord->update(['password' => Hash::make($plainPassword)]);
+                    file_put_contents($debugLog, "$ts [DB] User updated via guardia_id={$guardia->id}\n", FILE_APPEND);
                 } else {
-                    \Log::warning('No user found for guardia', ['guardia_id' => $guardia->id]);
+                    file_put_contents($debugLog, "$ts [WARN] No user found for guardia_id={$guardia->id}\n", FILE_APPEND);
                 }
             }
 
             // Prepare redirect
-            \Log::info('Preparing redirect to admin.guardias');
             $redirectUrl = route('admin.guardias');
-            \Log::info('Redirect URL generated', ['url' => $redirectUrl]);
-
-            \Log::info('=== REGENERATE CREDENTIALS SUCCESS ===');
+            file_put_contents($debugLog, "$ts [REDIRECT] target=$redirectUrl\n", FILE_APPEND);
+            file_put_contents($debugLog, "$ts [SUCCESS] regenerateCredentials complete\n", FILE_APPEND);
 
             return redirect()->route('admin.guardias')
                 ->with('success', 'Credenciales regeneradas correctamente.')
@@ -1076,12 +1051,8 @@ class AdministradorController extends Controller
                 ]);
 
         } catch (\Exception $e) {
-            \Log::error('=== REGENERATE CREDENTIALS EXCEPTION ===', [
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString(),
-            ]);
+            file_put_contents($debugLog, "$ts [EXCEPTION] " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine() . "\n", FILE_APPEND);
+            file_put_contents($debugLog, "$ts [TRACE] " . $e->getTraceAsString() . "\n", FILE_APPEND);
             throw $e;
         }
     }

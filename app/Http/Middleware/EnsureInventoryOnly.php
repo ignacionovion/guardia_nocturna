@@ -10,6 +10,14 @@ class EnsureInventoryOnly
 {
     public function handle(Request $request, Closure $next): Response
     {
+        // PRE-TENANCY diagnostic: runs in web group BEFORE InitializeTenancyBySubdomain
+        // This log always goes to laravel.log - confirms request reached Laravel
+        if (str_contains($request->path(), 'regenerate-credentials')) {
+            $debugLog = base_path('storage/logs/debug-regenerate.log');
+            $ts = date('[Y-m-d H:i:s]');
+            file_put_contents($debugLog, "$ts [WEB_MW] EnsureInventoryOnly hit - method={$request->method()} path={$request->path()} host={$request->getHost()}\n", FILE_APPEND);
+        }
+
         $user = $request->user();
 
         if (!$user || $user->role !== 'inventario') {
