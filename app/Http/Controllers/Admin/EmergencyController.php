@@ -22,22 +22,8 @@ class EmergencyController extends Controller
 {
     private function resolveActiveGuardia(Carbon $now): ?Guardia
     {
-        $weekStart = $now->copy()->startOfWeek(Carbon::SUNDAY);
-
-        $calendarDay = GuardiaCalendarDay::with('guardia')
-            ->where('date', $weekStart->toDateString())
-            ->first();
-
-        if (!$calendarDay) {
-            $calendarDay = GuardiaCalendarDay::with('guardia')
-                ->where('date', $now->toDateString())
-                ->first();
-        }
-
-        if ($calendarDay && $calendarDay->guardia) {
-            return $calendarDay->guardia;
-        }
-
+        // Single source of truth: is_active_week
+        // Scheduler syncs this from calendar at configured transition time
         return Guardia::where('is_active_week', true)->first();
     }
 
