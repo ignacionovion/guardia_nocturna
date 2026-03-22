@@ -141,7 +141,7 @@
                             <i class="fas fa-edit"></i>
                         </a>
                         @if(in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania']))
-                        <form action="{{ tenantRoute('admin.guardias.regenerate_credentials', $guardia->id) }}" method="POST" onsubmit="return confirm('¿Regenerar credenciales de acceso? La contraseña actual dejará de funcionar.');">
+                        <form action="/admin/guardias/{{ $guardia->id }}/regenerate-credentials" method="POST" onsubmit="return confirm('¿Regenerar credenciales de acceso? La contraseña actual dejará de funcionar.');">
                             @csrf
                             <button type="submit" class="text-slate-400 hover:text-amber-400 p-2 rounded-md hover:bg-slate-700/50 transition-all" title="Regenerar credenciales">
                                 <i class="fas fa-key"></i>
