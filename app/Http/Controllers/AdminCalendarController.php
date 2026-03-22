@@ -57,6 +57,12 @@ class AdminCalendarController extends Controller
 
         $weekdays = collect($data['weekdays'])->map(fn ($d) => (int) $d)->unique()->values()->all();
 
+        $today = Carbon::now()->startOfDay();
+        $weekStart = $today->copy()->startOfWeek(Carbon::SUNDAY);
+        $affectedToday = false;
+        $affectedThisWeek = false;
+        $guardiaIdForThisWeek = null;
+
         $cursor = $from->copy();
         while ($cursor->lessThanOrEqualTo($to)) {
             if (in_array($cursor->dayOfWeek, $weekdays, true)) {
@@ -64,8 +70,26 @@ class AdminCalendarController extends Controller
                     ['date' => $cursor->toDateString()],
                     ['guardia_id' => $data['guardia_id']]
                 );
+                
+                // Track if we're affecting today or this week
+                if ($cursor->isSameDay($today)) {
+                    $affectedToday = true;
+                    $guardiaIdForThisWeek = $data['guardia_id'];
+                }
+                if ($cursor->isSameDay($weekStart)) {
+                    $affectedThisWeek = true;
+                    $guardiaIdForThisWeek = $data['guardia_id'];
+                }
             }
             $cursor->addDay();
+        }
+
+        // Sync is_active_week if we modified today's or this week's calendar
+        if (($affectedToday || $affectedThisWeek) && $guardiaIdForThisWeek) {
+            \DB::transaction(function () use ($guardiaIdForThisWeek) {
+                \App\Models\Guardia::query()->update(['is_active_week' => false]);
+                \App\Models\Guardia::where('id', $guardiaIdForThisWeek)->update(['is_active_week' => true]);
+            });
         }
 
         return redirect()->route('admin.calendario', ['month' => $from->month, 'year' => $from->year])

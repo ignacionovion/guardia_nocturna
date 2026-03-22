@@ -134,6 +134,16 @@
                     </div>
 
                     <div class="flex items-center gap-1 relative z-10 bg-slate-800/50 p-1 rounded-lg backdrop-blur-sm border border-slate-700">
+                        @if(in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania']))
+                            @if(!$isActiveWeek)
+                                <form action="{{ route('admin.guardias.activate_week', $guardia->id) }}" method="POST" onsubmit="return confirm('¿Activar esta guardia para la semana actual? Esto desactivará la guardia actual.');">
+                                    @csrf
+                                    <button type="submit" class="text-slate-400 hover:text-green-400 p-2 rounded-md hover:bg-slate-700/50 transition-all" title="Activar Semana">
+                                        <i class="fas fa-calendar-check"></i>
+                                    </button>
+                                </form>
+                            @endif
+                        @endif
                         <a href="{{ route('admin.guardias.history.index', $guardia->id) }}" class="text-slate-400 hover:text-white p-2 rounded-md hover:bg-slate-700/50 transition-all" title="Historial">
                             <i class="fas fa-clock-rotate-left"></i>
                         </a>
