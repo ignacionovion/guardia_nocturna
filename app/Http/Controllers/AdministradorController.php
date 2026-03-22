@@ -967,7 +967,7 @@ class AdministradorController extends Controller
             ]);
     }
 
-    public function regenerateCredentials($id)
+    public function regenerateCredentials(Request $request, string $id = null)
     {
         // NOTE: \Log::info() is redirected to storage/tenant{id}/logs/tenants/{id}.log by TenantLogBootstrapper.
         // Using file_put_contents() with base_path() to write to a FIXED path unaffected by FilesystemTenancyBootstrapper.
@@ -1001,7 +1001,8 @@ class AdministradorController extends Controller
 
             // Find guardia
             file_put_contents($debugLog, "$ts [DB] Looking for Guardia::find($id)\n", FILE_APPEND);
-            $guardia = Guardia::find($id);
+            $guardiaId = $request->route('id') ?? $id;
+            $guardia = Guardia::findOrFail((int) $guardiaId); 
 
             if (!$guardia) {
                 $count = Guardia::count();
