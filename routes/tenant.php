@@ -25,7 +25,7 @@ if (!empty($centralDomains)) {
 
     // Rutas públicas QR (sin auth, sin tenant-active check)
     // Solo inicializa tenant y web middleware
-    Route::domain('{tenant}.{domain}')
+    Route::domain('{tenant}.sas.dev-app.cl')
         ->where(['domain' => $domainPattern])
         ->middleware([
             'web',
@@ -34,7 +34,7 @@ if (!empty($centralDomains)) {
         ->group(base_path('routes/qr-public.php'));
 
     // Rutas principales de la app (con auth y tenant-active check)
-    Route::domain('{tenant}.{domain}')
+    Route::domain('{tenant}.sas.dev-app.cl')
         ->where(['domain' => $domainPattern])
         ->middleware([
             'web',
