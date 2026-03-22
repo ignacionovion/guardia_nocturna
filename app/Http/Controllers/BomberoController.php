@@ -122,33 +122,36 @@ class BomberoController extends Controller
         return redirect()->route('admin.volunteers.index')->with('success', 'Voluntario creado exitosamente.');
     }
 
-    public function show($tenant, $id)
+    public function show(Request $request)
     {
         if (!in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania', 'guardia'], true)) {
             abort(403, 'No autorizado.');
         }
         
-        $volunteer = Bombero::with('guardia')->findOrFail($id);
+        $id = $request->route('volunteer');
+        $volunteer = Bombero::with('guardia')->findOrFail((int) $id);
         
         return view('admin.volunteers.show', compact('volunteer'));
     }
 
-    public function edit($tenant, $id)
+    public function edit(Request $request)
     {
         if (!in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
-        $volunteer = Bombero::findOrFail($id);
+        $id = $request->route('volunteer');
+        $volunteer = Bombero::findOrFail((int) $id);
         $guardias = Guardia::all();
         return view('admin.volunteers.edit', compact('volunteer', 'guardias'));
     }
 
-    public function update(Request $request, $tenant, $id)
+    public function update(Request $request)
     {
         if (!in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
-        $volunteer = Bombero::findOrFail($id);
+        $id = $request->route('volunteer');
+        $volunteer = Bombero::findOrFail((int) $id);
         
         $request->validate([
             'nombres' => 'required|string|max:255',
@@ -206,12 +209,14 @@ class BomberoController extends Controller
         return redirect()->route('admin.volunteers.index')->with('success', 'Voluntario actualizado exitosamente.');
     }
 
-    public function destroy($tenant, $id)
+    public function destroy(Request $request)
     {
         if (!in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
-        $volunteer = Bombero::findOrFail($id);
+
+        $id = $request->route('volunteer');
+        $volunteer = Bombero::findOrFail((int) $id);
         $volunteer->delete();
         return redirect()->route('admin.volunteers.index')->with('success', 'Voluntario eliminado exitosamente.');
     }

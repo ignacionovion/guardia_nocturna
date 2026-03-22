@@ -88,14 +88,15 @@ class AdministradorController extends Controller
         return null;
     }
 
-    public function toggleFueraDeServicio($id)
+    public function toggleFueraDeServicio(Request $request)
     {
         $user = auth()->user();
         if (!in_array($user->role, ['capitan', 'super_admin', 'capitania', 'guardia'], true)) {
             abort(403, 'No autorizado.');
         }
 
-        $firefighter = Bombero::findOrFail($id);
+        $id = $request->route('id');
+        $firefighter = Bombero::findOrFail((int) $id);
 
         if ($user->role === 'guardia' && (int) $firefighter->guardia_id !== (int) $user->guardia_id) {
             abort(403, 'No autorizado.');
@@ -570,14 +571,15 @@ class AdministradorController extends Controller
         return back()->with('success', 'Refuerzo quitado correctamente. Cama liberada automáticamente.');
     }
 
-    public function toggleTitular($id)
+    public function toggleTitular(Request $request)
     {
         $user = auth()->user();
         if (!in_array($user->role, ['capitan', 'super_admin', 'capitania', 'guardia'], true)) {
             abort(403, 'No autorizado.');
         }
 
-        $firefighter = Bombero::findOrFail($id);
+        $id = $request->route('id');
+        $firefighter = Bombero::findOrFail((int) $id);
 
         if ($user->role === 'guardia' && (int) $firefighter->guardia_id !== (int) $user->guardia_id) {
             abort(403, 'No autorizado.');
@@ -1058,24 +1060,26 @@ class AdministradorController extends Controller
         }
     }
 
-    public function editGuardia($id)
+    public function editGuardia(Request $request)
     {
         if (!in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
 
-        $guardia = Guardia::findOrFail($id);
+        $id = $request->route('id');
+        $guardia = Guardia::findOrFail((int) $id);
         
         return view('admin.guardias.edit', compact('guardia'));
     }
 
-    public function updateGuardia(Request $request, $id)
+    public function updateGuardia(Request $request)
     {
         if (!in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
 
-        $guardia = Guardia::findOrFail($id);
+        $id = $request->route('id');
+        $guardia = Guardia::findOrFail((int) $id);
 
         $request->validate(['name' => 'required|string|max:255|unique:guardias,name,' . $id]);
 
@@ -1092,13 +1096,14 @@ class AdministradorController extends Controller
         return redirect()->route('admin.guardias')->with('success', 'Guardia actualizada correctamente.');
     }
 
-    public function destroyGuardia($id)
+    public function destroyGuardia(Request $request)
     {
         if (!in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
 
-        $guardia = Guardia::findOrFail($id);
+        $id = $request->route('id');
+        $guardia = Guardia::findOrFail((int) $id);
         
         // Verificar si tiene personal asignado (excluyendo el usuario de gestión de la guardia)
         $usersCount = $guardia->bomberos()->count();
@@ -1115,13 +1120,14 @@ class AdministradorController extends Controller
         return redirect()->route('admin.guardias')->with('success', 'Guardia eliminada correctamente.');
     }
 
-    public function activateWeek($id)
+    public function activateWeek(Request $request)
     {
         if (!in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }
 
-        $newActiveGuardia = Guardia::findOrFail($id);
+        $id = $request->route('id');
+        $newActiveGuardia = Guardia::findOrFail((int) $id);
 
         // Buscar la guardia que estaba activa previamente para resetearla
         $previousActiveGuardia = Guardia::where('is_active_week', true)->first();
