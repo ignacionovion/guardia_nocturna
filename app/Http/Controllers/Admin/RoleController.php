@@ -37,12 +37,45 @@ class RoleController extends Controller
 
     public function create()
     {
-        abort(403, 'La creación de roles del sistema no está permitida. El sistema usa únicamente los roles CAPITÁN y GUARDIA.');
+        return view('admin.roles.create');
     }
 
     public function store(Request $request)
     {
-        abort(403, 'La creación de roles del sistema no está permitida.');
+        $allowedPermissions = [
+            'dashboard',
+            'guardias',
+            'dotaciones',
+            'calendario',
+            'voluntarios',
+            'usuarios',
+            'roles',
+            'emergencias',
+            'reportes',
+            'planillas',
+            'inventario',
+            'preventivas',
+            'camas',
+            'novedades',
+            'limpieza',
+            'academias',
+            'admin_system',
+        ];
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255', 'unique:roles,name'],
+            'slug' => ['required', 'string', 'max:255', 'unique:roles,slug', 'regex:/^[a-z0-9_\-]+$/'],
+            'permissions' => ['nullable', 'array'],
+            'permissions.*' => ['string', Rule::in($allowedPermissions)],
+        ]);
+
+        Role::create([
+            'name' => $validated['name'],
+            'slug' => strtolower((string) $validated['slug']),
+            'permissions' => array_values(array_unique($validated['permissions'] ?? [])),
+        ]);
+
+        return redirect()->route('admin.roles.index')->with('success', 'Rol creado correctamente.');
     }
 
     public function edit(string $id)
