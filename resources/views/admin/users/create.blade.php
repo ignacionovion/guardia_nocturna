@@ -117,36 +117,50 @@
                 role: '{{ old('role') }}',
                 role_id: '{{ old('role_id') }}'
             },
-            
-            generateUsername() {
-                if (!this.formData.name) return;
-                
-                if (!this.formData.username || this.formData.username === this.generateUsernameFromName(this.formData.name)) {
-                    this.formData.username = this.generateUsernameFromName(this.formData.name);
+            usernameManuallyEdited: false,
+
+            init() {
+                // If username was filled by old() and is different from what would be generated,
+                // assume it was manually edited.
+                if (this.formData.username && this.formData.username !== this.slugify(this.formData.name)) {
+                    this.usernameManuallyEdited = true;
                 }
             },
-            
-            generateUsernameFromName(name) {
-                let username = name.toLowerCase();
-                username = username.replace(/ /g, '.');
-                
-                // Remove accents
-                const accents = {'á':'a','é':'e','í':'i','ó':'o','ú':'u','ñ':'n','ü':'u'};
-                username = username.replace(/[áéíóúñü]/g, match => accents[match]);
-                
-                // Remove special characters except dots
-                username = username.replace(/[^a-z0-9.]/g, '');
-                
-                return username;
+
+            slugify(value) {
+                if (!value) return '';
+                const a = 'àáâäæãåāăąçćčđďèéêëēėęěğǵḧîïíīįìłḿñńǹňôöòóœøōõőṕŕřßśšşșťțûüùúūǘůűųẃẍÿýžźż·/_,:;'
+                const b = 'aaaaaaaaaacccddeeeeeeeegghiiiiiilmnnnnoooooooooprrsssssttuuuuuuuuuwxyyzzz------'
+                const p = new RegExp(a.split('').join('|'), 'g')
+
+                return value.toString().toLowerCase()
+                    .replace(/\s+/g, '.') // Replace spaces with - -> changed to .
+                    .replace(p, c => b.charAt(a.indexOf(c))) // Replace special characters
+                    .replace(/&/g, '-and-') // Replace & with 'and'
+                    .replace(/[^\w\.]+/g, '') // Remove all non-word chars
+                    .replace(/\.\.+/g, '.') // Replace multiple - with single -
+                    .replace(/^\.+/, '') // Trim - from start of text
+                    .replace(/\.+$/, '') // Trim - from end of text
             },
-            
+
+            generateUsername() {
+                if (!this.usernameManuallyEdited) {
+                    let newUsername = this.slugify(this.formData.name);
+                    if (newUsername.length < 4 && this.formData.name.length >= 2) {
+                        newUsername = newUsername + '.user';
+                    }
+                    this.formData.username = newUsername;
+                }
+            },
+
             handleRoleChange() {
-                // If system role is selected, clear custom role
                 if (this.formData.role) {
                     this.formData.role_id = '';
                 }
-                // If custom role is selected, clear system role
-                else if (this.formData.role_id) {
+            },
+
+            handleRoleIdChange() {
+                if (this.formData.role_id) {
                     this.formData.role = '';
                 }
             }

@@ -29,14 +29,11 @@ class TenantAwareUrlGenerator extends UrlGenerator
      */
     public function toRoute($route, $parameters, $absolute = true)
     {
-        // Only inject tenant for non-central routes
         $routeName = $route->getName();
-        if ($routeName && str_starts_with($routeName, 'central.')) {
-            return parent::toRoute($route, $parameters, $absolute);
-        }
+        $isCentralRoute = $routeName && str_starts_with($routeName, 'central.');
 
-        // If the route requires a 'tenant' parameter
-        if ($this->routeNeedsTenantParameter($route)) {
+        // If the route requires a 'tenant' parameter (and is not a central route)
+        if (!$isCentralRoute && $this->routeNeedsTenantParameter($route)) {
             $parameters = $this->injectTenantParameter($parameters);
         }
 
