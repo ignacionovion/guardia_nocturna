@@ -18,6 +18,8 @@ use Carbon\Carbon;
 use App\Models\ReemplazoBombero;
 use App\Models\Bombero;
 use App\Models\SystemSetting;
+use App\Models\Tenant;
+use Stancl\Tenancy\Facades\Tenancy;
 
 use Illuminate\Support\Facades\Schedule;
 use Illuminate\Support\Facades\Log;
@@ -29,6 +31,106 @@ Artisan::command('inspire', function () {
 // Programar el cleanup diario para que se ejecute automáticamente a las 07:00
 // El comando tiene una ventana de 5 minutos (07:00-07:05) para ejecutar la lógica
 Schedule::command('guardia:daily-cleanup')->everyMinute();
+
+// Scheduler de guardias que corre en todos los tenants
+Schedule::call(function () {
+    runGuardiaScheduler();
+})->everyMinute();
+
+/**
+ * Ejecuta el scheduler de guardias en el contexto de cada tenant
+ */
+function runGuardiaScheduler()
+{
+    $tenants = Tenant::all();
+    
+    foreach ($tenants as $tenant) {
+        try {
+            // Inicializar contexto del tenant
+            Tenancy::initialize($tenant);
+            
+            $scheduleTz = SystemSetting::getValue('guardia_schedule_tz', env('GUARDIA_SCHEDULE_TZ', config('app.timezone')));
+            $nowLocal = Carbon::now($scheduleTz);
+            $nowApp = $nowLocal->copy()->setTimezone(config('app.timezone'));
+            $logContext = [
+                'command' => 'guardia-weekly-transition',
+                'tenant' => tenant('id'),
+                'now_local' => $nowLocal->toDateTimeString(),
+                'now_app' => $nowApp->toDateTimeString(),
+                'schedule_tz' => $scheduleTz,
+            ];
+
+            // Reset estado de guardia anterior
+            $resetGuardiaState = function (Guardia $guardia) {
+                User::where('guardia_id', $guardia->id)
+                    ->where('is_titular', true)
+                    ->update([
+                        'attendance_status' => 'constituye',
+                        'job_replacement_id' => null,
+                        'is_shift_leader' => false,
+                        'is_exchange' => false,
+                        'is_penalty' => false,
+                        'role' => DB::raw("CASE WHEN role = 'jefe_guardia' THEN 'bombero' ELSE role END"),
+                    ]);
+            };
+
+            $weekTransitionTime = SystemSetting::getValue('guardia_week_transition_time', '18:00');
+            if ($nowLocal->isSunday()) {
+                [$transH, $transM] = array_map('intval', explode(':', (string) $weekTransitionTime));
+                $transitionAt = $nowLocal->copy()->startOfDay()->addHours($transH)->addMinutes($transM);
+                $transitionWindowEnd = $transitionAt->copy()->addMinutes(5);
+
+                if ($nowLocal->greaterThanOrEqualTo($transitionAt) && $nowLocal->lessThan($transitionWindowEnd)) {
+                    $calendarDay = GuardiaCalendarDay::where('date', $nowLocal->toDateString())->first();
+                    if ($calendarDay) {
+                        $targetGuardia = Guardia::find($calendarDay->guardia_id);
+                        if ($targetGuardia) {
+                            $previousActiveGuardia = Guardia::where('is_active_week', true)->first();
+                            
+                            DB::transaction(function () use ($targetGuardia, $resetGuardiaState, $previousActiveGuardia, $logContext) {
+                                if ($previousActiveGuardia && $previousActiveGuardia->id !== $targetGuardia->id) {
+                                    $resetGuardiaState($previousActiveGuardia);
+                                }
+
+                                Guardia::query()->update(['is_active_week' => false]);
+                                $targetGuardia->update(['is_active_week' => true]);
+                            });
+
+                            Log::info('Guardia weekly transition executed', $logContext + [
+                                'transition_time' => $weekTransitionTime,
+                                'calendar_date' => $nowLocal->toDateString(),
+                                'previous_guardia_id' => $previousActiveGuardia?->id,
+                                'previous_guardia_name' => $previousActiveGuardia?->name,
+                                'target_guardia_id' => $targetGuardia->id,
+                                'target_guardia_name' => $targetGuardia->name,
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            // Finalizar contexto del tenant
+            Tenancy::end();
+            
+        } catch (\Exception $e) {
+            Log::error('Guardia scheduler failed for tenant', [
+                'tenant' => $tenant->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            // Asegurar terminar contexto en caso de error
+            try {
+                Tenancy::end();
+            } catch (\Exception $endException) {
+                Log::error('Failed to end tenant context', [
+                    'tenant' => $tenant->id,
+                    'error' => $endException->getMessage()
+                ]);
+            }
+        }
+    }
+}
 
 Artisan::command('guardia:expire-replacements', function () {
     $processed = ReplacementService::expire(Carbon::now());
@@ -268,209 +370,11 @@ Artisan::command('guardia:daily-cleanup {--at=} {--tz=}', function () {
     $this->info('Daily cleanup ejecutado (' . $nowLocal->toDateTimeString() . ')');
 })->purpose('A las 07:00 AM: cierra reemplazos, resetea estados, elimina refuerzos y deja solo dotación titular');
 
-Artisan::command('guardia:run-calendar {--at=} {--tz=}', function () {
-    $scheduleTz = $this->option('tz')
-        ?: SystemSetting::getValue('guardia_schedule_tz', env('GUARDIA_SCHEDULE_TZ', config('app.timezone')));
-    $at = $this->option('at');
-
-    $nowLocal = $at ? Carbon::parse($at, $scheduleTz) : Carbon::now($scheduleTz);
-    $nowApp = $nowLocal->copy()->setTimezone(config('app.timezone'));
-    $logContext = [
-        'command' => 'guardia:run-calendar',
-        'now_local' => $nowLocal->toDateTimeString(),
-        'now_app' => $nowApp->toDateTimeString(),
-        'schedule_tz' => $scheduleTz,
-    ];
-
-    $closeActiveShifts = function (?int $exceptShiftId = null) use ($nowApp, $nowLocal) {
-        Shift::where('status', 'active')
-            ->when($exceptShiftId, fn ($q) => $q->where('id', '!=', $exceptShiftId))
-            ->chunkById(50, function ($shifts) use ($nowApp, $nowLocal) {
-                foreach ($shifts as $shift) {
-                    ShiftUser::where('shift_id', $shift->id)
-                        ->whereNull('end_time')
-                        ->update(['end_time' => $nowApp]);
-
-                    $notesPrefix = $shift->notes ? rtrim($shift->notes) . "\n" : '';
-                    $shift->update([
-                        'status' => 'closed',
-                        'notes' => $notesPrefix . 'Cerrado automáticamente por Calendario (' . $nowLocal->toDateTimeString() . ')',
-                    ]);
-                }
-            });
-    };
-
-    $resetGuardiaState = function (Guardia $guardia) {
-        $transitorios = User::where('guardia_id', $guardia->id)
-            ->where('is_titular', false)
-            ->get();
-
-        foreach ($transitorios as $user) {
-            $user->update([
-                'guardia_id' => null,
-                'job_replacement_id' => null,
-                'attendance_status' => 'constituye',
-                'is_shift_leader' => false,
-                'is_exchange' => false,
-                'is_penalty' => false,
-                'role' => ($user->role === 'jefe_guardia') ? 'bombero' : $user->role,
-            ]);
-        }
-
-        $titulares = User::where('guardia_id', $guardia->id)
-            ->where('is_titular', true)
-            ->get();
-
-        foreach ($titulares as $user) {
-            $user->update([
-                'attendance_status' => 'constituye',
-                'job_replacement_id' => null,
-                'is_shift_leader' => false,
-                'is_exchange' => false,
-                'is_penalty' => false,
-                'role' => ($user->role === 'jefe_guardia') ? 'bombero' : $user->role,
-            ]);
-        }
-    };
-
-    $resolveCurrentWeeklyGuardia = function () use ($nowLocal) {
-        $activeGuardia = Guardia::where('is_active_week', true)->first();
-        if ($activeGuardia) {
-            return $activeGuardia;
-        }
-
-        $calendarDay = GuardiaCalendarDay::where('date', $nowLocal->toDateString())->first();
-        if (!$calendarDay) {
-            return null;
-        }
-
-        return Guardia::find($calendarDay->guardia_id);
-    };
-
-    $weekTransitionTime = SystemSetting::getValue('guardia_week_transition_time', '18:00');
-    if ($nowLocal->isSunday()) {
-        [$transH, $transM] = array_map('intval', explode(':', (string) $weekTransitionTime));
-        $transitionAt = $nowLocal->copy()->startOfDay()->addHours($transH)->addMinutes($transM);
-        $transitionWindowEnd = $transitionAt->copy()->addMinutes(5);
-
-        if ($nowLocal->greaterThanOrEqualTo($transitionAt) && $nowLocal->lessThan($transitionWindowEnd)) {
-            $calendarDay = GuardiaCalendarDay::where('date', $nowLocal->toDateString())->first();
-            if ($calendarDay) {
-                $targetGuardia = Guardia::find($calendarDay->guardia_id);
-                if ($targetGuardia) {
-                    $previousActiveGuardia = Guardia::where('is_active_week', true)->first();
-                    DB::transaction(function () use ($targetGuardia, $resetGuardiaState) {
-                        $previousActiveGuardia = Guardia::where('is_active_week', true)->first();
-                        if ($previousActiveGuardia && $previousActiveGuardia->id !== $targetGuardia->id) {
-                            $resetGuardiaState($previousActiveGuardia);
-                        }
-
-                        Guardia::query()->update(['is_active_week' => false]);
-                        $targetGuardia->update(['is_active_week' => true]);
-                    });
-
-                    Log::info('Guardia weekly transition executed', $logContext + [
-                        'transition_time' => $weekTransitionTime,
-                        'calendar_date' => $nowLocal->toDateString(),
-                        'previous_guardia_id' => $previousActiveGuardia?->id,
-                        'previous_guardia_name' => $previousActiveGuardia?->name,
-                        'target_guardia_id' => $targetGuardia->id,
-                        'target_guardia_name' => $targetGuardia->name,
-                    ]);
-                }
-            }
-
-            return;
-        }
-    }
-
-    $dailyEndTime = SystemSetting::getValue('guardia_daily_end_time', '07:00');
-    [$closeH, $closeM] = array_map('intval', explode(':', (string) $dailyEndTime));
-    $closeAt = $nowLocal->copy()->startOfDay()->addHours($closeH)->addMinutes($closeM);
-    $closeWindowEnd = $closeAt->copy()->addMinutes(5);
-    if ($nowLocal->greaterThanOrEqualTo($closeAt) && $nowLocal->lessThan($closeWindowEnd)) {
-        $closeActiveShifts();
-        Log::info('Guardia daily shift close executed', $logContext + [
-            'close_time' => $dailyEndTime,
-            'window_start' => $closeAt->toDateTimeString(),
-            'window_end' => $closeWindowEnd->toDateTimeString(),
-        ]);
-        return;
-    }
-
-    $weekdayStartTime = SystemSetting::getValue('guardia_constitution_weekday_time', '23:00');
-    $sundayStartTime = SystemSetting::getValue('guardia_constitution_sunday_time', '22:00');
-
-    $startTime = $nowLocal->isSunday() ? $sundayStartTime : $weekdayStartTime;
-    [$startH, $startM] = array_map('intval', explode(':', (string) $startTime));
-    $startAt = $nowLocal->copy()->startOfDay()->addHours($startH)->addMinutes($startM);
-    $startWindowEnd = $startAt->copy()->addMinutes(5);
-    if (!($nowLocal->greaterThanOrEqualTo($startAt) && $nowLocal->lessThan($startWindowEnd))) {
-        Log::info('Guardia run-calendar skipped: outside constitution window', $logContext + [
-            'weekday_start_time' => $weekdayStartTime,
-            'sunday_start_time' => $sundayStartTime,
-            'window_start' => $startAt->toDateTimeString(),
-            'window_end' => $startWindowEnd->toDateTimeString(),
-        ]);
-        return;
-    }
-
-    $targetGuardia = $resolveCurrentWeeklyGuardia();
-    if (!$targetGuardia) {
-        Log::warning('Guardia constitution skipped: no target guardia resolved', $logContext + [
-            'date' => $nowLocal->toDateString(),
-        ]);
-        return;
-    }
-
-    $leader = User::where('guardia_id', $targetGuardia->id)
-        ->where('role', 'guardia')
-        ->first();
-
-    if (!$leader) {
-        $leader = User::where('guardia_id', $targetGuardia->id)->first();
-    }
-
-    if (!$leader) {
-        Log::warning('Guardia constitution skipped: no leader found', $logContext + [
-            'target_guardia_id' => $targetGuardia->id,
-            'target_guardia_name' => $targetGuardia->name,
-        ]);
-        return;
-    }
-
-    $existingShift = Shift::where('status', 'active')
-        ->where('date', $nowLocal->toDateString())
-        ->first();
-
-    $closeActiveShifts($existingShift?->id);
-
-    if ($existingShift) {
-        Log::info('Guardia constitution skipped: shift already active for date', $logContext + [
-            'target_guardia_id' => $targetGuardia->id,
-            'target_guardia_name' => $targetGuardia->name,
-            'shift_id' => $existingShift->id,
-            'shift_date' => $existingShift->date,
-        ]);
-        return;
-    }
-
-    $newShift = Shift::create([
-        'date' => $nowLocal->toDateString(),
-        'status' => 'active',
-        'shift_leader_id' => $leader->id,
-        'notes' => 'Guardia generada automáticamente por Calendario',
-    ]);
-
-    Log::info('Guardia constitution executed', $logContext + [
-        'target_guardia_id' => $targetGuardia->id,
-        'target_guardia_name' => $targetGuardia->name,
-        'leader_user_id' => $leader->id,
-        'shift_id' => $newShift->id,
-        'shift_date' => $newShift->date,
-        'is_sunday' => $nowLocal->isSunday(),
-    ]);
-})->purpose('Activa guardia según calendario y crea/cierra turnos automáticamente');
+// Comando legacy: usar runGuardiaScheduler() en su lugar
+Artisan::command('guardia:run-calendar', function () {
+    $this->info('Este comando está obsoleto. El scheduler ahora corre automáticamente en todos los tenants.');
+    $this->info('Para ejecutar manualmente, usa: php artisan tinker y ejecuta runGuardiaScheduler();');
+})->purpose('Comando obsoleto - el scheduler ahora corre automáticamente en todos los tenants');
 
 Artisan::command('guardia:reset-beds {--at=} {--tz=}', function () {
     $scheduleTz = $this->option('tz')
