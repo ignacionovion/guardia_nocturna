@@ -32,35 +32,35 @@ Artisan::command('inspire', function () {
 // El comando tiene una ventana de 5 minutos (07:00-07:05) para ejecutar la lógica
 Schedule::command('guardia:daily-cleanup')->everyMinute();
 
-// Scheduler de guardias que corre en todos los tenants
+// Scheduler de guardias que corre en todos los tenants (modo producción)
 Schedule::call(function () {
-    runGuardiaScheduler();
+    runGuardiaScheduler(false);
 })->everyMinute();
 
 /**
  * Ejecuta el scheduler de guardias en el contexto de cada tenant
+ * @param bool $force Si es true, salta validación de domingo y ventana horaria
  */
-function runGuardiaScheduler()
+function runGuardiaScheduler(bool $force = false)
 {
     $tenants = Tenant::all();
-    
+
     foreach ($tenants as $tenant) {
         try {
-            // Inicializar contexto del tenant
             Tenancy::initialize($tenant);
-            
+
             $scheduleTz = SystemSetting::getValue('guardia_schedule_tz', env('GUARDIA_SCHEDULE_TZ', config('app.timezone')));
             $nowLocal = Carbon::now($scheduleTz);
             $nowApp = $nowLocal->copy()->setTimezone(config('app.timezone'));
             $logContext = [
                 'command' => 'guardia-weekly-transition',
                 'tenant' => tenant('id'),
+                'forced' => $force,
                 'now_local' => $nowLocal->toDateTimeString(),
                 'now_app' => $nowApp->toDateTimeString(),
                 'schedule_tz' => $scheduleTz,
             ];
 
-            // Reset estado de guardia anterior
             $resetGuardiaState = function (Guardia $guardia) {
                 User::where('guardia_id', $guardia->id)
                     ->where('is_titular', true)
@@ -75,57 +75,80 @@ function runGuardiaScheduler()
             };
 
             $weekTransitionTime = SystemSetting::getValue('guardia_week_transition_time', '18:00');
-            if ($nowLocal->isSunday()) {
+
+            if (!$force) {
+                if (!$nowLocal->isSunday()) {
+                    Log::info('Guardia weekly transition skipped: not Sunday', $logContext);
+                    continue;
+                }
+
                 [$transH, $transM] = array_map('intval', explode(':', (string) $weekTransitionTime));
                 $transitionAt = $nowLocal->copy()->startOfDay()->addHours($transH)->addMinutes($transM);
                 $transitionWindowEnd = $transitionAt->copy()->addMinutes(5);
 
-                if ($nowLocal->greaterThanOrEqualTo($transitionAt) && $nowLocal->lessThan($transitionWindowEnd)) {
-                    $calendarDay = GuardiaCalendarDay::where('date', $nowLocal->toDateString())->first();
-                    if ($calendarDay) {
-                        $targetGuardia = Guardia::find($calendarDay->guardia_id);
-                        if ($targetGuardia) {
-                            $previousActiveGuardia = Guardia::where('is_active_week', true)->first();
-                            
-                            DB::transaction(function () use ($targetGuardia, $resetGuardiaState, $previousActiveGuardia, $logContext) {
-                                if ($previousActiveGuardia && $previousActiveGuardia->id !== $targetGuardia->id) {
-                                    $resetGuardiaState($previousActiveGuardia);
-                                }
-
-                                Guardia::query()->update(['is_active_week' => false]);
-                                $targetGuardia->update(['is_active_week' => true]);
-                            });
-
-                            Log::info('Guardia weekly transition executed', $logContext + [
-                                'transition_time' => $weekTransitionTime,
-                                'calendar_date' => $nowLocal->toDateString(),
-                                'previous_guardia_id' => $previousActiveGuardia?->id,
-                                'previous_guardia_name' => $previousActiveGuardia?->name,
-                                'target_guardia_id' => $targetGuardia->id,
-                                'target_guardia_name' => $targetGuardia->name,
-                            ]);
-                        }
-                    }
+                if (!($nowLocal->greaterThanOrEqualTo($transitionAt) && $nowLocal->lessThan($transitionWindowEnd))) {
+                    Log::info('Guardia weekly transition skipped: outside transition window', $logContext + [
+                        'transition_time' => $weekTransitionTime,
+                        'window_start' => $transitionAt->toDateTimeString(),
+                        'window_end' => $transitionWindowEnd->toDateTimeString(),
+                    ]);
+                    continue;
                 }
             }
 
-            // Finalizar contexto del tenant
-            Tenancy::end();
-            
-        } catch (\Exception $e) {
+            $calendarDay = GuardiaCalendarDay::where('date', $nowLocal->toDateString())->first();
+
+            if (!$calendarDay) {
+                Log::warning('Guardia weekly transition skipped: no calendar entry', $logContext + [
+                    'calendar_date' => $nowLocal->toDateString(),
+                ]);
+                continue;
+            }
+
+            $targetGuardia = Guardia::find($calendarDay->guardia_id);
+
+            if (!$targetGuardia) {
+                Log::warning('Guardia weekly transition skipped: invalid guardia in calendar', $logContext + [
+                    'calendar_date' => $nowLocal->toDateString(),
+                    'calendar_guardia_id' => $calendarDay->guardia_id,
+                ]);
+                continue;
+            }
+
+            $previousActiveGuardia = Guardia::where('is_active_week', true)->first();
+
+            DB::transaction(function () use ($targetGuardia, $resetGuardiaState, $previousActiveGuardia) {
+                if ($previousActiveGuardia && $previousActiveGuardia->id !== $targetGuardia->id) {
+                    $resetGuardiaState($previousActiveGuardia);
+                }
+
+                Guardia::query()->update(['is_active_week' => false]);
+                $targetGuardia->update(['is_active_week' => true]);
+            });
+
+            Log::info('Guardia weekly transition executed', $logContext + [
+                'transition_time' => $weekTransitionTime,
+                'calendar_date' => $nowLocal->toDateString(),
+                'previous_guardia_id' => $previousActiveGuardia?->id,
+                'previous_guardia_name' => $previousActiveGuardia?->name,
+                'target_guardia_id' => $targetGuardia->id,
+                'target_guardia_name' => $targetGuardia->name,
+            ]);
+
+        } catch (\Throwable $e) {
             Log::error('Guardia scheduler failed for tenant', [
                 'tenant' => $tenant->id,
+                'forced' => $force,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
-            
-            // Asegurar terminar contexto en caso de error
+        } finally {
             try {
                 Tenancy::end();
-            } catch (\Exception $endException) {
+            } catch (\Throwable $endException) {
                 Log::error('Failed to end tenant context', [
                     'tenant' => $tenant->id,
-                    'error' => $endException->getMessage()
+                    'error' => $endException->getMessage(),
                 ]);
             }
         }
