@@ -41,7 +41,9 @@ Route::middleware('auth:central')->prefix('admin')->group(function () {
     Route::get('/', [CentralDashboardController::class, 'index'])->name('central.dashboard');
 
     Route::resource('bodies', BodyController::class)->names('central.bodies');
-    Route::resource('tenants', TenantController::class)->names('central.tenants');
+    Route::resource('tenants', TenantController::class)
+        ->where(['tenant' => '[a-z0-9\-]+'])
+        ->names('central.tenants');
 
     // Feature flags toggle
     Route::post('tenants/{tenant}/features', [TenantController::class, 'updateFeatures'])->name('central.tenants.features');
