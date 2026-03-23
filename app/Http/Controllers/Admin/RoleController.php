@@ -86,11 +86,41 @@ class RoleController extends Controller
 
     public function update(Request $request, string $id)
     {
-        abort(403, 'La modificación de roles del sistema no está permitida.');
+        $role = Role::findOrFail($id);
+
+        $allowedPermissions = [
+            'dashboard', 'guardias', 'dotaciones', 'calendario', 'voluntarios',
+            'usuarios', 'roles', 'emergencias', 'reportes', 'planillas',
+            'inventario', 'preventivas', 'camas', 'novedades', 'limpieza',
+            'academias', 'admin_system',
+        ];
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255', Rule::unique('roles')->ignore($role->id)],
+            'slug' => ['required', 'string', 'max:255', Rule::unique('roles')->ignore($role->id), 'regex:/^[a-z0-9_\\-]+$/'],
+            'permissions' => ['nullable', 'array'],
+            'permissions.*' => ['string', Rule::in($allowedPermissions)],
+        ]);
+
+        $role->update([
+            'name' => $validated['name'],
+            'slug' => strtolower((string) $validated['slug']),
+            'permissions' => array_values(array_unique($validated['permissions'] ?? [])),
+        ]);
+
+        return redirect()->route('admin.roles.index')->with('success', 'Rol actualizado correctamente.');
     }
 
     public function destroy(string $id)
     {
-        abort(403, 'La eliminación de roles del sistema no está permitida.');
+        $role = Role::findOrFail($id);
+
+        if ($role->users()->count() > 0) {
+            return back()->with('error', 'No se puede eliminar un rol que tiene usuarios asignados.');
+        }
+
+        $role->delete();
+
+        return redirect()->route('admin.roles.index')->with('success', 'Rol eliminado correctamente.');
     }
 }
