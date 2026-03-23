@@ -63,6 +63,7 @@
                                         </div>
                                         <div class="ml-4">
                                             <div class="text-sm font-bold text-[#1e293b]">{{ $user->name }}</div>
+                                            <div class="text-xs text-[#475569] font-mono">{{ $user->username }}</div>
                                             <div class="text-xs text-[#475569] font-mono">{{ $user->email }}</div>
                                         </div>
                                     </div>
@@ -84,6 +85,14 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div class="flex items-center justify-end gap-2">
+                                        @if(in_array(Auth::user()?->role, ['capitan', 'super_admin']))
+                                            <form action="{{ route('admin.users.regenerate-password', $user->id) }}" method="POST" class="inline" onsubmit="return confirm('¿Deseas regenerar la contraseña de {{ $user->name }}?');">
+                                                @csrf
+                                                <button type="submit" class="text-[#475569] hover:text-amber-600 transition-colors p-1" title="Regenerar contraseña">
+                                                    <i class="fas fa-key"></i>
+                                                </button>
+                                            </form>
+                                        @endif
                                         <a href="{{ route('admin.users.edit', $user->id) }}" class="text-[#475569] hover:text-blue-600 transition-colors p-1" title="Editar">
                                             <i class="fas fa-edit"></i>
                                         </a>
@@ -106,5 +115,61 @@
                 {{ $users->links() }}
             </div>
         </x-ui.card>
+    @endif
+
+    @if(session('new_user_credentials') || session('regenerated_password'))
+        @php
+            $credentials = session('regenerated_password') ?: session('new_user_credentials');
+            $isRegenerated = session('regenerated_password') ? true : false;
+        @endphp
+        <div x-data="{ open: true }" x-show="open" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" @click.away="open = false">
+            <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 transform transition-all">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold text-slate-900">
+                            {{ $isRegenerated ? 'Contraseña Regenerada' : 'Usuario Creado Exitosamente' }}
+                        </h3>
+                        <button @click="open = false" class="text-slate-400 hover:text-slate-600">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+
+                    <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-4 mb-4">
+                        <div class="flex items-center gap-2 mb-2">
+                            <i class="fas fa-check-circle text-emerald-600"></i>
+                            <p class="text-sm font-semibold text-emerald-800">Credenciales de Acceso</p>
+                        </div>
+                        <div class="space-y-3">
+                            <div>
+                                <p class="text-xs text-slate-600 mb-1">Usuario:</p>
+                                <div class="bg-white border border-slate-200 rounded px-3 py-2 font-mono text-sm">{{ $credentials['username'] ?? '' }}</div>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-600 mb-1">Contraseña:</p>
+                                <div class="bg-white border border-slate-200 rounded px-3 py-2 font-mono text-sm">{{ $credentials['password'] ?? '' }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                        <div class="flex items-start gap-2">
+                            <i class="fas fa-exclamation-triangle text-amber-600 mt-0.5"></i>
+                            <div>
+                                <p class="text-sm font-semibold text-amber-800">Importante</p>
+                                <p class="text-xs text-amber-700 mt-1">
+                                    Entrega esta contraseña al usuario <strong>{{ $credentials['name'] ?? '' }}</strong>. No se volverá a mostrar.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 flex justify-end">
+                        <button @click="open = false" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors">
+                            Entendido
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     @endif
 @endsection

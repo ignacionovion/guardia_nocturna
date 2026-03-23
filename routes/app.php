@@ -509,6 +509,7 @@ Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
         });
 
         Route::post('admin/users', [App\Http\Controllers\Admin\SystemUserController::class, 'store'])->middleware('max_users')->name('admin.users.store');
+        Route::post('admin/users/{id}/regenerate-password', [App\Http\Controllers\Admin\SystemUserController::class, 'regeneratePassword'])->name('admin.users.regenerate-password');
         Route::resource('admin/users', App\Http\Controllers\Admin\SystemUserController::class, ['as' => 'admin'])->except(['store']);
         Route::resource('admin/roles', App\Http\Controllers\Admin\RoleController::class, ['as' => 'admin']);
 

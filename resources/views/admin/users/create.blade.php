@@ -1,7 +1,7 @@
 @extends('layouts.modern')
 
 @section('content')
-    <div class="max-w-4xl mx-auto">
+    <div class="max-w-4xl mx-auto" x-data="userForm()">
         <x-ui.page-header title="Nuevo Usuario" subtitle="Crea una cuenta con acceso al sistema" icon="fas fa-user-plus" iconVariant="blue">
             <x-ui.button variant="secondary" size="md" icon="fas fa-arrow-left" href="{{ route('admin.users.index') }}">
                 Volver
@@ -14,30 +14,38 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label class="form-label">Nombre</label>
+                        <label class="form-label">Nombre <span class="text-red-500">*</span></label>
                         <input type="text" name="name" value="{{ old('name') }}" required
-                            class="form-input">
+                            class="form-input"
+                            x-model="formData.name"
+                            @input="generateUsername()">
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">El usuario se generará automáticamente</p>
                     </div>
 
                     <div>
-                        <label class="form-label">Usuario (opcional)</label>
+                        <label class="form-label">Usuario</label>
                         <input type="text" name="username" value="{{ old('username') }}"
-                            class="form-input">
+                            class="form-input"
+                            x-model="formData.username">
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Autogenerado, editable si es necesario</p>
                     </div>
 
                     <div>
-                        <label class="form-label">Email</label>
+                        <label class="form-label">Email <span class="text-red-500">*</span></label>
                         <input type="email" name="email" value="{{ old('email') }}" required
                             class="form-input">
                     </div>
 
                     <div>
                         <label class="form-label">
-                            Perfil de Sistema <span class="text-red-500">*</span>
+                            Perfil de Sistema
                         </label>
-                        <select name="role" required
-                            class="form-input appearance-none">
-                            <option value="" disabled {{ old('role') ? '' : 'selected' }}>Seleccionar perfil...</option>
+                        <select name="role"
+                            class="form-input appearance-none"
+                            x-model="formData.role"
+                            @change="handleRoleChange()"
+                            :disabled="!!formData.role_id">
+                            <option value="" {{ old('role') ? '' : 'selected' }}>Seleccionar perfil...</option>
                             <option value="capitan" {{ old('role') === 'capitan' ? 'selected' : '' }}>Capitán (Acceso administrativo completo)</option>
                             <option value="guardia" {{ old('role') === 'guardia' ? 'selected' : '' }}>Guardia (Acceso operativo)</option>
                         </select>
@@ -46,10 +54,13 @@
 
                     <div>
                         <label class="form-label">
-                            Rol Personalizado <span class="text-xs font-normal text-slate-400">(opcional)</span>
+                            Rol Personalizado
                         </label>
                         <select name="role_id"
-                            class="form-input appearance-none">
+                            class="form-input appearance-none"
+                            x-model="formData.role_id"
+                            @change="handleRoleChange()"
+                            :disabled="formData.role">
                             <option value="" {{ old('role_id') ? '' : 'selected' }}>Sin rol personalizado</option>
                             @foreach(($roles ?? collect()) as $r)
                                 <option value="{{ $r->id }}" {{ (string)old('role_id') === (string)$r->id ? 'selected' : '' }}>
@@ -74,10 +85,14 @@
                     </div>
 
                     <div class="md:col-span-2">
-                        <label class="form-label">Contraseña</label>
-                        <input type="password" name="password" required
-                            class="form-input">
-                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Mínimo 8 caracteres.</p>
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-info-circle text-blue-600"></i>
+                                <p class="text-sm text-blue-800">
+                                    <strong>Contraseña:</strong> Se generará automáticamente de forma segura (12 caracteres) y se mostrará al crear el usuario.
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -86,10 +101,56 @@
                         Cancelar
                     </x-ui.button>
                     <x-ui.button type="submit" variant="primary" size="md" icon="fas fa-save">
-                        Guardar
+                        Crear Usuario
                     </x-ui.button>
                 </div>
             </form>
         </div>
     </div>
+
+    <script>
+    function userForm() {
+        return {
+            formData: {
+                name: '{{ old('name') }}',
+                username: '{{ old('username') }}',
+                role: '{{ old('role') }}',
+                role_id: '{{ old('role_id') }}'
+            },
+            
+            generateUsername() {
+                if (!this.formData.name) return;
+                
+                if (!this.formData.username || this.formData.username === this.generateUsernameFromName(this.formData.name)) {
+                    this.formData.username = this.generateUsernameFromName(this.formData.name);
+                }
+            },
+            
+            generateUsernameFromName(name) {
+                let username = name.toLowerCase();
+                username = username.replace(/ /g, '.');
+                
+                // Remove accents
+                const accents = {'á':'a','é':'e','í':'i','ó':'o','ú':'u','ñ':'n','ü':'u'};
+                username = username.replace(/[áéíóúñü]/g, match => accents[match]);
+                
+                // Remove special characters except dots
+                username = username.replace(/[^a-z0-9.]/g, '');
+                
+                return username;
+            },
+            
+            handleRoleChange() {
+                // If system role is selected, clear custom role
+                if (this.formData.role) {
+                    this.formData.role_id = '';
+                }
+                // If custom role is selected, clear system role
+                else if (this.formData.role_id) {
+                    this.formData.role = '';
+                }
+            }
+        }
+    }
+    </script>
 @endsection
