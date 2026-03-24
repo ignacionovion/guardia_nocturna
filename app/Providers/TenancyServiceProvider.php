@@ -110,7 +110,6 @@ class TenancyServiceProvider extends ServiceProvider
     protected function mapTenantRoutes()
     {
         Route::middleware([
-                'web',
                 \Stancl\Tenancy\Middleware\InitializeTenancyBySubdomain::class,
                 \Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains::class,
             ])
