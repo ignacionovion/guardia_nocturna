@@ -41,6 +41,9 @@ Route::resource('tenants', TenantController::class)
     ->where(['tenant' => '[a-z0-9\-]+'])
     ->names('central.tenants');
 
+// Check slug availability (AJAX)
+Route::get('check-slug', [TenantController::class, 'checkSlugAvailability'])->name('central.check-slug');
+
 // Feature flags toggle
 Route::post('tenants/{tenant}/features', [TenantController::class, 'updateFeatures'])->name('central.tenants.features');
 
