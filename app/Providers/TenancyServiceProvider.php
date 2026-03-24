@@ -100,11 +100,21 @@ class TenancyServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->bootEvents();
-        $this->mapRoutes();
+        $this->mapTenantRoutes(); // Solo tenant routes, las centrales ya las maneja RouteServiceProvider
 
         // NO hacer que el middleware de tenancy tenga la máxima prioridad
         // Esto permite que las rutas centrales se procesen correctamente
         // $this->makeTenancyMiddlewareHighestPriority();
+    }
+
+    protected function mapTenantRoutes()
+    {
+        Route::middleware([
+                'web',
+                \Stancl\Tenancy\Middleware\InitializeTenancyBySubdomain::class,
+                \Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains::class,
+            ])
+            ->group(base_path('routes/tenant.php'));
     }
 
     protected function bootEvents()
@@ -118,30 +128,5 @@ class TenancyServiceProvider extends ServiceProvider
                 Event::listen($event, $listener);
             }
         }
-    }
-
-    protected function mapRoutes()
-    {
-        $this->mapCentralRoutes();
-        $this->mapTenantRoutes();
-    }
-
-    protected function mapCentralRoutes()
-    {
-        foreach (config('tenancy.central_domains') as $domain) {
-            Route::middleware('web')
-                ->domain($domain)
-                ->group(base_path('routes/central.php'));
-        }
-    }
-
-    protected function mapTenantRoutes()
-    {
-        Route::middleware([
-                'web',
-                \Stancl\Tenancy\Middleware\InitializeTenancyBySubdomain::class,
-                \Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains::class,
-            ])
-            ->group(base_path('routes/tenant.php'));
     }
 }
