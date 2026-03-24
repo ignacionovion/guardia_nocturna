@@ -19,6 +19,7 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
 // Rutas principales de la app (con auth y tenant-active check)
 Route::domain('{tenant}.dev-app.cl')
+    ->where(['tenant' => '^(?!sas$|www$|api$|test$|staging$)[a-z0-9\-]+'])
     ->middleware([
         'web',
         InitializeTenancyBySubdomain::class,
@@ -29,6 +30,7 @@ Route::domain('{tenant}.dev-app.cl')
 
 // Rutas públicas QR (sin auth, sin tenant-active check)
 Route::domain('{tenant}.dev-app.cl')
+    ->where(['tenant' => '^(?!sas$|www$|api$|test$|staging$)[a-z0-9\-]+'])
     ->middleware([
         'web',
         InitializeTenancyBySubdomain::class,
