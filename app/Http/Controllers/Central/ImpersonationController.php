@@ -16,8 +16,13 @@ class ImpersonationController extends Controller
     /**
      * Start impersonating a tenant user.
      */
-    public function start(Request $request, Tenant $tenant)
+    public function start(Request $request, $tenant)
     {
+        // Handle route model binding manually for central routes
+        if (!$tenant instanceof Tenant) {
+            $tenant = Tenant::findOrFail($tenant);
+        }
+
         $validated = $request->validate([
             'user_id' => ['required', 'integer'],
         ]);

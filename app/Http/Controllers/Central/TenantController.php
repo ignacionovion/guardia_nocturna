@@ -294,8 +294,13 @@ class TenantController extends Controller
         }
     }
 
-    public function show(Tenant $tenant)
+    public function show($tenant)
     {
+        // Handle route model binding manually for central routes
+        if (!$tenant instanceof Tenant) {
+            $tenant = Tenant::findOrFail($tenant);
+        }
+
         $tenant->load(['body', 'domains', 'plan']);
         $metrics = $this->metrics->forTenant($tenant);
         $health = $this->metrics->healthStatus($tenant);
@@ -329,15 +334,25 @@ class TenantController extends Controller
         return view('central.tenants.show', compact('tenant', 'metrics', 'health', 'tenantUsers', 'planUsage', 'availablePlans'));
     }
 
-    public function edit(Tenant $tenant)
+    public function edit($tenant)
     {
+        // Handle route model binding manually for central routes
+        if (!$tenant instanceof Tenant) {
+            $tenant = Tenant::findOrFail($tenant);
+        }
+
         $bodies = Body::where('activo', true)->orderBy('nombre')->get();
         $plans = Plan::active()->ordered()->get();
         return view('central.tenants.form', compact('tenant', 'bodies', 'plans'));
     }
 
-    public function update(Request $request, Tenant $tenant)
+    public function update(Request $request, $tenant)
     {
+        // Handle route model binding manually for central routes
+        if (!$tenant instanceof Tenant) {
+            $tenant = Tenant::findOrFail($tenant);
+        }
+
         $validated = $request->validate([
             'nombre' => ['required', 'string', 'max:255'],
             'numero' => ['nullable', 'integer', 'min:1'],
@@ -377,8 +392,13 @@ class TenantController extends Controller
             ->with('success', "Compañía «{$tenant->nombre}» actualizada.");
     }
 
-    public function destroy(Tenant $tenant)
+    public function destroy($tenant)
     {
+        // Handle route model binding manually for central routes
+        if (!$tenant instanceof Tenant) {
+            $tenant = Tenant::findOrFail($tenant);
+        }
+
         $nombre = $tenant->nombre;
         $tenantId = $tenant->id;
         $plan = $tenant->plan;
@@ -390,8 +410,13 @@ class TenantController extends Controller
             ->with('success', "Compañía «{$nombre}» eliminada junto con su base de datos.");
     }
 
-    public function updateFeatures(Request $request, Tenant $tenant)
+    public function updateFeatures(Request $request, $tenant)
     {
+        // Handle route model binding manually for central routes
+        if (!$tenant instanceof Tenant) {
+            $tenant = Tenant::findOrFail($tenant);
+        }
+
         $features = $request->input('features', []);
         $resolved = [];
 
@@ -417,8 +442,13 @@ class TenantController extends Controller
             ->with('success', 'Feature flags actualizados.');
     }
 
-    public function runMigrations(Tenant $tenant)
+    public function runMigrations($tenant)
     {
+        // Handle route model binding manually for central routes
+        if (!$tenant instanceof Tenant) {
+            $tenant = Tenant::findOrFail($tenant);
+        }
+
         try {
             $tenant->run(function () {
                 Artisan::call('migrate', ['--force' => true, '--path' => 'database/migrations/tenant']);
@@ -434,8 +464,13 @@ class TenantController extends Controller
         }
     }
 
-    public function runSeed(Tenant $tenant)
+    public function runSeed($tenant)
     {
+        // Handle route model binding manually for central routes
+        if (!$tenant instanceof Tenant) {
+            $tenant = Tenant::findOrFail($tenant);
+        }
+
         try {
             $tenant->run(function () {
                 Artisan::call('db:seed', ['--force' => true]);
@@ -451,8 +486,13 @@ class TenantController extends Controller
         }
     }
 
-    public function timeline(Tenant $tenant)
+    public function timeline($tenant)
     {
+        // Handle route model binding manually for central routes
+        if (!$tenant instanceof Tenant) {
+            $tenant = Tenant::findOrFail($tenant);
+        }
+
         $events = CentralAuditLog::forTenant($tenant->id)
             ->latest()
             ->paginate(30);
@@ -460,8 +500,13 @@ class TenantController extends Controller
         return view('central.tenants.timeline', compact('tenant', 'events'));
     }
 
-    public function admin(Tenant $tenant)
+    public function admin($tenant)
     {
+        // Handle route model binding manually for central routes
+        if (!$tenant instanceof Tenant) {
+            $tenant = Tenant::findOrFail($tenant);
+        }
+
         return view('central.tenants.admin', compact('tenant'));
     }
 
@@ -503,8 +548,13 @@ class TenantController extends Controller
     /**
      * Change the plan of a tenant.
      */
-    public function changePlan(Request $request, Tenant $tenant)
+    public function changePlan(Request $request, $tenant)
     {
+        // Handle route model binding manualmente for central routes
+        if (!$tenant instanceof Tenant) {
+            $tenant = Tenant::findOrFail($tenant);
+        }
+
         $validated = $request->validate([
             'plan_id' => ['required', 'exists:plans,id'],
         ]);

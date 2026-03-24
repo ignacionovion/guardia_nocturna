@@ -17,8 +17,13 @@ class TenantAdminController extends Controller
     /**
      * Reset tenant database - drop all tables, run migrations, run seeders.
      */
-    public function resetDatabase(Request $request, Tenant $tenant)
+    public function resetDatabase(Request $request, $tenant)
     {
+        // Handle route model binding manually for central routes
+        if (!$tenant instanceof Tenant) {
+            $tenant = Tenant::findOrFail($tenant);
+        }
+
         // Validate confirmation
         $validated = $request->validate([
             'confirmation_slug' => ['required', 'string'],
@@ -77,8 +82,13 @@ class TenantAdminController extends Controller
     /**
      * Completely delete a tenant and all associated data.
      */
-    public function destroyCompletely(Request $request, Tenant $tenant)
+    public function destroyCompletely(Request $request, $tenant)
     {
+        // Handle route model binding manually for central routes
+        if (!$tenant instanceof Tenant) {
+            $tenant = Tenant::findOrFail($tenant);
+        }
+
         $validated = $request->validate([
             'confirmation_slug' => ['required', 'string'],
         ]);

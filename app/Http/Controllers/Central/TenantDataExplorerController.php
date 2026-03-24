@@ -17,8 +17,13 @@ class TenantDataExplorerController extends Controller
     /**
      * List all tables in tenant database.
      */
-    public function index(Tenant $tenant)
+    public function index($tenant)
     {
+        // Handle route model binding manually for central routes
+        if (!$tenant instanceof Tenant) {
+            $tenant = Tenant::findOrFail($tenant);
+        }
+
         $tables = [];
         try {
             $tenant->run(function () use (&$tables) {
@@ -38,8 +43,13 @@ class TenantDataExplorerController extends Controller
     /**
      * View records from a specific table.
      */
-    public function table(Request $request, Tenant $tenant, string $table)
+    public function table(Request $request, $tenant, string $table)
     {
+        // Handle route model binding manually for central routes
+        if (!$tenant instanceof Tenant) {
+            $tenant = Tenant::findOrFail($tenant);
+        }
+
         $search = $request->get('search');
         $perPage = $request->get('per_page', 25);
 
@@ -81,8 +91,13 @@ class TenantDataExplorerController extends Controller
     /**
      * View a single record.
      */
-    public function showRecord(Request $request, Tenant $tenant, string $table, string $id)
+    public function showRecord(Request $request, $tenant, string $table, string $id)
     {
+        // Handle route model binding manually for central routes
+        if (!$tenant instanceof Tenant) {
+            $tenant = Tenant::findOrFail($tenant);
+        }
+
         $record = null;
         $columns = [];
 
