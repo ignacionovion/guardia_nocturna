@@ -34,17 +34,19 @@ class TenantAwareUrlGenerator extends UrlGenerator
         $routeName = $route->getName();
         $isCentralRoute = $routeName && str_starts_with($routeName, 'central.');
 
-        // If we're in central context and trying to access tenant routes, handle gracefully
-        if (!tenant() && !$isCentralRoute && $this->routeNeedsTenantParameter($route)) {
-            // For dashboard route, redirect to central dashboard
-            if ($routeName === 'dashboard') {
-                return route('central.dashboard');
+        // CRITICAL FIX: Handle ANY tenant route called from central context
+        if (!tenant() && !$isCentralRoute) {
+            // Check if this route requires tenant parameter
+            if ($this->routeNeedsTenantParameter($route)) {
+                // For dashboard route, redirect to central dashboard
+                if ($routeName === 'dashboard') {
+                    return route('central.dashboard');
+                }
+                
+                // For ANY other tenant route, return a safe fallback
+                // This MUST happen before we try to inject tenant parameter
+                return 'javascript:void(0);';
             }
-            
-            // For other tenant routes, we can't generate them from central context
-            // Instead of throwing an exception, we'll generate a safe URL that won't break
-            // This prevents the UrlGenerationException from crashing the page
-            return 'javascript:void(0); // tenant route ' . $routeName . ' not available in central context';
         }
 
         // If the route requires a 'tenant' parameter (and is not a central route)
