@@ -62,35 +62,51 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/api/emergency-units', [EmergencyUnitController::class, 'apiIndex'])->name('api.emergency-units');
 });
 
+// ================================
+// OPERACIÓN DE GUARDIA (EN VIVO)
+// ================================
 Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
-    Route::view('/guardia/fuera-de-servicio', 'guardia.off_duty')->name('guardia.off_duty');
-    
-    
-    // API de Notificaciones
-    Route::get('/api/notifications', [NotificationController::class, 'index'])->name('notifications.index');
-    Route::get('/api/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread_count');
-    Route::post('/api/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.mark_read');
-    Route::post('/api/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark_all_read');
 
+    // Dashboard operativo
     Route::get('/dashboard', [TableroController::class, 'index'])->name('dashboard');
     Route::get('/dashboard-live', [GuardiaLiveController::class, 'index'])->name('dashboard.live');
+
+    // Guardia en vivo API
     Route::get('/api/guardia-live/state', [GuardiaLiveController::class, 'state'])->name('guardia.live.state');
     Route::get('/api/guardia-live/emergencies', [GuardiaLiveController::class, 'emergencies'])->name('guardia.live.emergencies');
     Route::get('/api/guardia-live/cleaning-assignments', [GuardiaLiveController::class, 'cleaningAssignments'])->name('guardia.live.cleaning_assignments');
-    
-    // Bed management API
-    Route::get('/api/beds', [\App\Http\Controllers\BedManagementController::class, 'index'])->name('api.beds.index');
-    Route::get('/api/beds/available-firefighters', [\App\Http\Controllers\BedManagementController::class, 'availableFirefighters'])->name('api.beds.available_firefighters');
-    Route::post('/api/beds/assign', [\App\Http\Controllers\BedManagementController::class, 'assign'])->name('api.beds.assign');
-    Route::post('/api/beds/release', [\App\Http\Controllers\BedManagementController::class, 'release'])->name('api.beds.release');
-    
+
+    // Camas (operación)
     Route::get('/camas', [TableroController::class, 'camas'])->name('camas');
+    Route::post('/camas/asignar', [AsignacionCamaController::class, 'store'])->name('beds.assign');
+    Route::post('/camas/liberar/{id}', [AsignacionCamaController::class, 'update'])->name('beds.release');
+
+    // Guardia
     Route::get('/guardia', [GuardiaController::class, 'index'])->name('guardia');
+    Route::post('/guardia', [GuardiaController::class, 'start'])->name('guardia.start');
+    Route::post('/guardia/{id}/close', [GuardiaController::class, 'close'])->name('guardia.close');
+
+    // NOW (pantalla en vivo)
     Route::get('/now', [GuardiaController::class, 'now'])->name('guardia.now');
     Route::get('/now/data', [GuardiaController::class, 'nowData'])->name('guardia.now.data');
     Route::get('/now/snapshot/pdf', [GuardiaController::class, 'nowSnapshotPdf'])->name('guardia.now.snapshot.pdf');
     Route::post('/now/snapshot/email', [GuardiaController::class, 'nowSnapshotEmail'])->name('guardia.now.snapshot.email');
 
+    // Notificaciones operativas
+    Route::get('/api/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/read', [InAppNotificationController::class, 'markRead'])->name('notifications.read');
+
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::view('/guardia/fuera-de-servicio', 'guardia.off_duty')->name('guardia.off_duty');
+    
+    // Bed management API (auth only, no guardia_on_duty restriction)
+    Route::get('/api/beds', [\App\Http\Controllers\BedManagementController::class, 'index'])->name('api.beds.index');
+    Route::get('/api/beds/available-firefighters', [\App\Http\Controllers\BedManagementController::class, 'availableFirefighters'])->name('api.beds.available_firefighters');
+    Route::post('/api/beds/assign', [\App\Http\Controllers\BedManagementController::class, 'assign'])->name('api.beds.assign');
+    Route::post('/api/beds/release', [\App\Http\Controllers\BedManagementController::class, 'release'])->name('api.beds.release');
+    
     Route::get('/inventario', function () {
         return redirect()->route('inventario.dashboard');
     })->name('inventario.index');
