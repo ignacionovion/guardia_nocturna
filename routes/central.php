@@ -36,9 +36,32 @@ Route::get('/login', [CentralAuthController::class, 'showLogin'])->name('login')
 Route::post('/login', [CentralAuthController::class, 'login']);
 Route::post('/logout', [CentralAuthController::class, 'logout'])->name('central.logout');
 
+// RUTA DE PRUEBA PÚBLICA (temporal)
+Route::get('/__central_probe_public', function () {
+    return response()->json([
+        'ok' => true,
+        'host' => request()->getHost(),
+        'route_name' => request()->route()?->getName(),
+        'tenancy_initialized' => tenancy()->initialized,
+        'guard' => 'none',
+        'middleware_applied' => 'none',
+    ]);
+})->name('central.probe.public');
+
 // Protected
 Route::middleware('auth:central')->prefix('admin')->group(function () {
     Route::get('/', [CentralDashboardController::class, 'index'])->name('central.dashboard');
+
+    // RUTA DE PRUEBA CENTRAL (temporal)
+    Route::get('/__central_probe', function () {
+        return response()->json([
+            'ok' => true,
+            'host' => request()->getHost(),
+            'route_name' => request()->route()?->getName(),
+            'tenancy_initialized' => tenancy()->initialized,
+            'guard' => 'central',
+        ]);
+    })->name('central.probe');
 
     Route::resource('bodies', BodyController::class)->names('central.bodies');
     Route::resource('tenants', TenantController::class)
