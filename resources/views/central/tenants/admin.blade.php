@@ -35,7 +35,7 @@
                 </div>
             </div>
             <p class="text-sm text-slate-600 mb-4">Visualiza los datos directamente desde la base de datos del tenant. Solo lectura.</p>
-            <a href="{{ route('central.tenants.explorer.index', $tenant) }}" class="block w-full text-center px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition text-sm font-medium">
+            <a href="{{ route('central.tenants.explorer', $tenant) }}" class="block w-full text-center px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition text-sm font-medium">
                 Abrir Explorador
             </a>
         </div>
