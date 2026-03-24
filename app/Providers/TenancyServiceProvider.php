@@ -102,7 +102,9 @@ class TenancyServiceProvider extends ServiceProvider
         $this->bootEvents();
         $this->mapRoutes();
 
-        $this->makeTenancyMiddlewareHighestPriority();
+        // NO hacer que el middleware de tenancy tenga la máxima prioridad
+        // Esto permite que las rutas centrales se procesen correctamente
+        // $this->makeTenancyMiddlewareHighestPriority();
     }
 
     protected function bootEvents()
@@ -141,23 +143,5 @@ class TenancyServiceProvider extends ServiceProvider
                 \Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains::class,
             ])
             ->group(base_path('routes/tenant.php'));
-    }
-
-    protected function makeTenancyMiddlewareHighestPriority()
-    {
-        $tenancyMiddleware = [
-            // Even higher priority than the initialization middleware
-            Middleware\PreventAccessFromCentralDomains::class,
-
-            Middleware\InitializeTenancyByDomain::class,
-            Middleware\InitializeTenancyBySubdomain::class,
-            Middleware\InitializeTenancyByDomainOrSubdomain::class,
-            Middleware\InitializeTenancyByPath::class,
-            Middleware\InitializeTenancyByRequestData::class,
-        ];
-
-        foreach (array_reverse($tenancyMiddleware) as $middleware) {
-            $this->app[\Illuminate\Contracts\Http\Kernel::class]->prependToMiddlewarePriority($middleware);
-        }
     }
 }
