@@ -23,17 +23,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// RUTA DE PRUEBA CENTRAL (temporal)
-Route::get('/__central_probe', function () {
-    return response()->json([
-        'ok' => true,
-        'host' => request()->getHost(),
-        'route_name' => request()->route()?->getName(),
-        'tenancy_initialized' => app()->bound('tenant'),
-        'guard' => 'central',
-    ]);
-})->name('central.probe');
-
 Route::get('/', [CentralDashboardController::class, 'index'])->name('central.dashboard');
 
 Route::resource('bodies', BodyController::class)->names('central.bodies');
