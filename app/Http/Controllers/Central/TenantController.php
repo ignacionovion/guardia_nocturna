@@ -308,7 +308,7 @@ class TenantController extends Controller
         // Get plan usage if tenant DB exists
         $planUsage = null;
         try {
-            $planUsage = \App\Services\PlanService::getUsageInfo();
+            $planUsage = \App\Services\PlanService::getUsageInfoForTenant($tenant);
         } catch (\Throwable $e) {
             // Tenant DB may not exist yet
         }
