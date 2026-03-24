@@ -17,9 +17,10 @@ return [
      * Only relevant if you're using the domain or subdomain identification middleware.
      */
     'central_domains' => array_filter([
-        env('CENTRAL_DOMAIN', 'localhost'),  // staging: sas.dev-app.cl
+        env('CENTRAL_DOMAIN', 'localhost'),
         '127.0.0.1',
         'localhost',
+        'sas.dev-app.cl', // Hardcode staging central domain for robustness
     ]),
 
     /**
