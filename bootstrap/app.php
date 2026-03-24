@@ -27,8 +27,8 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(at: '*');
-        $middleware->appendToGroup('web', \App\Http\Middleware\ExpireReplacements::class);
-        $middleware->appendToGroup('web', \App\Http\Middleware\EnsureInventoryOnly::class);
+        // Eliminados middlewares tenant del grupo web global para no afectar dominios centrales
+        // Estos middlewares se aplican ahora solo en rutas tenant específicas
         $middleware->alias([
             'super_admin'         => \App\Http\Middleware\EnsureSuperAdmin::class,
             'ensure_captain'      => \App\Http\Middleware\EnsureCaptain::class,

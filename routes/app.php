@@ -65,7 +65,7 @@ Route::middleware(['auth'])->group(function () {
 // ================================
 // OPERACIÓN DE GUARDIA (EN VIVO)
 // ================================
-Route::middleware(['auth', 'guardia_on_duty'])->group(function () {
+Route::middleware(['auth', 'guardia_on_duty', \App\Http\Middleware\ExpireReplacements::class])->group(function () {
 
     // Dashboard operativo
     Route::get('/dashboard', [TableroController::class, 'index'])->name('dashboard');
@@ -111,7 +111,7 @@ Route::middleware(['auth'])->group(function () {
         return redirect()->route('inventario.dashboard');
     })->name('inventario.index');
 
-    Route::middleware(['feature:inventario', 'inventory_access'])->group(function () {
+    Route::middleware(['feature:inventario', 'inventory_access', \App\Http\Middleware\EnsureInventoryOnly::class])->group(function () {
         Route::get('/inventario/panel', [InventarioController::class, 'index'])->name('inventario.dashboard');
         Route::get('/inventario/retiro/acceso', [InventarioController::class, 'retiroAccess'])->name('inventario.retiro.access');
         Route::get('/inventario/retiro/identificar', [InventarioController::class, 'identificarForm'])->name('inventario.retiro.identificar.form');
