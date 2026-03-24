@@ -211,13 +211,14 @@ class TenantController extends Controller
 
         } catch (\Illuminate\Database\QueryException $e) {
             // Log detailed SQL error info
-            Log::error("Tenant creation SQL error", [
-                'tenant_id' => $validated['id'] ?? $request->input('id'),
-                'sql_error_code' => $e->getCode(),
-                'sql_error_message' => $e->getMessage(),
-                'sql_state' => $e->getSqlState() ?? 'N/A',
-                'steps_completed' => $steps,
-            ]);
+          Log::error('Tenant creation SQL error', [
+    'tenant_id' => $validated['id'] ?? $request->input('id'),
+    'sql_error_code' => $e->getCode(),
+    'sql_error_message' => $e->getMessage(),
+    'sql_state' => $e->errorInfo[0] ?? null,
+    'sql_driver_code' => $e->errorInfo[1] ?? null,
+    'sql_driver_message' => $e->errorInfo[2] ?? null,
+]);
 
             // Check if it's a duplicate key error
             $errorMsg = $e->getMessage();

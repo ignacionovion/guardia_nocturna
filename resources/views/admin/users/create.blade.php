@@ -59,8 +59,8 @@
                         <select name="role_id"
                             class="form-input appearance-none"
                             x-model="formData.role_id"
-                            @change="handleRoleIdChange()"
-                            :disabled="!!formData.role">
+                            @change="handleRoleChange()"
+                            :disabled="formData.role">
                             <option value="" {{ old('role_id') ? '' : 'selected' }}>Sin rol personalizado</option>
                             @foreach(($roles ?? collect()) as $r)
                                 <option value="{{ $r->id }}" {{ (string)old('role_id') === (string)$r->id ? 'selected' : '' }}>
@@ -120,10 +120,11 @@
             usernameManuallyEdited: false,
 
             init() {
+                // If username was filled by old() and is different from what would be generated,
+                // assume it was manually edited.
                 if (this.formData.username && this.formData.username !== this.slugify(this.formData.name)) {
                     this.usernameManuallyEdited = true;
                 }
-                this.generateUsername(); // Initial generation
             },
 
             slugify(value) {
@@ -133,21 +134,18 @@
                 const p = new RegExp(a.split('').join('|'), 'g')
 
                 return value.toString().toLowerCase()
-                    .replace(/\s+/g, '.') // Replace spaces with .
+                    .replace(/\s+/g, '.') // Replace spaces with - -> changed to .
                     .replace(p, c => b.charAt(a.indexOf(c))) // Replace special characters
                     .replace(/&/g, '-and-') // Replace & with 'and'
                     .replace(/[^\w\.]+/g, '') // Remove all non-word chars
-                    .replace(/\.\.+/g, '.') // Replace multiple . with single .
-                    .replace(/^\.+/, '') // Trim . from start of text
-                    .replace(/\.+$/, '') // Trim . from end of text
+                    .replace(/\.\.+/g, '.') // Replace multiple - with single -
+                    .replace(/^\.+/, '') // Trim - from start of text
+                    .replace(/\.+$/, '') // Trim - from end of text
             },
 
             generateUsername() {
-                if (this.usernameManuallyEdited) return;
-                
-                let newUsername = this.slugify(this.formData.name);
-                if (newUsername.length > 0 && newUsername.length < 4) {
-                    newUsername += '.user';
+                if (!this.usernameManuallyEdited) {
+                    let newUsername = this.slugify(this.formData.name);
                     if (newUsername.length < 4 && this.formData.name.length >= 2) {
                         newUsername = newUsername + '.user';
                     }
