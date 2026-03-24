@@ -17,30 +17,20 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 |
 */
 
-$centralDomains = config('tenancy.central_domains', []);
+// Rutas principales de la app (con auth y tenant-active check)
+Route::domain('{tenant}.dev-app.cl')
+    ->middleware([
+        'web',
+        InitializeTenancyBySubdomain::class,
+        PreventAccessFromCentralDomains::class,
+        EnsureTenantActive::class,
+    ])
+    ->group(base_path('routes/app.php'));
 
-if (!empty($centralDomains)) {
-    // Build regex pattern for all central domains
-    $domainPattern = implode('|', array_map('preg_quote', $centralDomains));
-
-    // Rutas públicas QR (sin auth, sin tenant-active check)
-    // Solo inicializa tenant y web middleware
-    Route::domain('{tenant}.sas.dev-app.cl')
-        ->where(['domain' => $domainPattern])
-        ->middleware([
-            'web',
-            InitializeTenancyBySubdomain::class,
-        ])
-        ->group(base_path('routes/qr-public.php'));
-
-    // Rutas principales de la app (con auth y tenant-active check)
-    Route::domain('{tenant}.sas.dev-app.cl')
-        ->where(['domain' => $domainPattern])
-        ->middleware([
-            'web',
-            InitializeTenancyBySubdomain::class,
-            PreventAccessFromCentralDomains::class,
-            EnsureTenantActive::class,
-        ])
-        ->group(base_path('routes/app.php'));
-}
+// Rutas públicas QR (sin auth, sin tenant-active check)
+Route::domain('{tenant}.dev-app.cl')
+    ->middleware([
+        'web',
+        InitializeTenancyBySubdomain::class,
+    ])
+    ->group(base_path('routes/qr-public.php'));

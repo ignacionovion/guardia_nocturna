@@ -120,22 +120,27 @@ class TenancyServiceProvider extends ServiceProvider
 
     protected function mapRoutes()
     {
-        // Central routes FIRST — exact domain match takes priority
-        $centralDomains = config('tenancy.central_domains', []);
+        $this->mapCentralRoutes();
+        $this->mapTenantRoutes();
+    }
 
-        // Load central.php ONCE with all domains (avoids duplicate route names)
-        if (!empty($centralDomains)) {
-            Route::domain('{domain}')
-                ->middleware('web')
-                ->where(['domain' => implode('|', array_map('preg_quote', $centralDomains))])
+    protected function mapCentralRoutes()
+    {
+        foreach (config('tenancy.central_domains') as $domain) {
+            Route::middleware('web')
+                ->domain($domain)
                 ->group(base_path('routes/central.php'));
         }
+    }
 
-        // Tenant routes SECOND — wildcard subdomain match
-        // NOTE: tenant.php defines its own domain patterns
-        if (file_exists(base_path('routes/tenant.php'))) {
-            Route::group([], base_path('routes/tenant.php'));
-        }
+    protected function mapTenantRoutes()
+    {
+        Route::middleware([
+                'web',
+                \Stancl\Tenancy\Middleware\InitializeTenancyBySubdomain::class,
+                \Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains::class,
+            ])
+            ->group(base_path('routes/tenant.php'));
     }
 
     protected function makeTenancyMiddlewareHighestPriority()

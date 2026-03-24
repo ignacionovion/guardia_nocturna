@@ -10,6 +10,7 @@ use App\Models\Body;
 use App\Models\CentralAuditLog;
 use App\Models\Plan;
 use App\Models\Tenant;
+use App\Services\PlanService;
 use App\Services\TenantMetricsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -292,28 +293,13 @@ class TenantController extends Controller
         } catch (\Throwable $e) {
             return false;
         }
-    }
-
-    public function show($tenant)
-    {
-        // Handle route model binding manually for central routes
-        if (!$tenant instanceof Tenant) {
-            $tenant = Tenant::findOrFail($tenant);
-        }
-
         $tenant->load(['body', 'domains', 'plan']);
+        
         $metrics = $this->metrics->forTenant($tenant);
         $health = $this->metrics->healthStatus($tenant);
         
-        // Get plan usage if tenant DB exists
-        $planUsage = null;
-        try {
-            $planUsage = \App\Services\PlanService::getUsageInfoForTenant($tenant);
-        } catch (\Throwable $e) {
-            // Tenant DB may not exist yet
-        }
-
-        // Get tenant users for impersonation
+        // Get plan usage info using the tenant-specific method
+        $usageInfo = PlanService::getUsageInfoForTenant($tenant);
         $tenantUsers = [];
         try {
             $tenant->run(function () use (&$tenantUsers) {
@@ -332,6 +318,44 @@ class TenantController extends Controller
         $availablePlans = Plan::active()->ordered()->get();
 
         return view('central.tenants.show', compact('tenant', 'metrics', 'health', 'tenantUsers', 'planUsage', 'availablePlans'));
+    }
+
+    public function show(string $tenant)
+    {
+        // DIAGNÓSTICO TEMPORAL
+        dd([
+            'host' => request()->getHost(),
+            'tenancy' => tenancy()->initialized,
+            'tenant_id' => $tenant,
+            'central_domains' => config('tenancy.central_domains'),
+        ]);
+
+        $tenant = Tenant::findOrFail($tenant);
+        $tenant->load(['body', 'domains', 'plan']);
+        
+        $metrics = $this->metrics->forTenant($tenant);
+        $health = $this->metrics->healthStatus($tenant);
+        
+        // Get plan usage info using the tenant-specific method
+        $usageInfo = PlanService::getUsageInfoForTenant($tenant);
+        $tenantUsers = [];
+        try {
+            $tenant->run(function () use (&$tenantUsers) {
+                $tenantUsers = \App\Models\User::select('id', 'name', 'email', 'role')
+                    ->orderByRaw("FIELD(role, 'super_admin', 'capitania', 'administrador', 'guardia')")
+                    ->orderBy('name')
+                    ->limit(20)
+                    ->get()
+                    ->toArray();
+            });
+        } catch (\Throwable $e) {
+            // Tenant DB may not exist yet
+        }
+        
+        // Get available plans for change plan dropdown
+        $availablePlans = Plan::active()->ordered()->get();
+
+        return view('central.tenants.show', compact('tenant', 'metrics', 'health', 'tenantUsers', 'usageInfo', 'availablePlans'));
     }
 
     public function edit($tenant)
