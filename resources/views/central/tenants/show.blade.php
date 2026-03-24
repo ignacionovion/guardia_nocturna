@@ -206,7 +206,7 @@
             </dl>
 
             {{-- Plan Usage --}}
-            @if($planUsage)
+            @if($usageInfo)
             <div class="mt-5 pt-4 border-t border-slate-100">
                 <div class="flex items-center justify-between mb-3">
                     <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Uso del Plan</h3>
@@ -216,7 +216,7 @@
                     </span>
                 </div>
                 <div class="space-y-2">
-                    @foreach($planUsage as $type => $info)
+                    @foreach($usageInfo as $type => $info)
                     <div class="flex items-center justify-between text-xs">
                         <span class="text-slate-600">{{ match($type) { 'users' => 'Usuarios', 'guardias' => 'Guardias', 'beds' => 'Camas', 'storage' => 'Almacenamiento', default => $type } }}</span>
                         <div class="flex items-center space-x-2">

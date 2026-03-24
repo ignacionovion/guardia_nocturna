@@ -42,7 +42,7 @@ $items = $menuItems[$normalizedRole] ?? $menuItems['guardia'];
     
     {{-- Logo --}}
     <div class="flex items-center h-16 px-4 border-b border-[#9fb0c3]">
-        <a href="{{ route('dashboard') }}" class="flex items-center gap-3 group">
+        <a href="{{ tenancy()->initialized ? route('dashboard') : route('central.dashboard') }}" class="flex items-center gap-3 group">
             @if(branding()->logo)
                 <img src="{{ branding()->logo }}" alt="{{ branding()->nombre_empresa }}" class="h-9 w-auto">
             @else

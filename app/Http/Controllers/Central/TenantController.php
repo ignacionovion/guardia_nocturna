@@ -322,14 +322,6 @@ class TenantController extends Controller
 
     public function show(string $tenant)
     {
-        // DIAGNÓSTICO TEMPORAL
-        dd([
-            'host' => request()->getHost(),
-            'tenancy' => tenancy()->initialized,
-            'tenant_id' => $tenant,
-            'central_domains' => config('tenancy.central_domains'),
-        ]);
-
         $tenant = Tenant::findOrFail($tenant);
         $tenant->load(['body', 'domains', 'plan']);
         
