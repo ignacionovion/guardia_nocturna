@@ -41,8 +41,9 @@ Schedule::call(function () {
  * Ejecuta el scheduler de guardias en el contexto de cada tenant
  * @param bool $force Si es true, salta validación de domingo y ventana horaria
  */
-function runGuardiaScheduler(bool $force = false)
-{
+if (!function_exists('runGuardiaScheduler')) {
+    function runGuardiaScheduler(bool $force = false)
+    {
     $tenants = Tenant::all();
 
     foreach ($tenants as $tenant) {
@@ -152,6 +153,7 @@ function runGuardiaScheduler(bool $force = false)
                 ]);
             }
         }
+    }
     }
 }
 
