@@ -7,12 +7,16 @@ use Illuminate\Support\Facades\Route;
 | Web Routes
 |--------------------------------------------------------------------------
 |
-| Central routes for specific domains + tenant routes
+| Central routes for specific domains
 |
 */
 
-foreach (config('tenancy.central_domains') as $domain) {
-    Route::domain($domain)->group(function () {
+$centralDomains = config('tenancy.central_domains', []);
+$domainPattern = !empty($centralDomains) ? implode('|', array_map('preg_quote', $centralDomains)) : 'localhost';
+
+Route::domain('{domain}')
+    ->where(['domain' => $domainPattern])
+    ->group(function () {
         
         // Rutas públicas centrales
         Route::get('/', function () {
@@ -32,6 +36,4 @@ foreach (config('tenancy.central_domains') as $domain) {
             ->group(function () {
                 require base_path('routes/central.php');
             });
-
     });
-}
