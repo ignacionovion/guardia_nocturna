@@ -50,14 +50,18 @@ return Application::configure(basePath: dirname(__DIR__))
             'max_users'           => \App\Http\Middleware\EnforceMaxUsers::class,
             'plan.limit'          => \App\Http\Middleware\EnforcePlanLimits::class,
         ]);
+
+        $middleware->redirectGuestsTo(function ($request) {
+            $host = $request->getHost();
+            $centralDomains = config('tenancy.central_domains', []);
+
+            if (in_array($host, $centralDomains, true)) {
+                return '/login'; // Central domain login path
+            }
+
+            return '/'; // Tenant domain login path
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->render(function (\Illuminate\Auth\AuthenticationException $e, $request) {
-            if (collect($e->guards())->contains('central')) {
-                return new \Illuminate\Http\RedirectResponse('/login', 302, ['Location' => '/login']);
-            } elseif (collect($e->guards())->contains('web')) {
-                // Tenant context - redirect to tenant root (/) instead of route('login')
-                return new \Illuminate\Http\RedirectResponse('/', 302, ['Location' => '/']);
-            }
-        });
+        //
     })->create();
