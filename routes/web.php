@@ -32,7 +32,7 @@ foreach ($centralDomains as $domain) {
             ->name($firstDomain ? 'login' : null);
         Route::post('/login', [\App\Http\Controllers\Central\CentralAuthController::class, 'login']);
         Route::post('/logout', [\App\Http\Controllers\Central\CentralAuthController::class, 'logout'])
-            ->name($firstDomain ? 'central.logout' : null);
+            ->name('central.logout');
 
         // Rutas protegidas centrales (prefijo /admin)
         Route::middleware(['web', 'auth:central'])
