@@ -55,6 +55,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (\Illuminate\Auth\AuthenticationException $e, $request) {
             if (collect($e->guards())->contains('central')) {
                 return new \Illuminate\Http\RedirectResponse('/login', 302, ['Location' => '/login']);
+            } elseif (collect($e->guards())->contains('web')) {
+                // Tenant context - redirect to tenant root (/) instead of route('login')
+                return new \Illuminate\Http\RedirectResponse('/', 302, ['Location' => '/']);
             }
         });
     })->create();
