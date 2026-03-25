@@ -293,7 +293,7 @@ class TenantController extends Controller
         } catch (\Throwable $e) {
             return false;
         }
-        $tenant->load(['body', 'domains', 'plan']);
+        $tenant->load(['body', 'domains', 'planRelation']);
         
         $metrics = $this->metrics->forTenant($tenant);
         $health = $this->metrics->healthStatus($tenant);
@@ -323,7 +323,7 @@ class TenantController extends Controller
     public function show(string $tenant)
     {
         $tenant = Tenant::findOrFail($tenant);
-        $tenant->load(['body', 'domains', 'plan']);
+        $tenant->load(['body', 'domains', 'planRelation']);
         
         $metrics = $this->metrics->forTenant($tenant);
         $health = $this->metrics->healthStatus($tenant);
