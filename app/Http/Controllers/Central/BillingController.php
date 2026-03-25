@@ -91,7 +91,7 @@ class BillingController extends Controller
             'dias' => ['required', 'integer', 'min:1', 'max:365'],
         ]);
 
-        $billing->extenderVencimiento($validated['dias']);
+        $billing->extenderVencimiento((int) $validated['dias']);
 
         return redirect()
             ->route('central.billing.index')
