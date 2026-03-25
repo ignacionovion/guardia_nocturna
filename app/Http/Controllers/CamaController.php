@@ -23,9 +23,9 @@ class CamaController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'number' => 'required|string|unique:beds,number',
+            'name' => 'required|string|unique:beds,name',
             'status' => 'in:available,occupied,maintenance',
-            'description' => 'nullable|string',
+            'notes' => 'nullable|string',
         ]);
 
         $bed = Bed::create($validated);

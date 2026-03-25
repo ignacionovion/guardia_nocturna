@@ -120,12 +120,6 @@ class BedController extends Controller
 
         $validated['created_by'] = Auth::id();
 
-        // Compatibilidad legacy: sincronizar campos antiguos
-        $validated['number'] = $validated['name'];
-        if (isset($validated['notes'])) {
-            $validated['description'] = $validated['notes'];
-        }
-
         Bed::create($validated);
 
         return redirect()->route('admin.beds.index')

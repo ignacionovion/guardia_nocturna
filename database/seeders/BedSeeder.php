@@ -14,9 +14,9 @@ class BedSeeder extends Seeder
     {
         for ($i = 1; $i <= 10; $i++) {
             \App\Models\Bed::create([
-                'number' => (string) $i,
+                'name' => "Cama $i",
                 'status' => 'available',
-                'description' => "Cama número $i",
+                'notes' => "Cama número $i",
             ]);
         }
     }
