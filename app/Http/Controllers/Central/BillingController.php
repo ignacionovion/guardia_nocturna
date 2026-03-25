@@ -31,7 +31,7 @@ class BillingController extends Controller
             ->orderBy('fecha_vencimiento', 'asc')
             ->paginate(20);
 
-        $planes = ['basico', 'profesional', 'enterprise'];
+        $planes = Plan::active()->ordered()->pluck('slug')->toArray();
 
         return view('central.billing.index', compact('stats', 'billings', 'planes'));
     }

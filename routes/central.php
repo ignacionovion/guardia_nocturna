@@ -67,6 +67,15 @@ Route::patch('billing/{billing}/extend', [BillingController::class, 'extend'])->
 Route::patch('billing/{billing}/change-plan', [BillingController::class, 'changePlan'])->name('central.billing.change-plan');
 Route::patch('billing/{billing}/observation', [BillingController::class, 'updateObservation'])->name('central.billing.observation');
 
+// Plans Management
+Route::get('billing/plans', [\App\Http\Controllers\Central\PlanController::class, 'index'])->name('central.billing.plans.index');
+Route::get('billing/plans/create', [\App\Http\Controllers\Central\PlanController::class, 'create'])->name('central.billing.plans.create');
+Route::post('billing/plans', [\App\Http\Controllers\Central\PlanController::class, 'store'])->name('central.billing.plans.store');
+Route::get('billing/plans/{plan}/edit', [\App\Http\Controllers\Central\PlanController::class, 'edit'])->name('central.billing.plans.edit');
+Route::patch('billing/plans/{plan}', [\App\Http\Controllers\Central\PlanController::class, 'update'])->name('central.billing.plans.update');
+Route::delete('billing/plans/{plan}', [\App\Http\Controllers\Central\PlanController::class, 'destroy'])->name('central.billing.plans.destroy');
+Route::patch('billing/plans/{plan}/toggle', [\App\Http\Controllers\Central\PlanController::class, 'toggle'])->name('central.billing.plans.toggle');
+
 // Backups
 Route::get('backups', [BackupController::class, 'index'])->name('central.backups.index');
 Route::post('backups', [BackupController::class, 'store'])->name('central.backups.store');

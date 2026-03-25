@@ -22,6 +22,7 @@ class Plan extends Model
         'features',
         'addons',
         'precio_mensual',
+        'precio_anual',
         'activo',
         'orden',
     ];
@@ -31,6 +32,7 @@ class Plan extends Model
         'addons' => 'array',
         'activo' => 'boolean',
         'precio_mensual' => 'decimal:2',
+        'precio_anual' => 'decimal:2',
     ];
 
     // ==================== MÓDULOS DEL SISTEMA ====================

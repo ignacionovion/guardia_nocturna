@@ -4,9 +4,15 @@
 
 @section('content')
 <div class="container mx-auto px-4 py-6">
-    <div class="mb-6">
-        <h1 class="text-2xl font-bold text-slate-900">Facturación</h1>
-        <p class="text-slate-600">Administración de pagos y suscripciones de tenants.</p>
+    <div class="mb-6 flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-900">Facturación</h1>
+            <p class="text-slate-600">Administración de pagos y suscripciones de tenants.</p>
+        </div>
+        <a href="{{ route('central.billing.plans.index') }}" 
+           class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm">
+            <i class="fas fa-layer-group mr-2"></i>Administrar Planes
+        </a>
     </div>
 
     @if(session('success'))
