@@ -36,7 +36,7 @@ Route::get('/impersonate/callback', [\App\Http\Controllers\ImpersonateCallbackCo
 Route::get('/impersonate/stop', [\App\Http\Controllers\Central\ImpersonationController::class, 'stop'])->name('impersonate.stop');
 
 // Rutas de Autenticación
-Route::get('/', [AuthController::class, 'showLoginForm'])->name('tenant.login')->middleware('guest');
+Route::get('/', [AuthController::class, 'showLoginForm'])->name('login')->middleware('guest');
 Route::post('/', [AuthController::class, 'login'])->middleware('guest');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
