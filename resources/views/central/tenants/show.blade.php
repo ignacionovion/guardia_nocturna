@@ -37,7 +37,7 @@
             </div>
             <div class="flex items-center space-x-3">
                 @if($tenant->domains->first())
-                    <a href="http://{{ $tenant->domains->first()->domain }}.{{ env('CENTRAL_DOMAIN', 'localhost') }}" target="_blank"
+                    <a href="http://{{ $tenant->domains->first()->domain }}" target="_blank"
                        class="px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-xl hover:bg-blue-100 transition flex items-center space-x-1.5">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                         <span>Abrir</span>
@@ -196,7 +196,7 @@
                         @forelse($tenant->domains as $domain)
                             <div class="flex items-center space-x-2">
                                 <code class="text-xs bg-slate-100 px-2 py-1 rounded text-slate-600">{{ $domain->domain }}</code>
-                                <a href="http://{{ $domain->domain }}.{{ env('CENTRAL_DOMAIN', 'localhost') }}" target="_blank" class="text-xs text-blue-600 hover:underline">Abrir</a>
+                                <a href="http://{{ $domain->domain }}" target="_blank" class="text-xs text-blue-600 hover:underline">Abrir</a>
                             </div>
                         @empty
                             <span class="text-xs text-red-500 font-medium">Sin dominios configurados</span>
