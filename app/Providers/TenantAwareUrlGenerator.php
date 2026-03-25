@@ -38,14 +38,8 @@ class TenantAwareUrlGenerator extends UrlGenerator
         if (!tenant() && !$isCentralRoute) {
             // Check if this route requires tenant parameter
             if ($this->routeNeedsTenantParameter($route)) {
-                // For dashboard route, redirect to central dashboard
-                if ($routeName === 'dashboard') {
-                    return route('central.dashboard');
-                }
-                
-                // For ANY other tenant route, return a safe fallback
-                // This MUST happen before we try to inject tenant parameter
-                return 'javascript:void(0);';
+                // Let the parent handle the route - it will show the actual error
+                // instead of returning a broken javascript:void(0); link
             }
         }
 
