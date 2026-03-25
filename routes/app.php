@@ -188,8 +188,6 @@ Route::middleware(['auth'])->group(function () {
             'middleware_stack' => $route?->gatherMiddleware() ?? [],
             'expected_middleware' => [
                 'web',
-                \Stancl\Tenancy\Middleware\InitializeTenancyBySubdomain::class,
-                \Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains::class,
                 \App\Http\Middleware\EnsureTenantActive::class,
             ],
             'subdomain_extracted' => explode('.', $request->getHost())[0] ?? null,
