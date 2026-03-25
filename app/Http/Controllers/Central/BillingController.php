@@ -88,7 +88,7 @@ class BillingController extends Controller
     public function extend(Request $request, Billing $billing)
     {
         $validated = $request->validate([
-            'dias' => ['required', 'integer', 'min' => 1, 'max' => 365],
+            'dias' => ['required', 'integer', 'min:1', 'max:365'],
         ]);
 
         $billing->extenderVencimiento($validated['dias']);
@@ -134,7 +134,7 @@ class BillingController extends Controller
     public function updateObservation(Request $request, Billing $billing)
     {
         $validated = $request->validate([
-            'observacion' => ['nullable', 'string', 'max' => 500],
+            'observacion' => ['nullable', 'string', 'max:500'],
         ]);
 
         $billing->update(['observacion' => $validated['observacion']]);
@@ -170,7 +170,7 @@ class BillingController extends Controller
         $validated = $request->validate([
             'tenant_id' => ['required', 'string', 'exists:tenants,id'],
             'plan' => ['required', 'string', 'in:basico,profesional,enterprise'],
-            'monto' => ['required', 'numeric', 'min' => 0],
+            'monto' => ['required', 'numeric', 'min:0'],
             'fecha_vencimiento' => ['required', 'date'],
         ]);
 
