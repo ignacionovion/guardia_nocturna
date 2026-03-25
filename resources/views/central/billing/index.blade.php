@@ -251,7 +251,6 @@
         <h3 class="text-lg font-semibold mb-4">Registrar Pago</h3>
         <form id="payment-form" method="POST">
             @csrf
-            @method('PATCH')
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1">Fecha de Pago</label>
