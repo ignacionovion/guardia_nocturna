@@ -109,11 +109,10 @@ class TenancyServiceProvider extends ServiceProvider
 
     protected function mapTenantRoutes()
     {
-        Route::middleware([
-                \Stancl\Tenancy\Middleware\InitializeTenancyBySubdomain::class,
-                \Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains::class,
-            ])
-            ->group(base_path('routes/tenant.php'));
+        // El middleware de Tenancy se aplica DENTRO de routes/tenant.php
+        // para asegurar que se ejecute DESPUÉS de que el dominio coincida.
+        // Esto previene que se ejecute en dominios centrales.
+        Route::group([], base_path('routes/tenant.php'));
     }
 
     protected function bootEvents()
