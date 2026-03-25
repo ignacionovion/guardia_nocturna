@@ -53,7 +53,7 @@
                 </div>
                 <div class="flex items-center space-x-4">
                     <span class="text-slate-400 text-sm">{{ Auth::guard('central')->user()->name }}</span>
-                    <form method="POST" action="{{ route('central.logout') }}">
+                    <form method="POST" action="/logout">
                         @csrf
                         <button type="submit" class="text-slate-400 hover:text-white text-sm transition">Salir</button>
                     </form>
