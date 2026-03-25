@@ -45,9 +45,12 @@ return new class extends Migration
             'name' => DB::raw('CONCAT("Cama ", id)')
         ]);
         
-        DB::table('beds')->whereNull('notes')->update([
-            'notes' => DB::raw('description')
-        ]);
+        // Migrar desde 'description' solo si la columna existe (compatibilidad con esquemas antiguos)
+        if (Schema::hasColumn('beds', 'description')) {
+            DB::table('beds')->whereNull('notes')->update([
+                'notes' => DB::raw('description')
+            ]);
+        }
 
         // C) Generar qr_token único para registros que no lo tengan
         $bedsWithoutToken = DB::table('beds')->whereNull('qr_token')->get();
