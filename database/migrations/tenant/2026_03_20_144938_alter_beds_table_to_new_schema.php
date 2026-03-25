@@ -42,7 +42,7 @@ return new class extends Migration
 
         // B) Migrar datos antiguos
         DB::table('beds')->whereNull('name')->update([
-            'name' => DB::raw('COALESCE(number, CONCAT("Cama ", id))')
+            'name' => DB::raw('CONCAT("Cama ", id)')
         ]);
         
         DB::table('beds')->whereNull('notes')->update([
