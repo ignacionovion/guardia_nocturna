@@ -61,7 +61,7 @@ Route::delete('tenants/{tenant}/destroy-completely', [TenantAdminController::cla
 // Billing
 Route::get('billing', [BillingController::class, 'index'])->name('central.billing.index');
 Route::post('billing', [BillingController::class, 'create'])->name('central.billing.create');
-Route::post('billing/{billing}/mark-paid', [BillingController::class, 'markAsPaid'])->name('central.billing.mark-paid');
+Route::post('billing/{billing}/mark-paid', [BillingController::class, 'markPaid'])->name('central.billing.mark-paid');
 Route::patch('billing/{billing}/suspend', [BillingController::class, 'suspend'])->name('central.billing.suspend');
 Route::patch('billing/{billing}/extend', [BillingController::class, 'extend'])->name('central.billing.extend');
 Route::patch('billing/{billing}/change-plan', [BillingController::class, 'changePlan'])->name('central.billing.change-plan');
