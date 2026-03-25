@@ -21,10 +21,11 @@ foreach ($centralDomains as $domain) {
         
         // Rutas públicas centrales
         Route::get('/', function () {
-            if (\Illuminate\Support\Facades\Auth::guard('central')->check()) {
-                return new \Illuminate\Http\RedirectResponse('/admin', 302, ['Location' => '/admin']);
+            if (auth('central')->check()) {
+                return redirect()->route('central.dashboard');
             }
-            return view('central.landing');
+
+            return redirect('/login');
         })->name($firstDomain ? 'central.landing' : null);
 
         Route::get('/login', [\App\Http\Controllers\Central\CentralAuthController::class, 'showLogin'])
