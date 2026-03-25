@@ -167,7 +167,7 @@ class TenantController extends Controller
             }
 
             // Step 2: Create domain (subdomain = tenant id)
-            $tenant->domains()->create(['domain' => $validated['id']]);
+            $tenant->domains()->create(['domain' => $validated['id'] . '.dev-app.cl']);
             $steps[] = '✓ Dominio creado: ' . $validated['id'];
 
             // Step 3: Database creation + grants happen via TenantCreated event
