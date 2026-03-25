@@ -100,7 +100,9 @@ class TenancyServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->bootEvents();
-        $this->mapTenantRoutes(); // Solo tenant routes, las centrales ya las maneja RouteServiceProvider
+        
+        // NO registrar rutas tenant aquí - se registran en bootstrap/app.php DESPUÉS de web.php
+        // $this->mapTenantRoutes();
 
         // NO hacer que el middleware de tenancy tenga la máxima prioridad
         // Esto permite que las rutas centrales se procesen correctamente

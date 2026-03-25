@@ -4,6 +4,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Support\Facades\Route;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -12,6 +13,10 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         channels: __DIR__.'/../routes/channels.php',
         health: '/up',
+        then: function () {
+            // Registrar rutas tenant DESPUÉS de las centrales para que no tengan prioridad
+            Route::group([], base_path('routes/tenant.php'));
+        },
     )
     ->withSchedule(function (Schedule $schedule) {
         // Cada comando operativo corre para todos los tenants activos
