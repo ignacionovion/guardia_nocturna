@@ -22,8 +22,8 @@ Route::domain('{tenant}.dev-app.cl')
     ->where(['tenant' => '^(?!sas$|www$|api$|test$|staging$|localhost$|127$)[a-z0-9\-]+'])
     ->middleware([
         'web',
+        PreventAccessFromCentralDomains::class, // Debe ir ANTES de inicializar
         InitializeTenancyBySubdomain::class,
-        PreventAccessFromCentralDomains::class,
         EnsureTenantActive::class,
     ])
     ->group(base_path('routes/app.php'));
@@ -33,6 +33,7 @@ Route::domain('{tenant}.dev-app.cl')
     ->where(['tenant' => '^(?!sas$|www$|api$|test$|staging$|localhost$|127$)[a-z0-9\-]+'])
     ->middleware([
         'web',
+        PreventAccessFromCentralDomains::class, // Debe ir ANTES de inicializar
         InitializeTenancyBySubdomain::class,
     ])
     ->group(base_path('routes/qr-public.php'));
