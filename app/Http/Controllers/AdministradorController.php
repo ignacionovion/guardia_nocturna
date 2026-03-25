@@ -31,6 +31,10 @@ use App\Events\ReplacementAssigned;
 
 class AdministradorController extends Controller
 {
+    public function __construct(
+        protected \App\Services\TenantPlanLimitService $limitService
+    ) {}
+
     private function makeAttendanceConfirmToken(int $guardiaId, int $bomberoId, int $ts): string
     {
         $key = (string) config('app.key');
@@ -128,6 +132,12 @@ class AdministradorController extends Controller
 
     public function index()
     {
+        $canCreateGuardia = $this->limitService->canCreateGuardia();
+        $limitData = [
+            'can_create' => $canCreateGuardia,
+            'message' => !$canCreateGuardia ? $this->limitService->getLimitExceededMessage('guardias') : null,
+        ];
+
         // Limpieza automática de reemplazos vencidos
         ReplacementService::expire();
 
@@ -902,6 +912,19 @@ class AdministradorController extends Controller
 
     public function storeGuardia(Request $request)
     {
+        if (!$this->limitService->canCreateGuardia()) {
+            $tenant = tenant();
+            $tenant->loadMissing('plan');
+
+            Log::warning('Guardia creation blocked: limit reached.', [
+                'tenant_id' => $tenant->id,
+                'plan_id' => $tenant->plan_id,
+                'plan_slug' => $tenant->plan?->slug,
+            ]);
+
+            return back()->withErrors(['limit' => $this->limitService->getLimitExceededMessage('guardias')])->withInput();
+        }
+
         if (!in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');
         }

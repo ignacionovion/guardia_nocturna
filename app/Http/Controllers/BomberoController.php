@@ -13,6 +13,10 @@ use Shuchkin\SimpleXLSX;
 
 class BomberoController extends Controller
 {
+    public function __construct(
+        protected \App\Services\TenantPlanLimitService $limitService
+    ) {}
+
     public function apiIndex(Request $request)
     {
         // Return all firefighters for modals (refuerzo, reemplazo)

@@ -19,6 +19,11 @@
     </div>
 
     <div class="space-y-8">
+
+        @if(auth()->user()->role === 'super_admin' || auth()->user()->role === 'capitan')
+            @include('admin.partials._plan-usage-widget')
+        @endif
+
         <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
             <div class="xl:col-span-2 space-y-6">
                 

@@ -24,6 +24,10 @@ use Illuminate\Support\Facades\DB;
 
 class TableroController extends Controller
 {
+    public function __construct(
+        protected \App\Services\TenantPlanLimitService $planLimitService
+    ) {}
+
     private function resolveActiveGuardia($now)
     {
         // Single source of truth: is_active_week
@@ -634,6 +638,8 @@ class TableroController extends Controller
             ->keyBy('firefighter_id')
             ->map(fn($a) => $a->bed?->name ?? $a->bed?->number);
 
+        $planUsage = $this->planLimitService->getCurrentUsage();
+
         return response()
             ->view('dashboard', compact(
                 'totalBeds',
@@ -676,7 +682,8 @@ class TableroController extends Controller
                 'guardiaEnServicio',
                 'attendanceEnableTime',
                 'attendanceDisableTime',
-                'bedByFirefighter'
+                'bedByFirefighter',
+                'planUsage'
             ))
             ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
             ->header('Pragma', 'no-cache')
@@ -745,6 +752,12 @@ class TableroController extends Controller
         $now = now();
 
         ReplacementService::expire($now);
+
+        $canCreateBed = $this->planLimitService->canCreateBed();
+        $limitData = [
+            'can_create' => $canCreateBed,
+            'message' => !$canCreateBed ? $this->planLimitService->getLimitExceededMessage('beds') : null,
+        ];
         
         // Filtro por estado
         $statusFilter = $request->get('status');
@@ -757,18 +770,13 @@ class TableroController extends Controller
         
         $beds = $bedsQuery->get();
         
-        // Auto-fix: Corregir camas marcadas como ocupadas pero sin asignación activa
-        foreach ($beds as $bed) {
-            if ($bed->status === 'occupied' && !$bed->currentAssignment) {
-                $bed->update(['status' => 'available']);
-                $bed->status = 'available';
-            }
-        }
-        
-        // Métricas
-        $totalBeds = Bed::count();
-        $occupiedBeds = Bed::where('status', 'occupied')->count();
-        $availableBeds = Bed::where('status', 'available')->count();
+        $stats = [
+            'total' => Bed::count(),
+            'available' => Bed::where('status', 'available')->count(),
+            'occupied' => Bed::where('status', 'occupied')->count(),
+            'maintenance' => Bed::where('status', 'maintenance')->count(),
+        ];
+
         $maintenanceBeds = Bed::where('status', 'maintenance')->count();
         
         $assignedFirefighterIds = \App\Models\BedAssignment::whereNull('ended_at')

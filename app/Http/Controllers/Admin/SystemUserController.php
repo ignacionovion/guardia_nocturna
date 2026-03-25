@@ -35,13 +35,36 @@ class SystemUserController extends Controller
 
     public function create()
     {
+        $canCreateUser = $this->limitService->canCreateUser();
+        $limitData = [
+            'can_create' => $canCreateUser,
+            'message' => !$canCreateUser ? $this->limitService->getLimitExceededMessage('users') : null,
+        ];
+
         $guardias = Guardia::orderBy('name')->get();
         $roles = Role::orderBy('name')->get();
-        return view('admin.users.create', compact('guardias', 'roles'));
+        return view('admin.users.create', compact('guardias', 'roles', 'limitData'));
     }
+
+    public function __construct(
+        protected \App\Services\TenantPlanLimitService $limitService
+    ) {}
 
     public function store(Request $request)
     {
+        if (!$this->limitService->canCreateUser()) {
+            $tenant = tenant();
+            $tenant->loadMissing('plan');
+
+            Log::warning('User creation blocked: limit reached.', [
+                'tenant_id' => $tenant->id,
+                'plan_id' => $tenant->plan_id,
+                'plan_slug' => $tenant->plan?->slug,
+            ]);
+
+            return back()->withErrors(['limit' => $this->limitService->getLimitExceededMessage('users')])->withInput();
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],

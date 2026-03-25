@@ -12,7 +12,17 @@
             <form method="POST" action="{{ route('admin.users.store') }}" class="p-8">
                 @csrf
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                @if(isset($limitData) && !$limitData['can_create'])
+                    <div class="bg-amber-50 border border-amber-200 text-amber-700 px-4 py-3 rounded-lg mb-6">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p class="font-bold">{{ $limitData['message'] }}</p>
+                        </div>
+                    </div>
+                @endif
+
+                <fieldset @if(isset($limitData) && !$limitData['can_create']) disabled @endif>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="form-label">Nombre <span class="text-red-500">*</span></label>
                         <input type="text" name="name" value="{{ old('name') }}" required
@@ -94,13 +104,14 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                    </div>
+                </fieldset>
 
                 <div class="mt-8 flex items-center justify-end gap-3">
                     <x-ui.button variant="secondary" size="md" href="{{ route('admin.users.index') }}">
                         Cancelar
                     </x-ui.button>
-                    <x-ui.button type="submit" variant="primary" size="md" icon="fas fa-save">
+                    <x-ui.button type="submit" variant="primary" size="md" icon="fas fa-save" @if(isset($limitData) && !$limitData['can_create']) disabled @endif>
                         Crear Usuario
                     </x-ui.button>
                 </div>

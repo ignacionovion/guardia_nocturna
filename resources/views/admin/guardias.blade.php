@@ -7,13 +7,23 @@
                 @csrf
                 <input type="text" name="name" placeholder="Nombre nueva guardia..." required
                     class="form-input w-full md:w-64 uppercase"
-                    oninput="this.value = this.value.toUpperCase();">
-                <x-ui.button type="submit" variant="success" size="md" icon="fas fa-plus">
+                    oninput="this.value = this.value.toUpperCase();"
+                    @if(isset($limitData) && !$limitData['can_create']) disabled @endif>
+                <x-ui.button type="submit" variant="success" size="md" icon="fas fa-plus" :disabled="isset($limitData) && !$limitData['can_create']">
                     Crear
                 </x-ui.button>
             </form>
         @endif
     </x-ui.page-header>
+
+    @if(isset($limitData) && !$limitData['can_create'])
+        <div class="bg-amber-50 border border-amber-200 text-amber-700 px-4 py-3 rounded-lg mb-6">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p class="font-bold">{{ $limitData['message'] }}</p>
+            </div>
+        </div>
+    @endif
 
     <!-- Modal de Asignación de Refuerzo -->
     <div id="refuerzoModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-50 flex items-center justify-center opacity-0 transition-opacity duration-300">

@@ -10,11 +10,22 @@
                 variant="info" 
                 size="sm" 
                 icon="fas fa-cog" 
-                href="{{ route('admin.beds.index') }}">
+                href="{{ route('admin.beds.index') }}"
+                :disabled="isset($limitData) && !$limitData['can_create']"
+                :title="(isset($limitData) && !$limitData['can_create']) ? $limitData['message'] : 'Configurar camas existentes y agregar nuevas'">
                 Configurar Camas
             </x-ui.button>
         @endif
     </x-ui.page-header>
+
+    @if(isset($limitData) && !$limitData['can_create'])
+        <div class="bg-amber-50 border border-amber-200 text-amber-700 px-4 py-3 rounded-lg mb-6">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p class="font-bold">{{ $limitData['message'] }}</p>
+            </div>
+        </div>
+    @endif
 
     {{-- Dashboard Métricas + Filtros --}}
     <div class="card-base p-5 mb-6">

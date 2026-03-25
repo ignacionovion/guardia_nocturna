@@ -111,7 +111,7 @@ Route::middleware(['auth'])->group(function () {
         return redirect()->route('inventario.dashboard');
     })->name('inventario.index');
 
-    Route::middleware(['feature:inventario', 'inventory_access', \App\Http\Middleware\EnsureInventoryOnly::class])->group(function () {
+    Route::middleware(['tenant.feature:inventario', 'inventory_access', \App\Http\Middleware\EnsureInventoryOnly::class])->group(function () {
         Route::get('/inventario/panel', [InventarioController::class, 'index'])->name('inventario.dashboard');
         Route::get('/inventario/retiro/acceso', [InventarioController::class, 'retiroAccess'])->name('inventario.retiro.access');
         Route::get('/inventario/retiro/identificar', [InventarioController::class, 'identificarForm'])->name('inventario.retiro.identificar.form');
@@ -393,7 +393,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/admin/bomberos/{id}/toggle-fuera-servicio', [AdministradorController::class, 'toggleFueraDeServicio'])->name('admin.bomberos.toggle_fuera_servicio');
 
     // Rutas de Reportes
-    Route::middleware(['feature:reportes'])->group(function () {
+    Route::middleware(['tenant.feature:reportes'])->group(function () {
     Route::get('/admin/reports', [App\Http\Controllers\ReportController::class, 'attendance'])->name('admin.reports.index');
     Route::get('/admin/reports/attendance', [App\Http\Controllers\ReportController::class, 'attendance'])->name('admin.reports.attendance');
     Route::get('/admin/reports/attendance/export', [App\Http\Controllers\ReportController::class, 'attendanceExport'])->name('admin.reports.attendance.export');
@@ -446,7 +446,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/notifications/read', [App\Http\Controllers\InAppNotificationController::class, 'markRead'])->name('notifications.read');
 
     // Emergencias (Guardia + Super Admin)
-    Route::middleware(['feature:emergencias', 'emergency_access'])->group(function () {
+    Route::middleware(['tenant.feature:emergencias', 'emergency_access'])->group(function () {
         Route::get('admin/emergencies/modal', [App\Http\Controllers\Admin\EmergencyController::class, 'modalContent'])->name('admin.emergencies.modal');
         Route::get('admin/emergencies/create/modal', [App\Http\Controllers\Admin\EmergencyController::class, 'createModalContent'])->name('admin.emergencies.create.modal');
         Route::resource('admin/emergencies', App\Http\Controllers\Admin\EmergencyController::class, ['as' => 'admin']);
@@ -471,7 +471,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/admin/system/purge', [SystemAdminController::class, 'purge'])->name('admin.system.purge');
         Route::post('/admin/system/clear-guardias', [SystemAdminController::class, 'clearGuardias'])->name('admin.system.clear_guardias');
 
-        Route::middleware(['feature:planilla'])->group(function () {
+        Route::middleware(['tenant.feature:planilla'])->group(function () {
             Route::get('/admin/planillas', [PlanillaController::class, 'index'])->name('admin.planillas.index');
             Route::get('/admin/planillas/create', [PlanillaController::class, 'create'])->name('admin.planillas.create');
             Route::post('/admin/planillas', [PlanillaController::class, 'store'])->name('admin.planillas.store');
@@ -500,7 +500,7 @@ Route::middleware(['auth'])->group(function () {
             })->name('planillas.qr_fijo.alias');
         });
 
-        Route::middleware(['feature:preventiva', 'preventivas_admin'])->group(function () {
+        Route::middleware(['tenant.feature:preventiva', 'preventivas_admin'])->group(function () {
             Route::get('/admin/preventivas', [PreventiveEventController::class, 'index'])->name('admin.preventivas.index');
             Route::get('/admin/preventivas/create', [PreventiveEventController::class, 'create'])->name('admin.preventivas.create');
             Route::post('/admin/preventivas', [PreventiveEventController::class, 'store'])->name('admin.preventivas.store');
