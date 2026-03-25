@@ -914,12 +914,12 @@ class AdministradorController extends Controller
     {
         if (!$this->limitService->canCreateGuardia()) {
             $tenant = tenant();
-            $tenant->loadMissing('plan');
+            $tenant->loadMissing('planRelation');
 
             Log::warning('Guardia creation blocked: limit reached.', [
                 'tenant_id' => $tenant->id,
                 'plan_id' => $tenant->plan_id,
-                'plan_slug' => $tenant->plan?->slug,
+                'plan_slug' => $tenant->planRelation?->slug,
             ]);
 
             return back()->withErrors(['limit' => $this->limitService->getLimitExceededMessage('guardias')])->withInput();

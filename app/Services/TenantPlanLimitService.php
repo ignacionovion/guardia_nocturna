@@ -190,9 +190,9 @@ class TenantPlanLimitService
             return null;
         }
 
-        // Cargar la relación para asegurar que esté disponible
-        $tenant->loadMissing('plan');
-        $this->plan = $tenant->plan;
+        // Cargar la relación explícitamente para asegurar que esté disponible
+        $tenant->loadMissing('planRelation');
+        $this->plan = $tenant->planRelation;
 
         $this->planFetched = true;
         return $this->plan;

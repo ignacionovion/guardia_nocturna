@@ -35,14 +35,14 @@ class EnsureTenantFeatureEnabled
 
         // Check if feature is enabled for this tenant
         if (!$this->featureService->enabled($feature)) {
-            // Cargar la relación 'plan' si no está cargada
-            $tenant->loadMissing('plan');
+            // Cargar la relación explícitamente para asegurar que esté disponible
+            $tenant->loadMissing('planRelation');
 
             Log::warning('Feature blocked for tenant.', [
                 'tenant_id' => $tenant->id,
                 'feature' => $feature,
                 'plan_id' => $tenant->plan_id,
-                'plan_slug' => $tenant->plan?->slug, // Acceder al slug desde la relación
+                'plan_slug' => $tenant->planRelation?->slug, // Acceder al slug desde la relación renombrada
                 'request_uri' => $request->getRequestUri(),
             ]);
 

@@ -73,9 +73,9 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         return $this->belongsTo(Body::class);
     }
 
-    public function plan()
+    public function planRelation()
     {
-        return $this->belongsTo(Plan::class);
+        return $this->belongsTo(Plan::class, 'plan_id');
     }
 
     public function billing()
