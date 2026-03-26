@@ -40,21 +40,20 @@ class TenantCreateCommand extends Command
 
         $this->info("✅ Tenant created. DB: {$tenant->tenancy_db_name}");
 
-        // InitializeTenancyBySubdomain searches by subdomain part only (not full domain)
-        $tenant->domains()->create(['domain' => $id]);
+        // Create full domain: {tenant}.dev-app.cl
+        $tenant->domains()->create(['domain' => $id . '.dev-app.cl']);
         $this->info("✅ Subdomain [{$id}] attached.");
 
         if ($this->option('seed')) {
-            $this->info("Seeding tenant database...");
-            $tenant->run(function () {
-                $seeder = new \Database\Seeders\DatabaseSeeder();
-                $seeder->run();
-            });
-            $this->info("✅ Tenant database seeded.");
+            $this->call('tenants:seed', [
+                '--tenants' => [$id],
+            ]);
+
+            $this->info("✅ Seeded.");
         }
 
         $this->newLine();
-        $this->info("🎉 Tenant [{$id}] is ready. Access via {$id}.<your-domain>");
+        $this->info("🎉 Tenant [{$id}] is ready. Access via http://{$id}.dev-app.cl");
 
         return self::SUCCESS;
     }

@@ -63,8 +63,7 @@ class ImpersonationController extends Controller
             return back()->with('error', 'El tenant no tiene dominio configurado.');
         }
 
-        $centralDomain = env('CENTRAL_DOMAIN', 'localhost');
-        $tenantUrl = "http://{$domain}.{$centralDomain}/impersonate/callback?token=" . $this->generateImpersonationToken($tenant->id, $user->id);
+        $tenantUrl = "http://{$domain}/impersonate/callback?token=" . $this->generateImpersonationToken($tenant->id, $user->id);
 
         return redirect($tenantUrl);
     }
