@@ -16,13 +16,12 @@ return [
      *
      * Only relevant if you're using the domain or subdomain identification middleware.
      */
-    'central_domains' => array_filter([
-        env('CENTRAL_DOMAIN', 'localhost'),
-        '127.0.0.1',
-        'localhost',
-        'sas.dev-app.cl', // Hardcode staging central domain for robustness
-    ]),
-
+'central_domains' => array_filter([
+    env('CENTRAL_DOMAIN', 'sas.estacion-app.cl'),
+    '127.0.0.1',
+    'localhost',
+    'sas.estacion-app.cl',
+]),
     /**
      * Tenancy bootstrappers are executed when tenancy is initialized.
      * Their responsibility is making Laravel features tenant-aware.

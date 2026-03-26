@@ -10,12 +10,12 @@ class CentralAdmin extends Authenticatable
 {
     protected $connection = 'central';
 
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
-
+protected $fillable = [
+    'name',
+    'username',
+    'email',
+    'password',
+];
     protected $hidden = [
         'password',
         'remember_token',

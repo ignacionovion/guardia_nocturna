@@ -22,21 +22,19 @@ class CentralAuthController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
-
+$credentials = $request->validate([
+    'username' => ['required', 'string'],
+    'password' => ['required'],
+]);
         if (Auth::guard('central')->attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
             return new RedirectResponse('/admin', 302, ['Location' => '/admin']);
         }
 
-        return back()->withErrors([
-            'email' => 'Credenciales incorrectas.',
-        ])->onlyInput('email');
-    }
-
+return back()->withErrors([
+    'username' => 'Credenciales incorrectas.',
+])->onlyInput('username');
+}
     public function logout(Request $request)
     {
         Auth::guard('central')->logout();

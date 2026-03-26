@@ -1,25 +1,16 @@
 <?php
 
-declare(strict_types=1);
-
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('plans', function (Blueprint $table) {
-            $table->decimal('precio_anual', 10, 2)->default(0)->after('precio_mensual');
-            $table->json('addons')->nullable()->after('features');
-        });
+        // No-op: columnas ya existentes en el esquema actual.
     }
 
     public function down(): void
     {
-        Schema::table('plans', function (Blueprint $table) {
-            $table->dropColumn(['precio_anual', 'addons']);
-        });
+        // No-op
     }
 };

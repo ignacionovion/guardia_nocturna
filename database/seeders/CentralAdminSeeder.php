@@ -1,23 +1,33 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Database\Seeders;
 
-use App\Models\CentralAdmin;
 use Illuminate\Database\Seeder;
+use App\Models\CentralAdmin;
 use Illuminate\Support\Facades\Hash;
 
 class CentralAdminSeeder extends Seeder
 {
     public function run(): void
     {
+        $username = env('CENTRAL_ADMIN_USERNAME', 'admin');
+        $email = env('CENTRAL_ADMIN_EMAIL');
+        $password = env('CENTRAL_ADMIN_PASSWORD');
+
+        if (!$email || !$password) {
+            $this->command->error('Faltan variables CENTRAL_ADMIN en .env');
+            return;
+        }
+
         CentralAdmin::updateOrCreate(
-            ['email' => 'admin@guardianocturna.cl'],
+            ['username' => $username],
             [
-                'name' => 'Super Admin',
-                'password' => Hash::make('password'),
+                'name' => 'Administrador',
+                'email' => $email,
+                'password' => Hash::make($password),
             ]
         );
+
+        $this->command->info('Admin central verificado/creado correctamente');
     }
 }
