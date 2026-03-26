@@ -18,39 +18,18 @@ class RedirectIfAuthenticated
     {
         $guards = empty($guards) ? [null] : $guards;
 
-        \Log::info('🟢 === RedirectIfAuthenticated (guest) Middleware ===', [
-            'path' => $request->path(),
-            'session_id' => $request->session()->getId(),
-            'guards' => $guards,
-            'tenant_id' => tenant('id'),
-        ]);
-
         foreach ($guards as $guard) {
-            $isAuthenticated = Auth::guard($guard)->check();
-            $userId = Auth::guard($guard)->user()?->id;
-            $userRole = Auth::guard($guard)->user()?->role;
-
-            \Log::info('🟢 RedirectIfAuthenticated: Checking guard', [
-                'guard' => $guard ?? 'default',
-                'is_authenticated' => $isAuthenticated,
-                'user_id' => $userId,
-                'user_role' => $userRole,
-            ]);
-
-            if ($isAuthenticated) {
+            if (Auth::guard($guard)->check()) {
                 // Central guard → central dashboard
                 if ($guard === 'central') {
-                    \Log::info('🟢 RedirectIfAuthenticated: REDIRECTING to /admin (central)');
                     return redirect('/admin');
                 }
                 
                 // Web guard (tenant) → tenant dashboard
-                \Log::info('🟢 RedirectIfAuthenticated: REDIRECTING to /dashboard (tenant)');
                 return redirect('/dashboard');
             }
         }
 
-        \Log::info('🟢 RedirectIfAuthenticated: ALLOWING (not authenticated)');
         return $next($request);
     }
 }

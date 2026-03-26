@@ -16,31 +16,18 @@ class EnsureGuardiaOnDuty
     {
         $user = $request->user();
 
-        \Log::info('🔵 === EnsureGuardiaOnDuty Middleware ===', [
-            'path' => $request->path(),
-            'session_id' => $request->session()->getId(),
-            'user_id' => $user?->id,
-            'user_role' => $user?->role,
-            'guardia_id' => $user?->guardia_id,
-            'tenant_id' => tenant('id'),
-        ]);
-
         if (!$user) {
-            \Log::info('🔵 EnsureGuardiaOnDuty: ALLOWING (no user)');
             return $next($request);
         }
 
         if ($user->role !== 'guardia') {
-            \Log::info('🔵 EnsureGuardiaOnDuty: ALLOWING (not guardia role)');
             return $next($request);
         }
 
         if (!$user->guardia_id) {
             if ($request->routeIs('guardia.off_duty')) {
-                \Log::info('🔵 EnsureGuardiaOnDuty: ALLOWING (off_duty route, no guardia_id)');
                 return $next($request);
             }
-            \Log::warning('🔵 EnsureGuardiaOnDuty: REDIRECTING to guardia.off_duty (no guardia_id)');
             return redirect()->route('guardia.off_duty');
         }
 
@@ -48,19 +35,15 @@ class EnsureGuardiaOnDuty
 
         if ($request->routeIs('guardia.off_duty')) {
             if ($isOnDuty) {
-                \Log::info('🔵 EnsureGuardiaOnDuty: REDIRECTING to dashboard (on duty, accessing off_duty)');
                 return redirect()->route('dashboard');
             }
-            \Log::info('🔵 EnsureGuardiaOnDuty: ALLOWING (off duty, can access off_duty page)');
             return $next($request);
         }
 
         if (!$isOnDuty) {
-            \Log::warning('🔵 EnsureGuardiaOnDuty: REDIRECTING to guardia.off_duty (not on duty)');
             return redirect()->route('guardia.off_duty');
         }
 
-        \Log::info('🔵 EnsureGuardiaOnDuty: ALLOWING (on duty)');
         return $next($request);
     }
 
