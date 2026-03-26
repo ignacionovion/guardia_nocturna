@@ -36,6 +36,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Estos middlewares se aplican ahora solo en rutas tenant específicas
         $middleware->alias([
             'auth'                => \App\Http\Middleware\Authenticate::class,
+            'guest'               => \App\Http\Middleware\RedirectIfAuthenticated::class,
             'super_admin'         => \App\Http\Middleware\EnsureSuperAdmin::class,
             'ensure_captain'      => \App\Http\Middleware\EnsureCaptain::class,
             'ensure_guardia'      => \App\Http\Middleware\EnsureGuardia::class,
