@@ -33,16 +33,6 @@ class AuthController extends Controller
             // Get authenticated user from 'web' guard
             $user = Auth::guard('web')->user();
 
-            dd([
-                'HIT_AFTER_ATTEMPT' => true,
-                'tenant_initialized' => tenancy()->initialized,
-                'tenant_id' => tenant('id'),
-                'db_connection' => \DB::connection()->getDatabaseName(),
-                'auth_check' => Auth::guard('web')->check(),
-                'auth_user_id' => Auth::guard('web')->user()?->id,
-                'auth_user_role' => Auth::guard('web')->user()?->role,
-                'session_id' => $request->session()->getId(),
-            ]);
             
             \Log::info('User authenticated', [
                 'user_id' => $user->id,
