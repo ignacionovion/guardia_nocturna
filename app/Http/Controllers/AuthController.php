@@ -20,6 +20,14 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
+        dd([
+            'HIT_LOGIN_CONTROLLER' => true,
+            'tenant_initialized' => tenancy()->initialized,
+            'tenant_id' => tenant('id'),
+            'db_connection' => \DB::connection()->getDatabaseName(),
+            'host' => $request->getHost(),
+        ]);
+
         // DEBUG: Verify tenant context before authentication
         \Log::info('=== AuthController@login START ===', [
             'tenant_initialized' => tenancy()->initialized,
