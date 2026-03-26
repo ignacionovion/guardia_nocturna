@@ -37,16 +37,6 @@ class TableroController extends Controller
 
     public function index()
     {
-        dd([
-            'HIT_DASHBOARD_CONTROLLER' => true,
-            'tenant_initialized' => tenancy()->initialized,
-            'tenant_id' => tenant('id'),
-            'db_connection' => \DB::connection()->getDatabaseName(),
-            'session_id' => request()->session()->getId(),
-            'auth_check' => auth()->check(),
-            'auth_user_id' => auth()->user()?->id,
-            'auth_user_role' => auth()->user()?->role,
-        ]);
 
         \Log::info('=== TableroController@index START ===', [
             'tenant_initialized' => tenancy()->initialized,

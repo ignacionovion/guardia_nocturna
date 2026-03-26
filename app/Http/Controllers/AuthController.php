@@ -20,14 +20,6 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
-        dd([
-            'HIT_LOGIN_CONTROLLER' => true,
-            'tenant_initialized' => tenancy()->initialized,
-            'tenant_id' => tenant('id'),
-            'db_connection' => \DB::connection()->getDatabaseName(),
-            'host' => $request->getHost(),
-        ]);
-
         // DEBUG: Verify tenant context before authentication
         \Log::info('=== AuthController@login START ===', [
             'tenant_initialized' => tenancy()->initialized,
@@ -40,6 +32,17 @@ class AuthController extends Controller
         if (Auth::guard('web')->attempt($credentials)) {
             // Get authenticated user from 'web' guard
             $user = Auth::guard('web')->user();
+
+            dd([
+                'HIT_AFTER_ATTEMPT' => true,
+                'tenant_initialized' => tenancy()->initialized,
+                'tenant_id' => tenant('id'),
+                'db_connection' => \DB::connection()->getDatabaseName(),
+                'auth_check' => Auth::guard('web')->check(),
+                'auth_user_id' => Auth::guard('web')->user()?->id,
+                'auth_user_role' => Auth::guard('web')->user()?->role,
+                'session_id' => $request->session()->getId(),
+            ]);
             
             \Log::info('User authenticated', [
                 'user_id' => $user->id,
