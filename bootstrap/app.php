@@ -35,7 +35,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Eliminados middlewares tenant del grupo web global para no afectar dominios centrales
         // Estos middlewares se aplican ahora solo en rutas tenant específicas
         $middleware->alias([
-            'guest'               => \App\Http\Middleware\RedirectIfAuthenticated::class,
+            'auth'                => \App\Http\Middleware\Authenticate::class,
             'super_admin'         => \App\Http\Middleware\EnsureSuperAdmin::class,
             'ensure_captain'      => \App\Http\Middleware\EnsureCaptain::class,
             'ensure_guardia'      => \App\Http\Middleware\EnsureGuardia::class,
@@ -51,17 +51,6 @@ return Application::configure(basePath: dirname(__DIR__))
             'max_users'           => \App\Http\Middleware\EnforceMaxUsers::class,
             'plan.limit'          => \App\Http\Middleware\EnforcePlanLimits::class,
         ]);
-
-        $middleware->redirectGuestsTo(function ($request) {
-            $host = $request->getHost();
-            $centralDomains = config('tenancy.central_domains', []);
-
-            if (in_array($host, $centralDomains, true)) {
-                return '/login'; // Central domain login path
-            }
-
-            return '/'; // Tenant domain login path
-        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
