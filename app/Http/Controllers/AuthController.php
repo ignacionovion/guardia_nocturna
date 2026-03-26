@@ -26,6 +26,8 @@ class AuthController extends Controller
             'tenant_id' => tenant('id'),
             'db_connection' => \DB::connection()->getDatabaseName(),
             'host' => $request->getHost(),
+            'session_id_before' => $request->session()->getId(),
+            'cookies_received' => $request->cookies->all(),
         ]);
 
         // Use explicit 'web' guard for tenant authentication
@@ -79,11 +81,20 @@ class AuthController extends Controller
             \Log::info('=== AuthController@login SUCCESS ===', [
                 'user_id' => $user->id,
                 'tenant_id' => tenant('id'),
-                'session_id' => $request->session()->getId(),
+                'session_id_after_regenerate' => $request->session()->getId(),
                 'auth_check' => Auth::guard('web')->check(),
+                'session_data' => $request->session()->all(),
             ]);
 
-            return redirect('/dashboard');
+            $response = redirect('/dashboard');
+            
+            \Log::info('=== AuthController@login RESPONSE ===', [
+                'redirect_to' => '/dashboard',
+                'session_id' => $request->session()->getId(),
+                'response_cookies' => $response->headers->getCookies(),
+            ]);
+
+            return $response;
         }
 
         \Log::warning('Authentication failed', [
