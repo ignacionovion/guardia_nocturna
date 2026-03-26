@@ -32,6 +32,18 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(at: '*');
+        
+        // CRITICAL: Tenancy middlewares MUST run BEFORE auth/guest
+        $middleware->priority([
+            \Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains::class,
+            \Stancl\Tenancy\Middleware\InitializeTenancyByDomain::class,
+            \App\Http\Middleware\EnsureTenantActive::class,
+            \Illuminate\Session\Middleware\StartSession::class,
+            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+            \App\Http\Middleware\Authenticate::class,
+            \App\Http\Middleware\RedirectIfAuthenticated::class,
+        ]);
+        
         // Eliminados middlewares tenant del grupo web global para no afectar dominios centrales
         // Estos middlewares se aplican ahora solo en rutas tenant específicas
         $middleware->alias([
