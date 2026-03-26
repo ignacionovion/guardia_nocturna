@@ -82,8 +82,8 @@ class TenantPlanLimitService
         }
 
         // Count guardias in current month
-        $currentCount = Guardia::whereYear('fecha', now()->year)
-            ->whereMonth('fecha', now()->month)
+        $currentCount = Guardia::whereYear('created_at', now()->year)
+            ->whereMonth('created_at', now()->month)
             ->count();
         
         return $currentCount < $limit;
@@ -143,8 +143,8 @@ class TenantPlanLimitService
                 'unlimited' => $this->getLimit('max_beds') === null,
             ],
             'guardias' => [
-                'current' => Guardia::whereYear('fecha', now()->year)
-                    ->whereMonth('fecha', now()->month)
+                'current' => Guardia::whereYear('created_at', now()->year)
+                    ->whereMonth('created_at', now()->month)
                     ->count(),
                 'limit' => $this->getLimit('max_guardias'),
                 'unlimited' => $this->getLimit('max_guardias') === null,
