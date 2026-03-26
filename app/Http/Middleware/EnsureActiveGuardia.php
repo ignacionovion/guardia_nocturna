@@ -17,11 +17,22 @@ class EnsureActiveGuardia
     {
         $user = $request->user();
 
+        \Log::info('🟡 === EnsureActiveGuardia Middleware ===', [
+            'path' => $request->path(),
+            'session_id' => $request->session()->getId(),
+            'user_id' => $user?->id,
+            'user_role' => $user?->role,
+            'guardia_id' => $user?->guardia_id,
+            'tenant_id' => tenant('id'),
+        ]);
+
         if (!$user || $user->role !== 'guardia') {
+            \Log::info('🟡 EnsureActiveGuardia: ALLOWING (not guardia role)');
             return $next($request);
         }
 
         if (!$user->guardia_id) {
+            \Log::warning('🟡 EnsureActiveGuardia: REDIRECTING to / (no guardia_id) + LOGOUT');
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
@@ -31,12 +42,17 @@ class EnsureActiveGuardia
         $guardia = Guardia::find($user->guardia_id);
 
         if (!$guardia || !$guardia->is_active_week) {
+            \Log::warning('🟡 EnsureActiveGuardia: REDIRECTING to / (guardia not active) + LOGOUT', [
+                'guardia_exists' => $guardia ? 'yes' : 'no',
+                'is_active_week' => $guardia?->is_active_week,
+            ]);
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
             return redirect('/')->withErrors(['access' => 'Tu guardia no está activa en este momento. Contacta al capitán.']);
         }
 
+        \Log::info('🟡 EnsureActiveGuardia: ALLOWING (guardia active)');
         return $next($request);
     }
 }
