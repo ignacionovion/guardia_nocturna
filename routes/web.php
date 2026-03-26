@@ -29,7 +29,7 @@ foreach ($centralDomains as $domain) {
         })->name($firstDomain ? 'central.landing' : null);
 
         Route::get('/login', [\App\Http\Controllers\Central\CentralAuthController::class, 'showLogin'])
-            ->name($firstDomain ? 'login' : null);
+            ->name($firstDomain ? 'central.login' : null);
         Route::post('/login', [\App\Http\Controllers\Central\CentralAuthController::class, 'login']);
         Route::post('/logout', [\App\Http\Controllers\Central\CentralAuthController::class, 'logout'])
             ->name($firstDomain ? 'central.logout' : null);

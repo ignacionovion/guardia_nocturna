@@ -35,6 +35,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Eliminados middlewares tenant del grupo web global para no afectar dominios centrales
         // Estos middlewares se aplican ahora solo en rutas tenant específicas
         $middleware->alias([
+            'guest'               => \App\Http\Middleware\RedirectIfAuthenticated::class,
             'super_admin'         => \App\Http\Middleware\EnsureSuperAdmin::class,
             'ensure_captain'      => \App\Http\Middleware\EnsureCaptain::class,
             'ensure_guardia'      => \App\Http\Middleware\EnsureGuardia::class,

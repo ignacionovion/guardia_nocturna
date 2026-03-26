@@ -34,16 +34,16 @@
         </p>
 
         <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            @if (Route::has('login'))
+            @if (Route::has('tenant.login') || Route::has('central.login'))
                 @auth
                     <a href="{{ url('/dashboard') }}" class="w-full sm:w-auto px-8 py-4 bg-red-700 hover:bg-red-800 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-red-900/30 transform hover:-translate-y-1 flex items-center justify-center text-lg uppercase tracking-wide">
                         <i class="fas fa-gauge-high mr-3"></i> Ir al Panel
                     </a>
                 @else
-                  <a href="/" class="w-full sm:w-auto px-8 py-4 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-900 font-bold rounded-xl transition-all shadow-lg hover:shadow-white/10 transform hover:-translate-y-1 flex items-center justify-center text-lg uppercase tracking-wide">
-        <i class="fas fa-right-to-bracket mr-3 text-red-700"></i>
-        Ingresar al Sistema
-    </a>
+                    <a href="/" class="w-full sm:w-auto px-8 py-4 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-900 font-bold rounded-xl transition-all shadow-lg hover:shadow-white/10 transform hover:-translate-y-1 flex items-center justify-center text-lg uppercase tracking-wide">
+                        <i class="fas fa-right-to-bracket mr-3 text-red-700"></i>
+                        Ingresar al Sistema
+                    </a>
                 @endauth
             @endif
         </div>
