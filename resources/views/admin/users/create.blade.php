@@ -111,8 +111,15 @@
                     <x-ui.button variant="secondary" size="md" href="{{ route('admin.users.index') }}">
                         Cancelar
                     </x-ui.button>
-                    <x-ui.button type="submit" variant="primary" size="md" icon="fas fa-save" @if(isset($limitData) && !$limitData['can_create']) disabled @endif>
-                        Crear Usuario
+<div class="mt-8 flex items-center justify-end gap-3">
+    <x-ui.button variant="secondary" size="md" href="{{ route('admin.users.index') }}">
+        Cancelar
+    </x-ui.button>
+
+    <x-ui.button type="submit" variant="primary" size="md" icon="fas fa-save" :disabled="isset($limitData) && !($limitData['can_create'] ?? true)">
+        Crear Usuario
+    </x-ui.button>
+</div>                        Crear Usuario
                     </x-ui.button>
                 </div>
             </form>
