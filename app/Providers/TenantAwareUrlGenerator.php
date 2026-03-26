@@ -82,15 +82,25 @@ class TenantAwareUrlGenerator extends UrlGenerator
             return $parameters;
         }
 
-        // If we're in tenant context, use current tenant
+        // Priority 1: If we're in tenant context, use current tenant
         if (tenant()) {
             $parameters['tenant'] = tenant('id');
             return $parameters;
         }
 
-        // Not in tenant context and no tenant parameter provided
-        // This will cause the parent::toRoute to throw an exception
-        // with a clear message about missing parameter
+        // Priority 2: Infer tenant from the host if not in central domain
+        $host = $this->request->getHost();
+        $centralDomains = config('tenancy.central_domains', []);
+
+        if (!in_array($host, $centralDomains, true)) {
+            $parts = explode('.', $host);
+            if (count($parts) > 1) {
+                $parameters['tenant'] = $parts[0];
+                return $parameters;
+            }
+        }
+
+        // Fallback: let the parent handle it, which will likely throw a missing parameter exception
         return $parameters;
     }
 
