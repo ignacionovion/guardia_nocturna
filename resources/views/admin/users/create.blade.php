@@ -53,7 +53,7 @@
                         <select name="role"
                             class="form-input appearance-none"
                             x-model="formData.role"
-                            @change="handleRoleChange()"
+    @change="handleRoleIdChange()"
                             :disabled="!!formData.role_id">
                             <option value="" {{ old('role') ? '' : 'selected' }}>Seleccionar perfil...</option>
                             <option value="capitan" {{ old('role') === 'capitan' ? 'selected' : '' }}>Capitán (Acceso administrativo completo)</option>
@@ -69,7 +69,7 @@
                         <select name="role_id"
                             class="form-input appearance-none"
                             x-model="formData.role_id"
-                            @change="handleRoleChange()"
+                            @change="handleRoleIdChange()"
                             :disabled="formData.role">
                             <option value="" {{ old('role_id') ? '' : 'selected' }}>Sin rol personalizado</option>
                             @foreach(($roles ?? collect()) as $r)
