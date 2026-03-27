@@ -50,8 +50,8 @@
                         <label class="form-label">
                             Perfil de Sistema
                         </label>
-                       <select name="role_id" id="role_id" class="form-input">
-                            <option value="" {{ old('role') ? '' : 'selected' }}>Seleccionar perfil...</option>
+                        <select name="role" id="role" class="form-input">
+                            <option value="">Seleccionar perfil...</option>
                             <option value="capitan" {{ old('role') === 'capitan' ? 'selected' : '' }}>Capitán (Acceso administrativo completo)</option>
                             <option value="guardia" {{ old('role') === 'guardia' ? 'selected' : '' }}>Guardia (Acceso operativo)</option>
                         </select>
@@ -63,7 +63,7 @@
                             Rol Personalizado
                         </label>
                         <select name="role_id" id="role_id" class="form-input">
-                            <option value="" {{ old('role_id') ? '' : 'selected' }}>Sin rol personalizado</option>
+                            <option value="">Sin rol personalizado</option>
                             @foreach(($roles ?? collect()) as $r)
                                 <option value="{{ $r->id }}" {{ (string)old('role_id') === (string)$r->id ? 'selected' : '' }}>
                                     {{ $r->name }}
@@ -71,6 +71,7 @@
                             @endforeach
                         </select>
                         <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Roles creados en "Nuevo Rol" con permisos específicos por sección</p>
+                        <p class="text-xs text-orange-500 dark:text-orange-400 mt-1">Solo puedes elegir una de las dos opciones</p>
                     </div>
 
                     <div>
