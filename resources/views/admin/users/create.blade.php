@@ -50,11 +50,7 @@
                         <label class="form-label">
                             Perfil de Sistema
                         </label>
-                        <select name="role"
-                            class="form-input appearance-none"
-                            x-model="formData.role"
-                            @change="handleRoleChange()"
-                            :disabled="!!formData.role_id">
+                        <select name="role" class="form-input">
                             <option value="" {{ old('role') ? '' : 'selected' }}>Seleccionar perfil...</option>
                             <option value="capitan" {{ old('role') === 'capitan' ? 'selected' : '' }}>Capitán (Acceso administrativo completo)</option>
                             <option value="guardia" {{ old('role') === 'guardia' ? 'selected' : '' }}>Guardia (Acceso operativo)</option>
@@ -66,11 +62,7 @@
                         <label class="form-label">
                             Rol Personalizado
                         </label>
-                        <select name="role_id"
-                            class="form-input appearance-none"
-                            x-model="formData.role_id"
-                            @change="handleRoleIdChange()"
-                            :disabled="formData.role">
+                        <select name="role_id" class="form-input">
                             <option value="" {{ old('role_id') ? '' : 'selected' }}>Sin rol personalizado</option>
                             @foreach(($roles ?? collect()) as $r)
                                 <option value="{{ $r->id }}" {{ (string)old('role_id') === (string)$r->id ? 'selected' : '' }}>
@@ -79,6 +71,7 @@
                             @endforeach
                         </select>
                         <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Roles creados en "Nuevo Rol" con permisos específicos por sección</p>
+                        <p class="text-xs text-emerald-600 mt-1">Roles cargados: {{ ($roles ?? collect())->count() }}</p>
                     </div>
 
                     <div>
