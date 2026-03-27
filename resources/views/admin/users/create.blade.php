@@ -164,25 +164,36 @@ function userForm() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function () {
+function initRoleSelectors() {
     const roleSelect = document.getElementById('role');
     const roleIdSelect = document.getElementById('role_id');
 
     if (!roleSelect || !roleIdSelect) {
-        return;
+        return false;
+    }
+
+    if (roleSelect.dataset.roleSelectorInitialized === '1') {
+        return true;
     }
 
     function syncRoleSelectors(changedField = null) {
-        if (changedField === 'role' && roleSelect.value) {
+        const hasRole = roleSelect.value !== '';
+        const hasRoleId = roleIdSelect.value !== '';
+
+        if (changedField === 'role' && hasRole) {
             roleIdSelect.value = '';
         }
 
-        if (changedField === 'role_id' && roleIdSelect.value) {
+        if (changedField === 'role_id' && hasRoleId) {
             roleSelect.value = '';
         }
 
-        roleIdSelect.disabled = !!roleSelect.value;
-        roleSelect.disabled = !!roleIdSelect.value;
+        if (changedField === null && hasRole && hasRoleId) {
+            roleIdSelect.value = '';
+        }
+
+        roleIdSelect.disabled = roleSelect.value !== '';
+        roleSelect.disabled = roleIdSelect.value !== '';
     }
 
     roleSelect.addEventListener('change', function () {
@@ -194,6 +205,12 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     syncRoleSelectors();
-});
+    roleSelect.dataset.roleSelectorInitialized = '1';
+
+    return true;
+}
+
+window.initRoleSelectors = initRoleSelectors;
+initRoleSelectors();
 </script>
 @endsection
