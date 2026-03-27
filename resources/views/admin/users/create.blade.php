@@ -50,7 +50,7 @@
                         <label class="form-label">
                             Perfil de Sistema
                         </label>
-                        <select name="role" class="form-input">
+                        <select name="role" id="role" class="form-input" onchange="handleRoleChange(this)">
                             <option value="" {{ old('role') ? '' : 'selected' }}>Seleccionar perfil...</option>
                             <option value="capitan" {{ old('role') === 'capitan' ? 'selected' : '' }}>Capitán (Acceso administrativo completo)</option>
                             <option value="guardia" {{ old('role') === 'guardia' ? 'selected' : '' }}>Guardia (Acceso operativo)</option>
@@ -62,7 +62,7 @@
                         <label class="form-label">
                             Rol Personalizado
                         </label>
-                        <select name="role_id" class="form-input">
+                        <select name="role_id" id="role_id" class="form-input" onchange="handleRoleIdChange(this)">
                             <option value="" {{ old('role_id') ? '' : 'selected' }}>Sin rol personalizado</option>
                             @foreach(($roles ?? collect()) as $r)
                                 <option value="{{ $r->id }}" {{ (string)old('role_id') === (string)$r->id ? 'selected' : '' }}>
@@ -71,7 +71,6 @@
                             @endforeach
                         </select>
                         <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Roles creados en "Nuevo Rol" con permisos específicos por sección</p>
-                        <p class="text-xs text-emerald-600 mt-1">Roles cargados: {{ ($roles ?? collect())->count() }}</p>
                     </div>
 
                     <div>
@@ -136,6 +135,7 @@
                 if (this.formData.username && this.formData.username !== this.slugify(this.formData.name)) {
                     this.usernameManuallyEdited = true;
                 }
+                this.syncRoleSelectors();
             },
 
             slugify(value) {
@@ -164,16 +164,36 @@
                 }
             },
 
-            handleRoleChange() {
-                if (this.formData.role) {
-                    this.formData.role_id = '';
+            syncRoleSelectors() {
+                const roleSelect = document.getElementById('role');
+                const roleIdSelect = document.getElementById('role_id');
+
+                if (!roleSelect || !roleIdSelect) {
+                    return;
                 }
+
+                roleIdSelect.disabled = !!roleSelect.value;
+                roleSelect.disabled = !!roleIdSelect.value;
             },
 
-            handleRoleIdChange() {
-                if (this.formData.role_id) {
-                    this.formData.role = '';
+            handleRoleChange(select) {
+                const roleIdSelect = document.getElementById('role_id');
+
+                if (select?.value && roleIdSelect) {
+                    roleIdSelect.value = '';
                 }
+
+                this.syncRoleSelectors();
+            },
+
+            handleRoleIdChange(select) {
+                const roleSelect = document.getElementById('role');
+
+                if (select?.value && roleSelect) {
+                    roleSelect.value = '';
+                }
+
+                this.syncRoleSelectors();
             }
         }
     }
