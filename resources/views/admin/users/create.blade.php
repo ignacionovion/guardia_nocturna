@@ -50,7 +50,7 @@
                         <label class="form-label">
                             Perfil de Sistema
                         </label>
-                        <select name="role" id="role" class="form-input" onchange="handleRoleChange(this)">
+                        <select name="role" id="role" class="form-input">
                             <option value="" {{ old('role') ? '' : 'selected' }}>Seleccionar perfil...</option>
                             <option value="capitan" {{ old('role') === 'capitan' ? 'selected' : '' }}>Capitán (Acceso administrativo completo)</option>
                             <option value="guardia" {{ old('role') === 'guardia' ? 'selected' : '' }}>Guardia (Acceso operativo)</option>
@@ -62,7 +62,7 @@
                         <label class="form-label">
                             Rol Personalizado
                         </label>
-                        <select name="role_id" id="role_id" class="form-input" onchange="handleRoleIdChange(this)">
+                        <select name="role_id" id="role_id" class="form-input">
                             <option value="" {{ old('role_id') ? '' : 'selected' }}>Sin rol personalizado</option>
                             @foreach(($roles ?? collect()) as $r)
                                 <option value="{{ $r->id }}" {{ (string)old('role_id') === (string)$r->id ? 'selected' : '' }}>
@@ -135,7 +135,21 @@
                 if (this.formData.username && this.formData.username !== this.slugify(this.formData.name)) {
                     this.usernameManuallyEdited = true;
                 }
-                this.syncRoleSelectors();
+
+                this.$nextTick(() => {
+                    const roleSelect = document.getElementById('role');
+                    const roleIdSelect = document.getElementById('role_id');
+
+                    if (roleSelect) {
+                        roleSelect.addEventListener('change', (event) => this.handleRoleChange(event.target));
+                    }
+
+                    if (roleIdSelect) {
+                        roleIdSelect.addEventListener('change', (event) => this.handleRoleIdChange(event.target));
+                    }
+
+                    this.syncRoleSelectors();
+                });
             },
 
             slugify(value) {
@@ -172,8 +186,22 @@
                     return;
                 }
 
-                roleIdSelect.disabled = !!roleSelect.value;
-                roleSelect.disabled = !!roleIdSelect.value;
+                if (roleSelect.value) {
+                    roleIdSelect.value = '';
+                    roleIdSelect.disabled = true;
+                    roleSelect.disabled = false;
+                    return;
+                }
+
+                if (roleIdSelect.value) {
+                    roleSelect.value = '';
+                    roleSelect.disabled = true;
+                    roleIdSelect.disabled = false;
+                    return;
+                }
+
+                roleSelect.disabled = false;
+                roleIdSelect.disabled = false;
             },
 
             handleRoleChange(select) {
