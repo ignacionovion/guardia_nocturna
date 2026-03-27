@@ -50,7 +50,7 @@
                         <label class="form-label">
                             Perfil de Sistema
                         </label>
-                        <select name="role" id="role" class="form-input">
+                       <select name="role_id" id="role_id" class="form-input">
                             <option value="" {{ old('role') ? '' : 'selected' }}>Seleccionar perfil...</option>
                             <option value="capitan" {{ old('role') === 'capitan' ? 'selected' : '' }}>Capitán (Acceso administrativo completo)</option>
                             <option value="guardia" {{ old('role') === 'guardia' ? 'selected' : '' }}>Guardia (Acceso operativo)</option>
@@ -118,112 +118,81 @@
         </div>
     </div>
 
-    <script>
-    function userForm() {
-        return {
-            formData: {
-                name: '{{ old('name') }}',
-                username: '{{ old('username') }}',
-                role: '{{ old('role') }}',
-                role_id: '{{ old('role_id') }}'
-            },
-            usernameManuallyEdited: false,
+   <script>
+function userForm() {
+    return {
+        formData: {
+            name: '{{ old('name') }}',
+            username: '{{ old('username') }}',
+            role: '{{ old('role') }}',
+            role_id: '{{ old('role_id') }}'
+        },
+        usernameManuallyEdited: false,
 
-            init() {
-                // If username was filled by old() and is different from what would be generated,
-                // assume it was manually edited.
-                if (this.formData.username && this.formData.username !== this.slugify(this.formData.name)) {
-                    this.usernameManuallyEdited = true;
+        init() {
+            if (this.formData.username && this.formData.username !== this.slugify(this.formData.name)) {
+                this.usernameManuallyEdited = true;
+            }
+        },
+
+        slugify(value) {
+            if (!value) return '';
+            const a = 'àáâäæãåāăąçćčđďèéêëēėęěğǵḧîïíīįìłḿñńǹňôöòóœøōõőṕŕřßśšşșťțûüùúūǘůűųẃẍÿýžźż·/_,:;'
+            const b = 'aaaaaaaaaacccddeeeeeeeegghiiiiiilmnnnnoooooooooprrsssssttuuuuuuuuuwxyyzzz------'
+            const p = new RegExp(a.split('').join('|'), 'g')
+
+            return value.toString().toLowerCase()
+                .replace(/\s+/g, '.')
+                .replace(p, c => b.charAt(a.indexOf(c)))
+                .replace(/&/g, '-and-')
+                .replace(/[^\w\.]+/g, '')
+                .replace(/\.\.+/g, '.')
+                .replace(/^\.+/, '')
+                .replace(/\.+$/, '')
+        },
+
+        generateUsername() {
+            if (!this.usernameManuallyEdited) {
+                let newUsername = this.slugify(this.formData.name);
+                if (newUsername.length < 4 && this.formData.name.length >= 2) {
+                    newUsername = newUsername + '.user';
                 }
-
-                this.$nextTick(() => {
-                    const roleSelect = document.getElementById('role');
-                    const roleIdSelect = document.getElementById('role_id');
-
-                    if (roleSelect) {
-                        roleSelect.addEventListener('change', (event) => this.handleRoleChange(event.target));
-                    }
-
-                    if (roleIdSelect) {
-                        roleIdSelect.addEventListener('change', (event) => this.handleRoleIdChange(event.target));
-                    }
-
-                    this.syncRoleSelectors();
-                });
-            },
-
-            slugify(value) {
-                if (!value) return '';
-                const a = 'àáâäæãåāăąçćčđďèéêëēėęěğǵḧîïíīįìłḿñńǹňôöòóœøōõőṕŕřßśšşșťțûüùúūǘůűųẃẍÿýžźż·/_,:;'
-                const b = 'aaaaaaaaaacccddeeeeeeeegghiiiiiilmnnnnoooooooooprrsssssttuuuuuuuuuwxyyzzz------'
-                const p = new RegExp(a.split('').join('|'), 'g')
-
-                return value.toString().toLowerCase()
-                    .replace(/\s+/g, '.') // Replace spaces with - -> changed to .
-                    .replace(p, c => b.charAt(a.indexOf(c))) // Replace special characters
-                    .replace(/&/g, '-and-') // Replace & with 'and'
-                    .replace(/[^\w\.]+/g, '') // Remove all non-word chars
-                    .replace(/\.\.+/g, '.') // Replace multiple - with single -
-                    .replace(/^\.+/, '') // Trim - from start of text
-                    .replace(/\.+$/, '') // Trim - from end of text
-            },
-
-            generateUsername() {
-                if (!this.usernameManuallyEdited) {
-                    let newUsername = this.slugify(this.formData.name);
-                    if (newUsername.length < 4 && this.formData.name.length >= 2) {
-                        newUsername = newUsername + '.user';
-                    }
-                    this.formData.username = newUsername;
-                }
-            },
-
-            syncRoleSelectors() {
-                const roleSelect = document.getElementById('role');
-                const roleIdSelect = document.getElementById('role_id');
-
-                if (!roleSelect || !roleIdSelect) {
-                    return;
-                }
-
-                if (roleSelect.value) {
-                    roleIdSelect.value = '';
-                    roleIdSelect.disabled = true;
-                    roleSelect.disabled = false;
-                    return;
-                }
-
-                if (roleIdSelect.value) {
-                    roleSelect.value = '';
-                    roleSelect.disabled = true;
-                    roleIdSelect.disabled = false;
-                    return;
-                }
-
-                roleSelect.disabled = false;
-                roleIdSelect.disabled = false;
-            },
-
-            handleRoleChange(select) {
-                const roleIdSelect = document.getElementById('role_id');
-
-                if (select?.value && roleIdSelect) {
-                    roleIdSelect.value = '';
-                }
-
-                this.syncRoleSelectors();
-            },
-
-            handleRoleIdChange(select) {
-                const roleSelect = document.getElementById('role');
-
-                if (select?.value && roleSelect) {
-                    roleSelect.value = '';
-                }
-
-                this.syncRoleSelectors();
+                this.formData.username = newUsername;
             }
         }
     }
-    </script>
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const roleSelect = document.getElementById('role');
+    const roleIdSelect = document.getElementById('role_id');
+
+    if (!roleSelect || !roleIdSelect) {
+        return;
+    }
+
+    function syncRoleSelectors(changedField = null) {
+        if (changedField === 'role' && roleSelect.value) {
+            roleIdSelect.value = '';
+        }
+
+        if (changedField === 'role_id' && roleIdSelect.value) {
+            roleSelect.value = '';
+        }
+
+        roleIdSelect.disabled = !!roleSelect.value;
+        roleSelect.disabled = !!roleIdSelect.value;
+    }
+
+    roleSelect.addEventListener('change', function () {
+        syncRoleSelectors('role');
+    });
+
+    roleIdSelect.addEventListener('change', function () {
+        syncRoleSelectors('role_id');
+    });
+
+    syncRoleSelectors();
+});
+</script>
 @endsection
