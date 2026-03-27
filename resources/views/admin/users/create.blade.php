@@ -53,7 +53,7 @@
                         <select name="role"
                             class="form-input appearance-none"
                             x-model="formData.role"
-    @change="handleRoleIdChange()"
+                            @change="handleRoleChange()"
                             :disabled="!!formData.role_id">
                             <option value="" {{ old('role') ? '' : 'selected' }}>Seleccionar perfil...</option>
                             <option value="capitan" {{ old('role') === 'capitan' ? 'selected' : '' }}>Capitán (Acceso administrativo completo)</option>
