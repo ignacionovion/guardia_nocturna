@@ -19,18 +19,16 @@
     </source>
     <php>
       <!-- 🔥 ESTA ES LA PARTE IMPORTANTE -->
-    <env name="CENTRAL_DB_CONNECTION" value="sqlite"/>
-    <env name="CENTRAL_DB_DATABASE" value=":memory:"/>
+    
     <env name="APP_ENV" value="testing"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="BROADCAST_CONNECTION" value="null"/>
         <env name="CACHE_STORE" value="array"/>
-        <env name="DB_CONNECTION" value="sqlite"/>
-        <env name="DB_DATABASE" value=":memory:"/>
-        <!-- Central DB también usa sqlite en testing -->
-        <!-- <env name="CENTRAL_DB_CONNECTION" value="sqlite"/> -->
-        <!-- <env name="CENTRAL_DB_DATABASE" value=":memory:"/> -->
+       <env name="DB_CONNECTION" value="sqlite"/>
+<env name="DB_DATABASE" value="database/testing.sqlite"/>
+<env name="CENTRAL_DB_CONNECTION" value="sqlite"/>
+<env name="CENTRAL_DB_DATABASE" value="database/testing.sqlite"/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
