@@ -61,6 +61,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'role_permission'     => \App\Http\Middleware\CheckRolePermission::class,
             'feature'             => \App\Http\Middleware\EnforceFeatureFlag::class,
             'tenant.feature'      => \App\Http\Middleware\EnsureTenantFeatureEnabled::class,
+            'tenant.has_plan'         => \App\Http\Middleware\EnsureTenantHasPlan::class,
+            'tenant.has_plan_app'     => \App\Http\Middleware\EnsureTenantHasPlanForApp::class,
             'max_users'           => \App\Http\Middleware\EnforceMaxUsers::class,
             'plan.limit'          => \App\Http\Middleware\EnforcePlanLimits::class,
         ]);

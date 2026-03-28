@@ -19,6 +19,7 @@ class Billing extends Model
 
     protected $fillable = [
         'tenant_id',
+        'plan_id',
         'plan',
         'billing_cycle',
         'monto',
@@ -40,6 +41,11 @@ class Billing extends Model
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class, 'tenant_id');
+    }
+
+    public function planRelation(): BelongsTo
+    {
+        return $this->belongsTo(Plan::class, 'plan_id');
     }
 
     public function payments(): HasMany

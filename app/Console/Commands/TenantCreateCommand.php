@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Models\Plan;
 use App\Models\Tenant;
 use Illuminate\Console\Command;
 
@@ -14,7 +15,7 @@ class TenantCreateCommand extends Command
                             {nombre : Company display name}
                             {--numero= : Company number}
                             {--body= : Body ID}
-                            {--plan=basico : Plan (basico|profesional|enterprise)}
+                            {--plan_id= : Plan ID from central plans table}
                             {--seed : Run DatabaseSeeder after creation}';
 
     protected $description = 'Create a new tenant with its database, migrations and optional domain';
@@ -28,6 +29,27 @@ class TenantCreateCommand extends Command
             return self::FAILURE;
         }
 
+        $planId = $this->option('plan_id');
+        if ($planId) {
+            $plan = Plan::find((int) $planId);
+            if (!$plan) {
+                $this->error("Plan ID [{$planId}] not found in central plans table.");
+                return self::FAILURE;
+            }
+        } else {
+            $plan = Plan::query()
+                ->where('activo', true)
+                ->orderBy('id')
+                ->first();
+
+            if (!$plan) {
+                $this->error('No hay planes activos en la base de datos central. No se puede crear tenant.');
+                return self::FAILURE;
+            }
+
+            $this->warn("No se especificó --plan_id. Se asignará automáticamente el plan [{$plan->id}] {$plan->nombre}.");
+        }
+
         $this->info("Creating tenant [{$id}]...");
 
         $tenant = Tenant::create([
@@ -35,7 +57,7 @@ class TenantCreateCommand extends Command
             'nombre' => $this->argument('nombre'),
             'numero' => $this->option('numero') ? (int) $this->option('numero') : null,
             'body_id' => $this->option('body') ? (int) $this->option('body') : null,
-            'plan' => $this->option('plan'),
+            'plan_id' => $plan->id,
         ]);
 
         $this->info("✅ Tenant created. DB: {$tenant->tenancy_db_name}");

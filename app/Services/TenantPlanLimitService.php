@@ -7,8 +7,9 @@ namespace App\Services;
 use App\Models\Bed;
 use App\Models\Guardia;
 use App\Models\Plan;
+use App\Models\Tenant;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Service to enforce plan limits for tenants.
@@ -19,6 +20,7 @@ class TenantPlanLimitService
 {
     private ?Plan $plan = null;
     private bool $planFetched = false;
+    private ?string $planSource = null;
 
     /**
      * Check if tenant can create a new user
@@ -27,19 +29,37 @@ class TenantPlanLimitService
     {
         $tenant = tenant();
         if (!$tenant) {
+            Log::warning('tenant_blocked', [
+                'reason' => 'no_tenant_context',
+                'action' => 'create_user',
+            ]);
             return false;
         }
 
         $limit = $this->getLimit('max_users');
-        
-        // null = unlimited
-        if ($limit === null) {
-            return true;
+        $currentCount = User::count();
+
+        $allowed = $this->isWithinLimit($currentCount, $limit);
+
+        if (!$allowed) {
+            Log::warning('limit_exceeded', [
+                'tenant_id' => $tenant->id,
+                'resource' => 'max_users',
+                'limit' => $limit,
+                'current' => $currentCount,
+            ]);
         }
 
-        $currentCount = User::count();
-        
-        return $currentCount < $limit;
+        Log::info('PlanLimit: canCreateUser evaluated', [
+            'tenant_id' => $tenant->id,
+            'plan_slug' => $this->plan?->slug,
+            'plan_source' => $this->planSource,
+            'limit' => $limit,
+            'current' => $currentCount,
+            'allowed' => $allowed,
+        ]);
+
+        return $allowed;
     }
 
     /**
@@ -49,19 +69,37 @@ class TenantPlanLimitService
     {
         $tenant = tenant();
         if (!$tenant) {
+            Log::warning('tenant_blocked', [
+                'reason' => 'no_tenant_context',
+                'action' => 'create_bed',
+            ]);
             return false;
         }
 
         $limit = $this->getLimit('max_beds');
-        
-        // null = unlimited
-        if ($limit === null) {
-            return true;
+        $currentCount = Bed::count();
+
+        $allowed = $this->isWithinLimit($currentCount, $limit);
+
+        if (!$allowed) {
+            Log::warning('limit_exceeded', [
+                'tenant_id' => $tenant->id,
+                'resource' => 'max_beds',
+                'limit' => $limit,
+                'current' => $currentCount,
+            ]);
         }
 
-        $currentCount = Bed::count();
-        
-        return $currentCount < $limit;
+        Log::info('PlanLimit: canCreateBed evaluated', [
+            'tenant_id' => $tenant->id,
+            'plan_slug' => $this->plan?->slug,
+            'plan_source' => $this->planSource,
+            'limit' => $limit,
+            'current' => $currentCount,
+            'allowed' => $allowed,
+        ]);
+
+        return $allowed;
     }
 
     /**
@@ -71,22 +109,41 @@ class TenantPlanLimitService
     {
         $tenant = tenant();
         if (!$tenant) {
+            Log::warning('tenant_blocked', [
+                'reason' => 'no_tenant_context',
+                'action' => 'create_guardia',
+            ]);
             return false;
         }
 
         $limit = $this->getLimit('max_guardias');
-        
-        // null = unlimited
-        if ($limit === null) {
-            return true;
-        }
 
         // Count guardias in current month
         $currentCount = Guardia::whereYear('created_at', now()->year)
             ->whereMonth('created_at', now()->month)
             ->count();
-        
-        return $currentCount < $limit;
+
+        $allowed = $this->isWithinLimit($currentCount, $limit);
+
+        if (!$allowed) {
+            Log::warning('limit_exceeded', [
+                'tenant_id' => $tenant->id,
+                'resource' => 'max_guardias',
+                'limit' => $limit,
+                'current' => $currentCount,
+            ]);
+        }
+
+        Log::info('PlanLimit: canCreateGuardia evaluated', [
+            'tenant_id' => $tenant->id,
+            'plan_slug' => $this->plan?->slug,
+            'plan_source' => $this->planSource,
+            'limit' => $limit,
+            'current' => $currentCount,
+            'allowed' => $allowed,
+        ]);
+
+        return $allowed;
     }
 
     /**
@@ -96,20 +153,70 @@ class TenantPlanLimitService
     {
         $tenant = tenant();
         if (!$tenant) {
+            Log::warning('tenant_blocked', [
+                'reason' => 'no_tenant_context',
+                'action' => 'upload_storage',
+            ]);
             return false;
         }
 
         $limit = $this->getLimit('max_storage_mb');
-        
-        // null = unlimited
+
         if ($limit === null) {
+            Log::info('PlanLimit: canUploadStorage evaluated', [
+                'tenant_id' => $tenant->id,
+                'plan_slug' => $this->plan?->slug,
+                'plan_source' => $this->planSource,
+                'limit' => null,
+                'allowed' => true,
+            ]);
             return true;
+        }
+
+        if ($limit <= 0) {
+            Log::warning('limit_exceeded', [
+                'tenant_id' => $tenant->id,
+                'resource' => 'max_storage_mb',
+                'limit' => $limit,
+                'current' => $this->getCurrentStorageUsageMb(),
+                'attempt_upload_mb' => $sizeInBytes / 1024 / 1024,
+            ]);
+
+            Log::info('PlanLimit: canUploadStorage evaluated', [
+                'tenant_id' => $tenant->id,
+                'plan_slug' => $this->plan?->slug,
+                'plan_source' => $this->planSource,
+                'limit' => $limit,
+                'allowed' => false,
+            ]);
+            return false;
         }
 
         $currentUsageMb = $this->getCurrentStorageUsageMb();
         $newSizeMb = $sizeInBytes / 1024 / 1024;
-        
-        return ($currentUsageMb + $newSizeMb) <= $limit;
+        $allowed = ($currentUsageMb + $newSizeMb) <= $limit;
+
+        if (!$allowed) {
+            Log::warning('limit_exceeded', [
+                'tenant_id' => $tenant->id,
+                'resource' => 'max_storage_mb',
+                'limit' => $limit,
+                'current' => $currentUsageMb,
+                'attempt_upload_mb' => $newSizeMb,
+            ]);
+        }
+
+        Log::info('PlanLimit: canUploadStorage evaluated', [
+            'tenant_id' => $tenant->id,
+            'plan_slug' => $this->plan?->slug,
+            'plan_source' => $this->planSource,
+            'limit' => $limit,
+            'current_mb' => $currentUsageMb,
+            'new_upload_mb' => $newSizeMb,
+            'allowed' => $allowed,
+        ]);
+
+        return $allowed;
     }
 
     /**
@@ -131,7 +238,7 @@ class TenantPlanLimitService
         $plan = $this->getPlan();
 
         return [
-            'plan_name' => $plan?->nombre ?? 'Básico (por defecto)',
+            'plan_name' => $plan->nombre,
             'users' => [
                 'current' => User::count(),
                 'limit' => $this->getLimit('max_users'),
@@ -181,41 +288,73 @@ class TenantPlanLimitService
     private function getPlan(): ?Plan
     {
         if ($this->planFetched) {
+            if (!$this->plan) {
+                Log::error('plan_missing', [
+                    'tenant_id' => tenant()?->id,
+                    'plan_source' => $this->planSource,
+                ]);
+
+                throw new \Exception('Tenant sin plan asignado. Sistema inconsistente.');
+            }
+
             return $this->plan;
         }
 
         $tenant = tenant();
         if (!$tenant) {
             $this->planFetched = true;
+            $this->planSource = 'no_tenant_context';
+            Log::warning('tenant_blocked', [
+                'reason' => 'no_tenant_context',
+                'action' => 'resolve_plan',
+            ]);
             return null;
         }
 
-        // Cargar la relación explícitamente para asegurar que esté disponible
-        $tenant->loadMissing('planRelation');
-        $this->plan = $tenant->planRelation;
+        $centralTenant = Tenant::query()
+            ->select(['id', 'plan_id'])
+            ->with('planRelation')
+            ->find($tenant->id);
+
+        if ($centralTenant) {
+            $tenant = $centralTenant;
+            $this->plan = $tenant->planRelation;
+            $this->planSource = 'central_tenant_relation';
+        } else {
+            $tenant->loadMissing('planRelation');
+            $this->plan = $tenant->planRelation;
+            $this->planSource = 'runtime_tenant_relation';
+        }
 
         $this->planFetched = true;
+
+        if (!$this->plan) {
+            Log::error('plan_missing', [
+                'tenant_id' => $tenant->id,
+                'plan_id' => $tenant->plan_id,
+                'plan_source' => $this->planSource,
+            ]);
+
+            throw new \Exception('Tenant sin plan asignado. Sistema inconsistente.');
+        }
+
+        Log::info('plan_resolved', [
+            'tenant_id' => $tenant->id,
+            'plan_id' => $tenant->plan_id,
+            'resolved_plan_slug' => $this->plan->slug,
+            'resolved_plan_id' => $this->plan->id,
+            'plan_source' => $this->planSource,
+        ]);
+
         return $this->plan;
     }
 
     protected function getLimit(string $type): ?int
     {
         $plan = $this->getPlan();
-        $tenant = tenant(); // Asumimos que existe si llegamos aquí
 
-        // If no plan found, use restrictive defaults (basic plan)
         if (!$plan) {
-            Log::warning('Tenant has no plan assigned. Using default basic limits.', [
-                'tenant_id' => $tenant->id,
-            ]);
-
-            return match($type) {
-                'max_users' => 5,
-                'max_beds' => 10,
-                'max_guardias' => 20,
-                'max_storage_mb' => 100,
-                default => 0,
-            };
+            throw new \Exception('Tenant sin plan asignado. Sistema inconsistente.');
         }
 
         return match($type) {
@@ -225,6 +364,19 @@ class TenantPlanLimitService
             'max_storage_mb' => $plan->max_storage_mb,
             default => null,
         };
+    }
+
+    private function isWithinLimit(int|float $current, ?int $limit): bool
+    {
+        if ($limit === null) {
+            return true;
+        }
+
+        if ($limit <= 0) {
+            return false;
+        }
+
+        return $current < $limit;
     }
 
     /**

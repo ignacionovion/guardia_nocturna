@@ -127,15 +127,14 @@
         <div class="bg-white rounded-2xl border border-slate-200 p-5">
             <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Por Plan</h3>
             <div class="space-y-2">
-                @foreach(['basico' => 'Básico', 'profesional' => 'Profesional', 'enterprise' => 'Enterprise'] as $plan => $label)
-                    @php $count = $tenantsByPlan[$plan] ?? 0; $pct = $tenantsCount > 0 ? ($count / $tenantsCount * 100) : 0; @endphp
+                @foreach($tenantsByPlan as $plan)
                     <div class="flex items-center justify-between">
-                        <span class="text-sm text-slate-600">{{ $label }}</span>
+                        <span class="text-sm text-slate-600">{{ $plan['label'] }}</span>
                         <div class="flex items-center space-x-2">
                             <div class="w-20 h-2 bg-slate-100 rounded-full overflow-hidden">
-                                <div class="h-full {{ $plan === 'enterprise' ? 'bg-purple-500' : ($plan === 'profesional' ? 'bg-blue-500' : 'bg-slate-400') }}" style="width: {{ $pct }}%"></div>
+                                <div class="h-full {{ $loop->odd ? 'bg-blue-500' : 'bg-purple-500' }}" style="width: {{ $plan['percentage'] }}%"></div>
                             </div>
-                            <span class="text-xs font-medium text-slate-900 w-6 text-right">{{ $count }}</span>
+                            <span class="text-xs font-medium text-slate-900 w-6 text-right">{{ $plan['count'] }}</span>
                         </div>
                     </div>
                 @endforeach

@@ -146,7 +146,7 @@
         @else
         <div class="card-base p-6 mb-6 opacity-60">
             <h2 class="text-lg font-semibold text-slate-500 dark:text-slate-400 mb-2">Personalización Visual</h2>
-            <p class="text-sm text-slate-400 dark:text-slate-500">Esta funcionalidad está disponible en el plan <strong>Enterprise</strong>. Contacta al administrador para actualizar tu plan.</p>
+            <p class="text-sm text-slate-400 dark:text-slate-500">Esta funcionalidad no está disponible en tu plan actual. Contacta al administrador para actualizar tu plan.</p>
         </div>
         @endif
 
@@ -156,7 +156,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
                 <div>
                     <p class="text-label">Plan Actual</p>
-                    <p class="font-semibold text-slate-900 dark:text-white mt-1">{{ ucfirst($tenant->plan) }}</p>
+                    <p class="font-semibold text-slate-900 dark:text-white mt-1">{{ $tenant->planRelation?->nombre ?? 'Sin plan asignado' }}</p>
                 </div>
                 <div>
                     <p class="text-label">Estado</p>

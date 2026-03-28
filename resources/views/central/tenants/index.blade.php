@@ -29,6 +29,10 @@
             </thead>
             <tbody class="divide-y divide-slate-100">
                 @forelse($tenants as $tenant)
+                    @php
+                        $planSlug = $tenant->planRelation?->slug;
+                        $planName = $tenant->planRelation?->nombre ?? 'Sin plan';
+                    @endphp
                     <tr class="hover:bg-slate-50 transition">
                         <td class="px-6 py-4">
                             <div class="flex items-center space-x-3">
@@ -44,8 +48,8 @@
                         <td class="px-6 py-4 text-sm text-slate-600">{{ $tenant->body?->nombre ?? '—' }}</td>
                         <td class="px-6 py-4">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                {{ $tenant->plan === 'enterprise' ? 'bg-purple-50 text-purple-700' : ($tenant->plan === 'profesional' ? 'bg-blue-50 text-blue-700' : 'bg-slate-100 text-slate-600') }}">
-                                {{ ucfirst($tenant->plan) }}
+                                {{ $planSlug ? 'bg-blue-50 text-blue-700' : 'bg-slate-100 text-slate-600' }}">
+                                {{ $planName }}
                             </span>
                         </td>
                         <td class="px-6 py-4">

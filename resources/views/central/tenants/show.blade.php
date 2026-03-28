@@ -3,6 +3,12 @@
 @section('title', $tenant->nombre)
 
 @section('content')
+    @php
+        $planSlug = $tenant->planRelation?->slug;
+        $planName = $tenant->planRelation?->nombre ?? 'Sin plan';
+        $planBadgeClass = $planSlug ? 'bg-blue-50 text-blue-700' : 'bg-slate-100 text-slate-600';
+    @endphp
+
     {{-- Header --}}
     <div class="mb-8">
         <a href="{{ route('central.tenants.index') }}" class="text-sm text-slate-500 hover:text-slate-700 flex items-center space-x-1 mb-2">
@@ -29,8 +35,8 @@
                         </span>
                         &middot;
                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
-                            {{ $tenant->plan === 'enterprise' ? 'bg-purple-50 text-purple-700' : ($tenant->plan === 'profesional' ? 'bg-blue-50 text-blue-700' : 'bg-slate-100 text-slate-600') }}">
-                            {{ ucfirst($tenant->plan) }}
+                            {{ $planBadgeClass }}">
+                            {{ $planName }}
                         </span>
                     </p>
                 </div>
@@ -145,8 +151,8 @@
                     <dt class="text-sm text-slate-500">Plan</dt>
                     <dd>
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                            {{ $tenant->plan === 'enterprise' ? 'bg-purple-50 text-purple-700' : ($tenant->plan === 'profesional' ? 'bg-blue-50 text-blue-700' : 'bg-slate-100 text-slate-600') }}">
-                            {{ ucfirst($tenant->plan) }}
+                            {{ $planBadgeClass }}">
+                            {{ $planName }}
                         </span>
                     </dd>
                 </div>
@@ -211,8 +217,8 @@
                 <div class="flex items-center justify-between mb-3">
                     <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Uso del Plan</h3>
                     <span class="text-[10px] font-medium px-2 py-0.5 rounded-full
-                        {{ $tenant->plan === 'enterprise' ? 'bg-purple-50 text-purple-700' : ($tenant->plan === 'profesional' ? 'bg-blue-50 text-blue-700' : 'bg-slate-100 text-slate-600') }}">
-                        {{ ucfirst($tenant->plan) }}
+                        {{ $planBadgeClass }}">
+                        {{ $planName }}
                     </span>
                 </div>
                 <div class="space-y-2">
@@ -295,7 +301,7 @@
         <div class="md:col-span-2 bg-white rounded-2xl border border-slate-200 p-6">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="font-semibold text-slate-900 text-sm">Feature Flags</h2>
-                <span class="text-[10px] text-slate-400 font-medium">Los valores por defecto provienen del plan {{ ucfirst($tenant->plan) }}</span>
+                <span class="text-[10px] text-slate-400 font-medium">Los valores por defecto provienen del plan {{ $planName }}</span>
             </div>
             <form method="POST" action="{{ route('central.tenants.features', $tenant->id) }}">
                 @csrf

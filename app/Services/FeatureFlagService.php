@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Models\Plan;
 use App\Models\Tenant;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Feature Flag Service
@@ -87,14 +88,12 @@ class FeatureFlagService
             return $plan->hasFeature($feature);
         }
 
-        // Ultimate fallback to basic plan defaults
-        $defaults = Plan::getDefaultFeaturesForPlan('basico');
-        if (array_key_exists($feature, $defaults)) {
-            return $defaults[$feature];
-        }
+        Log::warning('FeatureFlag: feature requested without assigned plan', [
+            'tenant_id' => $tenant->id,
+            'feature' => $feature,
+        ]);
 
-        $addons = Plan::getDefaultAddonsForPlan('basico');
-        return $addons[$feature] ?? false;
+        return false;
     }
 
     /**
@@ -141,11 +140,7 @@ class FeatureFlagService
                 $plan->addons ?? []
             );
         } else {
-            // Fallback to basic plan
-            $defaults = array_merge(
-                Plan::getDefaultFeaturesForPlan('basico'),
-                Plan::getDefaultAddonsForPlan('basico')
-            );
+            $defaults = [];
         }
 
         $overrides = $tenant->features ?? [];
@@ -162,7 +157,7 @@ class FeatureFlagService
         if (!$tenant) return [];
 
         $plan = $this->getTenantPlan($tenant);
-        $defaults = $plan ? ($plan->features ?? []) : Plan::getDefaultFeaturesForPlan('basico');
+        $defaults = $plan ? ($plan->features ?? []) : [];
         $overrides = $tenant->features ?? [];
 
         // Only return keys that are modules
@@ -185,7 +180,7 @@ class FeatureFlagService
         if (!$tenant) return [];
 
         $plan = $this->getTenantPlan($tenant);
-        $defaults = $plan ? ($plan->addons ?? []) : Plan::getDefaultAddonsForPlan('basico');
+        $defaults = $plan ? ($plan->addons ?? []) : [];
         $overrides = $tenant->features ?? [];
 
         // Only return keys that are addons
@@ -205,20 +200,16 @@ class FeatureFlagService
     public static function planDefaults(?string $planSlug = null): array
     {
         if ($planSlug) {
-            return array_merge(
-                Plan::getDefaultFeaturesForPlan($planSlug),
-                Plan::getDefaultAddonsForPlan($planSlug)
-            );
+            $plan = Plan::where('slug', $planSlug)->first();
+            return $plan ? array_merge($plan->features ?? [], $plan->addons ?? []) : [];
         }
 
-        // Return all plans
+        // Return all active plans from database
         $result = [];
-        foreach (['basico', 'profesional', 'enterprise'] as $slug) {
-            $result[$slug] = array_merge(
-                Plan::getDefaultFeaturesForPlan($slug),
-                Plan::getDefaultAddonsForPlan($slug)
-            );
+        foreach (Plan::active()->get() as $plan) {
+            $result[$plan->slug] = array_merge($plan->features ?? [], $plan->addons ?? []);
         }
+
         return $result;
     }
 
@@ -267,14 +258,17 @@ class FeatureFlagService
      */
     private function getTenantPlan(Tenant $tenant): ?Plan
     {
-        // If tenant has plan_id, load from database
-        if ($tenant->plan_id) {
-            return Plan::find($tenant->plan_id);
+        if (!$tenant->plan_id) {
+            return null;
         }
 
-        // Fallback: try to find plan by slug
-        $planSlug = $tenant->getRawOriginal('plan') ?? 'basico';
-        return Plan::where('slug', $planSlug)->first();
+        if ($tenant->relationLoaded('planRelation') && $tenant->planRelation) {
+            return $tenant->planRelation;
+        }
+
+        $tenant->loadMissing('planRelation');
+
+        return $tenant->planRelation;
     }
 
     /**
@@ -288,13 +282,12 @@ class FeatureFlagService
             return $type === 'addon' ? $plan->hasAddon($feature) : $plan->hasModule($feature);
         }
 
-        // Fallback to basic plan defaults
-        if ($type === 'addon') {
-            $defaults = Plan::getDefaultAddonsForPlan('basico');
-        } else {
-            $defaults = Plan::getDefaultFeaturesForPlan('basico');
-        }
+        Log::warning('FeatureFlag: module/addon requested without assigned plan', [
+            'tenant_id' => $tenant->id,
+            'feature' => $feature,
+            'type' => $type,
+        ]);
 
-        return $defaults[$feature] ?? false;
+        return false;
     }
 }

@@ -122,7 +122,7 @@
                                 <div class="text-xs text-slate-500">{{ $billing->tenant_id }}</div>
                             </td>
                             <td class="px-4 py-3">
-                                <span class="capitalize text-sm">{{ $billing->plan }}</span>
+                                <span class="capitalize text-sm">{{ $billing->planRelation?->nombre ?? $billing->tenant?->planRelation?->nombre ?? 'Sin plan' }}</span>
                             </td>
                             <td class="px-4 py-3">
                                 <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border {{ $billing->getCicloClase() }}">
@@ -165,7 +165,7 @@
                                         Extender
                                     </button>
 
-                                    <button onclick="openPlanModal({{ $billing->id }}, '{{ $billing->plan }}')" 
+                                    <button onclick="openPlanModal({{ $billing->id }}, '{{ $billing->plan_id ?? $billing->tenant?->plan_id }}')" 
                                             class="px-2 py-1 text-xs font-medium rounded bg-purple-100 text-purple-700 hover:bg-purple-200 border border-purple-200" 
                                             title="Cambiar plan">
                                         Plan
@@ -224,15 +224,22 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1">Plan</label>
-                    <select name="plan" class="w-full rounded-lg border-slate-300" required>
+                    <select name="plan_id" class="w-full rounded-lg border-slate-300" required>
                         @foreach($planes as $plan)
-                            <option value="{{ $plan }}">{{ ucfirst($plan) }}</option>
+                            <option value="{{ $plan->id }}">{{ $plan->nombre }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1">Monto</label>
                     <input type="number" name="monto" class="w-full rounded-lg border-slate-300" required min="0">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Ciclo</label>
+                    <select name="billing_cycle" class="w-full rounded-lg border-slate-300" required>
+                        <option value="monthly">Mensual</option>
+                        <option value="yearly">Anual</option>
+                    </select>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1">Fecha Vencimiento</label>
@@ -348,11 +355,10 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1">Plan</label>
-                    <select name="plan" id="plan-select" class="w-full rounded-lg border-slate-300" required>
+                    <select name="plan_id" id="plan-select" class="w-full rounded-lg border-slate-300" required>
                         @foreach($planes as $plan)
-                            <option value="{{ $plan }}">{{ ucfirst($plan) }}</option>
+                            <option value="{{ $plan->id }}">{{ $plan->nombre }}</option>
                         @endforeach
-                        <option value="trial">Trial</option>
                     </select>
                     <p class="text-xs text-slate-500 mt-1">El monto se actualizará automáticamente según el plan seleccionado.</p>
                 </div>

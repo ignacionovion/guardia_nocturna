@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use App\Http\Middleware\EnsureTenantActive;
+use App\Http\Middleware\EnsureTenantHasPlan;
+use App\Http\Middleware\EnsureTenantHasPlanForApp;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
@@ -24,6 +26,7 @@ Route::domain('{tenant}.dev-app.cl')
         'web',
         PreventAccessFromCentralDomains::class, // Debe ir ANTES de inicializar
         InitializeTenancyByDomain::class,
+        EnsureTenantHasPlanForApp::class,
         EnsureTenantActive::class,
     ])
     ->group(base_path('routes/app.php'));
@@ -35,5 +38,6 @@ Route::domain('{tenant}.dev-app.cl')
         'web',
         PreventAccessFromCentralDomains::class, // Debe ir ANTES de inicializar
         InitializeTenancyByDomain::class,
+        EnsureTenantHasPlan::class,
     ])
     ->group(base_path('routes/qr-public.php'));

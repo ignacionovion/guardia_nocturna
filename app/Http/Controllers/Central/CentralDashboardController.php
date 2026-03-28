@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Central;
 use App\Http\Controllers\Controller;
 use App\Models\Body;
 use App\Models\CentralAuditLog;
+use App\Models\Plan;
 use App\Models\Tenant;
 use App\Services\TenantMetricsService;
 
@@ -37,18 +38,31 @@ class CentralDashboardController extends Controller
             ->pluck('count', 'estado')
             ->toArray();
 
-        // Tenants by plan
-        $tenantsByPlan = Tenant::selectRaw('plan, COUNT(*) as count')
-            ->groupBy('plan')
-            ->pluck('count', 'plan')
-            ->toArray();
+        // Tenants by plan (dynamic from DB plan catalog)
+        $tenantPlanCounts = Tenant::whereNotNull('plan_id')
+            ->selectRaw('plan_id, COUNT(*) as count')
+            ->groupBy('plan_id')
+            ->pluck('count', 'plan_id');
+
+        $tenantsByPlan = Plan::active()->ordered()->get(['id', 'slug', 'nombre'])
+            ->map(function (Plan $plan) use ($tenantPlanCounts, $tenantsCount) {
+                $count = (int) ($tenantPlanCounts[$plan->id] ?? 0);
+
+                return [
+                    'slug' => $plan->slug,
+                    'label' => $plan->nombre,
+                    'count' => $count,
+                    'percentage' => $tenantsCount > 0 ? ($count / $tenantsCount * 100) : 0,
+                ];
+            });
 
         // Expiring soon (next 7 days)
         $expiringSoon = Tenant::where('activo', true)
             ->whereNotNull('fecha_vencimiento')
             ->whereBetween('fecha_vencimiento', [now(), now()->addDays(7)])
             ->orderBy('fecha_vencimiento')
-            ->get(['id', 'nombre', 'fecha_vencimiento', 'plan']);
+            ->with('planRelation')
+            ->get(['id', 'nombre', 'fecha_vencimiento', 'plan_id']);
 
         // Recent audit logs
         $recentAuditLogs = CentralAuditLog::latest()

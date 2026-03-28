@@ -38,7 +38,7 @@ class EnforceFeatureFlag
             return response()->view('feature-disabled', [
                 'feature' => $feature,
                 'label' => FeatureFlagService::featureLabels()[$feature] ?? $feature,
-                'plan' => tenant()->plan ?? 'basico',
+                'plan' => tenant()->planRelation?->nombre ?? 'Sin plan asignado',
             ], 403);
         }
 

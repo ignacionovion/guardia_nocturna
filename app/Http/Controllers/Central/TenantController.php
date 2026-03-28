@@ -24,8 +24,29 @@ class TenantController extends Controller
     ) {}
     public function index()
     {
-        $tenants = Tenant::with(['body', 'domains'])->latest()->paginate(20);
+        $tenants = Tenant::with(['body', 'domains', 'planRelation'])->latest()->paginate(20);
         return view('central.tenants.index', compact('tenants'));
+    }
+
+    private function resolvePlanForTenantCreation(?int $planId): Plan
+    {
+        if ($planId !== null) {
+            $plan = Plan::find($planId);
+            if ($plan) {
+                return $plan;
+            }
+        }
+
+        $plan = Plan::query()
+            ->where('activo', true)
+            ->orderBy('id')
+            ->first();
+
+        if (!$plan) {
+            throw new \RuntimeException('No existe ningún plan activo en la base de datos central. No es posible crear tenants.');
+        }
+
+        return $plan;
     }
 
     public function create()
@@ -66,7 +87,7 @@ class TenantController extends Controller
             'nombre' => ['required', 'string', 'max:255'],
             'numero' => ['nullable', 'integer', 'min:1'],
             'body_id' => ['nullable', 'exists:bodies,id'],
-            'plan' => ['required', 'in:' . Plan::active()->pluck('slug')->implode(',')],
+            'plan_id' => ['nullable', 'exists:plans,id'],
             'billing_cycle' => ['required', 'in:monthly,yearly'],
             'tiene_trial' => ['nullable', 'boolean'],
             'trial_days' => ['nullable', 'integer', 'min:1', 'max:90'],
@@ -77,8 +98,7 @@ class TenantController extends Controller
             'id.regex' => 'El identificador solo puede contener letras minúsculas, números y guiones.',
             'id.unique' => 'Este identificador ya está en uso (validación Laravel).',
             'nombre.required' => 'El nombre es obligatorio.',
-            'plan.required' => 'El plan es obligatorio.',
-            'plan.in' => 'El plan seleccionado no es válido.',
+            'plan_id.exists' => 'El plan seleccionado no es válido.',
             'billing_cycle.required' => 'El ciclo de facturación es obligatorio.',
             'billing_cycle.in' => 'El ciclo de facturación debe ser mensual o anual.',
         ]);
@@ -90,14 +110,14 @@ class TenantController extends Controller
 
         try {
             // Step 1: Create tenant record in central DB
-            // Get plan_id from selected plan slug
-            $plan = Plan::where('slug', $validated['plan'])->first();
+            $plan = $this->resolvePlanForTenantCreation(
+                isset($validated['plan_id']) ? (int) $validated['plan_id'] : null
+            );
             $tenant = Tenant::create([
                 'id' => $validated['id'],
                 'nombre' => $validated['nombre'],
                 'numero' => $validated['numero'] ?? null,
                 'body_id' => $validated['body_id'] ?? null,
-                'plan' => $validated['plan'],
                 'plan_id' => $plan?->id,
                 'fecha_vencimiento' => $validated['fecha_vencimiento'] ?? null,
             ]);
@@ -116,7 +136,8 @@ class TenantController extends Controller
                 
                 Log::debug('Creating billing record', [
                     'tenant_id' => $tenant->id,
-                    'plan' => $validated['plan'],
+                    'plan_id' => $plan?->id,
+                    'plan_slug' => $plan?->slug,
                     'billing_cycle' => $billingCycle,
                     'monto' => $planPrice,
                     'tiene_trial' => $tieneTrial,
@@ -139,7 +160,8 @@ class TenantController extends Controller
                 
                 $billing = Billing::create([
                     'tenant_id' => $tenant->id,
-                    'plan' => $validated['plan'],
+                    'plan_id' => $plan?->id,
+                    'plan' => $plan?->slug,
                     'billing_cycle' => $billingCycle,
                     'monto' => $planPrice,
                     'estado_pago' => $estadoPago,
@@ -202,7 +224,8 @@ class TenantController extends Controller
             ]);
 
             CentralAuditLog::log('tenant_created', "Compañía «{$tenant->nombre}» creada", $tenant->id, [
-                'plan' => $validated['plan'],
+                'plan_id' => $plan?->id,
+                'plan_slug' => $plan?->slug,
                 'seed' => $request->boolean('seed'),
                 'steps' => $steps,
             ]);
@@ -373,7 +396,7 @@ class TenantController extends Controller
             'nombre' => ['required', 'string', 'max:255'],
             'numero' => ['nullable', 'integer', 'min:1'],
             'body_id' => ['nullable', 'exists:bodies,id'],
-            'plan' => ['required', 'in:' . Plan::active()->pluck('slug')->implode(',')],
+            'plan_id' => ['required', 'exists:plans,id'],
             'estado' => ['required', 'in:trial,activo,suspendido,vencido,cancelado'],
             'grace_days' => ['nullable', 'integer', 'min:0', 'max:30'],
             'fecha_vencimiento' => ['nullable', 'date'],
@@ -383,18 +406,20 @@ class TenantController extends Controller
         $validated['activo'] = in_array($validated['estado'], ['trial', 'activo']);
         $validated['grace_days'] = $validated['grace_days'] ?? 5;
 
-        // Sync plan_id with plan slug
-        $plan = Plan::where('slug', $validated['plan'])->first();
-        $validated['plan_id'] = $plan?->id;
-
         $oldEstado = $tenant->estado;
-        $oldPlan = $tenant->plan;
+        $oldPlanId = $tenant->plan_id;
+        $oldPlanSlug = $tenant->planRelation?->slug;
+
+        $newPlan = Plan::findOrFail((int) $validated['plan_id']);
 
         $tenant->update($validated);
 
-        if ($oldPlan !== $validated['plan']) {
-            CentralAuditLog::log('plan_changed', "Plan cambiado de {$oldPlan} a {$validated['plan']}", $tenant->id, [
-                'old_plan' => $oldPlan, 'new_plan' => $validated['plan'],
+        if ((int) $oldPlanId !== (int) $validated['plan_id']) {
+            CentralAuditLog::log('plan_changed', "Plan cambiado de {$oldPlanSlug} a {$newPlan->slug}", $tenant->id, [
+                'old_plan_id' => $oldPlanId,
+                'old_plan_slug' => $oldPlanSlug,
+                'new_plan_id' => $newPlan->id,
+                'new_plan_slug' => $newPlan->slug,
             ]);
         }
         if ($oldEstado !== $validated['estado']) {
@@ -417,7 +442,7 @@ class TenantController extends Controller
 
         $nombre = $tenant->nombre;
         $tenantId = $tenant->id;
-        $plan = $tenant->plan;
+        $plan = $tenant->planRelation?->slug;
         $tenant->delete();
 
         CentralAuditLog::log('tenant_deleted', "Compañía «{$nombre}» eliminada", $tenantId, ['plan' => $plan]);
@@ -576,16 +601,15 @@ class TenantController extends Controller
         ]);
 
         $plan = Plan::findOrFail($validated['plan_id']);
-        $oldPlan = $tenant->plan;
+        $oldPlan = $tenant->planRelation?->slug;
 
         $tenant->update([
             'plan_id' => $plan->id,
-            'plan' => $plan->slug,
         ]);
 
         CentralAuditLog::log('plan_changed', "Plan cambiado de {$oldPlan} a {$plan->slug}", $tenant->id, [
-            'old_plan' => $oldPlan,
-            'new_plan' => $plan->slug,
+            'old_plan_slug' => $oldPlan,
+            'new_plan_slug' => $plan->slug,
             'new_plan_id' => $plan->id,
         ]);
 

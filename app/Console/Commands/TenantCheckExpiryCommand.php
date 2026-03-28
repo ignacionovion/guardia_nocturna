@@ -100,8 +100,10 @@ class TenantCheckExpiryCommand extends Command
     protected function sendExpiryWarning(Tenant $tenant, int $days): void
     {
         try {
+            $tenant->loadMissing('planRelation');
+            $planLabel = $tenant->planRelation?->nombre ?? 'Sin plan asignado';
             $subject = "⚠ Tu plan vence en {$days} día(s) — {$tenant->nombre}";
-            $body = "Hola,\n\nTu plan '{$tenant->plan}' para {$tenant->nombre} vence el {$tenant->fecha_vencimiento->format('d/m/Y')}.\n\nRenueva tu suscripción para evitar la interrupción del servicio.\n\nSaludos,\nGuardiAPP";
+            $body = "Hola,\n\nTu plan '{$planLabel}' para {$tenant->nombre} vence el {$tenant->fecha_vencimiento->format('d/m/Y')}.\n\nRenueva tu suscripción para evitar la interrupción del servicio.\n\nSaludos,\nGuardiAPP";
 
             Mail::raw($body, function ($message) use ($tenant, $subject) {
                 $message->to(config('mail.admin_email', 'admin@guardianocturna.cl'))
@@ -116,8 +118,10 @@ class TenantCheckExpiryCommand extends Command
     {
         try {
             $graceDays = $tenant->grace_days ?? 5;
+            $tenant->loadMissing('planRelation');
+            $planLabel = $tenant->planRelation?->nombre ?? 'Sin plan asignado';
             $subject = "❌ Plan vencido — {$tenant->nombre}";
-            $body = "Hola,\n\nEl plan '{$tenant->plan}' para {$tenant->nombre} ha vencido el {$tenant->fecha_vencimiento->format('d/m/Y')}.\n\nTienes {$graceDays} días de gracia antes de que la cuenta sea suspendida.\n\nRenueva lo antes posible.\n\nSaludos,\nGuardiAPP";
+            $body = "Hola,\n\nEl plan '{$planLabel}' para {$tenant->nombre} ha vencido el {$tenant->fecha_vencimiento->format('d/m/Y')}.\n\nTienes {$graceDays} días de gracia antes de que la cuenta sea suspendida.\n\nRenueva lo antes posible.\n\nSaludos,\nGuardiAPP";
 
             Mail::raw($body, function ($message) use ($tenant, $subject) {
                 $message->to(config('mail.admin_email', 'admin@guardianocturna.cl'))

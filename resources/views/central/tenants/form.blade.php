@@ -78,22 +78,20 @@
                                class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none">
                     </div>
                     <div>
-                        <label for="plan" class="block text-sm font-medium text-slate-700 mb-1.5">Plan</label>
-                        <select id="plan" name="plan" required
+                        <label for="plan_id" class="block text-sm font-medium text-slate-700 mb-1.5">Plan</label>
+                        <select id="plan_id" name="plan_id" required
                                 class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white billing-input">
                             @if(isset($plans) && $plans->count() > 0)
                                 @foreach($plans as $planOption)
-                                    <option value="{{ $planOption->slug }}"
+                                    <option value="{{ $planOption->id }}"
                                             data-precio-mensual="{{ $planOption->precio_mensual }}"
                                             data-precio-anual="{{ $planOption->precio_anual ?? $planOption->precio_mensual * 12 }}"
-                                            {{ old('plan', $tenant?->plan) === $planOption->slug ? 'selected' : '' }}>
+                                            {{ (string) old('plan_id', $tenant?->plan_id) === (string) $planOption->id ? 'selected' : '' }}>
                                         {{ $planOption->nombre }}
                                     </option>
                                 @endforeach
                             @else
-                                <option value="basico" data-precio-mensual="0" data-precio-anual="0">Básico</option>
-                                <option value="profesional" data-precio-mensual="39990" data-precio-anual="399900">Profesional</option>
-                                <option value="enterprise" data-precio-mensual="79990" data-precio-anual="799900">Enterprise</option>
+                                <option value="">No hay planes activos disponibles</option>
                             @endif
                         </select>
                     </div>
@@ -277,7 +275,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Billing calculation logic
-    const planSelect = document.getElementById('plan');
+    const planSelect = document.getElementById('plan_id');
     const billingCycleSelect = document.getElementById('billing_cycle');
     const tieneTrialCheckbox = document.getElementById('tiene_trial');
     const trialDaysInput = document.getElementById('trial_days');

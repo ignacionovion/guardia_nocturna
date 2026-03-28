@@ -6,10 +6,36 @@ namespace App\Services;
 
 use App\Models\Plan;
 use App\Models\Tenant;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PlanService
 {
+    private static function resolvePlanForTenant(Tenant $tenant): ?Plan
+    {
+        if (!$tenant->plan_id) {
+            return null;
+        }
+
+        if ($tenant->relationLoaded('planRelation') && $tenant->planRelation) {
+            return $tenant->planRelation;
+        }
+
+        $tenant->loadMissing('planRelation');
+
+        return $tenant->planRelation;
+    }
+
+    private static function getCurrentTenantPlan(): ?Plan
+    {
+        $tenant = tenant();
+
+        if (!$tenant) {
+            return null;
+        }
+
+        return self::resolvePlanForTenant($tenant);
+    }
+
     // Verificar si el tenant actual tiene un addon
     public static function hasAddon(string $addon): bool
     {
@@ -18,18 +44,17 @@ class PlanService
         if (!$tenant) {
             return false;
         }
-        
-        // Si el tenant tiene plan_id, cargar el plan explícitamente desde la BD
-        if ($tenant->plan_id) {
-            $plan = Plan::find($tenant->plan_id);
-            if ($plan) {
-                return $plan->hasAddon($addon);
-            }
+
+        $plan = self::resolvePlanForTenant($tenant);
+        if (!$plan) {
+            Log::warning('PlanService: addon check without assigned plan', [
+                'tenant_id' => $tenant->id,
+                'addon' => $addon,
+            ]);
+            return false;
         }
-        
-        // Fallback: usar el campo plan string (legacy) con defaults
-        // Legacy plans don't have addons enabled by default
-        return false;
+
+        return $plan->hasAddon($addon);
     }
     
     // Verificar si el tenant actual tiene una feature
@@ -40,17 +65,17 @@ class PlanService
         if (!$tenant) {
             return false;
         }
-        
-        // Si el tenant tiene plan_id, cargar el plan explícitamente desde la BD
-        if ($tenant->plan_id) {
-            $plan = Plan::find($tenant->plan_id);
-            if ($plan) {
-                return $plan->hasFeature($feature);
-            }
+
+        $plan = self::resolvePlanForTenant($tenant);
+        if (!$plan) {
+            Log::warning('PlanService: feature check without assigned plan', [
+                'tenant_id' => $tenant->id,
+                'feature' => $feature,
+            ]);
+            return false;
         }
-        
-        // Fallback: usar el campo plan string (legacy) con defaults
-        return self::getLegacyFeature($tenant->getRawOriginal('plan') ?? 'basico', $feature);
+
+        return $plan->hasFeature($feature);
     }
     
     // Obtener límite para el tenant actual
@@ -59,19 +84,19 @@ class PlanService
         $tenant = tenant();
         
         if (!$tenant) {
-            return null;
+            return 0;
         }
-        
-        // Si tiene plan_id, cargar el plan explícitamente desde la BD
-        if ($tenant->plan_id) {
-            $plan = Plan::find($tenant->plan_id);
-            if ($plan) {
-                return $plan->getLimit($type);
-            }
+
+        $plan = self::resolvePlanForTenant($tenant);
+        if (!$plan) {
+            Log::warning('PlanService: limit requested without assigned plan', [
+                'tenant_id' => $tenant->id,
+                'limit_type' => $type,
+            ]);
+            return 0;
         }
-        
-        // Fallback: legacy
-        return self::getLegacyLimit($tenant->getRawOriginal('plan') ?? 'basico', $type);
+
+        return $plan->getLimit($type);
     }
     
     // Verificar si está cerca del límite (80% o más)
@@ -154,16 +179,17 @@ class PlanService
     // Obtener límite según tenant y tipo
     protected static function getLimitForTenant(Tenant $tenant, string $type): ?int
     {
-        // Si el tenant tiene plan_id, cargar el plan explícitamente desde la BD
-        if ($tenant->plan_id) {
-            $plan = \App\Models\Plan::find($tenant->plan_id);
-            if ($plan) {
-                return $plan->getLimit($type);
-            }
+        $plan = self::resolvePlanForTenant($tenant);
+
+        if (!$plan) {
+            Log::warning('PlanService: tenant limit requested without assigned plan', [
+                'tenant_id' => $tenant->id,
+                'limit_type' => $type,
+            ]);
+            return 0;
         }
-        
-        // Fallback: usar el campo plan string (legacy) con defaults
-        return self::getLegacyLimit($tenant->plan, $type);
+
+        return $plan->getLimit($type);
     }
     
     // Obtener uso actual según el tipo
@@ -259,81 +285,6 @@ class PlanService
         return $info;
     }
     
-    // Features para planes legacy (cuando no hay plan_id)
-    protected static function getLegacyFeature(string $plan, string $feature): bool
-    {
-        $features = [
-            'basico' => [
-                'voluntarios' => true,
-                'emergencias' => false,
-                'dotaciones' => true,
-                'calendario' => true,
-                'guardia' => true,
-                'camas' => true,
-                'reportes' => false,
-                'planilla' => false,
-                'now' => false,
-                'preventiva' => false,
-                'inventario' => false,
-            ],
-            'profesional' => [
-                'voluntarios' => true,
-                'emergencias' => true,
-                'dotaciones' => true,
-                'calendario' => true,
-                'guardia' => true,
-                'camas' => true,
-                'reportes' => true,
-                'planilla' => true,
-                'now' => false,
-                'preventiva' => false,
-                'inventario' => false,
-            ],
-            'enterprise' => [
-                'voluntarios' => true,
-                'emergencias' => true,
-                'dotaciones' => true,
-                'calendario' => true,
-                'guardia' => true,
-                'camas' => true,
-                'reportes' => true,
-                'planilla' => true,
-                'now' => true,
-                'preventiva' => true,
-                'inventario' => true,
-            ],
-        ];
-        
-        return $features[$plan][$feature] ?? false;
-    }
-    
-    // Límites para planes legacy
-    protected static function getLegacyLimit(string $plan, string $type): ?int
-    {
-        $limits = [
-            'basico' => [
-                'users' => 5,
-                'guardias' => 20,
-                'beds' => 10,
-                'storage' => 100,
-            ],
-            'profesional' => [
-                'users' => 15,
-                'guardias' => 50,
-                'beds' => 30,
-                'storage' => 500,
-            ],
-            'enterprise' => [
-                'users' => null,
-                'guardias' => null,
-                'beds' => null,
-                'storage' => 5000,
-            ],
-        ];
-        
-        return $limits[$plan][$type] ?? null;
-    }
-    
     // Cambiar plan de un tenant (usado desde panel central)
     public static function changePlan(Tenant $tenant, int $planId): bool
     {
@@ -345,7 +296,6 @@ class PlanService
         
         $tenant->update([
             'plan_id' => $plan->id,
-            'plan' => $plan->slug, // mantener sincronizado
         ]);
         
         return true;
@@ -359,12 +309,7 @@ class PlanService
         if (!$tenant) {
             return null;
         }
-        
-        if ($tenant->plan_id && $tenant->plan) {
-            return $tenant->plan;
-        }
-        
-        // Buscar por slug legacy
-        return Plan::where('slug', $tenant->plan ?? 'basico')->first();
+
+        return self::resolvePlanForTenant($tenant);
     }
 }

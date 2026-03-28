@@ -8,9 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Billing;
 use App\Models\Payment;
 use App\Models\Plan;
-use App\Models\Tenant;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class BillingController extends Controller
 {
@@ -27,11 +25,11 @@ class BillingController extends Controller
             'ingresos_estimados' => Billing::whereIn('estado_pago', ['pagado', 'pendiente', 'trial'])->sum('monto'),
         ];
 
-        $billings = Billing::with('tenant')
+        $billings = Billing::with(['tenant.planRelation', 'planRelation'])
             ->orderBy('fecha_vencimiento', 'asc')
             ->paginate(20);
 
-        $planes = Plan::active()->ordered()->pluck('slug')->toArray();
+        $planes = Plan::active()->ordered()->get(['id', 'slug', 'nombre', 'precio_mensual']);
 
         return view('central.billing.index', compact('stats', 'billings', 'planes'));
     }
@@ -104,28 +102,28 @@ class BillingController extends Controller
     public function changePlan(Request $request, Billing $billing)
     {
         $validated = $request->validate([
-            'plan' => ['required', 'string', 'in:basico,profesional,enterprise,trial'],
+            'plan_id' => ['required', 'exists:plans,id'],
         ]);
 
         // Get plan price automatically
-        $plan = Plan::where('slug', $validated['plan'])->first();
+        $plan = Plan::findOrFail((int) $validated['plan_id']);
         $nuevoMonto = $plan?->precio_mensual ?? 0;
         $montoAnterior = $billing->monto;
 
         $billing->update([
-            'plan' => $validated['plan'],
+            'plan_id' => $plan->id,
+            'plan' => $plan->slug,
             'monto' => $nuevoMonto,
         ]);
 
         // Update tenant plan as well
         $billing->tenant->update([
-            'plan' => $validated['plan'],
-            'plan_id' => $plan?->id,
+            'plan_id' => $plan->id,
         ]);
 
         return redirect()
             ->route('central.billing.index')
-            ->with('success', "Plan cambiado a {$validated['plan']}. Monto actualizado: \${$montoAnterior} → \${$nuevoMonto}");
+            ->with('success', "Plan cambiado a {$plan->slug}. Monto actualizado: \${$montoAnterior} → \${$nuevoMonto}");
     }
 
     /**
@@ -169,16 +167,21 @@ class BillingController extends Controller
     {
         $validated = $request->validate([
             'tenant_id' => ['required', 'string', 'exists:tenants,id'],
-            'plan' => ['required', 'string', 'in:basico,profesional,enterprise'],
-            'monto' => ['required', 'numeric', 'min:0'],
+            'plan_id' => ['required', 'exists:plans,id'],
+            'monto' => ['nullable', 'numeric', 'min:0'],
+            'billing_cycle' => ['required', 'in:monthly,yearly'],
             'fecha_vencimiento' => ['required', 'date'],
         ]);
 
+        $plan = Plan::findOrFail((int) $validated['plan_id']);
+        $monto = $validated['monto'] ?? $plan->precio_mensual;
+
         Billing::create([
             'tenant_id' => $validated['tenant_id'],
-            'plan' => $validated['plan'],
+            'plan_id' => $plan->id,
+            'plan' => $plan->slug,
             'billing_cycle' => $validated['billing_cycle'] ?? 'monthly',
-            'monto' => $validated['monto'],
+            'monto' => $monto,
             'estado_pago' => 'pendiente',
             'fecha_vencimiento' => $validated['fecha_vencimiento'],
         ]);

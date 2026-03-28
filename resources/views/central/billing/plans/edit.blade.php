@@ -52,7 +52,7 @@
                             <label class="block text-sm font-medium text-slate-700 mb-1">Slug (identificador)</label>
                             <input type="text" name="slug" value="{{ old('slug', $plan->slug) }}" 
                                    class="w-full rounded-lg border-slate-300" required
-                                   pattern="[a-z0-9\-]+" placeholder="basico, profesional, etc.">
+                                   pattern="[a-z0-9\-]+" placeholder="plan-avanzado, compania-x, etc.">
                             <p class="text-xs text-slate-500 mt-1">Solo minúsculas, números y guiones</p>
                         </div>
 

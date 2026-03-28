@@ -23,6 +23,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     protected $casts = [
         'activo' => 'boolean',
         'fecha_vencimiento' => 'date',
+        'expires_at' => 'datetime',
         'data' => 'array',
         'grace_days' => 'integer',
     ];
@@ -34,6 +35,10 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         // Force string key — GeneratesIds trait sets incrementing=true
         static::creating(function (self $model) {
             $model->incrementing = false;
+
+            if (!$model->plan_id) {
+                throw new \RuntimeException('El campo plan_id es obligatorio para crear un tenant. Asigne un plan desde el controlador o comando.');
+            }
         });
     }
 
@@ -59,11 +64,11 @@ class Tenant extends BaseTenant implements TenantWithDatabase
             'body_id',
             'nombre',
             'numero',
-            'plan',
             'plan_id',
             'activo',
             'estado',
             'fecha_vencimiento',
+            'expires_at',
             'grace_days',
         ];
     }
