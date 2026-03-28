@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Models\Plan;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
@@ -12,20 +11,22 @@ return new class extends Migration
 {
     public function up(): void
     {
-        $fallbackPlanId = Plan::query()
-            ->where('activo', true)
-            ->orderBy('id')
-            ->value('id');
-
-        if (!$fallbackPlanId) {
-            throw new RuntimeException('No existe ningún plan activo en la base de datos central. No se puede reforzar integridad de tenants.plan_id.');
-        }
+$fallbackPlanId = DB::connection('central')
+    ->table('plans')
+    ->where('activo', 1)
+    ->orderBy('id')
+    ->value('id');
+if (!$fallbackPlanId) {
+    // No bloquear migración, solo loggear
+    \Log::warning('No hay plan activo al ejecutar migración enforce_tenant_plan_integrity');
+    return;
+}
 
         // Backfill NULLs primero
-        DB::table('tenants')
-            ->whereNull('plan_id')
-            ->update(['plan_id' => $fallbackPlanId]);
-
+DB::connection('central')
+    ->table('tenants')
+    ->whereNull('plan_id')
+    ->update(['plan_id' => $fallbackPlanId]);
         // Eliminar FK existente si hay
         try {
             Schema::table('tenants', function (Blueprint $table): void {

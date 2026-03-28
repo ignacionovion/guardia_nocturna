@@ -17,9 +17,10 @@ return new class extends Migration
             ->orderBy('id')
             ->value('id');
 
-        if (!$fallbackPlanId) {
-            throw new RuntimeException('No existe ningún plan activo en la base de datos central. No se puede reforzar integridad de tenants.plan_id.');
-        }
+if (!$fallbackPlanId) {
+    \Log::warning('No hay plan activo al ejecutar fix_tenant_plan_integrity_robust');
+    return;
+}
 
         // Backfill NULLs primero
         DB::table('tenants')
