@@ -41,9 +41,19 @@ return new class extends Migration
         });
 
         // B) Migrar datos antiguos
-        DB::table('beds')->whereNull('name')->update([
-            'name' => DB::raw('CONCAT("Cama ", id)')
-        ]);
+        $driver = DB::getDriverName();
+        
+        if ($driver === 'sqlite') {
+            // SQLite compatible CONCAT
+            DB::table('beds')->whereNull('name')->update([
+                'name' => DB::raw('"Cama " || id')
+            ]);
+        } else {
+            // MySQL/MariaDB CONCAT
+            DB::table('beds')->whereNull('name')->update([
+                'name' => DB::raw('CONCAT("Cama ", id)')
+            ]);
+        }
         
         // Migrar desde 'description' solo si la columna existe (compatibilidad con esquemas antiguos)
         if (Schema::hasColumn('beds', 'description')) {
@@ -112,10 +122,35 @@ return new class extends Migration
     }
 
     /**
-     * Check if an index exists on a table using INFORMATION_SCHEMA.
+     * Check if an index exists on a table.
+     * Compatible with SQLite and MySQL/MariaDB.
      */
     private function indexExists(string $table, string $column): bool
     {
+        $driver = DB::getDriverName();
+        
+        if ($driver === 'sqlite') {
+            // SQLite approach: try to drop the index and catch exception
+            try {
+                $indexName = "beds_{$column}_unique";
+                $tableName = DB::getTablePrefix() . $table;
+                
+                // Check if index exists by trying to get index info
+                $result = DB::select("PRAGMA index_list('{$tableName}')");
+                
+                foreach ($result as $index) {
+                    if ($index->name === $indexName) {
+                        return true;
+                    }
+                }
+                
+                return false;
+            } catch (\Exception $e) {
+                return false;
+            }
+        }
+        
+        // MySQL/MariaDB approach using INFORMATION_SCHEMA
         $database = DB::getDatabaseName();
         
         $result = DB::select(
