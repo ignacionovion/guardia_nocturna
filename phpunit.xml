@@ -25,6 +25,9 @@
         <env name="CACHE_STORE" value="array"/>
         <env name="DB_CONNECTION" value="sqlite"/>
         <env name="DB_DATABASE" value=":memory:"/>
+        <!-- Central DB también usa sqlite en testing -->
+        <env name="CENTRAL_DB_DRIVER" value="sqlite"/>
+        <env name="CENTRAL_DB_DATABASE" value=":memory:"/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
