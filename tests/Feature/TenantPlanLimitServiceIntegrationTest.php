@@ -1,26 +1,31 @@
 <?php
-
 declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Models\Bed;
 use App\Models\Plan;
 use App\Models\Tenant;
+use App\Models\User;
 use App\Services\TenantPlanLimitService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class TenantPlanLimitServiceIntegrationTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected Plan $plan;
+    protected Tenant $tenant;
+
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Crear plan de prueba
         $this->plan = Plan::create([
-            'slug' => 'test-plan',
+            'slug' => 'test-plan-' . Str::uuid(),
             'nombre' => 'Plan de Prueba',
             'max_users' => 5,
             'max_beds' => 10,
@@ -32,15 +37,13 @@ class TenantPlanLimitServiceIntegrationTest extends TestCase
             'orden' => 1,
         ]);
 
-        // Crear tenant con plan
         $this->tenant = Tenant::create([
-            'id' => 'test-tenant',
+            'id' => 'tenant-' . Str::uuid(),
             'nombre' => 'Tenant de Prueba',
             'plan_id' => $this->plan->id,
             'activo' => true,
         ]);
 
-        // Inicializar contexto tenant
         tenancy()->initialize($this->tenant);
     }
 
@@ -48,7 +51,6 @@ class TenantPlanLimitServiceIntegrationTest extends TestCase
     {
         $service = new TenantPlanLimitService();
 
-        // Verificar que resuelve el plan correctamente
         $usage = $service->getCurrentUsage();
 
         $this->assertEquals('Plan de Prueba', $usage['plan_name']);
@@ -62,20 +64,18 @@ class TenantPlanLimitServiceIntegrationTest extends TestCase
     {
         $service = new TenantPlanLimitService();
 
-        // Debería permitir crear usuarios (0 < 5)
         $this->assertTrue($service->canCreateUser());
 
-        // Crear 5 usuarios para alcanzar el límite
         for ($i = 0; $i < 5; $i++) {
-            \App\Models\User::create([
-                'name' => "User {$i}",
-                'email' => "user{$i}@test.com",
-                'password' => bcrypt('password'),
-                'role' => 'bombero',
-            ]);
+User::create([
+    'name' => "User {$i}",
+    'username' => 'user.' . $i . '.' . Str::lower((string) Str::uuid()),
+    'email' => 'user-' . $i . '-' . Str::uuid() . '@test.com',
+    'password' => bcrypt('password'),
+    'role' => 'bombero',
+]);
         }
 
-        // Ahora debería bloquear (5 >= 5)
         $this->assertFalse($service->canCreateUser());
     }
 
@@ -83,32 +83,37 @@ class TenantPlanLimitServiceIntegrationTest extends TestCase
     {
         $service = new TenantPlanLimitService();
 
-        // Debería permitir crear camas (0 < 10)
         $this->assertTrue($service->canCreateBed());
 
-        // Crear 10 camas para alcanzar el límite
         for ($i = 0; $i < 10; $i++) {
-            \App\Models\Bed::create([
-                'nombre' => "Bed {$i}",
+            Bed::create([
+                'name' => 'Bed ' . $i . ' ' . Str::uuid(),
                 'status' => 'available',
             ]);
         }
 
-        // Ahora debería bloquear (10 >= 10)
         $this->assertFalse($service->canCreateBed());
     }
 
     public function test_excepcion_si_tenant_sin_plan(): void
     {
-        // Crear tenant sin plan
-        $tenantSinPlan = Tenant::create([
-            'id' => 'tenant-sin-plan',
-            'nombre' => 'Tenant Sin Plan',
-            'plan_id' => null,
+        $tenant = Tenant::create([
+            'id' => 'tenant-with-plan-' . Str::uuid(),
+            'nombre' => 'Tenant Con Plan Temporal',
+            'plan_id' => $this->plan->id,
             'activo' => true,
         ]);
 
-        tenancy()->initialize($tenantSinPlan);
+        // Bypass del modelo para simular inconsistencia real en BD
+        DB::connection('central')
+            ->table('tenants')
+            ->where('id', $tenant->id)
+            ->update(['plan_id' => null]);
+
+        $tenant = Tenant::query()->findOrFail($tenant->id);
+
+        tenancy()->end();
+        tenancy()->initialize($tenant);
 
         $service = new TenantPlanLimitService();
 
@@ -120,9 +125,8 @@ class TenantPlanLimitServiceIntegrationTest extends TestCase
 
     public function test_limite_nulo_es_ilimitado(): void
     {
-        // Crear plan con límites nulos (ilimitados)
         $planIlimitado = Plan::create([
-            'slug' => 'plan-ilimitado',
+            'slug' => 'plan-ilimitado-' . Str::uuid(),
             'nombre' => 'Plan Ilimitado',
             'max_users' => null,
             'max_beds' => null,
@@ -135,12 +139,13 @@ class TenantPlanLimitServiceIntegrationTest extends TestCase
         ]);
 
         $tenantIlimitado = Tenant::create([
-            'id' => 'tenant-ilimitado',
+            'id' => 'tenant-ilimitado-' . Str::uuid(),
             'nombre' => 'Tenant Ilimitado',
             'plan_id' => $planIlimitado->id,
             'activo' => true,
         ]);
 
+        tenancy()->end();
         tenancy()->initialize($tenantIlimitado);
 
         $service = new TenantPlanLimitService();
@@ -152,7 +157,6 @@ class TenantPlanLimitServiceIntegrationTest extends TestCase
         $this->assertTrue($usage['guardias']['unlimited']);
         $this->assertTrue($usage['storage_mb']['unlimited']);
 
-        // Debería permitir crear siempre
         $this->assertTrue($service->canCreateUser());
         $this->assertTrue($service->canCreateBed());
         $this->assertTrue($service->canCreateGuardia());
@@ -160,7 +164,6 @@ class TenantPlanLimitServiceIntegrationTest extends TestCase
 
     protected function tearDown(): void
     {
-        // Limpiar contexto tenant
         tenancy()->end();
 
         parent::tearDown();
