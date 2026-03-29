@@ -145,21 +145,16 @@ class NotificationService
         );
     }
 
-    public static function inventoryMovement(User $user, string $itemName, string $movementType, int $quantity, ?Guardia $guardia = null): void
+    public static function inventoryMovement(string $itemName, int $quantity, string $movementType, User $user): void
     {
-        $action = $movementType === 'ingreso' ? 'Ingresó' : 'Egresó';
-        self::notify(
-            'inventory_movement',
-            "{$action} inventario - {$itemName}",
-            "{$quantity} unidades {$movementType}",
-            [
-                'user_id' => $user->id,
-                'guardia_id' => $guardia?->id,
-                'item_name' => $itemName,
-                'movement_type' => $movementType,
-                'quantity' => $quantity,
-            ]
-        );
+        // Legacy method - kept for compatibility but no longer used
+        // Inventory system has been replaced by dynamic forms
+        Log::info('Legacy inventory movement notification called', [
+            'item' => $itemName,
+            'quantity' => $quantity,
+            'type' => $movementType,
+            'user' => $user->id
+        ]);
     }
 
     public static function formularioCompleted(User $user, string $formType, string $formName, ?Guardia $guardia = null): void

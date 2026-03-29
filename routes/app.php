@@ -19,17 +19,7 @@ use App\Http\Controllers\Admin\EmergencyKeyController;
 use App\Http\Controllers\Admin\EmergencyUnitController;
 
 use App\Http\Controllers\Admin\PreventiveEventController;
-use App\Http\Controllers\Admin\PlanillaController;
 use App\Http\Controllers\PreventivePublicController;
-use App\Http\Controllers\InventarioQrController;
-use App\Http\Controllers\Admin\InventarioController;
-use App\Http\Controllers\PlanillasQrController;
-use App\Http\Controllers\Admin\InventarioQrAdminController;
-use App\Http\Controllers\Admin\PlanillaQrFijoController;
-use App\Http\Controllers\Admin\InventarioImportController;
-use App\Http\Controllers\BedQrController;
-use App\Http\Controllers\Admin\PlanillaListItemController;
-use App\Http\Controllers\Admin\TenantSettingsController;
 use App\Http\Controllers\TurnoDraftController;
 
 Route::get('/impersonate/callback', [\App\Http\Controllers\ImpersonateCallbackController::class, 'callback'])->name('impersonate.callback');
@@ -107,38 +97,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/api/beds/assign', [\App\Http\Controllers\BedManagementController::class, 'assign'])->name('api.beds.assign');
     Route::post('/api/beds/release', [\App\Http\Controllers\BedManagementController::class, 'release'])->name('api.beds.release');
     
-    Route::get('/inventario', function () {
-        return redirect()->route('inventario.dashboard');
-    })->name('inventario.index');
-
-    Route::middleware(['tenant.feature:inventario', 'inventory_access', \App\Http\Middleware\EnsureInventoryOnly::class])->group(function () {
-        Route::get('/inventario/panel', [InventarioController::class, 'index'])->name('inventario.dashboard');
-        Route::get('/inventario/retiro/acceso', [InventarioController::class, 'retiroAccess'])->name('inventario.retiro.access');
-        Route::get('/inventario/retiro/identificar', [InventarioController::class, 'identificarForm'])->name('inventario.retiro.identificar.form');
-        Route::post('/inventario/retiro/identificar', [InventarioController::class, 'identificarStore'])->name('inventario.retiro.identificar.store');
-        Route::get('/inventario/retiro', [InventarioController::class, 'retiroForm'])->name('inventario.retiro.form');
-        Route::post('/inventario/retiro', [InventarioController::class, 'retiroStore'])->name('inventario.retiro.store');
-
-        Route::get('/inventario/config', [InventarioController::class, 'configForm'])->name('inventario.config.form');
-        Route::post('/inventario/config/bodega', [InventarioController::class, 'bodegaStore'])->name('inventario.config.bodega.store');
-        Route::post('/inventario/config/items', [InventarioController::class, 'itemStore'])->name('inventario.config.items.store');
-        Route::post('/inventario/config/stock/ingreso', [InventarioController::class, 'stockIngresoStore'])->name('inventario.config.stock.ingreso.store');
-        Route::delete('/inventario/config/items/{itemId}', [InventarioController::class, 'itemDestroy'])->name('inventario.config.items.destroy');
-
-        Route::get('/inventario/movimientos', [InventarioController::class, 'movimientosIndex'])->name('inventario.movimientos.index');
-
-        Route::get('/inventario/snapshot/pdf', [InventarioController::class, 'snapshotPdf'])->name('inventario.snapshot.pdf');
-        Route::post('/inventario/snapshot/email', [InventarioController::class, 'snapshotEmail'])->name('inventario.snapshot.email');
-
-        Route::get('/inventario/qr', [InventarioQrAdminController::class, 'show'])->name('inventario.qr.admin');
-        Route::get('/inventario/qr/imprimir', [InventarioQrAdminController::class, 'print'])->name('inventario.qr.print');
-        Route::post('/inventario/qr/regenerar', [InventarioQrAdminController::class, 'regenerar'])->name('inventario.qr.regenerar');
-
-        Route::get('/inventario/importar', [InventarioImportController::class, 'importForm'])->name('inventario.import.form');
-        Route::post('/inventario/importar/upload', [InventarioImportController::class, 'uploadImport'])->name('inventario.import.upload');
-        Route::post('/inventario/importar/process', [InventarioImportController::class, 'processImport'])->name('inventario.import.process');
-    });
-
     Route::get('/kiosk/ping', [TableroController::class, 'kioskPing'])->name('kiosk.ping');
 
     Route::get('/guardia/snapshot', [TableroController::class, 'guardiaSnapshot'])->name('guardia.snapshot');
@@ -471,35 +429,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/admin/system/purge', [SystemAdminController::class, 'purge'])->name('admin.system.purge');
         Route::post('/admin/system/clear-guardias', [SystemAdminController::class, 'clearGuardias'])->name('admin.system.clear_guardias');
 
-        Route::middleware(['tenant.feature:planilla'])->group(function () {
-            Route::get('/admin/planillas', [PlanillaController::class, 'index'])->name('admin.planillas.index');
-            Route::get('/admin/planillas/create', [PlanillaController::class, 'create'])->name('admin.planillas.create');
-            Route::post('/admin/planillas', [PlanillaController::class, 'store'])->name('admin.planillas.store');
-            Route::get('/admin/planillas/{planilla}', [PlanillaController::class, 'show'])->whereNumber('planilla')->name('admin.planillas.show');
-            Route::get('/admin/planillas/{planilla}/edit', [PlanillaController::class, 'edit'])->whereNumber('planilla')->name('admin.planillas.edit');
-            Route::put('/admin/planillas/{planilla}', [PlanillaController::class, 'update'])->whereNumber('planilla')->name('admin.planillas.update');
-            Route::put('/admin/planillas/{planilla}/estado', [PlanillaController::class, 'updateEstado'])->whereNumber('planilla')->name('admin.planillas.estado.update');
-            Route::delete('/admin/planillas/{planilla}', [PlanillaController::class, 'destroy'])->whereNumber('planilla')->name('admin.planillas.destroy');
-            Route::get('/admin/planillas/{planilla}/pdf', [PlanillaController::class, 'pdf'])->whereNumber('planilla')->name('admin.planillas.pdf');
-            Route::get('/admin/planillas/{planilla}/email', [PlanillaController::class, 'email'])->whereNumber('planilla')->name('admin.planillas.email');
-            Route::get('/admin/planillas/{planilla}/compare', [PlanillaController::class, 'compare'])->whereNumber('planilla')->name('admin.planillas.compare');
-
-            Route::get('/admin/planillas/listados', [PlanillaListItemController::class, 'index'])->name('admin.planillas.listados.index');
-            Route::post('/admin/planillas/listados', [PlanillaListItemController::class, 'store'])->name('admin.planillas.listados.store');
-            Route::put('/admin/planillas/listados/{item}', [PlanillaListItemController::class, 'update'])->whereNumber('item')->name('admin.planillas.listados.update');
-            Route::delete('/admin/planillas/listados/{item}', [PlanillaListItemController::class, 'destroy'])->whereNumber('item')->name('admin.planillas.listados.destroy');
-            Route::post('/admin/planillas/listados/reorder', [PlanillaListItemController::class, 'reorder'])->name('admin.planillas.listados.reorder');
-            Route::post('/admin/planillas/listados/reset', [PlanillaListItemController::class, 'reset'])->name('admin.planillas.listados.reset');
-
-            Route::get('/admin/planillas/qr-fijo', [PlanillaQrFijoController::class, 'show'])->name('admin.planillas.qr_fijo');
-            Route::get('/admin/planillas/qr-fijo/imprimir', [PlanillaQrFijoController::class, 'print'])->name('admin.planillas.qr_fijo.print');
-            Route::post('/admin/planillas/qr-fijo/regenerar', [PlanillaQrFijoController::class, 'regenerar'])->name('admin.planillas.qr_fijo.regenerar');
-
-            Route::get('/planillas/qr-fijo', function () {
-                return redirect()->route('admin.planillas.qr_fijo');
-            })->name('planillas.qr_fijo.alias');
-        });
-
         Route::middleware(['tenant.feature:preventiva', 'preventivas_admin'])->group(function () {
             Route::get('/admin/preventivas', [PreventiveEventController::class, 'index'])->name('admin.preventivas.index');
             Route::get('/admin/preventivas/create', [PreventiveEventController::class, 'create'])->name('admin.preventivas.create');
@@ -534,5 +463,30 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('admin/emergency-keys', App\Http\Controllers\Admin\EmergencyKeyController::class, ['as' => 'admin']);
         Route::resource('admin/emergency-units', App\Http\Controllers\Admin\EmergencyUnitController::class, ['as' => 'admin']);
         Route::post('admin/emergency-units/{id}/toggle-status', [App\Http\Controllers\Admin\EmergencyUnitController::class, 'toggleStatus'])->name('admin.emergency-units.toggle-status');
+
+        // Formularios Dinámicos
+        Route::middleware(['auth'])->group(function () {
+            // Builder - Solo capitanes y admins
+            Route::middleware(['role:capitan,super_admin,capitania'])->prefix('admin/forms')->group(function () {
+                Route::get('/builder', [FormBuilderController::class, 'index'])->name('forms.builder.index');
+                Route::get('/builder/create', [FormBuilderController::class, 'create'])->name('forms.builder.create');
+                Route::post('/builder', [FormBuilderController::class, 'store'])->name('forms.builder.store');
+                Route::get('/builder/{template}/edit', [FormBuilderController::class, 'edit'])->name('forms.builder.edit');
+                Route::put('/builder/{template}', [FormBuilderController::class, 'update'])->name('forms.builder.update');
+                Route::delete('/builder/{template}', [FormBuilderController::class, 'destroy'])->name('forms.builder.destroy');
+                Route::post('/builder/{template}/duplicate', [FormBuilderController::class, 'duplicate'])->name('forms.builder.duplicate');
+            });
+
+            // Execution - Todos los usuarios autenticados
+            Route::prefix('forms')->group(function () {
+                Route::get('/', [FormExecutionController::class, 'index'])->name('forms.execution.index');
+                Route::get('/{template}', [FormExecutionController::class, 'show'])->name('forms.execution.show');
+                Route::post('/{template}', [FormExecutionController::class, 'submit'])->name('forms.execution.submit');
+                Route::post('/{template}/draft', [FormExecutionController::class, 'draft'])->name('forms.execution.draft');
+                Route::get('/submissions/{submission}/edit', [FormExecutionController::class, 'edit'])->name('forms.execution.edit');
+                Route::put('/submissions/{submission}', [FormExecutionController::class, 'update'])->name('forms.execution.update');
+                Route::delete('/submissions/{submission}', [FormExecutionController::class, 'destroy'])->name('forms.execution.destroy');
+            });
+        });
     });
 });

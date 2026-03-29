@@ -43,7 +43,6 @@ class SystemAdminController extends Controller
             'mail_enabled_novelty' => SystemSetting::getValue('mail_enabled_novelty', '0'),
             'mail_enabled_academy' => SystemSetting::getValue('mail_enabled_academy', '0'),
             'mail_enabled_beds' => SystemSetting::getValue('mail_enabled_beds', '0'),
-            'mail_enabled_planilla' => SystemSetting::getValue('mail_enabled_planilla', '0'),
             'mail_enabled_rotation' => SystemSetting::getValue('mail_enabled_rotation', '0'),
         ];
 
@@ -83,7 +82,6 @@ class SystemAdminController extends Controller
             'mail_enabled_novelty' => ['nullable', 'boolean'],
             'mail_enabled_academy' => ['nullable', 'boolean'],
             'mail_enabled_beds' => ['nullable', 'boolean'],
-            'mail_enabled_planilla' => ['nullable', 'boolean'],
             'mail_enabled_rotation' => ['nullable', 'boolean'],
         ]);
 
@@ -92,7 +90,6 @@ class SystemAdminController extends Controller
         $data['mail_enabled_novelty'] = $request->has('mail_enabled_novelty') ? '1' : '0';
         $data['mail_enabled_academy'] = $request->has('mail_enabled_academy') ? '1' : '0';
         $data['mail_enabled_beds'] = $request->has('mail_enabled_beds') ? '1' : '0';
-        $data['mail_enabled_planilla'] = $request->has('mail_enabled_planilla') ? '1' : '0';
         $data['mail_enabled_rotation'] = $request->has('mail_enabled_rotation') ? '1' : '0';
 
         DB::transaction(function () use ($data) {

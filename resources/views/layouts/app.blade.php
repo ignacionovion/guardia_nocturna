@@ -160,14 +160,9 @@
                             </div>
                         </div>
                         @endif
-                        @if(feature('planilla'))
-                        <a href="{{ route('admin.planillas.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.planillas*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">
-                            Planillas
-                        </a>
-                        @endif
-                        @if(feature('inventario'))
-                        <a href="{{ route('inventario.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('inventario.*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">
-                            Inventario
+                        @if(feature('preventiva'))
+                        <a href="{{ route('admin.preventivas.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.preventivas*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">
+                            Preventivas
                         </a>
                         @endif
                     @endif
@@ -415,7 +410,6 @@
                                         const typeColors = {
                                             'emergency': { bg: 'bg-red-600', border: 'border-red-700', label: 'Emergencia' },
                                             'bed_assigned': { bg: 'bg-blue-600', border: 'border-blue-700', label: 'Cama Asignada' },
-                                            'inventory_movement': { bg: 'bg-amber-600', border: 'border-amber-700', label: 'Inventario' },
                                             'replacement': { bg: 'bg-purple-600', border: 'border-purple-700', label: 'Reemplazo' },
                                             'refuerzo': { bg: 'bg-cyan-600', border: 'border-cyan-700', label: 'Refuerzo' },
                                             'attendance_saved': { bg: 'bg-emerald-600', border: 'border-emerald-700', label: 'Asistencia' },

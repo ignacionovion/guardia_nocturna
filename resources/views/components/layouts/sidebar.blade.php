@@ -16,8 +16,6 @@ $menuItems = [
         ['route' => 'admin.dotaciones', 'icon' => 'fas fa-users-gear', 'label' => 'Dotaciones', 'match' => 'admin.dotaciones*', 'feature' => 'dotaciones'],
         ['divider' => true, 'label' => 'Módulos'],
         ['route' => 'admin.preventivas.index', 'icon' => 'fas fa-clipboard-check', 'label' => 'Preventivas', 'match' => 'admin.preventivas*', 'feature' => 'preventiva'],
-        ['route' => 'admin.planillas.index', 'icon' => 'fas fa-table-columns', 'label' => 'Planillas', 'match' => 'admin.planillas*', 'feature' => 'planilla'],
-        ['route' => 'inventario.index', 'icon' => 'fas fa-warehouse', 'label' => 'Inventario', 'match' => 'inventario*', 'feature' => 'inventario'],
         ['route' => 'admin.reports.index', 'icon' => 'fas fa-chart-line', 'label' => 'Reportes', 'match' => 'admin.reports*', 'feature' => 'reportes'],
         ['divider' => true, 'label' => 'Configuración'],
         ['route' => 'admin.beds.index', 'icon' => 'fas fa-bed-pulse', 'label' => 'Configurar Camas', 'match' => 'admin.beds*', 'feature' => 'camas'],

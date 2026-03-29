@@ -28,7 +28,7 @@ class AuthController extends Controller
 
             
             // Bloquear roles sin acceso al sistema
-            if (in_array($user->role, ['bombero', 'jefe_guardia', 'inventario'], true)) {
+            if (in_array($user->role, ['bombero', 'jefe_guardia'], true)) {
                 Auth::guard('web')->logout();
                 \Log::warning('User blocked by role', ['user_id' => $user->id, 'role' => $user->role]);
                 return back()->withErrors([

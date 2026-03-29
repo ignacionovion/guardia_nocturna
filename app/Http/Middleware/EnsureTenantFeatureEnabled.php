@@ -62,8 +62,6 @@ class EnsureTenantFeatureEnabled
     protected function getFeatureName(string $feature): string
     {
         $names = [
-            'inventario' => 'Inventario de Materiales',
-            'planilla' => 'Planilla y Asistencia',
             'preventiva' => 'Mantenimiento Preventivo',
             'emergencias' => 'Módulo de Emergencias',
             'reportes' => 'Reportes y Estadísticas',

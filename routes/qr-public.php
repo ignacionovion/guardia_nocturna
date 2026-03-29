@@ -4,8 +4,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\QrBedController;
 use App\Http\Controllers\BedQrController;
 use App\Http\Controllers\PreventivePublicController;
-use App\Http\Controllers\InventarioQrController;
-use App\Http\Controllers\PlanillasQrController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,47 +40,3 @@ Route::post('/preventivas/{token}/identificar', [PreventivePublicController::cla
 Route::post('/preventivas/{token}/rut', [PreventivePublicController::class, 'processRut'])->name('preventivas.public.rut');
 Route::get('/preventivas/{token}/tipo-ingreso', [PreventivePublicController::class, 'tipoIngresoForm'])->name('preventivas.public.tipo_ingreso.form');
 Route::post('/preventivas/{token}/tipo-ingreso', [PreventivePublicController::class, 'tipoIngresoStore'])->name('preventivas.public.tipo_ingreso.store');
-
-// === QR INVENTARIO ===
-
-Route::get('/inventario/qr/{token}', [InventarioQrController::class, 'show'])
-    ->where('token', '[A-Za-z0-9]{40}')
-    ->name('inventario.qr.show');
-Route::get('/inventario/qr/{token}/confirmar', [InventarioQrController::class, 'confirm'])
-    ->where('token', '[A-Za-z0-9]{40}')
-    ->name('inventario.qr.confirm');
-Route::get('/inventario/qr/{token}/identificar', [InventarioQrController::class, 'identificarForm'])
-    ->where('token', '[A-Za-z0-9]{40}')
-    ->name('inventario.qr.identificar.form');
-Route::post('/inventario/qr/{token}/identificar', [InventarioQrController::class, 'identificarStore'])
-    ->where('token', '[A-Za-z0-9]{40}')
-    ->name('inventario.qr.identificar.store');
-Route::post('/inventario/qr/{token}/retirar', [InventarioQrController::class, 'store'])
-    ->where('token', '[A-Za-z0-9]{40}')
-    ->name('inventario.qr.retiro.store');
-
-// === QR PLANILLAS ===
-
-Route::get('/planillas/qr/{token}', [PlanillasQrController::class, 'show'])
-    ->where('token', '[A-Za-z0-9]{40}')
-    ->name('planillas.qr.show');
-Route::get('/planillas/qr/{token}/identificar', [PlanillasQrController::class, 'identificarForm'])
-    ->where('token', '[A-Za-z0-9]{40}')
-    ->name('planillas.qr.identificar.form');
-Route::post('/planillas/qr/{token}/identificar', [PlanillasQrController::class, 'identificarStore'])
-    ->where('token', '[A-Za-z0-9]{40}')
-    ->name('planillas.qr.identificar.store');
-Route::get('/planillas/qr/{token}/crear', [PlanillasQrController::class, 'createForm'])
-    ->where('token', '[A-Za-z0-9]{40}')
-    ->name('planillas.qr.create.form');
-Route::get('/planillas/qr/{token}/editar/{planilla}', [PlanillasQrController::class, 'editForm'])
-    ->where('token', '[A-Za-z0-9]{40}')
-    ->whereNumber('planilla')
-    ->name('planillas.qr.edit.form');
-Route::post('/planillas/qr/{token}/guardar', [PlanillasQrController::class, 'store'])
-    ->where('token', '[A-Za-z0-9]{40}')
-    ->name('planillas.qr.store');
-Route::put('/planillas/qr/{token}/actualizar/{planilla}', [PlanillasQrController::class, 'update'])
-    ->where('token', '[A-Za-z0-9]{40}')
-    ->whereNumber('planilla')
-    ->name('planillas.qr.update');
