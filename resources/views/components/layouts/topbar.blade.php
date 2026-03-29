@@ -4,6 +4,7 @@
 
 @php
 $user = Auth::user();
+$tenant = tenant();
 $currentDate = now()->locale('es');
 @endphp
 
@@ -121,6 +122,7 @@ $currentDate = now()->locale('es');
                 <div class="px-4 py-3 border-b border-[#9fb0c3] bg-[#c3cfdb]">
                     <div class="font-medium text-[#1e293b] text-sm">{{ $user->name ?? 'Usuario' }}</div>
                     <div class="text-xs text-[#475569] truncate">{{ $user->email ?? '' }}</div>
+                    <div class="text-xs text-[#64748b] mt-1">Plan: {{ $tenant?->planRelation?->nombre ?? 'Sin plan asignado' }}</div>
                 </div>
                 <div class="py-1">
                     @if(in_array($user->role ?? '', ['capitan', 'super_admin', 'capitania']))
