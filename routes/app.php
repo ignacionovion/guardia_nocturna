@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\EmergencyUnitController;
 use App\Http\Controllers\Admin\PreventiveEventController;
 use App\Http\Controllers\PreventivePublicController;
 use App\Http\Controllers\TurnoDraftController;
+use App\Http\Controllers\BedQrController;
 
 Route::get('/impersonate/callback', [\App\Http\Controllers\ImpersonateCallbackController::class, 'callback'])->name('impersonate.callback');
 Route::get('/impersonate/stop', [\App\Http\Controllers\Central\ImpersonationController::class, 'stop'])->name('impersonate.stop');
