@@ -94,11 +94,14 @@ class SystemUserController extends Controller
         // Auto-generate secure password
         $password = Str::password(12);
 
+        // Determinar role de sistema: si viene role, usarlo; si viene role_id, usar 'guardia'
+        $systemRole = $validated['role'] ?? 'guardia';
+
         User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'username' => $username,
-            'role' => $validated['role'] ?? null,
+            'role' => $systemRole,
             'guardia_id' => $validated['guardia_id'] ?? null,
             'role_id' => $validated['role_id'] ?? null,
             'password' => Hash::make($password),
@@ -235,11 +238,14 @@ class SystemUserController extends Controller
         $username = $validated['username'] ?? $this->generateUsername($validated['name']);
         $username = $this->ensureUniqueUsernameForUpdate($username, $user->id);
 
+        // Determinar role de sistema: si viene role, usarlo; si viene role_id, usar 'guardia'
+        $systemRole = $validated['role'] ?? ($validated['role_id'] ? 'guardia' : null);
+
         $payload = [
             'name' => $validated['name'],
             'email' => $validated['email'],
             'username' => $username,
-            'role' => $validated['role'] ?? null,
+            'role' => $systemRole,
             'guardia_id' => $validated['guardia_id'] ?? null,
             'role_id' => $validated['role_id'] ?? null,
         ];
