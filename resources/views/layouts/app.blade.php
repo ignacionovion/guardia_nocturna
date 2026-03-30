@@ -317,22 +317,8 @@
                                         }
                                     }
 
-                                    // Función markAllAsRead desactivada - ruta eliminada del sistema legacy
-                                    // async function markAllAsRead() {
-                                    //     try {
-                                    //         const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-                                    //         await fetch('{{ route('notifications.mark_all_read') }}', {
-                                    //             method: 'POST',
-                                    //             headers: {
-                                    //                 'X-CSRF-TOKEN': token,
-                                    //                 'Accept': 'application/json'
-                                    //             }
-                                    //         });
-                                    //         loadNotifications();
-                                    //     } catch (error) {
-                                    //         console.error('Error marking all as read:', error);
-                                    //     }
-                                    // }
+                                    // Función markAllAsRead eliminada completamente - ruta no existe
+                                    // La expresión {{ route() }} se evalúa antes de que // tenga efecto
 
                                     bellBtn.addEventListener('click', toggleDropdown);
                                     // markAllBtn.addEventListener('click', markAllAsRead); // Desactivado - ruta eliminada
