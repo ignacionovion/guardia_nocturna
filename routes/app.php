@@ -22,6 +22,9 @@ use App\Http\Controllers\Admin\PreventiveEventController;
 use App\Http\Controllers\PreventivePublicController;
 use App\Http\Controllers\TurnoDraftController;
 use App\Http\Controllers\BedQrController;
+use App\Http\Controllers\FormBuilderController;
+use App\Http\Controllers\FormExecutionController;
+use App\Http\Controllers\Admin\TenantSettingsController;
 
 Route::get('/impersonate/callback', [\App\Http\Controllers\ImpersonateCallbackController::class, 'callback'])->name('impersonate.callback');
 Route::get('/impersonate/stop', [\App\Http\Controllers\Central\ImpersonationController::class, 'stop'])->name('impersonate.stop');
