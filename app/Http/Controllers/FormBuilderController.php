@@ -81,6 +81,14 @@ class FormBuilderController extends Controller
 
     public function destroy(FormTemplate $template)
     {
+        // Verificar si tiene submissions
+        $submissionsCount = $template->submissions()->count();
+        if ($submissionsCount > 0) {
+            return redirect()
+                ->route('forms.builder.index')
+                ->with('error', "No se puede eliminar la plantilla. Tiene {$submissionsCount} envíos asociados.");
+        }
+
         $template->delete();
 
         return redirect()
@@ -92,12 +100,22 @@ class FormBuilderController extends Controller
     {
         $newTemplate = $template->replicate();
         $newTemplate->nombre = $template->nombre . ' (Copia)';
-        $newTemplate->slug = Str::slug($newTemplate->nombre);
+        $newTemplate->slug = Str::slug($template->nombre . ' - ' . time());
+        $newTemplate->activo = false; // Las copias se crean inactivas
         $newTemplate->created_by = auth()->id();
         $newTemplate->save();
 
-        return redirect()
-            ->route('forms.builder.index')
+        return redirect()->route('forms.builder.index')
             ->with('success', 'Plantilla duplicada correctamente.');
+    }
+
+    public function toggleActive(FormTemplate $template)
+    {
+        $template->activo = !$template->activo;
+        $template->save();
+
+        $status = $template->activo ? 'activada' : 'desactivada';
+        return redirect()->route('forms.builder.index')
+            ->with('success', "Plantilla {$status} correctamente.");
     }
 }

@@ -92,7 +92,7 @@ class FormExecutionController extends Controller
 
         return redirect()
             ->route('forms.execution.index')
-            ->with('success', 'Formulario enviado correctamente.');
+            ->with('success', 'Formulario enviado correctamente. Ya no puede ser modificado.');
     }
 
     public function draft(Request $request, FormTemplate $template)
@@ -152,6 +152,13 @@ class FormExecutionController extends Controller
 
     public function edit(FormSubmission $submission)
     {
+        // Solo se pueden editar borradores
+        if ($submission->estado !== 'borrador') {
+            return redirect()->route('forms.execution.index')
+                ->with('error', 'Solo se pueden editar borradores. Este formulario ya fue enviado.');
+        }
+
+        // Solo el dueño puede editar
         if ($submission->user_id !== auth()->id()) {
             abort(403);
         }
@@ -193,18 +200,13 @@ class FormExecutionController extends Controller
                     $fieldRules[] = 'string';
                     $fieldRules[] = Rule::in($campo['opciones'] ?? []);
                     break;
-                case 'checkbox':
-                    $fieldRules[] = 'boolean';
-                    break;
             }
 
-            $rules["campo_{$campo['nombre']}"] = $fieldRules;
-            $messages["campo_{$campo['nombre']}.required"] = "El campo {$campo['nombre']} es obligatorio.";
+            $rules[$fieldName] = $fieldRules;
         }
 
-        $validated = $request->validate($rules, $messages);
+        $validated = $request->validate($rules);
 
-        // Preparar datos para guardar
         $data = [];
         foreach ($template->estructura as $campo) {
             $fieldName = "campo_{$campo['nombre']}";
@@ -213,12 +215,11 @@ class FormExecutionController extends Controller
 
         $submission->update([
             'data_json' => $data,
-            'estado' => 'enviado',
         ]);
 
         return redirect()
             ->route('forms.execution.index')
-            ->with('success', 'Formulario actualizado correctamente.');
+            ->with('success', 'Borrador actualizado correctamente.');
     }
 
     public function destroy(FormSubmission $submission)

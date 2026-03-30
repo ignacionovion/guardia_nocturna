@@ -65,6 +65,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'tenant.has_plan_app'     => \App\Http\Middleware\EnsureTenantHasPlanForApp::class,
             'max_users'           => \App\Http\Middleware\EnforceMaxUsers::class,
             'plan.limit'          => \App\Http\Middleware\EnforcePlanLimits::class,
+            'role'                => \App\Http\Middleware\EnsureRole::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

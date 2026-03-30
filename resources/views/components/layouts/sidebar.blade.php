@@ -16,6 +16,8 @@ $menuItems = [
         ['route' => 'admin.dotaciones', 'icon' => 'fas fa-users-gear', 'label' => 'Dotaciones', 'match' => 'admin.dotaciones*', 'feature' => 'dotaciones'],
         ['divider' => true, 'label' => 'Módulos'],
         ['route' => 'admin.preventivas.index', 'icon' => 'fas fa-clipboard-check', 'label' => 'Preventivas', 'match' => 'admin.preventivas*', 'feature' => 'preventiva'],
+        ['route' => 'forms.execution.index', 'icon' => 'fas fa-clipboard-list', 'label' => 'Formularios', 'match' => 'forms*'],
+        ['route' => 'forms.builder.index', 'icon' => 'fas fa-screwdriver-wrench', 'label' => 'Builder', 'match' => 'forms.builder*'],
         ['route' => 'admin.reports.index', 'icon' => 'fas fa-chart-line', 'label' => 'Reportes', 'match' => 'admin.reports*', 'feature' => 'reportes'],
         ['divider' => true, 'label' => 'Configuración'],
         ['route' => 'admin.beds.index', 'icon' => 'fas fa-bed-pulse', 'label' => 'Configurar Camas', 'match' => 'admin.beds*', 'feature' => 'camas'],
@@ -26,6 +28,8 @@ $menuItems = [
     'guardia' => [
         ['route' => 'dashboard', 'icon' => 'fas fa-gauge-high', 'label' => 'Inicio', 'match' => 'dashboard'],
         ['route' => 'camas', 'icon' => 'fas fa-bed', 'label' => 'Camas', 'match' => 'camas*'],
+        ['divider' => true, 'label' => 'Módulos'],
+        ['route' => 'forms.execution.index', 'icon' => 'fas fa-clipboard-list', 'label' => 'Formularios', 'match' => 'forms*'],
     ],
 ];
 

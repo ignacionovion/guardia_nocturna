@@ -86,11 +86,11 @@
 
             <div class="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-200">
                 <button type="button" onclick="guardarBorrador()" 
-                        class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                        class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center">
                     <i class="fas fa-save mr-2"></i>Guardar Borrador
                 </button>
                 <button type="submit" 
-                        class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center">
                     <i class="fas fa-paper-plane mr-2"></i>Enviar Formulario
                 </button>
             </div>

@@ -479,6 +479,7 @@ Route::middleware(['auth'])->group(function () {
                 Route::put('/builder/{template}', [FormBuilderController::class, 'update'])->name('forms.builder.update');
                 Route::delete('/builder/{template}', [FormBuilderController::class, 'destroy'])->name('forms.builder.destroy');
                 Route::post('/builder/{template}/duplicate', [FormBuilderController::class, 'duplicate'])->name('forms.builder.duplicate');
+                Route::post('/builder/{template}/toggle', [FormBuilderController::class, 'toggleActive'])->name('forms.builder.toggle');
             });
 
             // Execution - Todos los usuarios autenticados

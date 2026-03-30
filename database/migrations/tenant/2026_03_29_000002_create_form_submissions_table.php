@@ -10,8 +10,8 @@ return new class extends Migration
     {
         Schema::create('form_submissions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('template_id')->constrained()->onDelete('cascade');
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('template_id')->constrained('form_templates')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->json('data_json');
             $table->enum('estado', ['borrador', 'enviado'])->default('borrador');
             $table->timestamps();
