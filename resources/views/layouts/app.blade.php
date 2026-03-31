@@ -189,10 +189,6 @@
                                 <div id="notification-dropdown" class="hidden absolute right-0 top-full w-80 sm:w-96 mt-2 bg-[#dde6ef] rounded-lg shadow-lg border border-[#9fb0c3] overflow-hidden z-50">
                                     <div class="flex items-center justify-between px-4 py-3 border-b border-[#9fb0c3]">
                                         <span class="text-sm font-semibold text-[#1e293b]">Notificaciones</span>
-                                        <!-- Botón desactivado - ruta eliminada del sistema legacy -->
-                                        <!-- <button type="button" id="mark-all-read" class="text-xs text-blue-600 hover:text-blue-800 font-medium">
-                                            Marcar todas
-                                        </button> -->
                                     </div>
                                     <div id="notification-list" class="max-h-80 overflow-y-auto">
                                         <div class="p-4 text-center text-sm text-slate-500">
@@ -208,7 +204,6 @@
                                     const dropdown = document.getElementById('notification-dropdown');
                                     const badge = document.getElementById('notification-badge');
                                     const list = document.getElementById('notification-list');
-                                    // const markAllBtn = document.getElementById('mark-all-read'); // Desactivado - ruta eliminada
                                     let notifications = [];
 
                                     function toggleDropdown() {
@@ -317,11 +312,7 @@
                                         }
                                     }
 
-                                    // Función markAllAsRead eliminada completamente - ruta no existe
-                                    // La expresión {{ route() }} se evalúa antes de que // tenga efecto
-
                                     bellBtn.addEventListener('click', toggleDropdown);
-                                    // markAllBtn.addEventListener('click', markAllAsRead); // Desactivado - ruta eliminada
                                     document.addEventListener('click', closeDropdown);
 
                                     // Cargar contador inicial y luego arrancar todo
