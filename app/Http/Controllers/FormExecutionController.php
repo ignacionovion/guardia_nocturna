@@ -117,7 +117,8 @@ class FormExecutionController extends Controller
 
         // Misma validación que submit pero menos estricta
         $rules = [];
-        foreach ($template->estructura as $campo) {
+        foreach ($template->estructura as $index => $campo) {
+            $fieldName = "campo_{$index}";
             $fieldRules = ['nullable'];
 
             switch ($campo['tipo']) {
@@ -247,8 +248,8 @@ class FormExecutionController extends Controller
         $validated = $request->validate($rules);
 
         $data = [];
-        foreach ($template->estructura as $campo) {
-            $fieldName = "campo_{$campo['nombre']}";
+        foreach ($template->estructura as $index => $campo) {
+            $fieldName = "campo_{$index}";
             $data[$campo['nombre']] = $validated[$fieldName] ?? null;
         }
 
