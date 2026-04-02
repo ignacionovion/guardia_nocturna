@@ -213,6 +213,7 @@ class FormExecutionController extends Controller
         $messages = [];
 
         foreach ($template->estructura as $campo) {
+            $fieldName = "campo_{$campo['nombre']}";
             $fieldRules = [];
 
             if ($campo['requerido'] ?? false) {
@@ -234,6 +235,9 @@ class FormExecutionController extends Controller
                 case 'select':
                     $fieldRules[] = 'string';
                     $fieldRules[] = Rule::in($campo['opciones'] ?? []);
+                    break;
+                case 'checkbox':
+                    $fieldRules[] = 'boolean';
                     break;
             }
 
