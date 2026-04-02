@@ -31,7 +31,7 @@
                             @case('text')
                                 <input type="text" 
                                        name="campo_{{ $campo['nombre'] }}" 
-                                       value="{{ $submission->data[$campo['nombre']] ?? '' }}"
+                                       value="{{ old('campo_'.$campo['nombre'], $submission->data_json[$campo['nombre']] ?? '') }}"
                                        {{ ($campo['requerido'] ?? false) ? 'required' : '' }}
                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                        placeholder="Ingresa {{ $campo['nombre'] }}">
@@ -40,7 +40,7 @@
                             @case('number')
                                 <input type="number" 
                                        name="campo_{{ $campo['nombre'] }}" 
-                                       value="{{ $submission->data[$campo['nombre']] ?? '' }}"
+                                       value="{{ old('campo_'.$campo['nombre'], $submission->data_json[$campo['nombre']] ?? '') }}"
                                        {{ ($campo['requerido'] ?? false) ? 'required' : '' }}
                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                        placeholder="Ingresa {{ $campo['nombre'] }}">
@@ -51,7 +51,7 @@
                                           {{ ($campo['requerido'] ?? false) ? 'required' : '' }}
                                           rows="4"
                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                          placeholder="Ingresa {{ $campo['nombre'] }}">{{ $submission->data[$campo['nombre']] ?? '' }}</textarea>
+                                          placeholder="Ingresa {{ $campo['nombre'] }}">{{ old('campo_'.$campo['nombre'], $submission->data_json[$campo['nombre']] ?? '') }}</textarea>
                                 @break
 
                             @case('select')
@@ -61,7 +61,7 @@
                                     <option value="">Selecciona una opción</option>
                                     @if(isset($campo['opciones']) && is_array($campo['opciones']))
                                         @foreach($campo['opciones'] as $opcion)
-                                            <option value="{{ $opcion }}" {{ ($submission->data[$campo['nombre']] ?? '') === $opcion ? 'selected' : '' }}>
+                                            <option value="{{ $opcion }}" @selected(old('campo_'.$campo['nombre'], $submission->data_json[$campo['nombre']] ?? '') == $opcion)>
                                                 {{ $opcion }}
                                             </option>
                                         @endforeach
@@ -74,7 +74,7 @@
                                     <input type="checkbox" 
                                            name="campo_{{ $campo['nombre'] }}" 
                                            value="1"
-                                           {{ ($submission->data[$campo['nombre']] ?? false) ? 'checked' : '' }}
+                                           @checked(old('campo_'.$campo['nombre'], $submission->data_json[$campo['nombre']] ?? false))
                                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                                     <label class="ml-2 text-sm text-gray-700">
                                         {{ $campo['requerido'] ?? false ? 'Sí' : 'Marcar si aplica' }}
