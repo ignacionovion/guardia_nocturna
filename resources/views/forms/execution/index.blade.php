@@ -20,7 +20,7 @@
                             <h3 class="font-medium text-gray-900">{{ $template->nombre }}</h3>
                             <p class="text-sm text-gray-500 mb-3">{{ count($template->estructura) }} campos</p>
                             <div class="flex gap-2">
-                                <a href="{{ route('forms.execution.show', $template) }}" 
+                                <a href="{{ route('forms.execution.show', ['template' => $template->id]) }}" 
                                    class="flex-1 bg-blue-600 text-white text-center px-3 py-2 rounded hover:bg-blue-700 transition-colors text-sm">
                                     <i class="fas fa-play mr-1"></i>Completar
                                 </a>

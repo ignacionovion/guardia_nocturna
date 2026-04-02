@@ -21,11 +21,6 @@ $menuItems = [
             'icon' => 'fas fa-clipboard-list',
             'children' => [
                 [
-                    'route' => 'forms.execution.index',
-                    'label' => 'Formularios',
-                    'match' => 'forms.execution*',
-                ],
-                [
                     'route' => 'forms.builder.index',
                     'label' => 'Administrar',
                     'match' => 'forms.builder*',
@@ -48,9 +43,9 @@ $menuItems = [
             'icon' => 'fas fa-clipboard-list',
             'children' => [
                 [
-                    'route' => 'forms.execution.index',
-                    'label' => 'Formularios',
-                    'match' => 'forms.execution*',
+                    'route' => 'forms.builder.index',
+                    'label' => 'Administrar',
+                    'match' => 'forms.builder*',
                 ],
             ],
         ],

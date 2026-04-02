@@ -25,25 +25,51 @@ class FormExecutionController extends Controller
 
     public function show($template)
     {
-        $template = FormTemplate::findOrFail($template);
+        $templateId = (int) $template;
 
-        dd($template);
+        $templateModel = FormTemplate::query()->find($templateId);
 
-        return view('forms.execution.show', compact('template'));
+        if (!$templateModel) {
+            dd([
+                'error' => 'template_not_found',
+                'requested_id' => $templateId,
+                'existing_ids' => FormTemplate::query()->pluck('id')->all(),
+                'all_templates' => FormTemplate::query()->get(['id', 'nombre', 'activo'])->toArray(),
+            ]);
+        }
+
+        if (!$templateModel->activo) {
+            abort(403, 'Formulario no disponible');
+        }
+
+        $templateModel->load('creator');
+
+        return view('forms.execution.show', ['template' => $templateModel]);
     }
 
     public function submit(Request $request, $template)
     {
-        $template = FormTemplate::findOrFail($template);
+        $templateId = (int) $template;
 
-        if (!$template->activo) {
-            abort(404);
+        $templateModel = FormTemplate::query()->find($templateId);
+
+        if (!$templateModel) {
+            dd([
+                'error' => 'template_not_found',
+                'requested_id' => $templateId,
+                'existing_ids' => FormTemplate::query()->pluck('id')->all(),
+                'all_templates' => FormTemplate::query()->get(['id', 'nombre', 'activo'])->toArray(),
+            ]);
+        }
+
+        if (!$templateModel->activo) {
+            abort(403, 'Formulario no disponible');
         }
 
         $rules = [];
         $messages = [];
 
-        foreach ($template->estructura as $campo) {
+        foreach ($templateModel->estructura as $campo) {
             $fieldName = "campo_{$campo['nombre']}";
             $fieldRules = [];
 
@@ -81,13 +107,13 @@ class FormExecutionController extends Controller
 
         // Preparar datos para guardar
         $data = [];
-        foreach ($template->estructura as $campo) {
+        foreach ($templateModel->estructura as $campo) {
             $fieldName = "campo_{$campo['nombre']}";
             $data[$campo['nombre']] = $validated[$fieldName] ?? null;
         }
 
         $submission = FormSubmission::create([
-            'template_id' => $template->id,
+            'template_id' => $templateModel->id,
             'user_id' => auth()->id(),
             'data_json' => $data,
             'estado' => 'enviado',
@@ -100,15 +126,26 @@ class FormExecutionController extends Controller
 
     public function draft(Request $request, $template)
     {
-        $template = FormTemplate::findOrFail($template);
+        $templateId = (int) $template;
 
-        if (!$template->activo) {
-            abort(404);
+        $templateModel = FormTemplate::query()->find($templateId);
+
+        if (!$templateModel) {
+            dd([
+                'error' => 'template_not_found',
+                'requested_id' => $templateId,
+                'existing_ids' => FormTemplate::query()->pluck('id')->all(),
+                'all_templates' => FormTemplate::query()->get(['id', 'nombre', 'activo'])->toArray(),
+            ]);
+        }
+
+        if (!$templateModel->activo) {
+            abort(403, 'Formulario no disponible');
         }
 
         // Misma validación que submit pero menos estricta
         $rules = [];
-        foreach ($template->estructura as $campo) {
+        foreach ($templateModel->estructura as $campo) {
             $fieldRules = ['nullable'];
 
             switch ($campo['tipo']) {
@@ -137,13 +174,13 @@ class FormExecutionController extends Controller
 
         // Preparar datos para guardar
         $data = [];
-        foreach ($template->estructura as $campo) {
+        foreach ($templateModel->estructura as $campo) {
             $fieldName = "campo_{$campo['nombre']}";
             $data[$campo['nombre']] = $validated[$fieldName] ?? null;
         }
 
         $submission = FormSubmission::updateOrCreate([
-            'template_id' => $template->id,
+            'template_id' => $templateModel->id,
             'user_id' => auth()->id(),
             'estado' => 'borrador',
         ], [
