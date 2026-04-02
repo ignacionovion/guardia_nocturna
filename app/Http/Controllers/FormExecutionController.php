@@ -51,8 +51,8 @@ class FormExecutionController extends Controller
         $rules = [];
         $messages = [];
 
-        foreach ($template->estructura as $campo) {
-            $fieldName = "campo_{$campo['nombre']}";
+        foreach ($template->estructura as $index => $campo) {
+            $fieldName = "campo_{$index}";
             $fieldRules = [];
 
             if ($campo['requerido'] ?? false) {
@@ -79,17 +79,17 @@ class FormExecutionController extends Controller
                     break;
             }
 
-            $rules["campo_{$campo['nombre']}"] = $fieldRules;
-            $messages["campo_{$campo['nombre']}.required"] = "El campo {$campo['nombre']} es obligatorio.";
-            $messages["campo_{$campo['nombre']}.in"] = "El valor seleccionado para {$campo['nombre']} no es válido.";
+            $rules[$fieldName] = $fieldRules;
+            $messages["{$fieldName}.required"] = "El campo {$campo['nombre']} es obligatorio.";
+            $messages["{$fieldName}.in"] = "El valor seleccionado para {$campo['nombre']} no es válido.";
         }
 
         $validated = $request->validate($rules, $messages);
 
         // Preparar datos para guardar
         $data = [];
-        foreach ($template->estructura as $campo) {
-            $fieldName = "campo_{$campo['nombre']}";
+        foreach ($template->estructura as $index => $campo) {
+            $fieldName = "campo_{$index}";
             $data[$campo['nombre']] = $validated[$fieldName] ?? null;
         }
 
@@ -138,15 +138,15 @@ class FormExecutionController extends Controller
                     break;
             }
 
-            $rules["campo_{$campo['nombre']}"] = $fieldRules;
+            $rules[$fieldName] = $fieldRules;
         }
 
         $validated = $request->validate($rules);
 
         // Preparar datos para guardar
         $data = [];
-        foreach ($template->estructura as $campo) {
-            $fieldName = "campo_{$campo['nombre']}";
+        foreach ($template->estructura as $index => $campo) {
+            $fieldName = "campo_{$index}";
             $data[$campo['nombre']] = $validated[$fieldName] ?? null;
         }
 
@@ -216,8 +216,8 @@ class FormExecutionController extends Controller
         $rules = [];
         $messages = [];
 
-        foreach ($template->estructura as $campo) {
-            $fieldName = "campo_{$campo['nombre']}";
+        foreach ($template->estructura as $index => $campo) {
+            $fieldName = "campo_{$index}";
             $fieldRules = [];
 
             // En update() de borradores, todos los campos son nullable

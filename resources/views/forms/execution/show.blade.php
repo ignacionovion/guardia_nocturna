@@ -29,7 +29,7 @@
                         @switch($campo['tipo'])
                             @case('text')
                                 <input type="text" 
-                                       name="campo_{{ $campo['nombre'] }}" 
+                                       name="campo_{{ $index }}" 
                                        {{ ($campo['requerido'] ?? false) ? 'required' : '' }}
                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                        placeholder="Ingresa {{ $campo['nombre'] }}">
@@ -37,14 +37,14 @@
 
                             @case('number')
                                 <input type="number" 
-                                       name="campo_{{ $campo['nombre'] }}" 
+                                       name="campo_{{ $index }}" 
                                        {{ ($campo['requerido'] ?? false) ? 'required' : '' }}
                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                        placeholder="Ingresa {{ $campo['nombre'] }}">
                                 @break
 
                             @case('textarea')
-                                <textarea name="campo_{{ $campo['nombre'] }}" 
+                                <textarea name="campo_{{ $index }}" 
                                           {{ ($campo['requerido'] ?? false) ? 'required' : '' }}
                                           rows="4"
                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -52,7 +52,7 @@
                                 @break
 
                             @case('select')
-                                <select name="campo_{{ $campo['nombre'] }}" 
+                                <select name="campo_{{ $index }}" 
                                         {{ ($campo['requerido'] ?? false) ? 'required' : '' }}
                                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                     <option value="">Selecciona una opción</option>
@@ -67,7 +67,7 @@
                             @case('checkbox')
                                 <div class="flex items-center">
                                     <input type="checkbox" 
-                                           name="campo_{{ $campo['nombre'] }}" 
+                                           name="campo_{{ $index }}" 
                                            value="1"
                                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                                     <label class="ml-2 text-sm text-gray-700">
@@ -77,7 +77,7 @@
                                 @break
                         @endswitch
 
-                        @error("campo_{$campo['nombre']}")
+                        @error("campo_{$index}")
                             <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                         @enderror
                     </div>
