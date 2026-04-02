@@ -16,8 +16,22 @@ $menuItems = [
         ['route' => 'admin.dotaciones', 'icon' => 'fas fa-users-gear', 'label' => 'Dotaciones', 'match' => 'admin.dotaciones*', 'feature' => 'dotaciones'],
         ['divider' => true, 'label' => 'Módulos'],
         ['route' => 'admin.preventivas.index', 'icon' => 'fas fa-clipboard-check', 'label' => 'Preventivas', 'match' => 'admin.preventivas*', 'feature' => 'preventiva'],
-        ['route' => 'forms.execution.index', 'icon' => 'fas fa-clipboard-list', 'label' => 'Formularios', 'match' => 'forms*'],
-        ['route' => 'forms.builder.index', 'icon' => 'fas fa-screwdriver-wrench', 'label' => 'Builder', 'match' => 'forms.builder*'],
+        [
+            'label' => 'Formularios',
+            'icon' => 'fas fa-clipboard-list',
+            'children' => [
+                [
+                    'route' => 'forms.execution.index',
+                    'label' => 'Formularios',
+                    'match' => 'forms.execution*',
+                ],
+                [
+                    'route' => 'forms.builder.index',
+                    'label' => 'Administrar',
+                    'match' => 'forms.builder*',
+                ],
+            ],
+        ],
         ['route' => 'admin.reports.index', 'icon' => 'fas fa-chart-line', 'label' => 'Reportes', 'match' => 'admin.reports*', 'feature' => 'reportes'],
         ['divider' => true, 'label' => 'Configuración'],
         ['route' => 'admin.beds.index', 'icon' => 'fas fa-bed-pulse', 'label' => 'Configurar Camas', 'match' => 'admin.beds*', 'feature' => 'camas'],
@@ -29,7 +43,17 @@ $menuItems = [
         ['route' => 'dashboard', 'icon' => 'fas fa-gauge-high', 'label' => 'Inicio', 'match' => 'dashboard'],
         ['route' => 'camas', 'icon' => 'fas fa-bed', 'label' => 'Camas', 'match' => 'camas*'],
         ['divider' => true, 'label' => 'Módulos'],
-        ['route' => 'forms.execution.index', 'icon' => 'fas fa-clipboard-list', 'label' => 'Formularios', 'match' => 'forms*'],
+        [
+            'label' => 'Formularios',
+            'icon' => 'fas fa-clipboard-list',
+            'children' => [
+                [
+                    'route' => 'forms.execution.index',
+                    'label' => 'Formularios',
+                    'match' => 'forms.execution*',
+                ],
+            ],
+        ],
     ],
 ];
 
@@ -72,6 +96,32 @@ $items = $menuItems[$normalizedRole] ?? $menuItems['guardia'];
                     </li>
                 @else
                     @if(!isset($item['feature']) || feature($item['feature']))
+                    @if(isset($item['children']))
+                    <li>
+                        <div class="group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium text-[#1e293b]"
+                             :class="sidebarCollapsed ? 'justify-center px-0' : ''"
+                             title="{{ $item['label'] }}">
+                            <span class="w-5 flex items-center justify-center shrink-0">
+                                <i class="{{ $item['icon'] }}"></i>
+                            </span>
+                            <span x-show="!sidebarCollapsed" x-transition class="truncate">{{ $item['label'] }}</span>
+                        </div>
+
+                        <ul x-show="!sidebarCollapsed" class="ml-8 mt-1 space-y-1">
+                            @foreach($item['children'] as $child)
+                            <li>
+                                <a href="{{ route($child['route']) }}"
+                                   class="block px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all duration-150
+                                          {{ request()->routeIs($child['match'])
+                                              ? 'bg-[#0f172a] text-white shadow-lg shadow-[#0f172a]/20'
+                                              : 'text-[#1e293b] hover:bg-[#c3cfdb] hover:text-[#1e293b]' }}">
+                                    {{ $child['label'] }}
+                                </a>
+                            </li>
+                            @endforeach
+                        </ul>
+                    </li>
+                    @else
                     <li>
                         <a href="{{ route($item['route']) }}" 
                            class="group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150
@@ -92,6 +142,7 @@ $items = $menuItems[$normalizedRole] ?? $menuItems['guardia'];
                             @endif
                         </a>
                     </li>
+                    @endif
                     @endif
                 @endif
             @endforeach

@@ -48,14 +48,17 @@ class FormBuilderController extends Controller
             ->with('success', 'Plantilla creada correctamente.');
     }
 
-    public function edit(FormTemplate $template)
+    public function edit($template)
     {
+        $template = FormTemplate::findOrFail($template);
         $template->load('creator');
         return view('forms.builder.edit', compact('template'));
     }
 
-    public function update(Request $request, FormTemplate $template)
+    public function update(Request $request, $template)
     {
+        $template = FormTemplate::findOrFail($template);
+
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
             'estructura' => 'required|array|min:1',
@@ -76,8 +79,10 @@ class FormBuilderController extends Controller
             ->with('success', 'Plantilla actualizada correctamente.');
     }
 
-    public function destroy(FormTemplate $template)
+    public function destroy($template)
     {
+        $template = FormTemplate::findOrFail($template);
+
         // Verificar si tiene submissions
         $submissionsCount = $template->submissions()->count();
         if ($submissionsCount > 0) {
@@ -93,8 +98,10 @@ class FormBuilderController extends Controller
             ->with('success', 'Plantilla eliminada correctamente.');
     }
 
-    public function duplicate(FormTemplate $template)
+    public function duplicate($template)
     {
+        $template = FormTemplate::findOrFail($template);
+
         $newTemplate = $template->replicate();
         $newTemplate->nombre = $template->nombre . ' (Copia)';
         $newTemplate->slug = Str::slug($template->nombre . ' - ' . time());
@@ -106,8 +113,10 @@ class FormBuilderController extends Controller
             ->with('success', 'Plantilla duplicada correctamente.');
     }
 
-    public function toggleActive(FormTemplate $template)
+    public function toggleActive($template)
     {
+        $template = FormTemplate::findOrFail($template);
+
         $template->activo = !$template->activo;
         $template->save();
 

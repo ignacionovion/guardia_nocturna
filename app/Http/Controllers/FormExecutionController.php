@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\FormTemplate;
 use App\Models\FormSubmission;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class FormExecutionController extends Controller
 {
@@ -22,8 +23,10 @@ class FormExecutionController extends Controller
         return view('forms.execution.index', compact('templates', 'submissions'));
     }
 
-    public function show(FormTemplate $template)
+    public function show($template)
     {
+        $template = FormTemplate::findOrFail($template);
+
         if (!$template->activo) {
             abort(404);
         }
@@ -32,8 +35,10 @@ class FormExecutionController extends Controller
         return view('forms.execution.show', compact('template'));
     }
 
-    public function submit(Request $request, FormTemplate $template)
+    public function submit(Request $request, $template)
     {
+        $template = FormTemplate::findOrFail($template);
+
         if (!$template->activo) {
             abort(404);
         }
@@ -42,6 +47,7 @@ class FormExecutionController extends Controller
         $messages = [];
 
         foreach ($template->estructura as $campo) {
+            $fieldName = "campo_{$campo['nombre']}";
             $fieldRules = [];
 
             if ($campo['requerido'] ?? false) {
@@ -95,8 +101,10 @@ class FormExecutionController extends Controller
             ->with('success', 'Formulario enviado correctamente. Ya no puede ser modificado.');
     }
 
-    public function draft(Request $request, FormTemplate $template)
+    public function draft(Request $request, $template)
     {
+        $template = FormTemplate::findOrFail($template);
+
         if (!$template->activo) {
             abort(404);
         }
