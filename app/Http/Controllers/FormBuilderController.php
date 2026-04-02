@@ -48,16 +48,18 @@ class FormBuilderController extends Controller
             ->with('success', 'Plantilla creada correctamente.');
     }
 
-    public function edit($template)
+    public function edit(Request $request)
     {
-        $template = FormTemplate::findOrFail($template);
+        $templateId = (int) $request->route('template');
+        $template = FormTemplate::query()->findOrFail($templateId);
         $template->load('creator');
         return view('forms.builder.edit', compact('template'));
     }
 
-    public function update(Request $request, $template)
+    public function update(Request $request)
     {
-        $template = FormTemplate::findOrFail($template);
+        $templateId = (int) $request->route('template');
+        $template = FormTemplate::query()->findOrFail($templateId);
 
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
@@ -79,9 +81,10 @@ class FormBuilderController extends Controller
             ->with('success', 'Plantilla actualizada correctamente.');
     }
 
-    public function destroy($template)
+    public function destroy(Request $request)
     {
-        $template = FormTemplate::findOrFail($template);
+        $templateId = (int) $request->route('template');
+        $template = FormTemplate::query()->findOrFail($templateId);
 
         // Verificar si tiene submissions
         $submissionsCount = $template->submissions()->count();
@@ -98,9 +101,10 @@ class FormBuilderController extends Controller
             ->with('success', 'Plantilla eliminada correctamente.');
     }
 
-    public function duplicate($template)
+    public function duplicate(Request $request)
     {
-        $template = FormTemplate::findOrFail($template);
+        $templateId = (int) $request->route('template');
+        $template = FormTemplate::query()->findOrFail($templateId);
 
         $newTemplate = $template->replicate();
         $newTemplate->nombre = $template->nombre . ' (Copia)';
@@ -113,9 +117,10 @@ class FormBuilderController extends Controller
             ->with('success', 'Plantilla duplicada correctamente.');
     }
 
-    public function toggleActive($template)
+    public function toggleActive(Request $request)
     {
-        $template = FormTemplate::findOrFail($template);
+        $templateId = (int) $request->route('template');
+        $template = FormTemplate::query()->findOrFail($templateId);
 
         $template->activo = !$template->activo;
         $template->save();

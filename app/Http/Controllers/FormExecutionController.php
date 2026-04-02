@@ -23,38 +23,24 @@ class FormExecutionController extends Controller
         return view('forms.execution.index', compact('templates', 'submissions'));
     }
 
-    public function show(Request $request, $template)
+    public function show(Request $request)
     {
-        $rawTemplate = $request->route('template');
+        $templateId = (int) $request->route('template');
 
-        $templateId = is_numeric($rawTemplate)
-            ? (int) $rawTemplate
-            : (int) $template;
+        $template = FormTemplate::query()->findOrFail($templateId);
 
-        dd([
-            'raw_template_from_route' => $rawTemplate,
-            'raw_template_argument' => $template,
-            'template_id_final' => $templateId,
-            'existing_ids' => FormTemplate::query()->pluck('id')->all(),
-        ]);
-
-        $templateModel = FormTemplate::query()->findOrFail($templateId);
-
-        if (!$templateModel->activo) {
+        if (!$template->activo) {
             abort(403, 'Formulario no disponible');
         }
 
-        $templateModel->load('creator');
+        $template->load('creator');
 
-        return view('forms.execution.show', ['template' => $templateModel]);
+        return view('forms.execution.show', compact('template'));
     }
 
-    public function submit(Request $request, $template)
+    public function submit(Request $request)
     {
-        $rawTemplate = $request->route('template');
-        $templateId = is_numeric($rawTemplate)
-            ? (int) $rawTemplate
-            : (int) $template;
+        $templateId = (int) $request->route('template');
 
         $template = FormTemplate::query()->findOrFail($templateId);
 
@@ -120,12 +106,9 @@ class FormExecutionController extends Controller
             ->with('success', 'Formulario enviado correctamente. Ya no puede ser modificado.');
     }
 
-    public function draft(Request $request, $template)
+    public function draft(Request $request)
     {
-        $rawTemplate = $request->route('template');
-        $templateId = is_numeric($rawTemplate)
-            ? (int) $rawTemplate
-            : (int) $template;
+        $templateId = (int) $request->route('template');
 
         $template = FormTemplate::query()->findOrFail($templateId);
 
