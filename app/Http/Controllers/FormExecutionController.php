@@ -63,20 +63,19 @@ class FormExecutionController extends Controller
 
             switch ($campo['tipo']) {
                 case 'text':
-                    $fieldRules[] = 'string|max:255';
+                    $fieldRules = array_merge($fieldRules, ['string', 'max:255']);
                     break;
                 case 'number':
-                    $fieldRules[] = 'numeric';
+                    $fieldRules = array_merge($fieldRules, ['numeric']);
                     break;
                 case 'textarea':
-                    $fieldRules[] = 'string';
+                    $fieldRules = array_merge($fieldRules, ['string']);
                     break;
                 case 'select':
-                    $fieldRules[] = 'string';
-                    $fieldRules[] = Rule::in($campo['opciones'] ?? []);
+                    $fieldRules = array_merge($fieldRules, ['string', Rule::in($campo['opciones'] ?? [])]);
                     break;
                 case 'checkbox':
-                    $fieldRules[] = 'boolean';
+                    $fieldRules = array_merge($fieldRules, ['boolean']);
                     break;
             }
 
@@ -123,20 +122,19 @@ class FormExecutionController extends Controller
 
             switch ($campo['tipo']) {
                 case 'text':
-                    $fieldRules[] = 'string|max:255';
+                    $fieldRules = array_merge($fieldRules, ['string', 'max:255']);
                     break;
                 case 'number':
-                    $fieldRules[] = 'numeric';
+                    $fieldRules = array_merge($fieldRules, ['numeric']);
                     break;
                 case 'textarea':
-                    $fieldRules[] = 'string';
+                    $fieldRules = array_merge($fieldRules, ['string']);
                     break;
                 case 'select':
-                    $fieldRules[] = 'string';
-                    $fieldRules[] = Rule::in($campo['opciones'] ?? []);
+                    $fieldRules = array_merge($fieldRules, ['string', Rule::in($campo['opciones'] ?? [])]);
                     break;
                 case 'checkbox':
-                    $fieldRules[] = 'boolean';
+                    $fieldRules = array_merge($fieldRules, ['boolean']);
                     break;
             }
 
@@ -227,20 +225,19 @@ class FormExecutionController extends Controller
 
             switch ($campo['tipo']) {
                 case 'text':
-                    $fieldRules[] = 'string|max:255';
+                    $fieldRules = array_merge($fieldRules, ['string', 'max:255']);
                     break;
                 case 'number':
-                    $fieldRules[] = 'numeric';
+                    $fieldRules = array_merge($fieldRules, ['numeric']);
                     break;
                 case 'textarea':
-                    $fieldRules[] = 'string';
+                    $fieldRules = array_merge($fieldRules, ['string']);
                     break;
                 case 'select':
-                    $fieldRules[] = 'string';
-                    $fieldRules[] = Rule::in($campo['opciones'] ?? []);
+                    $fieldRules = array_merge($fieldRules, ['string', Rule::in($campo['opciones'] ?? [])]);
                     break;
                 case 'checkbox':
-                    $fieldRules[] = 'boolean';
+                    $fieldRules = array_merge($fieldRules, ['boolean']);
                     break;
             }
 
