@@ -165,8 +165,18 @@ class FormExecutionController extends Controller
             ->with('success', 'Borrador guardado correctamente.');
     }
 
-    public function edit(FormSubmission $submission)
+    public function edit(Request $request)
     {
+        $submissionParam = $request->route('submission');
+
+        if (!is_numeric($submissionParam) || (int) $submissionParam <= 0) {
+            abort(404, 'Submission no válido');
+        }
+
+        $submissionId = (int) $submissionParam;
+
+        $submission = FormSubmission::query()->findOrFail($submissionId);
+
         // Solo se pueden editar borradores
         if ($submission->estado !== 'borrador') {
             return redirect()->route('forms.execution.index')
@@ -182,8 +192,18 @@ class FormExecutionController extends Controller
         return view('forms.execution.edit', compact('submission'));
     }
 
-    public function update(Request $request, FormSubmission $submission)
+    public function update(Request $request)
     {
+        $submissionParam = $request->route('submission');
+
+        if (!is_numeric($submissionParam) || (int) $submissionParam <= 0) {
+            abort(404, 'Submission no válido');
+        }
+
+        $submissionId = (int) $submissionParam;
+
+        $submission = FormSubmission::query()->findOrFail($submissionId);
+
         if ($submission->user_id !== auth()->id()) {
             abort(403);
         }
@@ -237,8 +257,18 @@ class FormExecutionController extends Controller
             ->with('success', 'Borrador actualizado correctamente.');
     }
 
-    public function destroy(FormSubmission $submission)
+    public function destroy(Request $request)
     {
+        $submissionParam = $request->route('submission');
+
+        if (!is_numeric($submissionParam) || (int) $submissionParam <= 0) {
+            abort(404, 'Submission no válido');
+        }
+
+        $submissionId = (int) $submissionParam;
+
+        $submission = FormSubmission::query()->findOrFail($submissionId);
+
         if ($submission->user_id !== auth()->id()) {
             abort(403);
         }
