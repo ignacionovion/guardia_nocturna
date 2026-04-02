@@ -340,13 +340,9 @@
                                             }).catch(() => {});
                                     }
 
-                                    fetch('{{ route('notifications.unread_count') }}')
-                                        .then(r => r.json())
-                                        .then(data => {
-                                            lastUnreadCount = data.unread_count || 0;
-                                            updateBadge(lastUnreadCount);
-                                        })
-                                        .catch(() => { lastUnreadCount = 0; });
+                                    // Inicialización sin backend - sistema legacy de notificaciones eliminado
+                                    lastUnreadCount = 0;
+                                    updateBadge(0);
 
                                     @if(in_array(Auth::user()->role, ['capitan', 'super_admin', 'capitania']))
                                     // WebSocket con Laravel Echo + Reverb (tiempo real)
@@ -370,18 +366,6 @@
                                                 }
                                             });
                                     }
-
-                                    // Polling de respaldo cada 15s (cubre casos donde WebSocket falla)
-                                    setInterval(function() {
-                                        fetch('{{ route('notifications.unread_count') }}')
-                                            .then(r => r.json())
-                                            .then(data => {
-                                                const newCount = data.unread_count || 0;
-                                                handleNewNotificationsFromApi(newCount, lastUnreadCount);
-                                                lastUnreadCount = newCount;
-                                                updateBadge(newCount);
-                                            }).catch(() => {});
-                                    }, 15000);
                                     @endif
 
                                     function showNotificationToast(title, message, type) {
