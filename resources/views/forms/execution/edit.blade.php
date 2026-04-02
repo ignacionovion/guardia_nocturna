@@ -99,8 +99,46 @@
                         class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
                     <i class="fas fa-save mr-2"></i>Guardar Borrador
                 </button>
+                <button type="button" 
+                        onclick="enviarFormulario()"
+                        class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors font-semibold">
+                    <i class="fas fa-paper-plane mr-2"></i>Enviar formulario
+                </button>
             </div>
         </div>
     </form>
+
+    <!-- Formulario separado para enviar definitivamente -->
+    <form id="finalizeForm" 
+          action="{{ route('forms.execution.finalize', ['submission' => $submission->id]) }}" 
+          method="POST" 
+          style="display: none;">
+        @csrf
+    </form>
+
+    <script>
+        function enviarFormulario() {
+            if (confirm('¿Estás seguro que deseas enviar este formulario definitivamente? Una vez enviado, no podrá ser modificado.')) {
+                // Copiar todos los datos del formulario principal al formulario de finalización
+                const mainForm = document.getElementById('dynamicForm');
+                const finalizeForm = document.getElementById('finalizeForm');
+                
+                // Limpiar formulario de finalización primero
+                while (finalizeForm.elements.length > 1) {
+                    finalizeForm.removeChild(finalizeForm.lastChild);
+                }
+                
+                // Copiar todos los inputs del formulario principal
+                const inputs = mainForm.querySelectorAll('input, textarea, select');
+                inputs.forEach(input => {
+                    const clonedInput = input.cloneNode(true);
+                    finalizeForm.appendChild(clonedInput);
+                });
+                
+                // Enviar formulario de finalización
+                finalizeForm.submit();
+            }
+        }
+    </script>
 </div>
 @endsection

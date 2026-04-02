@@ -507,6 +507,9 @@ Route::middleware(['auth'])->group(function () {
 
                 Route::delete('/submissions/{submission}', [FormExecutionController::class, 'destroy'])
                     ->name('forms.execution.destroy');
+
+                Route::post('/submissions/{submission}/finalize', [FormExecutionController::class, 'finalize'])
+                    ->name('forms.execution.finalize');
             });
         });
     });

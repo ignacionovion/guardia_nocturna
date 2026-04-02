@@ -284,4 +284,82 @@ class FormExecutionController extends Controller
             ->route('forms.execution.index')
             ->with('success', 'Registro eliminado correctamente.');
     }
+
+    public function finalize(Request $request)
+    {
+        $submissionParam = $request->route('submission');
+
+        if (!is_numeric($submissionParam) || (int) $submissionParam <= 0) {
+            abort(404, 'Submission no válido');
+        }
+
+        $submissionId = (int) $submissionParam;
+
+        $submission = FormSubmission::query()->findOrFail($submissionId);
+
+        if ($submission->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        // Solo se pueden finalizar borradores
+        if ($submission->estado !== 'borrador') {
+            return redirect()->route('forms.execution.index')
+                ->with('error', 'Este formulario ya fue enviado.');
+        }
+
+        $template = $submission->template;
+        $rules = [];
+        $messages = [];
+
+        foreach ($template->estructura as $index => $campo) {
+            $fieldName = "campo_{$index}";
+            $fieldRules = [];
+
+            if ($campo['requerido'] ?? false) {
+                $fieldRules[] = 'required';
+            } else {
+                $fieldRules[] = 'nullable';
+            }
+
+            switch ($campo['tipo']) {
+                case 'text':
+                    $fieldRules = array_merge($fieldRules, ['string', 'max:255']);
+                    break;
+                case 'number':
+                    $fieldRules = array_merge($fieldRules, ['numeric']);
+                    break;
+                case 'textarea':
+                    $fieldRules = array_merge($fieldRules, ['string']);
+                    break;
+                case 'select':
+                    $fieldRules = array_merge($fieldRules, ['string', Rule::in($campo['opciones'] ?? [])]);
+                    break;
+                case 'checkbox':
+                    $fieldRules = array_merge($fieldRules, ['boolean']);
+                    break;
+            }
+
+            $rules[$fieldName] = $fieldRules;
+            $messages["{$fieldName}.required"] = "El campo {$campo['nombre']} es obligatorio.";
+            $messages["{$fieldName}.in"] = "El valor seleccionado para {$campo['nombre']} no es válido.";
+        }
+
+        $validated = $request->validate($rules, $messages);
+
+        // Preparar datos para guardar
+        $data = [];
+        foreach ($template->estructura as $index => $campo) {
+            $fieldName = "campo_{$index}";
+            $data[$campo['nombre']] = $validated[$fieldName] ?? null;
+        }
+
+        $submission->update([
+            'data_json' => $data,
+            'estado' => 'enviado',
+        ]);
+
+        return redirect()
+            ->route('forms.execution.index')
+            ->with('success', 'Formulario enviado correctamente. Ya no puede ser modificado.');
+    }
 }
