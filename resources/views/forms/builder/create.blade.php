@@ -135,6 +135,9 @@ function agregarCampo(tipo = 'text') {
     `;
     
     container.appendChild(campoDiv);
+
+    const tipoSelect = campoDiv.querySelector(`select[name="estructura[${campoIndex}][tipo]"]`);
+    actualizarOpciones(tipoSelect);
 }
 
 function eliminarCampo(button) {
@@ -149,9 +152,32 @@ function actualizarOpciones(select) {
     
     if (tipo === 'select') {
         opcionesDiv.classList.remove('hidden');
+        setOpcionesInputsState(campoDiv, true);
     } else {
         opcionesDiv.classList.add('hidden');
+        setOpcionesInputsState(campoDiv, false);
     }
+}
+
+function setOpcionesInputsState(campoDiv, enabled) {
+    const opcionesInputs = campoDiv.querySelectorAll('input[name*="[opciones]"], input[data-original-name]');
+
+    opcionesInputs.forEach((input) => {
+        if (enabled) {
+            if (input.dataset.originalName) {
+                input.name = input.dataset.originalName;
+            }
+            input.disabled = false;
+            return;
+        }
+
+        if (!input.dataset.originalName) {
+            input.dataset.originalName = input.name;
+        }
+
+        input.disabled = true;
+        input.name = '';
+    });
 }
 
 function agregarOpcion(index) {
@@ -168,11 +194,49 @@ function agregarOpcion(index) {
         </button>
     `;
     container.appendChild(opcionDiv);
+
+    const campoDiv = container.closest('.campo-item');
+    const tipoSelect = campoDiv.querySelector(`select[name="estructura[${index}][tipo]"]`);
+    if (tipoSelect) {
+        actualizarOpciones(tipoSelect);
+    }
 }
 
 // Agregar primer campo por defecto
 document.addEventListener('DOMContentLoaded', function() {
     agregarCampo();
+
+    const form = document.getElementById('formBuilder');
+    form.addEventListener('submit', function () {
+        document.querySelectorAll('#camposContainer .campo-item').forEach((campoDiv) => {
+            const tipoSelect = campoDiv.querySelector('select[name$="[tipo]"]');
+            const tipo = tipoSelect ? tipoSelect.value : '';
+
+            if (tipo !== 'select') {
+                setOpcionesInputsState(campoDiv, false);
+                return;
+            }
+
+            const opcionesInputs = campoDiv.querySelectorAll('input[data-original-name], input[name*="[opciones]"]');
+            opcionesInputs.forEach((input) => {
+                const valor = (input.value || '').trim();
+                input.value = valor;
+
+                if (valor === '') {
+                    if (!input.dataset.originalName) {
+                        input.dataset.originalName = input.name;
+                    }
+                    input.disabled = true;
+                    input.name = '';
+                } else {
+                    if (input.dataset.originalName) {
+                        input.name = input.dataset.originalName;
+                    }
+                    input.disabled = false;
+                }
+            });
+        });
+    });
 });
 </script>
 @endsection

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\FormTemplate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 class FormBuilderController extends Controller
@@ -28,18 +29,16 @@ class FormBuilderController extends Controller
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
             'estructura' => 'required|array|min:1',
-            'estructura.*.nombre' => 'required|string|max:255',
-            'estructura.*.tipo' => ['required', 'string', Rule::in(['text', 'number', 'textarea', 'select', 'checkbox'])],
-            'estructura.*.requerido' => 'boolean',
-            'estructura.*.opciones' => 'required_if:estructura.*.tipo,select|array',
-            'estructura.*.opciones.*' => 'string|max:255',
             'activo' => 'boolean',
         ]);
+
+        $estructura = $this->normalizeEstructura($request->input('estructura', []));
+        $this->validateEstructura($estructura);
 
         $template = FormTemplate::create([
             'nombre' => $validated['nombre'],
             'slug' => Str::slug($validated['nombre']),
-            'estructura_json' => $validated['estructura'],
+            'estructura_json' => $estructura,
             'activo' => $validated['activo'] ?? true,
             'created_by' => auth()->id(),
         ]);
@@ -60,17 +59,15 @@ class FormBuilderController extends Controller
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
             'estructura' => 'required|array|min:1',
-            'estructura.*.nombre' => 'required|string|max:255',
-            'estructura.*.tipo' => ['required', 'string', Rule::in(['text', 'number', 'textarea', 'select', 'checkbox'])],
-            'estructura.*.requerido' => 'boolean',
-            'estructura.*.opciones' => 'required_if:estructura.*.tipo,select|array',
-            'estructura.*.opciones.*' => 'string|max:255',
             'activo' => 'boolean',
         ]);
 
+        $estructura = $this->normalizeEstructura($request->input('estructura', []));
+        $this->validateEstructura($estructura);
+
         $template->update([
             'nombre' => $validated['nombre'],
-            'estructura_json' => $validated['estructura'],
+            'estructura_json' => $estructura,
             'activo' => $validated['activo'] ?? true,
         ]);
 
@@ -117,5 +114,53 @@ class FormBuilderController extends Controller
         $status = $template->activo ? 'activada' : 'desactivada';
         return redirect()->route('forms.builder.index')
             ->with('success', "Plantilla {$status} correctamente.");
+    }
+
+    private function normalizeEstructura(array $estructura): array
+    {
+        return array_values(array_map(function (array $campo): array {
+            $tipo = (string) ($campo['tipo'] ?? '');
+
+            $normalizado = [
+                'nombre' => trim((string) ($campo['nombre'] ?? '')),
+                'tipo' => $tipo,
+                'requerido' => filter_var($campo['requerido'] ?? false, FILTER_VALIDATE_BOOLEAN),
+            ];
+
+            if ($tipo === 'select') {
+                $opciones = array_values(array_filter(array_map(
+                    static fn ($opcion) => trim((string) $opcion),
+                    is_array($campo['opciones'] ?? null) ? $campo['opciones'] : []
+                ), static fn (string $opcion) => $opcion !== ''));
+
+                $normalizado['opciones'] = $opciones;
+            }
+
+            return $normalizado;
+        }, $estructura));
+    }
+
+    private function validateEstructura(array $estructura): void
+    {
+        $validator = Validator::make([
+            'estructura' => $estructura,
+        ], [
+            'estructura' => 'required|array|min:1',
+            'estructura.*.nombre' => 'required|string|max:255',
+            'estructura.*.tipo' => ['required', 'string', Rule::in(['text', 'number', 'textarea', 'select', 'checkbox'])],
+            'estructura.*.requerido' => 'boolean',
+            'estructura.*.opciones' => 'nullable|array',
+            'estructura.*.opciones.*' => 'string|max:255',
+        ]);
+
+        $validator->after(function ($validator) use ($estructura) {
+            foreach ($estructura as $index => $campo) {
+                if (($campo['tipo'] ?? null) === 'select' && empty($campo['opciones'])) {
+                    $validator->errors()->add("estructura.$index.opciones", 'Debe agregar al menos una opción para campos tipo selección.');
+                }
+            }
+        });
+
+        $validator->validate();
     }
 }
