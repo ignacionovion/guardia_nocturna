@@ -23,20 +23,22 @@ class FormExecutionController extends Controller
         return view('forms.execution.index', compact('templates', 'submissions'));
     }
 
-    public function show($template)
+    public function show(Request $request, $template)
     {
-        $templateId = (int) $template;
+        $rawTemplate = $request->route('template');
 
-        $templateModel = FormTemplate::query()->find($templateId);
+        $templateId = is_numeric($rawTemplate)
+            ? (int) $rawTemplate
+            : (int) $template;
 
-        if (!$templateModel) {
-            dd([
-                'error' => 'template_not_found',
-                'requested_id' => $templateId,
-                'existing_ids' => FormTemplate::query()->pluck('id')->all(),
-                'all_templates' => FormTemplate::query()->get(['id', 'nombre', 'activo'])->toArray(),
-            ]);
-        }
+        dd([
+            'raw_template_from_route' => $rawTemplate,
+            'raw_template_argument' => $template,
+            'template_id_final' => $templateId,
+            'existing_ids' => FormTemplate::query()->pluck('id')->all(),
+        ]);
+
+        $templateModel = FormTemplate::query()->findOrFail($templateId);
 
         if (!$templateModel->activo) {
             abort(403, 'Formulario no disponible');
@@ -49,27 +51,21 @@ class FormExecutionController extends Controller
 
     public function submit(Request $request, $template)
     {
-        $templateId = (int) $template;
+        $rawTemplate = $request->route('template');
+        $templateId = is_numeric($rawTemplate)
+            ? (int) $rawTemplate
+            : (int) $template;
 
-        $templateModel = FormTemplate::query()->find($templateId);
+        $template = FormTemplate::query()->findOrFail($templateId);
 
-        if (!$templateModel) {
-            dd([
-                'error' => 'template_not_found',
-                'requested_id' => $templateId,
-                'existing_ids' => FormTemplate::query()->pluck('id')->all(),
-                'all_templates' => FormTemplate::query()->get(['id', 'nombre', 'activo'])->toArray(),
-            ]);
-        }
-
-        if (!$templateModel->activo) {
+        if (!$template->activo) {
             abort(403, 'Formulario no disponible');
         }
 
         $rules = [];
         $messages = [];
 
-        foreach ($templateModel->estructura as $campo) {
+        foreach ($template->estructura as $campo) {
             $fieldName = "campo_{$campo['nombre']}";
             $fieldRules = [];
 
@@ -107,13 +103,13 @@ class FormExecutionController extends Controller
 
         // Preparar datos para guardar
         $data = [];
-        foreach ($templateModel->estructura as $campo) {
+        foreach ($template->estructura as $campo) {
             $fieldName = "campo_{$campo['nombre']}";
             $data[$campo['nombre']] = $validated[$fieldName] ?? null;
         }
 
         $submission = FormSubmission::create([
-            'template_id' => $templateModel->id,
+            'template_id' => $template->id,
             'user_id' => auth()->id(),
             'data_json' => $data,
             'estado' => 'enviado',
@@ -126,26 +122,20 @@ class FormExecutionController extends Controller
 
     public function draft(Request $request, $template)
     {
-        $templateId = (int) $template;
+        $rawTemplate = $request->route('template');
+        $templateId = is_numeric($rawTemplate)
+            ? (int) $rawTemplate
+            : (int) $template;
 
-        $templateModel = FormTemplate::query()->find($templateId);
+        $template = FormTemplate::query()->findOrFail($templateId);
 
-        if (!$templateModel) {
-            dd([
-                'error' => 'template_not_found',
-                'requested_id' => $templateId,
-                'existing_ids' => FormTemplate::query()->pluck('id')->all(),
-                'all_templates' => FormTemplate::query()->get(['id', 'nombre', 'activo'])->toArray(),
-            ]);
-        }
-
-        if (!$templateModel->activo) {
+        if (!$template->activo) {
             abort(403, 'Formulario no disponible');
         }
 
         // Misma validación que submit pero menos estricta
         $rules = [];
-        foreach ($templateModel->estructura as $campo) {
+        foreach ($template->estructura as $campo) {
             $fieldRules = ['nullable'];
 
             switch ($campo['tipo']) {
@@ -174,13 +164,13 @@ class FormExecutionController extends Controller
 
         // Preparar datos para guardar
         $data = [];
-        foreach ($templateModel->estructura as $campo) {
+        foreach ($template->estructura as $campo) {
             $fieldName = "campo_{$campo['nombre']}";
             $data[$campo['nombre']] = $validated[$fieldName] ?? null;
         }
 
         $submission = FormSubmission::updateOrCreate([
-            'template_id' => $templateModel->id,
+            'template_id' => $template->id,
             'user_id' => auth()->id(),
             'estado' => 'borrador',
         ], [
