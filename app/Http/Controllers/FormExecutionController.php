@@ -27,14 +27,8 @@ class FormExecutionController extends Controller
     {
         $template = FormTemplate::findOrFail($template);
 
-        // Debug temporal
         dd($template);
 
-        // if (!$template->activo) {
-        //     abort(403, 'Formulario no disponible');
-        // }
-
-        $template->load('creator');
         return view('forms.execution.show', compact('template'));
     }
 

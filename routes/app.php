@@ -484,13 +484,29 @@ Route::middleware(['auth'])->group(function () {
 
             // Execution - Todos los usuarios autenticados
             Route::prefix('forms')->group(function () {
-                Route::get('/', [FormExecutionController::class, 'index'])->name('forms.execution.index');
-                Route::get('/{template}', [FormExecutionController::class, 'show'])->name('forms.execution.show');
-                Route::post('/{template}', [FormExecutionController::class, 'submit'])->name('forms.execution.submit');
-                Route::post('/{template}/draft', [FormExecutionController::class, 'draft'])->name('forms.execution.draft');
-                Route::get('/submissions/{submission}/edit', [FormExecutionController::class, 'edit'])->name('forms.execution.edit');
-                Route::put('/submissions/{submission}', [FormExecutionController::class, 'update'])->name('forms.execution.update');
-                Route::delete('/submissions/{submission}', [FormExecutionController::class, 'destroy'])->name('forms.execution.destroy');
+                Route::get('/', [FormExecutionController::class, 'index'])
+                    ->name('forms.execution.index');
+
+                Route::get('/{template}', [FormExecutionController::class, 'show'])
+                    ->whereNumber('template')
+                    ->name('forms.execution.show');
+
+                Route::post('/{template}', [FormExecutionController::class, 'submit'])
+                    ->whereNumber('template')
+                    ->name('forms.execution.submit');
+
+                Route::post('/{template}/draft', [FormExecutionController::class, 'draft'])
+                    ->whereNumber('template')
+                    ->name('forms.execution.draft');
+
+                Route::get('/submissions/{submission}/edit', [FormExecutionController::class, 'edit'])
+                    ->name('forms.execution.edit');
+
+                Route::put('/submissions/{submission}', [FormExecutionController::class, 'update'])
+                    ->name('forms.execution.update');
+
+                Route::delete('/submissions/{submission}', [FormExecutionController::class, 'destroy'])
+                    ->name('forms.execution.destroy');
             });
         });
     });
