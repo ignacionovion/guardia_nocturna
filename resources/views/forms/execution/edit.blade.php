@@ -10,7 +10,7 @@
             <i class="fas fa-arrow-left mr-2"></i>Volver a Formularios
         </a>
         <h1 class="text-3xl font-bold text-gray-900">Editar {{ $submission->template->nombre }}</h1>
-        <p class="text-gray-600 mt-2">Modifica tu formulario</p>
+        <p class="text-gray-600 mt-2">Guarda los cambios de tu borrador</p>
     </div>
 
     <form action="{{ route('forms.execution.update', ['submission' => $submission->id]) }}" method="POST" id="dynamicForm">
@@ -97,7 +97,7 @@
                 </a>
                 <button type="submit" 
                         class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                    <i class="fas fa-paper-plane mr-2"></i>Enviar Formulario
+                    <i class="fas fa-save mr-2"></i>Guardar Borrador
                 </button>
             </div>
         </div>

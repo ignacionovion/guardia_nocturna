@@ -208,6 +208,12 @@ class FormExecutionController extends Controller
             abort(403);
         }
 
+        // Solo se pueden editar borradores
+        if ($submission->estado !== 'borrador') {
+            return redirect()->route('forms.execution.index')
+                ->with('error', 'Solo se pueden editar borradores. Este formulario ya fue enviado.');
+        }
+
         $template = $submission->template;
         $rules = [];
         $messages = [];
@@ -216,11 +222,8 @@ class FormExecutionController extends Controller
             $fieldName = "campo_{$campo['nombre']}";
             $fieldRules = [];
 
-            if ($campo['requerido'] ?? false) {
-                $fieldRules[] = 'required';
-            } else {
-                $fieldRules[] = 'nullable';
-            }
+            // En update() de borradores, todos los campos son nullable
+            $fieldRules[] = 'nullable';
 
             switch ($campo['tipo']) {
                 case 'text':
