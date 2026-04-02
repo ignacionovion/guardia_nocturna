@@ -13,7 +13,7 @@
         <p class="text-gray-600 mt-2">Modifica tu formulario</p>
     </div>
 
-    <form action="{{ route('forms.execution.update', $submission) }}" method="POST" id="dynamicForm">
+    <form action="{{ route('forms.execution.update', ['submission' => $submission->id]) }}" method="POST" id="dynamicForm">
         @csrf
         @method('PUT')
         <div class="bg-white rounded-lg shadow-lg p-6">

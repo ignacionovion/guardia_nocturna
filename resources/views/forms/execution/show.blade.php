@@ -13,7 +13,7 @@
         <p class="text-gray-600 mt-2">Completa el formulario a continuación</p>
     </div>
 
-    <form action="{{ route('forms.execution.submit', $template) }}" method="POST" id="dynamicForm">
+    <form action="{{ route('forms.execution.submit', ['template' => $template->id]) }}" method="POST" id="dynamicForm">
         @csrf
         <div class="bg-white rounded-lg shadow-lg p-6">
             <div class="space-y-6">
@@ -113,7 +113,7 @@ function guardarBorrador() {
     // Enviar como borrador
     const tempForm = document.createElement('form');
     tempForm.method = 'POST';
-    tempForm.action = '{{ route('forms.execution.draft', $template) }}';
+    tempForm.action = '{{ route('forms.execution.draft', ['template' => $template->id]) }}';
     
     formData.forEach((value, key) => {
         const input = document.createElement('input');

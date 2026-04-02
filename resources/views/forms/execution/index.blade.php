@@ -4,9 +4,18 @@
 
 @section('content')
 <div class="container mx-auto px-4 py-8">
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Formularios</h1>
-        <p class="text-gray-600 mt-2">Completa y gestiona tus formularios</p>
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-slate-900">Formularios</h1>
+            <p class="text-slate-600 mt-1">Completa y gestiona tus formularios</p>
+        </div>
+
+        @if(in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania']))
+            <a href="{{ route('forms.builder.index') }}"
+               class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                Administrar formularios
+            </a>
+        @endif
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -62,7 +71,7 @@
                                         <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
                                             Borrador
                                         </span>
-                                        <a href="{{ route('forms.execution.edit', $submission) }}" 
+                                        <a href="{{ route('forms.execution.edit', ['submission' => $submission->id]) }}" 
                                            class="text-blue-600 hover:text-blue-800 text-sm">
                                             <i class="fas fa-edit"></i>
                                         </a>
@@ -71,7 +80,7 @@
                                             Enviado
                                         </span>
                                     @endif
-                                    <form action="{{ route('forms.execution.destroy', $submission) }}" method="POST" class="inline"
+                                    <form action="{{ route('forms.execution.destroy', ['submission' => $submission->id]) }}" method="POST" class="inline"
                                           onsubmit="return confirm('¿Estás seguro de eliminar este registro?')">
                                         @csrf
                                         @method('DELETE')

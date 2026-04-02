@@ -81,15 +81,15 @@
                         {{ $template->created_at->format('d/m/Y') }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <a href="{{ route('forms.execution.show', $template) }}" 
+                        <a href="{{ route('forms.execution.show', ['template' => $template->id]) }}" 
                            class="text-blue-600 hover:text-blue-900 mr-3">
                             <i class="fas fa-eye"></i>
                         </a>
-                        <a href="{{ route('forms.builder.edit', $template) }}" 
+                        <a href="{{ route('forms.builder.edit', ['template' => $template->id]) }}" 
                            class="text-indigo-600 hover:text-indigo-900 mr-3">
                             <i class="fas fa-edit"></i>
                         </a>
-                        <form action="{{ route('forms.builder.toggle', $template) }}" method="POST" class="inline">
+                        <form action="{{ route('forms.builder.toggle', ['template' => $template->id]) }}" method="POST" class="inline">
                             @csrf
                             <button type="submit" 
                                     class="text-{{ $template->activo ? 'yellow' : 'green' }}-600 hover:text-{{ $template->activo ? 'yellow' : 'green' }}-900 mr-3"
@@ -97,7 +97,7 @@
                                 <i class="fas fa-power-off"></i>
                             </button>
                         </form>
-                        <form action="{{ route('forms.builder.duplicate', $template) }}" method="POST" class="inline">
+                        <form action="{{ route('forms.builder.duplicate', ['template' => $template->id]) }}" method="POST" class="inline">
                             @csrf
                             <button type="submit" 
                                     class="text-purple-600 hover:text-purple-900 mr-3"
@@ -105,7 +105,7 @@
                                 <i class="fas fa-copy"></i>
                             </button>
                         </form>
-                        <form action="{{ route('forms.builder.destroy', $template) }}" method="POST" class="inline"
+                        <form action="{{ route('forms.builder.destroy', ['template' => $template->id]) }}" method="POST" class="inline"
                               onsubmit="return confirm('¿Estás seguro de eliminar esta plantilla?')">
                             @csrf
                             @method('DELETE')

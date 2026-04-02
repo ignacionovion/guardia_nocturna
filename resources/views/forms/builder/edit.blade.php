@@ -9,7 +9,7 @@
         <p class="text-gray-600 mt-2">Modifica tu formulario personalizado</p>
     </div>
 
-    <form action="{{ route('forms.builder.update', $template) }}" method="POST" id="formBuilder">
+    <form action="{{ route('forms.builder.update', ['template' => $template->id]) }}" method="POST" id="formBuilder">
         @csrf
         @method('PUT')
         <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
