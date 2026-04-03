@@ -11,9 +11,9 @@ $isAvailable = !$isOccupied && ($bed->estado ?? 'libre') === 'libre';
 $isMaintenance = ($bed->estado ?? '') === 'mantenimiento';
 
 $statusClasses = [
-    'occupied' => 'border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/20 hover:border-blue-400 dark:hover:border-blue-600',
-    'available' => 'border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 hover:border-emerald-400 dark:hover:border-emerald-600 cursor-pointer',
-    'maintenance' => 'border-slate-300 dark:border-slate-600 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 opacity-60 cursor-not-allowed',
+    'occupied' => 'border-blue-200 bg-blue-50 hover:border-blue-300',
+    'available' => 'border-emerald-200 bg-emerald-50 hover:border-emerald-300 cursor-pointer',
+    'maintenance' => 'border-slate-200 bg-white opacity-60 cursor-not-allowed',
 ];
 
 $status = $isMaintenance ? 'maintenance' : ($isOccupied ? 'occupied' : 'available');
@@ -23,7 +23,7 @@ $status = $isMaintenance ? 'maintenance' : ($isOccupied ? 'occupied' : 'availabl
     'class' => 'relative group rounded-2xl border-2 p-4 transition-all duration-200 hover:shadow-lg ' . $statusClasses[$status]
 ]) }}>
     {{-- Bed number badge --}}
-    <div class="absolute -top-2 -left-2 w-7 h-7 rounded-lg {{ $isOccupied ? 'bg-blue-500' : ($isMaintenance ? 'bg-slate-400' : 'bg-emerald-500') }} flex items-center justify-center text-white text-xs font-bold shadow-lg">
+    <div class="absolute -top-2 -left-2 w-7 h-7 rounded-lg {{ $isOccupied ? 'bg-blue-500' : ($isMaintenance ? 'bg-slate-300' : 'bg-emerald-500') }} flex items-center justify-center text-white text-xs font-bold shadow-lg">
         {{ $bedNumber }}
     </div>
     
@@ -47,10 +47,10 @@ $status = $isMaintenance ? 'maintenance' : ($isOccupied ? 'occupied' : 'availabl
     </div>
     @elseif($isMaintenance)
     <div class="text-center">
-        <div class="w-10 h-10 mx-auto mb-2 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
-            <i class="fas fa-wrench text-slate-400 dark:text-slate-500 dark:text-slate-400"></i>
+        <div class="w-10 h-10 mx-auto mb-2 rounded-lg bg-slate-100 flex items-center justify-center">
+            <i class="fas fa-wrench text-slate-400"></i>
         </div>
-        <p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Mantenimiento</p>
+        <p class="text-sm text-slate-500 font-medium">Mantenimiento</p>
         <p class="text-xs text-slate-400 dark:text-slate-500 dark:text-slate-400">No disponible</p>
     </div>
     @else

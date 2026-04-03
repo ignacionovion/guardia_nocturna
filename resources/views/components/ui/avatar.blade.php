@@ -16,7 +16,7 @@ $sizes = [
 
 $statusColors = [
     'online' => 'bg-emerald-500',
-    'offline' => 'bg-slate-400',
+    'offline' => 'bg-slate-300',
     'busy' => 'bg-red-500',
     'away' => 'bg-amber-500',
 ];
@@ -29,12 +29,12 @@ $initials = collect(explode(' ', $name))->map(fn($w) => strtoupper(substr($w, 0,
     @if($src)
     <img src="{{ $src }}" alt="{{ $name }}" {{ $attributes->merge(['class' => 'rounded-full object-cover ' . $sizeClass]) }}>
     @else
-    <div {{ $attributes->merge(['class' => 'rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center font-semibold text-slate-600 dark:text-slate-400 dark:text-slate-300 ' . $sizeClass]) }}>
+    <div {{ $attributes->merge(['class' => 'rounded-full bg-slate-200 flex items-center justify-center font-semibold text-slate-600 ' . $sizeClass]) }}>
         {{ $initials ?: '?' }}
     </div>
     @endif
     
     @if($status)
-    <span class="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-white dark:ring-slate-800 {{ $statusColors[$status] ?? $statusColors['offline'] }}"></span>
+    <span class="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-white {{ $statusColors[$status] ?? $statusColors['offline'] }}"></span>
     @endif
 </div>

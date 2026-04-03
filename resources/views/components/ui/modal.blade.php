@@ -17,11 +17,11 @@ $maxWidths = [
 ];
 $maxWidthClass = $maxWidths[$maxWidth] ?? $maxWidths['md'];
 $iconColors = [
-    'slate' => 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400',
-    'red' => 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400',
-    'emerald' => 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400',
-    'blue' => 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400',
-    'amber' => 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400',
+    'slate' => 'bg-slate-100 text-slate-600',
+    'red' => 'bg-red-100 text-red-600',
+    'emerald' => 'bg-emerald-100 text-emerald-600',
+    'blue' => 'bg-blue-100 text-blue-600',
+    'amber' => 'bg-amber-100 text-amber-600',
 ];
 $iconColorClass = $iconColors[$iconColor] ?? $iconColors['slate'];
 @endphp
@@ -38,7 +38,7 @@ $iconColorClass = $iconColors[$iconColor] ?? $iconColors['slate'];
      x-on:keydown.escape.window="open = false">
     <div class="flex min-h-screen items-center justify-center p-4">
         {{-- Backdrop --}}
-        <div class="fixed inset-0 bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm transition-opacity" 
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" 
              @click="open = false; document.getElementById('{{ $id }}').classList.add('hidden')"
              x-show="open"
              x-transition:enter="ease-out duration-200"
@@ -49,7 +49,7 @@ $iconColorClass = $iconColors[$iconColor] ?? $iconColors['slate'];
              x-transition:leave-end="opacity-0"></div>
         
         {{-- Modal Panel --}}
-        <div class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl {{ $maxWidthClass }} w-full transform transition-all border border-slate-200 dark:border-slate-800"
+        <div class="relative bg-white rounded-2xl shadow-2xl {{ $maxWidthClass }} w-full transform transition-all border border-slate-200"
              x-show="open"
              x-transition:enter="ease-out duration-200"
              x-transition:enter-start="opacity-0 scale-95"
@@ -70,7 +70,7 @@ $iconColorClass = $iconColors[$iconColor] ?? $iconColors['slate'];
                 </div>
                 <button type="button" 
                         @click="open = false; document.getElementById('{{ $id }}').classList.add('hidden')"
-                        class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                        class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors">
                     <i class="fas fa-xmark"></i>
                 </button>
             </div>
@@ -83,7 +83,7 @@ $iconColorClass = $iconColors[$iconColor] ?? $iconColors['slate'];
             
             {{-- Footer --}}
             @if(isset($footer))
-            <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 rounded-b-2xl">
+            <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-200 bg-slate-50 rounded-b-2xl">
                 {{ $footer }}
             </div>
             @endif

@@ -7,31 +7,31 @@
 
 @php
 $variants = [
-    'default' => 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300',
-    'primary' => 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
-    'success' => 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
-    'warning' => 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400',
-    'danger' => 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
-    'info' => 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
-    'purple' => 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400',
-    'violet' => 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400',
-    'indigo' => 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400',
-    'rose' => 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400',
-    'cyan' => 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400',
+    'default' => 'bg-slate-100 text-slate-700',
+    'primary' => 'bg-blue-100 text-blue-700',
+    'success' => 'bg-emerald-100 text-emerald-700',
+    'warning' => 'bg-amber-100 text-amber-700',
+    'danger' => 'bg-red-100 text-red-700',
+    'info' => 'bg-blue-100 text-blue-700',
+    'purple' => 'bg-violet-100 text-violet-700',
+    'violet' => 'bg-violet-100 text-violet-700',
+    'indigo' => 'bg-indigo-100 text-indigo-700',
+    'rose' => 'bg-rose-100 text-rose-700',
+    'cyan' => 'bg-cyan-100 text-cyan-700',
 ];
 
 $dotColors = [
-    'default' => 'bg-slate-500',
-    'primary' => 'bg-blue-500',
-    'success' => 'bg-emerald-500',
-    'warning' => 'bg-amber-500',
-    'danger' => 'bg-red-500',
-    'info' => 'bg-blue-500',
-    'purple' => 'bg-violet-500',
-    'violet' => 'bg-violet-500',
-    'indigo' => 'bg-indigo-500',
-    'rose' => 'bg-rose-500',
-    'cyan' => 'bg-cyan-500',
+    'default' => 'bg-slate-600',
+    'primary' => 'bg-blue-600',
+    'success' => 'bg-emerald-600',
+    'warning' => 'bg-amber-600',
+    'danger' => 'bg-red-600',
+    'info' => 'bg-blue-600',
+    'purple' => 'bg-violet-600',
+    'violet' => 'bg-violet-600',
+    'indigo' => 'bg-indigo-600',
+    'rose' => 'bg-rose-600',
+    'cyan' => 'bg-cyan-600',
 ];
 
 $sizes = [
