@@ -29,44 +29,44 @@
                 
                 <!-- Métricas Principales -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="bg-[#dde6ef] border border-[#9fb0c3] rounded-[14px] p-5 shadow-sm">
+                    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
                         <div class="flex items-start justify-between mb-3">
-                            <div class="text-xs font-semibold text-[#475569] uppercase tracking-wide">Guardia en Servicio</div>
-                            <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center shrink-0">
+                            <div class="text-xs font-bold text-slate-500 uppercase tracking-wide">Guardia en Servicio</div>
+                            <div class="w-11 h-11 bg-red-100 rounded-xl flex items-center justify-center shrink-0">
                                 <i class="fas fa-shield text-red-600"></i>
                             </div>
                         </div>
-                        <div class="text-2xl font-bold text-[#1e293b]">{{ $guardiaEnServicio?->name ?? 'Sin asignar' }}</div>
+                        <div class="text-xl font-black text-slate-900">{{ $guardiaEnServicio?->name ?? 'Sin asignar' }}</div>
                     </div>
 
-                    <div class="bg-[#dde6ef] border border-[#9fb0c3] rounded-[14px] p-5 shadow-sm">
+                    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
                         <div class="flex items-start justify-between mb-3">
-                            <div class="text-xs font-semibold text-[#475569] uppercase tracking-wide">Personal en Guardia</div>
-                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center shrink-0">
+                            <div class="text-xs font-bold text-slate-500 uppercase tracking-wide">Personal en Guardia</div>
+                            <div class="w-11 h-11 bg-blue-100 rounded-xl flex items-center justify-center shrink-0">
                                 <i class="fas fa-users text-blue-600"></i>
                             </div>
                         </div>
-                        <div class="text-3xl font-bold text-[#1e293b]">{{ $onDutyCount }}</div>
+                        <div class="text-xl font-black text-slate-900">{{ $onDutyCount }}</div>
                     </div>
 
-                    <div class="bg-[#dde6ef] border border-[#9fb0c3] rounded-[14px] p-5 shadow-sm">
+                    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
                         <div class="flex items-start justify-between mb-3">
-                            <div class="text-xs font-semibold text-[#475569] uppercase tracking-wide">Camas Disponibles</div>
-                            <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center shrink-0">
+                            <div class="text-xs font-bold text-slate-500 uppercase tracking-wide">Camas Disponibles</div>
+                            <div class="w-11 h-11 bg-emerald-100 rounded-xl flex items-center justify-center shrink-0">
                                 <i class="fas fa-bed text-emerald-600"></i>
                             </div>
                         </div>
-                        <div class="text-3xl font-bold text-[#1e293b]">{{ $availableBeds }}<span class="text-xl text-[#475569] font-normal">/{{ $totalBeds }}</span></div>
+                        <div class="text-xl font-black text-slate-900">{{ $availableBeds }}<span class="text-lg text-slate-500 font-normal">/{{ $totalBeds }}</span></div>
                     </div>
 
-                    <div class="bg-[#dde6ef] border border-[#9fb0c3] rounded-[14px] p-5 shadow-sm">
+                    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
                         <div class="flex items-start justify-between mb-3">
-                            <div class="text-xs font-semibold text-[#475569] uppercase tracking-wide">Novedades</div>
-                            <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center shrink-0">
+                            <div class="text-xs font-bold text-slate-500 uppercase tracking-wide">Novedades</div>
+                            <div class="w-11 h-11 bg-amber-100 rounded-xl flex items-center justify-center shrink-0">
                                 <i class="fas fa-clipboard-list text-amber-600"></i>
                             </div>
                         </div>
-                        <div class="text-3xl font-bold text-[#1e293b]">{{ $novelties->count() }}</div>
+                        <div class="text-xl font-black text-slate-900">{{ $novelties->count() }}</div>
                     </div>
                 </div>
 
@@ -97,38 +97,38 @@
                                 : collect();
                         @endphp
                         <div class="grid grid-cols-3 gap-4 mb-6">
-                            <div class="text-center p-4 bg-[#e7eef5] border border-[#9fb0c3] rounded-[14px]">
+                            <div class="text-center p-4 bg-white border border-slate-200 rounded-xl shadow-sm">
                                 <div class="metric-value text-purple-600">{{ $activeReplacementsCount }}</div>
                                 <div class="metric-label mt-1">Reemplazos</div>
                             </div>
-                            <div class="text-center p-4 bg-[#e7eef5] border border-[#9fb0c3] rounded-[14px]">
+                            <div class="text-center p-4 bg-white border border-slate-200 rounded-xl shadow-sm">
                                 <div class="metric-value text-sky-600">{{ $activeRefuerzosCount }}</div>
                                 <div class="metric-label mt-1">Refuerzos</div>
                             </div>
-                            <div class="text-center p-4 bg-[#e7eef5] border border-[#9fb0c3] rounded-[14px]">
+                            <div class="text-center p-4 bg-white border border-slate-200 rounded-xl shadow-sm">
                                 <div class="metric-value text-red-600">{{ $outOfServiceFirefighters }}</div>
                                 <div class="metric-label mt-1">Fuera de Servicio</div>
                             </div>
                         </div>
 
                         <div class="grid grid-cols-5 gap-3 mb-6">
-                            <div class="text-center p-3 bg-[#e7eef5] border border-[#9fb0c3] rounded-[14px]">
+                            <div class="text-center p-3 bg-white border border-slate-200 rounded-xl shadow-sm">
                                 <div class="text-2xl font-black text-emerald-600">{{ $countConstituye }}</div>
                                 <div class="metric-label mt-1">Constituyen</div>
                             </div>
-                            <div class="text-center p-3 bg-[#e7eef5] border border-[#9fb0c3] rounded-[14px]">
+                            <div class="text-center p-3 bg-white border border-slate-200 rounded-xl shadow-sm">
                                 <div class="text-2xl font-black text-amber-600">{{ $countPermiso }}</div>
                                 <div class="metric-label mt-1">Permiso</div>
                             </div>
-                            <div class="text-center p-3 bg-[#e7eef5] border border-[#9fb0c3] rounded-[14px]">
+                            <div class="text-center p-3 bg-white border border-slate-200 rounded-xl shadow-sm">
                                 <div class="text-2xl font-black text-slate-600">{{ $countAusente }}</div>
                                 <div class="metric-label mt-1">Ausente</div>
                             </div>
-                            <div class="text-center p-3 bg-[#e7eef5] border border-[#9fb0c3] rounded-[14px]">
+                            <div class="text-center p-3 bg-white border border-slate-200 rounded-xl shadow-sm">
                                 <div class="text-2xl font-black text-blue-600">{{ $countLicencia }}</div>
                                 <div class="metric-label mt-1">Licencia</div>
                             </div>
-                            <div class="text-center p-3 bg-[#e7eef5] border border-[#9fb0c3] rounded-[14px]">
+                            <div class="text-center p-3 bg-white border border-slate-200 rounded-xl shadow-sm">
                                 <div class="text-2xl font-black text-red-600">{{ $countFalta }}</div>
                                 <div class="metric-label mt-1">Falta</div>
                             </div>
@@ -139,7 +139,7 @@
                                 <h3 class="text-sm font-semibold text-[#1e293b] mb-4">Detalle de Reemplazos Activos</h3>
                                 <div class="space-y-3">
                                     @foreach($dashboardActiveReplacements as $replacement)
-                                        <div class="p-4 bg-[#e7eef5] rounded-[14px] border border-[#9fb0c3]">
+                                        <div class="p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
                                             <div class="flex items-start gap-4">
                                                 <!-- Reemplazado -->
                                                 <div class="flex-1">
@@ -273,9 +273,9 @@
                         </div>
                     </a>
 
-                    <a href="{{ route('admin.dotaciones') }}" class="group p-4 bg-[#dde6ef] hover:bg-[#e7eef5] rounded-[14px] border border-[#9fb0c3] transition-colors flex items-center gap-3 no-underline shadow-sm">
-                        <div class="w-10 h-10 bg-[#c3cfdb] rounded-lg flex items-center justify-center shrink-0">
-                            <i class="fas fa-users-gear text-[#1e293b]"></i>
+                    <a href="{{ route('admin.dotaciones') }}" class="group p-4 bg-white hover:bg-slate-50 rounded-xl border border-slate-200 transition-colors flex items-center gap-3 no-underline shadow-sm">
+                        <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center shrink-0">
+                            <i class="fas fa-users-gear text-slate-900"></i>
                         </div>
                         <div>
                             <p class="font-semibold text-sm text-[#1e293b]">Dotaciones</p>
@@ -283,17 +283,17 @@
                         </div>
                     </a>
 
-                    <a href="{{ route('camas') }}" class="group p-4 bg-[#dde6ef] hover:bg-[#e7eef5] rounded-[14px] border border-[#9fb0c3] transition-colors flex items-center gap-3 no-underline shadow-sm">
+                    <a href="{{ route('camas') }}" class="group p-4 bg-white hover:bg-slate-50 rounded-xl border border-slate-200 transition-colors flex items-center gap-3 no-underline shadow-sm">
                         <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center shrink-0">
                             <i class="fas fa-bed text-emerald-600"></i>
                         </div>
                         <div>
                             <p class="font-semibold text-sm text-[#1e293b]">Camas</p>
-                            <p class="text-xs text-[#475569]">{{ $availableBeds }} disponibles</p>
+                            <p class="text-xs text-[#475569]">Gestionar alojamiento</p>
                         </div>
                     </a>
 
-                    <a href="{{ route('admin.emergencies.index') }}" class="group p-4 bg-[#dde6ef] hover:bg-[#e7eef5] rounded-[14px] border border-[#9fb0c3] transition-colors flex items-center gap-3 no-underline shadow-sm">
+                    <a href="{{ route('admin.emergencies.index') }}" class="group p-4 bg-white hover:bg-slate-50 rounded-xl border border-slate-200 transition-colors flex items-center gap-3 no-underline shadow-sm">
                         <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center shrink-0">
                             <i class="fas fa-truck-medical text-amber-600"></i>
                         </div>
@@ -339,7 +339,7 @@
                         @else
                             <div class="space-y-3">
                                 @foreach($upcomingBirthdaysAll as $b)
-                                    <div class="flex items-center gap-3 p-2.5 rounded-lg bg-[#e7eef5] border border-[#9fb0c3]">
+                                    <div class="flex items-center gap-3 p-2.5 rounded-lg bg-white border border-slate-200">
                                         <div class="w-8 h-8 rounded-full bg-amber-200 text-amber-800 flex items-center justify-center font-bold text-xs border border-amber-300">
                                             {{ strtoupper(substr($b->nombres, 0, 1)) }}
                                         </div>

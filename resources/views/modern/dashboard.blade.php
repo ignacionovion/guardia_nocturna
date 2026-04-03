@@ -25,7 +25,7 @@
                     </p>
                 </div>
                 <div class="flex items-center gap-3">
-                    <a href="{{ route('guardia.now') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 text-slate-900 text-sm font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-lg shadow-white/10">
+                    <a href="{{ route('guardia.now') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-slate-900 text-sm font-semibold hover:bg-slate-50 transition-colors shadow-lg border border-slate-200">
                         <i class="fas fa-satellite-dish"></i>
                         Ver Guardia en Vivo
                     </a>
@@ -141,7 +141,7 @@
                     @endphp
                     @foreach($dotacionEjemplo as $bombero)
                     @php $config = $estadoConfig[$bombero['estado']]; @endphp
-                    <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 dark:border-slate-700/50 hover:border-slate-200 dark:border-slate-700 dark:hover:border-slate-700 transition-colors">
+                    <div class="flex items-center gap-3 p-3 rounded-xl bg-white border border-slate-200 hover:border-slate-300 transition-colors shadow-sm">
                         <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-slate-700 to-slate-900 dark:from-slate-300 dark:to-slate-500 flex items-center justify-center text-white dark:text-slate-900 text-sm font-bold">
                             {{ strtoupper(substr($bombero['nombre'], 0, 1)) }}{{ strtoupper(substr(explode(' ', $bombero['nombre'])[1], 0, 1)) }}
                         </div>
@@ -170,7 +170,7 @@
             <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-800 p-5">
                 <h3 class="font-semibold text-slate-900 dark:text-white mb-4">Accesos Rápidos</h3>
                 <div class="grid grid-cols-2 gap-2">
-                    <a href="{{ route('camas') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:bg-slate-800 border border-slate-100 dark:border-slate-800 dark:border-slate-700/50 transition-colors group">
+                    <a href="{{ route('camas') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 transition-colors group shadow-sm">
                         <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center group-hover:scale-110 transition-transform">
                             <i class="fas fa-bed text-blue-600 dark:text-blue-400"></i>
                         </div>
@@ -207,7 +207,7 @@
                 </div>
                 <div class="flex items-center gap-4 mb-4">
                     <div class="flex-1">
-                        <div class="h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                        <div class="h-2 rounded-full bg-slate-100 overflow-hidden">
                             <div class="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full" style="width: {{ ($camasOcupadas ?? 8) / ($camasTotal ?? 15) * 100 }}%"></div>
                         </div>
                     </div>
@@ -222,9 +222,9 @@
                         <p class="text-lg font-bold text-emerald-600 dark:text-emerald-400">{{ ($camasTotal ?? 15) - ($camasOcupadas ?? 8) }}</p>
                         <p class="text-[10px] text-slate-500 dark:text-slate-400 uppercase">Libres</p>
                     </div>
-                    <div class="p-2 rounded-lg bg-slate-50 dark:bg-slate-800">
-                        <p class="text-lg font-bold text-slate-600 dark:text-slate-400">{{ $camasTotal ?? 15 }}</p>
-                        <p class="text-[10px] text-slate-500 dark:text-slate-400 uppercase">Total</p>
+                    <div class="p-2 rounded-lg bg-white border border-slate-200">
+                        <p class="text-lg font-bold text-slate-600">{{ $camasTotal ?? 15 }}</p>
+                        <p class="text-[10px] text-slate-500 uppercase">Total</p>
                     </div>
                 </div>
             </div>
@@ -287,7 +287,7 @@
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                <button class="px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg transition-colors">
                     <i class="fas fa-filter mr-1"></i> Filtrar
                 </button>
                 <button class="px-3 py-1.5 text-xs font-medium text-white bg-slate-900 dark:bg-white dark:bg-slate-900 dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
@@ -298,7 +298,7 @@
         <div class="overflow-x-auto">
             <table class="w-full">
                 <thead>
-                    <tr class="bg-slate-50 dark:bg-slate-800/50">
+                    <tr class="bg-slate-50">
                         <th class="px-6 py-3 text-left text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Bombero</th>
                         <th class="px-6 py-3 text-left text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Tipo</th>
                         <th class="px-6 py-3 text-left text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Motivo</th>

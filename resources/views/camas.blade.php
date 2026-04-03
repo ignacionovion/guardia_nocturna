@@ -31,9 +31,9 @@
     <div class="card-base p-5 mb-6">
         {{-- Métricas Compactas --}}
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
-            <div class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
-                <div class="w-12 h-12 bg-slate-200 dark:bg-slate-700 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <i class="fas fa-bed text-slate-700 dark:text-slate-300 text-lg"></i>
+            <div class="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-200 shadow-sm">
+                <div class="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-bed text-slate-700 text-lg"></i>
                 </div>
                 <div>
                     <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Total</p>
@@ -72,7 +72,7 @@
         {{-- Filtros Rápidos Integrados --}}
         <div class="flex flex-wrap items-center gap-2 pt-4 border-t border-slate-200 dark:border-slate-700">
             <span class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mr-1">Filtrar:</span>
-            <a href="{{ route('camas') }}" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all {{ !request('status') ? 'bg-slate-900 text-white shadow-sm' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700' }}">
+            <a href="{{ route('camas') }}" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all {{ !request('status') ? 'bg-slate-900 text-white shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50' }}">
                 <i class="fas fa-list mr-1.5"></i>Todas
             </a>
             <a href="{{ route('camas', ['status' => 'occupied']) }}" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all {{ request('status') === 'occupied' ? 'bg-red-600 text-white shadow-sm' : 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/30' }}">
@@ -119,7 +119,7 @@
                     <!-- Header Compacto -->
                     <div class="flex items-center justify-between mb-3 flex-shrink-0">
                         <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 rounded-xl {{ $isOccupied ? 'bg-red-100 dark:bg-red-900/30' : ($isAvailable ? 'bg-emerald-100 dark:bg-emerald-900/30' : 'bg-slate-100 dark:bg-slate-800') }} flex items-center justify-center flex-shrink-0">
+                            <div class="w-12 h-12 rounded-xl {{ $isOccupied ? 'bg-red-100' : ($isAvailable ? 'bg-emerald-100' : 'bg-slate-100') }} flex items-center justify-center flex-shrink-0">
                                 <span class="text-xl font-bold {{ $isOccupied ? 'text-red-700 dark:text-red-300' : ($isAvailable ? 'text-emerald-700 dark:text-emerald-300' : 'text-slate-600 dark:text-slate-400') }}">{{ $bed->name ?? $bed->number }}</span>
                             </div>
                             <div>
@@ -127,7 +127,7 @@
                                 <p class="text-sm font-bold text-slate-900 dark:text-white">{{ $bed->name ?? 'N° ' . $bed->number }}</p>
                             </div>
                         </div>
-                        <div class="px-2.5 py-1 rounded-lg text-xs font-bold {{ $isOccupied ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' : ($isAvailable ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400') }}">
+                        <div class="px-2.5 py-1 rounded-lg text-xs font-bold {{ $isOccupied ? 'bg-red-100 text-red-700' : ($isAvailable ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600') }}">
                             {{ $isOccupied ? 'OCUPADA' : ($isAvailable ? 'LIBRE' : 'MANTENCIÓN') }}
                         </div>
                     </div>
@@ -186,8 +186,8 @@
                         @else
                             <!-- Estado Mantención -->
                             <div class="flex flex-col items-center justify-center py-4 text-center">
-                                <div class="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center mb-2">
-                                    <i class="fas fa-tools text-slate-500 dark:text-slate-400 text-xl"></i>
+                                <div class="w-14 h-14 bg-slate-100 rounded-xl flex items-center justify-center mb-2">
+                                    <i class="fas fa-tools text-slate-500 text-xl"></i>
                                 </div>
                                 <p class="text-sm font-bold text-slate-600 dark:text-slate-400">En Mantención</p>
                                 @if($bed->notes ?? $bed->description)
@@ -206,13 +206,13 @@
                             </button>
                             @if(in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania']))
                                 <div class="flex gap-2">
-                                    <button onclick="openQrModal('{{ $bed->id }}', '{{ $bed->name ?? $bed->number }}')" class="flex-1 px-2 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold rounded-lg text-xs transition-all">
+                                    <button onclick="openQrModal('{{ $bed->id }}', '{{ $bed->name ?? $bed->number }}')" class="flex-1 px-2 py-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-semibold rounded-lg text-xs transition-all">
                                         <i class="fas fa-qrcode"></i> QR
                                     </button>
                                     <form action="{{ route('beds.maintenance', $bed->id) }}" method="POST" onsubmit="return confirm('¿Marcar en mantención?');" class="flex-1">
                                         @csrf
                                         @method('PUT')
-                                        <button type="submit" class="w-full px-2 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold rounded-lg text-xs transition-all">
+                                        <button type="submit" class="w-full px-2 py-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-semibold rounded-lg text-xs transition-all">
                                             <i class="fas fa-tools"></i> Mantención
                                         </button>
                                     </form>
