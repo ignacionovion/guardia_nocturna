@@ -8,7 +8,7 @@ $tenant = tenant();
 $currentDate = now()->locale('es');
 @endphp
 
-<header class="sticky top-0 z-30 flex items-center justify-between h-16 px-4 sm:px-6 bg-white border-b border-[#e5e7eb] shadow-sm">
+<header class="sticky top-0 z-30 flex items-center justify-between h-16 px-4 sm:px-6 bg-white/80 glass border-b border-slate-200 shadow-sm">
     {{-- Left: Mobile menu + Title + Date --}}
     <div class="flex items-center gap-4">
         {{-- Mobile sidebar toggle --}}

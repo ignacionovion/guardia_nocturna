@@ -102,11 +102,36 @@
             70% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
             100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
         }
+        
+        /* Grid Pattern Background (estilo NOW) */
+        .grid-pattern {
+            background-color: #f8fafc;
+            background-image: radial-gradient(circle at 1px 1px, rgba(148, 163, 184, 0.15) 1px, transparent 0);
+            background-size: 24px 24px;
+        }
+        
+        /* Glass Effect (estilo NOW) */
+        .glass {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        
+        @keyframes slide-in {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-slide-in {
+            animation: slide-in 0.3s ease-out;
+        }
+        @keyframes status-pulse {
+            0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+            70% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
     </style>
     
     @stack('styles')
 </head>
-<body class="bg-[#f8fafc] text-[#0f172a] antialiased">
+<body class="bg-slate-100 text-slate-900 antialiased">
     @include('components.impersonation-banner')
     
     <div class="min-h-screen flex">
@@ -149,7 +174,7 @@
             @endauth
             
             {{-- Page Content --}}
-            <main class="flex-1 p-4 sm:p-6 overflow-x-hidden bg-[#f8fafc]">
+            <main class="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden grid-pattern">
                 {{-- Breadcrumb --}}
                 @hasSection('breadcrumb')
                 <nav class="mb-6">
