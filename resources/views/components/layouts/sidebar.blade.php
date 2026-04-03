@@ -83,7 +83,7 @@ $items = $menuItems[$normalizedRole] ?? $menuItems['guardia'];
         <ul class="space-y-0.5">
             @foreach($items as $item)
                 @if(isset($item['divider']))
-                    <li class="pt-5 pb-2">
+                    <li class="pt-6 pb-3">
                         <span x-show="!sidebarCollapsed" class="px-3 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
                             {{ $item['label'] }}
                         </span>
@@ -93,7 +93,7 @@ $items = $menuItems[$normalizedRole] ?? $menuItems['guardia'];
                     @if(!isset($item['feature']) || feature($item['feature']))
                     @if(isset($item['children']))
                     <li>
-                        <div class="group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium text-slate-300"
+                        <div class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium text-slate-300"
                              :class="sidebarCollapsed ? 'justify-center px-0' : ''"
                              title="{{ $item['label'] }}">
                             <span class="w-5 flex items-center justify-center shrink-0">
@@ -106,10 +106,10 @@ $items = $menuItems[$normalizedRole] ?? $menuItems['guardia'];
                             @foreach($item['children'] as $child)
                             <li>
                                 <a href="{{ route($child['route']) }}"
-                                   class="block px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all duration-150
+                                   class="block px-3 py-2 rounded-lg text-[12px] font-medium transition-all duration-150
                                           {{ request()->routeIs($child['match'])
-                                              ? 'bg-[#2563eb] text-white shadow-lg shadow-blue-500/20'
-                                              : 'text-slate-300 hover:bg-[#1e293b] hover:text-white' }}">
+                                              ? 'bg-[#2563eb] text-white'
+                                              : 'text-slate-300 hover:bg-white/5 hover:text-white' }}">
                                     {{ $child['label'] }}
                                 </a>
                             </li>
@@ -119,10 +119,10 @@ $items = $menuItems[$normalizedRole] ?? $menuItems['guardia'];
                     @else
                     <li>
                         <a href="{{ route($item['route']) }}" 
-                           class="group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150
+                           class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-150
                                   {{ request()->routeIs($item['match']) 
-                                      ? 'bg-[#2563eb] text-white shadow-lg shadow-blue-500/20' 
-                                      : 'text-slate-300 hover:bg-[#1e293b] hover:text-white' }}"
+                                      ? 'bg-[#2563eb] text-white' 
+                                      : 'text-slate-300 hover:bg-white/5 hover:text-white' }}"
                            :class="sidebarCollapsed ? 'justify-center px-0' : ''"
                            title="{{ $item['label'] }}">
                             <span class="w-5 flex items-center justify-center shrink-0">
