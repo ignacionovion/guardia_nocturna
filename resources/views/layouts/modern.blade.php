@@ -58,7 +58,7 @@
         /* Scrollbar styling */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb { background: #dbe4ee; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
         .dark ::-webkit-scrollbar-thumb { background: #334155; }
         .dark ::-webkit-scrollbar-thumb:hover { background: #475569; }
@@ -106,7 +106,7 @@
     
     @stack('styles')
 </head>
-<body class="bg-[#cfd8e3] text-[#1e293b] antialiased">
+<body class="bg-[#f6f8fc] text-[#0f172a] antialiased">
     @include('components.impersonation-banner')
     
     <div class="min-h-screen flex">
@@ -149,7 +149,7 @@
             @endauth
             
             {{-- Page Content --}}
-            <main class="flex-1 p-4 sm:p-6 overflow-x-hidden bg-[#d9e2ec]">
+            <main class="flex-1 p-4 sm:p-6 overflow-x-hidden bg-[#eef3f9]">
                 {{-- Breadcrumb --}}
                 @hasSection('breadcrumb')
                 <nav class="mb-6">
@@ -209,8 +209,8 @@
             </main>
             
             {{-- Footer --}}
-            <footer class="px-4 sm:px-6 py-3 border-t border-slate-200/80 dark:border-slate-800/80 bg-white/50 dark:bg-slate-900/50">
-                <div class="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400 dark:text-slate-500">
+            <footer class="px-4 sm:px-6 py-3 border-t border-[#dbe4ee] bg-white/80">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-[#475569]">
                     <div class="flex items-center gap-1.5">
                         <i class="fas fa-helmet-safety text-red-600"></i>
                         <span class="font-medium">{{ branding()->nombre_empresa }}</span>

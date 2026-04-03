@@ -58,11 +58,11 @@ $items = $menuItems[$normalizedRole] ?? $menuItems['guardia'];
 @endphp
 
 <aside id="sidebar" 
-       class="fixed inset-y-0 left-0 z-40 flex flex-col bg-[#b7c4d3] border-r border-[#9fb0c3] transition-all duration-300 shadow-md"
+       class="fixed inset-y-0 left-0 z-40 flex flex-col bg-[#0f172a] border-r border-[#1e293b] transition-all duration-300 shadow-xl"
        :class="sidebarCollapsed ? 'w-[72px]' : 'w-64'">
     
     {{-- Logo --}}
-    <div class="flex items-center h-16 px-4 border-b border-[#9fb0c3]">
+    <div class="flex items-center h-16 px-4 border-b border-[#1e293b]">
         <a href="{{ tenancy()->initialized ? route('dashboard') : route('central.dashboard') }}" class="flex items-center gap-3 group">
             @if(branding()->logo)
                 <img src="{{ branding()->logo }}" alt="{{ branding()->nombre_empresa }}" class="h-9 w-auto">
@@ -72,8 +72,8 @@ $items = $menuItems[$normalizedRole] ?? $menuItems['guardia'];
                 </div>
             @endif
             <div x-show="!sidebarCollapsed" x-transition:enter="transition-opacity duration-200" x-transition:leave="transition-opacity duration-100" class="flex flex-col">
-                <span class="font-bold text-[#1e293b] text-base leading-tight">{{ branding()->nombre_empresa }}</span>
-                <span class="text-[10px] font-medium text-[#475569] uppercase tracking-wider">Centro de Comando</span>
+                <span class="font-bold text-white text-base leading-tight">{{ branding()->nombre_empresa }}</span>
+                <span class="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Centro de Comando</span>
             </div>
         </a>
     </div>
@@ -84,16 +84,16 @@ $items = $menuItems[$normalizedRole] ?? $menuItems['guardia'];
             @foreach($items as $item)
                 @if(isset($item['divider']))
                     <li class="pt-5 pb-2">
-                        <span x-show="!sidebarCollapsed" class="px-3 text-[10px] font-semibold uppercase tracking-widest text-[#475569]">
+                        <span x-show="!sidebarCollapsed" class="px-3 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
                             {{ $item['label'] }}
                         </span>
-                        <div x-show="sidebarCollapsed" class="h-px bg-[#9fb0c3] mx-3 my-1"></div>
+                        <div x-show="sidebarCollapsed" class="h-px bg-[#1e293b] mx-3 my-1"></div>
                     </li>
                 @else
                     @if(!isset($item['feature']) || feature($item['feature']))
                     @if(isset($item['children']))
                     <li>
-                        <div class="group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium text-[#1e293b]"
+                        <div class="group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium text-slate-300"
                              :class="sidebarCollapsed ? 'justify-center px-0' : ''"
                              title="{{ $item['label'] }}">
                             <span class="w-5 flex items-center justify-center shrink-0">
@@ -108,8 +108,8 @@ $items = $menuItems[$normalizedRole] ?? $menuItems['guardia'];
                                 <a href="{{ route($child['route']) }}"
                                    class="block px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all duration-150
                                           {{ request()->routeIs($child['match'])
-                                              ? 'bg-[#0f172a] text-white shadow-lg shadow-[#0f172a]/20'
-                                              : 'text-[#1e293b] hover:bg-[#c3cfdb] hover:text-[#1e293b]' }}">
+                                              ? 'bg-[#2563eb] text-white shadow-lg shadow-blue-500/20'
+                                              : 'text-slate-300 hover:bg-[#1e293b] hover:text-white' }}">
                                     {{ $child['label'] }}
                                 </a>
                             </li>
@@ -121,8 +121,8 @@ $items = $menuItems[$normalizedRole] ?? $menuItems['guardia'];
                         <a href="{{ route($item['route']) }}" 
                            class="group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150
                                   {{ request()->routeIs($item['match']) 
-                                      ? 'bg-[#0f172a] text-white shadow-lg shadow-[#0f172a]/20' 
-                                      : 'text-[#1e293b] hover:bg-[#c3cfdb] hover:text-[#1e293b]' }}"
+                                      ? 'bg-[#2563eb] text-white shadow-lg shadow-blue-500/20' 
+                                      : 'text-slate-300 hover:bg-[#1e293b] hover:text-white' }}"
                            :class="sidebarCollapsed ? 'justify-center px-0' : ''"
                            title="{{ $item['label'] }}">
                             <span class="w-5 flex items-center justify-center shrink-0">
@@ -146,19 +146,19 @@ $items = $menuItems[$normalizedRole] ?? $menuItems['guardia'];
     
     {{-- Status Card --}}
     <div x-show="!sidebarCollapsed" x-transition class="mx-3 mb-3">
-        <div class="p-3 rounded-xl bg-[#c3cfdb] border border-[#9fb0c3]">
+        <div class="p-3 rounded-xl bg-[#1e293b] border border-[#334155]">
             <div class="flex items-center gap-2 mb-2">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 status-pulse"></span>
-                <span class="text-xs font-semibold text-[#1e293b]">Cuartel Operativo</span>
+                <span class="text-xs font-semibold text-white">Cuartel Operativo</span>
             </div>
-            <p class="text-[10px] text-[#475569]">Sistema funcionando correctamente</p>
+            <p class="text-[10px] text-slate-400">Sistema funcionando correctamente</p>
         </div>
     </div>
     
     {{-- Collapse Button --}}
-    <div class="p-2 border-t border-[#9fb0c3]">
+    <div class="p-2 border-t border-[#1e293b]">
         <button @click="sidebarCollapsed = !sidebarCollapsed" 
-                class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-[#475569] hover:bg-[#c3cfdb] hover:text-[#1e293b] transition-colors">
+                class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:bg-[#1e293b] hover:text-white transition-colors">
             <i class="fas text-[10px]" :class="sidebarCollapsed ? 'fa-angles-right' : 'fa-angles-left'"></i>
             <span x-show="!sidebarCollapsed" x-transition>Colapsar menú</span>
         </button>

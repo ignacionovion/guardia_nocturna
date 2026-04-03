@@ -34,21 +34,21 @@
     
     /* Títulos */
     .text-title-xl {
-        @apply text-2xl sm:text-3xl font-bold text-[#1e293b] tracking-tight;
+        @apply text-2xl sm:text-3xl font-bold text-[#0f172a] tracking-tight;
     }
     .text-title-lg {
-        @apply text-xl sm:text-2xl font-bold text-[#1e293b];
+        @apply text-xl sm:text-2xl font-bold text-[#0f172a];
     }
     .text-title-md {
-        @apply text-lg font-semibold text-[#1e293b];
+        @apply text-lg font-semibold text-[#0f172a];
     }
     .text-title-sm {
-        @apply text-base font-semibold text-[#1e293b];
+        @apply text-base font-semibold text-[#0f172a];
     }
     
     /* Texto de contenido */
     .text-body {
-        @apply text-sm text-[#1e293b];
+        @apply text-sm text-[#0f172a];
     }
     .text-body-sm {
         @apply text-sm text-[#475569];
@@ -84,13 +84,13 @@
        ======================================== */
     
     .card-base {
-        @apply bg-[#dde6ef] rounded-2xl border border-[#9fb0c3];
+        @apply bg-white rounded-2xl border border-[#dbe4ee];
     }
     .card-elevated {
         @apply card-base shadow-sm;
     }
     .card-interactive {
-        @apply card-base transition-all duration-200 hover:shadow-lg hover:border-[#7d94ab];
+        @apply card-base transition-all duration-200 hover:shadow-lg hover:border-[#2563eb]/30;
     }
     
     /* Padding estándar para cards */
@@ -106,13 +106,13 @@
     
     /* Headers de cards */
     .card-header {
-        @apply px-5 sm:px-6 py-4 border-b border-[#9fb0c3];
+        @apply px-5 sm:px-6 py-4 border-b border-[#dbe4ee];
     }
     .card-body {
         @apply p-5 sm:p-6;
     }
     .card-footer {
-        @apply px-5 sm:px-6 py-4 border-t border-[#9fb0c3] bg-[#d9e2ec];
+        @apply px-5 sm:px-6 py-4 border-t border-[#dbe4ee] bg-[#f6f8fc];
     }
     
     /* ========================================
@@ -120,25 +120,25 @@
        ======================================== */
     
     .table-container {
-        @apply overflow-x-auto rounded-2xl border border-[#9fb0c3];
+        @apply overflow-x-auto rounded-2xl border border-[#dbe4ee];
     }
     .table-base {
         @apply w-full text-sm;
     }
     .table-header {
-        @apply bg-[#c3cfdb];
+        @apply bg-[#f6f8fc];
     }
     .table-header th {
         @apply px-4 py-3 text-left text-xs font-semibold text-[#475569] uppercase tracking-wider;
     }
     .table-body {
-        @apply bg-[#e7eef5] divide-y divide-[#9fb0c3];
+        @apply bg-white divide-y divide-[#dbe4ee];
     }
     .table-body td {
-        @apply px-4 py-3 text-sm text-[#1e293b];
+        @apply px-4 py-3 text-sm text-[#0f172a];
     }
     .table-row-hover {
-        @apply hover:bg-[#c3cfdb] transition-colors;
+        @apply hover:bg-[#eef3f9] transition-colors;
     }
     
     /* ========================================
@@ -149,7 +149,7 @@
         @apply block text-xs font-semibold text-[#475569] uppercase tracking-wider mb-2;
     }
     .form-input {
-        @apply w-full px-4 py-3 min-h-[44px] bg-[#e7eef5] border border-[#9fb0c3] rounded-xl text-sm text-[#1e293b] placeholder-[#475569] focus:outline-none focus:ring-2 focus:ring-[#1e293b]/10 focus:border-[#1e293b] transition-all;
+        @apply w-full px-4 py-3 min-h-[44px] bg-white border border-[#dbe4ee] rounded-xl text-sm text-[#0f172a] placeholder-[#475569] focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 focus:border-[#2563eb] transition-all;
     }
     .form-select {
         @apply form-input appearance-none cursor-pointer pr-10;
@@ -163,7 +163,7 @@
         @apply inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg;
     }
     .badge-default {
-        @apply badge-base bg-[#c3cfdb] text-[#1e293b];
+        @apply badge-base bg-[#eef3f9] text-[#0f172a] border border-[#dbe4ee];
     }
     .badge-success {
         @apply badge-base bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400;
@@ -198,10 +198,10 @@
         @apply px-6 py-3 text-base;
     }
     .btn-primary {
-        @apply btn-base bg-[#0f172a] text-white hover:bg-[#1e293b] focus:ring-[#1e293b]/20;
+        @apply btn-base bg-[#2563eb] text-white hover:bg-[#1d4ed8] focus:ring-[#2563eb]/20 shadow-sm;
     }
     .btn-secondary {
-        @apply btn-base bg-[#e7eef5] text-[#1e293b] border border-[#9fb0c3] hover:bg-[#dde6ef] focus:ring-[#9fb0c3]/20;
+        @apply btn-base bg-white text-[#0f172a] border border-[#dbe4ee] hover:bg-[#eef3f9] focus:ring-[#2563eb]/10;
     }
     .btn-danger {
         @apply btn-base bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
@@ -228,7 +228,7 @@
     }
     
     .icon-box-slate {
-        @apply bg-[#c3cfdb] text-[#1e293b];
+        @apply bg-[#eef3f9] text-[#0f172a];
     }
     .icon-box-blue {
         @apply bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400;
@@ -272,10 +272,10 @@
         @apply text-center py-12 px-6;
     }
     .empty-state-icon {
-        @apply w-16 h-16 mx-auto rounded-2xl bg-[#c3cfdb] flex items-center justify-center mb-4;
+        @apply w-16 h-16 mx-auto rounded-2xl bg-[#eef3f9] flex items-center justify-center mb-4;
     }
     .empty-state-title {
-        @apply text-lg font-semibold text-[#1e293b] mb-2;
+        @apply text-lg font-semibold text-[#0f172a] mb-2;
     }
     .empty-state-text {
         @apply text-sm text-[#475569] max-w-sm mx-auto;
@@ -286,10 +286,10 @@
        ======================================== */
     
     .metric-value {
-        @apply text-2xl sm:text-3xl font-bold text-[#1e293b];
+        @apply text-2xl sm:text-3xl font-bold text-[#0f172a];
     }
     .metric-value-lg {
-        @apply text-3xl sm:text-4xl font-bold text-[#1e293b];
+        @apply text-3xl sm:text-4xl font-bold text-[#0f172a];
     }
     .metric-label {
         @apply text-xs font-semibold text-[#475569] uppercase tracking-wider;
@@ -306,10 +306,10 @@
        ======================================== */
     
     .divider {
-        @apply border-t border-[#9fb0c3];
+        @apply border-t border-[#dbe4ee];
     }
     .divider-light {
-        @apply border-t border-[#9fb0c3]/50;
+        @apply border-t border-[#dbe4ee]/50;
     }
     
     .section-gap {
@@ -328,10 +328,10 @@
         background: transparent;
     }
     .scrollbar-thin::-webkit-scrollbar-thumb {
-        @apply bg-[#9fb0c3] rounded-full;
+        @apply bg-[#dbe4ee] rounded-full;
     }
     .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-        @apply bg-[#7d94ab];
+        @apply bg-[#cbd5e1];
     }
     
     /* ========================================
