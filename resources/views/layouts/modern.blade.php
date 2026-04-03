@@ -106,7 +106,7 @@
     
     @stack('styles')
 </head>
-<body class="bg-[#f6f8fc] text-[#0f172a] antialiased">
+<body class="bg-[#f8fafc] text-[#0f172a] antialiased">
     @include('components.impersonation-banner')
     
     <div class="min-h-screen flex">
@@ -149,7 +149,7 @@
             @endauth
             
             {{-- Page Content --}}
-            <main class="flex-1 p-4 sm:p-6 overflow-x-hidden bg-[#eef3f9]">
+            <main class="flex-1 p-4 sm:p-6 overflow-x-hidden bg-[#f8fafc]">
                 {{-- Breadcrumb --}}
                 @hasSection('breadcrumb')
                 <nav class="mb-6">
@@ -209,7 +209,7 @@
             </main>
             
             {{-- Footer --}}
-            <footer class="px-4 sm:px-6 py-3 border-t border-[#dbe4ee] bg-white/80">
+            <footer class="px-4 sm:px-6 py-3 border-t border-[#e5e7eb] bg-white">
                 <div class="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-[#475569]">
                     <div class="flex items-center gap-1.5">
                         <i class="fas fa-helmet-safety text-red-600"></i>

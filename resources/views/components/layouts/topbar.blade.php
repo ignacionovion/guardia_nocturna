@@ -8,7 +8,7 @@ $tenant = tenant();
 $currentDate = now()->locale('es');
 @endphp
 
-<header class="sticky top-0 z-30 flex items-center justify-between h-16 px-4 sm:px-6 bg-white/95 backdrop-blur-sm border-b border-[#dbe4ee] shadow-sm">
+<header class="sticky top-0 z-30 flex items-center justify-between h-16 px-4 sm:px-6 bg-white border-b border-[#e5e7eb] shadow-sm">
     {{-- Left: Mobile menu + Title + Date --}}
     <div class="flex items-center gap-4">
         {{-- Mobile sidebar toggle --}}
@@ -44,22 +44,22 @@ $currentDate = now()->locale('es');
                    placeholder="Buscar..." 
                    @focus="focused = true"
                    @blur="focused = false"
-                   class="w-48 lg:w-56 pl-9 pr-3 py-2 text-sm rounded-xl border border-[#dbe4ee] bg-white text-[#0f172a] placeholder-[#475569] focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 focus:border-[#2563eb] transition-all"
+                   class="w-48 lg:w-56 pl-9 pr-3 py-2 text-sm rounded-xl border border-[#e5e7eb] bg-white text-[#0f172a] placeholder-[#475569] focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 focus:border-[#2563eb] transition-all"
                    :class="focused ? 'w-72' : ''">
             <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-[#475569] text-xs"></i>
-            <kbd class="absolute right-2.5 top-1/2 -translate-y-1/2 hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium text-[#475569] bg-[#eef3f9] border border-[#dbe4ee] rounded">
+<kbd class="absolute right-2.5 top-1/2 -translate-y-1/2 hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium text-[#475569] bg-[#f9fbfd] border border-[#e5e7eb] rounded">
                 ⌘K
             </kbd>
         </div>
         
         {{-- Separator --}}
-        <div class="hidden sm:block w-px h-6 bg-[#dbe4ee] mx-1"></div>
+        <div class="hidden sm:block w-px h-6 bg-[#e5e7eb] mx-1"></div>
         
         {{-- Notifications --}}
         @if(in_array($user->role ?? '', ['capitan', 'super_admin', 'capitania']))
         <div class="relative" x-data="{ open: false }">
             <button @click="open = !open" 
-                    class="relative p-2.5 rounded-xl text-[#475569] hover:bg-[#eef3f9] transition-colors">
+                    class="relative p-2.5 rounded-xl text-[#475569] hover:bg-[#f9fbfd] transition-colors">
                 <i class="fas fa-bell text-sm"></i>
                 <span id="notification-badge-topbar" 
                       class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full hidden"></span>
@@ -74,15 +74,15 @@ $currentDate = now()->locale('es');
                  x-transition:leave="transition ease-in duration-75"
                  x-transition:leave-start="opacity-100 scale-100"
                  x-transition:leave-end="opacity-0 scale-95"
-                 class="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-[#dbe4ee] overflow-hidden"
+                 class="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-[#e5e7eb] overflow-hidden"
                  style="display: none;">
-                <div class="px-4 py-3 border-b border-[#dbe4ee] flex items-center justify-between bg-[#f6f8fc]">
+                <div class="px-4 py-3 border-b border-[#e5e7eb] flex items-center justify-between bg-[#f9fbfd]">
                     <span class="font-semibold text-[#0f172a] text-sm">Notificaciones</span>
                     <button class="text-[11px] text-[#475569] hover:text-[#0f172a] font-medium">Marcar leídas</button>
                 </div>
-                <div id="notification-list-topbar" class="max-h-80 overflow-y-auto divide-y divide-[#dbe4ee]">
+                <div id="notification-list-topbar" class="max-h-80 overflow-y-auto divide-y divide-[#e5e7eb]">
                     <div class="p-6 text-center">
-                        <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-[#eef3f9] flex items-center justify-center">
+                        <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-[#f9fbfd] flex items-center justify-center">
                             <i class="fas fa-bell-slash text-[#475569]"></i>
                         </div>
                         <p class="text-sm font-medium text-[#0f172a]">Sin notificaciones</p>
@@ -94,12 +94,12 @@ $currentDate = now()->locale('es');
         @endif
         
         {{-- Separator --}}
-        <div class="hidden sm:block w-px h-6 bg-[#dbe4ee] mx-1"></div>
+        <div class="hidden sm:block w-px h-6 bg-[#e5e7eb] mx-1"></div>
         
         {{-- User menu --}}
         <div class="relative" x-data="{ open: false }">
             <button @click="open = !open" 
-                    class="flex items-center gap-2.5 p-1.5 pr-3 rounded-xl hover:bg-[#eef3f9] transition-colors">
+                    class="flex items-center gap-2.5 p-1.5 pr-3 rounded-xl hover:bg-[#f9fbfd] transition-colors">
                 <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center text-white text-xs font-bold">
                     {{ strtoupper(substr($user->name ?? 'U', 0, 1)) }}{{ strtoupper(substr(explode(' ', $user->name ?? 'U')[1] ?? '', 0, 1)) }}
                 </div>
@@ -117,32 +117,32 @@ $currentDate = now()->locale('es');
                  x-transition:enter-start="opacity-0 scale-95"
                  x-transition:enter-end="opacity-100 scale-100"
                  x-transition:leave="transition ease-in duration-75"
-                 class="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-[#dbe4ee] overflow-hidden"
+                 class="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-[#e5e7eb] overflow-hidden"
                  style="display: none;">
-                <div class="px-4 py-3 border-b border-[#dbe4ee] bg-[#f6f8fc]">
+                <div class="px-4 py-3 border-b border-[#e5e7eb] bg-[#f9fbfd]">
                     <div class="font-medium text-[#0f172a] text-sm">{{ $user->name ?? 'Usuario' }}</div>
                     <div class="text-xs text-[#475569] truncate">{{ $user->email ?? '' }}</div>
                     <div class="text-xs text-[#64748b] mt-1">Plan: {{ $tenant?->planRelation?->nombre ?? 'Sin plan asignado' }}</div>
                 </div>
                 <div class="py-1">
                     @if(in_array($user->role ?? '', ['capitan', 'super_admin', 'capitania']))
-                    <a href="{{ route('admin.system.index') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-[#0f172a] hover:bg-[#eef3f9] transition-colors">
+                    <a href="{{ route('admin.system.index') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-[#0f172a] hover:bg-[#f9fbfd] transition-colors">
                         <i class="fas fa-sliders w-4 text-center text-[#475569]"></i>
                         Configuración
                     </a>
                     @if(addon('custom_branding'))
-                    <a href="{{ route('admin.branding.index') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-[#0f172a] hover:bg-[#eef3f9] transition-colors">
+                    <a href="{{ route('admin.branding.index') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-[#0f172a] hover:bg-[#f9fbfd] transition-colors">
                         <i class="fas fa-palette w-4 text-center text-[#475569]"></i>
                         Personalización
                     </a>
                     @endif
-                    <a href="{{ route('admin.users.index') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-[#0f172a] hover:bg-[#eef3f9] transition-colors">
+                    <a href="{{ route('admin.users.index') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-[#0f172a] hover:bg-[#f9fbfd] transition-colors">
                         <i class="fas fa-user-shield w-4 text-center text-[#475569]"></i>
                         Usuarios
                     </a>
                     @endif
                 </div>
-                <div class="border-t border-[#dbe4ee] p-2">
+                <div class="border-t border-[#e5e7eb] p-2">
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit" class="w-full flex items-center gap-3 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors">

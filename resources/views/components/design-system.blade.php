@@ -84,13 +84,13 @@
        ======================================== */
     
     .card-base {
-        @apply bg-white rounded-2xl border border-[#e5eaf1] shadow-[0_4px_12px_rgba(0,0,0,0.04)];
+        @apply bg-white rounded-2xl border border-[#e5e7eb] shadow-[0_2px_8px_rgba(0,0,0,0.04)];
     }
     .card-elevated {
-        @apply card-base shadow-[0_8px_20px_rgba(0,0,0,0.06)];
+        @apply card-base shadow-[0_4px_16px_rgba(0,0,0,0.06)];
     }
     .card-interactive {
-        @apply card-base transition-all duration-200 hover:shadow-[0_12px_28px_rgba(0,0,0,0.08)] hover:border-[#2563eb]/30 hover:-translate-y-0.5;
+        @apply card-base transition-all duration-200 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] hover:border-[#2563eb]/30 hover:-translate-y-0.5;
     }
     
     /* Padding estándar para cards */
@@ -106,13 +106,13 @@
     
     /* Headers de cards */
     .card-header {
-        @apply px-6 sm:px-8 py-5 border-b border-[#e5eaf1];
+        @apply px-6 sm:px-8 py-5 border-b border-[#e5e7eb];
     }
     .card-body {
         @apply p-6 sm:p-8;
     }
     .card-footer {
-        @apply px-6 sm:px-8 py-5 border-t border-[#e5eaf1] bg-[#f6f8fc];
+        @apply px-6 sm:px-8 py-5 border-t border-[#e5e7eb] bg-[#f9fbfd];
     }
     
     /* ========================================
@@ -120,25 +120,25 @@
        ======================================== */
     
     .table-container {
-        @apply overflow-x-auto rounded-2xl border border-[#dbe4ee];
+        @apply overflow-x-auto rounded-2xl border border-[#e5e7eb];
     }
     .table-base {
         @apply w-full text-sm;
     }
     .table-header {
-        @apply bg-[#f6f8fc];
+        @apply bg-[#f9fbfd];
     }
     .table-header th {
         @apply px-4 py-3 text-left text-xs font-semibold text-[#475569] uppercase tracking-wider;
     }
     .table-body {
-        @apply bg-white divide-y divide-[#dbe4ee];
+        @apply bg-white divide-y divide-[#e5e7eb];
     }
     .table-body td {
         @apply px-4 py-3 text-sm text-[#0f172a];
     }
     .table-row-hover {
-        @apply hover:bg-[#eef3f9] transition-colors;
+        @apply hover:bg-[#f9fbfd] transition-colors;
     }
     
     /* ========================================
@@ -149,7 +149,7 @@
         @apply block text-xs font-semibold text-[#475569] uppercase tracking-wider mb-2;
     }
     .form-input {
-        @apply w-full px-4 py-3 min-h-[44px] bg-white border border-[#dbe4ee] rounded-xl text-sm text-[#0f172a] placeholder-[#475569] focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 focus:border-[#2563eb] transition-all;
+        @apply w-full px-4 py-3 min-h-[44px] bg-white border border-[#e5e7eb] rounded-xl text-sm text-[#0f172a] placeholder-[#475569] focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 focus:border-[#2563eb] transition-all;
     }
     .form-select {
         @apply form-input appearance-none cursor-pointer pr-10;
@@ -201,7 +201,7 @@
         @apply btn-base bg-[#2563eb] text-white hover:bg-[#1d4ed8] focus:ring-[#2563eb]/20 shadow-sm hover:shadow-md;
     }
     .btn-secondary {
-        @apply btn-base bg-white text-[#0f172a] border border-[#e5eaf1] hover:bg-[#f6f8fc] hover:border-[#2563eb]/30 focus:ring-[#2563eb]/10 shadow-sm;
+        @apply btn-base bg-white text-[#0f172a] border border-[#e5e7eb] hover:bg-[#f9fbfd] hover:border-[#2563eb]/30 focus:ring-[#2563eb]/10 shadow-sm;
     }
     .btn-danger {
         @apply btn-base bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-sm;
@@ -228,7 +228,7 @@
     }
     
     .icon-box-slate {
-        @apply bg-[#eef3f9] text-[#0f172a];
+        @apply bg-[#f9fbfd] text-[#0f172a];
     }
     .icon-box-blue {
         @apply bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400;
@@ -272,7 +272,7 @@
         @apply text-center py-12 px-6;
     }
     .empty-state-icon {
-        @apply w-16 h-16 mx-auto rounded-2xl bg-[#eef3f9] flex items-center justify-center mb-4;
+        @apply w-16 h-16 mx-auto rounded-2xl bg-[#f9fbfd] flex items-center justify-center mb-4;
     }
     .empty-state-title {
         @apply text-lg font-semibold text-[#0f172a] mb-2;
@@ -286,7 +286,7 @@
        ======================================== */
     
     .kpi-card {
-        @apply bg-white rounded-2xl border border-[#e5eaf1] shadow-[0_4px_12px_rgba(0,0,0,0.04)] p-6 transition-all duration-200 hover:shadow-[0_8px_20px_rgba(0,0,0,0.06)];
+        @apply bg-white rounded-2xl border border-[#e5e7eb] shadow-[0_2px_8px_rgba(0,0,0,0.04)] p-6 transition-all duration-200 hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)];
     }
     .kpi-icon-wrapper {
         @apply w-12 h-12 rounded-xl flex items-center justify-center mb-4;
@@ -319,10 +319,10 @@
        ======================================== */
     
     .divider {
-        @apply border-t border-[#dbe4ee];
+        @apply border-t border-[#e5e7eb];
     }
     .divider-light {
-        @apply border-t border-[#dbe4ee]/50;
+        @apply border-t border-[#e5e7eb]/50;
     }
     
     .section-gap {
@@ -341,7 +341,7 @@
         background: transparent;
     }
     .scrollbar-thin::-webkit-scrollbar-thumb {
-        @apply bg-[#dbe4ee] rounded-full;
+        @apply bg-[#e5e7eb] rounded-full;
     }
     .scrollbar-thin::-webkit-scrollbar-thumb:hover {
         @apply bg-[#cbd5e1];
