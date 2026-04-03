@@ -13,7 +13,7 @@
         <p class="text-gray-600 mt-2">Guarda los cambios de tu borrador</p>
     </div>
 
-    <form action="{{ route('forms.execution.update', ['submission' => $submission->id]) }}" method="POST" id="dynamicForm">
+    <form id="draft-form" method="POST" action="{{ route('forms.execution.update', ['submission' => $submission->id]) }}">
         @csrf
         @method('PUT')
         <div class="bg-white rounded-lg shadow-lg p-6">
@@ -96,20 +96,67 @@
                     Cancelar
                 </a>
                 <button type="submit" 
-                        formaction="{{ route('forms.execution.update', ['submission' => $submission->id]) }}"
-                        formmethod="POST"
                         class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
                     <i class="fas fa-save mr-2"></i>Guardar Borrador
                 </button>
-                <button type="submit" 
-                        formaction="{{ route('forms.execution.finalize', ['submission' => $submission->id]) }}"
-                        formmethod="POST"
-                        onclick="return confirm('¿Estás seguro que deseas enviar este formulario definitivamente? Una vez enviado, no podrá ser modificado.');"
+                <button type="button" 
+                        id="finalize-btn"
                         class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors font-semibold">
                     <i class="fas fa-paper-plane mr-2"></i>Enviar formulario
                 </button>
             </div>
         </div>
     </form>
+
+    <!-- Formulario oculto para envío final -->
+    <form id="finalize-form" method="POST" action="{{ route('forms.execution.finalize', ['submission' => $submission->id]) }}" class="hidden">
+        @csrf
+    </form>
+
+    <script>
+    document.getElementById('finalize-btn').addEventListener('click', function () {
+        if (!confirm('¿Estás seguro que deseas enviar este formulario definitivamente? Una vez enviado, no podrá ser modificado.')) {
+            return;
+        }
+
+        const draftForm = document.getElementById('draft-form');
+        const finalizeForm = document.getElementById('finalize-form');
+
+        // Limpiar inputs clonados anteriores
+        finalizeForm.querySelectorAll('input[type="hidden"][data-cloned="true"]').forEach(el => el.remove());
+
+        // Clonar todos los inputs válidos
+        const elements = draftForm.querySelectorAll('input, textarea, select');
+
+        elements.forEach((el) => {
+            // Ignorar campos que no deben enviarse
+            if (!el.name || el.name === '_token' || el.name === '_method') {
+                return;
+            }
+
+            // Ignorar botones
+            if ((el.type === 'submit') || (el.type === 'button')) {
+                return;
+            }
+
+            // Ignorar checkboxes no marcados
+            if ((el.type === 'checkbox') && !el.checked) {
+                return;
+            }
+
+            // Crear input hidden con el valor
+            const hidden = document.createElement('input');
+            hidden.type = 'hidden';
+            hidden.name = el.name;
+            hidden.value = (el.type === 'checkbox') ? '1' : el.value;
+            hidden.setAttribute('data-cloned', 'true');
+
+            finalizeForm.appendChild(hidden);
+        });
+
+        // Enviar formulario de finalización
+        finalizeForm.submit();
+    });
+    </script>
 </div>
 @endsection
