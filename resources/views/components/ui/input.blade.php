@@ -23,9 +23,9 @@
                 ($icon ? 'pl-10 pr-4 py-3' : 'px-4 py-3') . ' ' .
                 ($error 
                     ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20 bg-red-50' 
-                    : 'border-[#9fb0c3] focus:border-[#1e293b] focus:ring-[#1e293b]/10 bg-[#e7eef5]'
+                    : 'border-[#e5e7eb] focus:border-[#2563eb] focus:ring-[#2563eb]/20 bg-white'
                 ) .
-                ' text-[#1e293b] placeholder-[#475569] focus:outline-none focus:ring-2'
+                ' text-[#0f172a] placeholder-[#475569] focus:outline-none focus:ring-2'
         ]) }}>
     </div>
     

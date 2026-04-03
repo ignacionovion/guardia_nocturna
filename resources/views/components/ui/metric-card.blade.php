@@ -10,52 +10,52 @@
 @php
 $variants = [
     'default' => [
-        'bg' => 'bg-white dark:bg-slate-800',
-        'border' => 'border-slate-200 dark:border-slate-700',
-        'iconBg' => 'bg-slate-100 dark:bg-slate-700',
-        'iconColor' => 'text-slate-600 dark:text-slate-400',
-        'accent' => 'border-l-slate-500',
+        'bg' => 'bg-white',
+        'border' => 'border-[#e5e7eb]',
+        'iconBg' => 'bg-[#f9fbfd]',
+        'iconColor' => 'text-[#475569]',
+        'accent' => 'border-l-[#475569]',
     ],
     'primary' => [
-        'bg' => 'bg-white dark:bg-slate-800',
-        'border' => 'border-slate-200 dark:border-slate-700',
-        'iconBg' => 'bg-blue-50 dark:bg-blue-900/20',
-        'iconColor' => 'text-blue-600 dark:text-blue-400',
+        'bg' => 'bg-white',
+        'border' => 'border-[#e5e7eb]',
+        'iconBg' => 'bg-blue-100',
+        'iconColor' => 'text-blue-600',
         'accent' => 'border-l-blue-500',
     ],
     'success' => [
-        'bg' => 'bg-white dark:bg-slate-800',
-        'border' => 'border-slate-200 dark:border-slate-700',
-        'iconBg' => 'bg-emerald-50 dark:bg-emerald-900/20',
-        'iconColor' => 'text-emerald-600 dark:text-emerald-400',
-        'accent' => 'border-l-emerald-500',
+        'bg' => 'bg-white',
+        'border' => 'border-[#e5e7eb]',
+        'iconBg' => 'bg-green-100',
+        'iconColor' => 'text-green-600',
+        'accent' => 'border-l-green-500',
     ],
     'warning' => [
-        'bg' => 'bg-white dark:bg-slate-800',
-        'border' => 'border-slate-200 dark:border-slate-700',
-        'iconBg' => 'bg-amber-50 dark:bg-amber-900/20',
-        'iconColor' => 'text-amber-600 dark:text-amber-400',
+        'bg' => 'bg-white',
+        'border' => 'border-[#e5e7eb]',
+        'iconBg' => 'bg-amber-100',
+        'iconColor' => 'text-amber-600',
         'accent' => 'border-l-amber-500',
     ],
     'danger' => [
-        'bg' => 'bg-white dark:bg-slate-800',
-        'border' => 'border-slate-200 dark:border-slate-700',
-        'iconBg' => 'bg-red-50 dark:bg-red-900/20',
-        'iconColor' => 'text-red-600 dark:text-red-400',
+        'bg' => 'bg-white',
+        'border' => 'border-[#e5e7eb]',
+        'iconBg' => 'bg-red-100',
+        'iconColor' => 'text-red-600',
         'accent' => 'border-l-red-500',
     ],
     'purple' => [
-        'bg' => 'bg-white dark:bg-slate-800',
-        'border' => 'border-slate-200 dark:border-slate-700',
-        'iconBg' => 'bg-purple-50 dark:bg-purple-900/20',
-        'iconColor' => 'text-purple-600 dark:text-purple-400',
+        'bg' => 'bg-white',
+        'border' => 'border-[#e5e7eb]',
+        'iconBg' => 'bg-purple-100',
+        'iconColor' => 'text-purple-600',
         'accent' => 'border-l-purple-500',
     ],
     'sky' => [
-        'bg' => 'bg-white dark:bg-slate-800',
-        'border' => 'border-slate-200 dark:border-slate-700',
-        'iconBg' => 'bg-sky-50 dark:bg-sky-900/20',
-        'iconColor' => 'text-sky-600 dark:text-sky-400',
+        'bg' => 'bg-white',
+        'border' => 'border-[#e5e7eb]',
+        'iconBg' => 'bg-sky-100',
+        'iconColor' => 'text-sky-600',
         'accent' => 'border-l-sky-500',
     ],
 ];
@@ -63,13 +63,13 @@ $variants = [
 $theme = $variants[$variant] ?? $variants['default'];
 @endphp
 
-<div {{ $attributes->merge(['class' => 'relative rounded-xl border p-4 ' . $theme['bg'] . ' ' . $theme['border'] . ' border-l-4 ' . $theme['accent']]) }}>
+<div {{ $attributes->merge(['class' => 'relative rounded-xl border p-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)] ' . $theme['bg'] . ' ' . $theme['border'] . ' border-l-4 ' . $theme['accent']]) }}>
     <div class="flex items-start justify-between">
         <div class="min-w-0 flex-1">
-            <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider leading-tight">
+            <p class="text-xs font-medium text-[#475569] uppercase tracking-wider leading-tight">
                 {{ $label }}
             </p>
-            <p class="mt-1 text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+            <p class="mt-1 text-2xl font-bold text-[#0f172a] tracking-tight">
                 {{ $value }}
             </p>
             @if($trend !== null)
@@ -79,7 +79,7 @@ $theme = $variants[$variant] ?? $variants['default'];
                     @else
                         <i class="fas fa-arrow-trend-down text-xs text-red-500"></i>
                     @endif
-                    <span class="text-xs font-medium {{ $trendUp ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                    <span class="text-xs font-medium {{ $trendUp ? 'text-emerald-600' : 'text-red-600' }}">
                         {{ $trend }}
                     </span>
                 </div>
