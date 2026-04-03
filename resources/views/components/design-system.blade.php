@@ -67,16 +67,16 @@
     
     /* Estados */
     .text-success {
-        @apply text-emerald-600 dark:text-emerald-400;
+        @apply text-emerald-600;
     }
     .text-warning {
-        @apply text-amber-600 dark:text-amber-400;
+        @apply text-amber-600;
     }
     .text-danger {
-        @apply text-red-600 dark:text-red-400;
+        @apply text-red-600;
     }
     .text-info {
-        @apply text-blue-600 dark:text-blue-400;
+        @apply text-blue-600;
     }
     
     /* ========================================
@@ -112,7 +112,7 @@
         @apply p-6;
     }
     .card-footer {
-        @apply px-6 py-4 border-t border-slate-200 bg-slate-50;
+        @apply px-6 py-4 border-t border-slate-200 bg-white;
     }
     
     /* ========================================
@@ -138,7 +138,7 @@
         @apply px-4 py-3 text-sm text-slate-900;
     }
     .table-row-hover {
-        @apply hover:bg-slate-50 transition-colors;
+        @apply hover:bg-[#f8fafc] transition-colors;
     }
     
     /* ========================================
@@ -201,7 +201,7 @@
         @apply btn-base bg-slate-900 text-white hover:bg-slate-800 focus:ring-slate-900/20 shadow-sm;
     }
     .btn-secondary {
-        @apply btn-base bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:border-slate-300 focus:ring-slate-900/10 shadow-sm;
+        @apply btn-base bg-white text-slate-700 border border-slate-200 hover:bg-[#f8fafc] hover:border-slate-300 focus:ring-slate-900/10 shadow-sm;
     }
     .btn-danger {
         @apply btn-base bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-sm;
@@ -231,28 +231,28 @@
         @apply bg-[#f9fbfd] text-[#0f172a];
     }
     .icon-box-blue {
-        @apply bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400;
+        @apply bg-blue-100 text-blue-600;
     }
     .icon-box-emerald {
-        @apply bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400;
+        @apply bg-emerald-100 text-emerald-600;
     }
     .icon-box-amber {
-        @apply bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400;
+        @apply bg-amber-100 text-amber-600;
     }
     .icon-box-red {
-        @apply bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400;
+        @apply bg-red-100 text-red-600;
     }
     .icon-box-violet {
-        @apply bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400;
+        @apply bg-violet-100 text-violet-600;
     }
     .icon-box-cyan {
-        @apply bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400;
+        @apply bg-cyan-100 text-cyan-600;
     }
     .icon-box-sky {
-        @apply bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400;
+        @apply bg-sky-100 text-sky-600;
     }
     .icon-box-rose {
-        @apply bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400;
+        @apply bg-rose-100 text-rose-600;
     }
     .icon-box-gradient-red {
         @apply bg-gradient-to-br from-red-500 to-red-700 text-white shadow-lg shadow-red-500/25;
