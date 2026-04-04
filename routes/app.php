@@ -499,6 +499,12 @@ Route::middleware(['auth'])->group(function () {
                 Route::get('/', [FormExecutionController::class, 'index'])
                     ->name('forms.execution.index');
 
+                Route::get('/qr', [FormExecutionController::class, 'showQr'])
+                    ->name('forms.execution.qr');
+
+                Route::get('/qr/download', [FormExecutionController::class, 'downloadQr'])
+                    ->name('forms.execution.qr.download');
+
                 Route::get('/{template}', [FormExecutionController::class, 'show'])
                     ->whereNumber('template')
                     ->name('forms.execution.show');

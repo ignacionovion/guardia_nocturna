@@ -6,6 +6,7 @@ use App\Models\FormTemplate;
 use App\Models\FormSubmission;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class FormExecutionController extends Controller
 {
@@ -361,5 +362,30 @@ class FormExecutionController extends Controller
         return redirect()
             ->route('forms.execution.index')
             ->with('success', 'Formulario enviado correctamente. Ya no puede ser modificado.');
+    }
+
+    public function showQr()
+    {
+        // Generar URL multi-tenant automáticamente
+        $qrUrl = route('qr.forms.validate');
+        
+        return view('forms.execution.qr', compact('qrUrl'));
+    }
+
+    public function downloadQr()
+    {
+        // Generar URL multi-tenant automáticamente
+        $qrUrl = route('qr.forms.validate');
+        
+        // Generar QR como PNG
+        $qr = QrCode::format('png')
+            ->size(500)
+            ->margin(2)
+            ->errorCorrection('H')
+            ->generate($qrUrl);
+        
+        return response($qr)
+            ->header('Content-Type', 'image/png')
+            ->header('Content-Disposition', 'attachment; filename="formularios-qr.png"');
     }
 }

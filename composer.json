@@ -16,7 +16,7 @@
         "laravel/tinker": "^2.10.1",
         "maatwebsite/excel": "*",
         "shuchkin/simplexlsx": "*",
-        "simplesoftwareio/simple-qrcode": "*",
+        "simplesoftwareio/simple-qrcode": "^4.2",
         "stancl/tenancy": "*"
     },
     "require-dev": {

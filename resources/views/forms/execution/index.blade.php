@@ -5,13 +5,20 @@
 @section('content')
 <div class="container mx-auto px-4 py-8">
     <x-ui.page-header title="Formularios" subtitle="Completa y gestiona tus formularios" icon="fas fa-clipboard-list" iconVariant="slate">
-        @if(in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania']))
-            <a href="{{ route('forms.builder.index') }}"
-               class="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-900 text-white rounded-xl font-semibold text-sm hover:bg-slate-800 transition-all shadow-sm">
-                <i class="fas fa-cog"></i>
-                Configuración
+        <div class="flex items-center gap-3">
+            <a href="{{ route('forms.execution.qr') }}"
+               class="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-slate-700 border border-slate-200 rounded-xl font-semibold text-sm hover:bg-slate-50 transition-all shadow-sm">
+                <i class="fas fa-qrcode"></i>
+                QR Formularios
             </a>
-        @endif
+            @if(in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania']))
+                <a href="{{ route('forms.builder.index') }}"
+                   class="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-900 text-white rounded-xl font-semibold text-sm hover:bg-slate-800 transition-all shadow-sm">
+                    <i class="fas fa-cog"></i>
+                    Configuración
+                </a>
+            @endif
+        </div>
     </x-ui.page-header>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
