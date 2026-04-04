@@ -35,6 +35,12 @@
         {{-- QR Content --}}
         <div class="p-12">
             
+            {{-- DEBUG: URL Generada --}}
+            <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                <p class="text-xs font-bold text-blue-900 mb-1">DEBUG - URL Codificada en QR:</p>
+                <p class="text-sm text-blue-700 font-mono break-all">{{ $qrUrl }}</p>
+            </div>
+            
             {{-- QR Code --}}
             <div class="flex justify-center mb-8">
                 <div class="bg-white p-6 rounded-2xl shadow-xl border-4 border-slate-200">
