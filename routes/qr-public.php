@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\QrBedController;
 use App\Http\Controllers\BedQrController;
 use App\Http\Controllers\PreventivePublicController;
+use App\Http\Controllers\FormQrController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,3 +41,16 @@ Route::post('/preventivas/{token}/identificar', [PreventivePublicController::cla
 Route::post('/preventivas/{token}/rut', [PreventivePublicController::class, 'processRut'])->name('preventivas.public.rut');
 Route::get('/preventivas/{token}/tipo-ingreso', [PreventivePublicController::class, 'tipoIngresoForm'])->name('preventivas.public.tipo_ingreso.form');
 Route::post('/preventivas/{token}/tipo-ingreso', [PreventivePublicController::class, 'tipoIngresoStore'])->name('preventivas.public.tipo_ingreso.store');
+
+// === QR FORMULARIOS ===
+
+Route::prefix('qr/forms')->group(function () {
+    Route::get('/validate', [FormQrController::class, 'validateRut'])->name('qr.forms.validate');
+    Route::post('/validate', [FormQrController::class, 'processRut'])->name('qr.forms.process');
+    Route::get('/list', [FormQrController::class, 'listForms'])->name('qr.forms.list');
+    Route::get('/{template}', [FormQrController::class, 'showForm'])->whereNumber('template')->name('qr.forms.show');
+    Route::post('/{template}/draft', [FormQrController::class, 'saveDraft'])->whereNumber('template')->name('qr.forms.draft');
+    Route::post('/{template}/submit', [FormQrController::class, 'submitForm'])->whereNumber('template')->name('qr.forms.submit');
+    Route::get('/success', [FormQrController::class, 'success'])->name('qr.forms.success');
+    Route::post('/logout', [FormQrController::class, 'logout'])->name('qr.forms.logout');
+});

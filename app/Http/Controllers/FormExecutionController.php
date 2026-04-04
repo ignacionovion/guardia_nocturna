@@ -386,6 +386,6 @@ class FormExecutionController extends Controller
         
         return response($qr)
             ->header('Content-Type', 'image/png')
-            ->header('Content-Disposition', 'attachment; filename="formularios-qr.png"');
+            ->header('Content-Disposition', 'attachment; filename="formularios-qr-v2.png"');
     }
 }
