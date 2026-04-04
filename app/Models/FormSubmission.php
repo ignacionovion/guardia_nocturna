@@ -13,6 +13,7 @@ class FormSubmission extends Model
     protected $fillable = [
         'template_id',
         'user_id',
+        'bombero_id',
         'data_json',
         'estado',
     ];
@@ -29,6 +30,11 @@ class FormSubmission extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function bombero(): BelongsTo
+    {
+        return $this->belongsTo(Bombero::class, 'bombero_id');
     }
 
     public function getDataAttribute()

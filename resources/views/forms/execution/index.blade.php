@@ -4,19 +4,15 @@
 
 @section('content')
 <div class="container mx-auto px-4 py-8">
-    <div class="flex items-center justify-between mb-6">
-        <div>
-            <h1 class="text-3xl font-bold text-slate-900">Formularios</h1>
-            <p class="text-slate-600 mt-1">Completa y gestiona tus formularios</p>
-        </div>
-
+    <x-ui.page-header title="Formularios" subtitle="Completa y gestiona tus formularios" icon="fas fa-clipboard-list" iconVariant="slate">
         @if(in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania']))
             <a href="{{ route('forms.builder.index') }}"
-               class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                Administrar formularios
+               class="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-900 text-white rounded-xl font-semibold text-sm hover:bg-slate-800 transition-all shadow-sm">
+                <i class="fas fa-cog"></i>
+                Configuración
             </a>
         @endif
-    </div>
+    </x-ui.page-header>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Plantillas Disponibles -->

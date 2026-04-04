@@ -468,7 +468,19 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('admin/emergency-units', App\Http\Controllers\Admin\EmergencyUnitController::class, ['as' => 'admin']);
         Route::post('admin/emergency-units/{id}/toggle-status', [App\Http\Controllers\Admin\EmergencyUnitController::class, 'toggleStatus'])->name('admin.emergency-units.toggle-status');
 
-        // Formularios Dinámicos
+        // Formularios Dinámicos - QR Público (sin auth)
+        Route::prefix('qr/forms')->group(function () {
+            Route::get('/validate', [FormQrController::class, 'validateRut'])->name('qr.forms.validate');
+            Route::post('/validate', [FormQrController::class, 'processRut'])->name('qr.forms.process');
+            Route::get('/list', [FormQrController::class, 'listForms'])->name('qr.forms.list');
+            Route::get('/{template}', [FormQrController::class, 'showForm'])->whereNumber('template')->name('qr.forms.show');
+            Route::post('/{template}/draft', [FormQrController::class, 'saveDraft'])->whereNumber('template')->name('qr.forms.draft');
+            Route::post('/{template}/submit', [FormQrController::class, 'submitForm'])->whereNumber('template')->name('qr.forms.submit');
+            Route::get('/success', [FormQrController::class, 'success'])->name('qr.forms.success');
+            Route::post('/logout', [FormQrController::class, 'logout'])->name('qr.forms.logout');
+        });
+
+        // Formularios Dinámicos - Autenticados
         Route::middleware(['auth'])->group(function () {
             // Builder - Solo capitanes y admins
             Route::middleware(['role:capitan,super_admin,capitania'])->prefix('admin/forms')->group(function () {
