@@ -36,7 +36,7 @@
         
         <div class="flex flex-wrap items-center gap-2">
             <a href="{{ route('guardia.now.snapshot.pdf') }}" 
-               class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-all shadow-sm"
+               class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm font-semibold hover:bg-white dark:hover:bg-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-all shadow-sm"
                target="_blank">
                 <i class="fas fa-file-pdf text-red-500"></i>
                 <span>Exportar PDF</span>
@@ -45,7 +45,7 @@
             <button type="button" 
                     onclick="sendSnapshotEmail()"
                     id="btn-send-email"
-                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-semibold hover:bg-slate-800 dark:hover:bg-slate-100 transition-all shadow-sm">
+                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-semibold hover:bg-slate-800 dark:hover:bg-white transition-all shadow-sm">
                 <i class="fas fa-paper-plane"></i>
                 <span>Enviar por Email</span>
             </button>
@@ -96,7 +96,7 @@
                     <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total</p>
                     <p class="mt-1 text-xl font-black text-slate-900 dark:text-white" id="now-count-total">0</p>
                 </div>
-                <div class="w-11 h-11 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                <div class="w-11 h-11 rounded-xl bg-white dark:bg-slate-800 flex items-center justify-center">
                     <i class="fas fa-users-line text-slate-600 dark:text-slate-400"></i>
                 </div>
             </div>
@@ -135,7 +135,7 @@
             
             {{-- Empty State --}}
             <div id="now-empty" class="hidden py-16 text-center">
-                <div class="w-16 h-16 mx-auto rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
+                <div class="w-16 h-16 mx-auto rounded-2xl bg-white dark:bg-slate-800 flex items-center justify-center mb-4">
                     <i class="fas fa-users-slash text-2xl text-slate-400"></i>
                 </div>
                 <p class="text-slate-500 dark:text-slate-400 font-medium">No hay personal registrado</p>
@@ -238,9 +238,9 @@
             },
             'ausente': { 
                 label: 'AUSENTE', 
-                badgeCls: 'bg-slate-500 text-white',
+                badgeCls: 'bg-white0 text-white',
                 cardBorder: 'border-slate-300 dark:border-slate-600',
-                cardBg: 'bg-slate-50 dark:bg-slate-800/50',
+                cardBg: 'bg-white dark:bg-slate-800/50',
                 isPresent: false
             },
             'licencia': { 
@@ -261,7 +261,7 @@
         
         return configs[s] || { 
             label: s.toUpperCase(), 
-            badgeCls: 'bg-slate-500 text-white',
+            badgeCls: 'bg-white0 text-white',
             cardBorder: 'border-slate-200 dark:border-slate-700',
             cardBg: 'bg-white dark:bg-slate-800',
             isPresent: false
@@ -276,7 +276,7 @@
         if (b.confirmado) tags.push({ label: 'Confirmado', cls: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400' });
         if (b.es_jefe_guardia) tags.push({ label: 'Jefe', cls: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-400' });
         if (b.es_refuerzo) tags.push({ label: 'Refuerzo', cls: 'bg-sky-100 text-sky-700 dark:bg-sky-900/50 dark:text-sky-400' });
-        if (b.es_permanente) tags.push({ label: 'Permanente', cls: 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300' });
+        if (b.es_permanente) tags.push({ label: 'Permanente', cls: 'bg-white text-slate-600 dark:bg-slate-700 dark:text-slate-300' });
         
         // Specialties
         const specs = [];

@@ -54,12 +54,12 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-            <div class="bg-slate-50 dark:bg-slate-800 px-6 py-4 border-b border-slate-200 dark:border-slate-700">
+            <div class="bg-white dark:bg-slate-800 px-6 py-4 border-b border-slate-200 dark:border-slate-700">
                 <div class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wide">Top reemplazantes</div>
             </div>
             <div class="p-4 space-y-2">
                 @forelse($topReplacers as $i => $r)
-                    <div class="flex items-center justify-between bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2">
+                    <div class="flex items-center justify-between bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center font-black text-xs">{{ $i + 1 }}</div>
                             <div class="text-sm font-bold text-slate-700 dark:text-slate-300">{{ $r['name'] ?? '' }}</div>
@@ -73,12 +73,12 @@
         </div>
 
         <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-            <div class="bg-slate-50 dark:bg-slate-800 px-6 py-4 border-b border-slate-200 dark:border-slate-700">
+            <div class="bg-white dark:bg-slate-800 px-6 py-4 border-b border-slate-200 dark:border-slate-700">
                 <div class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wide">Reemplazos por guardia</div>
             </div>
             <div class="p-4 space-y-2">
                 @forelse($replacementsByGuardia as $row)
-                    <div class="flex items-center justify-between bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2">
+                    <div class="flex items-center justify-between bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2">
                         <div class="text-sm font-bold text-slate-700 dark:text-slate-300">{{ $row->guardia_name }}</div>
                         <div class="text-xs font-black text-blue-700 bg-blue-50 border border-blue-100 rounded-full px-2 py-1">{{ (int) $row->total }}</div>
                     </div>
@@ -90,7 +90,7 @@
     </div>
 
     <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden mb-6">
-        <div class="bg-slate-50 dark:bg-slate-800 px-6 py-4 border-b border-slate-200 dark:border-slate-700">
+        <div class="bg-white dark:bg-slate-800 px-6 py-4 border-b border-slate-200 dark:border-slate-700">
             <div class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wide">Top reemplazantes por guardia</div>
         </div>
         <div class="p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -102,7 +102,7 @@
                     </div>
                     <div class="p-3 space-y-2">
                         @foreach($rows as $i => $r)
-                            <div class="flex items-center justify-between bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2">
+                            <div class="flex items-center justify-between bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2">
                                 <div class="flex items-center gap-3">
                                     <div class="w-7 h-7 rounded-lg bg-slate-900 text-white flex items-center justify-center font-black text-[11px]">{{ $i + 1 }}</div>
                                     <div class="text-sm font-bold text-slate-700 dark:text-slate-300">{{ $r['name'] ?? '' }}</div>
@@ -119,13 +119,13 @@
     </div>
 
     <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-        <div class="bg-slate-50 dark:bg-slate-800 px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+        <div class="bg-white dark:bg-slate-800 px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
             <div class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wide">Detalle (fechas exactas)</div>
             <div class="text-xs font-bold text-slate-400 uppercase tracking-widest">{{ $events->count() }} filas</div>
         </div>
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-slate-200">
-                <thead class="bg-slate-50 dark:bg-slate-800">
+                <thead class="bg-white dark:bg-slate-800">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Día</th>
                         <th class="px-6 py-3 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Fin</th>

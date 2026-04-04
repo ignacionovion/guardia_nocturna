@@ -35,7 +35,7 @@
             </div>
             <div class="divide-y divide-slate-100">
                 @foreach($tables as $table)
-                    <a href="{{ route('central.tenants.explorer.table', [$tenant, $table]) }}" class="px-6 py-3 flex items-center justify-between hover:bg-slate-50 transition">
+                    <a href="{{ route('central.tenants.explorer.table', [$tenant, $table]) }}" class="px-6 py-3 flex items-center justify-between hover:bg-white transition">
                         <div class="flex items-center space-x-3">
                             <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
                                 <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

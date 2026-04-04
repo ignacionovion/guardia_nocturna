@@ -147,7 +147,7 @@
                 @foreach($guardiaStats as $stat)
                 <div class="flex items-center gap-3">
                     <div class="w-24 text-xs font-semibold text-slate-600 dark:text-slate-400 truncate">{{ $stat['label'] }}</div>
-                    <div class="flex-1 h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div class="flex-1 h-2.5 bg-white dark:bg-slate-800 rounded-full overflow-hidden">
                         <div class="h-full bg-{{ $stat['color'] }}-500 rounded-full" style="width: {{ min($stat['value'], 100) }}%"></div>
                     </div>
                     <div class="w-12 text-right">
@@ -208,7 +208,7 @@
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
-                <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                <thead class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                     <tr>
                         <th class="text-left py-3 px-4 font-semibold text-slate-600 dark:text-slate-400 text-xs uppercase">Voluntario</th>
                         <th class="text-center py-3 px-2 font-semibold text-slate-500 dark:text-slate-400 text-xs uppercase">Noches</th>
@@ -222,7 +222,7 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse($titulares as $ff)
-                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                    <tr class="hover:bg-white dark:hover:bg-slate-800 transition-colors">
                         <td class="py-3 px-4">
                             <div class="flex items-center gap-2">
                                 <div class="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-700 font-bold text-xs flex-shrink-0">
@@ -241,20 +241,20 @@
                             <span class="inline-flex items-center justify-center w-6 h-6 rounded bg-emerald-100 text-emerald-700 font-bold text-xs">{{ $ff['fulfilled'] }}</span>
                         </td>
                         <td class="py-3 px-2 text-center">
-                            <span class="inline-flex items-center justify-center w-6 h-6 rounded {{ $ff['absences'] > 0 ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 dark:bg-slate-800 text-slate-400' }} font-bold text-xs">{{ $ff['absences'] }}</span>
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded {{ $ff['absences'] > 0 ? 'bg-rose-100 text-rose-700' : 'bg-white dark:bg-slate-800 text-slate-400' }} font-bold text-xs">{{ $ff['absences'] }}</span>
                         </td>
                         <td class="py-3 px-2 text-center">
-                            <span class="inline-flex items-center justify-center w-6 h-6 rounded {{ $ff['permissions'] > 0 ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 dark:bg-slate-800 text-slate-400' }} font-bold text-xs">{{ $ff['permissions'] }}</span>
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded {{ $ff['permissions'] > 0 ? 'bg-amber-100 text-amber-700' : 'bg-white dark:bg-slate-800 text-slate-400' }} font-bold text-xs">{{ $ff['permissions'] }}</span>
                         </td>
                         <td class="py-3 px-2 text-center">
-                            <span class="inline-flex items-center justify-center w-6 h-6 rounded {{ $ff['licenses'] > 0 ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 dark:bg-slate-800 text-slate-400' }} font-bold text-xs">{{ $ff['licenses'] }}</span>
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded {{ $ff['licenses'] > 0 ? 'bg-blue-100 text-blue-700' : 'bg-white dark:bg-slate-800 text-slate-400' }} font-bold text-xs">{{ $ff['licenses'] }}</span>
                         </td>
                         <td class="py-3 px-2 text-center">
-                            <span class="inline-flex items-center justify-center w-6 h-6 rounded {{ $ff['disabled'] > 0 ? 'bg-slate-200 text-slate-600 dark:text-slate-400' : 'bg-slate-100 dark:bg-slate-800 text-slate-400' }} font-bold text-xs">{{ $ff['disabled'] }}</span>
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded {{ $ff['disabled'] > 0 ? 'bg-white text-slate-600 dark:text-slate-400' : 'bg-white dark:bg-slate-800 text-slate-400' }} font-bold text-xs">{{ $ff['disabled'] }}</span>
                         </td>
                         <td class="py-3 px-3">
                             <div class="flex items-center gap-2">
-                                <div class="flex-1 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden min-w-[40px]">
+                                <div class="flex-1 h-1.5 bg-white dark:bg-slate-800 rounded-full overflow-hidden min-w-[40px]">
                                     <div class="h-full rounded-full {{ $ff['percentage'] >= 90 ? 'bg-emerald-500' : ($ff['percentage'] >= 75 ? 'bg-amber-500' : 'bg-rose-500') }}" style="width: {{ $ff['percentage'] }}%"></div>
                                 </div>
                                 <span class="text-xs font-bold {{ $ff['percentage'] >= 90 ? 'text-emerald-600' : ($ff['percentage'] >= 75 ? 'text-amber-600' : 'text-rose-600') }} w-8 text-right">{{ $ff['percentage'] }}%</span>
@@ -312,7 +312,7 @@
         </x-slot:header>
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
-                <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                <thead class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                     <tr>
                         <th class="text-left py-3 px-4 font-semibold text-slate-600 dark:text-slate-400 text-xs uppercase">Voluntario</th>
                         <th class="text-left py-3 px-3 font-semibold text-slate-600 dark:text-slate-400 text-xs uppercase">Guardia</th>
@@ -324,7 +324,7 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse($firefighterStats->filter(fn($f) => ($f['permissions'] + $f['licenses'] + $f['disabled']) > 0)->sortByDesc(fn($f) => $f['permissions'] + $f['licenses'] + $f['disabled']) as $ff)
-                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800">
+                    <tr class="hover:bg-white dark:hover:bg-slate-800">
                         <td class="py-3 px-4">
                             <div class="flex items-center gap-2">
                                 <div class="w-7 h-7 bg-amber-100 rounded-full flex items-center justify-center text-amber-700 font-bold text-xs flex-shrink-0">
@@ -335,13 +335,13 @@
                         </td>
                         <td class="py-3 px-3 text-xs text-slate-500 dark:text-slate-400">{{ $ff['guardia_name'] ?? '—' }}</td>
                         <td class="py-3 px-3 text-center">
-                            <span class="inline-flex items-center justify-center w-7 h-7 rounded-full {{ $ff['permissions'] > 0 ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 dark:bg-slate-800 text-slate-400' }} font-bold text-xs">{{ $ff['permissions'] }}</span>
+                            <span class="inline-flex items-center justify-center w-7 h-7 rounded-full {{ $ff['permissions'] > 0 ? 'bg-amber-100 text-amber-700' : 'bg-white dark:bg-slate-800 text-slate-400' }} font-bold text-xs">{{ $ff['permissions'] }}</span>
                         </td>
                         <td class="py-3 px-3 text-center">
-                            <span class="inline-flex items-center justify-center w-7 h-7 rounded-full {{ $ff['licenses'] > 0 ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 dark:bg-slate-800 text-slate-400' }} font-bold text-xs">{{ $ff['licenses'] }}</span>
+                            <span class="inline-flex items-center justify-center w-7 h-7 rounded-full {{ $ff['licenses'] > 0 ? 'bg-blue-100 text-blue-700' : 'bg-white dark:bg-slate-800 text-slate-400' }} font-bold text-xs">{{ $ff['licenses'] }}</span>
                         </td>
                         <td class="py-3 px-3 text-center">
-                            <span class="inline-flex items-center justify-center w-7 h-7 rounded-full {{ $ff['disabled'] > 0 ? 'bg-slate-200 text-slate-600 dark:text-slate-400' : 'bg-slate-100 dark:bg-slate-800 text-slate-400' }} font-bold text-xs">{{ $ff['disabled'] }}</span>
+                            <span class="inline-flex items-center justify-center w-7 h-7 rounded-full {{ $ff['disabled'] > 0 ? 'bg-white text-slate-600 dark:text-slate-400' : 'bg-white dark:bg-slate-800 text-slate-400' }} font-bold text-xs">{{ $ff['disabled'] }}</span>
                         </td>
                         <td class="py-3 px-3 text-center font-bold text-slate-700 dark:text-slate-300">{{ $ff['permissions'] + $ff['licenses'] + $ff['disabled'] }}</td>
                     </tr>

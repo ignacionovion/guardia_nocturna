@@ -15,7 +15,7 @@
         <div class="p-8">
             {{-- QR Code --}}
             <div class="flex flex-col items-center mb-8">
-                <div class="bg-white p-6 rounded-2xl border-4 border-[#9fb0c3] shadow-lg mb-4">
+                <div class="bg-white p-6 rounded-2xl border-4 border-slate-200 shadow-lg mb-4">
                     {!! QrCode::size(300)->generate(route('qr.bed.show', $bed->qr_token)) !!}
                 </div>
                 <p class="text-sm text-[#475569] text-center">Escanea este código para acceder a la información de la cama</p>
@@ -23,7 +23,7 @@
 
             {{-- Información de la Cama --}}
             <div class="space-y-4">
-                <div class="p-4 bg-[#e7eef5] border border-[#9fb0c3] rounded-xl">
+                <div class="p-4 bg-white border border-slate-200 rounded-xl">
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <p class="text-xs font-semibold text-[#475569] uppercase tracking-wider mb-1">Nombre</p>
@@ -51,7 +51,7 @@
                 </div>
 
                 {{-- URL del QR --}}
-                <div class="p-4 bg-[#e7eef5] border border-[#9fb0c3] rounded-xl">
+                <div class="p-4 bg-white border border-slate-200 rounded-xl">
                     <p class="text-xs font-semibold text-[#475569] uppercase tracking-wider mb-2">URL del código QR</p>
                     <div class="flex items-center gap-2">
                         <input type="text" readonly value="{{ route('qr.bed.show', $bed->qr_token) }}" 

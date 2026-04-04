@@ -6,7 +6,7 @@
     @php
         $planSlug = $tenant->planRelation?->slug;
         $planName = $tenant->planRelation?->nombre ?? 'Sin plan';
-        $planBadgeClass = $planSlug ? 'bg-blue-50 text-blue-700' : 'bg-slate-100 text-slate-600';
+        $planBadgeClass = $planSlug ? 'bg-blue-50 text-blue-700' : 'bg-white text-slate-600';
     @endphp
 
     {{-- Header --}}
@@ -18,7 +18,7 @@
         <div class="flex items-center justify-between">
             <div class="flex items-center space-x-4">
                 <div class="relative">
-                    <div class="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center">
+                    <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center">
                         <span class="text-xl font-bold text-slate-600">{{ $tenant->numero ?? '#' }}</span>
                     </div>
                     <div class="absolute -top-1 -right-1 w-4 h-4 rounded-full border-2 border-white
@@ -28,7 +28,7 @@
                 <div>
                     <h1 class="text-2xl font-bold text-slate-900">{{ $tenant->nombre }}</h1>
                     <p class="text-slate-500 text-sm mt-0.5">
-                        <code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">{{ $tenant->id }}</code>
+                        <code class="text-xs bg-white px-1.5 py-0.5 rounded">{{ $tenant->id }}</code>
                         &middot;
                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $tenant->estadoBadgeClass() }}">
                             {{ $tenant->estadoLabel() }}
@@ -50,7 +50,7 @@
                     </a>
                 @endif
                 <a href="{{ route('central.tenants.edit', $tenant->id) }}"
-                   class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition">
+                   class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-white transition">
                     Editar
                 </a>
                 <form method="POST" action="{{ route('central.tenants.destroy', $tenant->id) }}"
@@ -184,7 +184,7 @@
             <dl class="space-y-3">
                 <div class="flex justify-between items-center">
                     <dt class="text-sm text-slate-500">Base de datos</dt>
-                    <dd><code class="text-xs bg-slate-100 px-2 py-1 rounded text-slate-600">{{ $tenant->database()->getName() }}</code></dd>
+                    <dd><code class="text-xs bg-white px-2 py-1 rounded text-slate-600">{{ $tenant->database()->getName() }}</code></dd>
                 </div>
                 <div class="flex justify-between items-center">
                     <dt class="text-sm text-slate-500">DB existe</dt>
@@ -201,7 +201,7 @@
                     <dd class="space-y-1.5">
                         @forelse($tenant->domains as $domain)
                             <div class="flex items-center space-x-2">
-                                <code class="text-xs bg-slate-100 px-2 py-1 rounded text-slate-600">{{ $domain->domain }}</code>
+                                <code class="text-xs bg-white px-2 py-1 rounded text-slate-600">{{ $domain->domain }}</code>
                                 <a href="http://{{ $domain->domain }}" target="_blank" class="text-xs text-blue-600 hover:underline">Abrir</a>
                             </div>
                         @empty
@@ -226,7 +226,7 @@
                     <div class="flex items-center justify-between text-xs">
                         <span class="text-slate-600">{{ match($type) { 'users' => 'Usuarios', 'guardias' => 'Guardias', 'beds' => 'Camas', 'storage' => 'Almacenamiento', default => $type } }}</span>
                         <div class="flex items-center space-x-2">
-                            <div class="w-24 h-2 bg-slate-100 rounded-full overflow-hidden">
+                            <div class="w-24 h-2 bg-white rounded-full overflow-hidden">
                                 @if($info['unlimited'])
                                     <div class="h-full bg-emerald-500 w-full"></div>
                                 @elseif($info['percentage'] !== null)
@@ -273,7 +273,7 @@
             {{-- Auto-provisioning info --}}
             <div class="mt-5 pt-4 border-t border-slate-100">
                 <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Auto-provisioning</h3>
-                <div class="bg-slate-50 rounded-lg p-3 space-y-1.5">
+                <div class="bg-white rounded-lg p-3 space-y-1.5">
                     <div class="flex items-center space-x-2 text-xs">
                         <span class="w-4 h-4 rounded-full {{ $metrics['db_exists'] ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-600' }} flex items-center justify-center text-[10px] font-bold">{{ $metrics['db_exists'] ? '1' : '!' }}</span>
                         <span class="text-slate-600">Crear DB</span>
@@ -322,7 +322,7 @@
                     </h3>
                     <div class="grid grid-cols-2 gap-2">
                         @foreach($modules as $module => $value)
-                            <label class="flex items-center justify-between py-2 px-3 rounded-lg {{ $value ? 'bg-emerald-50 border border-emerald-200' : 'bg-slate-50 border border-slate-200' }} cursor-pointer hover:bg-slate-100 transition">
+                            <label class="flex items-center justify-between py-2 px-3 rounded-lg {{ $value ? 'bg-emerald-50 border border-emerald-200' : 'bg-white border border-slate-200' }} cursor-pointer hover:bg-white transition">
                                 <div class="flex items-center space-x-2">
                                     <span class="text-sm text-slate-700 font-medium">{{ $moduleLabels[$module] ?? $module }}</span>
                                     @if(array_key_exists($module, $overrides))
@@ -350,7 +350,7 @@
                     </h3>
                     <div class="grid grid-cols-2 gap-2">
                         @foreach($addons as $addon => $value)
-                            <label class="flex items-center justify-between py-2 px-3 rounded-lg {{ $value ? 'bg-purple-50 border border-purple-200' : 'bg-slate-50 border border-slate-200' }} cursor-pointer hover:bg-slate-100 transition">
+                            <label class="flex items-center justify-between py-2 px-3 rounded-lg {{ $value ? 'bg-purple-50 border border-purple-200' : 'bg-white border border-slate-200' }} cursor-pointer hover:bg-white transition">
                                 <div class="flex items-center space-x-2">
                                     <span class="text-sm text-slate-700 font-medium">{{ $addonLabels[$addon] ?? $addon }}</span>
                                     @if(array_key_exists($addon, $overrides))
@@ -383,7 +383,7 @@
                 <form method="POST" action="{{ route('central.tenants.run-migrations', $tenant->id) }}">
                     @csrf
                     <button type="submit" onclick="return confirm('¿Ejecutar migraciones para {{ $tenant->nombre }}?')"
-                            class="w-full flex items-center space-x-3 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl py-3 px-4 hover:bg-slate-50 transition">
+                            class="w-full flex items-center space-x-3 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl py-3 px-4 hover:bg-white transition">
                         <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg>
                         <span>Correr Migraciones</span>
                     </button>
@@ -392,7 +392,7 @@
                 <form method="POST" action="{{ route('central.tenants.run-seed', $tenant->id) }}">
                     @csrf
                     <button type="submit" onclick="return confirm('¿Ejecutar seeders para {{ $tenant->nombre }}? Esto puede crear datos duplicados.')"
-                            class="w-full flex items-center space-x-3 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl py-3 px-4 hover:bg-slate-50 transition">
+                            class="w-full flex items-center space-x-3 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl py-3 px-4 hover:bg-white transition">
                         <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                         <span>Correr Seeders</span>
                     </button>
@@ -400,20 +400,20 @@
 
                 @if($tenant->domains->first())
                     <a href="http://{{ $tenant->domains->first()->domain }}" target="_blank"
-                       class="w-full flex items-center space-x-3 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl py-3 px-4 hover:bg-slate-50 transition">
+                       class="w-full flex items-center space-x-3 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl py-3 px-4 hover:bg-white transition">
                         <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                         <span>Abrir App del Tenant</span>
                     </a>
                 @endif
 
                 <a href="{{ route('central.tenants.timeline', $tenant) }}"
-                   class="w-full flex items-center space-x-3 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl py-3 px-4 hover:bg-slate-50 transition">
+                   class="w-full flex items-center space-x-3 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl py-3 px-4 hover:bg-white transition">
                     <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     <span>Ver Timeline</span>
                 </a>
 
                 <a href="{{ route('central.tenants.admin', $tenant) }}"
-                   class="w-full flex items-center space-x-3 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl py-3 px-4 hover:bg-slate-50 transition">
+                   class="w-full flex items-center space-x-3 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl py-3 px-4 hover:bg-white transition">
                     <svg class="w-4 h-4 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     <span>Administración Técnica</span>
                 </a>

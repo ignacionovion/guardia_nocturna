@@ -3,7 +3,7 @@
 @section('title', 'Funcionalidad No Disponible')
 
 @section('content')
-<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+<div class="min-h-screen flex items-center justify-center bg-white py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full space-y-8 text-center">
         <div>
             <i class="fas fa-lock text-6xl text-gray-400 mb-4"></i>

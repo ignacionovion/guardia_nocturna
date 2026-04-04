@@ -38,7 +38,7 @@
 
         <div class="overflow-x-auto">
             <table class="w-full">
-                <thead class="bg-slate-50">
+                <thead class="bg-white">
                     <tr>
                         <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Orden</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Plan</th>
@@ -52,7 +52,7 @@
                 </thead>
                 <tbody class="divide-y divide-slate-200">
                     @forelse($plans as $plan)
-                        <tr class="hover:bg-slate-50">
+                        <tr class="hover:bg-white">
                             <td class="px-4 py-3">
                                 <span class="text-sm font-medium text-slate-900">{{ $plan->orden }}</span>
                             </td>
@@ -74,7 +74,7 @@
                                 </div>
                             </td>
                             <td class="px-4 py-3">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-white text-slate-800">
                                     {{ $plan->tenants()->count() }} tenants
                                 </span>
                             </td>
@@ -84,7 +84,7 @@
                                         Activo
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border bg-slate-50 text-slate-600 border-slate-200">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border bg-white text-slate-600 border-slate-200">
                                         Inactivo
                                     </span>
                                 @endif
@@ -116,7 +116,7 @@
                                         </form>
                                     @else
                                         <button disabled 
-                                                class="px-3 py-1 text-xs font-medium rounded bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed"
+                                                class="px-3 py-1 text-xs font-medium rounded bg-white text-slate-400 border border-slate-200 cursor-not-allowed"
                                                 title="No se puede eliminar porque está en uso">
                                             <i class="fas fa-trash mr-1"></i>Eliminar
                                         </button>

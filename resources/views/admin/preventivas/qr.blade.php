@@ -10,7 +10,7 @@
         </div>
 
         <div class="flex items-center gap-2">
-            <a href="{{ route('admin.preventivas.show', $event) }}" class="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs">Volver</a>
+            <a href="{{ route('admin.preventivas.show', $event) }}" class="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-white dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs">Volver</a>
         </div>
     </div>
 
@@ -34,7 +34,7 @@
 
     <div class="mt-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
         <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-            <div class="flex items-center justify-center bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6">
+            <div class="flex items-center justify-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6">
                 {!! $svg !!}
             </div>
 
@@ -50,7 +50,7 @@
                 </div>
 
                 <div class="mt-3">
-                    <a href="{{ route('admin.preventivas.qr.print', $event) }}" target="_blank" class="inline-flex items-center gap-2 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-900 font-black py-3 px-6 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest border border-slate-200 dark:border-slate-700">
+                    <a href="{{ route('admin.preventivas.qr.print', $event) }}" target="_blank" class="inline-flex items-center gap-2 bg-white dark:bg-slate-900 hover:bg-white dark:hover:bg-slate-800 text-slate-900 font-black py-3 px-6 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest border border-slate-200 dark:border-slate-700">
                         <i class="fas fa-print"></i>
                         Imprimir QR
                     </a>
@@ -59,7 +59,7 @@
                 @if($status !== 'closed')
                     <form method="POST" action="{{ route('admin.preventivas.qr.regenerate', $event) }}" class="mt-3" onsubmit="return confirm('Esto generará un nuevo QR/link y el anterior dejará de funcionar. ¿Continuar?');">
                         @csrf
-                        <button type="submit" class="inline-flex items-center gap-2 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-900 font-black py-3 px-6 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest border border-slate-200 dark:border-slate-700">
+                        <button type="submit" class="inline-flex items-center gap-2 bg-white dark:bg-slate-900 hover:bg-white dark:hover:bg-slate-800 text-slate-900 font-black py-3 px-6 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest border border-slate-200 dark:border-slate-700">
                             <i class="fas fa-rotate"></i>
                             Regenerar QR
                         </button>

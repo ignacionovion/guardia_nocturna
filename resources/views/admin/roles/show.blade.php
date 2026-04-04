@@ -7,14 +7,14 @@
                 <div class="text-xs font-black text-slate-400 uppercase tracking-widest">Rol</div>
                 <h1 class="text-3xl font-bold text-gray-800 dark:text-white">{{ $role->name }}</h1>
                 <div class="mt-2">
-                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-100 dark:border-slate-800 font-mono">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-100 dark:border-slate-800 font-mono">
                         {{ $role->slug }}
                     </span>
                 </div>
             </div>
 
             <div class="flex items-center gap-2">
-                <a href="{{ route('admin.roles.index') }}" class="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800">Volver</a>
+                <a href="{{ route('admin.roles.index') }}" class="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800">Volver</a>
                 <a href="{{ route('admin.roles.edit', $role->id) }}" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200">
                     <i class="fas fa-edit mr-2"></i> Editar
                 </a>
@@ -27,7 +27,7 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-                <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                     <div class="text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">Permisos</div>
                 </div>
                 <div class="p-6">
@@ -46,7 +46,7 @@
             </div>
 
             <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-                <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                     <div class="text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">Usuarios asignados</div>
                 </div>
                 <div class="p-6">

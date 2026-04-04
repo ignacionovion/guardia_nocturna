@@ -30,7 +30,7 @@
 
     @if($roles->isEmpty())
         <div class="text-center py-16 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-dashed border-slate-300 dark:border-slate-600">
-            <div class="bg-slate-50 dark:bg-slate-800 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+            <div class="bg-white dark:bg-slate-800 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
                 <i class="fas fa-user-gear text-slate-400 text-3xl"></i>
             </div>
             <h3 class="text-lg font-medium text-slate-900">No hay roles</h3>
@@ -40,7 +40,7 @@
         <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-slate-200">
-                    <thead class="bg-slate-50 dark:bg-slate-800">
+                    <thead class="bg-white dark:bg-slate-800">
                         <tr>
                             <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Nombre</th>
                             <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Slug</th>
@@ -50,7 +50,7 @@
                     </thead>
                     <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-200">
                         @foreach($roles as $role)
-                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                            <tr class="hover:bg-white dark:hover:bg-slate-800 transition-colors">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <a href="{{ route('admin.roles.show', $role->id) }}" class="text-sm font-bold text-slate-900 hover:text-blue-700">
                                         {{ $role->name }}
@@ -65,7 +65,7 @@
                                             $perms = is_array($role->permissions) ? $role->permissions : [];
                                         @endphp
                                         @forelse($perms as $p)
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-100 dark:border-slate-800">{{ $p }}</span>
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-100 dark:border-slate-800">{{ $p }}</span>
                                         @empty
                                             <span class="text-xs text-slate-400 italic">-</span>
                                         @endforelse
@@ -94,7 +94,7 @@
                 </table>
             </div>
 
-            <div class="bg-slate-50 dark:bg-slate-800 px-6 py-4 border-t border-slate-200 dark:border-slate-700">
+            <div class="bg-white dark:bg-slate-800 px-6 py-4 border-t border-slate-200 dark:border-slate-700">
                 {{ $roles->links() }}
             </div>
         </div>

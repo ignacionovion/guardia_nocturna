@@ -271,9 +271,9 @@
                                             const unreadClass = !n.read ? 'bg-blue-50/50' : '';
                                             
                                             return `
-                                                <div class="px-4 py-3 border-b border-slate-100 hover:bg-slate-50 transition-colors ${unreadClass}" data-id="${n.id}">
+                                                <div class="px-4 py-3 border-b border-slate-100 hover:bg-white transition-colors ${unreadClass}" data-id="${n.id}">
                                                     <div class="flex items-start gap-3">
-                                                        <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
+                                                        <div class="w-8 h-8 rounded-lg bg-white flex items-center justify-center shrink-0">
                                                             <i class="fas ${iconClass}"></i>
                                                         </div>
                                                         <div class="flex-1 min-w-0">

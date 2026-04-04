@@ -86,7 +86,7 @@
 
             <div class="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-200">
                 <button type="button" onclick="guardarBorrador()" 
-                        class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center">
+                        class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-white transition-colors flex items-center">
                     <i class="fas fa-save mr-2"></i>Guardar Borrador
                 </button>
                 <button type="submit" 

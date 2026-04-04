@@ -104,7 +104,7 @@
                        class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm mb-4 focus:ring-2 focus:ring-amber-500 outline-none">
                 <div class="flex space-x-3">
                     <button type="button" onclick="document.getElementById('reset-modal').classList.add('hidden')"
-                            class="flex-1 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition text-sm font-medium">
+                            class="flex-1 px-4 py-2 bg-white text-slate-700 rounded-lg hover:bg-slate-200 transition text-sm font-medium">
                         Cancelar
                     </button>
                     <button type="submit" onclick="return confirm('¿ESTÁS SEGURO? Esta acción eliminará todos los datos permanentemente.')
@@ -133,7 +133,7 @@
                        class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm mb-4 focus:ring-2 focus:ring-red-500 outline-none">
                 <div class="flex space-x-3">
                     <button type="button" onclick="document.getElementById('delete-modal').classList.add('hidden')"
-                            class="flex-1 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition text-sm font-medium">
+                            class="flex-1 px-4 py-2 bg-white text-slate-700 rounded-lg hover:bg-slate-200 transition text-sm font-medium">
                         Cancelar
                     </button>
                     <button type="submit" onclick="return confirm('¿ESTÁS COMPLETAMENTE SEGURO? Esta acción es IRREVERSIBLE.')

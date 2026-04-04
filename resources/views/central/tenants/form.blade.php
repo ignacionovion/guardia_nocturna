@@ -99,7 +99,7 @@
 
                 {{-- Sección de Facturación --}}
                 @unless($tenant)
-                <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-4">
+                <div class="bg-white border border-slate-200 rounded-xl p-5 space-y-4">
                     <h3 class="text-sm font-semibold text-slate-900 flex items-center gap-2">
                         <i class="fas fa-credit-card text-slate-500"></i>
                         Configuración de Facturación
@@ -211,7 +211,7 @@
 
             <div class="flex items-center justify-end space-x-3 mt-8 pt-6 border-t border-slate-200">
                 <a href="{{ route('central.tenants.index') }}"
-                   class="px-5 py-2.5 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition">
+                   class="px-5 py-2.5 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-white transition">
                     Cancelar
                 </a>
                 <button type="submit"

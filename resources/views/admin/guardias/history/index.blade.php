@@ -9,14 +9,14 @@
         </x-ui.page-header>
 
         <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div class="px-6 py-5 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+            <div class="px-6 py-5 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                 <div class="text-sm font-bold text-slate-900 dark:text-white">Archivos</div>
                 <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Selecciona una fecha para ver el detalle.</div>
             </div>
 
             <div class="divide-y divide-slate-100">
                 @forelse($archives as $a)
-                    <a href="{{ route('admin.guardias.history.show', [$guardia->id, $a->id]) }}" class="block px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition">
+                    <a href="{{ route('admin.guardias.history.show', [$guardia->id, $a->id]) }}" class="block px-6 py-4 hover:bg-white dark:hover:bg-slate-800 transition">
                         <div class="flex items-center justify-between gap-4">
                             <div class="min-w-0">
                                 <div class="text-sm font-bold text-slate-900 dark:text-white truncate">{{ $a->label ?: 'Cierre semanal' }}</div>

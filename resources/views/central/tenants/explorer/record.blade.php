@@ -13,7 +13,7 @@
     <h1 class="text-2xl font-bold text-slate-900 mb-6">Detalle del Registro</h1>
 
     <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-        <div class="px-6 py-4 border-b border-slate-100 bg-slate-50">
+        <div class="px-6 py-4 border-b border-slate-100 bg-white">
             <h2 class="font-semibold text-slate-900">Tabla: {{ $table }}</h2>
         </div>
         <div class="divide-y divide-slate-100">
@@ -32,7 +32,7 @@
                                     ? '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800">true</span>'
                                     : '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">false</span>';
                             } elseif (is_array($value) || is_object($value)) {
-                                echo '<pre class="text-xs bg-slate-50 p-2 rounded overflow-x-auto">' . json_encode($value, JSON_PRETTY_PRINT) . '</pre>';
+                                echo '<pre class="text-xs bg-white p-2 rounded overflow-x-auto">' . json_encode($value, JSON_PRETTY_PRINT) . '</pre>';
                             } elseif (strtotime($value) !== false && strlen($value) > 10) {
                                 // Likely a datetime
                                 echo '<span class="text-slate-700">' . e($value) . '</span>';

@@ -26,7 +26,7 @@
 
                         <input type="hidden" name="emergency_key_id" id="emergency_key_id" value="{{ $selectedKeyId }}">
 
-                        <button type="button" id="btn-pick-key" class="w-full text-left px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
+                        <button type="button" id="btn-pick-key" class="w-full text-left px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700/50 transition">
                             <div class="flex items-start justify-between gap-3">
                                 <div>
                                     <div class="text-sm font-bold text-slate-900" id="key-code">{{ $selectedKeyId ? optional($keys->firstWhere('id', (int)$selectedKeyId))->code : 'Seleccionar clave...' }}</div>
@@ -57,7 +57,7 @@
                     <div>
                         <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">Unidades</label>
 
-                        <button type="button" id="btn-pick-units" class="w-full text-left px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
+                        <button type="button" id="btn-pick-units" class="w-full text-left px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700/50 transition">
                             <div class="flex items-start justify-between gap-3">
                                 <div>
                                     <div class="text-sm font-bold text-slate-900">Seleccionar unidades</div>
@@ -101,14 +101,14 @@
                             <div id="officer-dropdown" class="hidden absolute left-0 right-0 top-full mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl z-50 max-h-64 overflow-y-auto">
                                 <div class="p-2 sticky top-0 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
                                     <input type="text" id="officer-filter-input" 
-                                        class="w-full text-xs bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-700 dark:text-slate-300 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                        class="w-full text-xs bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-700 dark:text-slate-300 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                                         placeholder="Filtrar por nombre...">
                                 </div>
                                 <div id="officer-options-list" class="py-1">
-                                    <div class="officer-option px-3 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer transition-colors flex items-center gap-3 {{ !$selectedOfficerId ? 'bg-blue-50' : '' }}"
+                                    <div class="officer-option px-3 py-2.5 hover:bg-white dark:hover:bg-slate-800 cursor-pointer transition-colors flex items-center gap-3 {{ !$selectedOfficerId ? 'bg-blue-50' : '' }}"
                                          data-value=""
                                          data-search="sin asignar">
-                                        <div class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 text-xs font-bold">
+                                        <div class="w-8 h-8 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center text-slate-400 text-xs font-bold">
                                             <i class="fas fa-minus"></i>
                                         </div>
                                         <div class="flex-1 min-w-0">
@@ -116,7 +116,7 @@
                                         </div>
                                     </div>
                                     @foreach($onDutyUsers as $u)
-                                        <div class="officer-option px-3 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer transition-colors flex items-center gap-3 {{ (string)$selectedOfficerId === (string)$u->id ? 'bg-blue-50' : '' }}"
+                                        <div class="officer-option px-3 py-2.5 hover:bg-white dark:hover:bg-slate-800 cursor-pointer transition-colors flex items-center gap-3 {{ (string)$selectedOfficerId === (string)$u->id ? 'bg-blue-50' : '' }}"
                                              data-value="{{ $u->id }}"
                                              data-search="{{ strtolower(trim($u->nombres . ' ' . $u->apellido_paterno . ' ' . ($u->rut ?? ''))) }}">
                                             <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xs font-bold">
@@ -145,7 +145,7 @@
             </div>
         </div>
 
-        <div class="mt-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4">
+        <div class="mt-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4">
             <div class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">Ayuda rápida</div>
             <div class="text-sm text-slate-600 dark:text-slate-400 space-y-1">
                 <div><span class="font-semibold">Hora salida:</span> despacho de la emergencia.</div>
@@ -198,7 +198,7 @@
         </div>
         <div class="max-h-[60vh] overflow-auto">
             <table class="min-w-full divide-y divide-slate-200">
-                <thead class="bg-slate-50 dark:bg-slate-800 sticky top-0">
+                <thead class="bg-white dark:bg-slate-800 sticky top-0">
                     <tr>
                         <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Código</th>
                         <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Descripción</th>
@@ -207,7 +207,7 @@
                 </thead>
                 <tbody id="keys-tbody" class="bg-white dark:bg-slate-900 divide-y divide-slate-200">
                     @foreach($keys as $k)
-                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 transition" data-code="{{ strtolower($k->code) }}" data-desc="{{ strtolower($k->description) }}">
+                        <tr class="hover:bg-white dark:hover:bg-slate-800 transition" data-code="{{ strtolower($k->code) }}" data-desc="{{ strtolower($k->description) }}">
                             <td class="px-4 py-3 font-mono text-sm font-bold text-slate-900">{{ $k->code }}</td>
                             <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300">{{ $k->description }}</td>
                             <td class="px-4 py-3 text-right">
@@ -242,7 +242,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
 @foreach($units as $u)
                     @php $unitActive = ($u->status ?? 'active') === 'active'; @endphp
-                    <label class="unit-item flex items-start gap-3 p-3 rounded-lg border {{ $unitActive ? 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer' : 'border-red-200 bg-red-50/60 opacity-70 cursor-not-allowed pointer-events-none' }} transition" data-name="{{ strtolower($u->name) }}" data-desc="{{ strtolower($u->description ?? '') }}">
+                    <label class="unit-item flex items-start gap-3 p-3 rounded-lg border {{ $unitActive ? 'border-slate-200 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-800 cursor-pointer' : 'border-red-200 bg-red-50/60 opacity-70 cursor-not-allowed pointer-events-none' }} transition" data-name="{{ strtolower($u->name) }}" data-desc="{{ strtolower($u->description ?? '') }}">
                         <input type="checkbox" class="mt-1 unit-checkbox w-5 h-5 rounded border-slate-300 dark:border-slate-600 text-blue-600" value="{{ $u->id }}" {{ in_array($u->id, $selectedUnitIds) ? 'checked' : '' }} {{ !$unitActive ? 'disabled' : '' }}>
                         <div class="flex-1">
                             <div class="font-bold text-slate-900">{{ $u->name }}</div>
@@ -260,7 +260,7 @@
                 @endforeach
             </div>
         </div>
-        <div class="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex justify-end gap-3">
+        <div class="p-4 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex justify-end gap-3">
             <button type="button" class="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-white" data-close="units">Cancelar</button>
             <button type="button" id="btn-units-apply" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold">Aplicar</button>
         </div>

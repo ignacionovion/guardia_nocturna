@@ -33,7 +33,7 @@
         'constituye' => 'bg-emerald-600 hover:bg-emerald-500 text-white',
         'reemplazo' => 'bg-purple-600 hover:bg-purple-500 text-white',
         'permiso' => 'bg-amber-600 hover:bg-amber-500 text-white',
-        'ausente' => 'bg-slate-600 hover:bg-slate-500 text-white',
+        'ausente' => 'bg-slate-600 hover:bg-white0 text-white',
         'licencia' => 'bg-blue-600 hover:bg-blue-500 text-white',
         'falta' => 'bg-rose-600 hover:bg-rose-500 text-white',
         default => 'bg-emerald-600 hover:bg-emerald-500 text-white',

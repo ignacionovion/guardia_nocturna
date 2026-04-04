@@ -24,7 +24,7 @@
                         @if($volunteer->photo_path)
                             <img src="{{ route('media', $volunteer->photo_path) }}" class="w-32 h-32 rounded-2xl object-cover border-2 border-slate-200 dark:border-slate-700 shadow-lg" alt="Foto de {{ $volunteer->nombres }}">
                         @else
-                            <div class="w-32 h-32 rounded-2xl bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 font-bold text-3xl border-2 border-slate-300 dark:border-slate-600 shadow-lg">
+                            <div class="w-32 h-32 rounded-2xl bg-white dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 font-bold text-3xl border-2 border-slate-300 dark:border-slate-600 shadow-lg">
                                 {{ substr($volunteer->nombres, 0, 1) }}{{ substr($volunteer->apellido_paterno, 0, 1) }}
                             </div>
                         @endif
@@ -107,27 +107,27 @@
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                        <div class="p-4 bg-white dark:bg-slate-800/50 rounded-xl">
                             <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">RUT</div>
                             <div class="text-base font-medium text-slate-800 dark:text-white">{{ $volunteer->rut ?: 'No registrado' }}</div>
                         </div>
                         
-                        <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                        <div class="p-4 bg-white dark:bg-slate-800/50 rounded-xl">
                             <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Número de Registro</div>
                             <div class="text-base font-medium text-slate-800 dark:text-white">{{ $volunteer->numero_registro ?: 'No registrado' }}</div>
                         </div>
                         
-                        <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                        <div class="p-4 bg-white dark:bg-slate-800/50 rounded-xl">
                             <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Portátil</div>
                             <div class="text-base font-medium text-slate-800 dark:text-white">{{ $volunteer->numero_portatil ?: 'No asignado' }}</div>
                         </div>
                         
-                        <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                        <div class="p-4 bg-white dark:bg-slate-800/50 rounded-xl">
                             <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Email</div>
                             <div class="text-base font-medium text-slate-800 dark:text-white">{{ $volunteer->correo ?: 'No registrado' }}</div>
                         </div>
                         
-                        <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                        <div class="p-4 bg-white dark:bg-slate-800/50 rounded-xl">
                             <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Fecha de Nacimiento</div>
                             <div class="text-base font-medium text-slate-800 dark:text-white">
                                 @if($volunteer->fecha_nacimiento)
@@ -139,7 +139,7 @@
                             </div>
                         </div>
                         
-                        <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                        <div class="p-4 bg-white dark:bg-slate-800/50 rounded-xl">
                             <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Fecha de Ingreso</div>
                             <div class="text-base font-medium text-slate-800 dark:text-white">
                                 @if($volunteer->fecha_ingreso)
@@ -162,7 +162,7 @@
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                        <div class="p-4 bg-white dark:bg-slate-800/50 rounded-xl">
                             <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Guardia Asignada</div>
                             <div class="text-base font-medium text-slate-800 dark:text-white">
                                 @if($volunteer->guardia)
@@ -173,12 +173,12 @@
                             </div>
                         </div>
                         
-                        <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                        <div class="p-4 bg-white dark:bg-slate-800/50 rounded-xl">
                             <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Cargo</div>
                             <div class="text-base font-medium text-slate-800 dark:text-white">{{ $volunteer->cargo_texto ?: 'Bombero' }}</div>
                         </div>
                         
-                        <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                        <div class="p-4 bg-white dark:bg-slate-800/50 rounded-xl">
                             <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Estado de Asistencia</div>
                             <div class="text-base font-medium text-slate-800 dark:text-white capitalize">
                                 @switch($volunteer->estado_asistencia)

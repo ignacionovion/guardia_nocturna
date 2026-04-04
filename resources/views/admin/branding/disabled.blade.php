@@ -5,8 +5,8 @@
 @section('content')
 <div class="container mx-auto px-4 py-12">
     <div class="max-w-2xl mx-auto text-center">
-        <div class="bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-8">
-            <div class="w-16 h-16 bg-slate-200 rounded-full flex items-center justify-center mx-auto mb-6">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-8">
+            <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-6">
                 <i class="fas fa-palette text-slate-500 dark:text-slate-400 text-2xl"></i>
             </div>
             

@@ -57,7 +57,7 @@
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i class="fas fa-user text-slate-400"></i>
                             </div>
-                            <input class="w-full px-4 py-3 pl-10 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all @error('username') !border-red-500 !bg-red-50 @enderror" 
+                            <input class="w-full px-4 py-3 pl-10 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all @error('username') !border-red-500 !bg-red-50 @enderror" 
                                    id="username" type="text" name="username" value="{{ old('username') }}" required autofocus placeholder="Ingrese su usuario">
                         </div>
                         @error('username')
@@ -73,7 +73,7 @@
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i class="fas fa-lock text-slate-400"></i>
                             </div>
-                            <input class="w-full px-4 py-3 pl-10 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all @error('password') !border-red-500 !bg-red-50 @enderror" 
+                            <input class="w-full px-4 py-3 pl-10 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all @error('password') !border-red-500 !bg-red-50 @enderror" 
                                    id="password" type="password" name="password" required placeholder="••••••••">
                         </div>
                         @error('password')
@@ -87,7 +87,7 @@
                     </button>
                 </form>
             </div>
-            <div class="px-6 sm:px-8 py-4 bg-slate-50 border-t border-slate-100 text-center">
+            <div class="px-6 sm:px-8 py-4 bg-white border-t border-slate-100 text-center">
                 <p class="text-xs text-slate-400">
                     &copy; {{ date('Y') }} {{ config('app.name', 'AppGuardia') }}
                 </p>

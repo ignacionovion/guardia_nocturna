@@ -72,11 +72,11 @@
                     <p class="text-2xl font-bold text-emerald-700">{{ $globalMetrics['healthy'] }}</p>
                     <p class="text-xs text-emerald-600 font-medium mt-1">Saludables</p>
                 </div>
-                <div class="text-center p-4 rounded-xl {{ $globalMetrics['warnings'] > 0 ? 'bg-amber-50 border border-amber-100' : 'bg-slate-50 border border-slate-100' }}">
+                <div class="text-center p-4 rounded-xl {{ $globalMetrics['warnings'] > 0 ? 'bg-amber-50 border border-amber-100' : 'bg-white border border-slate-100' }}">
                     <p class="text-2xl font-bold {{ $globalMetrics['warnings'] > 0 ? 'text-amber-700' : 'text-slate-400' }}">{{ $globalMetrics['warnings'] }}</p>
                     <p class="text-xs {{ $globalMetrics['warnings'] > 0 ? 'text-amber-600' : 'text-slate-400' }} font-medium mt-1">Advertencias</p>
                 </div>
-                <div class="text-center p-4 rounded-xl {{ $globalMetrics['errors'] > 0 ? 'bg-red-50 border border-red-100' : 'bg-slate-50 border border-slate-100' }}">
+                <div class="text-center p-4 rounded-xl {{ $globalMetrics['errors'] > 0 ? 'bg-red-50 border border-red-100' : 'bg-white border border-slate-100' }}">
                     <p class="text-2xl font-bold {{ $globalMetrics['errors'] > 0 ? 'text-red-700' : 'text-slate-400' }}">{{ $globalMetrics['errors'] }}</p>
                     <p class="text-xs {{ $globalMetrics['errors'] > 0 ? 'text-red-600' : 'text-slate-400' }} font-medium mt-1">Errores</p>
                 </div>
@@ -99,7 +99,7 @@
                     <span>Nueva Compañía</span>
                 </a>
                 <a href="{{ route('central.bodies.create') }}"
-                   class="flex items-center space-x-3 w-full bg-white text-slate-700 text-sm font-medium py-3 px-4 rounded-xl border border-slate-200 hover:bg-slate-50 transition">
+                   class="flex items-center space-x-3 w-full bg-white text-slate-700 text-sm font-medium py-3 px-4 rounded-xl border border-slate-200 hover:bg-white transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     <span>Nuevo Cuerpo</span>
                 </a>
@@ -131,7 +131,7 @@
                     <div class="flex items-center justify-between">
                         <span class="text-sm text-slate-600">{{ $plan['label'] }}</span>
                         <div class="flex items-center space-x-2">
-                            <div class="w-20 h-2 bg-slate-100 rounded-full overflow-hidden">
+                            <div class="w-20 h-2 bg-white rounded-full overflow-hidden">
                                 <div class="h-full {{ $loop->odd ? 'bg-blue-500' : 'bg-purple-500' }}" style="width: {{ $plan['percentage'] }}%"></div>
                             </div>
                             <span class="text-xs font-medium text-slate-900 w-6 text-right">{{ $plan['count'] }}</span>
@@ -210,10 +210,10 @@
             <div class="divide-y divide-slate-100">
                 @forelse($recentTenants as $tenant)
                     @php $health = $tenantHealthMap[$tenant->id] ?? ['overall' => 'ok']; @endphp
-                    <a href="{{ route('central.tenants.show', $tenant->id) }}" class="px-6 py-3 flex items-center justify-between hover:bg-slate-50 transition block">
+                    <a href="{{ route('central.tenants.show', $tenant->id) }}" class="px-6 py-3 flex items-center justify-between hover:bg-white transition block">
                         <div class="flex items-center space-x-3">
                             <div class="relative">
-                                <div class="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center">
+                                <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
                                     <span class="text-xs font-bold text-slate-600">{{ $tenant->numero ?? '#' }}</span>
                                 </div>
                                 <div class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white

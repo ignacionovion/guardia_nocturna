@@ -44,7 +44,7 @@
                     Filtrar
                 </button>
                 @if(request()->hasAny(['tenant_id', 'action', 'from', 'to']))
-                    <a href="{{ route('central.audit.index') }}" class="px-4 py-2 text-sm text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-50 transition">
+                    <a href="{{ route('central.audit.index') }}" class="px-4 py-2 text-sm text-slate-600 border border-slate-300 rounded-lg hover:bg-white transition">
                         Limpiar
                     </a>
                 @endif
@@ -56,7 +56,7 @@
     <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
         <div class="divide-y divide-slate-100">
             @forelse($logs as $log)
-                <div class="px-6 py-4 hover:bg-slate-50 transition">
+                <div class="px-6 py-4 hover:bg-white transition">
                     <div class="flex items-start justify-between">
                         <div class="flex items-start space-x-3">
                             <span class="text-lg mt-0.5">{{ $log->actionIcon() }}</span>
@@ -64,7 +64,7 @@
                                 <p class="text-sm font-medium text-slate-900">{{ $log->description }}</p>
                                 <div class="flex items-center space-x-3 mt-1">
                                     @if($log->tenant_id)
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-600">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-white text-slate-600">
                                             {{ $log->tenant_id }}
                                         </span>
                                     @endif
@@ -78,7 +78,7 @@
                                 @if($log->metadata)
                                     <details class="mt-2">
                                         <summary class="text-xs text-slate-400 cursor-pointer hover:text-slate-600">Ver detalles</summary>
-                                        <pre class="mt-1 text-[11px] bg-slate-50 p-2 rounded text-slate-600 overflow-x-auto">{{ json_encode($log->metadata, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
+                                        <pre class="mt-1 text-[11px] bg-white p-2 rounded text-slate-600 overflow-x-auto">{{ json_encode($log->metadata, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
                                     </details>
                                 @endif
                             </div>

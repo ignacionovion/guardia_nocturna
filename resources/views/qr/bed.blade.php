@@ -30,7 +30,7 @@
                         {{ $bed->status === 'available' ? 'bg-emerald-100 text-emerald-700' : '' }}
                         {{ $bed->status === 'occupied' ? 'bg-red-100 text-red-700' : '' }}
                         {{ $bed->status === 'maintenance' ? 'bg-amber-100 text-amber-700' : '' }}
-                        {{ $bed->status === 'disabled' ? 'bg-gray-100 text-gray-700' : '' }}">
+                        {{ $bed->status === 'disabled' ? 'bg-white text-gray-700' : '' }}">
                         {{ $bed->status_label }}
                     </div>
                 </div>
@@ -93,7 +93,7 @@
 
                 @else
                     <div class="text-center py-8">
-                        <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
                             <i class="fas fa-ban text-gray-600 text-4xl"></i>
                         </div>
                         <h3 class="text-2xl font-bold text-gray-700 mb-2">Deshabilitada</h3>
@@ -104,7 +104,7 @@
             </div>
 
             {{-- Footer --}}
-            <div class="bg-gray-50 px-6 py-4 text-center border-t border-gray-200">
+            <div class="bg-white px-6 py-4 text-center border-t border-gray-200">
                 <p class="text-xs text-gray-500">
                     EstacionAPP · Información en tiempo real
                 </p>

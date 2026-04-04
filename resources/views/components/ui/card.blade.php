@@ -37,7 +37,7 @@ $hoverClasses = $hover ? 'transition-all duration-200 hover:shadow-lg hover:-tra
     @endif
     
     @if($footer)
-    <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+    <div class="px-6 py-4 border-t border-slate-200 bg-white rounded-b-2xl">
         {{ $footer }}
     </div>
     @endif

@@ -102,7 +102,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {{-- Por Género --}}
         <x-ui.card>
-            <div class="p-5 border-b border-[#9fb0c3] bg-[#c3cfdb]">
+            <div class="p-5 border-b border-slate-200 bg-white">
                 <h3 class="text-sm font-bold text-[#1e293b]">Distribución por Género</h3>
             </div>
             <div class="p-5">
@@ -140,7 +140,7 @@
 
         {{-- Por Sector/Pieza --}}
         <x-ui.card>
-            <div class="p-5 border-b border-[#9fb0c3] bg-[#c3cfdb]">
+            <div class="p-5 border-b border-slate-200 bg-white">
                 <h3 class="text-sm font-bold text-[#1e293b]">Distribución por Sector</h3>
             </div>
             <div class="p-5">
@@ -173,7 +173,7 @@
 
     {{-- Búsqueda y Filtros --}}
     <x-ui.card class="mb-6">
-        <div class="p-5 border-b border-[#9fb0c3] bg-[#c3cfdb]">
+        <div class="p-5 border-b border-slate-200 bg-white">
             <form method="GET" class="space-y-4">
                 {{-- Búsqueda --}}
                 <div class="flex flex-col md:flex-row gap-4">
@@ -242,7 +242,7 @@
     @if($beds->isEmpty())
         <x-ui.card>
             <div class="p-12 text-center">
-                <div class="w-16 h-16 bg-[#c3cfdb] rounded-full flex items-center justify-center mx-auto mb-4">
+                <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
                     <i class="fas fa-bed text-[#475569] text-2xl"></i>
                 </div>
                 <h3 class="text-lg font-bold text-[#1e293b] mb-2">No hay camas registradas</h3>
@@ -323,7 +323,7 @@
                                         {{ $bed->status === 'available' ? 'bg-emerald-100 text-emerald-700' : '' }}
                                         {{ $bed->status === 'occupied' ? 'bg-red-100 text-red-700' : '' }}
                                         {{ $bed->status === 'maintenance' ? 'bg-amber-100 text-amber-700' : '' }}
-                                        {{ $bed->status === 'disabled' ? 'bg-gray-100 text-gray-600' : '' }}">
+                                        {{ $bed->status === 'disabled' ? 'bg-white text-gray-600' : '' }}">
                                         {{ $bed->status_label }}
                                     </div>
                                 </div>
@@ -381,7 +381,7 @@
                                             <span>Asignar</span>
                                         </button>
                                     @else
-                                        <div class="w-full px-3 py-2 bg-gray-100 text-gray-500 font-semibold rounded-lg text-sm text-center">
+                                        <div class="w-full px-3 py-2 bg-white text-gray-500 font-semibold rounded-lg text-sm text-center">
                                             <i class="fas fa-ban mr-1"></i>No asignable
                                         </div>
                                     @endif
@@ -430,19 +430,19 @@
 
                                 {{-- Acciones Secundarias --}}
                                 <div class="grid grid-cols-4 gap-1.5 pt-3 border-t border-[#cbd5e1] flex-shrink-0">
-                                    <a href="{{ route('admin.beds.edit', $bed) }}" class="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-slate-100 transition-all" title="Editar">
+                                    <a href="{{ route('admin.beds.edit', $bed) }}" class="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-white transition-all" title="Editar">
                                         <i class="fas fa-pen text-slate-600 text-sm mb-1"></i>
                                         <span class="text-[10px] font-semibold text-slate-600">Editar</span>
                                     </a>
-                                    <a href="{{ route('admin.beds.history', $bed) }}" class="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-slate-100 transition-all" title="Historial">
+                                    <a href="{{ route('admin.beds.history', $bed) }}" class="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-white transition-all" title="Historial">
                                         <i class="fas fa-history text-slate-600 text-sm mb-1"></i>
                                         <span class="text-[10px] font-semibold text-slate-600">Historial</span>
                                     </a>
-                                    <a href="{{ route('admin.beds.qr', $bed) }}" class="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-slate-100 transition-all" title="Ver QR">
+                                    <a href="{{ route('admin.beds.qr', $bed) }}" class="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-white transition-all" title="Ver QR">
                                         <i class="fas fa-qrcode text-slate-600 text-sm mb-1"></i>
                                         <span class="text-[10px] font-semibold text-slate-600">QR</span>
                                     </a>
-                                    <a href="{{ route('admin.beds.qr.print', $bed) }}" target="_blank" class="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-slate-100 transition-all" title="Imprimir">
+                                    <a href="{{ route('admin.beds.qr.print', $bed) }}" target="_blank" class="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-white transition-all" title="Imprimir">
                                         <i class="fas fa-print text-slate-600 text-sm mb-1"></i>
                                         <span class="text-[10px] font-semibold text-slate-600">Imprimir</span>
                                     </a>
@@ -457,10 +457,10 @@
 
     {{-- Modal Asignar Cama --}}
     <div id="assignModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-[#e7eef5] border border-[#9fb0c3] rounded-2xl shadow-xl max-w-md w-full">
+        <div class="bg-white border border-slate-200 rounded-2xl shadow-xl max-w-md w-full">
             <form id="assignForm" method="POST">
                 @csrf
-                <div class="p-6 border-b border-[#9fb0c3]">
+                <div class="p-6 border-b border-slate-200">
                     <h3 class="text-lg font-bold text-[#1e293b]">Asignar Cama</h3>
                     <p class="text-sm text-[#475569]" id="assignBedName"></p>
                 </div>
@@ -476,8 +476,8 @@
                         <textarea name="notes" rows="3" class="form-input" placeholder="Notas opcionales..."></textarea>
                     </div>
                 </div>
-                <div class="p-6 border-t border-[#9fb0c3] flex gap-3">
-                    <button type="button" onclick="closeAssignModal()" class="flex-1 px-4 py-2 bg-[#c3cfdb] hover:bg-[#9fb0c3] text-[#1e293b] font-semibold rounded-xl transition-colors">
+                <div class="p-6 border-t border-slate-200 flex gap-3">
+                    <button type="button" onclick="closeAssignModal()" class="flex-1 px-4 py-2 bg-white hover:bg-[#9fb0c3] text-[#1e293b] font-semibold rounded-xl transition-colors">
                         Cancelar
                     </button>
                     <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors">
@@ -490,10 +490,10 @@
 
     {{-- Modal Liberar Cama --}}
     <div id="releaseModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-[#e7eef5] border border-[#9fb0c3] rounded-2xl shadow-xl max-w-md w-full">
+        <div class="bg-white border border-slate-200 rounded-2xl shadow-xl max-w-md w-full">
             <form id="releaseForm" method="POST">
                 @csrf
-                <div class="p-6 border-b border-[#9fb0c3]">
+                <div class="p-6 border-b border-slate-200">
                     <h3 class="text-lg font-bold text-[#1e293b]">Liberar Cama</h3>
                     <p class="text-sm text-[#475569]" id="releaseBedName"></p>
                 </div>
@@ -503,8 +503,8 @@
                         <textarea name="notes" rows="3" class="form-input" placeholder="Notas opcionales sobre la liberación..."></textarea>
                     </div>
                 </div>
-                <div class="p-6 border-t border-[#9fb0c3] flex gap-3">
-                    <button type="button" onclick="closeReleaseModal()" class="flex-1 px-4 py-2 bg-[#c3cfdb] hover:bg-[#9fb0c3] text-[#1e293b] font-semibold rounded-xl transition-colors">
+                <div class="p-6 border-t border-slate-200 flex gap-3">
+                    <button type="button" onclick="closeReleaseModal()" class="flex-1 px-4 py-2 bg-white hover:bg-[#9fb0c3] text-[#1e293b] font-semibold rounded-xl transition-colors">
                         Cancelar
                     </button>
                     <button type="submit" class="flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-colors">

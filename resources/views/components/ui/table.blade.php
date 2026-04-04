@@ -5,7 +5,7 @@
 ])
 
 @php
-$rowClasses = $hoverable ? 'hover:bg-slate-50 transition-colors' : '';
+$rowClasses = $hoverable ? 'hover:bg-white transition-colors' : '';
 $cellPadding = $compact ? 'px-3 py-2' : 'px-4 py-3';
 @endphp
 

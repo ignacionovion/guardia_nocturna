@@ -7,7 +7,7 @@
             <div class="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Guardias Preventivas</div>
             <div class="text-2xl font-extrabold text-slate-900">Crear Evento</div>
         </div>
-        <a href="{{ route('admin.preventivas.index') }}" class="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs">Volver</a>
+        <a href="{{ route('admin.preventivas.index') }}" class="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-white dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs">Volver</a>
     </div>
 
     <form method="POST" action="{{ route('admin.preventivas.store') }}" class="mt-6 bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-lg overflow-hidden">
@@ -38,14 +38,14 @@
                         <div class="text-sm font-black uppercase tracking-widest text-slate-700 dark:text-slate-300">Plantilla de Turnos (se aplica a todos los días)</div>
                         <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Define horarios como 08:00-10:00, etc. Si un turno cruza medianoche, pon fin menor (ej: 22:00 a 08:00).</div>
                     </div>
-                    <button type="button" id="addRow" class="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-bold text-xs">
+                    <button type="button" id="addRow" class="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-white dark:hover:bg-slate-800 text-slate-800 dark:text-white font-bold text-xs">
                         <i class="fas fa-plus mr-1"></i> Agregar Turno
                     </button>
                 </div>
 
                 <div class="mt-4 overflow-x-auto">
                     <table class="min-w-full text-sm border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
-                        <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                        <thead class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                             <tr>
                                 <th class="text-left px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">Inicio</th>
                                 <th class="text-left px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">Fin</th>
@@ -66,8 +66,8 @@
             </div>
         </div>
 
-        <div class="px-6 py-5 bg-slate-50 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 flex items-center justify-end gap-3">
-            <a href="{{ route('admin.preventivas.index') }}" class="px-5 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-black text-[11px] uppercase tracking-widest">Cancelar</a>
+        <div class="px-6 py-5 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 flex items-center justify-end gap-3">
+            <a href="{{ route('admin.preventivas.index') }}" class="px-5 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-white dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-black text-[11px] uppercase tracking-widest">Cancelar</a>
             <button type="submit" class="inline-flex items-center gap-2 bg-slate-950 hover:bg-black text-white font-black py-3 px-6 rounded-xl text-[11px] transition-all shadow-md hover:shadow-lg uppercase tracking-widest border border-slate-800">
                 <i class="fas fa-check"></i>
                 Crear Preventiva

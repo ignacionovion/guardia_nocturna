@@ -75,7 +75,7 @@
             </div>
 
             {{-- Acciones --}}
-            <div class="flex items-center justify-end gap-4 pt-6 mt-6 border-t border-[#9fb0c3]">
+            <div class="flex items-center justify-end gap-4 pt-6 mt-6 border-t border-slate-200">
                 <x-ui.button variant="secondary" size="md" href="{{ route('admin.beds.index') }}">
                     Cancelar
                 </x-ui.button>

@@ -47,7 +47,7 @@ $status = $isMaintenance ? 'maintenance' : ($isOccupied ? 'occupied' : 'availabl
     </div>
     @elseif($isMaintenance)
     <div class="text-center">
-        <div class="w-10 h-10 mx-auto mb-2 rounded-lg bg-slate-100 flex items-center justify-center">
+        <div class="w-10 h-10 mx-auto mb-2 rounded-lg bg-white flex items-center justify-center">
             <i class="fas fa-wrench text-slate-400"></i>
         </div>
         <p class="text-sm text-slate-500 font-medium">Mantenimiento</p>

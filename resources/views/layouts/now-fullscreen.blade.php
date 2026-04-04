@@ -62,7 +62,7 @@
     
     @stack('styles')
 </head>
-<body class="bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased min-h-screen">
+<body class="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased min-h-screen">
     @include('components.impersonation-banner')
     
     <div class="min-h-screen flex flex-col">
@@ -99,28 +99,28 @@
             {{-- Right: Actions --}}
             <div class="flex items-center gap-2">
                 {{-- Clock --}}
-                <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                     <i class="fas fa-clock text-slate-400 text-xs"></i>
                     <span id="live-clock" class="text-sm font-mono font-semibold text-slate-700 dark:text-slate-300">--:--:--</span>
                 </div>
                 
                 {{-- Theme Toggle --}}
                 <button @click="darkMode = !darkMode; localStorage.setItem('darkMode', darkMode)" 
-                        class="w-9 h-9 rounded-lg flex items-center justify-center text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                        class="w-9 h-9 rounded-lg flex items-center justify-center text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800 transition-colors"
                         title="Cambiar tema">
                     <i class="fas text-sm" :class="darkMode ? 'fa-sun text-amber-400' : 'fa-moon'"></i>
                 </button>
                 
                 {{-- Fullscreen Toggle --}}
                 <button onclick="toggleFullscreen()" 
-                        class="w-9 h-9 rounded-lg flex items-center justify-center text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                        class="w-9 h-9 rounded-lg flex items-center justify-center text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800 transition-colors"
                         title="Pantalla completa">
                     <i class="fas fa-expand text-sm"></i>
                 </button>
                 
                 {{-- Back to Dashboard --}}
                 <a href="{{ route('dashboard') }}" 
-                   class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                   class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800 transition-colors">
                     <i class="fas fa-arrow-left text-xs"></i>
                     <span class="hidden sm:inline">Dashboard</span>
                 </a>

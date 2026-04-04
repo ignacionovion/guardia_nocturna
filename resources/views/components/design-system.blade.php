@@ -163,7 +163,7 @@
         @apply inline-flex items-center gap-1.5 px-2 py-1 text-[10px] font-bold rounded-lg uppercase;
     }
     .badge-default {
-        @apply badge-base bg-slate-100 text-slate-600 border border-slate-200;
+        @apply badge-base bg-white text-slate-600 border border-slate-200;
     }
     .badge-success {
         @apply badge-base bg-emerald-50 text-emerald-700 border border-emerald-200;

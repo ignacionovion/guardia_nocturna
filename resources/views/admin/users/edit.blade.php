@@ -85,7 +85,7 @@
                         x-model="role"
                         @change="handleRoleChange"
                         :disabled="roleId !== '' && roleId !== null"
-                        :class="roleId !== '' && roleId !== null ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-white text-slate-900'"
+                        :class="roleId !== '' && roleId !== null ? 'bg-white text-slate-400 cursor-not-allowed' : 'bg-white text-slate-900'"
                         class="w-full rounded-xl border border-slate-300 px-4 py-3 shadow-sm focus:border-slate-500 focus:ring-2 focus:ring-slate-200">
                     <option value="">Seleccionar perfil...</option>
                     <option value="capitan">CAPITAN</option>
@@ -113,7 +113,7 @@
                         x-model="roleId"
                         @change="handleRoleIdChange"
                         :disabled="role !== '' && role !== null"
-                        :class="role !== '' && role !== null ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-white text-slate-900'"
+                        :class="role !== '' && role !== null ? 'bg-white text-slate-400 cursor-not-allowed' : 'bg-white text-slate-900'"
                         class="w-full rounded-xl border border-slate-300 px-4 py-3 shadow-sm focus:border-slate-500 focus:ring-2 focus:ring-slate-200">
                     <option value="">Sin rol personalizado</option>
                     @foreach($roles as $roleItem)
@@ -141,7 +141,7 @@
 
     <div class="flex items-center justify-end gap-3 pt-4">
         <a href="{{ route('admin.users.index') }}"
-           class="inline-flex items-center rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
+           class="inline-flex items-center rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-white">
             Cancelar
         </a>
 

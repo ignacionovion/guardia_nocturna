@@ -46,7 +46,7 @@
                     </div>
 
                     <!-- Datos Operativos -->
-                    <div class="card !bg-slate-50 dark:!bg-slate-800 !border-slate-200 dark:!border-slate-700">
+                    <div class="card !bg-white dark:!bg-slate-800 !border-slate-200 dark:!border-slate-700">
                         <h3 class="text-label mb-4 border-b border-slate-200 dark:border-slate-700 pb-2">Información Operativa</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>

@@ -215,7 +215,7 @@
 
                         @if($dashboardActiveReplacements->isEmpty() && $dashboardActiveRefuerzos->isEmpty())
                             <div class="text-center py-12">
-                                <div class="inline-flex items-center justify-center w-12 h-12 bg-slate-100 rounded-full mb-3">
+                                <div class="inline-flex items-center justify-center w-12 h-12 bg-white rounded-full mb-3">
                                     <i class="fas fa-check text-slate-400"></i>
                                 </div>
                                 <p class="text-sm font-medium text-[#1e293b]">Sin movimientos activos</p>
@@ -273,8 +273,8 @@
                         </div>
                     </a>
 
-                    <a href="{{ route('admin.dotaciones') }}" class="group p-4 bg-white hover:bg-slate-50 rounded-xl border border-slate-200 transition-colors flex items-center gap-3 no-underline shadow-sm">
-                        <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center shrink-0">
+                    <a href="{{ route('admin.dotaciones') }}" class="group p-4 bg-white hover:bg-white rounded-xl border border-slate-200 transition-colors flex items-center gap-3 no-underline shadow-sm">
+                        <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shrink-0">
                             <i class="fas fa-users-gear text-slate-900"></i>
                         </div>
                         <div>
@@ -283,7 +283,7 @@
                         </div>
                     </a>
 
-                    <a href="{{ route('camas') }}" class="group p-4 bg-white hover:bg-slate-50 rounded-xl border border-slate-200 transition-colors flex items-center gap-3 no-underline shadow-sm">
+                    <a href="{{ route('camas') }}" class="group p-4 bg-white hover:bg-white rounded-xl border border-slate-200 transition-colors flex items-center gap-3 no-underline shadow-sm">
                         <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center shrink-0">
                             <i class="fas fa-bed text-emerald-600"></i>
                         </div>
@@ -293,7 +293,7 @@
                         </div>
                     </a>
 
-                    <a href="{{ route('admin.emergencies.index') }}" class="group p-4 bg-white hover:bg-slate-50 rounded-xl border border-slate-200 transition-colors flex items-center gap-3 no-underline shadow-sm">
+                    <a href="{{ route('admin.emergencies.index') }}" class="group p-4 bg-white hover:bg-white rounded-xl border border-slate-200 transition-colors flex items-center gap-3 no-underline shadow-sm">
                         <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center shrink-0">
                             <i class="fas fa-truck-medical text-amber-600"></i>
                         </div>

@@ -36,7 +36,7 @@ $badgeColors = [
     'purple' => 'bg-purple-100 text-purple-700',
     'red' => 'bg-red-100 text-red-700',
     'cyan' => 'bg-cyan-100 text-cyan-700',
-    'slate' => 'bg-slate-100 text-slate-700',
+    'slate' => 'bg-white text-slate-700',
 ];
 @endphp
 

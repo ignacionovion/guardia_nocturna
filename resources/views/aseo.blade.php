@@ -29,7 +29,7 @@
                 <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 flex flex-col gap-3">
                     <div class="flex items-center justify-between gap-2">
                         <span class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wide leading-tight">{{ $task->name }}</span>
-                        <span class="shrink-0 text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded border {{ $current ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400' }}">
+                        <span class="shrink-0 text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded border {{ $current ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400' }}">
                             {{ $current ? 'Asignado' : 'Pendiente' }}
                         </span>
                     </div>

@@ -22,7 +22,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         @foreach($guardias as $guardia)
             <x-ui.card>
-                <x-slot:header class="!bg-[#c3cfdb] !border-[#9fb0c3]">
+                <x-slot:header class="!bg-white !border-slate-200">
                     <div class="flex items-center justify-between w-full">
                         <div>
                             <h2 class="text-title-sm uppercase tracking-wide text-[#1e293b]">{{ $guardia->name }}</h2>
@@ -46,11 +46,11 @@
                             <div class="relative">
                                 <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-[#475569]"></i>
                                 <input name="firefighter_id_display" autocomplete="off" data-dotaciones-volunteer-input data-guardia-id="{{ $guardia->id }}"
-                                       class="bg-[#e7eef5] border border-[#9fb0c3] text-[#1e293b] placeholder-[#475569] rounded-xl min-h-[44px] px-4 py-3 pl-10 text-sm focus:border-[#1e293b] focus:ring-2 focus:ring-[#1e293b]/10 focus:outline-none w-full"
+                                       class="bg-white border border-slate-200 text-[#1e293b] placeholder-[#475569] rounded-xl min-h-[44px] px-4 py-3 pl-10 text-sm focus:border-[#1e293b] focus:ring-2 focus:ring-[#1e293b]/10 focus:outline-none w-full"
                                        placeholder="Escribe nombre, apellido o RUT..." required>
                                 <input type="hidden" name="firefighter_id" id="firefighter_id_input_{{ $guardia->id }}" required>
 
-                                <div id="volunteer_dropdown_{{ $guardia->id }}" class="hidden absolute left-0 right-0 mt-1 bg-[#dde6ef] border border-[#9fb0c3] rounded-xl shadow-xl z-20 max-h-60 overflow-auto"></div>
+                                <div id="volunteer_dropdown_{{ $guardia->id }}" class="hidden absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-20 max-h-60 overflow-auto"></div>
                             </div>
                             <div class="hidden text-xs text-red-600 font-semibold mt-1" data-dotaciones-error data-guardia-id="{{ $guardia->id }}"></div>
                         </div>
@@ -60,7 +60,7 @@
                         </x-ui.button>
                     </form>
 
-                    <div class="border-t border-[#9fb0c3] pt-4">
+                    <div class="border-t border-slate-200 pt-4">
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="text-label uppercase tracking-wide text-[#475569]">Personal asignado</h3>
                             @if($guardia->bomberos->count() > 0)
@@ -69,9 +69,9 @@
                         </div>
                         <div class="space-y-2 max-h-64 overflow-y-auto pr-1">
                             @forelse($guardia->bomberos as $user)
-                                <div class="flex items-center justify-between bg-[#e7eef5] border border-[#9fb0c3] rounded-xl p-3 hover:bg-[#c3cfdb] transition-colors">
+                                <div class="flex items-center justify-between bg-white border border-slate-200 rounded-xl p-3 hover:bg-white transition-colors">
                                     <div class="flex items-center gap-3">
-                                        <div class="h-9 w-9 rounded-full bg-[#c3cfdb] flex items-center justify-center text-[#1e293b] font-bold text-sm">
+                                        <div class="h-9 w-9 rounded-full bg-white flex items-center justify-center text-[#1e293b] font-bold text-sm">
                                             {{ substr($user->nombres, 0, 1) }}{{ substr($user->apellido_paterno, 0, 1) }}
                                         </div>
                                         <div>
@@ -107,7 +107,7 @@
                                     </form>
                                 </div>
                             @empty
-                                <div class="text-center py-6 bg-[#e7eef5] rounded-xl border border-dashed border-[#9fb0c3]">
+                                <div class="text-center py-6 bg-white rounded-xl border border-dashed border-slate-200">
                                     <i class="fas fa-users-slash text-[#9fb0c3] text-2xl mb-2"></i>
                                     <p class="text-body-sm text-[#475569]">Sin personal asignado</p>
                                 </div>
@@ -206,7 +206,7 @@
             for (const v of items) {
                 const btn = document.createElement('button');
                 btn.type = 'button';
-                btn.className = 'w-full text-left px-3 py-2 hover:bg-[#c3cfdb] transition flex items-center justify-between';
+                btn.className = 'w-full text-left px-3 py-2 hover:bg-white transition flex items-center justify-between';
                 btn.addEventListener('click', function () {
                     setSelectedVolunteer(guardiaId, v);
                 });

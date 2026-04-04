@@ -15,7 +15,7 @@
 
                 <!-- Sección 1: Identificación Personal -->
                 <div class="mb-10">
-                    <div class="flex items-center gap-3 mb-6 border-b border-[#9fb0c3] pb-3">
+                    <div class="flex items-center gap-3 mb-6 border-b border-slate-200 pb-3">
                         <div class="bg-blue-100 p-2 rounded-lg text-blue-700">
                             <i class="fas fa-id-card text-lg"></i>
                         </div>
@@ -58,7 +58,7 @@
                                         <i class="fas fa-chevron-down"></i>
                                     </button>
                                 </div>
-                                <div id="cargoListCreate" class="absolute z-30 mt-2 w-full bg-[#e7eef5] border border-[#9fb0c3] rounded-xl shadow-lg overflow-hidden hidden">
+                                <div id="cargoListCreate" class="absolute z-30 mt-2 w-full bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden hidden">
                                     <div class="max-h-56 overflow-auto" id="cargoOptionsCreate"></div>
                                 </div>
                             </div>
@@ -82,7 +82,7 @@
                         <div class="md:col-span-3 space-y-2">
                             <label class="form-label">Foto</label>
                             <input type="file" name="photo" accept="image/*"
-                                class="form-input file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[#c3cfdb] file:text-[#1e293b]">
+                                class="form-input file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-white file:text-[#1e293b]">
                             @error('photo') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                         </div>
                     </div>
@@ -90,7 +90,7 @@
 
                 <!-- Sección 2: Datos Institucionales -->
                 <div class="mb-10">
-                    <div class="flex items-center gap-3 mb-6 border-b border-[#9fb0c3] pb-3">
+                    <div class="flex items-center gap-3 mb-6 border-b border-slate-200 pb-3">
                         <div class="bg-red-100 p-2 rounded-lg text-red-700">
                             <i class="fas fa-helmet-safety text-lg"></i>
                         </div>
@@ -133,8 +133,8 @@
                         </div>
 
                         <div class="md:col-span-3">
-                            <label class="flex items-center gap-3 p-4 bg-[#e7eef5] border border-[#9fb0c3] rounded-xl cursor-pointer hover:bg-[#c3cfdb] transition">
-                                <input type="checkbox" name="fuera_de_servicio" value="1" {{ old('fuera_de_servicio') ? 'checked' : '' }} class="rounded text-red-600 focus:ring-red-500 h-5 w-5 border-[#9fb0c3]">
+                            <label class="flex items-center gap-3 p-4 bg-white border border-slate-200 rounded-xl cursor-pointer hover:bg-white transition">
+                                <input type="checkbox" name="fuera_de_servicio" value="1" {{ old('fuera_de_servicio') ? 'checked' : '' }} class="rounded text-red-600 focus:ring-red-500 h-5 w-5 border-slate-200">
                                 <div class="min-w-0">
                                     <div class="text-sm font-bold text-[#1e293b] uppercase tracking-wide">Fuera de servicio</div>
                                     <div class="text-xs text-[#475569]">No aparecerá en listas operativas (turno, emergencias, academias, reemplazos, refuerzos).</div>
@@ -146,7 +146,7 @@
 
                 <!-- Sección 3: Permisos y Roles Técnicos -->
                 <div class="mb-10">
-                    <div class="flex items-center gap-3 mb-6 border-b border-[#9fb0c3] pb-3">
+                    <div class="flex items-center gap-3 mb-6 border-b border-slate-200 pb-3">
                         <div class="bg-yellow-100 p-2 rounded-lg text-yellow-700">
                             <i class="fas fa-user-shield text-lg"></i>
                         </div>
@@ -154,13 +154,13 @@
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div class="bg-[#e7eef5] p-6 rounded-xl border border-[#9fb0c3]">
+                        <div class="bg-white p-6 rounded-xl border border-slate-200">
                             <h4 class="font-semibold text-[#1e293b] mb-4 flex items-center">
                                 <i class="fas fa-tools mr-2 text-[#475569]"></i> Especialidades Técnicas
                             </h4>
                             <div class="space-y-3">
-                                <label class="flex items-center p-3 bg-[#dde6ef] border border-[#9fb0c3] rounded-lg hover:border-blue-400 cursor-pointer transition-all shadow-sm group">
-                                    <input id="es_conductor" type="checkbox" name="es_conductor" value="1" class="rounded text-blue-600 focus:ring-blue-500 h-5 w-5 border-[#9fb0c3]">
+                                <label class="flex items-center p-3 bg-white border border-slate-200 rounded-lg hover:border-blue-400 cursor-pointer transition-all shadow-sm group">
+                                    <input id="es_conductor" type="checkbox" name="es_conductor" value="1" class="rounded text-blue-600 focus:ring-blue-500 h-5 w-5 border-slate-200">
                                     <div class="ml-3">
                                         <span class="block text-sm font-bold text-[#1e293b] group-hover:text-blue-700">Conductor</span>
                                         <span class="block text-xs text-[#475569]">Autorizado para conducir máquinas</span>
@@ -168,20 +168,20 @@
                                     <i class="fas fa-truck ml-auto text-blue-500"></i>
                                 </label>
                                 <input type="hidden" name="conductor_carros_bomba" id="conductor_carros_bomba" value="">
-                                <div id="conductor_disponibilidad" class="hidden rounded-lg border border-[#9fb0c3] bg-[#e7eef5] px-4 py-3">
+                                <div id="conductor_disponibilidad" class="hidden rounded-lg border border-slate-200 bg-white px-4 py-3">
                                     <div class="text-xs font-bold uppercase tracking-wide text-[#475569]">Disponibilidad</div>
                                     <div id="conductor_disponibilidad_text" class="mt-1 text-sm font-bold text-[#1e293b]"></div>
                                 </div>
-                                <label class="flex items-center p-3 bg-[#dde6ef] border border-[#9fb0c3] rounded-lg hover:border-orange-400 cursor-pointer transition-all shadow-sm group">
-                                    <input type="checkbox" name="es_operador_rescate" value="1" class="rounded text-orange-600 focus:ring-orange-500 h-5 w-5 border-[#9fb0c3]">
+                                <label class="flex items-center p-3 bg-white border border-slate-200 rounded-lg hover:border-orange-400 cursor-pointer transition-all shadow-sm group">
+                                    <input type="checkbox" name="es_operador_rescate" value="1" class="rounded text-orange-600 focus:ring-orange-500 h-5 w-5 border-slate-200">
                                     <div class="ml-3">
                                         <span class="block text-sm font-bold text-[#1e293b] group-hover:text-orange-700">Operador Rescate</span>
                                         <span class="block text-xs text-[#475569]">Especialista en rescate vehicular</span>
                                     </div>
                                     <i class="fas fa-car-crash ml-auto text-orange-500"></i>
                                 </label>
-                                <label class="flex items-center p-3 bg-[#dde6ef] border border-[#9fb0c3] rounded-lg hover:border-red-400 cursor-pointer transition-all shadow-sm group">
-                                    <input type="checkbox" name="es_asistente_trauma" value="1" class="rounded text-red-600 focus:ring-red-500 h-5 w-5 border-[#9fb0c3]">
+                                <label class="flex items-center p-3 bg-white border border-slate-200 rounded-lg hover:border-red-400 cursor-pointer transition-all shadow-sm group">
+                                    <input type="checkbox" name="es_asistente_trauma" value="1" class="rounded text-red-600 focus:ring-red-500 h-5 w-5 border-slate-200">
                                     <div class="ml-3">
                                         <span class="block text-sm font-bold text-[#1e293b] group-hover:text-red-700">Asistente Trauma</span>
                                         <span class="block text-xs text-[#475569]">Capacitación prehospitalaria</span>
@@ -194,7 +194,7 @@
                 </div>
 
                 <!-- Footer Acciones -->
-                <div class="flex items-center justify-end gap-4 pt-6 mt-6 border-t border-[#9fb0c3]">
+                <div class="flex items-center justify-end gap-4 pt-6 mt-6 border-t border-slate-200">
                     <x-ui.button variant="secondary" size="md" href="{{ route('admin.volunteers.index') }}">
                         Cancelar
                     </x-ui.button>
@@ -247,7 +247,7 @@
                 filtered.forEach((value, idx) => {
                     const item = document.createElement('button');
                     item.type = 'button';
-                    item.className = 'w-full text-left px-4 py-2.5 text-sm hover:bg-[#c3cfdb] focus:bg-[#c3cfdb] focus:outline-none text-[#1e293b]';
+                    item.className = 'w-full text-left px-4 py-2.5 text-sm hover:bg-white focus:bg-white focus:outline-none text-[#1e293b]';
                     item.textContent = value;
                     item.addEventListener('mousedown', (e) => {
                         e.preventDefault();
@@ -267,7 +267,7 @@
             const highlight = () => {
                 const children = options.querySelectorAll('button');
                 children.forEach((el, i) => {
-                    el.classList.toggle('bg-[#c3cfdb]', i === activeIndex);
+                    el.classList.toggle('bg-slate-100', i === activeIndex);
                 });
             };
 
@@ -383,7 +383,7 @@
                 driverModal.id = 'driverModal';
                 driverModal.className = 'fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm';
                 driverModal.innerHTML = `
-                    <div class="bg-[#e7eef5] border border-[#9fb0c3] rounded-2xl shadow-xl max-w-md w-full mx-4 transform transition-all scale-100">
+                    <div class="bg-white border border-slate-200 rounded-2xl shadow-xl max-w-md w-full mx-4 transform transition-all scale-100">
                         <div class="p-6">
                             <div class="flex items-center gap-3 mb-4">
                                 <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -398,7 +398,7 @@
                                 ¿Este voluntario está <strong>habilitado para conducir carros bomba</strong> (unidades B-3, BR-3, RX-3)?
                             </p>
                             <div class="flex gap-3">
-                                <button type="button" id="driverModalNo" class="flex-1 px-4 py-2.5 rounded-xl border-2 border-[#9fb0c3] text-[#1e293b] font-semibold hover:bg-[#c3cfdb] transition-colors">
+                                <button type="button" id="driverModalNo" class="flex-1 px-4 py-2.5 rounded-xl border-2 border-slate-200 text-[#1e293b] font-semibold hover:bg-white transition-colors">
                                     Solo comandancia
                                 </button>
                                 <button type="button" id="driverModalYes" class="flex-1 px-4 py-2.5 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200">

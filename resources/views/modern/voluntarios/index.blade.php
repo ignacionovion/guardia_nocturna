@@ -12,11 +12,11 @@
             <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Gestión del personal de la compañía</p>
         </div>
         <div class="flex items-center gap-3">
-            <button class="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 dark:hover:bg-slate-700 transition-colors">
+            <button class="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm font-medium hover:bg-white dark:hover:bg-slate-800 dark:hover:bg-slate-700 transition-colors">
                 <i class="fas fa-file-export mr-2"></i>
                 Exportar
             </button>
-            <button class="px-4 py-2.5 rounded-xl bg-slate-900 dark:bg-white dark:bg-slate-900 text-white dark:text-slate-900 text-sm font-semibold hover:bg-slate-800 dark:hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/10 dark:shadow-white/10">
+            <button class="px-4 py-2.5 rounded-xl bg-slate-900 dark:bg-white dark:bg-slate-900 text-white dark:text-slate-900 text-sm font-semibold hover:bg-slate-800 dark:hover:bg-white dark:hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/10 dark:shadow-white/10">
                 <i class="fas fa-plus mr-2"></i>
                 Nuevo Voluntario
             </button>
@@ -78,32 +78,32 @@
             <div class="flex-1 relative">
                 <input type="text" 
                        placeholder="Buscar por nombre, número o RUT..." 
-                       class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-white focus:border-transparent text-sm">
+                       class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-white focus:border-transparent text-sm">
                 <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
             </div>
             
             {{-- Filters --}}
             <div class="flex flex-wrap items-center gap-2">
-                <select class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-white">
+                <select class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-white">
                     <option value="">Todos los cargos</option>
                     <option value="capitan">Capitán</option>
                     <option value="teniente">Teniente</option>
                     <option value="voluntario">Voluntario</option>
                 </select>
-                <select class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-white">
+                <select class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-white">
                     <option value="">Todos los estados</option>
                     <option value="activo">Activo</option>
                     <option value="inactivo">Inactivo</option>
                     <option value="licencia">En Licencia</option>
                 </select>
-                <select class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-white">
+                <select class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-white">
                     <option value="">Todas las guardias</option>
                     <option value="1">Guardia 1</option>
                     <option value="2">Guardia 2</option>
                     <option value="3">Guardia 3</option>
                     <option value="4">Guardia 4</option>
                 </select>
-                <button class="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-sm font-medium hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                <button class="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-sm font-medium hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
                     <i class="fas fa-filter-circle-xmark mr-1"></i>
                     Limpiar
                 </button>
@@ -116,7 +116,7 @@
         <div class="overflow-x-auto">
             <table class="w-full">
                 <thead>
-                    <tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
+                    <tr class="bg-white dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
                         <th class="px-6 py-4 text-left text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Voluntario</th>
                         <th class="px-6 py-4 text-left text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Cargo</th>
                         <th class="px-6 py-4 text-left text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Guardia</th>
@@ -146,7 +146,7 @@
                     @endphp
                     @foreach($voluntarios as $v)
                     @php $ec = $estadoConfig[$v['estado']]; $gc = $guardiaColors[$v['guardia']] ?? 'slate'; @endphp
-                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 dark:hover:bg-slate-800/50 transition-colors group">
+                    <tr class="hover:bg-white dark:hover:bg-slate-800 dark:hover:bg-slate-800/50 transition-colors group">
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
                                 <div class="relative">
@@ -183,10 +183,10 @@
                         </td>
                         <td class="px-6 py-4">
                             <div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button class="p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:bg-slate-800 transition-colors" title="Ver perfil">
+                                <button class="p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300 hover:bg-white dark:hover:bg-slate-800 dark:hover:bg-slate-800 transition-colors" title="Ver perfil">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                <button class="p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:bg-slate-800 transition-colors" title="Editar">
+                                <button class="p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300 hover:bg-white dark:hover:bg-slate-800 dark:hover:bg-slate-800 transition-colors" title="Editar">
                                     <i class="fas fa-pen"></i>
                                 </button>
                                 <button class="p-2 rounded-lg text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors" title="Eliminar">
@@ -206,15 +206,15 @@
                 Mostrando <span class="font-medium text-slate-700 dark:text-slate-300">1</span> a <span class="font-medium text-slate-700 dark:text-slate-300">8</span> de <span class="font-medium text-slate-700 dark:text-slate-300">48</span> voluntarios
             </p>
             <div class="flex items-center gap-1">
-                <button class="p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:bg-slate-800 transition-colors disabled:opacity-50" disabled>
+                <button class="p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300 hover:bg-white dark:hover:bg-slate-800 dark:hover:bg-slate-800 transition-colors disabled:opacity-50" disabled>
                     <i class="fas fa-chevron-left"></i>
                 </button>
                 <button class="w-9 h-9 rounded-lg bg-slate-900 dark:bg-white dark:bg-slate-900 text-white dark:text-slate-900 text-sm font-medium">1</button>
-                <button class="w-9 h-9 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:bg-slate-800 text-sm font-medium transition-colors">2</button>
-                <button class="w-9 h-9 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:bg-slate-800 text-sm font-medium transition-colors">3</button>
+                <button class="w-9 h-9 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 dark:hover:bg-slate-800 text-sm font-medium transition-colors">2</button>
+                <button class="w-9 h-9 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 dark:hover:bg-slate-800 text-sm font-medium transition-colors">3</button>
                 <span class="px-2 text-slate-400">...</span>
-                <button class="w-9 h-9 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:bg-slate-800 text-sm font-medium transition-colors">6</button>
-                <button class="p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:bg-slate-800 transition-colors">
+                <button class="w-9 h-9 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 dark:hover:bg-slate-800 text-sm font-medium transition-colors">6</button>
+                <button class="p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300 hover:bg-white dark:hover:bg-slate-800 dark:hover:bg-slate-800 transition-colors">
                     <i class="fas fa-chevron-right"></i>
                 </button>
             </div>

@@ -49,7 +49,7 @@
         <!-- Estado: Sin Guardia Activa -->
         <div class="max-w-2xl mx-auto mt-12">
             <div class="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
-                <div class="bg-slate-50 dark:bg-slate-800 p-8 text-center border-b border-slate-100 dark:border-slate-800">
+                <div class="bg-white dark:bg-slate-800 p-8 text-center border-b border-slate-100 dark:border-slate-800">
                     <div class="w-24 h-24 bg-slate-200 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
                         <i class="fas fa-shield-halved text-5xl"></i>
                     </div>
@@ -130,7 +130,7 @@
                                 </div>
                             </div>
 
-                            <div class="mb-6 hidden bg-slate-50 dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700" id="reemplazo_div">
+                            <div class="mb-6 hidden bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700" id="reemplazo_div">
                                 <label class="block text-slate-700 dark:text-slate-300 text-sm font-bold mb-2 uppercase tracking-wide" for="replaced_firefighter_id">
                                     Reemplaza a:
                                 </label>
@@ -174,7 +174,7 @@
                     
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-slate-200">
-                            <thead class="bg-slate-50 dark:bg-slate-800">
+                            <thead class="bg-white dark:bg-slate-800">
                                 <tr>
                                     <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Voluntario</th>
                                     <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Rol / Calidad</th>
@@ -184,7 +184,7 @@
                             </thead>
                             <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-100">
                                 @forelse($shift->users->whereNull('end_time') as $shiftUser)
-                                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                                    <tr class="hover:bg-white dark:hover:bg-slate-800 transition-colors">
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
                                                 <div class="flex-shrink-0 h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 dark:text-slate-400 font-bold border border-slate-300 dark:border-slate-600">
@@ -232,14 +232,14 @@
 
                 @if($shift->users->whereNotNull('end_time')->count() > 0)
                     <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden opacity-90">
-                        <div class="bg-slate-50 dark:bg-slate-800 px-6 py-3 border-b border-slate-200 dark:border-slate-700">
+                        <div class="bg-white dark:bg-slate-800 px-6 py-3 border-b border-slate-200 dark:border-slate-700">
                             <h3 class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
                                 <i class="fas fa-history mr-2"></i> Historial de Turno (Retirados)
                             </h3>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-slate-200">
-                                <thead class="bg-slate-50 dark:bg-slate-800">
+                                <thead class="bg-white dark:bg-slate-800">
                                     <tr>
                                         <th class="px-6 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Voluntario</th>
                                         <th class="px-6 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Rol</th>

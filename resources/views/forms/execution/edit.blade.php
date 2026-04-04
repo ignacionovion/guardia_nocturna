@@ -92,7 +92,7 @@
 
             <div class="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-200">
                 <a href="{{ route('forms.execution.index') }}" 
-                   class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                   class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-white transition-colors">
                     Cancelar
                 </a>
                 <button type="submit" 

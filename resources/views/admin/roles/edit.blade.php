@@ -30,7 +30,7 @@
                 'novedades' => ['Novedades', 'fa-bullhorn', 'bg-violet-50 text-violet-600'],
                 'limpieza' => ['Limpieza', 'fa-broom', 'bg-yellow-50 text-yellow-600'],
                 'academias' => ['Academias', 'fa-chalkboard-user', 'bg-fuchsia-50 text-fuchsia-600'],
-                'admin_system' => ['Administración del Sistema', 'fa-gear', 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'],
+                'admin_system' => ['Administración del Sistema', 'fa-gear', 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400'],
             ];
             $selected = old('permissions', is_array($role->permissions) ? $role->permissions : []);
         @endphp
@@ -131,13 +131,13 @@
                             {{-- Reportes y Admin --}}
                             <div>
                                 <h4 class="text-xs font-black text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                                    <span class="w-2 h-2 rounded-full bg-slate-50 dark:bg-slate-8000"></span>
+                                    <span class="w-2 h-2 rounded-full bg-white dark:bg-slate-8000"></span>
                                     Reportes y Administración
                                 </h4>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                                     @foreach(['dashboard', 'emergencias', 'reportes', 'admin_system'] as $key)
                                         @php [$label, $icon, $colorClass] = $sections[$key]; @endphp
-                                        <label class="group flex items-center gap-3 p-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer transition-all">
+                                        <label class="group flex items-center gap-3 p-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-slate-400 hover:bg-white dark:hover:bg-slate-800 cursor-pointer transition-all">
                                             <input type="checkbox" name="permissions[]" value="{{ $key }}"
                                                 class="w-5 h-5 rounded border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-400 focus:ring-slate-500"
                                                 {{ in_array($key, $selected, true) ? 'checked' : '' }}>
@@ -154,7 +154,7 @@
                 </div>
 
                 <div class="mt-8 flex items-center justify-end gap-3">
-                    <a href="{{ route('admin.roles.index') }}" class="px-5 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-semibold transition-colors">Cancelar</a>
+                    <a href="{{ route('admin.roles.index') }}" class="px-5 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 font-semibold transition-colors">Cancelar</a>
                     <button type="submit" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-md transition-all duration-200">
                         <i class="fas fa-save mr-2"></i> Guardar cambios
                     </button>

@@ -37,7 +37,7 @@
                         <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total</p>
                         <p class="mt-1 text-xl font-black text-slate-900">{{ $totalBeds }}</p>
                     </div>
-                    <div class="w-11 h-11 rounded-xl bg-slate-100 flex items-center justify-center">
+                    <div class="w-11 h-11 rounded-xl bg-white flex items-center justify-center">
                         <i class="fas fa-bed text-slate-600"></i>
                     </div>
                 </div>
@@ -96,7 +96,7 @@
 
     {{-- Progress Bar --}}
     <div class="px-4 pb-4">
-        <div class="bg-slate-100 rounded-full h-2 overflow-hidden">
+        <div class="bg-white rounded-full h-2 overflow-hidden">
             <div class="bg-amber-500 h-full transition-all duration-300" style="width: {{ $occupancyRate }}%"></div>
         </div>
         <p class="text-xs text-slate-500 text-center mt-2">

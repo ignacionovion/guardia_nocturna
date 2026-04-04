@@ -25,7 +25,7 @@
             
             <div class="mb-4">
                 @if($branding?->logo_path)
-                    <div class="card !bg-slate-50 dark:!bg-slate-800 mb-4 flex items-center justify-center">
+                    <div class="card !bg-white dark:!bg-slate-800 mb-4 flex items-center justify-center">
                         <img src="{{ Storage::url($branding->logo_path) }}" alt="Logo actual" class="max-h-16">
                     </div>
                     <form action="{{ route('admin.branding.remove-logo') }}" method="POST" class="inline">
@@ -36,7 +36,7 @@
                         </x-ui.button>
                     </form>
                 @else
-                    <div class="card !bg-slate-50 dark:!bg-slate-800 mb-4 flex items-center justify-center">
+                    <div class="card !bg-white dark:!bg-slate-800 mb-4 flex items-center justify-center">
                         <span class="text-slate-400 text-sm">No hay logo personalizado</span>
                     </div>
                 @endif
@@ -67,7 +67,7 @@
             
             <div class="mb-4">
                 @if($branding?->favicon_path)
-                    <div class="card !bg-slate-50 dark:!bg-slate-800 mb-4 flex items-center justify-center">
+                    <div class="card !bg-white dark:!bg-slate-800 mb-4 flex items-center justify-center">
                         <img src="{{ Storage::url($branding->favicon_path) }}" alt="Favicon actual" class="w-8 h-8">
                     </div>
                     <form action="{{ route('admin.branding.remove-favicon') }}" method="POST" class="inline">
@@ -78,7 +78,7 @@
                         </x-ui.button>
                     </form>
                 @else
-                    <div class="card !bg-slate-50 dark:!bg-slate-800 mb-4 flex items-center justify-center">
+                    <div class="card !bg-white dark:!bg-slate-800 mb-4 flex items-center justify-center">
                         <span class="text-slate-400 text-sm">No hay favicon personalizado</span>
                     </div>
                 @endif
@@ -177,7 +177,7 @@
                 </div>
 
                 {{-- Preview --}}
-                <div class="card !bg-slate-50 dark:!bg-slate-800 mb-6">
+                <div class="card !bg-white dark:!bg-slate-800 mb-6">
                     <h3 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Vista previa</h3>
                     <div class="flex items-center gap-4 p-3 rounded-lg"
                          style="background-color: {{ old('color_sidebar', $branding?->color_sidebar ?? $defaults['color_sidebar']) }}">

@@ -314,7 +314,7 @@
                                             <i class="fas fa-exchange-alt mr-1"></i>Reemplazado
                                         </div>
                                     @else
-                                        <div class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-widest bg-slate-100 dark:bg-slate-800/10 text-slate-300 border border-white/10">Pendiente</div>
+                                        <div class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-widest bg-white dark:bg-slate-800/10 text-slate-300 border border-white/10">Pendiente</div>
                                     @endif
                                 </div>
                             </div>

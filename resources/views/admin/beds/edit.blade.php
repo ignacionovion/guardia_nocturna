@@ -75,7 +75,7 @@
                 </div>
 
                 {{-- Info QR Token --}}
-                <div class="p-4 bg-[#e7eef5] border border-[#9fb0c3] rounded-xl">
+                <div class="p-4 bg-white border border-slate-200 rounded-xl">
                     <div class="flex items-center gap-3">
                         <i class="fas fa-qrcode text-[#475569] text-xl"></i>
                         <div>
@@ -92,7 +92,7 @@
             </div>
 
             {{-- Acciones --}}
-            <div class="flex items-center justify-end gap-4 pt-6 mt-6 border-t border-[#9fb0c3]">
+            <div class="flex items-center justify-end gap-4 pt-6 mt-6 border-t border-slate-200">
                 <x-ui.button variant="secondary" size="md" href="{{ route('admin.beds.index') }}">
                     Cancelar
                 </x-ui.button>

@@ -32,7 +32,7 @@
                     </div>
                 @else
                     <div class="flex items-center gap-3 px-5 py-2.5 rounded-xl bg-slate-700/50 border border-slate-600/50">
-                        <div class="w-3 h-3 rounded-full bg-slate-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-white0"></div>
                         <span class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Fuera de Turno</span>
                     </div>
                 @endif
@@ -108,7 +108,7 @@
                 </div>
             @else
                 <div class="flex items-center gap-3 px-5 py-2 rounded-xl bg-slate-700/50 border border-slate-600/50">
-                    <div class="w-2.5 h-2.5 rounded-full bg-slate-500"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-white0"></div>
                     <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Fuera de Turno</span>
                 </div>
             @endif

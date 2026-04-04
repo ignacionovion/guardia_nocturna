@@ -28,7 +28,7 @@
                 </p>
             </div>
             @if(!$planUsage['users']['unlimited'])
-                <div class="w-full bg-slate-200 rounded-full h-2">
+                <div class="w-full bg-white rounded-full h-2">
                     <div class="bg-blue-600 h-2 rounded-full" 
                          style="width: {{ $planUsage['users']['limit'] > 0 ? ($planUsage['users']['current'] / $planUsage['users']['limit']) * 100 : 0 }}%">
                     </div>
@@ -50,7 +50,7 @@
                 </p>
             </div>
             @if(!$planUsage['beds']['unlimited'])
-                <div class="w-full bg-slate-200 rounded-full h-2">
+                <div class="w-full bg-white rounded-full h-2">
                     <div class="bg-emerald-600 h-2 rounded-full" 
                          style="width: {{ $planUsage['beds']['limit'] > 0 ? ($planUsage['beds']['current'] / $planUsage['beds']['limit']) * 100 : 0 }}%">
                     </div>
@@ -72,7 +72,7 @@
                 </p>
             </div>
             @if(!$planUsage['guardias']['unlimited'])
-                <div class="w-full bg-slate-200 rounded-full h-2">
+                <div class="w-full bg-white rounded-full h-2">
                     <div class="bg-violet-600 h-2 rounded-full" 
                          style="width: {{ $planUsage['guardias']['limit'] > 0 ? ($planUsage['guardias']['current'] / $planUsage['guardias']['limit']) * 100 : 0 }}%">
                     </div>
@@ -94,7 +94,7 @@
                 </p>
             </div>
             @if(!$planUsage['storage_mb']['unlimited'])
-                <div class="w-full bg-slate-200 rounded-full h-2">
+                <div class="w-full bg-white rounded-full h-2">
                     <div class="bg-amber-500 h-2 rounded-full" 
                          style="width: {{ $planUsage['storage_mb']['limit'] > 0 ? ($planUsage['storage_mb']['current'] / $planUsage['storage_mb']['limit']) * 100 : 0 }}%">
                     </div>

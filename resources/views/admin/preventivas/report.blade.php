@@ -20,7 +20,7 @@
                 <i class="fas fa-file-pdf"></i>
                 PDF
             </a>
-            <a href="{{ route('admin.preventivas.show', $event) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 dark:text-slate-300 font-black text-xs uppercase tracking-wider rounded-lg transition-colors">
+            <a href="{{ route('admin.preventivas.show', $event) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-white hover:bg-slate-300 text-slate-700 dark:text-slate-300 font-black text-xs uppercase tracking-wider rounded-lg transition-colors">
                 <i class="fas fa-arrow-left"></i>
                 Volver
             </a>
@@ -81,7 +81,7 @@
                 $shiftRefuerzos = $shift->assignments->where('es_refuerzo', true)->count();
             @endphp
             <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-                <div class="p-4 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                <div class="p-4 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
                     <div>
                         <div class="text-sm font-black text-slate-900 uppercase">
                             {{ $shift->shift_date->format('d/m/Y') }} - {{ $shift->label ?: 'Turno ' . ($shift->sort_order + 1) }}
@@ -148,7 +148,7 @@
                                                         <i class="fas fa-exchange-alt mr-1 text-[10px]"></i>REEMPLAZO
                                                     </span>
                                                 @else
-                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-black bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 {{ $fueReemplazado ? 'opacity-50' : '' }}">TITULAR</span>
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-black bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 {{ $fueReemplazado ? 'opacity-50' : '' }}">TITULAR</span>
                                                 @endif
                                             </td>
                                             <td class="py-3 px-3 text-slate-600 dark:text-slate-400">
@@ -178,7 +178,7 @@
                                                         <i class="fas fa-exchange-alt mr-1 text-[10px]"></i>Reemplazado
                                                     </span>
                                                 @else
-                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-black bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">Pendiente</span>
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-black bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">Pendiente</span>
                                                 @endif
                                             </td>
                                         </tr>

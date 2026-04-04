@@ -9,7 +9,7 @@
         </x-ui.page-header>
 
         <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div class="px-6 py-5 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+            <div class="px-6 py-5 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                 <div class="text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">Filtros</div>
             </div>
 
@@ -45,7 +45,7 @@
         </div>
 
         <div class="mt-6 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div class="px-6 py-5 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+            <div class="px-6 py-5 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                 <div class="text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">Detalle</div>
                 <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Cada item es una captura JSON del estado al momento del cierre semanal.</div>
             </div>
@@ -61,7 +61,7 @@
                                     <div class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-semibold">{{ $it->payload['date'] }}</div>
                                 @endif
                             </div>
-                            <div class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 shrink-0">
+                            <div class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 shrink-0">
                                 #{{ $it->id }}
                             </div>
                         </div>

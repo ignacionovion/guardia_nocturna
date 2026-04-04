@@ -86,7 +86,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {{-- Emergencias por Guardia --}}
         <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                 <h3 class="text-sm font-bold text-slate-800 dark:text-white flex items-center">
                     <i class="fas fa-chart-bar mr-2 text-slate-500 dark:text-slate-400"></i> Emergencias por Guardia
                 </h3>
@@ -98,7 +98,7 @@
 
         {{-- Emergencias Mensuales --}}
         <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                 <h3 class="text-sm font-bold text-slate-800 dark:text-white flex items-center">
                     <i class="fas fa-chart-line mr-2 text-slate-500 dark:text-slate-400"></i> Emergencias Mensuales ({{ $year }})
                 </h3>
@@ -113,7 +113,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {{-- Emergencias por Hora --}}
         <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                 <h3 class="text-sm font-bold text-slate-800 dark:text-white flex items-center">
                     <i class="fas fa-clock mr-2 text-slate-500 dark:text-slate-400"></i> Emergencias por Hora del Día
                 </h3>
@@ -125,7 +125,7 @@
 
         {{-- Top 5 Claves --}}
         <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                 <h3 class="text-sm font-bold text-slate-800 dark:text-white flex items-center">
                     <i class="fas fa-key mr-2 text-slate-500 dark:text-slate-400"></i> Top 5 Claves Más Concurridas
                 </h3>
@@ -140,7 +140,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         {{-- Vehículos más utilizados --}}
         <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                 <h3 class="text-sm font-bold text-slate-800 dark:text-white flex items-center">
                     <i class="fas fa-car mr-2 text-slate-500 dark:text-slate-400"></i> Unidades Más Utilizados
                 </h3>
@@ -148,7 +148,7 @@
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
-                    <thead class="bg-slate-50 dark:bg-slate-800">
+                    <thead class="bg-white dark:bg-slate-800">
                         <tr>
                             <th class="px-4 py-3 text-left text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Vehículo</th>
                             <th class="px-4 py-3 text-center text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Total</th>
@@ -157,10 +157,10 @@
                     </thead>
                     <tbody class="divide-y divide-slate-200">
                         @forelse($vehiclesUsed as $vehicle)
-                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800">
+                            <tr class="hover:bg-white dark:hover:bg-slate-800">
                                 <td class="px-4 py-3 font-medium text-slate-700 dark:text-slate-300">{{ $vehicle['vehicle'] }}</td>
                                 <td class="px-4 py-3 text-center">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-white">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-white dark:bg-slate-800 text-slate-800 dark:text-white">
                                         {{ $vehicle['total'] }}
                                     </span>
                                 </td>
@@ -192,7 +192,7 @@
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
-                    <thead class="bg-slate-50 dark:bg-slate-800">
+                    <thead class="bg-white dark:bg-slate-800">
                         <tr>
                             <th class="px-3 py-3 text-left text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Clave</th>
                             <th class="px-3 py-3 text-center text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Cant</th>
@@ -202,7 +202,7 @@
                     </thead>
                     <tbody class="divide-y divide-slate-200">
                         @forelse($pointsByKey->take(10) as $key)
-                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800">
+                            <tr class="hover:bg-white dark:hover:bg-slate-800">
                                 <td class="px-3 py-3">
                                     <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-800">
                                         {{ $key['key'] }}
@@ -229,14 +229,14 @@
 
         {{-- Top Claves --}}
         <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+            <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                 <h3 class="text-sm font-bold text-slate-800 dark:text-white flex items-center">
                     <i class="fas fa-list-ol mr-2 text-slate-500 dark:text-slate-400"></i> Top 5 Claves
                 </h3>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
-                    <thead class="bg-slate-50 dark:bg-slate-800">
+                    <thead class="bg-white dark:bg-slate-800">
                         <tr>
                             <th class="px-4 py-3 text-center text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">#</th>
                             <th class="px-4 py-3 text-left text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Clave</th>
@@ -245,7 +245,7 @@
                     </thead>
                     <tbody class="divide-y divide-slate-200">
                         @forelse($topKeys as $index => $key)
-                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800">
+                            <tr class="hover:bg-white dark:hover:bg-slate-800">
                                 <td class="px-4 py-3 text-center">
                                     @if($index < 3)
                                         <i class="fas fa-medal text-lg {{ ['text-yellow-500', 'text-slate-400', 'text-amber-700'][$index] }}"></i>
@@ -278,14 +278,14 @@
 
     {{-- Detalle por Guardia --}}
     <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden mb-6">
-        <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+        <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
             <h3 class="text-sm font-bold text-slate-800 dark:text-white flex items-center">
                 <i class="fas fa-shield-alt mr-2 text-slate-500 dark:text-slate-400"></i> Detalle por Guardia
             </h3>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
-                <thead class="bg-slate-50 dark:bg-slate-800">
+                <thead class="bg-white dark:bg-slate-800">
                     <tr>
                         <th class="px-5 py-4 text-left text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Guardia</th>
                         <th class="px-5 py-4 text-center text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Total Emergencias</th>
@@ -295,7 +295,7 @@
                 </thead>
                 <tbody class="divide-y divide-slate-200">
                     @forelse($statsByGuardia as $stat)
-                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800">
+                        <tr class="hover:bg-white dark:hover:bg-slate-800">
                             <td class="px-5 py-4">
                                 <div class="flex items-center">
                                     <i class="fas fa-shield-alt text-cyan-500 mr-3"></i>
@@ -320,11 +320,11 @@
                                         $percentage = round(($stat['total'] / $kpis['total_emergencies']) * 100);
                                         $colorClass = $percentage > 50 ? 'bg-red-500' : ($percentage > 25 ? 'bg-amber-500' : 'bg-green-500');
                                     @endphp
-                                    <div class="w-full bg-slate-200 rounded-full h-2.5">
+                                    <div class="w-full bg-white rounded-full h-2.5">
                                         <div class="{{ $colorClass }} h-2.5 rounded-full" style="width: {{ $percentage }}%"></div>
                                     </div>
                                 @else
-                                    <div class="w-full bg-slate-200 rounded-full h-2.5">
+                                    <div class="w-full bg-white rounded-full h-2.5">
                                         <div class="bg-slate-400 h-2.5 rounded-full" style="width: 0%"></div>
                                     </div>
                                 @endif

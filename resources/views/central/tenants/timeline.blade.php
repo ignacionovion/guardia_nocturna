@@ -69,7 +69,7 @@
                                 @if($event->metadata)
                                     <details class="mt-2">
                                         <summary class="text-xs text-slate-400 cursor-pointer hover:text-slate-600">Ver detalles</summary>
-                                        <pre class="mt-1 text-[11px] bg-slate-50 p-2 rounded text-slate-600 overflow-x-auto">{{ json_encode($event->metadata, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
+                                        <pre class="mt-1 text-[11px] bg-white p-2 rounded text-slate-600 overflow-x-auto">{{ json_encode($event->metadata, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
                                     </details>
                                 @endif
                             </div>

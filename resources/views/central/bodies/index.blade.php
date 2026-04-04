@@ -18,7 +18,7 @@
     <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
         <table class="w-full">
             <thead>
-                <tr class="bg-slate-50 border-b border-slate-200">
+                <tr class="bg-white border-b border-slate-200">
                     <th class="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Cuerpo</th>
                     <th class="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Ciudad</th>
                     <th class="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Compañías</th>
@@ -28,13 +28,13 @@
             </thead>
             <tbody class="divide-y divide-slate-100">
                 @forelse($bodies as $body)
-                    <tr class="hover:bg-slate-50 transition">
+                    <tr class="hover:bg-white transition">
                         <td class="px-6 py-4">
                             <p class="font-medium text-slate-900 text-sm">{{ $body->nombre }}</p>
                         </td>
                         <td class="px-6 py-4 text-sm text-slate-600">{{ $body->ciudad ?? '—' }}</td>
                         <td class="px-6 py-4">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-white text-slate-600">
                                 {{ $body->tenants_count }}
                             </span>
                         </td>

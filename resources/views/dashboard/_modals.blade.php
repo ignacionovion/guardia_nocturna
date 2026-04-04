@@ -62,7 +62,7 @@
                 </div>
 
                 <div class="flex gap-3">
-                    <button type="button" onclick="closeNoveltyModal()" class="w-1/2 px-4 py-2.5 font-bold rounded-lg transition-colors uppercase text-sm {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 hover:bg-slate-900 text-slate-100 border border-slate-800' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200' }}">
+                    <button type="button" onclick="closeNoveltyModal()" class="w-1/2 px-4 py-2.5 font-bold rounded-lg transition-colors uppercase text-sm {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 hover:bg-slate-900 text-slate-100 border border-slate-800' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200' }}">
                         Cancelar
                     </button>
                     <button type="submit" class="w-1/2 px-4 py-2.5 bg-blue-700 text-white font-bold rounded-lg hover:bg-blue-800 transition-colors shadow-md uppercase text-sm">
@@ -213,7 +213,7 @@
                 </div>
 
                 <div class="flex gap-3">
-                    <button type="button" onclick="closeAcademyModal()" class="w-1/2 px-4 py-2.5 font-bold rounded-lg transition-colors uppercase text-sm {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 hover:bg-slate-900 text-slate-100 border border-slate-800' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200' }}">
+                    <button type="button" onclick="closeAcademyModal()" class="w-1/2 px-4 py-2.5 font-bold rounded-lg transition-colors uppercase text-sm {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 hover:bg-slate-900 text-slate-100 border border-slate-800' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200' }}">
                         Cancelar
                     </button>
                     <button type="submit" class="w-1/2 px-4 py-2.5 bg-blue-700 text-white font-bold rounded-lg hover:bg-blue-800 transition-colors shadow-md uppercase text-sm">
@@ -1438,7 +1438,7 @@
                 const themeRemove = [
                     'bg-emerald-600','hover:bg-emerald-500',
                     'bg-amber-600','hover:bg-amber-500',
-                    'bg-slate-600','hover:bg-slate-500',
+                    'bg-slate-600','hover:bg-white0',
                     'bg-blue-600','hover:bg-blue-500',
                     'bg-rose-600','hover:bg-rose-500',
                     'bg-emerald-500/80','border-emerald-400/50',
@@ -1453,7 +1453,7 @@
                 cycleLbl.textContent = labelMap[s] || 'CONSTITUYE';
                 if (s === 'constituye') cycleBtn.classList.add('bg-emerald-600','hover:bg-emerald-500');
                 else if (s === 'permiso') cycleBtn.classList.add('bg-amber-600','hover:bg-amber-500');
-                else if (s === 'ausente') cycleBtn.classList.add('bg-slate-600','hover:bg-slate-500');
+                else if (s === 'ausente') cycleBtn.classList.add('bg-slate-600','hover:bg-white0');
                 else if (s === 'licencia') cycleBtn.classList.add('bg-blue-600','hover:bg-blue-500');
                 else if (s === 'falta') cycleBtn.classList.add('bg-rose-600','hover:bg-rose-500');
 
@@ -1941,7 +1941,7 @@
                 <div class="mt-2 text-sm {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-400' : 'text-slate-600 dark:text-slate-400' }}">¿Deshacer este reemplazo?</div>
             </div>
             <div class="p-4 pt-0 flex gap-2">
-                <button type="button" onclick="closeUndoReplacementModal()" class="w-1/2 font-bold uppercase tracking-wider text-[10px] py-2 rounded-xl border {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 hover:bg-slate-900 text-slate-100 border-slate-800' : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-800 dark:text-white border-slate-200 dark:border-slate-700' }}">
+                <button type="button" onclick="closeUndoReplacementModal()" class="w-1/2 font-bold uppercase tracking-wider text-[10px] py-2 rounded-xl border {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 hover:bg-slate-900 text-slate-100 border-slate-800' : 'bg-white dark:bg-slate-800 hover:bg-slate-200 text-slate-800 dark:text-white border-slate-200 dark:border-slate-700' }}">
                     Cancelar
                 </button>
                 <form id="undoReplacementModalForm" method="POST" class="w-1/2">

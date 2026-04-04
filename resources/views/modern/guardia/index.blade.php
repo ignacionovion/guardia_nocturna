@@ -265,7 +265,7 @@
                         @endphp
                         @foreach($ausencias as $a)
                         @php $tc = $tipoConfig[$a['tipo']]; @endphp
-                        <div class="p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+                        <div class="p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/50">
                             <div class="flex items-center gap-3 mb-2">
                                 <div class="w-8 h-8 rounded-lg bg-{{ $tc['color'] }}-100 dark:bg-{{ $tc['color'] }}-900/30 flex items-center justify-center">
                                     <i class="fas {{ $tc['icon'] }} text-{{ $tc['color'] }}-600 dark:text-{{ $tc['color'] }}-400 text-xs"></i>
@@ -292,7 +292,7 @@
                     Resumen Operativo
                 </h3>
                 <div class="space-y-3">
-                    <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-slate-800/50">
                         <span class="text-sm text-slate-600 dark:text-slate-400">Dotación requerida</span>
                         <span class="font-bold text-slate-900 dark:text-white">15</span>
                     </div>
@@ -360,7 +360,7 @@
             </div>
 
             {{-- Última Actualización --}}
-            <div class="bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 p-4 text-center">
+            <div class="bg-white dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 p-4 text-center">
                 <p class="text-xs text-slate-500 dark:text-slate-400">Última actualización</p>
                 <p class="text-sm font-semibold text-slate-700 dark:text-slate-300 mt-1">{{ now()->format('H:i:s') }}</p>
                 <button class="mt-2 text-xs text-blue-600 dark:text-blue-400 hover:underline">

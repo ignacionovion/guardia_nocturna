@@ -18,7 +18,7 @@
     <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
         <table class="w-full">
             <thead>
-                <tr class="bg-slate-50 border-b border-slate-200">
+                <tr class="bg-white border-b border-slate-200">
                     <th class="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Compañía</th>
                     <th class="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Cuerpo</th>
                     <th class="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Plan</th>
@@ -33,10 +33,10 @@
                         $planSlug = $tenant->planRelation?->slug;
                         $planName = $tenant->planRelation?->nombre ?? 'Sin plan';
                     @endphp
-                    <tr class="hover:bg-slate-50 transition">
+                    <tr class="hover:bg-white transition">
                         <td class="px-6 py-4">
                             <div class="flex items-center space-x-3">
-                                <div class="w-9 h-9 bg-slate-100 rounded-lg flex items-center justify-center">
+                                <div class="w-9 h-9 bg-white rounded-lg flex items-center justify-center">
                                     <span class="text-xs font-bold text-slate-600">{{ $tenant->numero ?? '#' }}</span>
                                 </div>
                                 <div>
@@ -48,7 +48,7 @@
                         <td class="px-6 py-4 text-sm text-slate-600">{{ $tenant->body?->nombre ?? '—' }}</td>
                         <td class="px-6 py-4">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                {{ $planSlug ? 'bg-blue-50 text-blue-700' : 'bg-slate-100 text-slate-600' }}">
+                                {{ $planSlug ? 'bg-blue-50 text-blue-700' : 'bg-white text-slate-600' }}">
                                 {{ $planName }}
                             </span>
                         </td>
@@ -61,7 +61,7 @@
                             @endif
                         </td>
                         <td class="px-6 py-4">
-                            <code class="text-xs bg-slate-100 px-2 py-1 rounded text-slate-600">{{ $tenant->domains->first()?->domain ?? $tenant->id }}</code>
+                            <code class="text-xs bg-white px-2 py-1 rounded text-slate-600">{{ $tenant->domains->first()?->domain ?? $tenant->id }}</code>
                         </td>
                         <td class="px-6 py-4 text-right">
                             <div class="flex items-center justify-end space-x-1">

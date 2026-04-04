@@ -42,7 +42,7 @@
                     <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-[#475569]"></i>
                     <input type="text" name="search" value="{{ request('search') }}" id="volunteer-search-input"
                         placeholder="Buscar por nombre, RUT o cargo..." 
-                        class="bg-[#e7eef5] border border-[#9fb0c3] text-[#1e293b] placeholder-[#475569] rounded-xl min-h-[44px] px-4 py-3 pl-11 text-sm focus:border-[#1e293b] focus:ring-2 focus:ring-[#1e293b]/10 focus:outline-none w-full"
+                        class="bg-white border border-slate-200 text-[#1e293b] placeholder-[#475569] rounded-xl min-h-[44px] px-4 py-3 pl-11 text-sm focus:border-[#1e293b] focus:ring-2 focus:ring-[#1e293b]/10 focus:outline-none w-full"
                         autocomplete="off">
                     @if(request('search'))
                         <a href="{{ route('admin.volunteers.index') }}" class="absolute right-3 top-1/2 -translate-y-1/2 text-[#475569] hover:text-[#1e293b] p-1">
@@ -72,13 +72,13 @@
     @if($volunteers->isEmpty())
         <x-ui.empty-state icon="fas fa-users" title="No se encontraron voluntarios" message="Intenta ajustar los filtros de búsqueda o agrega un nuevo voluntario." action-text="Nuevo Voluntario" action-url="{{ route('admin.volunteers.create') }}" />
     @else
-        <div class="bg-[#dde6ef] rounded-xl shadow-sm border border-[#9fb0c3] overflow-hidden">
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-[#9fb0c3]">
-                    <thead class="bg-[#c3cfdb]">
+                    <thead class="bg-white">
                         <tr>
                             <th scope="col" class="px-3 md:px-6 py-4 text-left w-12">
-                                <input type="checkbox" id="select-all" class="rounded border-[#9fb0c3] text-blue-600 shadow-sm focus:ring-blue-500 w-4 h-4">
+                                <input type="checkbox" id="select-all" class="rounded border-slate-200 text-blue-600 shadow-sm focus:ring-blue-500 w-4 h-4">
                             </th>
                             <th scope="col" class="px-3 md:px-6 py-4 text-left text-xs font-semibold text-[#475569] uppercase tracking-wider">Voluntario</th>
                             <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-[#475569] uppercase tracking-wider hidden md:table-cell">Cargo / Rol</th>
@@ -88,18 +88,18 @@
                             <th scope="col" class="px-3 md:px-6 py-4 text-right text-xs font-semibold text-[#475569] uppercase tracking-wider">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-[#e7eef5] divide-y divide-[#9fb0c3]" id="volunteer-table-body">
+                    <tbody class="bg-white divide-y divide-[#9fb0c3]" id="volunteer-table-body">
                         @foreach($volunteers as $volunteer)
-                            <tr class="hover:bg-[#c3cfdb] transition-colors">
+                            <tr class="hover:bg-white transition-colors">
                                 <td class="px-3 md:px-6 py-4 whitespace-nowrap">
-                                    <input type="checkbox" name="selected_ids[]" value="{{ $volunteer->id }}" class="volunteer-checkbox rounded border-[#9fb0c3] text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 w-5 h-5">
+                                    <input type="checkbox" name="selected_ids[]" value="{{ $volunteer->id }}" class="volunteer-checkbox rounded border-slate-200 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 w-5 h-5">
                                 </td>
                                 <td class="px-3 md:px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         @if($volunteer->photo_path)
-                                            <img src="{{ route('media', $volunteer->photo_path) }}" class="flex-shrink-0 h-10 w-10 rounded-full object-cover border border-[#9fb0c3] shadow-sm" alt="Foto">
+                                            <img src="{{ route('media', $volunteer->photo_path) }}" class="flex-shrink-0 h-10 w-10 rounded-full object-cover border border-slate-200 shadow-sm" alt="Foto">
                                         @else
-                                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-[#c3cfdb] flex items-center justify-center text-[#1e293b] font-bold border border-[#9fb0c3] shadow-sm text-sm">
+                                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-white flex items-center justify-center text-[#1e293b] font-bold border border-slate-200 shadow-sm text-sm">
                                                 {{ substr($volunteer->nombres, 0, 1) }}{{ substr($volunteer->apellido_paterno, 0, 1) }}
                                             </div>
                                         @endif
@@ -217,7 +217,7 @@
             </div>
             
             <!-- Paginación Footer -->
-            <div class="bg-[#c3cfdb] px-6 py-4 border-t border-[#9fb0c3]">
+            <div class="bg-white px-6 py-4 border-t border-slate-200">
                 {{ $volunteers->appends(request()->only('search'))->links() }}
             </div>
         </div>
@@ -320,8 +320,8 @@
         </script>
     @if(auth()->check() && in_array(auth()->user()->role, ['capitan', 'super_admin']))
         <div id="purgeModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center">
-            <div class="bg-[#dde6ef] rounded-2xl shadow-2xl w-full max-w-md mx-4 border border-[#9fb0c3] overflow-hidden">
-                <div class="p-5 border-b border-[#9fb0c3] bg-[#c3cfdb]">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 border border-slate-200 overflow-hidden">
+                <div class="p-5 border-b border-slate-200 bg-white">
                     <div class="text-sm font-bold text-[#1e293b]">Eliminar todos los voluntarios</div>
                     <div class="mt-2 text-sm text-[#475569]">Esta acción es irreversible. Para confirmar escribe <span class="font-bold">ELIMINAR TODO</span>.</div>
                 </div>

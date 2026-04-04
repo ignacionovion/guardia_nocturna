@@ -40,7 +40,7 @@
             </div>
             <button type="submit" class="px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition">Filtrar</button>
             @if($filterTenant)
-                <a href="{{ route('central.backups.index') }}" class="px-4 py-2 text-sm text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-50 transition">Limpiar</a>
+                <a href="{{ route('central.backups.index') }}" class="px-4 py-2 text-sm text-slate-600 border border-slate-300 rounded-lg hover:bg-white transition">Limpiar</a>
             @endif
         </form>
     </div>
@@ -66,7 +66,7 @@
     <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
         <table class="w-full">
             <thead>
-                <tr class="bg-slate-50 border-b border-slate-200">
+                <tr class="bg-white border-b border-slate-200">
                     <th class="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Archivo</th>
                     <th class="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Tenant</th>
                     <th class="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Tamaño</th>
@@ -76,9 +76,9 @@
             </thead>
             <tbody class="divide-y divide-slate-100">
                 @forelse($backups as $backup)
-                    <tr class="hover:bg-slate-50 transition">
+                    <tr class="hover:bg-white transition">
                         <td class="px-6 py-3">
-                            <code class="text-xs bg-slate-100 px-2 py-1 rounded text-slate-600">{{ $backup['filename'] }}</code>
+                            <code class="text-xs bg-white px-2 py-1 rounded text-slate-600">{{ $backup['filename'] }}</code>
                         </td>
                         <td class="px-6 py-3 text-sm text-slate-600">
                             {{ $backup['tenant_id'] ?? '—' }}

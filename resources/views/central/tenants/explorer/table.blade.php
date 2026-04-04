@@ -30,7 +30,7 @@
     </div>
 
     @if($records->isEmpty())
-        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-8 text-center text-slate-400">
+        <div class="bg-white border border-slate-200 rounded-2xl p-8 text-center text-slate-400">
             <svg class="w-12 h-12 mx-auto mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
             </svg>
@@ -40,7 +40,7 @@
         <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
-                    <thead class="bg-slate-50 border-b border-slate-200">
+                    <thead class="bg-white border-b border-slate-200">
                         <tr>
                             @foreach($columns as $column)
                                 <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">
@@ -54,7 +54,7 @@
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                         @foreach($records as $record)
-                            <tr class="hover:bg-slate-50 transition">
+                            <tr class="hover:bg-white transition">
                                 @foreach($columns as $column)
                                     <td class="px-4 py-3 text-slate-700 whitespace-nowrap max-w-xs truncate" title="{{ is_string($record->$column) ? $record->$column : json_encode($record->$column) }}">
                                         @php
@@ -64,7 +64,7 @@
                                             } elseif (is_bool($value)) {
                                                 echo $value ? '<span class="text-emerald-600">true</span>' : '<span class="text-red-600">false</span>';
                                             } elseif (is_array($value) || is_object($value)) {
-                                                echo '<code class="text-xs bg-slate-100 px-1 rounded">' . json_encode($value) . '</code>';
+                                                echo '<code class="text-xs bg-white px-1 rounded">' . json_encode($value) . '</code>';
                                             } else {
                                                 echo e(Str::limit($value, 50));
                                             }

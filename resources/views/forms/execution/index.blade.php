@@ -25,7 +25,7 @@
                 <h2 class="text-xl font-semibold text-gray-900 mb-4">Plantillas Disponibles</h2>
                 <div class="space-y-3">
                     @forelse($templates as $template)
-                        <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                        <div class="border border-gray-200 rounded-lg p-4 hover:bg-white transition-colors">
                             <h3 class="font-medium text-gray-900">{{ $template->nombre }}</h3>
                             <p class="text-sm text-gray-500 mb-3">{{ count($template->estructura) }} campos</p>
                             <div class="flex gap-2">
@@ -99,7 +99,7 @@
                                 @endphp
                                 @foreach($showFields as $key => $value)
                                     @if(!empty($value))
-                                        <span class="inline-block bg-gray-100 rounded px-2 py-1 mr-2 mb-1">
+                                        <span class="inline-block bg-white rounded px-2 py-1 mr-2 mb-1">
                                             <strong>{{ $key }}:</strong> {{ is_bool($value) ? ($value ? 'Sí' : 'No') : $value }}
                                         </span>
                                     @endif

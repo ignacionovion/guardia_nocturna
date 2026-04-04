@@ -31,7 +31,7 @@
 
     <div class="bg-white rounded-lg shadow overflow-hidden">
         <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-white">
                 <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Nombre
@@ -69,7 +69,7 @@
                                 Activo
                             </span>
                         @else
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-white text-gray-800">
                                 Inactivo
                             </span>
                         @endif

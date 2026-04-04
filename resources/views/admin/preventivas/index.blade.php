@@ -11,7 +11,7 @@
     <x-ui.card>
         <div class="overflow-x-auto">
             <table class="min-w-full text-sm">
-                <thead class="bg-[#c3cfdb] border-b border-[#9fb0c3]">
+                <thead class="bg-white border-b border-slate-200">
                     <tr>
                         <th class="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider text-[#475569]">Evento</th>
                         <th class="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider text-[#475569]">Rango</th>
@@ -38,7 +38,7 @@
                                     $label = $status === 'active' ? 'Activa' : ($status === 'closed' ? 'Cerrada' : 'Borrador');
                                     $cls = $status === 'active'
                                         ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                                        : ($status === 'closed' ? 'bg-red-50 text-red-800 border border-red-200' : 'bg-[#c3cfdb] text-[#1e293b] border border-[#9fb0c3]');
+                                        : ($status === 'closed' ? 'bg-red-50 text-red-800 border border-red-200' : 'bg-white text-[#1e293b] border border-slate-200');
                                 @endphp
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold {{ $cls }}">
                                     {{ $label }}
@@ -61,7 +61,7 @@
             </table>
         </div>
 
-        <div class="px-6 py-4 border-t border-[#9fb0c3] bg-[#c3cfdb]">
+        <div class="px-6 py-4 border-t border-slate-200 bg-white">
             {{ $events->links() }}
         </div>
     </x-ui.card>

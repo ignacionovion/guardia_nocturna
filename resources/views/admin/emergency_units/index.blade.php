@@ -38,18 +38,18 @@
     </x-ui.card>
 
     @if($units->isEmpty())
-        <div class="text-center py-16 bg-[#dde6ef] rounded-xl shadow-sm border border-dashed border-[#9fb0c3]">
-            <div class="bg-[#c3cfdb] rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+        <div class="text-center py-16 bg-white rounded-xl shadow-sm border border-dashed border-slate-200">
+            <div class="bg-white rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
                 <i class="fas fa-truck text-[#475569] text-3xl"></i>
             </div>
             <h3 class="text-lg font-medium text-[#1e293b]">No hay unidades registradas</h3>
             <p class="text-[#475569] mt-1">Crea una unidad para poder seleccionarla en la emergencia.</p>
         </div>
     @else
-        <div class="bg-[#dde6ef] rounded-xl shadow-sm border border-[#9fb0c3] overflow-hidden">
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-slate-200">
-                    <thead class="bg-[#c3cfdb]">
+                    <thead class="bg-white">
                         <tr>
                             <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-[#475569] uppercase tracking-wider">Nombre</th>
                             <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-[#475569] uppercase tracking-wider">Descripción</th>
@@ -57,9 +57,9 @@
                             <th scope="col" class="px-6 py-4 text-right text-xs font-semibold text-[#475569] uppercase tracking-wider">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-[#e7eef5] divide-y divide-[#9fb0c3]">
+                    <tbody class="bg-white divide-y divide-[#9fb0c3]">
                         @foreach($units as $unit)
-                            <tr class="hover:bg-[#c3cfdb] transition-colors {{ ($unit->status ?? 'active') !== 'active' ? 'opacity-60' : '' }}">
+                            <tr class="hover:bg-white transition-colors {{ ($unit->status ?? 'active') !== 'active' ? 'opacity-60' : '' }}">
                                 <td class="px-6 py-4 whitespace-nowrap font-semibold text-[#1e293b]">{{ $unit->name }}</td>
                                 <td class="px-6 py-4 text-[#1e293b]">{{ $unit->description ?? '-' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
@@ -115,7 +115,7 @@
                 </table>
             </div>
 
-            <div class="bg-slate-50 dark:bg-slate-800 px-6 py-4 border-t border-slate-200 dark:border-slate-700">
+            <div class="bg-white dark:bg-slate-800 px-6 py-4 border-t border-slate-200 dark:border-slate-700">
                 {{ $units->links() }}
             </div>
         </div>
@@ -124,7 +124,7 @@
     <!-- Modal Deshabilitar Unidad -->
     <div id="disable-unit-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
         <div class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6">
-            <button type="button" onclick="closeDisableModal()" class="absolute top-3 right-3 w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 flex items-center justify-center text-slate-500 dark:text-slate-400">
+            <button type="button" onclick="closeDisableModal()" class="absolute top-3 right-3 w-8 h-8 rounded-lg bg-white dark:bg-slate-800 hover:bg-white flex items-center justify-center text-slate-500 dark:text-slate-400">
                 <i class="fas fa-times text-xs"></i>
             </button>
             <div class="flex items-center gap-3 mb-4">
@@ -156,7 +156,7 @@
 
     <div id="create-unit-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
         <div class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-xl mx-4 p-6">
-            <button type="button" onclick="closeCreateUnitModal()" class="absolute top-3 right-3 w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 flex items-center justify-center text-slate-500 dark:text-slate-400">
+            <button type="button" onclick="closeCreateUnitModal()" class="absolute top-3 right-3 w-8 h-8 rounded-lg bg-white dark:bg-slate-800 hover:bg-white flex items-center justify-center text-slate-500 dark:text-slate-400">
                 <i class="fas fa-times text-xs"></i>
             </button>
             <div class="flex items-center gap-3 mb-5">

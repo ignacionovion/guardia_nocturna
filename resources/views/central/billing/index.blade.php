@@ -102,7 +102,7 @@
 
         <div class="overflow-x-auto">
             <table class="w-full">
-                <thead class="bg-slate-50">
+                <thead class="bg-white">
                     <tr>
                         <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Compañía</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Plan</th>
@@ -116,7 +116,7 @@
                 </thead>
                 <tbody class="divide-y divide-slate-200">
                     @forelse($billings as $billing)
-                        <tr class="hover:bg-slate-50">
+                        <tr class="hover:bg-white">
                             <td class="px-4 py-3">
                                 <div class="font-medium text-slate-900">{{ $billing->tenant?->nombre ?? 'N/A' }}</div>
                                 <div class="text-xs text-slate-500">{{ $billing->tenant_id }}</div>
@@ -172,7 +172,7 @@
                                     </button>
 
                                     <button onclick="openObservationModal({{ $billing->id }}, '{{ addslashes($billing->observacion) }}')" 
-                                            class="px-2 py-1 text-xs font-medium rounded bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200" 
+                                            class="px-2 py-1 text-xs font-medium rounded bg-white text-slate-700 hover:bg-slate-200 border border-slate-200" 
                                             title="Editar observación">
                                         Obs
                                     </button>

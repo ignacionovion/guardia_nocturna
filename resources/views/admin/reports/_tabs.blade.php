@@ -10,7 +10,7 @@ $tabs = [
 ];
 @endphp
 
-<div class="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl w-fit">
+<div class="flex items-center gap-1 p-1 bg-white dark:bg-slate-800 rounded-xl w-fit">
     @foreach($tabs as $tab)
         @php
             $isActive = in_array($currentRoute, $tab['match']);

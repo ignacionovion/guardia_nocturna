@@ -1,7 +1,7 @@
 @extends('layouts.modern')
 
 @section('content')
-<div class="min-h-screen bg-slate-50 dark:bg-slate-900">
+<div class="min-h-screen bg-white dark:bg-slate-900">
     <!-- Header Superior -->
     <div class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -18,7 +18,7 @@
                     </div>
                 </div>
                 <a href="{{ route('admin.volunteers.index') }}" 
-                   class="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-200 font-medium hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors">
+                   class="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-200 font-medium hover:bg-white dark:hover:bg-slate-600 transition-colors">
                     <i class="fas fa-arrow-left text-sm"></i>
                     Volver al listado
                 </a>
@@ -134,7 +134,7 @@
                 <div class="lg:col-span-2 space-y-6">
                     <!-- Card: Identificacion Personal -->
                     <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-                        <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
+                        <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50">
                             <h2 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                                 <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
                                     <i class="fas fa-id-card text-blue-600 dark:text-blue-400 text-sm"></i>
@@ -236,7 +236,7 @@
 
                     <!-- Card: Datos Institucionales -->
                     <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-                        <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
+                        <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50">
                             <h2 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                                 <div class="w-8 h-8 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center">
                                     <i class="fas fa-helmet-safety text-red-600 dark:text-red-400 text-sm"></i>
@@ -302,7 +302,7 @@
 
                     <!-- Card: Cualidades Tecnicas -->
                     <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-                        <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
+                        <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50">
                             <h2 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                                 <div class="w-8 h-8 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg flex items-center justify-center">
                                     <i class="fas fa-user-shield text-yellow-600 dark:text-yellow-400 text-sm"></i>
@@ -313,7 +313,7 @@
                         <div class="p-6">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <!-- Conductor -->
-                                <label class="flex items-center p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:border-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all group">
+                                <label class="flex items-center p-4 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:border-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all group">
                                     <input id="es_conductor" type="checkbox" name="es_conductor" value="1" {{ $volunteer->es_conductor ? 'checked' : '' }} 
                                            class="w-5 h-5 rounded border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500">
                                     <div class="ml-3 flex-1">
@@ -333,7 +333,7 @@
                                 </div>
 
                                 <!-- Operador Rescate -->
-                                <label class="flex items-center p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:border-orange-400 hover:bg-orange-50/50 dark:hover:bg-orange-900/10 transition-all group">
+                                <label class="flex items-center p-4 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:border-orange-400 hover:bg-orange-50/50 dark:hover:bg-orange-900/10 transition-all group">
                                     <input type="checkbox" name="es_operador_rescate" value="1" {{ $volunteer->es_operador_rescate ? 'checked' : '' }} 
                                            class="w-5 h-5 rounded border-slate-300 dark:border-slate-600 text-orange-600 focus:ring-orange-500">
                                     <div class="ml-3 flex-1">
@@ -344,7 +344,7 @@
                                 </label>
 
                                 <!-- Asistente Trauma -->
-                                <label class="flex items-center p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:border-red-400 hover:bg-red-50/50 dark:hover:bg-red-900/10 transition-all group">
+                                <label class="flex items-center p-4 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:border-red-400 hover:bg-red-50/50 dark:hover:bg-red-900/10 transition-all group">
                                     <input type="checkbox" name="es_asistente_trauma" value="1" {{ $volunteer->es_asistente_trauma ? 'checked' : '' }} 
                                            class="w-5 h-5 rounded border-slate-300 dark:border-slate-600 text-red-600 focus:ring-red-500">
                                     <div class="ml-3 flex-1">
@@ -360,7 +360,7 @@
                     <!-- Botones de Accion -->
                     <div class="flex items-center justify-end gap-3 pt-4">
                         <a href="{{ route('admin.volunteers.index') }}" 
-                           class="px-5 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                           class="px-5 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-white dark:hover:bg-slate-700 transition-colors">
                             Cancelar
                         </a>
                         <button type="submit" 
@@ -434,7 +434,7 @@ function previewPhoto(input) {
         filtered.forEach((value, idx) => {
             const item = document.createElement('button');
             item.type = 'button';
-            item.className = 'w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300';
+            item.className = 'w-full text-left px-4 py-2.5 text-sm hover:bg-white dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300';
             item.textContent = value;
             item.addEventListener('mousedown', (e) => {
                 e.preventDefault();
@@ -449,7 +449,7 @@ function previewPhoto(input) {
 
     const highlight = () => {
         options.querySelectorAll('button').forEach((el, i) => {
-            el.classList.toggle('bg-slate-50 dark:bg-slate-800', i === activeIndex);
+            el.classList.toggle('bg-white dark:bg-slate-800', i === activeIndex);
         });
     };
 
@@ -532,7 +532,7 @@ function previewPhoto(input) {
                         Este voluntario esta <strong>habilitado para conducir carros bomba</strong> (unidades B-3, BR-3, RX-3)?
                     </p>
                     <div class="flex gap-3">
-                        <button type="button" id="driverModalNo" class="flex-1 px-4 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                        <button type="button" id="driverModalNo" class="flex-1 px-4 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-semibold hover:bg-white dark:hover:bg-slate-800 transition-colors">
                             Solo comandancia
                         </button>
                         <button type="button" id="driverModalYes" class="flex-1 px-4 py-2.5 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200">

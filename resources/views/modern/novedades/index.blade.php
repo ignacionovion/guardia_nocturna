@@ -12,7 +12,7 @@
             <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Permisos, licencias, reemplazos y observaciones</p>
         </div>
         <div class="flex items-center gap-3">
-            <button class="px-4 py-2.5 rounded-xl bg-slate-900 dark:bg-white dark:bg-slate-900 text-white dark:text-slate-900 text-sm font-semibold hover:bg-slate-800 dark:hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/10 dark:shadow-white/10">
+            <button class="px-4 py-2.5 rounded-xl bg-slate-900 dark:bg-white dark:bg-slate-900 text-white dark:text-slate-900 text-sm font-semibold hover:bg-slate-800 dark:hover:bg-white dark:hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/10 dark:shadow-white/10">
                 <i class="fas fa-plus mr-2"></i>
                 Nueva Novedad
             </button>
@@ -27,7 +27,7 @@
                     <p class="text-2xl font-bold text-slate-900 dark:text-white">{{ $totalNovedades ?? 12 }}</p>
                     <p class="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1">Total</p>
                 </div>
-                <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <i class="fas fa-clipboard-list text-slate-500 dark:text-slate-400"></i>
                 </div>
             </div>
@@ -84,7 +84,7 @@
             <div class="flex-1 relative">
                 <input type="text" 
                        placeholder="Buscar por bombero o motivo..." 
-                       class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-white focus:border-transparent text-sm">
+                       class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-white focus:border-transparent text-sm">
                 <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
             </div>
             <div class="flex flex-wrap items-center gap-2">
@@ -100,7 +100,7 @@
                 <button class="px-4 py-2 rounded-xl bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-sm font-medium hover:bg-amber-200 dark:hover:bg-amber-900/50 transition-colors">
                     <i class="fas fa-people-arrows mr-1"></i> Reemplazos
                 </button>
-                <select class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm focus:outline-none">
+                <select class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm focus:outline-none">
                     <option value="">Todos los estados</option>
                     <option value="pendiente">Pendiente</option>
                     <option value="aprobado">Aprobado</option>
@@ -177,10 +177,10 @@
                                 <i class="fas fa-times"></i>
                             </button>
                             @endif
-                            <button class="p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:bg-slate-800 transition-colors" title="Ver detalles">
+                            <button class="p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300 hover:bg-white dark:hover:bg-slate-800 dark:hover:bg-slate-800 transition-colors" title="Ver detalles">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            <button class="p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:bg-slate-800 transition-colors" title="Editar">
+                            <button class="p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300 hover:bg-white dark:hover:bg-slate-800 dark:hover:bg-slate-800 transition-colors" title="Editar">
                                 <i class="fas fa-pen"></i>
                             </button>
                         </div>
@@ -219,7 +219,7 @@
                         </div>
                         
                         {{-- Content --}}
-                        <div class="flex-1 bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4">
+                        <div class="flex-1 bg-white dark:bg-slate-800/50 rounded-xl p-4">
                             <div class="flex items-center justify-between">
                                 <p class="font-medium text-slate-900 dark:text-white text-sm">{{ $h['accion'] }}</p>
                                 <span class="text-xs text-slate-400 dark:text-slate-500 dark:text-slate-400">{{ $h['hora'] }}</span>

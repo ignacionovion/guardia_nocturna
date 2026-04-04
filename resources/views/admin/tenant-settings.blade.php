@@ -65,14 +65,14 @@
                         <img src="{{ asset('storage/' . $settings['tenant_logo']) }}" alt="Logo"
                              class="w-24 h-24 object-contain rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2">
                     @else
-                        <div class="w-24 h-24 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-700">
+                        <div class="w-24 h-24 bg-white dark:bg-slate-800 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-700">
                             <svg class="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                         </div>
                     @endif
                 </div>
                 <div class="flex-1">
                     <input type="file" id="tenant_logo" name="tenant_logo" accept="image/*"
-                           class="w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-slate-100 dark:bg-slate-800 file:text-slate-700 dark:text-slate-300 hover:file:bg-slate-200">
+                           class="w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-white dark:bg-slate-800 file:text-slate-700 dark:text-slate-300 hover:file:bg-slate-200">
                     <p class="text-xs text-slate-400 mt-2">PNG, JPG o SVG. Máximo 2 MB. Se recomienda un formato cuadrado.</p>
                     @if($settings['tenant_logo'])
                         <label class="flex items-center space-x-2 mt-3">
@@ -124,7 +124,7 @@
                                value="{{ old('tenant_primary_color', $settings['tenant_primary_color'] ?? '#f59e0b') }}"
                                class="w-10 h-10 rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer">
                         <input type="text" value="{{ old('tenant_primary_color', $settings['tenant_primary_color'] ?? '#f59e0b') }}"
-                               class="form-input bg-slate-50 dark:bg-slate-800" readonly
+                               class="form-input bg-white dark:bg-slate-800" readonly
                                id="primary_color_text">
                     </div>
                 </div>
@@ -135,7 +135,7 @@
                                value="{{ old('tenant_secondary_color', $settings['tenant_secondary_color'] ?? '#1e293b') }}"
                                class="w-10 h-10 rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer">
                         <input type="text" value="{{ old('tenant_secondary_color', $settings['tenant_secondary_color'] ?? '#1e293b') }}"
-                               class="form-input bg-slate-50 dark:bg-slate-800" readonly
+                               class="form-input bg-white dark:bg-slate-800" readonly
                                id="secondary_color_text">
                     </div>
                 </div>
@@ -151,7 +151,7 @@
         @endif
 
         {{-- Plan Info --}}
-        <div class="card-base bg-slate-50 dark:bg-slate-800/50 p-6 mb-6">
+        <div class="card-base bg-white dark:bg-slate-800/50 p-6 mb-6">
             <h2 class="text-title-md mb-3">Tu Plan</h2>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
                 <div>

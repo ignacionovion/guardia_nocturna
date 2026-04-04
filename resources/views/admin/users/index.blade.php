@@ -24,7 +24,7 @@
                 <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-[#475569]"></i>
                 <input type="text" name="search" value="{{ request('search') }}"
                     placeholder="Buscar por nombre o email..."
-                    class="bg-[#e7eef5] border border-[#9fb0c3] text-[#1e293b] placeholder-[#475569] rounded-xl min-h-[44px] px-4 py-3 pl-11 text-sm focus:border-[#1e293b] focus:ring-2 focus:ring-[#1e293b]/10 focus:outline-none flex-1">
+                    class="bg-white border border-slate-200 text-[#1e293b] placeholder-[#475569] rounded-xl min-h-[44px] px-4 py-3 pl-11 text-sm focus:border-[#1e293b] focus:ring-2 focus:ring-[#1e293b]/10 focus:outline-none flex-1">
 
                 @if(request('search'))
                     <a href="{{ route('admin.users.index') }}" class="absolute right-24 top-1/2 -translate-y-1/2 text-[#475569] hover:text-[#1e293b] p-2">
@@ -45,7 +45,7 @@
         <x-ui.card>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-[#9fb0c3]">
-                    <thead class="bg-[#c3cfdb]">
+                    <thead class="bg-white">
                         <tr class="text-label">
                             <th scope="col" class="px-6 py-4 text-left">Usuario</th>
                             <th scope="col" class="px-6 py-4 text-left">Rol</th>
@@ -53,9 +53,9 @@
                             <th scope="col" class="px-6 py-4 text-right">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-[#e7eef5] divide-y divide-[#9fb0c3]">
+                    <tbody class="bg-white divide-y divide-[#9fb0c3]">
                         @foreach($users as $user)
-                            <tr class="hover:bg-[#c3cfdb] transition-colors">
+                            <tr class="hover:bg-white transition-colors">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="icon-box icon-box-slate icon-box-sm">
@@ -111,7 +111,7 @@
                 </table>
             </div>
 
-            <div class="bg-[#c3cfdb] px-6 py-4 border-t border-[#9fb0c3]">
+            <div class="bg-white px-6 py-4 border-t border-slate-200">
                 {{ $users->links() }}
             </div>
         </x-ui.card>

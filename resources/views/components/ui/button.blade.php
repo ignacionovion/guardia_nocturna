@@ -11,12 +11,12 @@
 @php
 $variants = [
     'primary' => 'bg-slate-900 text-white hover:bg-slate-800 shadow-sm',
-    'secondary' => 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 hover:border-slate-300 shadow-sm',
+    'secondary' => 'bg-white text-slate-700 hover:bg-white border border-slate-200 hover:border-slate-300 shadow-sm',
     'danger' => 'bg-red-600 text-white hover:bg-red-700 shadow-sm',
     'success' => 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm',
     'warning' => 'bg-amber-500 text-white hover:bg-amber-600 shadow-sm',
-    'ghost' => 'bg-transparent text-slate-500 hover:bg-slate-100 hover:text-slate-700',
-    'outline' => 'bg-transparent border border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300',
+    'ghost' => 'bg-transparent text-slate-600 hover:bg-white hover:text-slate-900',
+    'outline' => 'bg-transparent border border-slate-200 text-slate-700 hover:bg-white hover:border-slate-300',
 ];
 
 $sizes = [

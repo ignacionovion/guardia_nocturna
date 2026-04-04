@@ -36,7 +36,7 @@
 
                     <div>
                         <label class="form-label" for="file">Seleccionar Archivo</label>
-                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer group relative">
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg hover:bg-white dark:hover:bg-slate-800 transition-colors cursor-pointer group relative">
                             <div class="space-y-1 text-center">
                                 <i class="fas fa-cloud-upload-alt text-4xl text-slate-400 group-hover:text-blue-500 transition-colors mb-3"></i>
                                 <div class="flex text-sm text-slate-600 dark:text-slate-400 justify-center">
@@ -52,12 +52,12 @@
                         </div>
                     </div>
 
-                    <div id="progressContainer" class="hidden bg-slate-50 dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
+                    <div id="progressContainer" class="hidden bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
                         <div class="flex justify-between mb-2">
                             <span id="progressText" class="text-xs font-bold text-blue-700 uppercase tracking-wide">Iniciando carga...</span>
                             <span id="progressPercent" class="text-xs font-bold text-blue-700">0%</span>
                         </div>
-                        <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+                        <div class="w-full bg-white rounded-full h-2.5 overflow-hidden">
                             <div id="progressBar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-300 relative" style="width: 0%">
                                 <div class="absolute inset-0 bg-white/20 w-full h-full animate-[shimmer_2s_infinite]"></div>
                             </div>

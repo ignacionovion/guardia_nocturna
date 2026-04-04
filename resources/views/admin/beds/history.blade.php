@@ -60,14 +60,14 @@
 
     {{-- Historial --}}
     <x-ui.card>
-        <div class="p-6 border-b border-[#9fb0c3] bg-[#c3cfdb]">
+        <div class="p-6 border-b border-slate-200 bg-white">
             <h3 class="text-lg font-bold text-[#1e293b]">Historial de Asignaciones</h3>
             <p class="text-sm text-[#475569]">Registro completo de ocupaciones de esta cama</p>
         </div>
 
         @if($assignments->isEmpty())
             <div class="p-12 text-center">
-                <div class="w-16 h-16 bg-[#c3cfdb] rounded-full flex items-center justify-center mx-auto mb-4">
+                <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
                     <i class="fas fa-history text-[#475569] text-2xl"></i>
                 </div>
                 <h3 class="text-lg font-bold text-[#1e293b] mb-2">Sin historial</h3>
@@ -76,7 +76,7 @@
         @else
             <div class="overflow-x-auto">
                 <table class="min-w-full">
-                    <thead class="bg-[#c3cfdb] border-b border-[#9fb0c3]">
+                    <thead class="bg-white border-b border-slate-200">
                         <tr class="text-xs font-semibold uppercase tracking-wider text-[#475569]">
                             <th class="text-left px-6 py-3">Voluntario</th>
                             <th class="text-left px-6 py-3">Inicio</th>
@@ -86,9 +86,9 @@
                             <th class="text-left px-6 py-3">Observaciones</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-[#e7eef5] divide-y divide-[#9fb0c3]">
+                    <tbody class="bg-white divide-y divide-[#9fb0c3]">
                         @foreach($assignments as $assignment)
-                            <tr class="hover:bg-[#c3cfdb] transition-colors {{ $assignment->isActive() ? 'bg-amber-50' : '' }}">
+                            <tr class="hover:bg-white transition-colors {{ $assignment->isActive() ? 'bg-amber-50' : '' }}">
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-2">
                                         @if($assignment->isActive())
@@ -143,7 +143,7 @@
 
             {{-- Paginación --}}
             @if($assignments->hasPages())
-                <div class="p-6 border-t border-[#9fb0c3]">
+                <div class="p-6 border-t border-slate-200">
                     {{ $assignments->links() }}
                 </div>
             @endif

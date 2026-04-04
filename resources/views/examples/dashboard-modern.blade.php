@@ -186,7 +186,7 @@
                 </tr>
             </x-slot:head>
             
-            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 dark:hover:bg-slate-700/50">
+            <tr class="hover:bg-white dark:hover:bg-slate-800 dark:hover:bg-slate-700/50">
                 <td class="px-4 py-3">
                     <div class="flex items-center gap-3">
                         <x-ui.avatar name="Pedro Soto" size="sm" />
@@ -210,7 +210,7 @@
                 </td>
             </tr>
             
-            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 dark:hover:bg-slate-700/50">
+            <tr class="hover:bg-white dark:hover:bg-slate-800 dark:hover:bg-slate-700/50">
                 <td class="px-4 py-3">
                     <div class="flex items-center gap-3">
                         <x-ui.avatar name="Luis Vera" size="sm" />
