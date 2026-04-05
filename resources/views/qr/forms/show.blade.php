@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="min-h-screen p-4 sm:p-6 pb-24">
-    <div class="w-full max-w-2xl mx-auto">
+    <div class="w-full" style="max-width: 448px;">
         
         {{-- Header --}}
         <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
@@ -119,7 +119,7 @@
 
             {{-- Botones fijos en el footer --}}
             <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 shadow-lg">
-                <div class="max-w-2xl mx-auto grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-2 gap-3" style="max-width: 448px; margin: 0 auto;">
                     <button 
                         type="button"
                         onclick="submitAsDraft()"

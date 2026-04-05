@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="min-h-screen p-4 sm:p-6 pb-20">
-    <div class="w-full max-w-2xl mx-auto">
+    <div class="w-full" style="max-width: 448px;">
         
         {{-- Header --}}
         <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
@@ -83,7 +83,7 @@
 
         {{-- Footer fijo --}}
         <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4">
-            <div class="max-w-2xl mx-auto flex items-center justify-between">
+            <div class="w-full flex items-center justify-between" style="max-width: 448px; margin: 0 auto;">
                 <p class="text-xs text-slate-500">
                     <i class="fas fa-shield-alt mr-1"></i>
                     Sesión segura
