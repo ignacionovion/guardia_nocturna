@@ -322,14 +322,6 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/admin/guardias/{guardia}/history', [App\Http\Controllers\Admin\GuardiaArchiveController::class, 'index'])->name('admin.guardias.history.index');
     Route::get('/admin/guardias/{guardia}/history/{archive}', [App\Http\Controllers\Admin\GuardiaArchiveController::class, 'show'])->name('admin.guardias.history.show');
-
-    // Rutas Admin - Voluntarios (Gestión Completa)
-    Route::get('/admin/volunteers/import', [BomberoController::class, 'importForm'])->name('admin.volunteers.import');
-    // Rutas para carga con progreso
-    Route::post('/admin/volunteers/import/upload', [BomberoController::class, 'uploadImport'])->name('admin.volunteers.import.upload');
-    Route::post('/admin/volunteers/import/process', [BomberoController::class, 'processImport'])->name('admin.volunteers.import.process');
-    
-    Route::post('/admin/volunteers/import', [BomberoController::class, 'import'])->name('admin.volunteers.import.post'); // Fallback o legacy
     
     // Ruta para eliminación masiva
     Route::delete('/admin/volunteers/bulk-destroy', [BomberoController::class, 'bulkDestroy'])->name('admin.volunteers.bulk_destroy');
@@ -407,6 +399,14 @@ Route::middleware(['auth'])->group(function () {
 
     // Notificaciones in-app
     Route::post('/notifications/read', [App\Http\Controllers\InAppNotificationController::class, 'markRead'])->name('notifications.read');
+
+    // Importación de Voluntarios - Solo capitanes y admins
+    Route::middleware(['role:capitan,super_admin,capitania'])->group(function () {
+        Route::get('/admin/volunteers/import', [BomberoController::class, 'importForm'])->name('admin.volunteers.import');
+        Route::post('/admin/volunteers/import/upload', [BomberoController::class, 'uploadImport'])->name('admin.volunteers.import.upload');
+        Route::post('/admin/volunteers/import/process', [BomberoController::class, 'processImport'])->name('admin.volunteers.import.process');
+        Route::post('/admin/volunteers/import', [BomberoController::class, 'import'])->name('admin.volunteers.import.post');
+    });
 
     // Emergencias (Guardia + Super Admin)
     Route::middleware(['tenant.feature:emergencias', 'emergency_access'])->group(function () {
