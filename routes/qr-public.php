@@ -49,7 +49,7 @@ Route::prefix('qr/forms')->group(function () {
     Route::get('/validate', [FormQrController::class, 'validateRut'])->name('qr.forms.validate');
     Route::post('/validate', [FormQrController::class, 'processRut'])->name('qr.forms.process');
     Route::get('/list', [FormQrController::class, 'listForms'])->name('qr.forms.list');
-    Route::get('/{template}', [FormQrController::class, 'showForm'])->whereNumber('template')->name('qr.forms.show');
+    Route::get('/{template}', [FormQrController::class, 'show'])->whereNumber('template')->name('qr.forms.show');
     Route::post('/{template}/draft', [FormQrController::class, 'saveDraft'])->whereNumber('template')->name('qr.forms.draft');
     Route::post('/{template}/submit', [FormQrController::class, 'submitForm'])->whereNumber('template')->name('qr.forms.submit');
     Route::get('/success', [FormQrController::class, 'success'])->name('qr.forms.success');
