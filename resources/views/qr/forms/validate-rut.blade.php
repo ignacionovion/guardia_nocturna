@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="w-full">
-    <div class="w-full max-w-md mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+    <div id="qr-debug-wrapper" class="w-full max-w-md mx-auto bg-white border-4 border-red-500 rounded-2xl p-6">
         <div class="mb-6 text-center">
             <h1 class="text-2xl font-bold text-slate-900 mb-1">Formularios</h1>
             <p class="text-sm text-slate-600">Acceso por QR</p>
@@ -55,4 +55,30 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const el = document.getElementById('qr-debug-wrapper');
+    if (el) {
+        const info = document.createElement('div');
+        info.style.position = 'fixed';
+        info.style.bottom = '10px';
+        info.style.left = '10px';
+        info.style.zIndex = '99999';
+        info.style.background = '#111827';
+        info.style.color = '#fff';
+        info.style.padding = '10px 12px';
+        info.style.borderRadius = '10px';
+        info.style.fontSize = '12px';
+        info.textContent =
+            'offsetWidth=' + el.offsetWidth +
+            ' | clientWidth=' + el.clientWidth +
+            ' | computedWidth=' + getComputedStyle(el).width +
+            ' | display=' + getComputedStyle(el).display +
+            ' | maxWidth=' + getComputedStyle(el).maxWidth +
+            ' | minWidth=' + getComputedStyle(el).minWidth;
+        document.body.appendChild(info);
+    }
+});
+</script>
 @endsection

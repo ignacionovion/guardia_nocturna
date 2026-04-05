@@ -45,6 +45,7 @@ Route::post('/preventivas/{token}/tipo-ingreso', [PreventivePublicController::cl
 // === QR FORMULARIOS ===
 
 Route::prefix('qr/forms')->group(function () {
+    Route::get('/test-width', function() { return view('qr.forms.test-width'); })->name('qr.forms.test');
     Route::get('/validate', [FormQrController::class, 'validateRut'])->name('qr.forms.validate');
     Route::post('/validate', [FormQrController::class, 'processRut'])->name('qr.forms.process');
     Route::get('/list', [FormQrController::class, 'listForms'])->name('qr.forms.list');
