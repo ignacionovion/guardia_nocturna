@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="w-full">
-    <div class="w-full bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+    <div class="w-full max-w-md mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
         <div class="mb-6 text-center">
             <h1 class="text-2xl font-bold text-slate-900 mb-1">Formularios</h1>
             <p class="text-sm text-slate-600">Acceso por QR</p>
