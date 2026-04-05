@@ -205,11 +205,13 @@ class BedQrController extends Controller
             'rut.regex' => 'Formato inválido. Debe ser como 12345678-5.',
         ]);
 
-        $rut = mb_strtolower(trim((string) $validated['rut']));
+        $rut = strtoupper(preg_replace('/[^0-9K]/', '', $validated['rut']));
 
-        // Buscar bombero por RUT
+        // Buscar bombero por RUT normalizado
         $bombero = Bombero::query()
-            ->whereRaw('lower(rut) = ?', [$rut])
+            ->whereRaw("
+                REPLACE(REPLACE(UPPER(rut), '.', ''), '-', '') = ?
+            ", [$rut])
             ->first();
 
         if (!$bombero) {

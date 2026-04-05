@@ -382,7 +382,10 @@ class BomberoController extends Controller
 
             if (!$rut) continue;
 
-            $existsQuery = Bombero::query()->where('rut', $rut);
+            $rutClean = strtoupper(preg_replace('/[^0-9K]/', '', $rut));
+            $existsQuery = Bombero::query()->whereRaw("
+                REPLACE(REPLACE(UPPER(rut), '.', ''), '-', '') = ?
+            ", [$rutClean]);
             
             if ($existsQuery->exists()) continue;
 
@@ -544,7 +547,10 @@ class BomberoController extends Controller
                 $existsQuery->where('correo', $email);
             }
             if ($rut) {
-                $existsQuery->orWhere('rut', $rut);
+                $rutClean = strtoupper(preg_replace('/[^0-9K]/', '', $rut));
+                $existsQuery->orWhereRaw("
+                    REPLACE(REPLACE(UPPER(rut), '.', ''), '-', '') = ?
+                ", [$rutClean]);
             }
             
             if ($existsQuery->exists()) {

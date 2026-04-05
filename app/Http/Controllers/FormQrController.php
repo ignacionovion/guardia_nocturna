@@ -31,8 +31,10 @@ class FormQrController extends Controller
 
         $rut = $this->cleanRut($request->rut);
 
-        // Buscar en bomberos
-        $bombero = Bombero::where('rut', $rut)->first();
+        // Buscar en bomberos con RUT normalizado
+        $bombero = Bombero::whereRaw("
+            REPLACE(REPLACE(UPPER(rut), '.', ''), '-', '') = ?
+        ", [$rut])->first();
 
         if (!$bombero) {
             return back()->with('error', 'RUT no encontrado en el sistema. Contacta a tu capitán.');
