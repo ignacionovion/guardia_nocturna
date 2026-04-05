@@ -1,11 +1,11 @@
 @extends('layouts.qr')
 
 @section('content')
-<div class="min-h-screen flex items-center justify-center p-4">
-    <div class="w-full max-w-md">
+<div class="min-h-screen flex items-center justify-center p-4 sm:p-6">
+    <div class="w-full max-w-md mx-auto">
         
         {{-- Card principal --}}
-        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
             
             {{-- Header con icono --}}
             <div class="bg-gradient-to-br from-slate-900 to-slate-800 p-8 text-center">

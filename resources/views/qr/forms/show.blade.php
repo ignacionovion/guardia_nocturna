@@ -1,11 +1,11 @@
 @extends('layouts.qr')
 
 @section('content')
-<div class="min-h-screen p-4 pb-24">
-    <div class="max-w-2xl mx-auto">
+<div class="min-h-screen p-4 sm:p-6 pb-24">
+    <div class="w-full max-w-2xl mx-auto">
         
         {{-- Header --}}
-        <div class="bg-white rounded-3xl shadow-xl overflow-hidden mb-6">
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
             <div class="bg-gradient-to-br from-slate-900 to-slate-800 p-6">
                 <div class="flex items-center justify-between mb-3">
                     <a href="{{ route('qr.forms.list') }}" class="text-white/80 hover:text-white transition-colors">
