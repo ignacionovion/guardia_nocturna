@@ -1,8 +1,8 @@
 @extends('layouts.qr')
 
 @section('content')
-<div class="w-full">
-    <div id="qr-debug-wrapper" class="w-full max-w-md mx-auto bg-white border-4 border-red-500 rounded-2xl p-6">
+<div class="w-full" style="width: 100% !important; max-width: none !important;">
+    <div id="qr-debug-wrapper" class="w-full mx-auto bg-white border-4 border-red-500 rounded-2xl p-6" style="width: 100% !important; max-width: 420px !important; min-width: 0 !important; display: block !important;">
         <div class="mb-6 text-center">
             <h1 class="text-2xl font-bold text-slate-900 mb-1">Formularios</h1>
             <p class="text-sm text-slate-600">Acceso por QR</p>

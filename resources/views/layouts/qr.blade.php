@@ -8,7 +8,7 @@
 </head>
 <body class="min-h-screen bg-slate-100">
     <main class="min-h-screen w-full px-4 py-8 flex items-start justify-center">
-        <div class="w-full max-w-md">
+        <div class="w-full" style="max-width: 448px;">
             @yield('content')
         </div>
     </main>
