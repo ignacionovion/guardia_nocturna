@@ -294,18 +294,11 @@ class BomberoController extends Controller
 
     public function importForm()
     {
-        if (!auth()->check() || auth()->user()->role !== 'super_admin') {
-            abort(403, 'No autorizado.');
-        }
         return view('admin.volunteers.import');
     }
 
     public function uploadImport(Request $request)
     {
-        if (!auth()->check() || auth()->user()->role !== 'super_admin') {
-            return response()->json(['error' => 'No autorizado'], 403);
-        }
-
         $request->validate([
             'file' => 'required|file|mimes:csv,txt,xlsx',
         ]);
@@ -363,10 +356,6 @@ class BomberoController extends Controller
 
     public function processImport(Request $request)
     {
-        if (auth()->user()->role !== 'super_admin') {
-            return response()->json(['error' => 'No autorizado'], 403);
-        }
-
         $batchId = $request->input('batchId');
         $offset = $request->input('offset', 0);
         $limit = $request->input('limit', 50);
@@ -482,10 +471,6 @@ class BomberoController extends Controller
     public function import(Request $request)
     {
         // ... (Mantener método original como fallback o eliminar si se desea reemplazar totalmente)
-        if (!auth()->check() || auth()->user()->role !== 'super_admin') {
-            abort(403, 'No autorizado.');
-        }
-
         $request->validate([
             'file' => 'required|file|mimes:csv,txt,xlsx',
         ]);
