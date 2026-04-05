@@ -76,7 +76,7 @@ class FormQrController extends Controller
     /**
      * Pantalla 3: Ejecución del formulario
      */
-    public function showForm($templateId)
+    public function show($templateId)
     {
         if (!Session::has('qr_form_rut')) {
             return redirect()->route('qr.forms.validate');
@@ -98,6 +98,14 @@ class FormQrController extends Controller
             ->first();
 
         return view('qr.forms.show', compact('template', 'bomberoName', 'draft'));
+    }
+
+    /**
+     * Alias para mantener compatibilidad
+     */
+    public function showForm($templateId)
+    {
+        return $this->show($templateId);
     }
 
     /**
