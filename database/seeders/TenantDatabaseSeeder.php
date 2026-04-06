@@ -2,22 +2,19 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class DatabaseSeeder extends Seeder
+class TenantDatabaseSeeder extends Seeder
 {
     use WithoutModelEvents;
 
     /**
-     * Seed the application's database.
+     * Seed the tenant application's database.
      */
     public function run(): void
     {
-        // Llamar a los seeders
         $this->call([
-            // SuperAdminSeeder::class,
             UserSeeder::class,
             SystemSettingsSeeder::class,
             CleaningTaskSeeder::class,

@@ -3,12 +3,14 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use Database\Seeders\TenantDatabaseSeeder;
 use App\Models\Bed;
 use App\Models\Plan;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Services\TenantPlanLimitService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -93,6 +95,17 @@ User::create([
         }
 
         $this->assertFalse($service->canCreateBed());
+    }
+
+    public function test_tenant_seed_no_crea_camas_por_defecto(): void
+    {
+        $seedExitCode = Artisan::call('db:seed', [
+            '--class' => TenantDatabaseSeeder::class,
+            '--force' => true,
+        ]);
+
+        $this->assertSame(0, $seedExitCode);
+        $this->assertSame(0, Bed::count());
     }
 
     public function test_excepcion_si_tenant_sin_plan(): void

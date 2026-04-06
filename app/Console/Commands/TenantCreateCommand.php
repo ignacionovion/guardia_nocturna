@@ -16,7 +16,7 @@ class TenantCreateCommand extends Command
                             {--numero= : Company number}
                             {--body= : Body ID}
                             {--plan_id= : Plan ID from central plans table}
-                            {--seed : Run DatabaseSeeder after creation}';
+                            {--seed : Run TenantDatabaseSeeder after creation}';
 
     protected $description = 'Create a new tenant with its database, migrations and optional domain';
 
@@ -69,6 +69,7 @@ class TenantCreateCommand extends Command
         if ($this->option('seed')) {
             $this->call('tenants:seed', [
                 '--tenants' => [$id],
+                '--class' => \Database\Seeders\TenantDatabaseSeeder::class,
             ]);
 
             $this->info("✅ Seeded.");

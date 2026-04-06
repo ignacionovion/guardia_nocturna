@@ -211,8 +211,10 @@ class TenantController extends Controller
             // Step 5: Optional seeding
             if ($request->boolean('seed')) {
                 $tenant->run(function () {
-                    $seeder = new \Database\Seeders\DatabaseSeeder();
-                    $seeder->run();
+                    Artisan::call('db:seed', [
+                        '--class' => \Database\Seeders\TenantDatabaseSeeder::class,
+                        '--force' => true,
+                    ]);
                 });
                 $steps[] = '✓ Datos iniciales poblados';
             }
@@ -312,35 +314,11 @@ class TenantController extends Controller
             $count = $tenant->run(function () {
                 return DB::table('migrations')->count();
             });
+
             return $count > 0;
         } catch (\Throwable $e) {
             return false;
         }
-        $tenant->load(['body', 'domains', 'planRelation']);
-        
-        $metrics = $this->metrics->forTenant($tenant);
-        $health = $this->metrics->healthStatus($tenant);
-        
-        // Get plan usage info using the tenant-specific method
-        $usageInfo = PlanService::getUsageInfoForTenant($tenant);
-        $tenantUsers = [];
-        try {
-            $tenant->run(function () use (&$tenantUsers) {
-                $tenantUsers = \App\Models\User::select('id', 'name', 'email', 'role')
-                    ->orderByRaw("FIELD(role, 'super_admin', 'capitania', 'administrador', 'guardia')")
-                    ->orderBy('name')
-                    ->limit(20)
-                    ->get()
-                    ->toArray();
-            });
-        } catch (\Throwable $e) {
-            // Tenant DB may not exist yet
-        }
-        
-        // Get available plans for change plan dropdown
-        $availablePlans = Plan::active()->ordered()->get();
-
-        return view('central.tenants.show', compact('tenant', 'metrics', 'health', 'tenantUsers', 'planUsage', 'availablePlans'));
     }
 
     public function show(string $tenant)
@@ -514,7 +492,10 @@ class TenantController extends Controller
 
         try {
             $tenant->run(function () {
-                Artisan::call('db:seed', ['--force' => true]);
+                Artisan::call('db:seed', [
+                    '--class' => \Database\Seeders\TenantDatabaseSeeder::class,
+                    '--force' => true,
+                ]);
             });
 
             CentralAuditLog::log('seed_run', "Seeders ejecutados para «{$tenant->nombre}»", $tenant->id);

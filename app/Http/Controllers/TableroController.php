@@ -779,14 +779,10 @@ class TableroController extends Controller
         }
         
         $beds = $bedsQuery->get();
-        
-        $stats = [
-            'total' => Bed::count(),
-            'available' => Bed::where('status', 'available')->count(),
-            'occupied' => Bed::where('status', 'occupied')->count(),
-            'maintenance' => Bed::where('status', 'maintenance')->count(),
-        ];
 
+        $totalBeds = Bed::count();
+        $occupiedBeds = Bed::where('status', 'occupied')->count();
+        $availableBeds = Bed::where('status', 'available')->count();
         $maintenanceBeds = Bed::where('status', 'maintenance')->count();
         
         $assignedFirefighterIds = \App\Models\BedAssignment::whereNull('ended_at')
@@ -809,7 +805,7 @@ class TableroController extends Controller
 
         $users = $usersQuery->orderBy('nombres')->orderBy('apellido_paterno')->get();
         
-        return view('camas', compact('beds', 'users', 'totalBeds', 'occupiedBeds', 'availableBeds', 'maintenanceBeds'));
+        return view('camas', compact('beds', 'users', 'totalBeds', 'occupiedBeds', 'availableBeds', 'maintenanceBeds', 'limitData'));
     }
 
     public function guardia()

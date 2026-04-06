@@ -65,7 +65,10 @@ class TenantAdminController extends Controller
 
             // Run seeders
             $tenant->run(function () {
-                Artisan::call('db:seed', ['--force' => true]);
+                Artisan::call('db:seed', [
+                    '--class' => \Database\Seeders\TenantDatabaseSeeder::class,
+                    '--force' => true,
+                ]);
             });
 
             CentralAuditLog::log('tenant_reset', "Base de datos reiniciada para «{$tenant->nombre}»", $tenant->id);
