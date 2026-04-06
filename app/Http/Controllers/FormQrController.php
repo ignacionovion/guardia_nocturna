@@ -76,13 +76,14 @@ class FormQrController extends Controller
     /**
      * Pantalla 3: Ejecución del formulario
      */
-    public function show($templateId)
+    public function show(Request $request)
     {
         if (!Session::has('qr_form_rut')) {
             return redirect()->route('qr.forms.validate');
         }
 
-        $template = FormTemplate::findOrFail($templateId);
+        $templateId = (int) $request->route('template');
+        $template = FormTemplate::query()->findOrFail($templateId);
 
         if (!$template->activo) {
             abort(403, 'Formulario no disponible');

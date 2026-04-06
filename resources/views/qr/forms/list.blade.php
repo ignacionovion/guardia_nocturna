@@ -64,7 +64,7 @@
                                     </span>
                                 </div>
                                 <a 
-                                    href="{{ route('qr.forms.show', ['template' => $template->id, 'tenant' => tenant()->id]) }}"
+                                    href="{{ route('qr.forms.show', ['template' => $template->id]) }}"
                                     class="inline-flex items-center px-4 py-2 bg-slate-900 text-white rounded-xl font-semibold text-sm hover:bg-slate-800 transition-all">
                                     @if(in_array($template->id, $drafts))
                                         <i class="fas fa-edit mr-2"></i>
