@@ -16,6 +16,7 @@ use App\Models\PreventiveShiftAssignment;
 use App\Models\PreventiveShiftAttendance;
 use App\Models\Emergency;
 use App\Services\ReplacementService;
+use App\Traits\TenantAdminAuth;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -23,6 +24,7 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ReportController extends Controller
 {
+    use TenantAdminAuth;
     private function resolveShiftDay(Carbon $dateTime): Carbon
     {
         $scheduleTz = env('GUARDIA_SCHEDULE_TZ', 'America/Santiago');
@@ -57,10 +59,7 @@ class ReportController extends Controller
 
     public function preventivas(Request $request)
     {
-        $user = auth()->user();
-        if ($user->role !== 'super_admin') {
-            abort(403, 'No autorizado.');
-        }
+        $this->requireTenantAdmin();
 
         $fromStr = (string) $request->input('from', now()->subDays(14)->toDateString());
         $toStr = (string) $request->input('to', now()->toDateString());
@@ -422,10 +421,7 @@ class ReportController extends Controller
      */
     public function attendance(Request $request)
     {
-        $user = auth()->user();
-        if ($user->role !== 'super_admin') {
-            abort(403, 'No autorizado.');
-        }
+        $this->requireTenantAdmin();
 
         $guardiaId   = $request->input('guardia_id');
         $currentView = $request->input('view', 'guardias');
@@ -519,10 +515,7 @@ class ReportController extends Controller
      */
     public function attendanceExport(Request $request)
     {
-        $user = auth()->user();
-        if ($user->role !== 'super_admin') {
-            abort(403, 'No autorizado.');
-        }
+        $this->requireTenantAdmin();
 
         $format = $request->input('format', 'excel');
         $guardiaId = $request->input('guardia_id');
@@ -917,10 +910,7 @@ class ReportController extends Controller
 
     public function drivers(Request $request)
     {
-        $user = auth()->user();
-        if ($user->role !== 'super_admin') {
-            abort(403, 'No autorizado.');
-        }
+        $this->requireTenantAdmin();
 
         $month = (int) $request->input('month', now()->month);
         $year = (int) $request->input('year', now()->year);
@@ -992,10 +982,7 @@ class ReportController extends Controller
 
     public function emergencies(Request $request)
     {
-        $user = auth()->user();
-        if ($user->role !== 'super_admin') {
-            abort(403, 'No autorizado.');
-        }
+        $this->requireTenantAdmin();
 
         $month = (int) $request->input('month', now()->month);
         $year = (int) $request->input('year', now()->year);
@@ -1157,10 +1144,7 @@ class ReportController extends Controller
      */
     public function emergenciesExport(Request $request)
     {
-        $user = auth()->user();
-        if ($user->role !== 'super_admin') {
-            abort(403, 'No autorizado.');
-        }
+        $this->requireTenantAdmin();
 
         $format = $request->input('format', 'excel');
         $month = (int) $request->input('month', now()->month);
@@ -1227,10 +1211,7 @@ class ReportController extends Controller
      */
     public function driversExport(Request $request)
     {
-        $user = auth()->user();
-        if ($user->role !== 'super_admin') {
-            abort(403, 'No autorizado.');
-        }
+        $this->requireTenantAdmin();
 
         $format = $request->input('format', 'excel');
         $month = (int) $request->input('month', now()->month);
@@ -1320,12 +1301,9 @@ class ReportController extends Controller
 
     public function replacements(Request $request)
     {
-        ReplacementService::expire();
+        $this->requireTenantAdmin();
 
-        $user = auth()->user();
-        if ($user->role !== 'super_admin') {
-            abort(403, 'No autorizado.');
-        }
+        ReplacementService::expire();
 
         $guardias = Guardia::orderBy('name')->get();
         $activeGuardia = $this->resolveActiveGuardia(now());
@@ -1698,12 +1676,9 @@ class ReportController extends Controller
 
     public function replacementsExport(Request $request)
     {
-        ReplacementService::expire();
+        $this->requireTenantAdmin();
 
-        $user = auth()->user();
-        if ($user->role !== 'super_admin') {
-            abort(403, 'No autorizado.');
-        }
+        ReplacementService::expire();
 
         [$from, $to, $guardiaId] = $this->parseReplacementsFilters($request);
         $base = $this->replacementsBaseQuery($from, $to, $guardiaId);
@@ -1778,12 +1753,9 @@ class ReportController extends Controller
 
     public function replacementsPrint(Request $request)
     {
-        ReplacementService::expire();
+        $this->requireTenantAdmin();
 
-        $user = auth()->user();
-        if ($user->role !== 'super_admin') {
-            abort(403, 'No autorizado.');
-        }
+        ReplacementService::expire();
 
         $guardias = Guardia::orderBy('name')->get();
         $activeGuardia = $this->resolveActiveGuardia(now());
@@ -1999,10 +1971,7 @@ class ReportController extends Controller
      */
     public function refuerzos(Request $request)
     {
-        $user = auth()->user();
-        if (!in_array($user->role, ['super_admin', 'admin', 'capitan'])) {
-            abort(403, 'No autorizado.');
-        }
+        $this->requireAdvancedAdmin();
 
         // Período
         $periodo = (int) $request->input('periodo', 30);
@@ -2149,10 +2118,7 @@ class ReportController extends Controller
      */
     public function refuerzosExport(Request $request)
     {
-        $user = auth()->user();
-        if (!in_array($user->role, ['super_admin', 'admin', 'capitan'])) {
-            abort(403, 'No autorizado.');
-        }
+        $this->requireAdvancedAdmin();
 
         $format = $request->input('format', 'excel');
         $periodo = (int) $request->input('periodo', 30);
