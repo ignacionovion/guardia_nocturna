@@ -6,8 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Guardia Nocturna')</title>
     
-    {{-- Tailwind CSS --}}
-    <script src="https://cdn.tailwindcss.com"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     
     {{-- Font Awesome --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -15,31 +14,7 @@
     {{-- Google Fonts --}}
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        slate: {
-                            950: '#020617',
-                            900: '#0f172a',
-                            800: '#1e293b',
-                            700: '#334155',
-                        },
-                        cyan: {
-                            400: '#22d3ee',
-                            500: '#06b6d4',
-                            600: '#0891b2',
-                        },
-                    }
-                }
-            }
-        }
-    </script>
-    
+
     <style>
         body {
             font-family: 'Inter', sans-serif;

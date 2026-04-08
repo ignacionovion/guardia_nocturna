@@ -63,7 +63,11 @@ class ImpersonationController extends Controller
             return back()->with('error', 'El tenant no tiene dominio configurado.');
         }
 
-        $tenantUrl = "http://{$domain}/impersonate/callback?token=" . $this->generateImpersonationToken($tenant->id, $user->id);
+        $tenantUrl = sprintf(
+            'https://%s/impersonate/callback?token=%s',
+            $domain,
+            $this->generateImpersonationToken($tenant->id, $user->id)
+        );
 
         return redirect($tenantUrl);
     }
@@ -87,7 +91,11 @@ class ImpersonationController extends Controller
         Auth::guard('web')->logout();
 
         $centralDomain = env('CENTRAL_DOMAIN', 'localhost');
-        return redirect("http://{$centralDomain}/admin");
+        $centralAdminUrl = str_starts_with($centralDomain, 'http://') || str_starts_with($centralDomain, 'https://')
+            ? rtrim($centralDomain, '/') . '/admin'
+            : 'https://' . trim($centralDomain, '/') . '/admin';
+
+        return redirect($centralAdminUrl);
     }
 
     /**
