@@ -5,14 +5,14 @@
     <div class="max-w-7xl mx-auto">
         <x-ui.page-header title="Calendario de Guardias" subtitle="Planificación semanal y asignación de dotaciones" icon="fas fa-calendar-alt" iconVariant="red">
             <form action="{{ route('admin.calendario') }}" method="GET" class="flex items-center gap-2 bg-white p-1.5 rounded-xl shadow-sm border border-slate-200">
-                <select name="month" class="bg-white border border-slate-200 text-slate-900 rounded-xl min-h-[44px] px-4 py-3 text-sm focus:border-slate-400 focus:ring-2 focus:ring-slate-900/10 focus:outline-none w-auto appearance-none">
+                <select name="month" class="form-select w-auto">
                     @foreach(range(1, 12) as $m)
                         <option value="{{ $m }}" {{ $month == $m ? 'selected' : '' }}>
                             {{ ucfirst(\Carbon\Carbon::create()->month($m)->locale('es')->monthName) }}
                         </option>
                     @endforeach
                 </select>
-                <select name="year" class="bg-white border border-slate-200 text-slate-900 rounded-xl min-h-[44px] px-4 py-3 text-sm focus:border-slate-400 focus:ring-2 focus:ring-slate-900/10 focus:outline-none w-auto appearance-none">
+                <select name="year" class="form-select w-auto">
                     @foreach(range(now()->year - 2, now()->year + 1) as $y)
                         <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>{{ $y }}</option>
                     @endforeach
@@ -42,7 +42,7 @@
                             <div class="relative">
                                 <i class="fas fa-calendar absolute left-3 top-3 text-[#475569] text-sm"></i>
                                 <input type="date" name="from" required 
-                                    class="bg-white border border-slate-200 text-slate-900 placeholder-slate-500 rounded-xl min-h-[44px] px-4 py-3 pl-10 text-sm focus:border-slate-400 focus:ring-2 focus:ring-slate-900/10 focus:outline-none w-full">
+                                    class="form-input pl-10">
                             </div>
                         </div>
                         <div>
@@ -50,7 +50,7 @@
                             <div class="relative">
                                 <i class="fas fa-calendar absolute left-3 top-3 text-[#475569] text-sm"></i>
                                 <input type="date" name="to" required 
-                                    class="bg-white border border-slate-200 text-[#1e293b] placeholder-[#475569] rounded-xl min-h-[44px] px-4 py-3 pl-10 text-sm focus:border-[#1e293b] focus:ring-2 focus:ring-[#1e293b]/10 focus:outline-none w-full">
+                                    class="form-input pl-10">
                             </div>
                         </div>
                     </div>
@@ -60,7 +60,7 @@
                         <div class="relative">
                             <i class="fas fa-shield absolute left-3 top-3 text-[#475569] text-sm"></i>
                             <select name="guardia_id" required 
-                                class="bg-white border border-slate-200 text-[#1e293b] rounded-xl min-h-[44px] px-4 py-3 pl-10 pr-10 text-sm focus:border-[#1e293b] focus:ring-2 focus:ring-[#1e293b]/10 focus:outline-none w-full appearance-none">
+                                class="form-select pl-10 pr-10">
                                 @foreach($guardias as $g)
                                     <option value="{{ $g->id }}">{{ $g->name }}</option>
                                 @endforeach
@@ -110,7 +110,7 @@
                             <div class="relative">
                                 <i class="fas fa-play-circle absolute left-3 top-3 text-[#475569] text-sm"></i>
                                 <input type="date" name="start_sunday" required 
-                                    class="bg-white border border-slate-200 text-[#1e293b] placeholder-[#475569] rounded-xl min-h-[44px] px-4 py-3 pl-10 text-sm focus:border-[#1e293b] focus:ring-2 focus:ring-[#1e293b]/10 focus:outline-none w-full">
+                                    class="form-input pl-10">
                             </div>
                         </div>
                         <div>
@@ -118,7 +118,7 @@
                             <div class="relative">
                                 <i class="fas fa-stop-circle absolute left-3 top-3 text-[#475569] text-sm"></i>
                                 <input type="date" name="end_date" 
-                                    class="bg-white border border-slate-200 text-[#1e293b] placeholder-[#475569] rounded-xl min-h-[44px] px-4 py-3 pl-10 text-sm focus:border-[#1e293b] focus:ring-2 focus:ring-[#1e293b]/10 focus:outline-none w-full">
+                                    class="form-input pl-10">
                             </div>
                             <p class="text-[10px] text-[#475569] mt-1">Vacío = hasta fin de año</p>
                         </div>
@@ -135,7 +135,7 @@
                                     <span class="text-sm font-semibold text-[#1e293b]">Semana {{ $index + 1 }}</span>
                                     <div class="flex-1">
                                         <select name="guardia_ids[]" required 
-                                            class="bg-white border border-slate-200 text-[#1e293b] rounded-xl min-h-[44px] px-4 py-3 text-sm focus:border-[#1e293b] focus:ring-2 focus:ring-[#1e293b]/10 focus:outline-none w-full appearance-none">
+                                            class="form-select">
                                             @foreach($guardias as $optionG)
                                                 <option value="{{ $optionG->id }}" {{ $g->id === $optionG->id ? 'selected' : '' }}>{{ $optionG->name }}</option>
                                             @endforeach
@@ -155,7 +155,7 @@
                             </div>
                         </label>
                         <input type="text" name="email_recipients" 
-                            class="bg-white border border-slate-200 text-[#1e293b] placeholder-[#475569] rounded-xl min-h-[44px] px-4 py-3 text-sm focus:border-[#1e293b] focus:ring-2 focus:ring-[#1e293b]/10 focus:outline-none w-full mt-3"
+                            class="form-input mt-3"
                             placeholder="usuario@ejemplo.com, otro@ejemplo.com">
                     </div>
 

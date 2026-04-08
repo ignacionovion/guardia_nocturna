@@ -23,8 +23,8 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {{-- IZQUIERDA --}}
         <div class="space-y-6">
-            <div>
-                <label for="name" class="block text-sm font-semibold text-slate-700 mb-2">
+            <div class="form-group">
+                <label for="name" class="form-label">
                     Nombre <span class="text-red-500">*</span>
                 </label>
                 <input id="name"
@@ -33,30 +33,30 @@
                        x-model="name"
                        @input="handleNameInput"
                        value="{{ old('name', $user->name) }}"
-                       class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                       class="form-input"
                        required>
                 @error('name')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    <p class="form-error">{{ $message }}</p>
                 @enderror
             </div>
 
-            <div>
-                <label for="email" class="block text-sm font-semibold text-slate-700 mb-2">
+            <div class="form-group">
+                <label for="email" class="form-label">
                     Email <span class="text-red-500">*</span>
                 </label>
                 <input id="email"
                        name="email"
                        type="email"
                        value="{{ old('email', $user->email) }}"
-                       class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                       class="form-input"
                        required>
                 @error('email')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    <p class="form-error">{{ $message }}</p>
                 @enderror
             </div>
 
-            <div>
-                <label for="username" class="block text-sm font-semibold text-slate-700 mb-2">
+            <div class="form-group">
+                <label for="username" class="form-label">
                     Usuario
                 </label>
                 <input id="username"
@@ -64,20 +64,20 @@
                        type="text"
                        x-model="username"
                        @input="usernameManuallyEdited = true"
-                       class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-slate-500 focus:ring-2 focus:ring-slate-200">
-                <p class="mt-2 text-xs text-slate-500">
+                       class="form-input">
+                <p class="form-hint">
                     Se sugiere automáticamente desde el nombre, pero puedes ajustarlo manualmente.
                 </p>
                 @error('username')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    <p class="form-error">{{ $message }}</p>
                 @enderror
             </div>
         </div>
 
         {{-- DERECHA --}}
         <div class="space-y-6">
-            <div>
-                <label for="role" class="block text-sm font-semibold text-slate-700 mb-2">
+            <div class="form-group">
+                <label for="role" class="form-label">
                     Perfil de Sistema
                 </label>
                 <select id="role"
@@ -86,7 +86,7 @@
                         @change="handleRoleChange"
                         :disabled="roleId !== '' && roleId !== null"
                         :class="roleId !== '' && roleId !== null ? 'bg-white text-slate-400 cursor-not-allowed' : 'bg-white text-slate-900'"
-                        class="w-full rounded-xl border border-slate-300 px-4 py-3 shadow-sm focus:border-slate-500 focus:ring-2 focus:ring-slate-200">
+                        class="form-select">
                     <option value="">Seleccionar perfil...</option>
                     <option value="capitan">CAPITAN</option>
                     <option value="guardia">GUARDIA</option>
@@ -96,16 +96,16 @@
                         </option>
                     @endif
                 </select>
-                <p class="mt-2 text-xs text-slate-500">
+                <p class="form-hint">
                     Perfiles predefinidos con permisos generales del sistema.
                 </p>
                 @error('role')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    <p class="form-error">{{ $message }}</p>
                 @enderror
             </div>
 
-            <div>
-                <label for="role_id" class="block text-sm font-semibold text-slate-700 mb-2">
+            <div class="form-group">
+                <label for="role_id" class="form-label">
                     Rol Personalizado
                 </label>
                 <select id="role_id"
@@ -114,7 +114,7 @@
                         @change="handleRoleIdChange"
                         :disabled="role !== '' && role !== null"
                         :class="role !== '' && role !== null ? 'bg-white text-slate-400 cursor-not-allowed' : 'bg-white text-slate-900'"
-                        class="w-full rounded-xl border border-slate-300 px-4 py-3 shadow-sm focus:border-slate-500 focus:ring-2 focus:ring-slate-200">
+                        class="form-select">
                     <option value="">Sin rol personalizado</option>
                     @foreach($roles as $roleItem)
                         <option value="{{ $roleItem->id }}">
@@ -122,11 +122,11 @@
                         </option>
                     @endforeach
                 </select>
-                <p class="mt-2 text-xs text-slate-500">
+                <p class="form-hint">
                     Si seleccionas un rol personalizado, el perfil de sistema se deshabilita automáticamente.
                 </p>
                 @error('role_id')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    <p class="form-error">{{ $message }}</p>
                 @enderror
             </div>
 

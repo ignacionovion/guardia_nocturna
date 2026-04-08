@@ -12,7 +12,7 @@
             {{-- Clave de Emergencia --}}
             <div>
                 <label class="block text-sm font-bold text-slate-300 mb-2">Clave de Emergencia *</label>
-                <select name="emergency_key_id" required class="w-full px-3 py-2 border border-slate-700 rounded-lg bg-slate-950 text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                <select name="emergency_key_id" required class="form-select bg-slate-950 border-slate-700 text-slate-300 focus:ring-sky-500">
                     <option value="">Seleccionar clave...</option>
                     @foreach($keys as $key)
                         <option value="{{ $key->id }}">{{ $key->code }} - {{ $key->description }}</option>
@@ -24,14 +24,14 @@
             <div>
                 <label class="block text-sm font-bold text-slate-300 mb-2">Hora de Salida *</label>
                 <input type="datetime-local" name="dispatched_at" required value="{{ now()->format('Y-m-d\TH:i') }}"
-                    class="w-full px-3 py-2 border border-slate-700 rounded-lg bg-slate-950 text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                    class="form-input bg-slate-950 border-slate-700 text-slate-300 focus:ring-sky-500">
             </div>
 
             {{-- Hora de Llegada --}}
             <div>
                 <label class="block text-sm font-bold text-slate-300 mb-2">Hora de Llegada</label>
                 <input type="datetime-local" name="arrived_at"
-                    class="w-full px-3 py-2 border border-slate-700 rounded-lg bg-slate-950 text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                    class="form-input bg-slate-950 border-slate-700 text-slate-300 focus:ring-sky-500">
             </div>
 
             {{-- Unidades --}}
@@ -51,7 +51,7 @@
             @if($onDutyUsers->isNotEmpty())
                 <div>
                     <label class="block text-sm font-bold text-slate-300 mb-2">Oficial a Cargo</label>
-                    <select name="officer_in_charge_firefighter_id" class="w-full px-3 py-2 border border-slate-700 rounded-lg bg-slate-950 text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                    <select name="officer_in_charge_firefighter_id" class="form-select bg-slate-950 border-slate-700 text-slate-300 focus:ring-sky-500">
                         <option value="">Sin asignar</option>
                         @foreach($onDutyUsers as $user)
                             <option value="{{ $user->id }}">{{ $user->nombres }} {{ $user->apellido_paterno }}</option>
@@ -64,7 +64,7 @@
             <div>
                 <label class="block text-sm font-bold text-slate-300 mb-2">Detalles del Llamado</label>
                 <textarea name="details" rows="3" placeholder="Dirección, tipo de incidente, observaciones relevantes..."
-                    class="w-full px-3 py-2 border border-slate-700 rounded-lg bg-slate-950 text-sm text-slate-300 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500"></textarea>
+                    class="form-textarea bg-slate-950 border-slate-700 text-slate-300 placeholder:text-slate-500 focus:ring-sky-500"></textarea>
             </div>
         </div>
 

@@ -43,13 +43,13 @@
                     <div>
                         <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Nombre</label>
                         <input type="text" name="name" value="{{ old('name') }}" required
-                            class="w-full px-4 py-3 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-slate-700 dark:text-slate-300 bg-white">
+                            class="form-input">
                     </div>
 
                     <div>
                         <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Slug</label>
                         <input type="text" name="slug" value="{{ old('slug') }}" required
-                            class="w-full px-4 py-3 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-slate-700 dark:text-slate-300 bg-white"
+                            class="form-input"
                             placeholder="ej: operador_guardia">
                         <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Usa minúsculas y guiones bajos. Debe ser único.</p>
                     </div>

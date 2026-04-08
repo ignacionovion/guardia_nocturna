@@ -26,37 +26,37 @@
                 <form method="POST" action="{{ route('admin.system.schedule.save') }}" class="p-6 bg-white dark:bg-slate-800/50">
                     @csrf
                     <div class="grid grid-cols-2 gap-6">
-                        <div>
+                        <div class="form-group">
                             <label class="form-label">Habilitar Guardar Asistencia</label>
-                            <input type="time" name="attendance_enable_time" value="{{ old('attendance_enable_time', ($settings['attendance_enable_time'] ?? '22:00')) }}" class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white h-10" required>
+                            <input type="time" name="attendance_enable_time" value="{{ old('attendance_enable_time', ($settings['attendance_enable_time'] ?? '22:00')) }}" class="form-input" required>
                         </div>
-                        <div>
+                        <div class="form-group">
                             <label class="form-label">Deshabilitar Guardar Asistencia</label>
-                            <input type="time" name="attendance_disable_time" value="{{ old('attendance_disable_time', ($settings['attendance_disable_time'] ?? '07:00')) }}" class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white h-10" required>
+                            <input type="time" name="attendance_disable_time" value="{{ old('attendance_disable_time', ($settings['attendance_disable_time'] ?? '07:00')) }}" class="form-input" required>
                         </div>
-                        <div>
+                        <div class="form-group">
                             <label class="form-label">Constitución diaria (Lun-Sáb)</label>
-                            <input type="time" name="guardia_constitution_weekday_time" value="{{ old('guardia_constitution_weekday_time', ($settings['guardia_constitution_weekday_time'] ?? '23:00')) }}" class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white h-10" required>
+                            <input type="time" name="guardia_constitution_weekday_time" value="{{ old('guardia_constitution_weekday_time', ($settings['guardia_constitution_weekday_time'] ?? '23:00')) }}" class="form-input" required>
                         </div>
-                        <div>
+                        <div class="form-group">
                             <label class="form-label">Constitución domingo</label>
-                            <input type="time" name="guardia_constitution_sunday_time" value="{{ old('guardia_constitution_sunday_time', ($settings['guardia_constitution_sunday_time'] ?? '22:00')) }}" class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white h-10" required>
+                            <input type="time" name="guardia_constitution_sunday_time" value="{{ old('guardia_constitution_sunday_time', ($settings['guardia_constitution_sunday_time'] ?? '22:00')) }}" class="form-input" required>
                         </div>
-                        <div>
+                        <div class="form-group">
                             <label class="form-label">Salida diaria del turno</label>
-                            <input type="time" name="guardia_daily_end_time" value="{{ old('guardia_daily_end_time', ($settings['guardia_daily_end_time'] ?? '07:00')) }}" class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white h-10" required>
+                            <input type="time" name="guardia_daily_end_time" value="{{ old('guardia_daily_end_time', ($settings['guardia_daily_end_time'] ?? '07:00')) }}" class="form-input" required>
                         </div>
-                        <div>
+                        <div class="form-group">
                             <label class="form-label">Cambio guardia en turno (Semanal)</label>
-                            <input type="time" name="guardia_week_transition_time" value="{{ old('guardia_week_transition_time', ($settings['guardia_week_transition_time'] ?? '18:00')) }}" class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white h-10" required>
+                            <input type="time" name="guardia_week_transition_time" value="{{ old('guardia_week_transition_time', ($settings['guardia_week_transition_time'] ?? '18:00')) }}" class="form-input" required>
                         </div>
-                        <div>
+                        <div class="form-group">
                             <label class="form-label">Limpieza semanal (Domingo)</label>
-                            <input type="time" name="guardia_week_cleanup_time" value="{{ old('guardia_week_cleanup_time', ($settings['guardia_week_cleanup_time'] ?? '18:00')) }}" class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white h-10" required>
+                            <input type="time" name="guardia_week_cleanup_time" value="{{ old('guardia_week_cleanup_time', ($settings['guardia_week_cleanup_time'] ?? '18:00')) }}" class="form-input" required>
                         </div>
-                        <div>
+                        <div class="form-group">
                             <label class="form-label">Zona horaria scheduler</label>
-                            <input type="text" name="guardia_schedule_tz" value="{{ old('guardia_schedule_tz', ($settings['guardia_schedule_tz'] ?? config('app.timezone'))) }}" class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white h-10" placeholder="America/Santiago" required>
+                            <input type="text" name="guardia_schedule_tz" value="{{ old('guardia_schedule_tz', ($settings['guardia_schedule_tz'] ?? config('app.timezone'))) }}" class="form-input" placeholder="America/Santiago" required>
                         </div>
                     </div>
                     <div class="mt-6 flex justify-end">
@@ -84,9 +84,9 @@
                 <form method="POST" action="{{ route('admin.system.purge') }}" class="p-6 bg-orange-50/30 dark:bg-slate-800/50">
                     @csrf
                     <div class="grid grid-cols-2 gap-4">
-                        <div>
+                        <div class="form-group">
                             <label class="form-label">Acción</label>
-                            <select name="action" class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white h-10" required>
+                            <select name="action" class="form-select" required>
                                 <option value="" disabled selected>Seleccionar...</option>
                                 <option value="novelties">Eliminar Novedades + Academias</option>
                                 <option value="shifts">Reiniciar Turnos (Shift + ShiftUsers)</option>
@@ -97,9 +97,9 @@
                                 <option value="all">VACIAR TODO (NO RECOMENDADO)</option>
                             </select>
                         </div>
-                        <div>
+                        <div class="form-group">
                             <label class="form-label">Confirmación</label>
-                            <input type="text" name="confirm_text" class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white h-10" placeholder="Escribe CONFIRMAR" required>
+                            <input type="text" name="confirm_text" class="form-input" placeholder="Escribe CONFIRMAR" required>
                         </div>
                     </div>
 
@@ -141,13 +141,13 @@
                     <div class="mb-6">
                         <h3 class="text-sm font-semibold text-slate-900 dark:text-white mb-3">Remitente</h3>
                         <div class="grid grid-cols-2 gap-4">
-                            <div>
+                            <div class="form-group">
                                 <label class="form-label">Correo remitente</label>
-                                <input type="email" name="mail_from_address" value="{{ old('mail_from_address', ($settings['mail_from_address'] ?? 'no-responder@dev-app.cl')) }}" class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white h-10" required>
+                                <input type="email" name="mail_from_address" value="{{ old('mail_from_address', ($settings['mail_from_address'] ?? 'no-responder@dev-app.cl')) }}" class="form-input" required>
                             </div>
-                            <div>
+                            <div class="form-group">
                                 <label class="form-label">Nombre remitente</label>
-                                <input type="text" name="mail_from_name" value="{{ old('mail_from_name', ($settings['mail_from_name'] ?? config('app.name', 'AppGuardia'))) }}" class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white h-10" required>
+                                <input type="text" name="mail_from_name" value="{{ old('mail_from_name', ($settings['mail_from_name'] ?? config('app.name', 'AppGuardia'))) }}" class="form-input" required>
                             </div>
                         </div>
                     </div>
@@ -156,13 +156,13 @@
                     <div class="mb-6">
                         <h3 class="text-sm font-semibold text-slate-900 dark:text-white mb-3">Destinatarios</h3>
                         <div class="space-y-4">
-                            <div>
+                            <div class="form-group">
                                 <label class="form-label">Destinatarios (separados por coma)</label>
-                                <textarea name="mail_recipients" class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white min-h-[80px]" placeholder="ej: ignacio.n12@gmail.com" required>{{ old('mail_recipients', ($settings['mail_recipients'] ?? '')) }}</textarea>
+                                <textarea name="mail_recipients" class="form-textarea" placeholder="ej: ignacio.n12@gmail.com" required>{{ old('mail_recipients', ($settings['mail_recipients'] ?? '')) }}</textarea>
                             </div>
-                            <div>
+                            <div class="form-group">
                                 <label class="form-label">Autorizados para gatillar envíos (opcional)</label>
-                                <textarea name="mail_allowed_trigger_emails" class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white min-h-[70px]" placeholder="vacío = cualquiera con acceso puede gatillar">{{ old('mail_allowed_trigger_emails', ($settings['mail_allowed_trigger_emails'] ?? '')) }}</textarea>
+                                <textarea name="mail_allowed_trigger_emails" class="form-textarea" placeholder="vacío = cualquiera con acceso puede gatillar">{{ old('mail_allowed_trigger_emails', ($settings['mail_allowed_trigger_emails'] ?? '')) }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -246,17 +246,17 @@
                 <form method="POST" action="{{ route('admin.system.clear_guardias') }}" class="p-6 bg-red-50/30 dark:bg-slate-800/50">
                     @csrf
                     <div class="grid grid-cols-3 gap-4">
-                        <div>
+                        <div class="form-group">
                             <label class="form-label">Alcance</label>
-                            <select id="clear-guardias-scope" name="scope" class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white h-10" required>
+                            <select id="clear-guardias-scope" name="scope" class="form-select" required>
                                 <option value="one">Vaciar una guardia</option>
                                 <option value="all">Vaciar todas las guardias</option>
                             </select>
                         </div>
 
-                        <div>
+                        <div class="form-group">
                             <label class="form-label">Guardia</label>
-                            <select id="clear-guardias-guardia" name="guardia_id" class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white h-10">
+                            <select id="clear-guardias-guardia" name="guardia_id" class="form-select">
                                 <option value="">Seleccionar...</option>
                                 @foreach(($guardias ?? collect()) as $g)
                                     <option value="{{ $g->id }}">{{ $g->name }}</option>
@@ -264,9 +264,9 @@
                             </select>
                         </div>
 
-                        <div>
+                        <div class="form-group">
                             <label class="form-label">Confirmación</label>
-                            <input type="text" name="confirm_text" class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white h-10" placeholder="Escribe CONFIRMAR" required>
+                            <input type="text" name="confirm_text" class="form-input" placeholder="Escribe CONFIRMAR" required>
                         </div>
                     </div>
 

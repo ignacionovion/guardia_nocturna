@@ -193,7 +193,7 @@
         <div class="p-4 border-b border-slate-200 dark:border-slate-700">
             <div class="relative">
                 <i class="fas fa-search absolute left-3 top-3.5 text-slate-400"></i>
-                <input id="keys-search" type="text" placeholder="Buscar..." class="w-full pl-10 pr-3 py-3 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500">
+                <input id="keys-search" type="text" placeholder="Buscar..." class="form-input pl-10">
             </div>
         </div>
         <div class="max-h-[60vh] overflow-auto">
@@ -235,7 +235,7 @@
         <div class="p-4 border-b border-slate-200 dark:border-slate-700">
             <div class="relative">
                 <i class="fas fa-search absolute left-3 top-3.5 text-slate-400"></i>
-                <input id="units-search" type="text" placeholder="Buscar..." class="w-full pl-10 pr-3 py-3 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500">
+                <input id="units-search" type="text" placeholder="Buscar..." class="form-input pl-10">
             </div>
         </div>
         <div class="max-h-[60vh] overflow-auto p-4" id="units-list">

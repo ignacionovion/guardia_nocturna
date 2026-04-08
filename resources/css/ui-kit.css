@@ -305,6 +305,62 @@
     gap: 0.25rem;
 }
 
+.dark .form-label {
+    color: #94a3b8;
+}
+
+.dark .input-base,
+.dark .select-base,
+.dark .form-input,
+.dark .form-select,
+.dark .form-textarea,
+.dark .form-file {
+    background-color: #0f172a;
+    border-color: #475569;
+    color: #f8fafc;
+}
+
+.dark .input-base::placeholder,
+.dark .form-input::placeholder,
+.dark .form-textarea::placeholder {
+    color: #64748b;
+}
+
+.dark .input-base:hover:not(:disabled),
+.dark .select-base:hover:not(:disabled),
+.dark .form-input:hover:not(:disabled),
+.dark .form-select:hover:not(:disabled),
+.dark .form-textarea:hover:not(:disabled),
+.dark .form-file:hover:not(:disabled) {
+    background-color: #1e293b;
+    border-color: #64748b;
+}
+
+.dark .input-base:focus,
+.dark .select-base:focus,
+.dark .form-input:focus,
+.dark .form-select:focus,
+.dark .form-textarea:focus,
+.dark .form-file:focus {
+    background-color: #0f172a;
+    border-color: #3b82f6;
+}
+
+.dark .form-hint {
+    color: #94a3b8;
+}
+
+.dark .input-error,
+.dark .input-base.input-error,
+.dark .select-base.input-error,
+.dark .form-input.input-error,
+.dark .form-select.input-error,
+.dark .form-textarea.input-error,
+.dark .form-file.input-error {
+    background-color: rgba(127, 29, 29, 0.25);
+    border-color: #f87171;
+}
+
 /* Buttons - Variantes de botones */
 .btn-base {
     display: inline-flex;

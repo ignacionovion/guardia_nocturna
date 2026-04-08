@@ -162,13 +162,13 @@
                         @foreach($event->templates as $i => $tpl)
                             <div class="grid grid-cols-12 gap-2">
                                 <div class="col-span-5">
-                                    <input type="time" name="template[{{ $i }}][start_time]" value="{{ substr((string) $tpl->start_time, 0, 5) }}" required class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 font-semibold" {{ in_array($status, ['active','closed'], true) ? 'disabled' : '' }}>
+                                    <input type="time" name="template[{{ $i }}][start_time]" value="{{ substr((string) $tpl->start_time, 0, 5) }}" required class="form-input" {{ in_array($status, ['active','closed'], true) ? 'disabled' : '' }}>
                                 </div>
                                 <div class="col-span-5">
-                                    <input type="time" name="template[{{ $i }}][end_time]" value="{{ substr((string) $tpl->end_time, 0, 5) }}" required class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 font-semibold" {{ in_array($status, ['active','closed'], true) ? 'disabled' : '' }}>
+                                    <input type="time" name="template[{{ $i }}][end_time]" value="{{ substr((string) $tpl->end_time, 0, 5) }}" required class="form-input" {{ in_array($status, ['active','closed'], true) ? 'disabled' : '' }}>
                                 </div>
                                 <div class="col-span-2">
-                                    <input type="text" name="template[{{ $i }}][label]" value="{{ $tpl->label }}" class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 font-semibold" placeholder="#" {{ in_array($status, ['active','closed'], true) ? 'disabled' : '' }}>
+                                    <input type="text" name="template[{{ $i }}][label]" value="{{ $tpl->label }}" class="form-input" placeholder="#" {{ in_array($status, ['active','closed'], true) ? 'disabled' : '' }}>
                                 </div>
                             </div>
                         @endforeach
@@ -406,7 +406,7 @@
                         <div class="relative">
                             <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                             <input type="text" 
-                                   class="js-portal-search w-full pl-8 pr-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none focus:border-slate-400 bg-white"
+                                   class="js-portal-search form-input pl-8"
                                    placeholder="Buscar bombero...">
                         </div>
                     </div>

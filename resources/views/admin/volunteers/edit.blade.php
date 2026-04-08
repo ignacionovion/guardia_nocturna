@@ -76,7 +76,7 @@
                                 </div>
 
                                 <!-- Input de archivo estilizado -->
-                                <div class="w-full">
+                                <div class="form-group w-full">
                                     <label for="photoInput" 
                                            class="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-slate-700/50 transition-all group">
                                         <div class="flex flex-col items-center justify-center py-2">
@@ -89,7 +89,7 @@
                                         <input id="photoInput" name="photo" type="file" accept="image/*" class="hidden" onchange="previewPhoto(this)">
                                     </label>
                                     @error('photo')
-                                        <p class="text-red-500 text-xs mt-2 text-center">{{ $message }}</p>
+                                        <p class="form-error justify-center">{{ $message }}</p>
                                     @enderror
                                 </div>
 
@@ -145,89 +145,89 @@
                         <div class="p-6">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <!-- Nombres -->
-                                <div class="md:col-span-2">
-                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                                <div class="form-group md:col-span-2">
+                                    <label class="form-label">
                                         Nombres <span class="text-red-500">*</span>
                                     </label>
                                     <input type="text" name="nombres" value="{{ old('nombres', $volunteer->nombres) }}" required
-                                           class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                                           class="form-input">
                                 </div>
 
                                 <!-- Apellido Paterno -->
-                                <div>
-                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Apellido Paterno</label>
+                                <div class="form-group">
+                                    <label class="form-label">Apellido Paterno</label>
                                     <input type="text" name="apellido_paterno" value="{{ old('apellido_paterno', $volunteer->apellido_paterno) }}"
-                                           class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                                           class="form-input">
                                 </div>
 
                                 <!-- Apellido Materno -->
-                                <div>
-                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Apellido Materno</label>
+                                <div class="form-group">
+                                    <label class="form-label">Apellido Materno</label>
                                     <input type="text" name="apellido_materno" value="{{ old('apellido_materno', $volunteer->apellido_materno) }}"
-                                           class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                                           class="form-input">
                                 </div>
 
                                 <!-- RUT -->
-                                <div>
-                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                                <div class="form-group">
+                                    <label class="form-label">
                                         RUT <span class="text-red-500">*</span>
                                     </label>
                                     <input type="text" name="rut" value="{{ old('rut', $volunteer->rut) }}" placeholder="12.345.678-9"
-                                           class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium">
+                                           class="form-input font-medium">
                                 </div>
 
                                 <!-- Numero de Registro -->
-                                <div>
-                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">N de Registro</label>
+                                <div class="form-group">
+                                    <label class="form-label">N de Registro</label>
                                     <input type="text" name="numero_registro" value="{{ old('numero_registro', $volunteer->numero_registro) }}" placeholder="Ej: 611"
-                                           class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                                           class="form-input">
                                 </div>
 
                                 <!-- Cargo -->
-                                <div class="md:col-span-2">
-                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Cargo</label>
+                                <div class="form-group md:col-span-2">
+                                    <label class="form-label">Cargo</label>
                                     <div class="relative" id="cargoComboboxEdit">
                                         <div class="relative">
                                             <input type="text" name="cargo_texto" value="{{ old('cargo_texto', $volunteer->cargo_texto) }}" autocomplete="off" id="cargoInputEdit"
-                                                   class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all pr-10">
+                                                   class="form-input pr-10">
                                             <button type="button" id="cargoToggleEdit" class="absolute inset-y-0 right-0 flex items-center px-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
                                                 <i class="fas fa-chevron-down text-sm"></i>
                                             </button>
                                         </div>
-                                        <div id="cargoListEdit" class="absolute z-30 mt-1 w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl overflow-hidden hidden">
+                                        <div id="cargoListEdit" class="absolute z-30 mt-1 w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl overflow-hidden hidden">
                                             <div class="max-h-56 overflow-auto" id="cargoOptionsEdit"></div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Email -->
-                                <div class="md:col-span-2">
-                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Correo Electronico</label>
+                                <div class="form-group md:col-span-2">
+                                    <label class="form-label">Correo Electronico</label>
                                     <div class="relative">
                                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                                             <i class="fas fa-envelope text-slate-400 text-sm"></i>
                                         </div>
                                         <input type="email" name="correo" value="{{ old('correo', $volunteer->correo) }}"
-                                               class="w-full pl-10 pr-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                                               class="form-input pl-10">
                                     </div>
                                 </div>
 
                                 <!-- Fecha Nacimiento -->
-                                <div>
-                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Fecha de Nacimiento</label>
+                                <div class="form-group">
+                                    <label class="form-label">Fecha de Nacimiento</label>
                                     <input type="date" name="fecha_nacimiento" value="{{ old('fecha_nacimiento', optional($volunteer->fecha_nacimiento)->format('Y-m-d')) }}"
-                                           class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                                           class="form-input">
                                 </div>
 
                                 <!-- Portatil -->
-                                <div>
-                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Portatil Asignado</label>
+                                <div class="form-group">
+                                    <label class="form-label">Portatil Asignado</label>
                                     <div class="relative">
                                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                                             <i class="fas fa-walkie-talkie text-slate-400 text-sm"></i>
                                         </div>
                                         <input type="text" name="numero_portatil" value="{{ old('numero_portatil', $volunteer->numero_portatil) }}" placeholder="364 / 37-D"
-                                               class="w-full pl-10 pr-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                                               class="form-input pl-10">
                                     </div>
                                 </div>
                             </div>
@@ -247,17 +247,17 @@
                         <div class="p-6">
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                                 <!-- Fecha Ingreso -->
-                                <div>
-                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Fecha de Ingreso</label>
+                                <div class="form-group">
+                                    <label class="form-label">Fecha de Ingreso</label>
                                     <input type="date" name="fecha_ingreso" value="{{ old('fecha_ingreso', optional($volunteer->fecha_ingreso)->format('Y-m-d')) }}"
-                                           class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                                           class="form-input">
                                 </div>
 
                                 <!-- Guardia Asignada -->
-                                <div class="md:col-span-2">
-                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Guardia Asignada</label>
+                                <div class="form-group md:col-span-2">
+                                    <label class="form-label">Guardia Asignada</label>
                                     <div class="relative">
-                                        <select name="guardia_id" class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all pr-10">
+                                        <select name="guardia_id" class="form-select pr-10">
                                             <option value="">Sin Asignar</option>
                                             @foreach($guardias as $guardia)
                                                 <option value="{{ $guardia->id }}" {{ old('guardia_id', $volunteer->guardia_id) == $guardia->id ? 'selected' : '' }}>
@@ -272,10 +272,10 @@
                                 </div>
 
                                 <!-- Es Permanente -->
-                                <div>
-                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Es Guardian Permanente?</label>
+                                <div class="form-group">
+                                    <label class="form-label">Es Guardian Permanente?</label>
                                     <div class="relative">
-                                        <select name="es_permanente" class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all pr-10">
+                                        <select name="es_permanente" class="form-select pr-10">
                                             <option value="0" {{ old('es_permanente', $volunteer->es_permanente ? '1' : '0') === '0' ? 'selected' : '' }}>No</option>
                                             <option value="1" {{ old('es_permanente', $volunteer->es_permanente ? '1' : '0') === '1' ? 'selected' : '' }}>Si</option>
                                         </select>
