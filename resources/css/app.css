@@ -73,15 +73,26 @@
 input:not([type="checkbox"]):not([type="radio"]),
 select,
 textarea {
-    background-color: #ffffff !important;
+    min-height: 44px;
+    border-radius: 0.875rem;
+    background-color: #f8fafc !important;
     border: 1px solid #cbd5e1 !important;
+    transition: all 200ms;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):hover,
+select:hover,
+textarea:hover {
+    background-color: #f1f5f9 !important;
+    border-color: #94a3b8 !important;
 }
 
 input:focus:not([type="checkbox"]):not([type="radio"]),
 select:focus,
 textarea:focus {
     border-color: #3b82f6 !important;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15) !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2) !important;
 }
 
 /* Tablas */

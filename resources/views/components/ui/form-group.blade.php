@@ -6,9 +6,9 @@
     'required' => false,
 ])
 
-<div {{ $attributes->merge(['class' => '']) }}>
+<div {{ $attributes->merge(['class' => 'form-group']) }}>
     @if($label)
-        <label @if($for) for="{{ $for }}" @endif class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
+        <label @if($for) for="{{ $for }}" @endif class="form-label">
             {{ $label }}
             @if($required)
                 <span class="text-red-500">*</span>
@@ -19,11 +19,11 @@
     {{ $slot }}
 
     @if($hint && !$error)
-        <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400">{{ $hint }}</p>
+        <p class="form-hint">{{ $hint }}</p>
     @endif
 
     @if($error)
-        <p class="mt-1.5 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
+        <p class="form-error">
             <i class="fas fa-exclamation-circle"></i>
             {{ $error }}
         </p>

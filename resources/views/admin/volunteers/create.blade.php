@@ -23,32 +23,34 @@
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="md:col-span-3 space-y-2">
+                        <div class="form-group md:col-span-3">
                             <label class="form-label">Nombres <span class="text-red-500">*</span></label>
                             <input type="text" name="nombres" value="{{ old('nombres') }}" required
                                 class="form-input">
+                            @error('nombres') <p class="form-error">{{ $message }}</p> @enderror
                         </div>
-                        <div class="space-y-2">
+                        <div class="form-group">
                             <label class="form-label">Apellido Paterno</label>
                             <input type="text" name="apellido_paterno" value="{{ old('apellido_paterno') }}"
                                 class="form-input">
                         </div>
-                        <div class="space-y-2">
+                        <div class="form-group">
                             <label class="form-label">Apellido Materno</label>
                             <input type="text" name="apellido_materno" value="{{ old('apellido_materno') }}"
                                 class="form-input">
                         </div>
-                        <div class="space-y-2">
+                        <div class="form-group">
                             <label class="form-label">RUT <span class="text-red-500">*</span></label>
                             <input type="text" name="rut" value="{{ old('rut') }}" placeholder="12.345.678-9"
                                 class="form-input font-medium">
+                            @error('rut') <p class="form-error">{{ $message }}</p> @enderror
                         </div>
-                        <div class="space-y-2">
+                        <div class="form-group">
                             <label class="form-label">Número de Registro</label>
                             <input type="text" name="numero_registro" value="{{ old('numero_registro') }}" placeholder="Ej: 611"
                                 class="form-input">
                         </div>
-                        <div class="md:col-span-3 space-y-2">
+                        <div class="form-group md:col-span-3">
                             <label class="form-label">Cargo</label>
                             <div class="relative" id="cargoComboboxCreate">
                                 <div class="relative">
@@ -58,32 +60,33 @@
                                         <i class="fas fa-chevron-down"></i>
                                     </button>
                                 </div>
-                                <div id="cargoListCreate" class="absolute z-30 mt-2 w-full bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden hidden">
+                                <div id="cargoListCreate" class="absolute z-30 mt-2 w-full bg-white border border-slate-200 rounded-2xl shadow-lg overflow-hidden hidden">
                                     <div class="max-h-56 overflow-auto" id="cargoOptionsCreate"></div>
                                 </div>
                             </div>
                         </div>
-                        <div class="space-y-2">
+                        <div class="form-group">
                             <label class="form-label">Portátil</label>
                             <input type="text" name="numero_portatil" value="{{ old('numero_portatil') }}" placeholder="364 / 37-D"
                                 class="form-input">
                         </div>
-                        <div class="space-y-2">
+                        <div class="form-group">
                             <label class="form-label">Fecha Cumpleaños</label>
                             <input type="date" name="fecha_nacimiento" value="{{ old('fecha_nacimiento') }}"
                                 class="form-input">
                         </div>
-                        <div class="md:col-span-3 space-y-2">
+                        <div class="form-group md:col-span-3">
                             <label class="form-label">Email</label>
                             <input type="email" name="correo" value="{{ old('correo') }}"
                                 class="form-input">
+                            @error('correo') <p class="form-error">{{ $message }}</p> @enderror
                         </div>
 
-                        <div class="md:col-span-3 space-y-2">
+                        <div class="form-group md:col-span-3">
                             <label class="form-label">Foto</label>
                             <input type="file" name="photo" accept="image/*"
-                                class="form-input file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-white file:text-[#1e293b]">
-                            @error('photo') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                                class="form-file">
+                            @error('photo') <p class="form-error">{{ $message }}</p> @enderror
                         </div>
                     </div>
                 </div>
@@ -98,15 +101,15 @@
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="space-y-2">
+                        <div class="form-group">
                             <label class="form-label">Fecha Ingreso</label>
                             <input type="date" name="fecha_ingreso" value="{{ old('fecha_ingreso') }}" 
                                 class="form-input">
                         </div>
-                        <div class="space-y-2">
+                        <div class="form-group">
                             <label class="form-label">¿El voluntario es guardián permanente?</label>
                             <div class="relative">
-                                <select name="es_permanente" class="form-input appearance-none pr-10">
+                                <select name="es_permanente" class="form-select pr-10">
                                     <option value="0" {{ old('es_permanente', '0') === '0' ? 'selected' : '' }}>No</option>
                                     <option value="1" {{ old('es_permanente') === '1' ? 'selected' : '' }}>Sí</option>
                                 </select>
@@ -115,10 +118,10 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="md:col-span-2 space-y-2">
+                        <div class="form-group md:col-span-2">
                             <label class="form-label">Guardia Asignada</label>
                             <div class="relative">
-                                <select name="guardia_id" class="form-input appearance-none pr-10">
+                                <select name="guardia_id" class="form-select pr-10">
                                     <option value="">Sin Asignar</option>
                                     @foreach($guardias as $guardia)
                                         <option value="{{ $guardia->id }}" {{ old('guardia_id') == $guardia->id ? 'selected' : '' }}>
@@ -130,6 +133,7 @@
                                     <i class="fas fa-chevron-down"></i>
                                 </div>
                             </div>
+                            @error('guardia_id') <p class="form-error">{{ $message }}</p> @enderror
                         </div>
 
                         <div class="md:col-span-3">

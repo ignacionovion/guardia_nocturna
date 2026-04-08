@@ -145,14 +145,67 @@
        SISTEMA DE FORMULARIOS
        ======================================== */
     
-    .form-label {
-        @apply block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2;
+    .form-group {
+        display: grid;
+        gap: 0.5rem;
     }
-    .form-input {
-        @apply w-full px-4 py-3 min-h-[44px] bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition-all;
+    .form-label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #475569;
+    }
+    .form-input,
+    .form-select,
+    .form-file,
+    .form-textarea {
+        width: 100%;
+        min-height: 44px;
+        padding: 0.625rem 1rem;
+        background: #f8fafc;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.875rem;
+        color: #0f172a;
+        font-size: 0.875rem;
+        transition: all 200ms;
     }
     .form-select {
-        @apply form-input appearance-none cursor-pointer pr-10;
+        appearance: none;
+        cursor: pointer;
+        padding-right: 2.5rem;
+    }
+    .form-input::placeholder,
+    .form-textarea::placeholder {
+        color: #94a3b8;
+    }
+    .form-input:hover,
+    .form-select:hover,
+    .form-file:hover,
+    .form-textarea:hover {
+        background: #f1f5f9;
+        border-color: #94a3b8;
+    }
+    .form-input:focus,
+    .form-select:focus,
+    .form-file:focus,
+    .form-textarea:focus {
+        outline: none;
+        background: #ffffff;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+    }
+    .input-error {
+        border-color: #fca5a5;
+        background: #fef2f2;
+    }
+    .input-error:focus {
+        border-color: #ef4444;
+        box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.18);
+    }
+    .form-error {
+        margin-top: 0.25rem;
+        font-size: 0.75rem;
+        color: #ef4444;
     }
     
     /* ========================================
