@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Bombero;
 use App\Models\Guardia;
+use App\Traits\TenantAdminAuth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Schema;
@@ -13,6 +14,8 @@ use Shuchkin\SimpleXLSX;
 
 class BomberoController extends Controller
 {
+    use TenantAdminAuth;
+
     public function __construct(
         protected \App\Services\TenantPlanLimitService $limitService
     ) {}
@@ -35,9 +38,7 @@ class BomberoController extends Controller
 
     public function index(Request $request)
     {
-        if (!auth()->check() || !in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania'], true)) {
-            abort(403, 'No autorizado.');
-        }
+        $this->requireTenantAdmin();
 
         $query = Bombero::query()->with('guardia');
 
@@ -61,18 +62,15 @@ class BomberoController extends Controller
 
     public function create()
     {
-        if (!auth()->check() || auth()->user()->role !== 'super_admin') {
-            abort(403, 'No autorizado.');
-        }
+        $this->requireTenantAdmin();
+
         $guardias = Guardia::all();
         return view('admin.volunteers.create', compact('guardias'));
     }
 
     public function store(Request $request)
     {
-        if (!auth()->check() || auth()->user()->role !== 'super_admin') {
-            abort(403, 'No autorizado.');
-        }
+        $this->requireTenantAdmin();
 
         // Check plan limit for guardias
         if (\App\Services\PlanService::exceedsLimit('guardias')) {
@@ -128,9 +126,7 @@ class BomberoController extends Controller
 
     public function show(Request $request)
     {
-        if (!in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania', 'guardia'], true)) {
-            abort(403, 'No autorizado.');
-        }
+        $this->requireTenantAdmin();
         
         $id = $request->route('volunteer');
         $volunteer = Bombero::with('guardia')->findOrFail((int) $id);
@@ -140,9 +136,8 @@ class BomberoController extends Controller
 
     public function edit(Request $request)
     {
-        if (!in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania'], true)) {
-            abort(403, 'No autorizado.');
-        }
+        $this->requireTenantAdmin();
+
         $id = $request->route('volunteer');
         $volunteer = Bombero::findOrFail((int) $id);
         $guardias = Guardia::all();
@@ -151,9 +146,8 @@ class BomberoController extends Controller
 
     public function update(Request $request)
     {
-        if (!in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania'], true)) {
-            abort(403, 'No autorizado.');
-        }
+        $this->requireTenantAdmin();
+
         $id = $request->route('volunteer');
         $volunteer = Bombero::findOrFail((int) $id);
         
@@ -215,9 +209,7 @@ class BomberoController extends Controller
 
     public function destroy(Request $request)
     {
-        if (!in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania'], true)) {
-            abort(403, 'No autorizado.');
-        }
+        $this->requireTenantAdmin();
 
         $id = $request->route('volunteer');
         $volunteer = Bombero::findOrFail((int) $id);
@@ -227,9 +219,7 @@ class BomberoController extends Controller
 
     public function destroyPhoto(Bombero $volunteer)
     {
-        if (!in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania'], true)) {
-            abort(403, 'No autorizado.');
-        }
+        $this->requireTenantAdmin();
 
         if ($volunteer->photo_path) {
             Storage::disk('public')->delete($volunteer->photo_path);
