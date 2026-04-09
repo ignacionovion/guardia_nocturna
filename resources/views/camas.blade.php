@@ -18,6 +18,110 @@
         @endif
     </x-ui.page-header>
 
+    {{-- Estado por sector (resumen operacional) --}}
+    @php
+        $sectorSummary = $beds
+            ->groupBy(fn ($bed) => $bed->room ?: 'Sin sector asignado')
+            ->map(function ($roomBeds, $roomName) {
+                $total = $roomBeds->count();
+                $occupied = $roomBeds->filter(fn ($bed) => $bed->status === 'occupied')->count();
+                $available = $roomBeds->filter(fn ($bed) => $bed->status === 'available')->count();
+                $maintenance = $roomBeds->filter(fn ($bed) => $bed->status === 'maintenance')->count();
+
+                $occupiedPct = $total > 0 ? round(($occupied / $total) * 100) : 0;
+
+                return [
+                    'name' => $roomName,
+                    'total' => $total,
+                    'occupied' => $occupied,
+                    'available' => $available,
+                    'maintenance' => $maintenance,
+                    'occupiedPct' => $occupiedPct,
+                ];
+            })
+            ->sortByDesc('occupiedPct')
+            ->values();
+    @endphp
+
+    <x-ui.card class="mb-6">
+        <div class="p-5 border-b border-slate-200 bg-white">
+            <h3 class="text-sm font-bold text-slate-900">Estado por sector</h3>
+            <p class="text-xs text-slate-500 mt-1">Resumen rápido para priorizar dónde enfocar la operación.</p>
+        </div>
+        <div class="p-5">
+            @if($sectorSummary->isEmpty())
+                <p class="text-sm text-slate-500 text-center py-5">No hay sectores disponibles para resumir.</p>
+            @else
+                <div class="overflow-x-auto pb-2">
+                    <div class="flex gap-3 min-w-max">
+                        @foreach($sectorSummary as $sector)
+                            @php
+                                $totalForBar = max(1, $sector['total']);
+                                $occupiedUnits = (int) round(($sector['occupied'] / $totalForBar) * 12);
+                                $availableUnits = (int) round(($sector['available'] / $totalForBar) * 12);
+                                $maintenanceUnits = max(0, 12 - $occupiedUnits - $availableUnits);
+
+                                $occupiedUnits = max(0, min(12, $occupiedUnits));
+                                $availableUnits = max(0, min(12 - $occupiedUnits, $availableUnits));
+                                $maintenanceUnits = max(0, min(12 - $occupiedUnits - $availableUnits, $maintenanceUnits));
+
+                                $colSpanMap = [
+                                    0 => 'col-span-0', 1 => 'col-span-1', 2 => 'col-span-2', 3 => 'col-span-3',
+                                    4 => 'col-span-4', 5 => 'col-span-5', 6 => 'col-span-6', 7 => 'col-span-7',
+                                    8 => 'col-span-8', 9 => 'col-span-9', 10 => 'col-span-10', 11 => 'col-span-11',
+                                    12 => 'col-span-12',
+                                ];
+                            @endphp
+                            <div class="w-[250px] rounded-xl border border-slate-200 bg-white p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+                                <div class="flex items-start justify-between gap-3 mb-3">
+                                    <div class="min-w-0">
+                                        <p class="text-xs uppercase tracking-wide font-semibold text-slate-500">Sector</p>
+                                        <h4 class="text-sm font-bold text-slate-900 truncate">{{ $sector['name'] }}</h4>
+                                    </div>
+                                    <x-ui.badge variant="default" size="sm">{{ $sector['total'] }} camas</x-ui.badge>
+                                </div>
+
+                                <div class="grid grid-cols-3 gap-2 text-[11px] mb-3">
+                                    <div class="rounded-lg bg-red-50 px-2 py-1.5">
+                                        <p class="text-red-600 font-semibold">Ocup.</p>
+                                        <p class="text-red-700 font-bold">{{ $sector['occupied'] }}</p>
+                                    </div>
+                                    <div class="rounded-lg bg-emerald-50 px-2 py-1.5">
+                                        <p class="text-emerald-600 font-semibold">Disp.</p>
+                                        <p class="text-emerald-700 font-bold">{{ $sector['available'] }}</p>
+                                    </div>
+                                    <div class="rounded-lg bg-amber-50 px-2 py-1.5">
+                                        <p class="text-amber-600 font-semibold">Mant.</p>
+                                        <p class="text-amber-700 font-bold">{{ $sector['maintenance'] }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="h-2 w-full rounded-full overflow-hidden bg-slate-100 grid grid-cols-12 gap-0.5">
+                                    @if($occupiedUnits > 0)
+                                        <div class="{{ $colSpanMap[$occupiedUnits] }} bg-red-400"></div>
+                                    @endif
+                                    @if($availableUnits > 0)
+                                        <div class="{{ $colSpanMap[$availableUnits] }} bg-emerald-400"></div>
+                                    @endif
+                                    @if($maintenanceUnits > 0)
+                                        <div class="{{ $colSpanMap[$maintenanceUnits] }} bg-amber-400"></div>
+                                    @endif
+                                </div>
+
+                                <div class="mt-3 flex items-center justify-between">
+                                    <p class="text-xs text-slate-500">Ocupación</p>
+                                    <p class="text-sm font-bold {{ $sector['occupiedPct'] >= 80 ? 'text-red-700' : ($sector['occupiedPct'] >= 60 ? 'text-amber-700' : 'text-emerald-700') }}">
+                                        {{ $sector['occupiedPct'] }}%
+                                    </p>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+        </div>
+    </x-ui.card>
+
     @if(isset($limitData) && !$limitData['can_create'])
         <div class="bg-amber-50 border border-amber-200 text-amber-700 px-4 py-3 rounded-lg mb-6">
             <div class="flex items-center gap-2">
