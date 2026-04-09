@@ -104,78 +104,153 @@
         </x-ui.card>
     </div>
 
-    {{-- Resumen por Género y Sector --}}
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        {{-- Por Género --}}
-        <x-ui.card>
-            <div class="p-5 border-b border-slate-200 bg-white">
-                <h3 class="text-sm font-bold text-[#1e293b]">Distribución por Género</h3>
-            </div>
-            <div class="p-5">
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                <i class="fas fa-mars text-blue-600 text-sm"></i>
-                            </div>
-                            <span class="text-sm font-medium text-[#1e293b]">Masculino</span>
-                        </div>
-                        <span class="text-lg font-bold text-[#1e293b]">{{ $statsByGender['male'] }}</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center">
-                                <i class="fas fa-venus text-pink-600 text-sm"></i>
-                            </div>
-                            <span class="text-sm font-medium text-[#1e293b]">Femenino</span>
-                        </div>
-                        <span class="text-lg font-bold text-[#1e293b]">{{ $statsByGender['female'] }}</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                                <i class="fas fa-venus-mars text-purple-600 text-sm"></i>
-                            </div>
-                            <span class="text-sm font-medium text-[#1e293b]">Mixto</span>
-                        </div>
-                        <span class="text-lg font-bold text-[#1e293b]">{{ $statsByGender['mixed'] }}</span>
-                    </div>
-                </div>
-            </div>
-        </x-ui.card>
+    {{-- Resumen operacional por sector --}}
+    @php
+        $sectorSummary = $beds
+            ->groupBy(fn ($bed) => $bed->room ?: 'Sin sector asignado')
+            ->map(function ($roomBeds, $roomName) {
+                $total = $roomBeds->count();
+                $occupied = $roomBeds->filter(fn ($bed) => $bed->is_occupied || $bed->status === 'occupied')->count();
+                $maintenance = $roomBeds->where('status', 'maintenance')->count();
+                $available = $roomBeds->where('status', 'available')->count();
+                $disabled = $roomBeds->where('status', 'disabled')->count();
 
-        {{-- Por Sector/Pieza --}}
-        <x-ui.card>
-            <div class="p-5 border-b border-slate-200 bg-white">
-                <h3 class="text-sm font-bold text-[#1e293b]">Distribución por Sector</h3>
+                $occupiedPct = $total > 0 ? round(($occupied / $total) * 100) : 0;
+                $availablePct = $total > 0 ? round(($available / $total) * 100) : 0;
+                $maintenancePct = $total > 0 ? round(($maintenance / $total) * 100) : 0;
+                $disabledPct = max(0, 100 - ($occupiedPct + $availablePct + $maintenancePct));
+
+                return [
+                    'name' => $roomName,
+                    'total' => $total,
+                    'occupied' => $occupied,
+                    'available' => $available,
+                    'maintenance' => $maintenance,
+                    'disabled' => $disabled,
+                    'occupiedPct' => $occupiedPct,
+                    'availablePct' => $availablePct,
+                    'maintenancePct' => $maintenancePct,
+                    'disabledPct' => $disabledPct,
+                ];
+            })
+            ->sortByDesc('occupiedPct')
+            ->values();
+
+        $activeRoomFilter = request('room');
+    @endphp
+
+    <x-ui.card class="mb-6">
+        <div class="p-5 border-b border-slate-200 bg-white flex items-center justify-between gap-3">
+            <div>
+                <h3 class="text-sm font-bold text-[#1e293b]">Estado por sector</h3>
+                <p class="text-xs text-slate-500 mt-1">Vista rápida para detectar áreas críticas y filtrar el tablero.</p>
             </div>
-            <div class="p-5">
-                @if($statsByRoom->isEmpty())
-                    <p class="text-sm text-[#475569] text-center py-4">No hay sectores definidos</p>
-                @else
-                    <div class="space-y-3 max-h-40 overflow-y-auto">
-                        @foreach($statsByRoom as $roomStat)
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-2 flex-1 min-w-0">
-                                    <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                        <i class="fas fa-door-open text-indigo-600 text-sm"></i>
+            @if($activeRoomFilter)
+                <x-ui.button variant="secondary" size="sm" href="{{ route('admin.beds.index', request()->except(['room', 'page'])) }}">
+                    <i class="fas fa-filter-circle-xmark"></i>
+                    Limpiar sector
+                </x-ui.button>
+            @endif
+        </div>
+        <div class="p-5">
+            @if($sectorSummary->isEmpty())
+                <p class="text-sm text-slate-500 text-center py-6">No hay sectores disponibles para resumir.</p>
+            @else
+                <div class="overflow-x-auto pb-2">
+                    <div class="flex gap-3 min-w-max">
+                        @foreach($sectorSummary as $sector)
+                            @php
+                                $isActiveSector = $activeRoomFilter === $sector['name'];
+                                $sectorFilterUrl = route('admin.beds.index', array_merge(request()->except(['room', 'page']), ['room' => $sector['name']]));
+                            @endphp
+                            <a
+                                href="{{ $sectorFilterUrl }}"
+                                class="w-[260px] rounded-xl border p-4 bg-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md {{ $isActiveSector ? 'border-blue-400 ring-2 ring-blue-100' : 'border-slate-200' }}"
+                            >
+                                <div class="flex items-start justify-between gap-3 mb-3">
+                                    <div class="min-w-0">
+                                        <p class="text-xs uppercase tracking-wide font-semibold text-slate-500">Sector</p>
+                                        <h4 class="text-sm font-bold text-slate-900 truncate">{{ $sector['name'] }}</h4>
                                     </div>
-                                    <span class="text-sm font-medium text-[#1e293b] truncate">{{ $roomStat['room'] }}</span>
+                                    <x-ui.badge variant="default" size="sm">
+                                        {{ $sector['total'] }} camas
+                                    </x-ui.badge>
                                 </div>
-                                <div class="flex items-center gap-3 flex-shrink-0">
-                                    <span class="text-xs text-[#475569]">
-                                        <span class="font-semibold text-amber-600">{{ $roomStat['occupied'] }}</span> / 
-                                        <span class="font-semibold text-emerald-600">{{ $roomStat['available'] }}</span>
-                                    </span>
-                                    <span class="text-lg font-bold text-[#1e293b]">{{ $roomStat['total'] }}</span>
+
+                                <div class="grid grid-cols-3 gap-2 text-[11px] mb-3">
+                                    <div class="rounded-lg bg-red-50 px-2 py-1.5">
+                                        <p class="text-red-600 font-semibold">Ocup.</p>
+                                        <p class="text-red-700 font-bold">{{ $sector['occupied'] }}</p>
+                                    </div>
+                                    <div class="rounded-lg bg-emerald-50 px-2 py-1.5">
+                                        <p class="text-emerald-600 font-semibold">Disp.</p>
+                                        <p class="text-emerald-700 font-bold">{{ $sector['available'] }}</p>
+                                    </div>
+                                    <div class="rounded-lg bg-amber-50 px-2 py-1.5">
+                                        <p class="text-amber-600 font-semibold">Mant.</p>
+                                        <p class="text-amber-700 font-bold">{{ $sector['maintenance'] }}</p>
+                                    </div>
                                 </div>
-                            </div>
+
+                                {{-- Barra segmentada operacional (sin inline styles) --}}
+                                @php
+                                    $totalForBar = max(1, $sector['total']);
+                                    $occupiedUnits = (int) round(($sector['occupied'] / $totalForBar) * 12);
+                                    $availableUnits = (int) round(($sector['available'] / $totalForBar) * 12);
+                                    $maintenanceUnits = (int) round(($sector['maintenance'] / $totalForBar) * 12);
+
+                                    $occupiedUnits = max(0, min(12, $occupiedUnits));
+                                    $availableUnits = max(0, min(12 - $occupiedUnits, $availableUnits));
+                                    $maintenanceUnits = max(0, min(12 - $occupiedUnits - $availableUnits, $maintenanceUnits));
+                                    $disabledUnits = max(0, 12 - $occupiedUnits - $availableUnits - $maintenanceUnits);
+
+                                    $colSpanMap = [
+                                        0 => 'col-span-0',
+                                        1 => 'col-span-1',
+                                        2 => 'col-span-2',
+                                        3 => 'col-span-3',
+                                        4 => 'col-span-4',
+                                        5 => 'col-span-5',
+                                        6 => 'col-span-6',
+                                        7 => 'col-span-7',
+                                        8 => 'col-span-8',
+                                        9 => 'col-span-9',
+                                        10 => 'col-span-10',
+                                        11 => 'col-span-11',
+                                        12 => 'col-span-12',
+                                    ];
+                                @endphp
+                                <div class="h-2 w-full rounded-full overflow-hidden bg-slate-100 grid grid-cols-12 gap-0.5">
+                                    @if($occupiedUnits > 0)
+                                        <div class="{{ $colSpanMap[$occupiedUnits] }} bg-red-400"></div>
+                                    @endif
+                                    @if($availableUnits > 0)
+                                        <div class="{{ $colSpanMap[$availableUnits] }} bg-emerald-400"></div>
+                                    @endif
+                                    @if($maintenanceUnits > 0)
+                                        <div class="{{ $colSpanMap[$maintenanceUnits] }} bg-amber-400"></div>
+                                    @endif
+                                    @if($disabledUnits > 0)
+                                        <div class="{{ $colSpanMap[$disabledUnits] }} bg-slate-300"></div>
+                                    @endif
+                                </div>
+
+                                <div class="mt-3 flex items-center justify-between">
+                                    <p class="text-xs text-slate-500">
+                                        Ocupación
+                                    </p>
+                                    <p class="text-sm font-bold {{ $sector['occupiedPct'] >= 80 ? 'text-red-700' : ($sector['occupiedPct'] >= 60 ? 'text-amber-700' : 'text-emerald-700') }}">
+                                        {{ $sector['occupiedPct'] }}%
+                                    </p>
+                                </div>
+                            </a>
                         @endforeach
                     </div>
-                @endif
-            </div>
-        </x-ui.card>
-    </div>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-3">Click en un sector para filtrar el grid de camas.</p>
+            @endif
+        </div>
+    </x-ui.card>
 
     {{-- Búsqueda y Filtros --}}
     <x-ui.card class="mb-6">
