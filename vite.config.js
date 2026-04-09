@@ -9,6 +9,7 @@ export default defineConfig({
             input: [
                 'resources/css/app.css',
                 'resources/css/tenant-auth.css',
+                'resources/css/central-auth.css',
                 'resources/js/app.js',
                 'resources/js/guardia-live/app.js',
             ],

@@ -1,0 +1,260 @@
+/**
+ * Panel Central SaaS — pantallas de autenticación aisladas del layout /admin
+ * No usar clases del panel; anchos y layout definidos aquí (no dependen solo de Tailwind).
+ */
+.central-auth-page {
+    min-height: 100vh;
+    margin: 0;
+    font-family:
+        'Inter',
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        'Segoe UI',
+        sans-serif;
+    color: #e2e8f0;
+    background:
+        radial-gradient(circle at 12% 15%, rgba(245, 158, 11, 0.22), transparent 45%),
+        radial-gradient(circle at 88% 80%, rgba(251, 191, 36, 0.12), transparent 48%),
+        linear-gradient(160deg, #020617 0%, #0f172a 42%, #1e293b 100%);
+}
+
+.central-auth-shell {
+    min-height: 100vh;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+}
+
+.central-auth-wrap {
+    width: 100%;
+    max-width: 28rem;
+    box-sizing: border-box;
+}
+
+.central-auth-brand {
+    text-align: center;
+    margin-bottom: 1.75rem;
+}
+
+.central-auth-brand-mark {
+    width: 4rem;
+    height: 4rem;
+    margin: 0 auto 1rem;
+    border-radius: 1rem;
+    background: linear-gradient(145deg, #f59e0b 0%, #d97706 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 18px 40px -20px rgba(245, 158, 11, 0.65);
+}
+
+.central-auth-brand-mark svg {
+    width: 2rem;
+    height: 2rem;
+    color: #ffffff;
+}
+
+.central-auth-title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #f8fafc;
+    letter-spacing: -0.02em;
+}
+
+.central-auth-subtitle {
+    margin: 0.4rem 0 0;
+    font-size: 0.9rem;
+    color: #94a3b8;
+}
+
+.central-auth-badge {
+    display: inline-block;
+    margin-top: 0.75rem;
+    padding: 0.2rem 0.55rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #fcd34d;
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    border-radius: 0.375rem;
+}
+
+.central-auth-card {
+    width: 100%;
+    background-color: #ffffff;
+    color: #0f172a;
+    border-radius: 1rem;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    box-shadow: 0 28px 55px -28px rgba(2, 6, 23, 0.85);
+    box-sizing: border-box;
+}
+
+.central-auth-body {
+    padding: 1.75rem;
+    box-sizing: border-box;
+}
+
+.central-auth-form {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.central-auth-field {
+    margin-bottom: 1.1rem;
+}
+
+.central-auth-label {
+    display: block;
+    margin-bottom: 0.45rem;
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #475569;
+}
+
+.central-auth-input-wrap {
+    position: relative;
+}
+
+.central-auth-icon {
+    position: absolute;
+    left: 0.95rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    pointer-events: none;
+    font-size: 0.95rem;
+}
+
+.central-auth-input {
+    width: 100%;
+    min-height: 2.95rem;
+    box-sizing: border-box;
+    border-radius: 0.8rem;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #0f172a;
+    padding: 0.65rem 0.9rem 0.65rem 2.65rem;
+    font-size: 0.92rem;
+    line-height: 1.25rem;
+    transition:
+        border-color 0.16s ease,
+        box-shadow 0.16s ease;
+}
+
+.central-auth-input::placeholder {
+    color: #94a3b8;
+}
+
+.central-auth-input:hover {
+    border-color: #94a3b8;
+}
+
+.central-auth-input:focus {
+    outline: none;
+    border-color: #d97706;
+    box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.15);
+}
+
+.central-auth-input-error {
+    border-color: #ef4444;
+    background: #fff1f2;
+}
+
+.central-auth-error {
+    margin-top: 0.35rem;
+    font-size: 0.77rem;
+    font-weight: 500;
+    color: #dc2626;
+}
+
+.central-auth-remember {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+    user-select: none;
+}
+
+.central-auth-remember input[type='checkbox'] {
+    width: 1.05rem;
+    height: 1.05rem;
+    border-radius: 0.25rem;
+    border: 1px solid #cbd5e1;
+    accent-color: #d97706;
+    cursor: pointer;
+}
+
+.central-auth-remember label {
+    font-size: 0.875rem;
+    color: #475569;
+    cursor: pointer;
+}
+
+.central-auth-submit {
+    width: 100%;
+    border: 0;
+    border-radius: 0.8rem;
+    background: linear-gradient(180deg, #0f172a 0%, #020617 100%);
+    color: #ffffff;
+    min-height: 2.95rem;
+    font-size: 0.92rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition:
+        transform 0.14s ease,
+        box-shadow 0.14s ease,
+        filter 0.14s ease;
+    box-shadow: 0 14px 28px -18px rgba(15, 23, 42, 0.9);
+}
+
+.central-auth-submit:hover {
+    filter: brightness(1.08);
+}
+
+.central-auth-submit:active {
+    transform: translateY(1px);
+}
+
+.central-auth-footer {
+    padding: 0.95rem 1.75rem;
+    border-top: 1px solid #e2e8f0;
+    text-align: center;
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 0.74rem;
+}
+
+@media (max-width: 640px) {
+    .central-auth-shell {
+        padding: 1rem;
+    }
+
+    .central-auth-wrap {
+        max-width: 100%;
+    }
+
+    .central-auth-body {
+        padding: 1.35rem;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .central-auth-page .central-auth-card {
+        border-color: rgba(148, 163, 184, 0.2);
+    }
+}

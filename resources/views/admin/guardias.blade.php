@@ -5,7 +5,7 @@
         @if(in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania']))
             <form action="{{ route('admin.guardias.store') }}" method="POST" class="flex gap-2 w-full md:w-auto">
                 @csrf
-                <input type="text" name="name" placeholder="Nombre nueva guardia..." required
+                <input type="text" name="name" required
                     class="form-input w-full md:w-64 uppercase"
                     oninput="this.value = this.value.toUpperCase();"
                     @if(isset($limitData) && !$limitData['can_create']) disabled @endif>
