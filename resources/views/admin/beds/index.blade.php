@@ -1,5 +1,11 @@
 @extends('layouts.modern')
 
+@push('styles')
+<style>
+    [x-cloak] { display: none !important; }
+</style>
+@endpush
+
 @section('content')
 <div class="w-full">
     <x-ui.page-header title="Camas" subtitle="Gestión de camas y espacios de descanso" icon="fas fa-bed" iconVariant="primary">
@@ -257,6 +263,42 @@
             $bedsByRoom = $beds->groupBy('room');
         @endphp
 
+        <div
+            x-data="{
+                density: localStorage.getItem('bedsDensity') || 'standard',
+                setDensity(d) {
+                    this.density = d;
+                    localStorage.setItem('bedsDensity', d);
+                }
+            }"
+            class="space-y-6"
+        >
+            {{-- Densidad de vista: operación normal vs control room --}}
+            <div class="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+                <div class="min-w-0">
+                    <p class="text-sm font-semibold text-slate-800">Vista del tablero</p>
+                    <p class="text-xs text-slate-500">Normal: más detalle por cama. Control room: más camas visibles y acciones en menú.</p>
+                </div>
+                <div class="inline-flex shrink-0 rounded-xl border border-slate-200 bg-slate-50 p-1">
+                    <button
+                        type="button"
+                        class="rounded-lg px-3 py-1.5 text-xs font-semibold transition"
+                        :class="density === 'standard' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
+                        @click="setDensity('standard')"
+                    >
+                        Normal
+                    </button>
+                    <button
+                        type="button"
+                        class="rounded-lg px-3 py-1.5 text-xs font-semibold transition"
+                        :class="density === 'compact' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
+                        @click="setDensity('compact')"
+                    >
+                        Control room
+                    </button>
+                </div>
+            </div>
+
         @foreach($bedsByRoom as $room => $roomBeds)
             {{-- Header de Sector Profesional --}}
             <div class="mb-6">
@@ -284,168 +326,278 @@
                     </div>
                 </x-ui.card>
 
-                {{-- Grid Uniforme de Camas --}}
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {{-- Grid de camas: columnas según densidad (Normal vs Control room) --}}
+                <div
+                    class="grid gap-4"
+                    :class="density === 'compact'
+                        ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-2'
+                        : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'"
+                >
                     @foreach($roomBeds as $bed)
                         @php
-                            // Clases de borde según estado
-                            $borderClass = match($bed->status) {
-                                'available' => 'border-l-4 border-emerald-500',
-                                'occupied' => 'border-l-4 border-red-500',
-                                'maintenance' => 'border-l-4 border-amber-500',
-                                'disabled' => 'border-l-4 border-gray-400',
-                                default => 'border-l-4 border-gray-300',
-                            };
-                            
-                            // Animación pulse solo para ocupadas
-                            $pulseClass = $bed->status === 'occupied' ? 'animate-pulse-slow' : '';
-                            
-                            // Fondo leve para ocupadas
-                            $bgClass = $bed->status === 'occupied' ? 'bg-red-50/40' : '';
+                            $isOccupied = $bed->is_occupied || $bed->status === 'occupied';
+                            $isAvailable = $bed->status === 'available' && !$isOccupied;
+                            $isMaintenance = $bed->status === 'maintenance';
+                            $isDisabled = $bed->status === 'disabled';
+
+                            $statusVariant = $isAvailable ? 'success' : ($isOccupied ? 'danger' : ($isMaintenance ? 'warning' : 'default'));
+                            $statusIcon = $isAvailable ? 'fas fa-circle-check' : ($isOccupied ? 'fas fa-user-clock' : ($isMaintenance ? 'fas fa-screwdriver-wrench' : 'fas fa-ban'));
+                            $statusText = $isAvailable ? 'Disponible' : ($isOccupied ? 'Ocupada' : ($isMaintenance ? 'Mantención' : 'Deshabilitada'));
+
+                            $accentClass = $isAvailable
+                                ? 'border-emerald-200'
+                                : ($isOccupied ? 'border-red-200' : ($isMaintenance ? 'border-amber-200' : 'border-slate-200'));
+                            $indicatorClass = $isAvailable
+                                ? 'bg-emerald-50 text-emerald-700 ring-emerald-100'
+                                : ($isOccupied
+                                    ? 'bg-red-50 text-red-700 ring-red-100'
+                                    : ($isMaintenance
+                                        ? 'bg-amber-50 text-amber-700 ring-amber-100'
+                                        : 'bg-slate-50 text-slate-700 ring-slate-100'));
+                            $metaTextClass = $isAvailable
+                                ? 'text-emerald-700'
+                                : ($isOccupied ? 'text-red-700' : ($isMaintenance ? 'text-amber-700' : 'text-slate-700'));
                         @endphp
-                        
-                        <x-ui.card class="hover:shadow-lg transition-all duration-200 {{ $borderClass }} {{ $bgClass }}">
-                            <div class="p-4 flex flex-col h-full">
-                                {{-- Header Compacto --}}
-                                <div class="flex items-center justify-between mb-3 flex-shrink-0">
-                                    <div class="flex items-center gap-2.5">
-                                        <div class="w-11 h-11 rounded-xl {{ $bed->status === 'occupied' ? 'bg-red-100' : ($bed->status === 'available' ? 'bg-emerald-100' : 'bg-slate-100') }} flex items-center justify-center">
-                                            <span class="text-lg font-bold {{ $bed->status === 'occupied' ? 'text-red-700' : ($bed->status === 'available' ? 'text-emerald-700' : 'text-slate-600') }}">{{ $bed->name }}</span>
+
+                        <x-ui.card padding="none" class="h-full overflow-visible border {{ $accentClass }} transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+                            <div
+                                class="relative flex h-full flex-col"
+                                x-bind:class="density === 'compact' ? 'gap-2 p-3' : 'gap-4 p-4'"
+                            >
+                                {{-- HEADER: nombre + estado + menú secundario --}}
+                                <div class="flex items-start gap-2">
+                                    <div class="min-w-0 flex-1">
+                                        <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                                            <span
+                                                class="inline-flex items-center rounded-md bg-slate-100 px-1.5 py-0.5 font-bold text-slate-700"
+                                                x-bind:class="density === 'compact' ? 'text-[10px]' : 'text-xs'"
+                                            >
+                                                #{{ $bed->number ?? $bed->id }}
+                                            </span>
+                                            <h4
+                                                class="min-w-0 flex-1 truncate font-bold text-slate-900"
+                                                x-bind:class="density === 'compact' ? 'text-sm' : 'text-base'"
+                                            >
+                                                {{ $bed->name }}
+                                            </h4>
                                         </div>
-                                        <div class="min-w-0">
-                                            <p class="text-sm font-bold text-[#1e293b] truncate">{{ $bed->name }}</p>
-                                            @if($bed->location)
-                                                <p class="text-xs text-[#64748b] truncate"><i class="fas fa-map-marker-alt text-[9px] mr-1"></i>{{ $bed->location }}</p>
-                                            @endif
-                                        </div>
+                                        @if($bed->location)
+                                            <p
+                                                class="mt-0.5 truncate text-slate-500"
+                                                x-bind:class="density === 'compact' ? 'text-[10px]' : 'text-xs'"
+                                            >
+                                                <i class="fas fa-location-dot mr-1 opacity-70"></i>{{ $bed->location }}
+                                            </p>
+                                        @endif
                                     </div>
-                                    <div class="px-2 py-1 rounded-lg text-xs font-bold flex-shrink-0
-                                        {{ $bed->status === 'available' ? 'bg-emerald-100 text-emerald-700' : '' }}
-                                        {{ $bed->status === 'occupied' ? 'bg-red-100 text-red-700' : '' }}
-                                        {{ $bed->status === 'maintenance' ? 'bg-amber-100 text-amber-700' : '' }}
-                                        {{ $bed->status === 'disabled' ? 'bg-white text-gray-600' : '' }}">
-                                        {{ $bed->status_label }}
+
+                                    <div class="flex shrink-0 items-start gap-1.5">
+                                        <x-ui.badge variant="{{ $statusVariant }}" size="sm" dot icon="{{ $statusIcon }}">
+                                            {{ $statusText }}
+                                        </x-ui.badge>
+
+                                        <div class="relative" x-data="{ menuOpen: false }">
+                                            <button
+                                                type="button"
+                                                class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-800"
+                                                @click="menuOpen = !menuOpen"
+                                                :aria-expanded="menuOpen"
+                                                title="Más acciones"
+                                            >
+                                                <i class="fas fa-ellipsis-vertical text-sm"></i>
+                                            </button>
+
+                                            <div
+                                                x-show="menuOpen"
+                                                x-transition
+                                                @click.outside="menuOpen = false"
+                                                class="absolute right-0 z-40 mt-1 w-52 origin-top-right rounded-xl border border-slate-200 bg-white py-1 shadow-lg ring-1 ring-black/5"
+                                                x-cloak
+                                            >
+                                                <a href="{{ route('admin.beds.qr', $bed) }}" class="flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">
+                                                    <i class="fas fa-qrcode w-4 text-center text-slate-500"></i> Ver QR
+                                                </a>
+                                                <a href="{{ route('admin.beds.qr.print', $bed) }}" target="_blank" class="flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">
+                                                    <i class="fas fa-print w-4 text-center text-slate-500"></i> Imprimir QR
+                                                </a>
+                                                <a href="{{ route('admin.beds.edit', $bed) }}" class="flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">
+                                                    <i class="fas fa-pen w-4 text-center text-slate-500"></i> Editar
+                                                </a>
+                                                <a href="{{ route('admin.beds.history', $bed) }}" class="flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">
+                                                    <i class="fas fa-history w-4 text-center text-slate-500"></i> Historial
+                                                </a>
+
+                                                <div class="my-1 border-t border-slate-100"></div>
+
+                                                @if($bed->status === 'maintenance')
+                                                    <form action="{{ route('admin.beds.status', $bed) }}" method="POST">
+                                                        @csrf
+                                                        <input type="hidden" name="status" value="available">
+                                                        <button type="submit" class="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-semibold text-emerald-700 hover:bg-emerald-50">
+                                                            <i class="fas fa-check w-4 text-center"></i> Habilitar cama
+                                                        </button>
+                                                    </form>
+                                                @elseif($bed->status === 'available')
+                                                    <form action="{{ route('admin.beds.status', $bed) }}" method="POST">
+                                                        @csrf
+                                                        <input type="hidden" name="status" value="maintenance">
+                                                        <button type="submit" class="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-semibold text-amber-700 hover:bg-amber-50">
+                                                            <i class="fas fa-screwdriver-wrench w-4 text-center"></i> Pasar a mantención
+                                                        </button>
+                                                    </form>
+                                                    <form action="{{ route('admin.beds.status', $bed) }}" method="POST">
+                                                        @csrf
+                                                        <input type="hidden" name="status" value="disabled">
+                                                        <button type="submit" class="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-semibold text-red-700 hover:bg-red-50">
+                                                            <i class="fas fa-ban w-4 text-center"></i> Deshabilitar cama
+                                                        </button>
+                                                    </form>
+                                                @elseif($bed->status === 'disabled')
+                                                    <form action="{{ route('admin.beds.status', $bed) }}" method="POST">
+                                                        @csrf
+                                                        <input type="hidden" name="status" value="available">
+                                                        <button type="submit" class="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-semibold text-emerald-700 hover:bg-emerald-50">
+                                                            <i class="fas fa-rotate-left w-4 text-center"></i> Reactivar cama
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
-                                {{-- Género Badge --}}
-                                <div class="mb-3 flex-shrink-0">
+                                {{-- BODY: detalle (Normal) vs una línea (Control room) --}}
+                                <div
+                                    class="rounded-xl border border-slate-100 bg-slate-50/60"
+                                    x-bind:class="density === 'compact' ? 'px-2 py-2' : 'px-3 py-4'"
+                                >
+                                    <div x-show="density !== 'compact'" class="flex items-center gap-3" x-cloak>
+                                        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ring-4 {{ $indicatorClass }}">
+                                            <i class="fas fa-bed text-lg"></i>
+                                        </div>
+                                        <div class="min-w-0">
+                                            @if($isOccupied && $bed->current_occupant_name)
+                                                <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Asignada a</p>
+                                                <p class="text-sm font-bold {{ $metaTextClass }} truncate">{{ $bed->current_occupant_name }}</p>
+                                                @if($bed->currentAssignment && $bed->currentAssignment->started_at)
+                                                    <p class="mt-0.5 text-xs text-slate-500">
+                                                        <i class="fas fa-clock mr-1"></i>{{ $bed->currentAssignment->started_at->diffForHumans() }}
+                                                    </p>
+                                                @endif
+                                            @elseif($isMaintenance)
+                                                <p class="text-sm font-bold {{ $metaTextClass }}">En mantención</p>
+                                                <p class="text-xs text-slate-500">No disponible para asignación</p>
+                                            @elseif($isDisabled)
+                                                <p class="text-sm font-bold {{ $metaTextClass }}">Deshabilitada</p>
+                                                <p class="text-xs text-slate-500">Reactivar desde el menú</p>
+                                            @else
+                                                <p class="text-sm font-bold {{ $metaTextClass }}">Lista para asignar</p>
+                                                <p class="text-xs text-slate-500">Sin ocupante actual</p>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    <div x-show="density === 'compact'" class="flex items-center gap-2" x-cloak>
+                                        <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ring-2 {{ $indicatorClass }}">
+                                            <i class="fas fa-bed text-sm"></i>
+                                        </div>
+                                        <div class="min-w-0 flex-1">
+                                            @if($isOccupied && $bed->current_occupant_name)
+                                                <p class="truncate text-xs font-bold {{ $metaTextClass }}">{{ $bed->current_occupant_name }}</p>
+                                                @if($bed->currentAssignment && $bed->currentAssignment->started_at)
+                                                    <p class="truncate text-[10px] text-slate-500">{{ $bed->currentAssignment->started_at->diffForHumans() }}</p>
+                                                @endif
+                                            @elseif($isMaintenance)
+                                                <p class="truncate text-xs font-bold {{ $metaTextClass }}">Mantención</p>
+                                            @elseif($isDisabled)
+                                                <p class="truncate text-xs font-bold {{ $metaTextClass }}">Fuera de servicio</p>
+                                            @else
+                                                <p class="truncate text-xs font-bold {{ $metaTextClass }}">Disponible</p>
+                                            @endif
+                                        </div>
+                                        <x-ui.badge variant="{{ $bed->gender_color }}" size="xs" class="shrink-0">
+                                            <i class="fas {{ $bed->gender === 'male' ? 'fa-mars' : ($bed->gender === 'female' ? 'fa-venus' : 'fa-venus-mars') }}"></i>
+                                        </x-ui.badge>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between gap-2" x-show="density !== 'compact'">
                                     <x-ui.badge variant="{{ $bed->gender_color }}" size="sm">
                                         <i class="fas {{ $bed->gender === 'male' ? 'fa-mars' : ($bed->gender === 'female' ? 'fa-venus' : 'fa-venus-mars') }} mr-1"></i>
                                         {{ $bed->gender_label }}
                                     </x-ui.badge>
-                                </div>
-
-                                {{-- Contenido Flexible --}}
-                                <div class="flex-grow flex flex-col">
-                                    {{-- Ocupante Limpio --}}
-                                    @if($bed->is_occupied && $bed->current_occupant_name)
-                                        <div class="p-3 bg-red-50 rounded-xl border border-red-200">
-                                            <div class="flex items-center gap-2 mb-1.5">
-                                                <div class="w-8 h-8 bg-red-200 rounded-lg flex items-center justify-center flex-shrink-0">
-                                                    <i class="fas fa-user text-red-700 text-sm"></i>
-                                                </div>
-                                                <div class="flex-1 min-w-0">
-                                                    <p class="text-xs font-semibold text-red-600 uppercase tracking-wide">Ocupante</p>
-                                                    <p class="text-sm font-bold text-red-900 truncate">{{ $bed->current_occupant_name }}</p>
-                                                </div>
-                                            </div>
-                                            @if($bed->currentAssignment && $bed->currentAssignment->started_at)
-                                                <div class="text-xs text-red-700 bg-white rounded-lg px-2 py-1">
-                                                    <i class="fas fa-clock mr-1"></i>
-                                                    <span class="font-semibold">{{ $bed->currentAssignment->started_at->diffForHumans() }}</span>
-                                                </div>
-                                            @endif
-                                        </div>
-                                    @elseif($bed->notes)
-                                        <div class="p-2.5 bg-blue-50 rounded-lg border border-blue-200">
-                                            <p class="text-xs text-blue-800 line-clamp-2">
-                                                <i class="fas fa-info-circle mr-1"></i>{{ $bed->notes }}
-                                            </p>
-                                        </div>
+                                    @if($bed->notes)
+                                        <span class="max-w-[55%] truncate text-right text-xs text-slate-500" title="{{ $bed->notes }}">
+                                            <i class="fas fa-note-sticky mr-1"></i>{{ $bed->notes }}
+                                        </span>
                                     @endif
                                 </div>
 
-                                {{-- Acciones Principales --}}
-                                <div class="mt-auto pt-3 space-y-2 flex-shrink-0">
-                                    @if($bed->is_occupied)
-                                        <button type="button" onclick="openReleaseModal({{ $bed->id }}, '{{ $bed->name }}')"
-                                            class="w-full px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-sm transition-all flex items-center justify-center gap-2">
-                                            <i class="fas fa-check-circle"></i>
-                                            <span>Liberar</span>
-                                        </button>
+                                @if($bed->notes)
+                                    <div x-show="density === 'compact'" class="flex justify-end" x-cloak>
+                                        <span class="text-[10px] text-slate-400" title="{{ $bed->notes }}">
+                                            <i class="fas fa-note-sticky"></i>
+                                        </span>
+                                    </div>
+                                @endif
+
+                                {{-- FOOTER: solo CTA principal --}}
+                                <div class="mt-auto pt-1">
+                                    @if($isOccupied)
+                                        <div x-show="density !== 'compact'" x-cloak>
+                                            <x-ui.button
+                                                type="button"
+                                                variant="success"
+                                                size="md"
+                                                icon="fas fa-bed-pulse"
+                                                onclick="openReleaseModal({{ $bed->id }}, @json($bed->name))"
+                                                class="w-full justify-center"
+                                            >
+                                                Liberar
+                                            </x-ui.button>
+                                        </div>
+                                        <div x-show="density === 'compact'" x-cloak>
+                                            <x-ui.button
+                                                type="button"
+                                                variant="success"
+                                                size="sm"
+                                                icon="fas fa-bed-pulse"
+                                                onclick="openReleaseModal({{ $bed->id }}, @json($bed->name))"
+                                                class="w-full justify-center"
+                                            >
+                                                Liberar
+                                            </x-ui.button>
+                                        </div>
                                     @elseif($bed->canBeAssigned())
-                                        <button type="button" onclick="openAssignModal({{ $bed->id }}, '{{ $bed->name }}', '{{ $bed->gender }}')"
-                                            class="w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-sm transition-all flex items-center justify-center gap-2">
-                                            <i class="fas fa-user-plus"></i>
-                                            <span>Asignar</span>
-                                        </button>
+                                        <div x-show="density !== 'compact'" x-cloak>
+                                            <x-ui.button
+                                                type="button"
+                                                variant="primary"
+                                                size="md"
+                                                icon="fas fa-user-plus"
+                                                onclick="openAssignModal({{ $bed->id }}, @json($bed->name), @json($bed->gender))"
+                                                class="w-full justify-center shadow-sm hover:shadow-md"
+                                            >
+                                                Asignar
+                                            </x-ui.button>
+                                        </div>
+                                        <div x-show="density === 'compact'" x-cloak>
+                                            <x-ui.button
+                                                type="button"
+                                                variant="primary"
+                                                size="sm"
+                                                icon="fas fa-user-plus"
+                                                onclick="openAssignModal({{ $bed->id }}, @json($bed->name), @json($bed->gender))"
+                                                class="w-full justify-center shadow-sm hover:shadow-md"
+                                            >
+                                                Asignar
+                                            </x-ui.button>
+                                        </div>
                                     @else
-                                        <div class="w-full px-3 py-2 bg-white text-gray-500 font-semibold rounded-lg text-sm text-center">
+                                        <div class="w-full rounded-xl bg-slate-100 px-3 py-2 text-center text-xs font-semibold text-slate-500">
                                             <i class="fas fa-ban mr-1"></i>No asignable
                                         </div>
                                     @endif
-
-                                    {{-- Control de Estado --}}
-                                    @if($bed->status !== 'occupied')
-                                    <div class="flex flex-wrap gap-1.5">
-                                        @if($bed->status === 'disabled')
-                                            <form action="{{ route('admin.beds.status', $bed) }}" method="POST" class="flex-1">
-                                                @csrf
-                                                <input type="hidden" name="status" value="available">
-                                                <button type="submit" class="w-full px-2 py-1.5 text-xs font-bold rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-700 transition-all">
-                                                    <i class="fas fa-check"></i> Reactivar
-                                                </button>
-                                            </form>
-                                        @else
-                                            @if($bed->status !== 'available')
-                                            <form action="{{ route('admin.beds.status', $bed) }}" method="POST" class="flex-1">
-                                                @csrf
-                                                <input type="hidden" name="status" value="available">
-                                                <button type="submit" class="w-full px-2 py-1.5 text-xs font-bold rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-700 transition-all">
-                                                    <i class="fas fa-check"></i> Disponible
-                                                </button>
-                                            </form>
-                                            @endif
-                                            @if($bed->status !== 'maintenance')
-                                            <form action="{{ route('admin.beds.status', $bed) }}" method="POST" class="flex-1">
-                                                @csrf
-                                                <input type="hidden" name="status" value="maintenance">
-                                                <button type="submit" class="w-full px-2 py-1.5 text-xs font-bold rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-700 transition-all">
-                                                    <i class="fas fa-tools"></i> Mantención
-                                                </button>
-                                            </form>
-                                            @endif
-                                            <form action="{{ route('admin.beds.status', $bed) }}" method="POST" class="flex-1">
-                                                @csrf
-                                                <input type="hidden" name="status" value="disabled">
-                                                <button type="submit" class="w-full px-2 py-1.5 text-xs font-bold rounded-lg bg-red-100 hover:bg-red-200 text-red-700 transition-all">
-                                                    <i class="fas fa-ban"></i> Deshabilitar
-                                                </button>
-                                            </form>
-                                        @endif
-                                    </div>
-                                    @endif
-                                </div>
-
-                                {{-- Acciones Secundarias --}}
-                                <div class="grid grid-cols-4 gap-1.5 pt-3 border-t border-[#cbd5e1] flex-shrink-0">
-                                    <a href="{{ route('admin.beds.edit', $bed) }}" class="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-white transition-all" title="Editar">
-                                        <i class="fas fa-pen text-slate-600 text-sm mb-1"></i>
-                                        <span class="text-[10px] font-semibold text-slate-600">Editar</span>
-                                    </a>
-                                    <a href="{{ route('admin.beds.history', $bed) }}" class="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-white transition-all" title="Historial">
-                                        <i class="fas fa-history text-slate-600 text-sm mb-1"></i>
-                                        <span class="text-[10px] font-semibold text-slate-600">Historial</span>
-                                    </a>
-                                    <a href="{{ route('admin.beds.qr', $bed) }}" class="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-white transition-all" title="Ver QR">
-                                        <i class="fas fa-qrcode text-slate-600 text-sm mb-1"></i>
-                                        <span class="text-[10px] font-semibold text-slate-600">QR</span>
-                                    </a>
-                                    <a href="{{ route('admin.beds.qr.print', $bed) }}" target="_blank" class="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-white transition-all" title="Imprimir">
-                                        <i class="fas fa-print text-slate-600 text-sm mb-1"></i>
-                                        <span class="text-[10px] font-semibold text-slate-600">Imprimir</span>
-                                    </a>
                                 </div>
                             </div>
                         </x-ui.card>
@@ -453,6 +605,7 @@
                 </div>
             </div>
         @endforeach
+        </div>
     @endif
 
     {{-- Modal Asignar Cama --}}
