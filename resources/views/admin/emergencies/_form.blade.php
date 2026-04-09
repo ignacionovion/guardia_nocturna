@@ -179,10 +179,11 @@
     </div>
 </div>
 
+@push('modals')
 <!-- Modal Claves -->
-<div id="modal-keys" class="fixed inset-0 z-[60] hidden">
+<div id="modal-keys" class="fixed inset-0 z-[100] hidden">
     <div class="absolute inset-0 bg-black/40" data-close="keys"></div>
-    <div class="relative mx-auto mt-16 w-[95%] max-w-3xl bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+    <div data-modal-dialog class="relative mx-auto mt-16 w-[95%] max-w-3xl bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
         <div class="bg-slate-900 px-5 py-4 border-b-4 border-red-700 flex items-center justify-between">
             <div>
                 <div class="text-white font-bold">Seleccionar Clave</div>
@@ -222,9 +223,9 @@
 </div>
 
 <!-- Modal Unidades -->
-<div id="modal-units" class="fixed inset-0 z-[60] hidden">
+<div id="modal-units" class="fixed inset-0 z-[100] hidden">
     <div class="absolute inset-0 bg-black/40" data-close="units"></div>
-    <div class="relative mx-auto mt-16 w-[95%] max-w-3xl bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+    <div data-modal-dialog class="relative mx-auto mt-16 w-[95%] max-w-3xl bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
         <div class="bg-slate-900 px-5 py-4 border-b-4 border-red-700 flex items-center justify-between">
             <div>
                 <div class="text-white font-bold">Seleccionar Unidades</div>
@@ -266,6 +267,7 @@
         </div>
     </div>
 </div>
+@endpush
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {

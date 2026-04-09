@@ -385,9 +385,9 @@
             if (!driverModal) {
                 driverModal = document.createElement('div');
                 driverModal.id = 'driverModal';
-                driverModal.className = 'fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm';
+                driverModal.className = 'fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 backdrop-blur-sm';
                 driverModal.innerHTML = `
-                    <div class="bg-white border border-slate-200 rounded-2xl shadow-xl max-w-md w-full mx-4 transform transition-all scale-100">
+                    <div data-modal-dialog class="bg-white border border-slate-200 rounded-2xl shadow-xl max-w-md w-full mx-4 transform transition-all scale-100">
                         <div class="p-6">
                             <div class="flex items-center gap-3 mb-4">
                                 <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">

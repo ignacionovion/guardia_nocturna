@@ -15,8 +15,8 @@
     $latestDraftAt = $latestDraftAt ?? null;
     $replacementCandidates = $replacementCandidates ?? collect();
 @endphp
-    <div id="noveltyModal" class="fixed inset-0 bg-slate-900 bg-opacity-75 hidden overflow-y-auto h-full w-full z-50 flex items-center justify-center backdrop-blur-sm">
-        <div class="relative p-6 border w-full max-w-lg shadow-2xl rounded-xl {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-900 border-slate-800' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700' }}">
+    <div id="noveltyModal" class="fixed inset-0 bg-slate-900 bg-opacity-75 hidden overflow-y-auto h-full w-full z-[100] flex items-center justify-center backdrop-blur-sm">
+        <div data-modal-dialog class="relative p-6 border w-full max-w-lg shadow-2xl rounded-xl {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-900 border-slate-800' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700' }}">
             <div class="text-center mb-6">
                 <div class="mx-auto flex items-center justify-center h-14 w-14 rounded-full {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 border border-slate-800' : 'bg-blue-100' }} mb-4">
                     <i class="fas fa-pen-to-square {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-blue-300' : 'text-blue-600' }} text-2xl"></i>
@@ -73,9 +73,9 @@
         </div>
     </div>
 
-    <div id="yearCalendarModal" class="fixed inset-0 bg-slate-900/85 backdrop-blur-sm hidden overflow-y-auto h-full w-full z-50 p-3 sm:p-6">
+    <div id="yearCalendarModal" class="fixed inset-0 bg-slate-900/85 backdrop-blur-sm hidden overflow-y-auto h-full w-full z-[100] p-3 sm:p-6">
         <div class="max-w-7xl mx-auto min-h-full flex items-start justify-center">
-            <div class="w-full rounded-3xl border border-slate-800 bg-slate-900 shadow-2xl overflow-hidden my-4">
+            <div data-modal-dialog class="w-full rounded-3xl border border-slate-800 bg-slate-900 shadow-2xl overflow-hidden my-4">
                 <div class="sticky top-0 z-10 px-4 py-4 sm:px-6 bg-slate-900/95 backdrop-blur border-b border-slate-800 flex items-center justify-between gap-4">
                     <div>
                         <div class="text-xs font-bold text-emerald-300 uppercase tracking-[0.25em]">Calendario anual</div>
@@ -170,8 +170,8 @@
         </div>
     </div>
 
-    <div id="academyModal" class="fixed inset-0 bg-slate-900 bg-opacity-75 hidden overflow-y-auto h-full w-full z-50 flex items-center justify-center backdrop-blur-sm">
-        <div class="relative p-6 border w-full max-w-lg shadow-2xl rounded-xl {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-900 border-slate-800' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700' }}">
+    <div id="academyModal" class="fixed inset-0 bg-slate-900 bg-opacity-75 hidden overflow-y-auto h-full w-full z-[100] flex items-center justify-center backdrop-blur-sm">
+        <div data-modal-dialog class="relative p-6 border w-full max-w-lg shadow-2xl rounded-xl {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-900 border-slate-800' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700' }}">
             <div class="text-center mb-6">
                 <div class="mx-auto flex items-center justify-center h-14 w-14 rounded-full {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-950 border border-slate-800' : 'bg-blue-100' }} mb-4">
                     <i class="fas fa-chalkboard-user {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-blue-300' : 'text-blue-600' }} text-2xl"></i>
@@ -226,8 +226,8 @@
     </div>
 
     @if(Auth::check() && Auth::user()->role === 'guardia' && isset($myGuardia) && $myGuardia)
-        <div id="refuerzoModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-50 flex items-center justify-center opacity-0 transition-opacity duration-300">
-            <div class="bg-slate-900 text-slate-100 rounded-xl shadow-2xl w-full max-w-md mx-4 transform scale-95 transition-transform duration-300 p-6 border border-slate-800">
+        <div id="refuerzoModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-[100] flex items-center justify-center opacity-0 transition-opacity duration-300">
+            <div data-modal-dialog class="bg-slate-900 text-slate-100 rounded-xl shadow-2xl w-full max-w-md mx-4 transform scale-95 transition-transform duration-300 p-6 border border-slate-800">
                 <div class="flex justify-between items-start mb-4">
                     <div>
                         <h3 class="text-lg font-bold text-slate-100 uppercase tracking-tight">Agregar Refuerzo</h3>
@@ -308,9 +308,9 @@
 
     <div class="hidden border-2 border-rose-400 border-emerald-400 border-slate-800"></div>
 
-    <div id="confirm-error-toast" class="fixed inset-0 z-[60] hidden items-center justify-center">
+    <div id="confirm-error-toast" class="fixed inset-0 z-[100] hidden items-center justify-center">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeConfirmErrorToast()"></div>
-        <div class="relative bg-slate-900 border border-rose-500/50 rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6 text-center">
+        <div data-modal-dialog class="relative bg-slate-900 border border-rose-500/50 rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6 text-center">
             <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-rose-500/20 flex items-center justify-center">
                 <i class="fas fa-circle-xmark text-rose-500 text-2xl"></i>
             </div>
@@ -554,7 +554,7 @@
             const modal = document.getElementById('refuerzoModal');
             if (!modal) return;
             
-            const content = modal.firstElementChild;
+            const content = modal.querySelector('[data-modal-dialog]');
             modal.classList.remove('hidden');
             
             requestAnimationFrame(() => {
@@ -570,7 +570,7 @@
             const modal = document.getElementById('refuerzoModal');
             if (!modal) return;
 
-            const content = modal.firstElementChild;
+            const content = modal.querySelector('[data-modal-dialog]');
             modal.classList.add('opacity-0');
             if (content) {
                 content.classList.remove('scale-100');
@@ -654,7 +654,7 @@
             if (displayInput) displayInput.value = '';
             replacementIdInput.value = '';
 
-            const content = modal.firstElementChild;
+            const content = modal.querySelector('[data-modal-dialog]');
             modal.classList.remove('hidden');
 
             requestAnimationFrame(() => {
@@ -949,7 +949,7 @@
             const modal = document.getElementById('replacementModal');
             if (!modal) return;
 
-            const content = modal.firstElementChild;
+            const content = modal.querySelector('[data-modal-dialog]');
             modal.classList.add('opacity-0');
             if (content) {
                 content.classList.remove('scale-100');
@@ -1934,8 +1934,8 @@
         @endif
     </script>
 
-    <div id="undoReplacementModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center">
-        <div class="{{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-900 border-slate-800' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700' }} rounded-2xl shadow-2xl w-full max-w-sm mx-4 border overflow-hidden">
+    <div id="undoReplacementModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-[100] flex items-center justify-center">
+        <div data-modal-dialog class="{{ (Auth::check() && Auth::user()->role === 'guardia') ? 'bg-slate-900 border-slate-800' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700' }} rounded-2xl shadow-2xl w-full max-w-sm mx-4 border overflow-hidden">
             <div class="p-4">
                 <div class="text-sm font-bold {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-100' : 'text-slate-900' }} uppercase tracking-wider">Confirmar acción</div>
                 <div class="mt-2 text-sm {{ (Auth::check() && Auth::user()->role === 'guardia') ? 'text-slate-400' : 'text-slate-600 dark:text-slate-400' }}">¿Deshacer este reemplazo?</div>
@@ -1955,8 +1955,8 @@
     </div>
 
     @if(isset($myGuardia) && $myGuardia)
-        <div id="replacementModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-50 flex items-center justify-center opacity-0 transition-opacity duration-300">
-            <div class="bg-slate-900 text-slate-100 rounded-xl shadow-2xl w-full max-w-md mx-4 transform scale-95 transition-transform duration-300 p-6 border border-slate-800">
+        <div id="replacementModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-[100] flex items-center justify-center opacity-0 transition-opacity duration-300">
+            <div data-modal-dialog class="bg-slate-900 text-slate-100 rounded-xl shadow-2xl w-full max-w-md mx-4 transform scale-95 transition-transform duration-300 p-6 border border-slate-800">
                 <div class="flex justify-between items-start mb-4">
                     <div>
                         <h3 class="text-lg font-bold text-slate-100 uppercase tracking-tight">Asignar Reemplazo</h3>
@@ -2047,8 +2047,8 @@
     @endif
 
     {{-- Modal Aseo --}}
-    <div id="aseoModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 items-center justify-center">
-        <div class="bg-slate-900 rounded-2xl shadow-2xl w-full max-w-5xl mx-4 border border-slate-800 overflow-hidden max-h-[90vh] flex flex-col">
+    <div id="aseoModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-[100] items-center justify-center">
+        <div data-modal-dialog class="bg-slate-900 rounded-2xl shadow-2xl w-full max-w-5xl mx-4 border border-slate-800 overflow-hidden max-h-[90vh] flex flex-col">
             <div class="p-4 border-b border-slate-800 flex items-center justify-between">
                 <div>
                     <h3 class="text-lg font-bold text-white uppercase tracking-tight">Asignación de Aseo</h3>
@@ -2068,8 +2068,8 @@
 
     {{-- Modal Emergencias --}}
     @if(feature('emergencias'))
-        <div id="emergenciasModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 items-center justify-center">
-            <div class="bg-slate-900 rounded-2xl shadow-2xl w-full max-w-6xl mx-4 border border-slate-800 overflow-hidden max-h-[90vh] flex flex-col">
+        <div id="emergenciasModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-[100] items-center justify-center">
+            <div data-modal-dialog class="bg-slate-900 rounded-2xl shadow-2xl w-full max-w-6xl mx-4 border border-slate-800 overflow-hidden max-h-[90vh] flex flex-col">
                 <div class="p-4 border-b border-slate-800 flex items-center justify-between">
                     <div>
                         <h3 class="text-lg font-bold text-white uppercase tracking-tight">Emergencias</h3>

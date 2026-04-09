@@ -318,9 +318,14 @@
                 };
             });
         </script>
-    @if(auth()->check() && in_array(auth()->user()->role, ['capitan', 'super_admin']))
-        <div id="purgeModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center">
-            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 border border-slate-200 overflow-hidden">
+    @endif
+@endsection
+
+@if(auth()->check() && in_array(auth()->user()->role, ['capitan', 'super_admin']))
+@push('modals')
+    <div id="purgeModal" class="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 sm:p-6">
+        <div class="flex h-full w-full min-h-0 items-center justify-center">
+            <div data-modal-dialog class="bg-white rounded-2xl shadow-2xl w-full max-w-md border border-slate-200 overflow-hidden">
                 <div class="p-5 border-b border-slate-200 bg-white">
                     <div class="text-sm font-bold text-[#1e293b]">Eliminar todos los voluntarios</div>
                     <div class="mt-2 text-sm text-[#475569]">Esta acción es irreversible. Para confirmar escribe <span class="font-bold">ELIMINAR TODO</span>.</div>
@@ -336,22 +341,22 @@
                 </form>
             </div>
         </div>
-    @endif
-    @endif
-@endsection
+    </div>
+@endpush
 
-@if(auth()->check() && in_array(auth()->user()->role, ['capitan', 'super_admin']))
-    <script>
-        window.openPurgeModal = function () {
-            const modal = document.getElementById('purgeModal');
-            if (!modal) return;
-            modal.classList.remove('hidden');
-        }
+@push('scripts')
+<script>
+    window.openPurgeModal = function () {
+        const modal = document.getElementById('purgeModal');
+        if (!modal) return;
+        modal.classList.remove('hidden');
+    };
 
-        window.closePurgeModal = function () {
-            const modal = document.getElementById('purgeModal');
-            if (!modal) return;
-            modal.classList.add('hidden');
-        }
-    </script>
+    window.closePurgeModal = function () {
+        const modal = document.getElementById('purgeModal');
+        if (!modal) return;
+        modal.classList.add('hidden');
+    };
+</script>
+@endpush
 @endif

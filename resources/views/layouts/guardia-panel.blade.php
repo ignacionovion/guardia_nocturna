@@ -82,6 +82,8 @@
     <div class="min-h-screen">
         @yield('content')
     </div>
+
+    @stack('modals')
     
     @stack('scripts')
 </body>

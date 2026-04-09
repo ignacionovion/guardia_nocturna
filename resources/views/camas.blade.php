@@ -319,136 +319,46 @@
         @endforeach
     </div>
 
-    <!-- Modal Asignación -->
-    <div id="assignModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 transition-all duration-300 opacity-0">
-        <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="relative card w-full max-w-md mx-4 overflow-hidden transform scale-95 transition-all duration-300">
-            <!-- Modal Header -->
-            <div class="bg-slate-900 px-6 py-4 flex justify-between items-center">
-                <h3 class="text-white font-bold text-sm uppercase tracking-wide flex items-center">
-                    <i class="fas fa-bed mr-2 text-emerald-400"></i> Asignar Cama <span id="modalBedNumber" class="ml-1 text-white"></span>
-                </h3>
-                <button onclick="closeAssignModal()" class="text-slate-400 hover:text-white transition-colors">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-
-            <!-- Modal Body -->
-            <div class="card-body">
-                <form id="assignForm" method="POST" action="{{ route('beds.assign') }}">
-                    @csrf
-                    <input type="hidden" name="bed_id" id="modalBedId">
-                    
-                    <div class="mb-5">
-                        <label class="form-label">Voluntario</label>
-                        <div class="relative">
-                            <i class="fas fa-user absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                            <select name="firefighter_id" class="form-select pl-9" required>
-                                <option value="">Seleccione voluntario...</option>
-                                @foreach($users as $user)
-                                    <option value="{{ $user->id }}">{{ $user->nombres }} {{ $user->apellido_paterno }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-6">
-                        <label class="form-label">Comentario / Nota <span class="text-slate-400 font-normal normal-case">(Opcional)</span></label>
-                        <div class="relative">
-                            <i class="fas fa-comment-dots absolute left-3 top-3 text-slate-400 text-xs"></i>
-                            <textarea name="notes" class="form-input pl-9 min-h-[80px]" placeholder="Ej: Se retira a las 07:00 hrs..."></textarea>
-                        </div>
-                    </div>
-
-                    <div class="flex gap-3 pt-2">
-                        <x-ui.button type="button" variant="ghost" size="sm" class="w-1/2" onclick="closeAssignModal()">
-                            Cancelar
-                        </x-ui.button>
-                        <x-ui.button type="submit" variant="primary" size="sm" icon="fas fa-check" class="w-1/2">
-                            Confirmar
-                        </x-ui.button>
-                    </div>
-                </form>
-            </div>
-        </div>
-        </div>
-    </div>
-
-    <!-- Modal QR -->
-    <div id="qrModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 transition-all duration-300 opacity-0">
-        <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="relative card w-full max-w-md mx-4 overflow-hidden transform scale-95 transition-all duration-300">
-            <!-- Modal Header -->
-            <div class="bg-slate-900 px-6 py-4 flex justify-between items-center">
-                <h3 class="text-white font-bold text-sm uppercase tracking-wide flex items-center">
-                    <i class="fas fa-qrcode mr-2 text-cyan-400"></i> QR Cama <span id="qrBedNumber" class="ml-1 text-white"></span>
-                </h3>
-                <button onclick="closeQrModal()" class="text-slate-400 hover:text-white transition-colors">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-
-            <!-- Modal Body -->
-            <div class="card-body text-center">
-                <p class="text-body-sm mb-4">Escanea este código con tu teléfono para asignarte esta cama</p>
-                
-                <!-- QR Code Container -->
-                <div class="bg-white dark:bg-slate-800 rounded-xl p-6 mb-4 inline-block">
-                    <div id="qrCodeContainer" class="flex justify-center"></div>
-                </div>
-                
-                <!-- URL -->
-                <div class="card !bg-white dark:!bg-slate-800 mb-4">
-                    <p class="text-caption mb-1">URL</p>
-                    <a id="qrUrl" href="#" target="_blank" class="text-sm text-cyan-600 font-mono break-all hover:text-cyan-500 transition-colors"></a>
-                </div>
-
-                <x-ui.button variant="info" size="md" icon="fas fa-print" class="w-full mb-3" id="qrPrintLink" href="#" target="_blank">
-                    Imprimir
-                </x-ui.button>
-
-                <x-ui.button variant="primary" size="sm" class="w-full" onclick="closeQrModal()">
-                    Cerrar
-                </x-ui.button>
-            </div>
-        </div>
-        </div>
-    </div>
-
     <script>
+        function getModalDialog(modalEl) {
+            return modalEl ? modalEl.querySelector('[data-modal-dialog]') : null;
+        }
+
         function openAssignModal(bedId, bedNumber) {
             document.getElementById('modalBedId').value = bedId;
             document.getElementById('modalBedNumber').innerText = '#' + bedNumber;
             
             const modal = document.getElementById('assignModal');
+            const dialog = getModalDialog(modal);
             modal.classList.remove('hidden');
-            // Animation
             setTimeout(() => {
                 modal.classList.remove('opacity-0');
-                modal.querySelector('div').classList.remove('scale-95');
-                modal.querySelector('div').classList.add('scale-100');
+                if (dialog) {
+                    dialog.classList.remove('scale-95');
+                    dialog.classList.add('scale-100');
+                }
             }, 10);
         }
 
         function closeAssignModal() {
             const modal = document.getElementById('assignModal');
+            const dialog = getModalDialog(modal);
             modal.classList.add('opacity-0');
-            modal.querySelector('div').classList.remove('scale-100');
-            modal.querySelector('div').classList.add('scale-95');
-            
+            if (dialog) {
+                dialog.classList.remove('scale-100');
+                dialog.classList.add('scale-95');
+            }
             setTimeout(() => {
                 modal.classList.add('hidden');
             }, 300);
         }
 
-        // Modal QR
         function openQrModal(bedId, bedNumber) {
             const qrUrl = `{{ url('/camas/scan') }}/${bedId}`;
             const printUrl = `/camas/${bedId}/qr/imprimir`;
             document.getElementById('qrBedNumber').innerText = '#' + bedNumber;
             document.getElementById('qrCodeContainer').innerHTML = '';
             
-            // Generar QR con QRCode.js
             new QRCode(document.getElementById('qrCodeContainer'), {
                 text: qrUrl,
                 width: 200,
@@ -460,24 +370,28 @@
             
             document.getElementById('qrUrl').innerText = qrUrl;
             document.getElementById('qrUrl').href = qrUrl;
-
             document.getElementById('qrPrintLink').href = printUrl;
             
             const modal = document.getElementById('qrModal');
+            const dialog = getModalDialog(modal);
             modal.classList.remove('hidden');
             setTimeout(() => {
                 modal.classList.remove('opacity-0');
-                modal.querySelector('div').classList.remove('scale-95');
-                modal.querySelector('div').classList.add('scale-100');
+                if (dialog) {
+                    dialog.classList.remove('scale-95');
+                    dialog.classList.add('scale-100');
+                }
             }, 10);
         }
 
         function closeQrModal() {
             const modal = document.getElementById('qrModal');
+            const dialog = getModalDialog(modal);
             modal.classList.add('opacity-0');
-            modal.querySelector('div').classList.remove('scale-100');
-            modal.querySelector('div').classList.add('scale-95');
-            
+            if (dialog) {
+                dialog.classList.remove('scale-100');
+                dialog.classList.add('scale-95');
+            }
             setTimeout(() => {
                 modal.classList.add('hidden');
             }, 300);
@@ -507,3 +421,84 @@
     <!-- QR Code Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 @endsection
+
+@push('modals')
+    <div id="assignModal" class="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm hidden opacity-0 transition-all duration-300" role="dialog" aria-modal="true" aria-labelledby="assignModalHeading">
+        <div class="flex h-full w-full min-h-0 items-center justify-center p-4 sm:p-6">
+            <div data-modal-dialog class="relative card w-full max-w-md overflow-hidden transform scale-95 transition-all duration-300 shadow-2xl">
+                <div class="bg-slate-900 px-6 py-4 flex justify-between items-center">
+                    <h3 id="assignModalHeading" class="text-white font-bold text-sm uppercase tracking-wide flex items-center">
+                        <i class="fas fa-bed mr-2 text-emerald-400"></i> Asignar Cama <span id="modalBedNumber" class="ml-1 text-white"></span>
+                    </h3>
+                    <button type="button" onclick="closeAssignModal()" class="text-slate-400 hover:text-white transition-colors">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="card-body">
+                    <form id="assignForm" method="POST" action="{{ route('beds.assign') }}">
+                        @csrf
+                        <input type="hidden" name="bed_id" id="modalBedId">
+                        <div class="mb-5">
+                            <label class="form-label">Voluntario</label>
+                            <div class="relative">
+                                <i class="fas fa-user absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                <select name="firefighter_id" class="form-select pl-9" required>
+                                    <option value="">Seleccione voluntario...</option>
+                                    @foreach($users as $user)
+                                        <option value="{{ $user->id }}">{{ $user->nombres }} {{ $user->apellido_paterno }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-6">
+                            <label class="form-label">Comentario / Nota <span class="text-slate-400 font-normal normal-case">(Opcional)</span></label>
+                            <div class="relative">
+                                <i class="fas fa-comment-dots absolute left-3 top-3 text-slate-400 text-xs"></i>
+                                <textarea name="notes" class="form-input pl-9 min-h-[80px]" placeholder="Ej: Se retira a las 07:00 hrs..."></textarea>
+                            </div>
+                        </div>
+                        <div class="flex gap-3 pt-2">
+                            <x-ui.button type="button" variant="ghost" size="sm" class="w-1/2" onclick="closeAssignModal()">
+                                Cancelar
+                            </x-ui.button>
+                            <x-ui.button type="submit" variant="primary" size="sm" icon="fas fa-check" class="w-1/2">
+                                Confirmar
+                            </x-ui.button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="qrModal" class="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm hidden opacity-0 transition-all duration-300" role="dialog" aria-modal="true" aria-labelledby="qrModalHeading">
+        <div class="flex h-full w-full min-h-0 items-center justify-center p-4 sm:p-6">
+            <div data-modal-dialog class="relative card w-full max-w-md overflow-hidden transform scale-95 transition-all duration-300 shadow-2xl">
+                <div class="bg-slate-900 px-6 py-4 flex justify-between items-center">
+                    <h3 id="qrModalHeading" class="text-white font-bold text-sm uppercase tracking-wide flex items-center">
+                        <i class="fas fa-qrcode mr-2 text-cyan-400"></i> QR Cama <span id="qrBedNumber" class="ml-1 text-white"></span>
+                    </h3>
+                    <button type="button" onclick="closeQrModal()" class="text-slate-400 hover:text-white transition-colors">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="card-body text-center">
+                    <p class="text-body-sm mb-4">Escanea este código con tu teléfono para asignarte esta cama</p>
+                    <div class="bg-white dark:bg-slate-800 rounded-xl p-6 mb-4 inline-block">
+                        <div id="qrCodeContainer" class="flex justify-center"></div>
+                    </div>
+                    <div class="card !bg-white dark:!bg-slate-800 mb-4">
+                        <p class="text-caption mb-1">URL</p>
+                        <a id="qrUrl" href="#" target="_blank" class="text-sm text-cyan-600 font-mono break-all hover:text-cyan-500 transition-colors"></a>
+                    </div>
+                    <x-ui.button variant="info" size="md" icon="fas fa-print" class="w-full mb-3" id="qrPrintLink" href="#" target="_blank">
+                        Imprimir
+                    </x-ui.button>
+                    <x-ui.button variant="primary" size="sm" class="w-full" onclick="closeQrModal()">
+                        Cerrar
+                    </x-ui.button>
+                </div>
+            </div>
+        </div>
+    </div>
+@endpush

@@ -121,9 +121,12 @@
         </div>
     @endif
 
+@endsection
+
+@push('modals')
     <!-- Modal Deshabilitar Unidad -->
-    <div id="disable-unit-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
-        <div class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6">
+    <div id="disable-unit-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/40">
+        <div data-modal-dialog class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6">
             <button type="button" onclick="closeDisableModal()" class="absolute top-3 right-3 w-8 h-8 rounded-lg bg-white dark:bg-slate-800 hover:bg-white flex items-center justify-center text-slate-500 dark:text-slate-400">
                 <i class="fas fa-times text-xs"></i>
             </button>
@@ -154,8 +157,8 @@
         </div>
     </div>
 
-    <div id="create-unit-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
-        <div class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-xl mx-4 p-6">
+    <div id="create-unit-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/40">
+        <div data-modal-dialog class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-xl mx-4 p-6">
             <button type="button" onclick="closeCreateUnitModal()" class="absolute top-3 right-3 w-8 h-8 rounded-lg bg-white dark:bg-slate-800 hover:bg-white flex items-center justify-center text-slate-500 dark:text-slate-400">
                 <i class="fas fa-times text-xs"></i>
             </button>
@@ -189,7 +192,9 @@
             </form>
         </div>
     </div>
+@endpush
 
+@push('scripts')
     <script>
         function openCreateUnitModal() {
             const modal = document.getElementById('create-unit-modal');
@@ -229,4 +234,4 @@
             openCreateUnitModal();
         @endif
     </script>
-@endsection
+@endpush

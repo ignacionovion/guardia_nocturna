@@ -115,5 +115,3 @@
         </div>
     </div>
 </header>
-
-@include('dashboard.partials.guardia._stale_banner')

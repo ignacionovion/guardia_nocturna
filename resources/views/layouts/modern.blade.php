@@ -26,6 +26,7 @@
     
     {{-- Custom Styles --}}
     <style>
+        [x-cloak] { display: none !important; }
         body { font-family: 'Inter', system-ui, sans-serif; }
         
         /* Scrollbar styling */
@@ -147,7 +148,8 @@
             @endauth
             
             {{-- Page Content --}}
-            <main class="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden">
+            {{-- min-w-0: flex child puede encoger sin romper anchos; sin overflow-x-hidden aquí para no recortar position:fixed hijos (modales vía @stack('modals')). --}}
+            <main class="flex-1 min-w-0 p-4 sm:p-6 lg:p-8">
                 {{-- Breadcrumb --}}
                 @hasSection('breadcrumb')
                 <nav class="mb-6">
@@ -220,6 +222,9 @@
             </footer>
         </div>
     </div>
+
+    {{-- Modales al final de <body>: evitan clip/stacking raro por overflow en main y aseguran ancho viewport --}}
+    @stack('modals')
     
     {{-- Save sidebar state --}}
     <script>

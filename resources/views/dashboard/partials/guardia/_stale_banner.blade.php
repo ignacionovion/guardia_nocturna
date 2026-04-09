@@ -1,7 +1,7 @@
 {{-- Banner de asistencia desactualizada --}}
 <div id="attendance-stale-banner" class="hidden fixed inset-0 z-[55] flex items-center justify-center">
     <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeAttendanceStaleBanner()"></div>
-    <div class="relative w-full max-w-lg mx-4 p-6 rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 shadow-2xl">
+    <div data-modal-dialog class="relative w-full max-w-lg mx-4 p-6 rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 shadow-2xl">
         <button onclick="closeAttendanceStaleBanner()" class="absolute top-3 right-3 w-8 h-8 rounded-lg icon-box icon-box-amber icon-box-sm">
             <i class="fas fa-times"></i>
         </button>

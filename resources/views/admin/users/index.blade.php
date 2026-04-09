@@ -122,8 +122,9 @@
             $credentials = session('regenerated_password') ?: session('new_user_credentials');
             $isRegenerated = session('regenerated_password') ? true : false;
         @endphp
-        <div x-data="{ open: true }" x-show="open" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" @click.away="open = false">
-            <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 transform transition-all">
+        @push('modals')
+        <div x-data="{ open: true }" x-show="open" x-cloak class="fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4" @click.away="open = false">
+            <div data-modal-dialog class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 transform transition-all">
                 <div class="p-6">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-lg font-bold text-slate-900">
@@ -171,5 +172,6 @@
                 </div>
             </div>
         </div>
+        @endpush
     @endif
 @endsection

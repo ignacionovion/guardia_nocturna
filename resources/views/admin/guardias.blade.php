@@ -25,54 +25,6 @@
         </div>
     @endif
 
-    <!-- Modal de Asignación de Refuerzo -->
-    <div id="refuerzoModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm hidden z-50 flex items-center justify-center opacity-0 transition-opacity duration-300">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 transform scale-95 transition-transform duration-300 border border-slate-200">
-            <div class="flex justify-between items-start p-6 border-b border-slate-200">
-                <div>
-                    <h3 class="text-lg font-bold text-[#1e293b]">Agregar Refuerzo</h3>
-                    <p class="text-sm text-[#475569] mt-1">Agrega un voluntario provisorio a esta guardia (se libera automáticamente a las 10:00 AM).</p>
-                </div>
-                <button type="button" onclick="closeRefuerzoModal()" class="text-[#475569] hover:text-[#1e293b] transition-colors">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-
-            <form action="{{ route('admin.guardias.refuerzo') }}" method="POST">
-                @csrf
-                <input type="hidden" name="guardia_id" id="modal_refuerzo_guardia_id">
-
-                <div class="p-6 space-y-4">
-                    <div>
-                        <label class="form-label">Voluntario</label>
-                        <div class="relative">
-                            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-[#475569] text-xs"></i>
-                            <input list="modal_refuerzo_volunteers_list" name="firefighter_id_display" autocomplete="off"
-                                class="form-input pl-9"
-                                placeholder="Buscar voluntario..." required
-                                oninput="updateModalRefuerzoId(this)">
-                            <input type="hidden" name="firefighter_id" id="modal_refuerzo_firefighter_id" required>
-                        </div>
-                        <datalist id="modal_refuerzo_volunteers_list">
-                            @foreach($volunteers as $volunteer)
-                                <option data-value="{{ $volunteer->id }}" value="{{ trim($volunteer->nombres . ' ' . $volunteer->apellido_paterno . ' ' . ($volunteer->apellido_materno ?? '') . ($volunteer->rut ? ' - ' . $volunteer->rut : '')) }}"></option>
-                            @endforeach
-                        </datalist>
-                    </div>
-
-                    <div class="flex gap-3 pt-2 border-t border-slate-200">
-                        <x-ui.button type="button" variant="secondary" size="md" onclick="closeRefuerzoModal()" class="w-1/2">
-                            Cancelar
-                        </x-ui.button>
-                        <x-ui.button type="submit" variant="primary" size="md" icon="fas fa-check" class="w-1/2">
-                            Confirmar
-                        </x-ui.button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-
     @if(session('success'))
         <x-ui.alert type="success" icon="fas fa-check-circle" class="mb-6">
             {{ session('success') }}
@@ -439,66 +391,11 @@
         @csrf
     </form>
 
-    <!-- Modal de Asignación de Reemplazo -->
-    <div id="replacementModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-50 flex items-center justify-center opacity-0 transition-opacity duration-300">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 transform scale-95 transition-transform duration-300 border border-slate-200">
-            <div class="flex justify-between items-start p-6 border-b border-slate-200">
-                <div>
-                    <h3 class="text-lg font-bold text-[#1e293b]">Asignar Reemplazo</h3>
-                    <p class="text-sm text-[#475569] mt-1">Selecciona el voluntario que cubrirá el turno.</p>
-                </div>
-                <button type="button" onclick="closeReplacementModal()" class="text-[#475569] hover:text-[#1e293b] transition-colors">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-
-            <div class="p-6 space-y-4">
-            <div class="bg-blue-50 border border-blue-100 rounded-xl p-3 flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold shrink-0">
-                    <i class="fas fa-user-clock"></i>
-                </div>
-                <span class="text-xs font-semibold text-blue-600">Reemplazando a:</span>
-                <p id="modal_original_user_name" class="text-sm font-bold text-[#1e293b]">Usuario Original</p>
-            </div>
-
-            <form action="{{ route('admin.guardias.replacement') }}" method="POST">
-                @csrf
-                <input type="hidden" name="guardia_id" id="modal_guardia_id">
-                <input type="hidden" name="original_firefighter_id" id="modal_original_user_id">
-
-                <div class="space-y-4">
-                    <div>
-                        <label class="form-label">Voluntario Reemplazante</label>
-                        <div class="relative">
-                            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-[#475569] text-xs"></i>
-                            <input list="modal_volunteers_list" name="replacement_firefighter_id_display" autocomplete="off"
-                                class="form-input pl-9"
-                                placeholder="Buscar voluntario..." required
-                                oninput="updateModalUserId(this)">
-                            <input type="hidden" name="replacement_firefighter_id" id="modal_replacement_user_id" required>
-                        </div>
-                        <datalist id="modal_volunteers_list">
-                            @foreach($volunteers as $volunteer)
-                                <option data-value="{{ $volunteer->id }}" value="{{ trim($volunteer->nombres . ' ' . $volunteer->apellido_paterno . ' ' . ($volunteer->apellido_materno ?? '') . ($volunteer->rut ? ' - ' . $volunteer->rut : '')) }}"></option>
-                            @endforeach
-                        </datalist>
-                    </div>
-
-                    <div class="flex gap-3 pt-2 border-t border-slate-200">
-                        <x-ui.button type="button" variant="secondary" size="md" onclick="closeReplacementModal()" class="w-1/2">
-                            Cancelar
-                        </x-ui.button>
-                        <x-ui.button type="submit" variant="primary" size="md" icon="fas fa-check" class="w-1/2">
-                            Confirmar
-                        </x-ui.button>
-                    </div>
-                </div>
-            </form>
-            </div>
-        </div>
-    </div>
-
     <script>
+        function guardiaAdminModalDialog(modalEl) {
+            return modalEl ? modalEl.querySelector('[data-modal-dialog]') : null;
+        }
+
         const ATTENDANCE_THEMES = {
             constituye: {
                 label: 'CONSTITUYE',
@@ -645,7 +542,7 @@
             const modal = document.getElementById('replacementModal');
             if (!modal) return;
 
-            const content = modal.firstElementChild;
+            const content = guardiaAdminModalDialog(modal);
             document.getElementById('modal_guardia_id').value = guardiaId;
             document.getElementById('modal_original_user_id').value = userId;
             document.getElementById('modal_original_user_name').textContent = userName;
@@ -665,7 +562,7 @@
             const modal = document.getElementById('replacementModal');
             if (!modal) return;
 
-            const content = modal.firstElementChild;
+            const content = guardiaAdminModalDialog(modal);
             modal.classList.add('opacity-0');
             if (content) {
                 content.classList.remove('scale-100');
@@ -697,7 +594,7 @@
             const modal = document.getElementById('refuerzoModal');
             if (!modal) return;
 
-            const content = modal.firstElementChild;
+            const content = guardiaAdminModalDialog(modal);
             const inputGuardia = document.getElementById('modal_refuerzo_guardia_id');
             if (inputGuardia) inputGuardia.value = guardiaId;
 
@@ -715,7 +612,7 @@
             const modal = document.getElementById('refuerzoModal');
             if (!modal) return;
 
-            const content = modal.firstElementChild;
+            const content = guardiaAdminModalDialog(modal);
             modal.classList.add('opacity-0');
             if (content) {
                 content.classList.remove('scale-100');
@@ -797,77 +694,7 @@
                 }
             });
         });
-    </div>
-
-    {{-- Modal Asignación Rápida de Cama --}}
-    <div id="quickBedAssignModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-50 flex items-center justify-center opacity-0 transition-opacity duration-300">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 transform scale-95 transition-transform duration-300 border border-slate-200">
-            <div class="flex justify-between items-start p-6 border-b border-slate-200">
-                <div>
-                    <h3 class="text-lg font-bold text-[#1e293b]">Asignar Cama</h3>
-                    <p class="text-sm text-[#475569] mt-1" id="quickBedAssignVolunteerName"></p>
-                </div>
-                <button type="button" onclick="closeQuickBedAssignModal()" class="text-[#475569] hover:text-[#1e293b] transition-colors">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-            <form id="quickBedAssignForm" method="POST">
-                @csrf
-                <div class="p-6 space-y-4">
-                    <div>
-                        <label class="form-label">Seleccionar Cama</label>
-                        <select name="bed_id" id="quickBedSelect" class="form-select" required>
-                            <option value="">Cargando camas...</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="form-label">Observaciones (opcional)</label>
-                        <textarea name="notes" rows="2" class="form-input" placeholder="Notas sobre la asignación..."></textarea>
-                    </div>
-                </div>
-                <div class="p-6 border-t border-slate-200 flex gap-3">
-                    <button type="button" onclick="closeQuickBedAssignModal()" class="flex-1 px-4 py-2 bg-white hover:bg-[#9fb0c3] text-[#1e293b] font-semibold rounded-xl transition-colors">
-                        Cancelar
-                    </button>
-                    <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors">
-                        Asignar
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    {{-- Modal Liberación Rápida de Cama --}}
-    <div id="quickBedReleaseModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-50 flex items-center justify-center opacity-0 transition-opacity duration-300">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 transform scale-95 transition-transform duration-300 border border-slate-200">
-            <div class="flex justify-between items-start p-6 border-b border-slate-200">
-                <div>
-                    <h3 class="text-lg font-bold text-[#1e293b]">Liberar Cama</h3>
-                    <p class="text-sm text-[#475569] mt-1" id="quickBedReleaseBedName"></p>
-                </div>
-                <button type="button" onclick="closeQuickBedReleaseModal()" class="text-[#475569] hover:text-[#1e293b] transition-colors">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-            <form id="quickBedReleaseForm" method="POST">
-                @csrf
-                <div class="p-6 space-y-4">
-                    <div>
-                        <label class="form-label">Observaciones (opcional)</label>
-                        <textarea name="notes" rows="2" class="form-input" placeholder="Notas sobre la liberación..."></textarea>
-                    </div>
-                </div>
-                <div class="p-6 border-t border-slate-200 flex gap-3">
-                    <button type="button" onclick="closeQuickBedReleaseModal()" class="flex-1 px-4 py-2 bg-white hover:bg-[#9fb0c3] text-[#1e293b] font-semibold rounded-xl transition-colors">
-                        Cancelar
-                    </button>
-                    <button type="submit" class="flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-colors">
-                        Liberar
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+    </script>
 
     <script>
         // Camas disponibles (cargadas desde el servidor)
@@ -947,14 +774,16 @@
             modal.classList.remove('hidden');
             setTimeout(() => {
                 modal.classList.remove('opacity-0');
-                modal.querySelector('.transform').classList.remove('scale-95');
+                const d = guardiaAdminModalDialog(modal);
+                if (d) d.classList.remove('scale-95');
             }, 10);
         }
 
         function closeQuickBedAssignModal() {
             const modal = document.getElementById('quickBedAssignModal');
             modal.classList.add('opacity-0');
-            modal.querySelector('.transform').classList.add('scale-95');
+            const d = guardiaAdminModalDialog(modal);
+            if (d) d.classList.add('scale-95');
             setTimeout(() => {
                 modal.classList.add('hidden');
                 document.getElementById('quickBedAssignForm').reset();
@@ -1001,14 +830,16 @@
             modal.classList.remove('hidden');
             setTimeout(() => {
                 modal.classList.remove('opacity-0');
-                modal.querySelector('.transform').classList.remove('scale-95');
+                const d = guardiaAdminModalDialog(modal);
+                if (d) d.classList.remove('scale-95');
             }, 10);
         }
 
         function closeQuickBedReleaseModal() {
             const modal = document.getElementById('quickBedReleaseModal');
             modal.classList.add('opacity-0');
-            modal.querySelector('.transform').classList.add('scale-95');
+            const d = guardiaAdminModalDialog(modal);
+            if (d) d.classList.add('scale-95');
             setTimeout(() => {
                 modal.classList.add('hidden');
                 document.getElementById('quickBedReleaseForm').reset();
@@ -1036,3 +867,179 @@
         }
     </script>
 @endsection
+
+@push('modals')
+    <div id="refuerzoModal" class="fixed inset-0 z-[100] bg-black/30 backdrop-blur-sm hidden flex items-center justify-center opacity-0 transition-opacity duration-300 p-4 sm:p-6">
+        <div class="flex h-full w-full min-h-0 items-center justify-center">
+            <div data-modal-dialog class="bg-white rounded-2xl shadow-xl w-full max-w-md transform scale-95 transition-transform duration-300 border border-slate-200">
+                <div class="flex justify-between items-start p-6 border-b border-slate-200">
+                    <div>
+                        <h3 class="text-lg font-bold text-[#1e293b]">Agregar Refuerzo</h3>
+                        <p class="text-sm text-[#475569] mt-1">Agrega un voluntario provisorio a esta guardia (se libera automáticamente a las 10:00 AM).</p>
+                    </div>
+                    <button type="button" onclick="closeRefuerzoModal()" class="text-[#475569] hover:text-[#1e293b] transition-colors">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <form action="{{ route('admin.guardias.refuerzo') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="guardia_id" id="modal_refuerzo_guardia_id">
+                    <div class="p-6 space-y-4">
+                        <div>
+                            <label class="form-label">Voluntario</label>
+                            <div class="relative">
+                                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-[#475569] text-xs"></i>
+                                <input list="modal_refuerzo_volunteers_list" name="firefighter_id_display" autocomplete="off"
+                                    class="form-input pl-9"
+                                    placeholder="Buscar voluntario..." required
+                                    oninput="updateModalRefuerzoId(this)">
+                                <input type="hidden" name="firefighter_id" id="modal_refuerzo_firefighter_id" required>
+                            </div>
+                            <datalist id="modal_refuerzo_volunteers_list">
+                                @foreach($volunteers as $volunteer)
+                                    <option data-value="{{ $volunteer->id }}" value="{{ trim($volunteer->nombres . ' ' . $volunteer->apellido_paterno . ' ' . ($volunteer->apellido_materno ?? '') . ($volunteer->rut ? ' - ' . $volunteer->rut : '')) }}"></option>
+                                @endforeach
+                            </datalist>
+                        </div>
+                        <div class="flex gap-3 pt-2 border-t border-slate-200">
+                            <x-ui.button type="button" variant="secondary" size="md" onclick="closeRefuerzoModal()" class="w-1/2">
+                                Cancelar
+                            </x-ui.button>
+                            <x-ui.button type="submit" variant="primary" size="md" icon="fas fa-check" class="w-1/2">
+                                Confirmar
+                            </x-ui.button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="replacementModal" class="fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center opacity-0 transition-opacity duration-300 p-4 sm:p-6">
+        <div class="flex h-full w-full min-h-0 items-center justify-center">
+            <div data-modal-dialog class="bg-white rounded-2xl shadow-xl w-full max-w-md transform scale-95 transition-transform duration-300 border border-slate-200">
+                <div class="flex justify-between items-start p-6 border-b border-slate-200">
+                    <div>
+                        <h3 class="text-lg font-bold text-[#1e293b]">Asignar Reemplazo</h3>
+                        <p class="text-sm text-[#475569] mt-1">Selecciona el voluntario que cubrirá el turno.</p>
+                    </div>
+                    <button type="button" onclick="closeReplacementModal()" class="text-[#475569] hover:text-[#1e293b] transition-colors">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div class="bg-blue-50 border border-blue-100 rounded-xl p-3 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold shrink-0">
+                            <i class="fas fa-user-clock"></i>
+                        </div>
+                        <span class="text-xs font-semibold text-blue-600">Reemplazando a:</span>
+                        <p id="modal_original_user_name" class="text-sm font-bold text-[#1e293b]">Usuario Original</p>
+                    </div>
+                    <form action="{{ route('admin.guardias.replacement') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="guardia_id" id="modal_guardia_id">
+                        <input type="hidden" name="original_firefighter_id" id="modal_original_user_id">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="form-label">Voluntario Reemplazante</label>
+                                <div class="relative">
+                                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-[#475569] text-xs"></i>
+                                    <input list="modal_volunteers_list" name="replacement_firefighter_id_display" autocomplete="off"
+                                        class="form-input pl-9"
+                                        placeholder="Buscar voluntario..." required
+                                        oninput="updateModalUserId(this)">
+                                    <input type="hidden" name="replacement_firefighter_id" id="modal_replacement_user_id" required>
+                                </div>
+                                <datalist id="modal_volunteers_list">
+                                    @foreach($volunteers as $volunteer)
+                                        <option data-value="{{ $volunteer->id }}" value="{{ trim($volunteer->nombres . ' ' . $volunteer->apellido_paterno . ' ' . ($volunteer->apellido_materno ?? '') . ($volunteer->rut ? ' - ' . $volunteer->rut : '')) }}"></option>
+                                    @endforeach
+                                </datalist>
+                            </div>
+                            <div class="flex gap-3 pt-2 border-t border-slate-200">
+                                <x-ui.button type="button" variant="secondary" size="md" onclick="closeReplacementModal()" class="w-1/2">
+                                    Cancelar
+                                </x-ui.button>
+                                <x-ui.button type="submit" variant="primary" size="md" icon="fas fa-check" class="w-1/2">
+                                    Confirmar
+                                </x-ui.button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="quickBedAssignModal" class="fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center opacity-0 transition-opacity duration-300 p-4 sm:p-6">
+        <div class="flex h-full w-full min-h-0 items-center justify-center">
+            <div data-modal-dialog class="bg-white rounded-2xl shadow-xl w-full max-w-md transform scale-95 transition-transform duration-300 border border-slate-200">
+                <div class="flex justify-between items-start p-6 border-b border-slate-200">
+                    <div>
+                        <h3 class="text-lg font-bold text-[#1e293b]">Asignar Cama</h3>
+                        <p class="text-sm text-[#475569] mt-1" id="quickBedAssignVolunteerName"></p>
+                    </div>
+                    <button type="button" onclick="closeQuickBedAssignModal()" class="text-[#475569] hover:text-[#1e293b] transition-colors">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <form id="quickBedAssignForm" method="POST">
+                    @csrf
+                    <div class="p-6 space-y-4">
+                        <div>
+                            <label class="form-label">Seleccionar Cama</label>
+                            <select name="bed_id" id="quickBedSelect" class="form-select" required>
+                                <option value="">Cargando camas...</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Observaciones (opcional)</label>
+                            <textarea name="notes" rows="2" class="form-input" placeholder="Notas sobre la asignación..."></textarea>
+                        </div>
+                    </div>
+                    <div class="p-6 border-t border-slate-200 flex gap-3">
+                        <button type="button" onclick="closeQuickBedAssignModal()" class="flex-1 px-4 py-2 bg-white hover:bg-[#9fb0c3] text-[#1e293b] font-semibold rounded-xl transition-colors">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors">
+                            Asignar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="quickBedReleaseModal" class="fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center opacity-0 transition-opacity duration-300 p-4 sm:p-6">
+        <div class="flex h-full w-full min-h-0 items-center justify-center">
+            <div data-modal-dialog class="bg-white rounded-2xl shadow-xl w-full max-w-md transform scale-95 transition-transform duration-300 border border-slate-200">
+                <div class="flex justify-between items-start p-6 border-b border-slate-200">
+                    <div>
+                        <h3 class="text-lg font-bold text-[#1e293b]">Liberar Cama</h3>
+                        <p class="text-sm text-[#475569] mt-1" id="quickBedReleaseBedName"></p>
+                    </div>
+                    <button type="button" onclick="closeQuickBedReleaseModal()" class="text-[#475569] hover:text-[#1e293b] transition-colors">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <form id="quickBedReleaseForm" method="POST">
+                    @csrf
+                    <div class="p-6 space-y-4">
+                        <div>
+                            <label class="form-label">Observaciones (opcional)</label>
+                            <textarea name="notes" rows="2" class="form-input" placeholder="Notas sobre la liberación..."></textarea>
+                        </div>
+                    </div>
+                    <div class="p-6 border-t border-slate-200 flex gap-3">
+                        <button type="button" onclick="closeQuickBedReleaseModal()" class="flex-1 px-4 py-2 bg-white hover:bg-[#9fb0c3] text-[#1e293b] font-semibold rounded-xl transition-colors">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-colors">
+                            Liberar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@endpush

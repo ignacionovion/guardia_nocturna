@@ -683,65 +683,6 @@
         </div>
     @endif
 
-    {{-- Modal Asignar Cama --}}
-    <div id="assignModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white border border-slate-200 rounded-2xl shadow-xl max-w-md w-full">
-            <form id="assignForm" method="POST">
-                @csrf
-                <div class="p-6 border-b border-slate-200">
-                    <h3 class="text-lg font-bold text-[#1e293b]">Asignar Cama</h3>
-                    <p class="text-sm text-[#475569]" id="assignBedName"></p>
-                </div>
-                <div class="p-6 space-y-4">
-                    <div>
-                        <label class="form-label">Voluntario <span class="text-red-500">*</span></label>
-                        <select name="volunteer_id" required class="form-select" id="volunteerSelect">
-                            <option value="">Seleccionar voluntario...</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="form-label">Observaciones</label>
-                        <textarea name="notes" rows="3" class="form-input" placeholder="Notas opcionales..."></textarea>
-                    </div>
-                </div>
-                <div class="p-6 border-t border-slate-200 flex gap-3">
-                    <button type="button" onclick="closeAssignModal()" class="flex-1 px-4 py-2 bg-white hover:bg-[#9fb0c3] text-[#1e293b] font-semibold rounded-xl transition-colors">
-                        Cancelar
-                    </button>
-                    <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors">
-                        Asignar
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    {{-- Modal Liberar Cama --}}
-    <div id="releaseModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white border border-slate-200 rounded-2xl shadow-xl max-w-md w-full">
-            <form id="releaseForm" method="POST">
-                @csrf
-                <div class="p-6 border-b border-slate-200">
-                    <h3 class="text-lg font-bold text-[#1e293b]">Liberar Cama</h3>
-                    <p class="text-sm text-[#475569]" id="releaseBedName"></p>
-                </div>
-                <div class="p-6 space-y-4">
-                    <div>
-                        <label class="form-label">Observaciones</label>
-                        <textarea name="notes" rows="3" class="form-input" placeholder="Notas opcionales sobre la liberación..."></textarea>
-                    </div>
-                </div>
-                <div class="p-6 border-t border-slate-200 flex gap-3">
-                    <button type="button" onclick="closeReleaseModal()" class="flex-1 px-4 py-2 bg-white hover:bg-[#9fb0c3] text-[#1e293b] font-semibold rounded-xl transition-colors">
-                        Cancelar
-                    </button>
-                    <button type="submit" class="flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-colors">
-                        Liberar
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
 </div>
 
 <script>
@@ -835,3 +776,63 @@ document.addEventListener('keydown', function(e) {
 });
 </script>
 @endsection
+
+@push('modals')
+    <div id="assignModal" class="hidden fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+        <div data-modal-dialog class="bg-white border border-slate-200 rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <form id="assignForm" method="POST">
+                @csrf
+                <div class="p-6 border-b border-slate-200">
+                    <h3 class="text-lg font-bold text-[#1e293b]">Asignar Cama</h3>
+                    <p class="text-sm text-[#475569]" id="assignBedName"></p>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="form-label">Voluntario <span class="text-red-500">*</span></label>
+                        <select name="volunteer_id" required class="form-select" id="volunteerSelect">
+                            <option value="">Seleccionar voluntario...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">Observaciones</label>
+                        <textarea name="notes" rows="3" class="form-input" placeholder="Notas opcionales..."></textarea>
+                    </div>
+                </div>
+                <div class="p-6 border-t border-slate-200 flex gap-3">
+                    <button type="button" onclick="closeAssignModal()" class="flex-1 px-4 py-2 bg-white hover:bg-[#9fb0c3] text-[#1e293b] font-semibold rounded-xl transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors">
+                        Asignar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="releaseModal" class="hidden fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+        <div data-modal-dialog class="bg-white border border-slate-200 rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <form id="releaseForm" method="POST">
+                @csrf
+                <div class="p-6 border-b border-slate-200">
+                    <h3 class="text-lg font-bold text-[#1e293b]">Liberar Cama</h3>
+                    <p class="text-sm text-[#475569]" id="releaseBedName"></p>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="form-label">Observaciones</label>
+                        <textarea name="notes" rows="3" class="form-input" placeholder="Notas opcionales sobre la liberación..."></textarea>
+                    </div>
+                </div>
+                <div class="p-6 border-t border-slate-200 flex gap-3">
+                    <button type="button" onclick="closeReleaseModal()" class="flex-1 px-4 py-2 bg-white hover:bg-[#9fb0c3] text-[#1e293b] font-semibold rounded-xl transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-colors">
+                        Liberar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+@endpush

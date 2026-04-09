@@ -16,9 +16,15 @@
     @else
         @include('dashboard._admin')
     @endif
-
-    @include('dashboard._modals')
 @endsection
+
+@push('modals')
+    @if($isGuardiaView)
+        {{-- Mismo patrón que modales: fuera del árbol del main para evitar clipping/stacking raro --}}
+        @include('dashboard.partials.guardia._stale_banner')
+    @endif
+    @include('dashboard._modals')
+@endpush
 
 @push('scripts')
     @include('dashboard._scripts')
