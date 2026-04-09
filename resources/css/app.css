@@ -41,3 +41,33 @@
     background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
     background-size: 24px 24px;
 }
+
+/* --------------------------------------------------------------------------
+   Modales globales: evita el diálogo como “columna” angosta bajo el backdrop
+   --------------------------------------------------------------------------
+   Causa estructural (compartida por muchas vistas):
+   Los overlays usan un contenedor `position: fixed; inset: 0` con `display: flex`,
+   `items-center` y `justify-center`. El panel del modal (`[data-modal-dialog]`)
+   es un flex item en el eje horizontal (flex-direction row por defecto). Con
+   `flex-basis: auto` y `min-width: min-content` (comportamiento por defecto de
+   min-width:auto en ítems flex), el ancho efectivo puede colapsar al mínimo
+   contenido: el fondo cubre el viewport pero el panel queda en una franja
+   estrecha. Las utilidades `w-full` + `max-w-*` no siempre compensan en
+   todos los navegadores cuando el porcentaje se resuelve contra una base
+   ambigua en el ítem flex.
+
+   Corrección: dar al panel `flex: 1 1 0%` y `min-width: 0` para que el ítem
+   use el espacio disponible en el eje principal; `max-w-sm`, `max-w-md`, etc.
+   del markup siguen acotando el ancho final.
+
+   Selectores:
+   - `fixed.inset-0.flex > [data-modal-dialog]` — overlay flex con panel hijo directo
+   - `fixed.inset-0 > .flex …` — overlay con capa intermedia (p. ej. camas)
+   -------------------------------------------------------------------------- */
+@layer components {
+    body .fixed.inset-0.flex > [data-modal-dialog],
+    body .fixed.inset-0 > .flex [data-modal-dialog] {
+        flex: 1 1 0%;
+        min-width: 0;
+    }
+}
