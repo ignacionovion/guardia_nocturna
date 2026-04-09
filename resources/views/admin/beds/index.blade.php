@@ -14,96 +14,6 @@
         </x-ui.button>
     </x-ui.page-header>
 
-    @if(session('success'))
-        <x-ui.alert type="success" icon="fas fa-check-circle" class="mb-6">
-            {{ session('success') }}
-        </x-ui.alert>
-    @endif
-
-    @if(session('error'))
-        <x-ui.alert type="danger" icon="fas fa-exclamation-circle" class="mb-6">
-            {{ session('error') }}
-        </x-ui.alert>
-    @endif
-
-    {{-- Banner Guardia Activa --}}
-    @if($activeGuardia)
-        <div class="mb-6 bg-blue-50 border border-blue-200 rounded-xl p-4">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                    <i class="fas fa-shield-alt text-blue-600"></i>
-                </div>
-                <div class="flex-1">
-                    <h3 class="text-sm font-bold text-blue-900">Guardia Activa: {{ $activeGuardia->name }}</h3>
-                    <p class="text-xs text-blue-700">Solo se pueden asignar camas a voluntarios presentes en esta guardia</p>
-                </div>
-            </div>
-        </div>
-    @else
-        <div class="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
-                    <i class="fas fa-exclamation-triangle text-amber-600"></i>
-                </div>
-                <div class="flex-1">
-                    <h3 class="text-sm font-bold text-amber-900">Sin Guardia Activa</h3>
-                    <p class="text-xs text-amber-700">No se pueden asignar camas sin una guardia activa</p>
-                </div>
-            </div>
-        </div>
-    @endif
-
-    {{-- Estadísticas Compactas --}}
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <x-ui.card class="!p-4">
-            <div class="flex items-center gap-3">
-                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <i class="fas fa-bed text-blue-600 text-lg"></i>
-                </div>
-                <div>
-                    <p class="text-xs font-semibold text-[#475569] uppercase tracking-wide">Total</p>
-                    <p class="text-2xl font-bold text-[#1e293b]">{{ $stats['total'] }}</p>
-                </div>
-            </div>
-        </x-ui.card>
-
-        <x-ui.card class="!p-4">
-            <div class="flex items-center gap-3">
-                <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <i class="fas fa-check-circle text-emerald-600 text-lg"></i>
-                </div>
-                <div>
-                    <p class="text-xs font-semibold text-emerald-600 uppercase tracking-wide">Disponibles</p>
-                    <p class="text-2xl font-bold text-emerald-700">{{ $stats['available'] }}</p>
-                </div>
-            </div>
-        </x-ui.card>
-
-        <x-ui.card class="!p-4">
-            <div class="flex items-center gap-3">
-                <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <i class="fas fa-user text-red-600 text-lg"></i>
-                </div>
-                <div>
-                    <p class="text-xs font-semibold text-red-600 uppercase tracking-wide">Ocupadas</p>
-                    <p class="text-2xl font-bold text-red-700">{{ $stats['occupied'] }}</p>
-                </div>
-            </div>
-        </x-ui.card>
-
-        <x-ui.card class="!p-4">
-            <div class="flex items-center gap-3">
-                <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <i class="fas fa-tools text-amber-600 text-lg"></i>
-                </div>
-                <div>
-                    <p class="text-xs font-semibold text-amber-600 uppercase tracking-wide">Mantención</p>
-                    <p class="text-2xl font-bold text-amber-700">{{ $stats['maintenance'] + $stats['disabled'] }}</p>
-                </div>
-            </div>
-        </x-ui.card>
-    </div>
-
     {{-- Resumen operacional por sector --}}
     @php
         $sectorSummary = $beds
@@ -251,6 +161,96 @@
             @endif
         </div>
     </x-ui.card>
+
+    @if(session('success'))
+        <x-ui.alert type="success" icon="fas fa-check-circle" class="mb-6">
+            {{ session('success') }}
+        </x-ui.alert>
+    @endif
+
+    @if(session('error'))
+        <x-ui.alert type="danger" icon="fas fa-exclamation-circle" class="mb-6">
+            {{ session('error') }}
+        </x-ui.alert>
+    @endif
+
+    {{-- Banner Guardia Activa --}}
+    @if($activeGuardia)
+        <div class="mb-6 bg-blue-50 border border-blue-200 rounded-xl p-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-shield-alt text-blue-600"></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-sm font-bold text-blue-900">Guardia Activa: {{ $activeGuardia->name }}</h3>
+                    <p class="text-xs text-blue-700">Solo se pueden asignar camas a voluntarios presentes en esta guardia</p>
+                </div>
+            </div>
+        </div>
+    @else
+        <div class="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-exclamation-triangle text-amber-600"></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-sm font-bold text-amber-900">Sin Guardia Activa</h3>
+                    <p class="text-xs text-amber-700">No se pueden asignar camas sin una guardia activa</p>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- Estadísticas Compactas --}}
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <x-ui.card class="!p-4">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-bed text-blue-600 text-lg"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold text-[#475569] uppercase tracking-wide">Total</p>
+                    <p class="text-2xl font-bold text-[#1e293b]">{{ $stats['total'] }}</p>
+                </div>
+            </div>
+        </x-ui.card>
+
+        <x-ui.card class="!p-4">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-check-circle text-emerald-600 text-lg"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold text-emerald-600 uppercase tracking-wide">Disponibles</p>
+                    <p class="text-2xl font-bold text-emerald-700">{{ $stats['available'] }}</p>
+                </div>
+            </div>
+        </x-ui.card>
+
+        <x-ui.card class="!p-4">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-user text-red-600 text-lg"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold text-red-600 uppercase tracking-wide">Ocupadas</p>
+                    <p class="text-2xl font-bold text-red-700">{{ $stats['occupied'] }}</p>
+                </div>
+            </div>
+        </x-ui.card>
+
+        <x-ui.card class="!p-4">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-tools text-amber-600 text-lg"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold text-amber-600 uppercase tracking-wide">Mantención</p>
+                    <p class="text-2xl font-bold text-amber-700">{{ $stats['maintenance'] + $stats['disabled'] }}</p>
+                </div>
+            </div>
+        </x-ui.card>
+    </div>
 
     {{-- Búsqueda y Filtros --}}
     <x-ui.card class="mb-6">
