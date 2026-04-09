@@ -104,7 +104,7 @@
     
     @stack('styles')
 </head>
-<body class="grid-pattern text-slate-900 antialiased">
+<body class="admin-panel grid-pattern text-slate-900 antialiased">
     @include('components.impersonation-banner')
     
     <div class="min-h-screen flex">

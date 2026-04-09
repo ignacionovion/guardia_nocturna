@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import './ui-kit.css';
+@import './admin.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -9,112 +10,32 @@
 
 @theme {
     /* Fuentes */
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    --font-sans:
+        'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
-    
+
     /* Colores EstacionAPP */
     --color-brand-red: #dc2626;
     --color-brand-red-dark: #b91c1c;
     --color-brand-red-light: #ef4444;
-    
+
     /* Grises personalizados */
     --color-bg-page: #f8fafc;
     --color-bg-card: #ffffff;
     --color-border: #e2e8f0;
     --color-text-primary: #1e293b;
     --color-text-secondary: #64748b;
-    
+
     /* Espaciado consistente */
-    --spacing-xs: 0.25rem;  /* 4px */
-    --spacing-sm: 0.5rem;   /* 8px */
-    --spacing-md: 0.75rem;  /* 12px */
-    --spacing-lg: 1rem;     /* 16px */
-    --spacing-xl: 1.5rem;   /* 24px */
-    --spacing-2xl: 2rem;    /* 32px */
+    --spacing-xs: 0.25rem; /* 4px */
+    --spacing-sm: 0.5rem; /* 8px */
+    --spacing-md: 0.75rem; /* 12px */
+    --spacing-lg: 1rem; /* 16px */
+    --spacing-xl: 1.5rem; /* 24px */
+    --spacing-2xl: 2rem; /* 32px */
 }
 
-/* ========================================
-   🔥 OVERRIDE GLOBAL - ELIMINAR GRISES
-   ======================================== */
-
-/* Eliminar TODOS los fondos grises */
-.bg-gray-50,
-.bg-gray-100,
-.bg-gray-200,
-.bg-slate-50:not(.sidebar):not(.sidebar *),
-.bg-slate-100:not(.sidebar):not(.sidebar *),
-.bg-slate-200:not(.sidebar):not(.sidebar *) {
-    background-color: #ffffff !important;
-}
-
-/* Contenedores globales */
-.card,
-.card-base,
-.table-container,
-.section-box,
-.panel,
-.box,
-.container-gray {
-    background-color: #ffffff !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 12px !important;
-}
-
-/* Headers internos */
-.card-header,
-.table-header,
-.panel-header,
-.section-header {
-    background-color: #ffffff !important;
-    border-bottom: 1px solid #e2e8f0 !important;
-}
-
-/* Inputs, selects, textareas */
-input:not([type="checkbox"]):not([type="radio"]),
-select,
-textarea {
-    min-height: 44px;
-    border-radius: 0.875rem;
-    background-color: #f8fafc !important;
-    border: 1px solid #cbd5e1 !important;
-    transition: all 200ms;
-}
-
-input:not([type="checkbox"]):not([type="radio"]):hover,
-select:hover,
-textarea:hover {
-    background-color: #f1f5f9 !important;
-    border-color: #94a3b8 !important;
-}
-
-input:focus:not([type="checkbox"]):not([type="radio"]),
-select:focus,
-textarea:focus {
-    border-color: #3b82f6 !important;
-    background-color: #ffffff !important;
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2) !important;
-}
-
-/* Tablas */
-thead {
-    background-color: #f1f5f9 !important;
-}
-
-tbody tr {
-    background-color: #ffffff !important;
-}
-
-tbody tr:hover {
-    background-color: #f8fafc !important;
-}
-
-/* Footers de cards */
-.card-footer {
-    background-color: #ffffff !important;
-    border-top: 1px solid #e2e8f0 !important;
-}
-
-/* Fondo general con grid pattern */
+/* Utilidad de fondo (puede usarse en layouts con o sin admin-panel) */
 .grid-pattern {
     background-color: #f8fafc;
     background-image: radial-gradient(#e2e8f0 1px, transparent 1px);

@@ -1,7 +1,7 @@
 /**
  * EstacionAPP UI Kit
- * Sistema de diseño base para SaaS moderno
- * Solo aplica al perfil CAPITAN (admin)
+ * Componentes reutilizables (form-input, card-base, tablas, etc.).
+ * Úsalos en vistas del panel; los overrides agresivos del panel viven en admin.css bajo .admin-panel.
  */
 
 /* ============================================

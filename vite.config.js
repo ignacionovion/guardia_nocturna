@@ -8,6 +8,7 @@ export default defineConfig({
         laravel({
             input: [
                 'resources/css/app.css',
+                'resources/css/tenant-auth.css',
                 'resources/js/app.js',
                 'resources/js/guardia-live/app.js',
             ],

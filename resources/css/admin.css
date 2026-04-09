@@ -1,0 +1,92 @@
+/**
+ * EstacionAPP — estilos de panel administrativo
+ * Solo aplican dentro de un ancestro con clase .admin-panel (típicamente <body class="admin-panel">).
+ * No afectan: tenant-auth, logins centrales, guardia fullscreen, QR, etc.
+ */
+
+/* --------------------------------------------------------------------------
+   Fondos utilitarios (forzar blanco en grises del panel)
+   -------------------------------------------------------------------------- */
+.admin-panel .bg-gray-50,
+.admin-panel .bg-gray-100,
+.admin-panel .bg-gray-200,
+.admin-panel .bg-slate-50:not(.sidebar):not(.sidebar *),
+.admin-panel .bg-slate-100:not(.sidebar):not(.sidebar *),
+.admin-panel .bg-slate-200:not(.sidebar):not(.sidebar *) {
+    background-color: #ffffff;
+}
+
+/* --------------------------------------------------------------------------
+   Contenedores tipo card / panel (solo dentro del panel admin)
+   -------------------------------------------------------------------------- */
+.admin-panel .card,
+.admin-panel .card-base,
+.admin-panel .table-container,
+.admin-panel .section-box,
+.admin-panel .panel,
+.admin-panel .box,
+.admin-panel .container-gray {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+}
+
+.admin-panel .card-header,
+.admin-panel .table-header,
+.admin-panel .panel-header,
+.admin-panel .section-header {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-panel .card-footer {
+    background-color: #ffffff;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* --------------------------------------------------------------------------
+   Form controls “sueltos” en el panel (excluye UI kit explícito)
+   -------------------------------------------------------------------------- */
+body.admin-panel input:not([type='checkbox']):not([type='radio']):not(.form-input):not(.input-base):not(.form-file),
+body.admin-panel select:not(.form-select):not(.select-base),
+body.admin-panel textarea:not(.form-textarea) {
+    min-height: 44px;
+    border-radius: 0.875rem;
+    background-color: #f8fafc;
+    border: 1px solid #cbd5e1;
+    transition:
+        border-color 0.2s,
+        background-color 0.2s,
+        box-shadow 0.2s;
+}
+
+body.admin-panel input:not([type='checkbox']):not([type='radio']):not(.form-input):not(.input-base):not(.form-file):hover,
+body.admin-panel select:not(.form-select):not(.select-base):hover,
+body.admin-panel textarea:not(.form-textarea):hover {
+    background-color: #f1f5f9;
+    border-color: #94a3b8;
+}
+
+body.admin-panel input:not([type='checkbox']):not([type='radio']):not(.form-input):not(.input-base):not(.form-file):focus,
+body.admin-panel select:not(.form-select):not(.select-base):focus,
+body.admin-panel textarea:not(.form-textarea):focus {
+    border-color: #3b82f6;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+    outline: none;
+}
+
+/* --------------------------------------------------------------------------
+   Tablas genéricas en el panel (no pisa .table-base del ui-kit por especificidad)
+   -------------------------------------------------------------------------- */
+.admin-panel thead {
+    background-color: #f1f5f9;
+}
+
+.admin-panel tbody tr {
+    background-color: #ffffff;
+}
+
+.admin-panel tbody tr:hover {
+    background-color: #f8fafc;
+}

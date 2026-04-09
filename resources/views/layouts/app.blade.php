@@ -45,7 +45,7 @@
     </style>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-[#cfd8e3] text-[#1e293b] antialiased min-h-screen flex flex-col">
+<body class="admin-panel bg-[#cfd8e3] text-[#1e293b] antialiased min-h-screen flex flex-col">
 
     @include('components.impersonation-banner')
 
