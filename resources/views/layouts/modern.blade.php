@@ -140,16 +140,16 @@
             </div>
         @endauth
         
-        {{-- Main Content --}}
-        <div class="flex-1 flex flex-col min-w-0" :class="{ 'lg:ml-0': !$refs }">
+        {{-- Main Content: w-full asegura base de ancho para main y @section (max-w-*, %) --}}
+        <div class="flex-1 flex flex-col min-w-0 w-full max-w-full" :class="{ 'lg:ml-0': !$refs }">
             {{-- Topbar --}}
             @auth
                 @include('components.layouts.topbar', ['title' => $__env->yieldContent('page-title', '')])
             @endauth
             
             {{-- Page Content --}}
-            {{-- min-w-0: flex child puede encoger sin romper anchos; sin overflow-x-hidden aquí para no recortar position:fixed hijos (modales vía @stack('modals')). --}}
-            <main class="flex-1 min-w-0 p-4 sm:p-6 lg:p-8">
+            {{-- min-w-0 + w-full: ítem flex con base de ancho estable; sin overflow-x-hidden (modales en @stack('modals')). --}}
+            <main class="flex-1 min-w-0 w-full max-w-full p-4 sm:p-6 lg:p-8">
                 {{-- Breadcrumb --}}
                 @hasSection('breadcrumb')
                 <nav class="mb-6">
@@ -204,8 +204,10 @@
                 </div>
                 @endif
                 
-                {{-- Main Content --}}
-                @yield('content')
+                {{-- Main Content: contenedor explícito para que vistas con max-w-* / grid no hereden ancho roto --}}
+                <div class="w-full min-w-0 max-w-full">
+                    @yield('content')
+                </div>
             </main>
             
             {{-- Footer --}}

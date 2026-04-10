@@ -870,7 +870,6 @@
 
 @push('modals')
     <div id="refuerzoModal" class="fixed inset-0 z-[100] bg-black/30 backdrop-blur-sm hidden flex items-center justify-center opacity-0 transition-opacity duration-300 p-4 sm:p-6">
-        <div class="flex h-full w-full min-h-0 items-center justify-center">
             <div data-modal-dialog class="bg-white rounded-2xl shadow-xl w-full max-w-md transform scale-95 transition-transform duration-300 border border-slate-200">
                 <div class="flex justify-between items-start p-6 border-b border-slate-200">
                     <div>
@@ -912,11 +911,9 @@
                     </div>
                 </form>
             </div>
-        </div>
     </div>
 
     <div id="replacementModal" class="fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center opacity-0 transition-opacity duration-300 p-4 sm:p-6">
-        <div class="flex h-full w-full min-h-0 items-center justify-center">
             <div data-modal-dialog class="bg-white rounded-2xl shadow-xl w-full max-w-md transform scale-95 transition-transform duration-300 border border-slate-200">
                 <div class="flex justify-between items-start p-6 border-b border-slate-200">
                     <div>
@@ -968,11 +965,9 @@
                     </form>
                 </div>
             </div>
-        </div>
     </div>
 
     <div id="quickBedAssignModal" class="fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center opacity-0 transition-opacity duration-300 p-4 sm:p-6">
-        <div class="flex h-full w-full min-h-0 items-center justify-center">
             <div data-modal-dialog class="bg-white rounded-2xl shadow-xl w-full max-w-md transform scale-95 transition-transform duration-300 border border-slate-200">
                 <div class="flex justify-between items-start p-6 border-b border-slate-200">
                     <div>
@@ -1007,11 +1002,9 @@
                     </div>
                 </form>
             </div>
-        </div>
     </div>
 
     <div id="quickBedReleaseModal" class="fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center opacity-0 transition-opacity duration-300 p-4 sm:p-6">
-        <div class="flex h-full w-full min-h-0 items-center justify-center">
             <div data-modal-dialog class="bg-white rounded-2xl shadow-xl w-full max-w-md transform scale-95 transition-transform duration-300 border border-slate-200">
                 <div class="flex justify-between items-start p-6 border-b border-slate-200">
                     <div>
@@ -1040,6 +1033,5 @@
                     </div>
                 </form>
             </div>
-        </div>
     </div>
 @endpush

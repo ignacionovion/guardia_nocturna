@@ -324,7 +324,6 @@
 @if(auth()->check() && in_array(auth()->user()->role, ['capitan', 'super_admin']))
 @push('modals')
     <div id="purgeModal" class="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 sm:p-6">
-        <div class="flex h-full w-full min-h-0 items-center justify-center">
             <div data-modal-dialog class="bg-white rounded-2xl shadow-2xl w-full max-w-md border border-slate-200 overflow-hidden">
                 <div class="p-5 border-b border-slate-200 bg-white">
                     <div class="text-sm font-bold text-[#1e293b]">Eliminar todos los voluntarios</div>
@@ -340,7 +339,6 @@
                     </div>
                 </form>
             </div>
-        </div>
     </div>
 @endpush
 

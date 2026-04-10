@@ -89,7 +89,7 @@
 
     {{-- Modal: Reset Database --}}
     <div id="reset-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
-        <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4">
+        <div data-modal-dialog class="bg-white rounded-2xl p-6 max-w-md w-full mx-4">
             <h3 class="text-lg font-bold text-slate-900 mb-2">Reiniciar Base de Datos</h3>
             <p class="text-sm text-slate-600 mb-4">
                 Esto eliminará <strong>TODOS</strong> los datos de <strong>{{ $tenant->nombre }}</strong> y recreará la base de datos desde cero.
@@ -118,7 +118,7 @@
 
     {{-- Modal: Delete Company --}}
     <div id="delete-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
-        <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4">
+        <div data-modal-dialog class="bg-white rounded-2xl p-6 max-w-md w-full mx-4">
             <h3 class="text-lg font-bold text-red-900 mb-2">Eliminar Compañía Permanentemente</h3>
             <p class="text-sm text-slate-600 mb-4">
                 Esto eliminará <strong>TODA</strong> la información de <strong>{{ $tenant->nombre }}</strong> incluyendo la base de datos, backups y registros.

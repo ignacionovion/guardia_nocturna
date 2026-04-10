@@ -49,7 +49,8 @@ $iconColorClass = $iconColors[$iconColor] ?? $iconColors['slate'];
              x-transition:leave-end="opacity-0"></div>
         
         {{-- Modal Panel --}}
-        <div class="relative bg-white rounded-2xl shadow-2xl {{ $maxWidthClass }} w-full transform transition-all border border-slate-200"
+        <div data-modal-dialog
+             class="relative bg-white rounded-2xl shadow-2xl {{ $maxWidthClass }} w-full transform transition-all border border-slate-200"
              x-show="open"
              x-transition:enter="ease-out duration-200"
              x-transition:enter-start="opacity-0 scale-95"

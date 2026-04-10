@@ -208,7 +208,7 @@
 
 {{-- Create Modal --}}
 <div id="create-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl max-w-md w-full p-6">
+    <div data-modal-dialog class="bg-white rounded-xl max-w-md w-full p-6">
         <h3 class="text-lg font-semibold mb-4">Nuevo Registro de Facturación</h3>
         <form action="{{ route('central.billing.create') }}" method="POST">
             @csrf
@@ -260,7 +260,7 @@
 
 {{-- Payment Modal --}}
 <div id="payment-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl max-w-md w-full p-6">
+    <div data-modal-dialog class="bg-white rounded-xl max-w-md w-full p-6">
         <h3 class="text-lg font-semibold mb-4">Registrar Pago</h3>
         <form id="payment-form" method="POST">
             @csrf
@@ -297,7 +297,7 @@
 
 {{-- Billing Cycle Modal --}}
 <div id="cycle-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl max-w-sm w-full p-6">
+    <div data-modal-dialog class="bg-white rounded-xl max-w-sm w-full p-6">
         <h3 class="text-lg font-semibold mb-4">Cambiar Ciclo de Facturación</h3>
         <form id="cycle-form" method="POST">
             @csrf
@@ -324,7 +324,7 @@
 
 {{-- Extend Modal --}}
 <div id="extend-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl max-w-sm w-full p-6">
+    <div data-modal-dialog class="bg-white rounded-xl max-w-sm w-full p-6">
         <h3 class="text-lg font-semibold mb-4">Extender Vencimiento</h3>
         <form id="extend-form" method="POST">
             @csrf
@@ -347,7 +347,7 @@
 
 {{-- Plan Modal --}}
 <div id="plan-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl max-w-sm w-full p-6">
+    <div data-modal-dialog class="bg-white rounded-xl max-w-sm w-full p-6">
         <h3 class="text-lg font-semibold mb-4">Cambiar Plan</h3>
         <form id="plan-form" method="POST">
             @csrf
@@ -377,7 +377,7 @@
 
 {{-- Observation Modal --}}
 <div id="observation-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl max-w-md w-full p-6">
+    <div data-modal-dialog class="bg-white rounded-xl max-w-md w-full p-6">
         <h3 class="text-lg font-semibold mb-4">Editar Observación</h3>
         <form id="observation-form" method="POST">
             @csrf

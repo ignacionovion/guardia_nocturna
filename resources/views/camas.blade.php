@@ -423,8 +423,7 @@
 @endsection
 
 @push('modals')
-    <div id="assignModal" class="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm hidden opacity-0 transition-all duration-300" role="dialog" aria-modal="true" aria-labelledby="assignModalHeading">
-        <div class="flex h-full w-full min-h-0 items-center justify-center p-4 sm:p-6">
+    <div id="assignModal" class="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm hidden opacity-0 transition-all duration-300 flex items-center justify-center p-4 sm:p-6" role="dialog" aria-modal="true" aria-labelledby="assignModalHeading">
             <div data-modal-dialog class="relative card w-full max-w-md overflow-hidden transform scale-95 transition-all duration-300 shadow-2xl">
                 <div class="bg-slate-900 px-6 py-4 flex justify-between items-center">
                     <h3 id="assignModalHeading" class="text-white font-bold text-sm uppercase tracking-wide flex items-center">
@@ -468,11 +467,9 @@
                     </form>
                 </div>
             </div>
-        </div>
     </div>
 
-    <div id="qrModal" class="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm hidden opacity-0 transition-all duration-300" role="dialog" aria-modal="true" aria-labelledby="qrModalHeading">
-        <div class="flex h-full w-full min-h-0 items-center justify-center p-4 sm:p-6">
+    <div id="qrModal" class="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm hidden opacity-0 transition-all duration-300 flex items-center justify-center p-4 sm:p-6" role="dialog" aria-modal="true" aria-labelledby="qrModalHeading">
             <div data-modal-dialog class="relative card w-full max-w-md overflow-hidden transform scale-95 transition-all duration-300 shadow-2xl">
                 <div class="bg-slate-900 px-6 py-4 flex justify-between items-center">
                     <h3 id="qrModalHeading" class="text-white font-bold text-sm uppercase tracking-wide flex items-center">
@@ -499,6 +496,5 @@
                     </x-ui.button>
                 </div>
             </div>
-        </div>
     </div>
 @endpush

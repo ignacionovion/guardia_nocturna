@@ -1,8 +1,8 @@
 @extends('layouts.modern')
 
 @section('content')
-    {{-- w-full + min-w-0: ancho estable en flex; max-w amplio para formularios de carga (evita “columna” estrecha accidental) --}}
-    <div class="w-full min-w-0 max-w-5xl mx-auto py-8 px-0 sm:px-1">
+    {{-- w-full min-w-0: hereda la base del layout; max-w-5xl limita lectura; padding lateral coherente con main --}}
+    <div class="w-full min-w-0 max-w-5xl mx-auto py-8 px-4 sm:px-6">
         <!-- Header -->
         <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
             <div>

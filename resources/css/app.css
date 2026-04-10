@@ -43,31 +43,42 @@
 }
 
 /* --------------------------------------------------------------------------
+   Columna principal del panel admin (junto al sidebar)
+   --------------------------------------------------------------------------
+   El shell es `min-h-screen flex` → sidebar + `.flex-1`. Sin `width: 100%` en
+   esa columna, el hijo `main` y los `max-w-* mx-auto` de las vistas pueden
+   resolver el ancho contra una base ambigua y verse como “columna” estrecha.
+   -------------------------------------------------------------------------- */
+@layer components {
+    body.admin-panel .min-h-screen.flex > .flex-1 {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+    }
+}
+
+/* --------------------------------------------------------------------------
    Modales globales: evita el diálogo como “columna” angosta bajo el backdrop
    --------------------------------------------------------------------------
-   Causa estructural (compartida por muchas vistas):
-   Los overlays usan un contenedor `position: fixed; inset: 0` con `display: flex`,
-   `items-center` y `justify-center`. El panel del modal (`[data-modal-dialog]`)
-   es un flex item en el eje horizontal (flex-direction row por defecto). Con
-   `flex-basis: auto` y `min-width: min-content` (comportamiento por defecto de
-   min-width:auto en ítems flex), el ancho efectivo puede colapsar al mínimo
-   contenido: el fondo cubre el viewport pero el panel queda en una franja
-   estrecha. Las utilidades `w-full` + `max-w-*` no siempre compensan en
-   todos los navegadores cuando el porcentaje se resuelve contra una base
-   ambigua en el ítem flex.
+   Causa raíz: el panel (`[data-modal-dialog]`) es un ítem flex del overlay.
+   Con `flex: 0 1 auto` el ítem tiene `flex-shrink: 1` y puede encogerse por
+   debajo del ancho deseado (franja vertical) pese a `w-full` / `max-w-*`.
 
-   Corrección: dar al panel `flex: 1 1 0%` y `min-width: 0` para que el ítem
-   use el espacio disponible en el eje principal; `max-w-sm`, `max-w-md`, etc.
-   del markup siguen acotando el ancho final.
+   Corrección: `flex: none` (equivalente a `flex: 0 0 auto`) para prohibir el
+   encogimiento del panel; `width` / `max-width` / `min-width` acotan respecto
+   al overlay; `box-sizing: border-box` con el padding del overlay.
 
-   Selectores:
-   - `fixed.inset-0.flex > [data-modal-dialog]` — overlay flex con panel hijo directo
-   - `fixed.inset-0 > .flex …` — overlay con capa intermedia (p. ej. camas)
+   Cobertura:
+   - `fixed.inset-0.flex > [data-modal-dialog]`
+   - `fixed.inset-0 .flex [data-modal-dialog]`
    -------------------------------------------------------------------------- */
 @layer components {
     body .fixed.inset-0.flex > [data-modal-dialog],
-    body .fixed.inset-0 > .flex [data-modal-dialog] {
-        flex: 1 1 0%;
+    body .fixed.inset-0 .flex [data-modal-dialog] {
+        flex: none;
+        width: 100%;
+        max-width: 100%;
         min-width: 0;
+        box-sizing: border-box;
     }
 }
