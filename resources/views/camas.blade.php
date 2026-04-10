@@ -433,7 +433,7 @@
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
-                <div class="card-body">
+                <div class="px-6 py-5">
                     <form id="assignForm" method="POST" action="{{ route('beds.assign') }}">
                         @csrf
                         <input type="hidden" name="bed_id" id="modalBedId">
@@ -479,12 +479,12 @@
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
-                <div class="card-body text-center">
+                <div class="px-6 py-5 text-center">
                     <p class="text-body-sm mb-4">Escanea este código con tu teléfono para asignarte esta cama</p>
                     <div class="bg-white dark:bg-slate-800 rounded-xl p-6 mb-4 inline-block">
                         <div id="qrCodeContainer" class="flex justify-center"></div>
                     </div>
-                    <div class="card !bg-white dark:!bg-slate-800 mb-4">
+                    <div class="rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 p-4 mb-4">
                         <p class="text-caption mb-1">URL</p>
                         <a id="qrUrl" href="#" target="_blank" class="text-sm text-cyan-600 font-mono break-all hover:text-cyan-500 transition-colors"></a>
                     </div>

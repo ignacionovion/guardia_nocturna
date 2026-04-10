@@ -33,6 +33,14 @@
     --spacing-lg: 1rem; /* 16px */
     --spacing-xl: 1.5rem; /* 24px */
     --spacing-2xl: 2rem; /* 32px */
+
+    /* Evita que max-w-* tomen --spacing-* (p. ej. max-w-md = 12px). Escala contenedor Tailwind. */
+    --max-width-sm: 24rem;
+    --max-width-md: 28rem;
+    --max-width-lg: 32rem;
+    --max-width-xl: 36rem;
+    --max-width-2xl: 42rem;
+    --max-width-3xl: 48rem;
 }
 
 /* Utilidad de fondo (puede usarse en layouts con o sin admin-panel) */
@@ -64,9 +72,10 @@
    Con `flex: 0 1 auto` el ítem tiene `flex-shrink: 1` y puede encogerse por
    debajo del ancho deseado (franja vertical) pese a `w-full` / `max-w-*`.
 
-   Corrección: `flex: none` (equivalente a `flex: 0 0 auto`) para prohibir el
-   encogimiento del panel; `width` / `max-width` / `min-width` acotan respecto
-   al overlay; `box-sizing: border-box` con el padding del overlay.
+   Corrección: `flex: none` para prohibir flex-shrink en el panel; `width` /
+   `max-width` respecto al overlay; `box-sizing: border-box`.
+   No usar `min-width: 0` aquí: en un ítem flex eso permite encoger por debajo
+   del contenido y empeora la “columna” angosta cuando el % de `w-full` falla.
 
    Cobertura:
    - `fixed.inset-0.flex > [data-modal-dialog]`
@@ -78,7 +87,6 @@
         flex: none;
         width: 100%;
         max-width: 100%;
-        min-width: 0;
         box-sizing: border-box;
     }
 }
