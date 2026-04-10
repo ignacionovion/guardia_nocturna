@@ -424,7 +424,7 @@
 
 @push('modals')
     <div id="assignModal" class="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm hidden opacity-0 transition-all duration-300 flex items-center justify-center p-4 sm:p-6" role="dialog" aria-modal="true" aria-labelledby="assignModalHeading">
-            <div data-modal-dialog class="relative card w-full max-w-md overflow-hidden transform scale-95 transition-all duration-300 shadow-2xl">
+            <div data-modal-dialog class="relative w-full max-w-md overflow-hidden bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl transform scale-95 transition-all duration-300">
                 <div class="bg-slate-900 px-6 py-4 flex justify-between items-center">
                     <h3 id="assignModalHeading" class="text-white font-bold text-sm uppercase tracking-wide flex items-center">
                         <i class="fas fa-bed mr-2 text-emerald-400"></i> Asignar Cama <span id="modalBedNumber" class="ml-1 text-white"></span>
@@ -470,7 +470,7 @@
     </div>
 
     <div id="qrModal" class="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm hidden opacity-0 transition-all duration-300 flex items-center justify-center p-4 sm:p-6" role="dialog" aria-modal="true" aria-labelledby="qrModalHeading">
-            <div data-modal-dialog class="relative card w-full max-w-md overflow-hidden transform scale-95 transition-all duration-300 shadow-2xl">
+            <div data-modal-dialog class="relative w-full max-w-md overflow-hidden bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl transform scale-95 transition-all duration-300">
                 <div class="bg-slate-900 px-6 py-4 flex justify-between items-center">
                     <h3 id="qrModalHeading" class="text-white font-bold text-sm uppercase tracking-wide flex items-center">
                         <i class="fas fa-qrcode mr-2 text-cyan-400"></i> QR Cama <span id="qrBedNumber" class="ml-1 text-white"></span>
