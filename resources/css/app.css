@@ -34,13 +34,18 @@
     --spacing-xl: 1.5rem; /* 24px */
     --spacing-2xl: 2rem; /* 32px */
 
-    /* Evita que max-w-* tomen --spacing-* (p. ej. max-w-md = 12px). Escala contenedor Tailwind. */
+    /* max-w-* deben resolver a anchos de contenedor, no a --spacing-* */
+    --max-width-xs: 20rem;
     --max-width-sm: 24rem;
     --max-width-md: 28rem;
     --max-width-lg: 32rem;
     --max-width-xl: 36rem;
     --max-width-2xl: 42rem;
     --max-width-3xl: 48rem;
+    --max-width-4xl: 56rem;
+    --max-width-5xl: 64rem;
+    --max-width-6xl: 72rem;
+    --max-width-7xl: 80rem;
 }
 
 /* Utilidad de fondo (puede usarse en layouts con o sin admin-panel) */
