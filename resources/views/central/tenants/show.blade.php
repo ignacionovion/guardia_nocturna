@@ -9,6 +9,30 @@
         $planBadgeClass = $planSlug ? 'bg-blue-50 text-blue-700' : 'bg-white text-slate-600';
     @endphp
 
+    @if(session('success'))
+        <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 whitespace-pre-line">{{ session('success') }}</div>
+    @endif
+    @if(session('error'))
+        <div class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{{ session('error') }}</div>
+    @endif
+    @if(session('captain_access_credentials'))
+        @php $creds = session('captain_access_credentials'); @endphp
+        <div class="mb-6 rounded-2xl border-2 border-amber-300 bg-amber-50 p-5">
+            <h3 class="text-sm font-semibold text-amber-900 mb-2">Credenciales temporales (mostrar una sola vez)</h3>
+            <p class="text-xs text-amber-800 mb-3">Copia y entrega por un canal seguro. No quedarán guardadas en el panel.</p>
+            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                <div>
+                    <dt class="text-xs font-medium text-amber-700">Usuario</dt>
+                    <dd class="font-mono font-semibold text-amber-950 select-all">{{ $creds['username'] ?? '' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs font-medium text-amber-700">Contraseña</dt>
+                    <dd class="font-mono font-semibold text-amber-950 select-all break-all">{{ $creds['password'] ?? '' }}</dd>
+                </div>
+            </dl>
+        </div>
+    @endif
+
     {{-- Header --}}
     <div class="mb-8">
         <a href="{{ route('central.tenants.index') }}" class="text-sm text-slate-500 hover:text-slate-700 flex items-center space-x-1 mb-2">
@@ -91,6 +115,51 @@
             <p class="text-lg font-bold text-slate-900 mt-1">{{ $metrics['migrations'] }}</p>
             <p class="text-[10px] text-slate-400">ejecutadas</p>
         </div>
+    </div>
+
+    {{-- Acceso inicial (capitán) --}}
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
+        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+            <div>
+                <h2 class="font-semibold text-slate-900 text-sm">Acceso inicial</h2>
+                <p class="text-xs text-slate-500 mt-1">Usuario estándar para la primera configuración del tenant.</p>
+            </div>
+            <form method="POST" action="{{ route('central.tenants.reset-captain-password', $tenant->id) }}" class="shrink-0"
+                  onsubmit="return confirm('¿Generar una nueva contraseña para el usuario capitan? La sesión actual del capitán se cerrará.');">
+                @csrf
+                <button type="submit" class="px-4 py-2 text-sm font-medium text-amber-800 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100 transition">
+                    Resetear contraseña
+                </button>
+            </form>
+        </div>
+        <dl class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+            <div>
+                <dt class="text-xs text-slate-500">Usuario inicial</dt>
+                <dd class="font-mono font-medium text-slate-900">{{ $captainAccess['username'] ?? 'capitan' }}</dd>
+            </div>
+            <div>
+                <dt class="text-xs text-slate-500">Estado del acceso</dt>
+                <dd class="mt-0.5">
+                    @if(!($captainAccess['captain_exists'] ?? false))
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">Sin usuario capitan</span>
+                    @elseif(($captainAccess['password_must_change'] ?? false))
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-800 border border-amber-200">Temporal — pendiente de cambio</span>
+                    @else
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-200">Activo — contraseña definida</span>
+                    @endif
+                </dd>
+            </div>
+            <div class="sm:col-span-2">
+                <dt class="text-xs text-slate-500">Último reset / provisionamiento</dt>
+                <dd class="text-slate-900">
+                    @if(!empty($captainAccess['last_reset_at']))
+                        {{ \Illuminate\Support\Carbon::parse($captainAccess['last_reset_at'])->timezone(config('app.timezone'))->format('d/m/Y H:i') }}
+                    @else
+                        <span class="text-slate-400">—</span>
+                    @endif
+                </dd>
+            </div>
+        </dl>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">

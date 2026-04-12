@@ -22,6 +22,7 @@ class User extends Authenticatable
         'username',
         'email',
         'password',
+        'password_must_change',
         'birthdate',
         'role',
         'role_id',
@@ -89,6 +90,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'password_must_change' => 'boolean',
             'birthdate' => 'date',
             'admission_date' => 'date',
             'is_driver' => 'boolean',

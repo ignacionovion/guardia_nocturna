@@ -35,8 +35,14 @@ Route::get('/', [AuthController::class, 'showLoginForm'])->name('tenant.login')-
 Route::post('/', [AuthController::class, 'login'])->middleware('guest');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
+// Cambio obligatorio de contraseña temporal (solo auth; sin password.not_temporary)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/password/initial', [\App\Http\Controllers\InitialPasswordController::class, 'show'])->name('password.initial');
+    Route::post('/password/initial', [\App\Http\Controllers\InitialPasswordController::class, 'update'])->name('password.initial.update');
+});
+
 // Broadcasting authentication routes
-Illuminate\Support\Facades\Broadcast::routes(['middleware' => ['auth']]);
+Illuminate\Support\Facades\Broadcast::routes(['middleware' => ['auth', 'password.not_temporary']]);
 
 // Ruta media (ya dentro de contexto tenant via tenant.php)
 Route::get('/media/{path}', function (string $tenant, string $path) {
@@ -51,7 +57,7 @@ Route::get('/media/{path}', function (string $tenant, string $path) {
 use App\Http\Controllers\NotificationController;
 
 // Phase 4: Modal data endpoints (auth only, no guardia_on_duty restriction)
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'password.not_temporary'])->group(function () {
     Route::get('/api/bomberos', [BomberoController::class, 'apiIndex'])->name('api.bomberos');
     Route::get('/api/emergency-keys', [EmergencyKeyController::class, 'apiIndex'])->name('api.emergency-keys');
     Route::get('/api/emergency-units', [EmergencyUnitController::class, 'apiIndex'])->name('api.emergency-units');
@@ -60,7 +66,7 @@ Route::middleware(['auth'])->group(function () {
 // ================================
 // OPERACIÓN DE GUARDIA (EN VIVO)
 // ================================
-Route::middleware(['auth', 'guardia_on_duty', \App\Http\Middleware\ExpireReplacements::class])->group(function () {
+Route::middleware(['auth', 'password.not_temporary', 'guardia_on_duty', \App\Http\Middleware\ExpireReplacements::class])->group(function () {
 
     // Dashboard operativo
     Route::get('/dashboard', [TableroController::class, 'index'])->name('dashboard');
@@ -93,7 +99,7 @@ Route::middleware(['auth', 'guardia_on_duty', \App\Http\Middleware\ExpireReplace
 
 });
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'password.not_temporary'])->group(function () {
     Route::view('/guardia/fuera-de-servicio', 'guardia.off_duty')->name('guardia.off_duty');
     
     // Bed management API (auth only, no guardia_on_duty restriction)
@@ -469,7 +475,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('admin/emergency-units/{id}/toggle-status', [App\Http\Controllers\Admin\EmergencyUnitController::class, 'toggleStatus'])->name('admin.emergency-units.toggle-status');
 
         // Formularios Dinámicos - Autenticados
-        Route::middleware(['auth'])->group(function () {
+        Route::middleware(['auth', 'password.not_temporary'])->group(function () {
             // Builder - Solo capitanes y admins
             Route::middleware(['role:capitan,super_admin,capitania'])->prefix('admin/forms')->group(function () {
                 Route::get('/builder', [FormBuilderController::class, 'index'])->name('forms.builder.index');

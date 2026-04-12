@@ -60,6 +60,10 @@ class AuthController extends Controller
             // Regenerate session AFTER login is confirmed
             $request->session()->regenerate();
 
+            if ($user->password_must_change) {
+                return redirect()->route('password.initial');
+            }
+
             return redirect('/dashboard');
         }
 

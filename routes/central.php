@@ -42,6 +42,7 @@ Route::post('tenants/{tenant}/change-plan', [TenantController::class, 'changePla
 // Manual actions
 Route::post('tenants/{tenant}/run-migrations', [TenantController::class, 'runMigrations'])->name('central.tenants.run-migrations');
 Route::post('tenants/{tenant}/run-seed', [TenantController::class, 'runSeed'])->name('central.tenants.run-seed');
+Route::post('tenants/{tenant}/reset-captain-password', [TenantController::class, 'resetCaptainPassword'])->name('central.tenants.reset-captain-password');
 Route::get('tenants/{tenant}/timeline', [TenantController::class, 'timeline'])->name('central.tenants.timeline');
 Route::get('tenants/{tenant}/admin', [TenantController::class, 'admin'])->name('central.tenants.admin');
 

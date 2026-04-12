@@ -74,6 +74,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'max_users'           => \App\Http\Middleware\EnforceMaxUsers::class,
             'plan.limit'          => \App\Http\Middleware\EnforcePlanLimits::class,
             'role'                => \App\Http\Middleware\EnsureRole::class,
+            'password.not_temporary' => \App\Http\Middleware\EnsurePasswordIsNotTemporary::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

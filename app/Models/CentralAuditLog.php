@@ -85,6 +85,8 @@ class CentralAuditLog extends Model
             'features_updated'  => '🔧',
             'migrations_run'    => '🗄️',
             'seed_run'          => '🌱',
+            'tenant_captain_initial_access' => '🔑',
+            'tenant_captain_password_reset' => '🔁',
             'backup_run'        => '💾',
             'backup_restored'   => '♻️',
             'estado_changed'    => '🔄',

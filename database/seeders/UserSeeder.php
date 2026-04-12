@@ -3,28 +3,19 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 
+/**
+ * Credenciales de usuarios para tenants ya no se generan aquí en entornos productivos.
+ * El acceso inicial del capitán se provisiona con TenantCaptainProvisioningService al crear
+ * la compañía o mediante reset desde el panel SaaS.
+ *
+ * Si necesitas datos de demo en local, crea usuarios manualmente o usa un seeder dedicado
+ * solo para desarrollo (no incluido en TenantDatabaseSeeder).
+ */
 class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        if (! app()->bound('currentTenant') || ! tenant()) {
-            $this->command?->warn('UserSeeder skipped — not in tenant context.');
-            return;
-        }
-
-        User::firstOrCreate(
-            ['username' => 'admin'],
-            [
-                'name' => 'Administrador',
-                'email' => 'admin@' . tenant('id') . '.cl',
-                'password' => Hash::make('password'),
-                'role' => 'capitan',
-                'years_of_service' => 0,
-                'age' => 0,
-            ]
-        );
+        // Intencionalmente vacío: evita contraseñas fijas en bases tenant.
     }
 }

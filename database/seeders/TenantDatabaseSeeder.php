@@ -15,10 +15,9 @@ class TenantDatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            UserSeeder::class,
+            // UserSeeder / GuardiaSeeder: sin credenciales fijas; capitán vía TenantCaptainProvisioningService
             SystemSettingsSeeder::class,
             CleaningTaskSeeder::class,
-            GuardiaSeeder::class,
             GuardiaAssignmentsSnapshotSeeder::class,
             PlanillaListItemSeeder::class,
         ]);

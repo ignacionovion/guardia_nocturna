@@ -11,6 +11,7 @@ use App\Models\CentralAuditLog;
 use App\Models\Plan;
 use App\Models\Tenant;
 use App\Services\PlanService;
+use App\Services\TenantCaptainProvisioningService;
 use App\Services\TenantMetricsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -21,6 +22,7 @@ class TenantController extends Controller
 {
     public function __construct(
         protected TenantMetricsService $metrics,
+        protected TenantCaptainProvisioningService $captainProvisioning,
     ) {}
     public function index()
     {
@@ -208,7 +210,7 @@ class TenantController extends Controller
             }
             $steps[] = '✓ Migraciones ejecutadas';
 
-            // Step 5: Optional seeding
+            // Step 5: Optional seeding (sin credenciales productivas; ver TenantDatabaseSeeder)
             if ($request->boolean('seed')) {
                 $tenant->run(function () {
                     Artisan::call('db:seed', [
@@ -217,6 +219,27 @@ class TenantController extends Controller
                     ]);
                 });
                 $steps[] = '✓ Datos iniciales poblados';
+            }
+
+            // Step 6: Usuario inicial capitan (no sobrescribe si ya existe)
+            $provision = $this->captainProvisioning->provisionInitialAccess($tenant);
+            if ($provision['skipped']) {
+                $steps[] = '○ Usuario capitan ya existía; no se generó contraseña nueva';
+                CentralAuditLog::log(
+                    'tenant_captain_initial_access',
+                    "Provisionamiento acceso capitán omitido (usuario ya existía) — «{$tenant->nombre}»",
+                    $tenant->id,
+                    ['skipped' => true]
+                );
+            } else {
+                $this->mergeCaptainAccessLastResetAt($tenant);
+                $steps[] = '✓ Usuario inicial capitan creado';
+                CentralAuditLog::log(
+                    'tenant_captain_initial_access',
+                    "Usuario inicial capitan provisionado — «{$tenant->nombre}»",
+                    $tenant->id,
+                    ['skipped' => false]
+                );
             }
 
             Log::info("Tenant created successfully", [
@@ -232,8 +255,18 @@ class TenantController extends Controller
                 'steps' => $steps,
             ]);
 
-            return redirect('/admin/tenants')
+            $redirect = redirect()
+                ->route('central.tenants.show', $tenant->id)
                 ->with('success', "Compañía «{$tenant->nombre}» creada correctamente.\n" . implode("\n", $steps));
+
+            if (!$provision['skipped'] && $provision['plain_password'] !== null) {
+                $redirect->with('captain_access_credentials', [
+                    'username' => $provision['username'],
+                    'password' => $provision['plain_password'],
+                ]);
+            }
+
+            return $redirect;
 
         } catch (\Illuminate\Database\QueryException $e) {
             // Log detailed SQL error info
@@ -321,6 +354,23 @@ class TenantController extends Controller
         }
     }
 
+    /**
+     * Persist only non-sensitive metadata on the central tenant record.
+     */
+    private function mergeCaptainAccessLastResetAt(Tenant $tenant): void
+    {
+        $tenant->refresh();
+        $data = $tenant->data ?? [];
+        if (!is_array($data)) {
+            $data = [];
+        }
+        $data['captain_access'] = array_merge($data['captain_access'] ?? [], [
+            'last_reset_at' => now()->toIso8601String(),
+        ]);
+        $tenant->data = $data;
+        $tenant->save();
+    }
+
     public function show(string $tenant)
     {
         $tenant = Tenant::findOrFail($tenant);
@@ -344,11 +394,63 @@ class TenantController extends Controller
         } catch (\Throwable $e) {
             // Tenant DB may not exist yet
         }
+
+        $captainAccess = [
+            'username' => 'capitan',
+            'last_reset_at' => data_get($tenant->data, 'captain_access.last_reset_at'),
+            'password_must_change' => null,
+            'captain_exists' => false,
+        ];
+        try {
+            $tenant->run(function () use (&$captainAccess) {
+                $u = \App\Models\User::query()->where('username', 'capitan')->first();
+                $captainAccess['captain_exists'] = $u !== null;
+                $captainAccess['password_must_change'] = $u?->password_must_change;
+            });
+        } catch (\Throwable $e) {
+            // Tenant DB may not exist yet
+        }
         
         // Get available plans for change plan dropdown
         $availablePlans = Plan::active()->ordered()->get();
 
-        return view('central.tenants.show', compact('tenant', 'metrics', 'health', 'tenantUsers', 'usageInfo', 'availablePlans'));
+        return view('central.tenants.show', compact('tenant', 'metrics', 'health', 'tenantUsers', 'usageInfo', 'availablePlans', 'captainAccess'));
+    }
+
+    public function resetCaptainPassword($tenant)
+    {
+        if (!$tenant instanceof Tenant) {
+            $tenant = Tenant::findOrFail($tenant);
+        }
+
+        try {
+            $result = $this->captainProvisioning->resetCaptainPassword($tenant);
+            $this->mergeCaptainAccessLastResetAt($tenant);
+
+            CentralAuditLog::log(
+                'tenant_captain_password_reset',
+                "Contraseña del usuario capitan restablecida — «{$tenant->nombre}»",
+                $tenant->id,
+                ['tenant_id' => $tenant->id]
+            );
+
+            return redirect()
+                ->route('central.tenants.show', $tenant->id)
+                ->with('success', 'Contraseña del usuario capitan regenerada. Guárdala de forma segura; solo se muestra una vez.')
+                ->with('captain_access_credentials', [
+                    'username' => $result['username'],
+                    'password' => $result['plain_password'],
+                ]);
+        } catch (\Throwable $e) {
+            Log::error('resetCaptainPassword failed', [
+                'tenant_id' => $tenant->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect()
+                ->route('central.tenants.show', $tenant->id)
+                ->with('error', 'No se pudo restablecer la contraseña: ' . $e->getMessage());
+        }
     }
 
     public function edit($tenant)
