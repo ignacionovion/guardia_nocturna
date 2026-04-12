@@ -20,16 +20,34 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withSchedule(function (Schedule $schedule) {
-        // Cada comando operativo corre para todos los tenants activos
+        /*
+         * Comandos operativos: SIEMPRE vía tenant:run para ejecutar dentro del contexto
+         * de cada tenant (DB correcta). No duplicar en routes/console.php Schedule::command(...)
+         * sin tenant:run — corre en conexión por defecto y es incorrecto para datos tenant.
+         */
         $schedule->command('tenant:run', ['guardia:expire-replacements'])->everyMinute();
         $schedule->command('tenant:run', ['guardia:run-calendar'])->everyMinute();
         $schedule->command('tenant:run', ['guardia:reset-beds'])->everyMinute();
         $schedule->command('tenant:run', ['guardia:generate-notifications'])->everyMinute();
         $schedule->command('tenant:run', ['guardia:daily-cleanup'])->everyMinute();
 
-        // SaaS maintenance
+        // SaaS: backups de BD tenant (comando único; itera tenants activos)
         $schedule->command('tenant:backup')->dailyAt('03:00');
+
+        /*
+         * Facturación / trial (tabla central tenant_billing):
+         * billing:check-expiration — cierra trials, marca morosidad, puede suspender tenant
+         * según lógica en App\Console\Commands\BillingCheckExpirationCommand.
+         *
+         * Ciclo de vida por calendario (tabla central tenants):
+         * tenant:check-expiry — usa tenants.fecha_vencimiento, grace_days, emails de aviso.
+         *
+         * No son duplicados: conviven dos fuentes hasta unificar producto (roadmap).
+         * Fuente de verdad recomendada a mediano plazo: un solo modelo (billing o tenant) que
+         * sincronice el otro; mientras tanto ejecutar ambos diariamente.
+         */
         $schedule->command('tenant:check-expiry')->dailyAt('06:00');
+        $schedule->command('billing:check-expiration')->dailyAt('06:15');
     })
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(

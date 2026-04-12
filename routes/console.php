@@ -28,11 +28,12 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-// Programar el cleanup diario para que se ejecute automáticamente a las 07:00
-// El comando tiene una ventana de 5 minutos (07:00-07:05) para ejecutar la lógica
-Schedule::command('guardia:daily-cleanup')->everyMinute();
-
-// Scheduler de guardias que corre en todos los tenants (modo producción)
+/*
+ * Programación recurrente global: bootstrap/app.php -> withSchedule (tenant:run, backups, billing, etc.).
+ * No registrar aquí Schedule::command('guardia:daily-cleanup') — duplicaba la ejecución y corría
+ * fuera de tenant:run (conexión incorrecta). La transición semanal runGuardiaScheduler sí debe
+ * quedar aquí: no existe comando Artisan equivalente en tenant:run para este closure.
+ */
 Schedule::call(function () {
     runGuardiaScheduler(false);
 })->everyMinute();

@@ -8,7 +8,6 @@ use App\Models\Tenant;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Process\Process;
 
 class TenantBackupCommand extends Command
@@ -33,6 +32,7 @@ class TenantBackupCommand extends Command
 
         if ($tenants->isEmpty()) {
             $this->warn('No active tenants found.');
+            Log::channel('tenant')->info('tenant:backup skipped: no active tenants');
             return self::SUCCESS;
         }
 
@@ -41,13 +41,33 @@ class TenantBackupCommand extends Command
             mkdir($backupDir, 0755, true);
         }
 
-        $this->info("Backing up {$tenants->count()} tenant(s)...");
-        $this->newLine();
-
         $host = config('database.connections.mysql.host');
         $port = config('database.connections.mysql.port', 3306);
         $username = config('database.connections.mysql.username');
         $password = config('database.connections.mysql.password');
+
+        $mysqldumpPath = $this->findMysqldump();
+        if (!$mysqldumpPath) {
+            $hint = 'Instala el cliente MySQL (p. ej. mysql-client / mariadb-client) y asegura mysqldump en PATH.';
+            $this->error("mysqldump no encontrado. {$hint}");
+            Log::channel('tenant')->error('tenant:backup aborted: mysqldump not found', [
+                'hint' => $hint,
+                'paths_checked' => '/usr/bin/mysqldump, which mysqldump, etc.',
+            ]);
+
+            return self::FAILURE;
+        }
+
+        Log::channel('tenant')->info('tenant:backup started', [
+            'tenant_count' => $tenants->count(),
+            'backup_dir' => $backupDir,
+            'mysql_host' => $host,
+            'mysql_port' => $port,
+            'mysqldump' => $mysqldumpPath,
+        ]);
+
+        $this->info("Backing up {$tenants->count()} tenant(s)...");
+        $this->newLine();
 
         $ok = 0;
         $fail = 0;
@@ -60,14 +80,6 @@ class TenantBackupCommand extends Command
 
             $this->info("  Backing up {$dbName}...");
 
-            // Check if mysqldump is available
-            $mysqldumpPath = $this->findMysqldump();
-            if (!$mysqldumpPath) {
-                $this->error("  ✗ mysqldump not found. Install mysql-client.");
-                $fail++;
-                continue;
-            }
-
             $success = $this->runBackup($mysqldumpPath, $host, $port, $username, $password, $dbName, $filepath);
 
             if ($success && file_exists($filepath) && filesize($filepath) > 0) {
@@ -77,7 +89,11 @@ class TenantBackupCommand extends Command
                 $ok++;
             } else {
                 $this->error("  ✗ Failed to backup {$dbName}");
-                Log::channel('tenant')->error("Backup failed for {$dbName}");
+                Log::channel('tenant')->error('tenant:backup failed for database', [
+                    'database' => $dbName,
+                    'tenant_id' => $tenant->id,
+                    'filepath' => $filepath,
+                ]);
                 if (file_exists($filepath)) {
                     unlink($filepath);
                 }
@@ -90,6 +106,12 @@ class TenantBackupCommand extends Command
 
         $this->newLine();
         $this->info("Done: {$ok} OK, {$fail} failed.");
+
+        Log::channel('tenant')->info('tenant:backup finished', [
+            'ok' => $ok,
+            'failed' => $fail,
+            'backup_dir' => $backupDir,
+        ]);
 
         return $fail > 0 ? self::FAILURE : self::SUCCESS;
     }
@@ -126,8 +148,18 @@ class TenantBackupCommand extends Command
                         return true;
                     }
                 }
+
+                $err = trim($process->getErrorOutput() . ' ' . $process->getOutput());
+                Log::channel('tenant')->warning('tenant:backup mysqldump process failed', [
+                    'database' => $dbName,
+                    'exit_code' => $process->getExitCode(),
+                    'output_excerpt' => mb_substr($err, 0, 2000),
+                ]);
             } catch (\Throwable $e) {
-                Log::warning("Symfony Process backup failed: {$e->getMessage()}");
+                Log::channel('tenant')->warning('tenant:backup Symfony Process exception', [
+                    'database' => $dbName,
+                    'message' => $e->getMessage(),
+                ]);
             }
         }
 
