@@ -122,7 +122,9 @@
                          class="absolute right-0 mt-2 w-48 bg-slate-800 rounded-xl shadow-2xl border border-slate-700 overflow-hidden z-50">
                         <div class="px-4 py-3 border-b border-slate-700">
                             <p class="text-sm font-medium text-white truncate">{{ Auth::user()->name ?? 'Usuario' }}</p>
-                            <p class="text-xs text-slate-400 truncate">{{ Auth::user()->email ?? '' }}</p>
+                            @if(!should_hide_user_email_in_ui(Auth::user()->email ?? null, Auth::user()->username ?? null))
+                                <p class="text-xs text-slate-400 truncate">{{ Auth::user()->email ?? '' }}</p>
+                            @endif
                         </div>
                         <div class="py-1">
                             <form method="POST" action="{{ route('logout') }}">

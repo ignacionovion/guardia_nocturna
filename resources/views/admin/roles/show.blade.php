@@ -67,7 +67,9 @@
                                         <tr>
                                             <td class="py-3">
                                                 <div class="text-sm font-bold text-slate-900">{{ $u->name }}</div>
-                                                <div class="text-xs text-slate-500 dark:text-slate-400 font-mono">{{ $u->email }}</div>
+                                                @if(!should_hide_user_email_in_ui($u->email, $u->username))
+                                                    <div class="text-xs text-slate-500 dark:text-slate-400 font-mono">{{ $u->email }}</div>
+                                                @endif
                                             </td>
                                             <td class="py-3">
                                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-100">

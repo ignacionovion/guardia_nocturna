@@ -520,7 +520,7 @@
                     <option value="">— Seleccionar —</option>
                     @foreach($tenantUsers as $user)
                         <option value="{{ $user['id'] }}">
-                            {{ $user['name'] }} ({{ $user['role'] }}) — {{ $user['email'] }}
+                            {{ $user['name'] }} ({{ $user['role'] }})@if(!should_hide_user_email_in_ui($user['email'] ?? null, $user['username'] ?? null)) — {{ $user['email'] }}@endif
                         </option>
                     @endforeach
                 </select>

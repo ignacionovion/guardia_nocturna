@@ -384,7 +384,7 @@ class TenantController extends Controller
         $tenantUsers = [];
         try {
             $tenant->run(function () use (&$tenantUsers) {
-                $tenantUsers = \App\Models\User::select('id', 'name', 'email', 'role')
+                $tenantUsers = \App\Models\User::select('id', 'name', 'email', 'username', 'role')
                     ->orderByRaw("FIELD(role, 'super_admin', 'capitania', 'administrador', 'guardia')")
                     ->orderBy('name')
                     ->limit(20)

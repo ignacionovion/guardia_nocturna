@@ -64,7 +64,9 @@
                                         <div class="ml-4">
                                             <div class="text-sm font-bold text-[#1e293b]">{{ $user->name }}</div>
                                             <div class="text-xs text-[#475569] font-mono">{{ $user->username }}</div>
-                                            <div class="text-xs text-[#475569] font-mono">{{ $user->email }}</div>
+                                            @if(!should_hide_user_email_in_ui($user->email, $user->username))
+                                                <div class="text-xs text-[#475569] font-mono">{{ $user->email }}</div>
+                                            @endif
                                         </div>
                                     </div>
                                 </td>

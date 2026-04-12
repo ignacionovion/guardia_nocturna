@@ -100,6 +100,27 @@ if (!function_exists('branding')) {
     }
 }
 
+if (!function_exists('should_hide_user_email_in_ui')) {
+    /**
+     * Ocultar email en UI de solo lectura (topbar, listados, impersonación SaaS) cuando es
+     * el usuario técnico inicial `capitan` o el placeholder `capitan@system.local`.
+     * Próximo paso de producto: sustituir ese placeholder por un valor por tenant (p. ej. slug)
+     * en provisioning; esta función seguirá ocultando mientras `username === 'capitan'`.
+     */
+    function should_hide_user_email_in_ui(?string $email, ?string $username = null): bool
+    {
+        if ($username !== null && $username === 'capitan') {
+            return true;
+        }
+
+        if ($email === null || $email === '') {
+            return false;
+        }
+
+        return strtolower(trim($email)) === 'capitan@system.local';
+    }
+}
+
 if (!function_exists('addon')) {
     /**
      * Check if an addon is enabled for the current tenant.

@@ -121,7 +121,9 @@ $currentDate = now()->locale('es');
                  style="display: none;">
                 <div class="px-4 py-3 border-b border-[#e5e7eb] bg-[#f9fbfd]">
                     <div class="font-medium text-[#0f172a] text-sm">{{ $user->name ?? 'Usuario' }}</div>
-                    <div class="text-xs text-[#475569] truncate">{{ $user->email ?? '' }}</div>
+                    @if(!should_hide_user_email_in_ui($user->email ?? null, $user->username ?? null))
+                        <div class="text-xs text-[#475569] truncate">{{ $user->email ?? '' }}</div>
+                    @endif
                     <div class="text-xs text-[#64748b] mt-1">Plan: {{ $tenant?->planRelation?->nombre ?? 'Sin plan asignado' }}</div>
                 </div>
                 <div class="py-1">
