@@ -65,6 +65,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase
             'nombre',
             'numero',
             'plan_id',
+            'plan',
             'activo',
             'estado',
             'fecha_vencimiento',

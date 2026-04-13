@@ -14,8 +14,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * Facturación SaaS (`tenant_billing`).
  *
  * Fuente de verdad operativa para monto, ciclo, estado de pago y fechas de cobro/trial.
- * Use `syncToTenant()` para alinear `tenants` (plan_id, fecha_vencimiento, estado, activo)
- * tras cambios en billing o desde comandos.
+ * Use `syncToTenant()` para alinear `tenants` (plan_id, plan slug legacy, fecha_vencimiento, estado, activo)
+ * y corregir `tenant_billing.plan` si difiere del slug del plan asociado a `plan_id`.
  */
 class Billing extends Model
 {
@@ -193,15 +193,23 @@ class Billing extends Model
     }
 
     /**
-     * Alinea el registro central del tenant con este billing (plan, fechas, acceso).
+     * Alinea el registro central del tenant con este billing (plan_id, plan slug legacy, fechas, acceso).
      * Convención: `tenant_billing` define el estado comercial; `tenants` refleja acceso y calendario.
+     * Los campos string `plan` (slug) son legacy frente a `plan_id`; se mantienen sincronizados mientras existan en BD.
      */
     public function syncToTenant(): void
     {
-        $this->loadMissing('tenant');
+        $this->loadMissing('tenant', 'planRelation');
         $tenant = $this->tenant;
         if (!$tenant) {
             return;
+        }
+
+        $planSlug = $this->resolvePlanSlugForSync();
+
+        if ($this->plan_id && $planSlug !== null && (string) $this->plan !== (string) $planSlug) {
+            self::query()->whereKey($this->getKey())->update(['plan' => $planSlug]);
+            $this->setAttribute('plan', $planSlug);
         }
 
         [$estado, $activo] = $this->resolveTenantEstadoYActivo();
@@ -216,7 +224,34 @@ class Billing extends Model
             $payload['plan_id'] = $this->plan_id;
         }
 
+        if ($planSlug !== null) {
+            $payload['plan'] = $planSlug;
+        }
+
         $tenant->update($payload);
+    }
+
+    /**
+     * Slug del plan coherente con `plan_id` (o fallback al string `plan` del billing).
+     */
+    private function resolvePlanSlugForSync(): ?string
+    {
+        if ($this->plan_id) {
+            if ($this->relationLoaded('planRelation') && $this->planRelation) {
+                return (string) $this->planRelation->slug;
+            }
+
+            $slug = Plan::query()->whereKey($this->plan_id)->value('slug');
+            if ($slug !== null && $slug !== '') {
+                return (string) $slug;
+            }
+        }
+
+        if ($this->plan !== null && $this->plan !== '') {
+            return (string) $this->plan;
+        }
+
+        return null;
     }
 
     /**
