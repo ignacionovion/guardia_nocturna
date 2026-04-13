@@ -4,11 +4,19 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * Facturación SaaS (`tenant_billing`).
+ *
+ * Fuente de verdad operativa para monto, ciclo, estado de pago y fechas de cobro/trial.
+ * Use `syncToTenant()` para alinear `tenants` (plan_id, fecha_vencimiento, estado, activo)
+ * tras cambios en billing o desde comandos.
+ */
 class Billing extends Model
 {
     use HasFactory;
@@ -104,6 +112,8 @@ class Billing extends Model
             'fecha_vencimiento' => now()->addDays(30),
             'trial_ends_at' => null,
         ]);
+        $this->refresh();
+        $this->syncToTenant();
     }
 
     /**
@@ -151,6 +161,8 @@ class Billing extends Model
             'fecha_ultimo_pago' => $fecha,
             'fecha_vencimiento' => $fecha->copy()->addDays($dias),
         ]);
+        $this->refresh();
+        $this->syncToTenant();
     }
 
     /**
@@ -159,13 +171,15 @@ class Billing extends Model
     public function extenderVencimiento(int $dias): void
     {
         $nuevaFecha = $this->fecha_vencimiento
-            ? $this->fecha_vencimiento->addDays($dias)
+            ? $this->fecha_vencimiento->copy()->addDays($dias)
             : now()->addDays($dias);
 
         $this->update([
             'fecha_vencimiento' => $nuevaFecha,
             'estado_pago' => $this->estado_pago === 'vencido' ? 'pendiente' : $this->estado_pago,
         ]);
+        $this->refresh();
+        $this->syncToTenant();
     }
 
     /**
@@ -174,9 +188,58 @@ class Billing extends Model
     public function suspender(): void
     {
         $this->update(['estado_pago' => 'suspendido']);
+        $this->refresh();
+        $this->syncToTenant();
+    }
 
-        // Also suspend the tenant itself
-        $this->tenant->update(['activo' => false]);
+    /**
+     * Alinea el registro central del tenant con este billing (plan, fechas, acceso).
+     * Convención: `tenant_billing` define el estado comercial; `tenants` refleja acceso y calendario.
+     */
+    public function syncToTenant(): void
+    {
+        $this->loadMissing('tenant');
+        $tenant = $this->tenant;
+        if (!$tenant) {
+            return;
+        }
+
+        [$estado, $activo] = $this->resolveTenantEstadoYActivo();
+
+        $payload = [
+            'estado' => $estado,
+            'activo' => $activo,
+            'fecha_vencimiento' => $this->resolveTenantFechaVencimiento(),
+        ];
+
+        if ($this->plan_id) {
+            $payload['plan_id'] = $this->plan_id;
+        }
+
+        $tenant->update($payload);
+    }
+
+    /**
+     * @return array{0: string, 1: bool}
+     */
+    private function resolveTenantEstadoYActivo(): array
+    {
+        return match ($this->estado_pago) {
+            'trial' => [Tenant::ESTADO_TRIAL, true],
+            'pagado', 'pendiente' => [Tenant::ESTADO_ACTIVO, true],
+            'vencido' => [Tenant::ESTADO_VENCIDO, true],
+            'suspendido' => [Tenant::ESTADO_SUSPENDIDO, false],
+            default => [Tenant::ESTADO_ACTIVO, true],
+        };
+    }
+
+    private function resolveTenantFechaVencimiento(): ?Carbon
+    {
+        if ($this->estado_pago === 'trial' && $this->trial_ends_at) {
+            return $this->trial_ends_at->copy()->startOfDay();
+        }
+
+        return $this->fecha_vencimiento?->copy()->startOfDay();
     }
 
     /**

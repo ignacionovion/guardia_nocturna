@@ -184,4 +184,15 @@ class Plan extends Model
         return $query->orderBy('orden')->orderBy('id');
     }
 
+    /**
+     * Monto de facturación según ciclo: mensual → precio_mensual, anual → precio_anual.
+     */
+    public function montoSegunCiclo(string $billingCycle): float
+    {
+        return match ($billingCycle) {
+            'yearly' => (float) ($this->precio_anual ?? 0),
+            default => (float) ($this->precio_mensual ?? 0),
+        };
+    }
+
 }

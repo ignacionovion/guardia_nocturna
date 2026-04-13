@@ -19,12 +19,10 @@ use App\Http\Controllers\Admin\EmergencyKeyController;
 use App\Http\Controllers\Admin\EmergencyUnitController;
 
 use App\Http\Controllers\Admin\PreventiveEventController;
-use App\Http\Controllers\PreventivePublicController;
 use App\Http\Controllers\TurnoDraftController;
 use App\Http\Controllers\BedQrController;
 use App\Http\Controllers\FormBuilderController;
 use App\Http\Controllers\FormExecutionController;
-use App\Http\Controllers\FormQrController;
 use App\Http\Controllers\Admin\TenantSettingsController;
 
 Route::get('/impersonate/callback', [\App\Http\Controllers\ImpersonateCallbackController::class, 'callback'])->name('impersonate.callback');
@@ -44,29 +42,35 @@ Route::middleware(['auth'])->group(function () {
 // Broadcasting authentication routes
 Illuminate\Support\Facades\Broadcast::routes(['middleware' => ['auth', 'password.not_temporary']]);
 
-// Ruta media (ya dentro de contexto tenant via tenant.php)
-Route::get('/media/{path}', function (string $tenant, string $path) {
-    abort_unless(Storage::disk('public')->exists($path), 404);
+// Archivos en disco public del tenant (fotos, etc.): requiere sesión autenticada
+Route::middleware(['auth', 'password.not_temporary'])->group(function () {
+    Route::get('/media/{path}', function (string $tenant, string $path) {
+        abort_unless(Storage::disk('public')->exists($path), 404);
 
-    return response()->file(
-        Storage::disk('public')->path($path)
-    );
-})->where('path', '.*')->name('media');
+        return response()->file(
+            Storage::disk('public')->path($path)
+        );
+    })->where('path', '.*')->name('media');
+});
 
 // Rutas Protegidas (Dashboard)
 use App\Http\Controllers\NotificationController;
 
-// Phase 4: Modal data endpoints (auth only, no guardia_on_duty restriction)
+// Modal data endpoints (auth; protección por módulo)
 Route::middleware(['auth', 'password.not_temporary'])->group(function () {
-    Route::get('/api/bomberos', [BomberoController::class, 'apiIndex'])->name('api.bomberos');
-    Route::get('/api/emergency-keys', [EmergencyKeyController::class, 'apiIndex'])->name('api.emergency-keys');
-    Route::get('/api/emergency-units', [EmergencyUnitController::class, 'apiIndex'])->name('api.emergency-units');
+    Route::middleware(['tenant.feature:voluntarios'])->group(function () {
+        Route::get('/api/bomberos', [BomberoController::class, 'apiIndex'])->name('api.bomberos');
+    });
+    Route::middleware(['tenant.feature:emergencias'])->group(function () {
+        Route::get('/api/emergency-keys', [EmergencyKeyController::class, 'apiIndex'])->name('api.emergency-keys');
+        Route::get('/api/emergency-units', [EmergencyUnitController::class, 'apiIndex'])->name('api.emergency-units');
+    });
 });
 
 // ================================
 // OPERACIÓN DE GUARDIA (EN VIVO)
 // ================================
-Route::middleware(['auth', 'password.not_temporary', 'guardia_on_duty', \App\Http\Middleware\ExpireReplacements::class])->group(function () {
+Route::middleware(['auth', 'password.not_temporary', 'tenant.feature:guardia', 'guardia_on_duty', \App\Http\Middleware\ExpireReplacements::class])->group(function () {
 
     // Dashboard operativo
     Route::get('/dashboard', [TableroController::class, 'index'])->name('dashboard');
@@ -78,39 +82,45 @@ Route::middleware(['auth', 'password.not_temporary', 'guardia_on_duty', \App\Htt
     Route::get('/api/guardia-live/cleaning-assignments', [GuardiaLiveController::class, 'cleaningAssignments'])->name('guardia.live.cleaning_assignments');
 
     // Camas (operación)
-    Route::get('/camas', [TableroController::class, 'camas'])->name('camas');
-    Route::post('/camas/asignar', [AsignacionCamaController::class, 'store'])->name('beds.assign');
-    Route::post('/camas/liberar/{id}', [AsignacionCamaController::class, 'update'])->name('beds.release');
+    Route::middleware(['tenant.feature:camas'])->group(function () {
+        Route::get('/camas', [TableroController::class, 'camas'])->name('camas');
+        Route::post('/camas/asignar', [AsignacionCamaController::class, 'store'])->middleware('plan.limit:beds')->name('beds.assign');
+        Route::post('/camas/liberar/{id}', [AsignacionCamaController::class, 'update'])->name('beds.release');
+    });
 
     // Guardia
     Route::get('/guardia', [GuardiaController::class, 'index'])->name('guardia');
-    Route::post('/guardia', [GuardiaController::class, 'start'])->name('guardia.start');
+    Route::post('/guardia', [GuardiaController::class, 'start'])->middleware('plan.limit:guardias')->name('guardia.start');
     Route::post('/guardia/{id}/close', [GuardiaController::class, 'close'])->name('guardia.close');
 
     // NOW (pantalla en vivo)
-    Route::get('/now', [GuardiaController::class, 'now'])->name('guardia.now');
-    Route::get('/now/data', [GuardiaController::class, 'nowData'])->name('guardia.now.data');
-    Route::get('/now/snapshot/pdf', [GuardiaController::class, 'nowSnapshotPdf'])->name('guardia.now.snapshot.pdf');
-    Route::post('/now/snapshot/email', [GuardiaController::class, 'nowSnapshotEmail'])->name('guardia.now.snapshot.email');
+    Route::middleware(['tenant.feature:now'])->group(function () {
+        Route::get('/now', [GuardiaController::class, 'now'])->name('guardia.now');
+        Route::get('/now/data', [GuardiaController::class, 'nowData'])->name('guardia.now.data');
+        Route::get('/now/snapshot/pdf', [GuardiaController::class, 'nowSnapshotPdf'])->name('guardia.now.snapshot.pdf');
+        Route::post('/now/snapshot/email', [GuardiaController::class, 'nowSnapshotEmail'])->name('guardia.now.snapshot.email');
+    });
 
     // Notificaciones operativas
     Route::get('/api/notifications', [NotificationController::class, 'index'])->name('notifications.index');
-    Route::post('/notifications/read', [InAppNotificationController::class, 'markRead'])->name('notifications.read');
-
 });
 
 Route::middleware(['auth', 'password.not_temporary'])->group(function () {
     Route::view('/guardia/fuera-de-servicio', 'guardia.off_duty')->name('guardia.off_duty');
-    
-    // Bed management API (auth only, no guardia_on_duty restriction)
-    Route::get('/api/beds', [\App\Http\Controllers\BedManagementController::class, 'index'])->name('api.beds.index');
-    Route::get('/api/beds/available-firefighters', [\App\Http\Controllers\BedManagementController::class, 'availableFirefighters'])->name('api.beds.available_firefighters');
-    Route::post('/api/beds/assign', [\App\Http\Controllers\BedManagementController::class, 'assign'])->name('api.beds.assign');
-    Route::post('/api/beds/release', [\App\Http\Controllers\BedManagementController::class, 'release'])->name('api.beds.release');
-    
+
+    // Bed management API (auth; módulo camas + límite al asignar)
+    Route::middleware(['tenant.feature:camas'])->group(function () {
+        Route::get('/api/beds', [\App\Http\Controllers\BedManagementController::class, 'index'])->name('api.beds.index');
+        Route::get('/api/beds/available-firefighters', [\App\Http\Controllers\BedManagementController::class, 'availableFirefighters'])->name('api.beds.available_firefighters');
+        Route::post('/api/beds/assign', [\App\Http\Controllers\BedManagementController::class, 'assign'])->middleware('plan.limit:beds')->name('api.beds.assign');
+        Route::post('/api/beds/release', [\App\Http\Controllers\BedManagementController::class, 'release'])->name('api.beds.release');
+    });
+
     Route::get('/kiosk/ping', [TableroController::class, 'kioskPing'])->name('kiosk.ping');
 
-    Route::get('/guardia/snapshot', [TableroController::class, 'guardiaSnapshot'])->name('guardia.snapshot');
+    Route::middleware(['tenant.feature:guardia'])->group(function () {
+        Route::get('/guardia/snapshot', [TableroController::class, 'guardiaSnapshot'])->name('guardia.snapshot');
+    });
 
     Route::get('/aseo', [CleaningWebController::class, 'index'])->name('guardia.aseo');
     Route::get('/aseo/modal', [CleaningWebController::class, 'modalContent'])->name('guardia.aseo.modal');
@@ -123,258 +133,84 @@ Route::middleware(['auth', 'password.not_temporary'])->group(function () {
     Route::post('/draft/turno/bed', [TurnoDraftController::class, 'assignBed'])->name('draft.turno.bed');
     Route::post('/draft/turno/seed', [TurnoDraftController::class, 'seedItems'])->name('draft.turno.seed');
 
-    // Rutas operativas de Guardia
-    Route::post('/guardia', [GuardiaController::class, 'start'])->middleware('plan.limit:guardias')->name('guardia.start');
-    Route::post('/guardia/{id}/close', [GuardiaController::class, 'close'])->name('guardia.close');
+    // Rutas operativas de Guardia (sin duplicar POST /guardia ni POST close: ya están en el grupo en vivo)
     Route::post('/guardia/{id}/add-user', [GuardiaController::class, 'addUser'])->name('guardia.add_user');
     Route::post('/guardia/{shiftId}/remove-user/{userId}', [GuardiaController::class, 'removeUser'])->name('guardia.remove_user');
 
-    // DEBUG: Rutas temporales para diagnóstico (ELIMINAR después de verificar)
-    Route::get('/debug/camas/contexto', function () {
-        return response()->json([
-            'tenant_initialized' => tenancy()->initialized,
-            'tenant_id' => tenant('id'),
-            'tenant_key' => tenant()?->getTenantKey(),
-            'db_connection' => DB::connection()->getDatabaseName(),
-            'bed_connection' => \App\Models\Bed::query()->getConnection()->getDatabaseName(),
-            'bed_assignment_connection' => \App\Models\BedAssignment::query()->getConnection()->getDatabaseName(),
-            'total_beds' => \App\Models\Bed::count(),
-            'total_assignments' => \App\Models\BedAssignment::count(),
-        ]);
+    // Rutas de Gestión de Camas (fuera de guardia en vivo; mismo controlador que operación)
+    Route::middleware(['tenant.feature:camas'])->group(function () {
+        Route::put('/camas/{bed}/mantencion', [AsignacionCamaController::class, 'markMaintenance'])->name('beds.maintenance');
+        Route::put('/camas/{bed}/habilitar', [AsignacionCamaController::class, 'markAvailable'])->name('beds.available');
+        Route::post('/camas/reporte/email', [AsignacionCamaController::class, 'sendReportEmail'])->name('camas.report.email');
+
+        // Imprimir QR por cama (requiere login)
+        Route::get('/camas/{bedId}/qr/imprimir', [BedQrController::class, 'printQr'])->name('camas.qr.print');
     });
-    
-    Route::get('/debug/camas/middleware-check', function (\Illuminate\Http\Request $request) {
-        $route = $request->route();
-        
-        return response()->json([
-            'tenant_initialized' => tenancy()->initialized,
-            'tenant_id' => tenant('id'),
-            'db_connection' => DB::connection()->getDatabaseName(),
-            'route_name' => $route?->getName(),
-            'current_url' => $request->url(),
-            'request_host' => $request->getHost(),
-            'request_http_host' => $request->getHttpHost(),
-            'middleware_stack' => $route?->gatherMiddleware() ?? [],
-            'expected_middleware' => [
-                'web',
-                \App\Http\Middleware\EnsureTenantActive::class,
-            ],
-            'subdomain_extracted' => explode('.', $request->getHost())[0] ?? null,
-        ]);
-    });
-    
-    Route::get('/debug/camas/assignment/{id}', function (\Illuminate\Http\Request $request, $id) {
-        $id = $request->route('id') ?? $id;
-
-        DB::enableQueryLog();
-
-        // 1. Inspección del parámetro
-        $paramInfo = [
-            'raw_value'  => $id,
-            'php_type'   => gettype($id),
-            'strlen'     => strlen((string) $id),
-            'hex'        => bin2hex((string) $id),
-            'trimmed'    => trim((string) $id),
-            'int_cast'   => (int) $id,
-        ];
-
-        // 2. Eloquent queries
-        $eloquentExists   = \App\Models\BedAssignment::where('id', $id)->exists();
-        $eloquentWhereKey = \App\Models\BedAssignment::whereKey($id)->exists();
-        $eloquentFind     = \App\Models\BedAssignment::find($id);
-        $eloquentFirst    = \App\Models\BedAssignment::query()->where('id', $id)->first();
-        $eloquentAll      = \App\Models\BedAssignment::pluck('id')->toArray();
-
-        // 3. Raw DB queries (bypass Eloquent)
-        $rawExists        = DB::table('bed_assignments')->where('id', $id)->exists();
-        $rawExistsInt     = DB::table('bed_assignments')->where('id', (int) $id)->exists();
-        $rawFirst         = DB::table('bed_assignments')->where('id', $id)->first();
-
-        // 4. Conexión exacta que usa el modelo
-        $modelConnection  = \App\Models\BedAssignment::query()->getConnection()->getDatabaseName();
-        $modelConnName    = \App\Models\BedAssignment::query()->getConnection()->getName();
-
-        $queryLog = DB::getQueryLog();
-        DB::disableQueryLog();
-
-        return response()->json([
-            'param_info'             => $paramInfo,
-            'tenant_initialized'     => tenancy()->initialized,
-            'tenant_id'              => tenant('id'),
-            'db_default_connection'  => DB::connection()->getDatabaseName(),
-            'model_connection_name'  => $modelConnName,
-            'model_connection_db'    => $modelConnection,
-            'eloquent_exists'        => $eloquentExists,
-            'eloquent_wherekey'      => $eloquentWhereKey,
-            'eloquent_find'          => $eloquentFind,
-            'eloquent_first'         => $eloquentFirst,
-            'eloquent_all_ids'       => $eloquentAll,
-            'raw_exists_string'      => $rawExists,
-            'raw_exists_int'         => $rawExistsInt,
-            'raw_first'              => $rawFirst,
-            'query_log'              => $queryLog,
-        ]);
-    });
-
-    Route::get('/debug/camas/liberar-check/{id}', function (\Illuminate\Http\Request $request, $id) {
-        $id = $request->route('id') ?? $id;
-
-        DB::enableQueryLog();
-
-        $paramInfo = [
-            'raw_value'  => $id,
-            'php_type'   => gettype($id),
-            'strlen'     => strlen((string) $id),
-            'hex'        => bin2hex((string) $id),
-            'int_cast'   => (int) $id,
-        ];
-
-        $eloquentExists   = \App\Models\BedAssignment::where('id', $id)->exists();
-        $eloquentWhereKey = \App\Models\BedAssignment::whereKey($id)->exists();
-        $eloquentFind     = \App\Models\BedAssignment::find($id);
-        $rawExists        = DB::table('bed_assignments')->where('id', $id)->exists();
-        $rawExistsInt     = DB::table('bed_assignments')->where('id', (int) $id)->exists();
-
-        $queryLog = DB::getQueryLog();
-        DB::disableQueryLog();
-
-        return response()->json([
-            'param_info'             => $paramInfo,
-            'tenant_initialized'     => tenancy()->initialized,
-            'tenant_id'              => tenant('id'),
-            'db_default_connection'  => DB::connection()->getDatabaseName(),
-            'model_connection_db'    => \App\Models\BedAssignment::query()->getConnection()->getDatabaseName(),
-            'eloquent_exists'        => $eloquentExists,
-            'eloquent_wherekey'      => $eloquentWhereKey,
-            'eloquent_find'          => $eloquentFind,
-            'raw_exists_string'      => $rawExists,
-            'raw_exists_int'         => $rawExistsInt,
-            'query_log'              => $queryLog,
-        ]);
-    });
-
-    Route::get('/debug/camas/scan-check/{bedId}', function (\Illuminate\Http\Request $request, $bedId) {
-        $bedId = $request->route('bedId') ?? $bedId;
-
-        DB::enableQueryLog();
-
-        $paramInfo = [
-            'raw_value'  => $bedId,
-            'php_type'   => gettype($bedId),
-            'strlen'     => strlen((string) $bedId),
-            'hex'        => bin2hex((string) $bedId),
-            'int_cast'   => (int) $bedId,
-        ];
-
-        $eloquentExists   = \App\Models\Bed::where('id', $bedId)->exists();
-        $eloquentWhereKey = \App\Models\Bed::whereKey($bedId)->exists();
-        $eloquentFind     = \App\Models\Bed::find($bedId);
-        $rawExists        = DB::table('beds')->where('id', $bedId)->exists();
-        $rawExistsInt     = DB::table('beds')->where('id', (int) $bedId)->exists();
-        $allIds           = \App\Models\Bed::pluck('id')->toArray();
-
-        $queryLog = DB::getQueryLog();
-        DB::disableQueryLog();
-
-        return response()->json([
-            'param_info'             => $paramInfo,
-            'tenant_initialized'     => tenancy()->initialized,
-            'tenant_id'              => tenant('id'),
-            'db_default_connection'  => DB::connection()->getDatabaseName(),
-            'model_connection_db'    => \App\Models\Bed::query()->getConnection()->getDatabaseName(),
-            'eloquent_exists'        => $eloquentExists,
-            'eloquent_wherekey'      => $eloquentWhereKey,
-            'eloquent_find'          => $eloquentFind,
-            'raw_exists_string'      => $rawExists,
-            'raw_exists_int'         => $rawExistsInt,
-            'all_bed_ids'            => $allIds,
-            'query_log'              => $queryLog,
-        ]);
-    });
-
-    Route::get('/debug/camas/qr/{bedId}', function (\Illuminate\Http\Request $request, $bedId) {
-        $bedId = $request->route('bedId') ?? $bedId;
-        $exists = \App\Models\Bed::where('id', $bedId)->exists();
-        $bed = $exists ? \App\Models\Bed::find($bedId) : null;
-        
-        return response()->json([
-            'tenant_id' => tenant('id'),
-            'db_connection' => DB::connection()->getDatabaseName(),
-            'bed_exists' => $exists,
-            'bed' => $bed,
-            'all_bed_ids' => \App\Models\Bed::pluck('id')->toArray(),
-        ]);
-    });
-
-    // Rutas de Gestión de Camas
-    Route::post('/camas/asignar', [AsignacionCamaController::class, 'store'])->middleware('plan.limit:beds')->name('beds.assign');
-    Route::post('/camas/liberar/{id}', [AsignacionCamaController::class, 'update'])->name('beds.release');
-    Route::put('/camas/{bed}/mantencion', [AsignacionCamaController::class, 'markMaintenance'])->name('beds.maintenance');
-    Route::put('/camas/{bed}/habilitar', [AsignacionCamaController::class, 'markAvailable'])->name('beds.available');
-    Route::post('/camas/reporte/email', [AsignacionCamaController::class, 'sendReportEmail'])->name('camas.report.email');
-
-    // Imprimir QR por cama (requiere login)
-    Route::get('/camas/{bedId}/qr/imprimir', [BedQrController::class, 'printQr'])->name('camas.qr.print');
 
     // Rutas Admin - Guardias
-    Route::post('/admin/guardias', [AdministradorController::class, 'storeGuardia'])->name('admin.guardias.store');
-    Route::get('/admin/guardias/{id}/edit', [AdministradorController::class, 'editGuardia'])->name('admin.guardias.edit');
-    Route::put('/admin/guardias/{id}', [AdministradorController::class, 'updateGuardia'])->name('admin.guardias.update');
-    Route::delete('/admin/guardias/{id}', [AdministradorController::class, 'destroyGuardia'])->name('admin.guardias.destroy');
-    Route::post('/admin/guardias/{id}/activate-week', [AdministradorController::class, 'activateWeek'])->name('admin.guardias.activate_week');
-    Route::post('/admin/guardias/{id}/regenerate-credentials', [AdministradorController::class, 'regenerateCredentials'])->name('admin.guardias.regenerate_credentials');
-    Route::post('/admin/guardias/{guardia}/bomberos/{bombero}/confirm', [AdministradorController::class, 'confirmBombero'])->name('admin.guardias.bomberos.confirm');
-    Route::post('/admin/guardias/{id}/bulk-update', [AdministradorController::class, 'bulkUpdateGuardia'])->name('admin.guardias.bulk_update');
+    Route::middleware(['tenant.feature:guardia'])->group(function () {
+        Route::post('/admin/guardias', [AdministradorController::class, 'storeGuardia'])->name('admin.guardias.store');
+        Route::get('/admin/guardias/{id}/edit', [AdministradorController::class, 'editGuardia'])->name('admin.guardias.edit');
+        Route::put('/admin/guardias/{id}', [AdministradorController::class, 'updateGuardia'])->name('admin.guardias.update');
+        Route::delete('/admin/guardias/{id}', [AdministradorController::class, 'destroyGuardia'])->name('admin.guardias.destroy');
+        Route::post('/admin/guardias/{id}/activate-week', [AdministradorController::class, 'activateWeek'])->name('admin.guardias.activate_week');
+        Route::post('/admin/guardias/{id}/regenerate-credentials', [AdministradorController::class, 'regenerateCredentials'])->name('admin.guardias.regenerate_credentials');
+        Route::post('/admin/guardias/{guardia}/bomberos/{bombero}/confirm', [AdministradorController::class, 'confirmBombero'])->name('admin.guardias.bomberos.confirm');
+        Route::post('/admin/guardias/{id}/bulk-update', [AdministradorController::class, 'bulkUpdateGuardia'])->name('admin.guardias.bulk_update');
 
-    Route::get('/admin/guardias/{guardia}/history', [App\Http\Controllers\Admin\GuardiaArchiveController::class, 'index'])->name('admin.guardias.history.index');
-    Route::get('/admin/guardias/{guardia}/history/{archive}', [App\Http\Controllers\Admin\GuardiaArchiveController::class, 'show'])->name('admin.guardias.history.show');
-    
-    // Rutas específicas de volunteers (deben ir ANTES del resource)
-    Route::delete('/admin/volunteers/bulk-destroy', [BomberoController::class, 'bulkDestroy'])->name('admin.volunteers.bulk_destroy');
-    Route::delete('/admin/volunteers/purge', [BomberoController::class, 'purgeAll'])->name('admin.volunteers.purge');
-    Route::delete('/admin/volunteers/{volunteer}/photo', [BomberoController::class, 'destroyPhoto'])->name('admin.volunteers.photo.destroy');
+        Route::get('/admin/guardias/{guardia}/history', [App\Http\Controllers\Admin\GuardiaArchiveController::class, 'index'])->name('admin.guardias.history.index');
+        Route::get('/admin/guardias/{guardia}/history/{archive}', [App\Http\Controllers\Admin\GuardiaArchiveController::class, 'show'])->name('admin.guardias.history.show');
 
-    // Importación de Voluntarios - Solo capitanes y admins
-    Route::middleware(['role:capitan,super_admin,capitania'])->group(function () {
-        Route::get('/admin/volunteers/import', [BomberoController::class, 'importForm'])->name('admin.volunteers.import');
-        Route::post('/admin/volunteers/import/upload', [BomberoController::class, 'uploadImport'])->name('admin.volunteers.import.upload');
-        Route::post('/admin/volunteers/import/process', [BomberoController::class, 'processImport'])->name('admin.volunteers.import.process');
-        Route::post('/admin/volunteers/import', [BomberoController::class, 'import'])->name('admin.volunteers.import.post');
+        // Rutas Admin - Bomberos (Legacy/Guardias specific)
+        Route::get('/admin/guardias', [AdministradorController::class, 'index'])->name('admin.guardias');
+        Route::post('/admin/guardias/assign', [AdministradorController::class, 'assignBombero'])->name('admin.guardias.assign');
+        Route::match(['get', 'post', 'delete'], '/admin/guardias/unassign', [AdministradorController::class, 'unassignBombero'])->name('admin.guardias.unassign');
+        Route::post('/admin/guardias/refuerzo', [AdministradorController::class, 'assignRefuerzo'])->name('admin.guardias.refuerzo');
+        Route::post('/admin/guardias/refuerzo/remove', [AdministradorController::class, 'removeRefuerzo'])->name('admin.guardias.refuerzo.remove');
+        Route::post('/admin/guardias/replacement', [AdministradorController::class, 'assignReplacement'])->name('admin.guardias.replacement'); // Nueva ruta
+        Route::post('/admin/guardias/replacement/{replacement}/undo', [AdministradorController::class, 'undoReplacement'])->name('admin.guardias.replacement.undo');
+        Route::post('/admin/guardias/{guardia}/replacements/cleanup', [AdministradorController::class, 'cleanupReplacements'])->name('admin.guardias.replacements.cleanup');
+
+        // Rutas legacy de bomberos - mantener solo las que no están en el resource
+        Route::post('/admin/bomberos/{id}/toggle-titular', [AdministradorController::class, 'toggleTitular'])->name('admin.bomberos.toggle_titular');
+        Route::post('/admin/bomberos/{id}/toggle-fuera-servicio', [AdministradorController::class, 'toggleFueraDeServicio'])->name('admin.bomberos.toggle_fuera_servicio');
     });
 
-    // Resource de volunteers (debe ir AL FINAL)
-    Route::resource('admin/volunteers', BomberoController::class, ['as' => 'admin']);
-
-    // Rutas Admin - Bomberos (Legacy/Guardias specific)
-    Route::get('/admin/guardias', [AdministradorController::class, 'index'])->name('admin.guardias');
     Route::get('/admin/dotaciones', [AdministradorController::class, 'dotaciones'])->middleware('feature:dotaciones')->name('admin.dotaciones');
-    Route::post('/admin/guardias/assign', [AdministradorController::class, 'assignBombero'])->name('admin.guardias.assign');
-    Route::match(['get', 'post', 'delete'], '/admin/guardias/unassign', [AdministradorController::class, 'unassignBombero'])->name('admin.guardias.unassign');
-    Route::post('/admin/guardias/refuerzo', [AdministradorController::class, 'assignRefuerzo'])->name('admin.guardias.refuerzo');
-    Route::post('/admin/guardias/refuerzo/remove', [AdministradorController::class, 'removeRefuerzo'])->name('admin.guardias.refuerzo.remove');
-    Route::post('/admin/guardias/replacement', [AdministradorController::class, 'assignReplacement'])->name('admin.guardias.replacement'); // Nueva ruta
-    Route::post('/admin/guardias/replacement/{replacement}/undo', [AdministradorController::class, 'undoReplacement'])->name('admin.guardias.replacement.undo');
-    Route::post('/admin/guardias/{guardia}/replacements/cleanup', [AdministradorController::class, 'cleanupReplacements'])->name('admin.guardias.replacements.cleanup');
-    
-    // Rutas legacy de bomberos - mantener solo las que no están en el resource
-    Route::post('/admin/bomberos/{id}/toggle-titular', [AdministradorController::class, 'toggleTitular'])->name('admin.bomberos.toggle_titular');
-    Route::post('/admin/bomberos/{id}/toggle-fuera-servicio', [AdministradorController::class, 'toggleFueraDeServicio'])->name('admin.bomberos.toggle_fuera_servicio');
+
+    // Rutas específicas de volunteers (deben ir ANTES del resource)
+    Route::middleware(['tenant.feature:voluntarios'])->group(function () {
+        Route::delete('/admin/volunteers/bulk-destroy', [BomberoController::class, 'bulkDestroy'])->name('admin.volunteers.bulk_destroy');
+        Route::delete('/admin/volunteers/purge', [BomberoController::class, 'purgeAll'])->name('admin.volunteers.purge');
+        Route::delete('/admin/volunteers/{volunteer}/photo', [BomberoController::class, 'destroyPhoto'])->name('admin.volunteers.photo.destroy');
+
+        // Importación de Voluntarios - Solo capitanes y admins
+        Route::middleware(['role:capitan,super_admin,capitania'])->group(function () {
+            Route::get('/admin/volunteers/import', [BomberoController::class, 'importForm'])->name('admin.volunteers.import');
+            Route::post('/admin/volunteers/import/upload', [BomberoController::class, 'uploadImport'])->name('admin.volunteers.import.upload');
+            Route::post('/admin/volunteers/import/process', [BomberoController::class, 'processImport'])->name('admin.volunteers.import.process');
+            Route::post('/admin/volunteers/import', [BomberoController::class, 'import'])->name('admin.volunteers.import.post');
+        });
+
+        // Resource de volunteers (debe ir AL FINAL)
+        Route::resource('admin/volunteers', BomberoController::class, ['as' => 'admin']);
+    });
 
     // Rutas de Reportes
     Route::middleware(['tenant.feature:reportes'])->group(function () {
-    Route::get('/admin/reports', [App\Http\Controllers\ReportController::class, 'attendance'])->name('admin.reports.index');
-    Route::get('/admin/reports/attendance', [App\Http\Controllers\ReportController::class, 'attendance'])->name('admin.reports.attendance');
-    Route::get('/admin/reports/attendance/export', [App\Http\Controllers\ReportController::class, 'attendanceExport'])->name('admin.reports.attendance.export');
-    Route::get('/admin/reports/preventivas', [App\Http\Controllers\ReportController::class, 'preventivas'])->name('admin.reports.preventivas');
-    Route::get('/admin/reports/reemplazos', [App\Http\Controllers\ReportController::class, 'replacements'])->name('admin.reports.replacements');
-    Route::get('/admin/reports/refuerzos', [App\Http\Controllers\ReportController::class, 'refuerzos'])->name('admin.reports.refuerzos');
-    Route::get('/admin/reports/refuerzos/export', [App\Http\Controllers\ReportController::class, 'refuerzosExport'])->name('admin.reports.refuerzos.export');
-    Route::get('/admin/reports/conductores', [App\Http\Controllers\ReportController::class, 'drivers'])->name('admin.reports.drivers');
-    Route::get('/admin/reports/conductores/export', [App\Http\Controllers\ReportController::class, 'driversExport'])->name('admin.reports.drivers.export');
-    Route::get('/admin/reports/emergencias', [App\Http\Controllers\ReportController::class, 'emergencies'])->name('admin.reports.emergencias');
-    Route::get('/admin/reports/emergencias/export', [App\Http\Controllers\ReportController::class, 'emergenciesExport'])->name('admin.reports.emergencias.export');
-    Route::get('/admin/reports/reemplazos/export', [App\Http\Controllers\ReportController::class, 'replacementsExport'])->name('admin.reports.replacements.export');
-    Route::get('/admin/reports/reemplazos/print', [App\Http\Controllers\ReportController::class, 'replacementsPrint'])->name('admin.reports.replacements.print');
+        Route::get('/admin/reports', [App\Http\Controllers\ReportController::class, 'attendance'])->name('admin.reports.index');
+        Route::get('/admin/reports/attendance', [App\Http\Controllers\ReportController::class, 'attendance'])->name('admin.reports.attendance');
+        Route::get('/admin/reports/attendance/export', [App\Http\Controllers\ReportController::class, 'attendanceExport'])->name('admin.reports.attendance.export');
+        Route::get('/admin/reports/preventivas', [App\Http\Controllers\ReportController::class, 'preventivas'])->name('admin.reports.preventivas');
+        Route::get('/admin/reports/reemplazos', [App\Http\Controllers\ReportController::class, 'replacements'])->name('admin.reports.replacements');
+        Route::get('/admin/reports/refuerzos', [App\Http\Controllers\ReportController::class, 'refuerzos'])->name('admin.reports.refuerzos');
+        Route::get('/admin/reports/refuerzos/export', [App\Http\Controllers\ReportController::class, 'refuerzosExport'])->name('admin.reports.refuerzos.export');
+        Route::get('/admin/reports/conductores', [App\Http\Controllers\ReportController::class, 'drivers'])->name('admin.reports.drivers');
+        Route::get('/admin/reports/conductores/export', [App\Http\Controllers\ReportController::class, 'driversExport'])->name('admin.reports.drivers.export');
+        Route::get('/admin/reports/emergencias', [App\Http\Controllers\ReportController::class, 'emergencies'])->name('admin.reports.emergencias');
+        Route::get('/admin/reports/emergencias/export', [App\Http\Controllers\ReportController::class, 'emergenciesExport'])->name('admin.reports.emergencias.export');
+        Route::get('/admin/reports/reemplazos/export', [App\Http\Controllers\ReportController::class, 'replacementsExport'])->name('admin.reports.replacements.export');
+        Route::get('/admin/reports/reemplazos/print', [App\Http\Controllers\ReportController::class, 'replacementsPrint'])->name('admin.reports.replacements.print');
     });
 
     // Rutas Admin - Calendario
@@ -385,23 +221,23 @@ Route::middleware(['auth', 'password.not_temporary'])->group(function () {
     });
 
     // Rutas Admin - Camas 2.0 (CRUD completo)
-    Route::prefix('admin/beds')->name('admin.beds.')->group(function () {
+    Route::middleware(['tenant.feature:camas'])->prefix('admin/beds')->name('admin.beds.')->group(function () {
         Route::get('/', [\App\Http\Controllers\BedController::class, 'index'])->name('index');
         Route::get('/create', [\App\Http\Controllers\BedController::class, 'create'])->name('create');
-        Route::post('/', [\App\Http\Controllers\BedController::class, 'store'])->name('store');
+        Route::post('/', [\App\Http\Controllers\BedController::class, 'store'])->middleware('plan.limit:beds')->name('store');
         Route::get('/{bed}/edit', [\App\Http\Controllers\BedController::class, 'edit'])->name('edit');
         Route::put('/{bed}', [\App\Http\Controllers\BedController::class, 'update'])->name('update');
         Route::get('/{bed}/qr', [\App\Http\Controllers\BedController::class, 'showQr'])->name('qr');
         Route::get('/{bed}/qr/print', [\App\Http\Controllers\BedController::class, 'printQr'])->name('qr.print');
-        
+
         // Cambio rápido de estado (disponible / mantenimiento / deshabilitada)
         Route::post('/{bed}/status', [\App\Http\Controllers\BedController::class, 'changeStatus'])->name('status');
 
         // Rutas de asignación y liberación
-        Route::post('/{bed}/assign', [\App\Http\Controllers\BedAssignmentController::class, 'assign'])->name('assign');
+        Route::post('/{bed}/assign', [\App\Http\Controllers\BedAssignmentController::class, 'assign'])->middleware('plan.limit:beds')->name('assign');
         Route::post('/{bed}/release', [\App\Http\Controllers\BedAssignmentController::class, 'release'])->name('release');
         Route::get('/{bed}/history', [\App\Http\Controllers\BedAssignmentController::class, 'history'])->name('history');
-        
+
         // API para obtener voluntarios disponibles
         Route::get('/api/volunteers', [\App\Http\Controllers\BedAssignmentController::class, 'getAvailableVolunteers'])->name('api.volunteers');
     });
@@ -466,63 +302,64 @@ Route::middleware(['auth', 'password.not_temporary'])->group(function () {
         Route::resource('admin/users', App\Http\Controllers\Admin\SystemUserController::class, ['as' => 'admin'])->except(['store']);
         Route::resource('admin/roles', App\Http\Controllers\Admin\RoleController::class, ['as' => 'admin']);
 
-        Route::get('/admin/emergency-keys/import', [App\Http\Controllers\Admin\EmergencyKeyController::class, 'importForm'])->name('admin.emergency-keys.import');
-        Route::post('/admin/emergency-keys/import/upload', [App\Http\Controllers\Admin\EmergencyKeyController::class, 'uploadImport'])->name('admin.emergency-keys.import.upload');
-        Route::post('/admin/emergency-keys/import/process', [App\Http\Controllers\Admin\EmergencyKeyController::class, 'processImport'])->name('admin.emergency-keys.import.process');
+        Route::middleware(['tenant.feature:emergencias'])->group(function () {
+            Route::get('/admin/emergency-keys/import', [App\Http\Controllers\Admin\EmergencyKeyController::class, 'importForm'])->name('admin.emergency-keys.import');
+            Route::post('/admin/emergency-keys/import/upload', [App\Http\Controllers\Admin\EmergencyKeyController::class, 'uploadImport'])->name('admin.emergency-keys.import.upload');
+            Route::post('/admin/emergency-keys/import/process', [App\Http\Controllers\Admin\EmergencyKeyController::class, 'processImport'])->name('admin.emergency-keys.import.process');
 
-        Route::resource('admin/emergency-keys', App\Http\Controllers\Admin\EmergencyKeyController::class, ['as' => 'admin']);
-        Route::resource('admin/emergency-units', App\Http\Controllers\Admin\EmergencyUnitController::class, ['as' => 'admin']);
-        Route::post('admin/emergency-units/{id}/toggle-status', [App\Http\Controllers\Admin\EmergencyUnitController::class, 'toggleStatus'])->name('admin.emergency-units.toggle-status');
+            Route::resource('admin/emergency-keys', App\Http\Controllers\Admin\EmergencyKeyController::class, ['as' => 'admin']);
+            Route::resource('admin/emergency-units', App\Http\Controllers\Admin\EmergencyUnitController::class, ['as' => 'admin']);
+            Route::post('admin/emergency-units/{id}/toggle-status', [App\Http\Controllers\Admin\EmergencyUnitController::class, 'toggleStatus'])->name('admin.emergency-units.toggle-status');
+        });
+    });
 
-        // Formularios Dinámicos - Autenticados
-        Route::middleware(['auth', 'password.not_temporary'])->group(function () {
-            // Builder - Solo capitanes y admins
-            Route::middleware(['role:capitan,super_admin,capitania'])->prefix('admin/forms')->group(function () {
-                Route::get('/builder', [FormBuilderController::class, 'index'])->name('forms.builder.index');
-                Route::get('/builder/create', [FormBuilderController::class, 'create'])->name('forms.builder.create');
-                Route::post('/builder', [FormBuilderController::class, 'store'])->name('forms.builder.store');
-                Route::get('/builder/{template}/edit', [FormBuilderController::class, 'edit'])->name('forms.builder.edit');
-                Route::put('/builder/{template}', [FormBuilderController::class, 'update'])->name('forms.builder.update');
-                Route::delete('/builder/{template}', [FormBuilderController::class, 'destroy'])->name('forms.builder.destroy');
-                Route::post('/builder/{template}/duplicate', [FormBuilderController::class, 'duplicate'])->name('forms.builder.duplicate');
-                Route::post('/builder/{template}/toggle', [FormBuilderController::class, 'toggleActive'])->name('forms.builder.toggle');
-            });
+    // Formularios dinámicos: clave de plan `planilla` (Plan::availableModules)
+    // Builder: roles restringidos. Ejecución: cualquier usuario autenticado (fuera de super_admin).
+    Route::middleware(['tenant.feature:planilla'])->group(function () {
+        Route::middleware(['role:capitan,super_admin,capitania'])->prefix('admin/forms')->group(function () {
+            Route::get('/builder', [FormBuilderController::class, 'index'])->name('forms.builder.index');
+            Route::get('/builder/create', [FormBuilderController::class, 'create'])->name('forms.builder.create');
+            Route::post('/builder', [FormBuilderController::class, 'store'])->name('forms.builder.store');
+            Route::get('/builder/{template}/edit', [FormBuilderController::class, 'edit'])->name('forms.builder.edit');
+            Route::put('/builder/{template}', [FormBuilderController::class, 'update'])->name('forms.builder.update');
+            Route::delete('/builder/{template}', [FormBuilderController::class, 'destroy'])->name('forms.builder.destroy');
+            Route::post('/builder/{template}/duplicate', [FormBuilderController::class, 'duplicate'])->name('forms.builder.duplicate');
+            Route::post('/builder/{template}/toggle', [FormBuilderController::class, 'toggleActive'])->name('forms.builder.toggle');
+        });
 
-            // Execution - Todos los usuarios autenticados
-            Route::prefix('forms')->group(function () {
-                Route::get('/', [FormExecutionController::class, 'index'])
-                    ->name('forms.execution.index');
+        Route::prefix('forms')->group(function () {
+            Route::get('/', [FormExecutionController::class, 'index'])
+                ->name('forms.execution.index');
 
-                Route::get('/qr', [FormExecutionController::class, 'showQr'])
-                    ->name('forms.execution.qr');
+            Route::get('/qr', [FormExecutionController::class, 'showQr'])
+                ->name('forms.execution.qr');
 
-                Route::get('/qr/download', [FormExecutionController::class, 'downloadQr'])
-                    ->name('forms.execution.qr.download');
+            Route::get('/qr/download', [FormExecutionController::class, 'downloadQr'])
+                ->name('forms.execution.qr.download');
 
-                Route::get('/{template}', [FormExecutionController::class, 'show'])
-                    ->whereNumber('template')
-                    ->name('forms.execution.show');
+            Route::get('/{template}', [FormExecutionController::class, 'show'])
+                ->whereNumber('template')
+                ->name('forms.execution.show');
 
-                Route::post('/{template}', [FormExecutionController::class, 'submit'])
-                    ->whereNumber('template')
-                    ->name('forms.execution.submit');
+            Route::post('/{template}', [FormExecutionController::class, 'submit'])
+                ->whereNumber('template')
+                ->name('forms.execution.submit');
 
-                Route::post('/{template}/draft', [FormExecutionController::class, 'draft'])
-                    ->whereNumber('template')
-                    ->name('forms.execution.draft');
+            Route::post('/{template}/draft', [FormExecutionController::class, 'draft'])
+                ->whereNumber('template')
+                ->name('forms.execution.draft');
 
-                Route::get('/submissions/{submission}/edit', [FormExecutionController::class, 'edit'])
-                    ->name('forms.execution.edit');
+            Route::get('/submissions/{submission}/edit', [FormExecutionController::class, 'edit'])
+                ->name('forms.execution.edit');
 
-                Route::put('/submissions/{submission}', [FormExecutionController::class, 'update'])
-                    ->name('forms.execution.update');
+            Route::put('/submissions/{submission}', [FormExecutionController::class, 'update'])
+                ->name('forms.execution.update');
 
-                Route::delete('/submissions/{submission}', [FormExecutionController::class, 'destroy'])
-                    ->name('forms.execution.destroy');
+            Route::delete('/submissions/{submission}', [FormExecutionController::class, 'destroy'])
+                ->name('forms.execution.destroy');
 
-                Route::post('/submissions/{submission}/finalize', [FormExecutionController::class, 'finalize'])
-                    ->name('forms.execution.finalize');
-            });
+            Route::post('/submissions/{submission}/finalize', [FormExecutionController::class, 'finalize'])
+                ->name('forms.execution.finalize');
         });
     });
 });

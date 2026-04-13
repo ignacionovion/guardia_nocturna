@@ -24,6 +24,10 @@ return Application::configure(basePath: dirname(__DIR__))
          * Comandos operativos: SIEMPRE vía tenant:run para ejecutar dentro del contexto
          * de cada tenant (DB correcta). No duplicar en routes/console.php Schedule::command(...)
          * sin tenant:run — corre en conexión por defecto y es incorrecto para datos tenant.
+         *
+         * Además, routes/console.php registra Schedule::call(runGuardiaScheduler) cada minuto
+         * (transición semanal de guardia). No es duplicado de tenant:run: es otro closure programado
+         * en el mismo schedule:run; ambos dependen de que el cron ejecute `php artisan schedule:run`.
          */
         $schedule->command('tenant:run', ['guardia:expire-replacements'])->everyMinute();
         $schedule->command('tenant:run', ['guardia:run-calendar'])->everyMinute();
@@ -35,16 +39,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->command('tenant:backup')->dailyAt('03:00');
 
         /*
-         * Facturación / trial (tabla central tenant_billing):
-         * billing:check-expiration — cierra trials, marca morosidad, puede suspender tenant
-         * según lógica en App\Console\Commands\BillingCheckExpirationCommand.
-         *
-         * Ciclo de vida por calendario (tabla central tenants):
-         * tenant:check-expiry — usa tenants.fecha_vencimiento, grace_days, emails de aviso.
-         *
-         * No son duplicados: conviven dos fuentes hasta unificar producto (roadmap).
-         * Fuente de verdad recomendada a mediano plazo: un solo modelo (billing o tenant) que
-         * sincronice el otro; mientras tanto ejecutar ambos diariamente.
+         * Facturación: billing:check-expiration (tenant_billing) sincroniza tenants vía Billing::syncToTenant().
+         * tenant:check-expiry usa tenants.fecha_vencimiento / grace para avisos y transiciones;
+         * ejecutar ambos diariamente; la fecha de acceso debe quedar alineada tras billing (sync).
          */
         $schedule->command('tenant:check-expiry')->dailyAt('06:00');
         $schedule->command('billing:check-expiration')->dailyAt('06:15');

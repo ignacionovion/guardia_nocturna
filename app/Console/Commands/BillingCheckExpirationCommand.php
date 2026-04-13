@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Models\Billing;
-use App\Models\Tenant;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -49,13 +48,14 @@ class BillingCheckExpirationCommand extends Command
 
         foreach ($expiredBillings as $billing) {
             $billing->update(['estado_pago' => 'vencido']);
-            
+            $billing->syncToTenant();
+
             Log::info("Billing expired: {$billing->tenant_id}", [
                 'billing_id' => $billing->id,
                 'tenant_id' => $billing->tenant_id,
                 'fecha_vencimiento' => $billing->fecha_vencimiento,
             ]);
-            
+
             $totalUpdated++;
         }
 
@@ -67,17 +67,9 @@ class BillingCheckExpirationCommand extends Command
             ->get();
 
         foreach ($overdueBillings as $billing) {
-            // Update billing status
             $billing->update(['estado_pago' => 'suspendido']);
-            
-            // Also suspend the tenant
-            if ($billing->tenant) {
-                $billing->tenant->update([
-                    'activo' => false,
-                    'estado' => Tenant::ESTADO_SUSPENDIDO,
-                ]);
-            }
-            
+            $billing->syncToTenant();
+
             Log::warning("Tenant suspended due to non-payment: {$billing->tenant_id}", [
                 'billing_id' => $billing->id,
                 'tenant_id' => $billing->tenant_id,

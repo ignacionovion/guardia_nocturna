@@ -172,7 +172,8 @@ class TenantController extends Controller
                     'fecha_ultimo_pago' => null,
                     'observacion' => $observacion,
                 ]);
-                
+                $billing->syncToTenant();
+
                 Log::debug('Billing record created successfully', [
                     'billing_id' => $billing->id,
                     'tenant_id' => $tenant->id,

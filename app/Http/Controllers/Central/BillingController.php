@@ -53,13 +53,8 @@ class BillingController extends Controller
             'observacion' => 'Pago registrado manualmente desde panel admin',
         ]);
 
-        // Actualizar billing con fecha de pago y recalcular vencimiento
+        // Actualizar billing con fecha de pago y recalcular vencimiento (incluye sync a tenants)
         $billing->marcarPagado($validated['fecha_pago']);
-
-        // Reactivar tenant si estaba suspendido
-        if ($billing->tenant && !$billing->tenant->activo) {
-            $billing->tenant->update(['activo' => true]);
-        }
 
         $ciclo = $billing->billing_cycle === 'yearly' ? '1 año' : '1 mes';
 
@@ -105,9 +100,8 @@ class BillingController extends Controller
             'plan_id' => ['required', 'exists:plans,id'],
         ]);
 
-        // Get plan price automatically
         $plan = Plan::findOrFail((int) $validated['plan_id']);
-        $nuevoMonto = $plan?->precio_mensual ?? 0;
+        $nuevoMonto = $plan->montoSegunCiclo($billing->billing_cycle ?? 'monthly');
         $montoAnterior = $billing->monto;
 
         $billing->update([
@@ -115,11 +109,7 @@ class BillingController extends Controller
             'plan' => $plan->slug,
             'monto' => $nuevoMonto,
         ]);
-
-        // Update tenant plan as well
-        $billing->tenant->update([
-            'plan_id' => $plan->id,
-        ]);
+        $billing->syncToTenant();
 
         return redirect()
             ->route('central.billing.index')
@@ -151,13 +141,26 @@ class BillingController extends Controller
             'billing_cycle' => ['required', 'in:monthly,yearly'],
         ]);
 
-        $billing->update(['billing_cycle' => $validated['billing_cycle']]);
+        $billing->loadMissing('planRelation');
+        $plan = $billing->planRelation ?? Plan::find($billing->plan_id);
+        if (!$plan) {
+            return redirect()
+                ->route('central.billing.index')
+                ->with('error', 'No se encontró el plan asociado a esta facturación.');
+        }
 
-        $cicloLabel = $validated['billing_cycle'] === 'yearly' ? 'Anual' : 'Mensual';
+        $newCycle = $validated['billing_cycle'];
+        $billing->update([
+            'billing_cycle' => $newCycle,
+            'monto' => $plan->montoSegunCiclo($newCycle),
+        ]);
+        $billing->syncToTenant();
+
+        $cicloLabel = $newCycle === 'yearly' ? 'Anual' : 'Mensual';
 
         return redirect()
             ->route('central.billing.index')
-            ->with('success', "Ciclo de facturación cambiado a {$cicloLabel}.");
+            ->with('success', "Ciclo de facturación cambiado a {$cicloLabel}. Monto actualizado según plan.");
     }
 
     /**
@@ -174,17 +177,19 @@ class BillingController extends Controller
         ]);
 
         $plan = Plan::findOrFail((int) $validated['plan_id']);
-        $monto = $validated['monto'] ?? $plan->precio_mensual;
+        $cycle = $validated['billing_cycle'] ?? 'monthly';
+        $monto = $validated['monto'] ?? $plan->montoSegunCiclo($cycle);
 
-        Billing::create([
+        $billing = Billing::create([
             'tenant_id' => $validated['tenant_id'],
             'plan_id' => $plan->id,
             'plan' => $plan->slug,
-            'billing_cycle' => $validated['billing_cycle'] ?? 'monthly',
+            'billing_cycle' => $cycle,
             'monto' => $monto,
             'estado_pago' => 'pendiente',
             'fecha_vencimiento' => $validated['fecha_vencimiento'],
         ]);
+        $billing->syncToTenant();
 
         return redirect()
             ->route('central.billing.index')

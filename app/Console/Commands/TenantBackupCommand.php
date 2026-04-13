@@ -41,6 +41,13 @@ class TenantBackupCommand extends Command
             mkdir($backupDir, 0755, true);
         }
 
+        Log::channel('tenant')->info('tenant:backup preflight', [
+            'backup_dir' => $backupDir,
+            'dir_writable' => is_writable($backupDir),
+            'keep_days' => $keepDays,
+            'app_env' => config('app.env'),
+        ]);
+
         $host = config('database.connections.mysql.host');
         $port = config('database.connections.mysql.port', 3306);
         $username = config('database.connections.mysql.username');
@@ -50,7 +57,7 @@ class TenantBackupCommand extends Command
         if (!$mysqldumpPath) {
             $hint = 'Instala el cliente MySQL (p. ej. mysql-client / mariadb-client) y asegura mysqldump en PATH.';
             $this->error("mysqldump no encontrado. {$hint}");
-            Log::channel('tenant')->error('tenant:backup aborted: mysqldump not found', [
+            Log::channel('tenant')->error('tenant:backup aborted: mysqldump not found (sale antes del dump; no se intenta respaldo por tenant)', [
                 'hint' => $hint,
                 'paths_checked' => '/usr/bin/mysqldump, which mysqldump, etc.',
             ]);
@@ -101,16 +108,23 @@ class TenantBackupCommand extends Command
             }
         }
 
-        // Cleanup old backups
-        $this->cleanOldBackups($backupDir, $keepDays);
+        $deletedOld = $this->cleanOldBackups($backupDir, $keepDays);
+        if ($deletedOld > 0) {
+            Log::channel('tenant')->info('tenant:backup retention', [
+                'deleted_files' => $deletedOld,
+                'keep_days' => $keepDays,
+            ]);
+        }
 
         $this->newLine();
         $this->info("Done: {$ok} OK, {$fail} failed.");
+        $this->line('Traza detallada: canal de log `tenant` (ver config/logging.php → storage/logs/tenant/tenant.log).');
 
         Log::channel('tenant')->info('tenant:backup finished', [
             'ok' => $ok,
             'failed' => $fail,
             'backup_dir' => $backupDir,
+            'retention_deleted' => $deletedOld,
         ]);
 
         return $fail > 0 ? self::FAILURE : self::SUCCESS;
@@ -314,7 +328,11 @@ class TenantBackupCommand extends Command
         return null;
     }
 
-    protected function cleanOldBackups(string $dir, int $keepDays): void
+    /**
+     * Elimina archivos *.sql.gz más antiguos que $keepDays (por mtime en disco).
+     * Si el cron no corre, los archivos no se borran y pueden acumularse hasta el próximo run exitoso.
+     */
+    protected function cleanOldBackups(string $dir, int $keepDays): int
     {
         $cutoff = now()->subDays($keepDays)->getTimestamp();
         $deleted = 0;
@@ -329,6 +347,8 @@ class TenantBackupCommand extends Command
         if ($deleted > 0) {
             $this->info("Cleaned up {$deleted} old backup(s) (older than {$keepDays} days).");
         }
+
+        return $deleted;
     }
 
     protected function formatBytes(int $bytes): string
