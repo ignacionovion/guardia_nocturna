@@ -237,7 +237,12 @@ class Billing extends Model
     private function resolvePlanSlugForSync(): ?string
     {
         if ($this->plan_id) {
-            if ($this->relationLoaded('planRelation') && $this->planRelation) {
+            // Evita usar una relación stale cuando plan_id cambió en el mismo request.
+            if (
+                $this->relationLoaded('planRelation')
+                && $this->planRelation
+                && (int) $this->planRelation->getKey() === (int) $this->plan_id
+            ) {
                 return (string) $this->planRelation->slug;
             }
 

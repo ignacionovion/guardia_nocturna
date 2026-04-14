@@ -109,6 +109,7 @@ class BillingController extends Controller
             'plan' => $plan->slug,
             'monto' => $nuevoMonto,
         ]);
+        $billing->setRelation('planRelation', $plan);
         $billing->syncToTenant();
 
         return redirect()

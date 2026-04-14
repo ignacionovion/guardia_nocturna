@@ -189,10 +189,19 @@ class Plan extends Model
      */
     public function montoSegunCiclo(string $billingCycle): float
     {
-        return match ($billingCycle) {
-            'yearly' => (float) ($this->precio_anual ?? 0),
-            default => (float) ($this->precio_mensual ?? 0),
-        };
+        $monthly = (float) ($this->precio_mensual ?? 0);
+
+        if ($billingCycle === 'yearly') {
+            $yearly = (float) ($this->precio_anual ?? 0);
+            if ($yearly > 0) {
+                return $yearly;
+            }
+
+            // Compatibilidad con catálogos legacy sin precio_anual.
+            return $monthly * 12;
+        }
+
+        return $monthly;
     }
 
 }
