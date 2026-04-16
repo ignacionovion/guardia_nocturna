@@ -73,6 +73,12 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'tenant' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/tenant/tenant.log'),
+            'level' => 'debug',
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),
