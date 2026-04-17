@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Guardia;
 use App\Models\Role;
 use App\Models\User;
+use App\Support\PlanLimitGuard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -52,7 +53,7 @@ class SystemUserController extends Controller
 
     public function store(Request $request)
     {
-        if (!$this->limitService->canCreateUser()) {
+        if (PlanLimitGuard::exceeds('users', User::count())) {
             $tenant = tenant();
             $tenant->loadMissing('planRelation');
 

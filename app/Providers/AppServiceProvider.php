@@ -12,6 +12,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->singleton(
+            \Illuminate\Contracts\Debug\ExceptionHandler::class,
+            \App\Exceptions\Handler::class
+        );
+
         // Override the default URL generator with our tenant-aware version
         $this->app->singleton('url', function ($app) {
             $routes = $app['router']->getRoutes();

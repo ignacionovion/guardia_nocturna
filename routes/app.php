@@ -42,6 +42,11 @@ Route::middleware(['auth'])->group(function () {
 // Broadcasting authentication routes
 Illuminate\Support\Facades\Broadcast::routes(['middleware' => ['auth', 'password.not_temporary']]);
 
+Route::middleware(['auth'])->group(function () {
+    Route::post('/upgrade/{plan}', [\App\Http\Controllers\Tenant\TenantUpgradeController::class, 'upgrade'])
+        ->name('tenant.upgrade.process');
+});
+
 // Archivos en disco public del tenant (fotos, etc.): requiere sesión autenticada
 Route::middleware(['auth', 'password.not_temporary'])->group(function () {
     Route::get('/media/{path}', function (string $tenant, string $path) {
@@ -51,6 +56,8 @@ Route::middleware(['auth', 'password.not_temporary'])->group(function () {
             Storage::disk('public')->path($path)
         );
     })->where('path', '.*')->name('media');
+
+    Route::get('/upgrade', \App\Http\Controllers\Tenant\TenantUpgradeController::class)->name('tenant.upgrade');
 });
 
 // Rutas Protegidas (Dashboard)
@@ -176,7 +183,7 @@ Route::middleware(['auth', 'password.not_temporary'])->group(function () {
         Route::post('/admin/bomberos/{id}/toggle-fuera-servicio', [AdministradorController::class, 'toggleFueraDeServicio'])->name('admin.bomberos.toggle_fuera_servicio');
     });
 
-    Route::get('/admin/dotaciones', [AdministradorController::class, 'dotaciones'])->middleware('feature:dotaciones')->name('admin.dotaciones');
+    Route::get('/admin/dotaciones', [AdministradorController::class, 'dotaciones'])->middleware('plan:dotaciones')->name('admin.dotaciones');
 
     // Rutas específicas de volunteers (deben ir ANTES del resource)
     Route::middleware(['tenant.feature:voluntarios'])->group(function () {
@@ -214,7 +221,7 @@ Route::middleware(['auth', 'password.not_temporary'])->group(function () {
     });
 
     // Rutas Admin - Calendario
-    Route::middleware(['feature:calendario'])->group(function () {
+    Route::middleware(['plan:calendario'])->group(function () {
         Route::get('/admin/calendario', [AdminCalendarController::class, 'index'])->name('admin.calendario');
         Route::post('/admin/calendario/assign-range', [AdminCalendarController::class, 'assignRange'])->name('admin.calendario.assign_range');
         Route::post('/admin/calendario/generate-rotation', [AdminCalendarController::class, 'generateRotation'])->name('admin.calendario.generate_rotation');

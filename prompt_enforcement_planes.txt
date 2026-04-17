@@ -1,0 +1,136 @@
+Actúa como un desarrollador senior experto en Laravel 12, arquitectura SaaS multi-tenant (stancl/tenancy) y sistemas de billing.
+
+Contexto del proyecto:
+
+- Aplicación SaaS multi-tenant usando stancl/tenancy
+- Existe tabla `tenants` (central) con:
+  - plan_id
+  - plan (slug legacy)
+  - activo (boolean)
+  - estado (activo, suspendido, vencido, etc.)
+- Existe tabla `tenant_billing` que es la fuente de verdad del billing
+- Existe modelo `Plan` con:
+  - features (json)
+  - addons (json)
+  - límites (max_users, max_guardias, etc.)
+- Relación: Tenant -> belongsTo Plan (planRelation)
+
+Objetivo:
+
+Implementar enforcement REAL de planes, incluyendo:
+1. Control de acceso por feature/módulo
+2. Control de límites (usuarios, guardias, etc.)
+3. Bloqueo completo por estado del tenant (no pago)
+4. Arquitectura limpia y reusable
+
+---
+
+Tareas a implementar:
+
+### 1. Middleware de acceso por feature
+
+Crear middleware `CheckPlanAccess` que:
+
+- Reciba un parámetro `feature`
+- Obtenga el tenant actual usando `tenant()`
+- Valide que exista `planRelation`
+- Use `$plan->hasFeature($feature)`
+- Si no tiene acceso → abort(403, mensaje claro)
+
+Registrar middleware en Kernel como:
+
+'plan' => CheckPlanAccess::class
+
+Ejemplo de uso:
+
+->middleware('plan:inventario')
+
+---
+
+### 2. Middleware de estado del tenant
+
+Crear middleware `CheckTenantActive` que:
+
+- Verifique:
+  - tenant existe
+  - tenant->activo = true
+- Si no cumple → abort(403, "Cuenta suspendida")
+
+Registrar como:
+
+'activo' => CheckTenantActive::class
+
+Aplicarlo a TODAS las rutas tenant:
+
+Route::middleware(['tenant', 'activo'])->group(...)
+
+---
+
+### 3. Enforcement de límites
+
+Implementar validaciones reutilizables para límites:
+
+Ejemplo usuarios:
+
+- Obtener plan:
+  $plan = tenant()->planRelation
+
+- Obtener límite:
+  $max = $plan->getLimit('users')
+
+- Validar:
+  if ($max !== null && User::count() >= $max)
+
+Retornar error claro si excede límite.
+
+Crear helper o trait reutilizable para esto.
+
+---
+
+### 4. Buenas prácticas (OBLIGATORIO)
+
+- No duplicar lógica de planes
+- Todo debe depender de Plan model
+- No usar strings hardcodeados
+- Mensajes claros para usuario final
+- Código limpio, tipado y consistente
+
+---
+
+### 5. Mejoras UX (opcional pero recomendado)
+
+En vez de abort(403):
+
+- Redirigir con mensaje:
+  "Tu plan no incluye esta funcionalidad"
+
+o
+
+- Vista dedicada:
+  "upgrade required"
+
+---
+
+### 6. Resultado esperado
+
+- Un tenant BASIC no puede acceder a módulos premium
+- Un tenant suspendido no puede usar el sistema
+- No se pueden crear recursos si supera límites
+- Todo centralizado en middleware + modelo Plan
+
+---
+
+Entrega:
+
+- Código completo de los middleware
+- Registro en Kernel
+- Ejemplos de uso en rutas
+- Ejemplo de enforcement de límite en controller
+- Opcional: helper reusable para límites
+
+---
+
+IMPORTANTE:
+
+No expliques teoría.
+Entrega código limpio, listo para producción, siguiendo buenas prácticas de Laravel 12.

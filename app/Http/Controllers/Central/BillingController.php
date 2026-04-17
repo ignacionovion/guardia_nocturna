@@ -101,16 +101,12 @@ class BillingController extends Controller
         ]);
 
         $plan = Plan::findOrFail((int) $validated['plan_id']);
-        $nuevoMonto = $plan->montoSegunCiclo($billing->billing_cycle ?? 'monthly');
         $montoAnterior = $billing->monto;
 
-        $billing->update([
-            'plan_id' => $plan->id,
-            'plan' => $plan->slug,
-            'monto' => $nuevoMonto,
-        ]);
-        $billing->setRelation('planRelation', $plan);
-        $billing->syncToTenant();
+        $billing->applyPlan($plan);
+        $billing->refresh();
+
+        $nuevoMonto = $billing->monto;
 
         return redirect()
             ->route('central.billing.index')

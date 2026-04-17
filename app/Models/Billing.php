@@ -149,6 +149,24 @@ class Billing extends Model
     }
 
     /**
+     * Asigna un plan y sincroniza monto según el ciclo actual; alinea el tenant vía syncToTenant().
+     */
+    public function applyPlan(Plan $plan): void
+    {
+        $cycle = $this->billing_cycle ?? 'monthly';
+        $monto = $plan->montoSegunCiclo($cycle);
+
+        $this->update([
+            'plan_id' => $plan->id,
+            'plan' => $plan->slug,
+            'monto' => $monto,
+        ]);
+
+        $this->setRelation('planRelation', $plan);
+        $this->syncToTenant();
+    }
+
+    /**
      * Mark as paid and extend due date based on billing cycle
      */
     public function marcarPagado(?string $fechaPago = null): void
