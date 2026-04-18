@@ -43,7 +43,7 @@ Route::middleware(['auth'])->group(function () {
 Illuminate\Support\Facades\Broadcast::routes(['middleware' => ['auth', 'password.not_temporary']]);
 
 Route::middleware(['auth'])->group(function () {
-    Route::post('/upgrade/{plan}', [\App\Http\Controllers\Tenant\TenantUpgradeController::class, 'upgrade'])
+    Route::post('/upgrade/{planId}', [\App\Http\Controllers\Tenant\TenantUpgradeController::class, 'upgrade'])
         ->name('tenant.upgrade.process');
 });
 

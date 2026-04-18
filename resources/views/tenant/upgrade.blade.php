@@ -124,7 +124,7 @@
                                         No disponible (plan inferior)
                                     </button>
                                 @else
-                                    <form method="POST" action="{{ route('tenant.upgrade.process', $plan) }}">
+                                    <form method="POST" action="{{ route('tenant.upgrade.process', ['planId' => $plan->getKey()]) }}">
                                         @csrf
                                         <button type="submit"
                                                 class="w-full rounded-2xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-md hover:bg-indigo-700 transition-colors">

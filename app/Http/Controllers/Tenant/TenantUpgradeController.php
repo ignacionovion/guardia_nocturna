@@ -38,8 +38,10 @@ class TenantUpgradeController extends Controller
         ]);
     }
 
-    public function upgrade(Request $request, Plan $plan): RedirectResponse
+    public function upgrade(Request $request, int $planId): RedirectResponse
     {
+        $plan = Plan::query()->findOrFail($planId);
+
         $tenant = tenant();
 
         if (! $tenant) {
