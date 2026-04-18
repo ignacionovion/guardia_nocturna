@@ -125,7 +125,7 @@
                             'border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300 transition-shadow duration-200' => ! $isPopular,
                         ])>
                             @if($isPopular)
-                                <span class="absolute -top-3 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-white shadow-sm">
+                                <span class="absolute -top-12 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-white shadow-sm">
                                     Más popular
                                 </span>
                             @endif
