@@ -156,7 +156,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
                 <div>
                     <p class="text-label">Plan Actual</p>
-                    <p class="font-semibold text-slate-900 dark:text-white mt-1">{{ $tenant->planRelation?->nombre ?? 'Sin plan asignado' }}</p>
+                    <p class="font-semibold text-slate-900 dark:text-white mt-1">{{ tenant_plan_label() }}</p>
                 </div>
                 <div>
                     <p class="text-label">Estado</p>

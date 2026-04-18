@@ -261,47 +261,40 @@
                     </div>
                 </x-ui.card>
 
-                <!-- Accesos Directos -->
+                <!-- Accesos directos (coherentes con el plan: módulo no incluido → CTA upgrade) -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <a href="{{ route('admin.guardias') }}" class="group p-4 bg-[#0f172a] hover:bg-[#1e293b] rounded-[14px] transition-colors flex items-center gap-3 no-underline shadow-md">
-                        <div class="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center shrink-0">
-                            <i class="fas fa-shield text-white"></i>
-                        </div>
-                        <div>
-                            <p class="font-semibold text-sm text-white">Guardias</p>
-                            <p class="text-xs text-slate-400">Administrar equipos</p>
-                        </div>
-                    </a>
-
-                    <a href="{{ route('admin.dotaciones') }}" class="group p-4 bg-white hover:bg-white rounded-xl border border-slate-200 transition-colors flex items-center gap-3 no-underline shadow-sm">
-                        <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shrink-0">
-                            <i class="fas fa-users-gear text-slate-900"></i>
-                        </div>
-                        <div>
-                            <p class="font-semibold text-sm text-[#1e293b]">Dotaciones</p>
-                            <p class="text-xs text-[#475569]">Asignar personal</p>
-                        </div>
-                    </a>
-
-                    <a href="{{ route('camas') }}" class="group p-4 bg-white hover:bg-white rounded-xl border border-slate-200 transition-colors flex items-center gap-3 no-underline shadow-sm">
-                        <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center shrink-0">
-                            <i class="fas fa-bed text-emerald-600"></i>
-                        </div>
-                        <div>
-                            <p class="font-semibold text-sm text-[#1e293b]">Camas</p>
-                            <p class="text-xs text-[#475569]">Gestionar alojamiento</p>
-                        </div>
-                    </a>
-
-                    <a href="{{ route('admin.emergencies.index') }}" class="group p-4 bg-white hover:bg-white rounded-xl border border-slate-200 transition-colors flex items-center gap-3 no-underline shadow-sm">
-                        <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center shrink-0">
-                            <i class="fas fa-truck-medical text-amber-600"></i>
-                        </div>
-                        <div>
-                            <p class="font-semibold text-sm text-[#1e293b]">Emergencias</p>
-                            <p class="text-xs text-[#475569]">Ver historial</p>
-                        </div>
-                    </a>
+                    <x-tenant.quick-link
+                        featureKey="guardia"
+                        :href="route('admin.guardias')"
+                        icon="fas fa-shield"
+                        title="Guardias"
+                        subtitle="Administrar equipos"
+                        variant="dark"
+                    />
+                    <x-tenant.quick-link
+                        featureKey="dotaciones"
+                        :href="route('admin.dotaciones')"
+                        icon="fas fa-users-gear"
+                        title="Dotaciones"
+                        subtitle="Asignar personal"
+                        variant="light"
+                    />
+                    <x-tenant.quick-link
+                        featureKey="camas"
+                        :href="route('camas')"
+                        icon="fas fa-bed"
+                        title="Camas"
+                        subtitle="Gestionar alojamiento"
+                        variant="emerald"
+                    />
+                    <x-tenant.quick-link
+                        featureKey="emergencias"
+                        :href="route('admin.emergencies.index')"
+                        icon="fas fa-truck-medical"
+                        title="Emergencias"
+                        subtitle="Ver historial"
+                        variant="amber"
+                    />
                 </div>
             </div>
 

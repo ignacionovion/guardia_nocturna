@@ -28,13 +28,15 @@ $currentDate = now()->locale('es');
         </div>
     </div>
     
-    {{-- Center: Quick Actions (Desktop) --}}
+    {{-- Center: Quick Actions (Desktop) — solo si el plan incluye NOW --}}
+    @if(feature('now'))
     <div class="hidden lg:flex items-center gap-2">
         <a href="{{ route('guardia.now') }}" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
             Guardia en Vivo
         </a>
     </div>
+    @endif
     
     {{-- Right: Actions --}}
     <div class="flex items-center gap-1 sm:gap-2">
@@ -124,7 +126,7 @@ $currentDate = now()->locale('es');
                     @if(!should_hide_user_email_in_ui($user->email ?? null, $user->username ?? null))
                         <div class="text-xs text-[#475569] truncate">{{ $user->email ?? '' }}</div>
                     @endif
-                    <div class="text-xs text-[#64748b] mt-1">Plan: {{ $tenant?->planRelation?->nombre ?? 'Sin plan asignado' }}</div>
+                    <div class="text-xs text-[#64748b] mt-1">Plan: {{ tenant_plan_label() }}</div>
                 </div>
                 <div class="py-1">
                     @if(in_array($user->role ?? '', ['capitan', 'super_admin', 'capitania']))

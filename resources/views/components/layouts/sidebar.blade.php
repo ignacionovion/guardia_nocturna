@@ -123,6 +123,16 @@ $items = $menuItems[$normalizedRole] ?? $menuItems['guardia'];
         </ul>
     </nav>
     
+    @if(in_array($role, ['capitan', 'super_admin', 'capitania'], true))
+    <div x-show="!sidebarCollapsed" x-transition class="mx-3 mb-2 px-1">
+        <p class="text-[10px] text-slate-500 truncate leading-tight">Plan actual: <span class="text-slate-300 font-medium">{{ tenant_plan_label() }}</span></p>
+        <a href="{{ route('tenant.upgrade') }}" class="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-400 hover:text-indigo-300 transition-colors">
+            <i class="fas fa-layer-group text-[10px]"></i>
+            Planes y módulos
+        </a>
+    </div>
+    @endif
+
     {{-- Status Card --}}
     <div x-show="!sidebarCollapsed" x-transition class="mx-3 mb-3">
         <div class="p-3 rounded-xl bg-[#1e293b] border border-[#334155]">

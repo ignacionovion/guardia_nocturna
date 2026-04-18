@@ -121,6 +121,28 @@ if (!function_exists('should_hide_user_email_in_ui')) {
     }
 }
 
+if (!function_exists('tenant_plan_label')) {
+    /**
+     * Nombre del plan actual del tenant (resolución vía PlanService, alineado con plan_id).
+     */
+    function tenant_plan_label(): string
+    {
+        $plan = PlanService::getCurrentPlan();
+
+        return $plan?->nombre ?? 'Sin plan asignado';
+    }
+}
+
+if (!function_exists('tenant_upgrade_url')) {
+    /**
+     * URL de la pantalla de planes / upgrade (tenant).
+     */
+    function tenant_upgrade_url(): string
+    {
+        return route('tenant.upgrade');
+    }
+}
+
 if (!function_exists('addon')) {
     /**
      * Check if an addon is enabled for the current tenant.

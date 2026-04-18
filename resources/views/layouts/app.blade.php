@@ -76,14 +76,17 @@
                         <a href="{{ route('dashboard') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('dashboard') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3] hover:text-[#1e293b]' }}">
                             Inicio
                         </a>
+                        @if(feature('camas'))
                         <a href="{{ route('camas') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('camas') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3] hover:text-[#1e293b]' }}">
                             Camas
                         </a>
+                        @endif
                     @elseif(in_array(Auth::user()->role, ['capitan', 'super_admin', 'capitania'], true))
                         <a href="{{ route('dashboard') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('dashboard') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3] hover:text-[#1e293b]' }}">
                             Inicio
                         </a>
 
+                        @if(feature('voluntarios') || feature('emergencias') || feature('dotaciones') || feature('calendario'))
                         <div class="relative group">
                             <button type="button" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors text-[#1e293b] hover:bg-[#b7c4d3] flex items-center gap-1">
                                 Gestión
@@ -113,7 +116,9 @@
                                 @endif
                             </div>
                         </div>
+                        @endif
 
+                        @if(feature('now') || feature('guardia') || feature('camas') || feature('reportes'))
                         <div class="relative group">
                             <button type="button" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors text-[#1e293b] hover:bg-[#b7c4d3] flex items-center gap-1">
                                 Guardias
@@ -143,6 +148,7 @@
                                 @endif
                             </div>
                         </div>
+                        @endif
 
                         @if(feature('preventiva'))
                         <div class="relative group">
@@ -465,17 +471,37 @@
             @auth
             @if(Auth::user()->role === 'guardia')
                 <a href="{{ route('dashboard') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('dashboard') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">Inicio</a>
+                @if(feature('camas'))
                 <a href="{{ route('camas') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('camas') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">Camas</a>
+                @endif
             @elseif(in_array(Auth::user()->role, ['capitan', 'super_admin', 'capitania'], true))
                 <a href="{{ route('dashboard') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('dashboard') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">Inicio</a>
+                @if(feature('voluntarios'))
+                <a href="{{ route('admin.volunteers.index') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('admin.volunteers*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">Voluntarios</a>
+                @endif
+                @if(feature('emergencias'))
+                <a href="{{ route('admin.emergencies.index') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('admin.emergencies*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">Emergencias</a>
+                @endif
+                @if(feature('dotaciones'))
+                <a href="{{ route('admin.dotaciones') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('admin.dotaciones*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">Dotaciones</a>
+                @endif
+                @if(feature('calendario'))
+                <a href="{{ route('admin.calendario') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('admin.calendario*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">Calendario</a>
+                @endif
+                @if(feature('now'))
+                <a href="{{ route('guardia.now') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('guardia.now*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">Guardia NOW</a>
+                @endif
                 @if(feature('guardia'))
                 <a href="{{ route('admin.guardias') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('admin.guardias*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">Guardias</a>
                 @endif
                 @if(feature('camas'))
                 <a href="{{ route('camas') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('camas') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">Camas</a>
                 @endif
-                @if(feature('calendario'))
-                <a href="{{ route('admin.calendario') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('admin.calendario*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">Calendario</a>
+                @if(feature('reportes'))
+                <a href="{{ route('admin.reports.index') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('admin.reports*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">Reportes</a>
+                @endif
+                @if(feature('preventiva'))
+                <a href="{{ route('admin.preventivas.index') }}" class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('admin.preventivas*') ? 'bg-[#9fb0c3] text-[#1e293b]' : 'text-[#1e293b] hover:bg-[#b7c4d3]' }}">Preventivas</a>
                 @endif
             @endif
             @endauth
