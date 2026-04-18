@@ -65,6 +65,8 @@ class TenantUpgradeController extends Controller
         $billing->loadMissing('planRelation');
 
         if ((int) $billing->plan_id === (int) $plan->getKey()) {
+            $this->forgetPlanDenialSession($request);
+
             return redirect()
                 ->route('dashboard')
                 ->with('success', 'Ya estás en este plan.');
@@ -80,8 +82,19 @@ class TenantUpgradeController extends Controller
 
         $billing->applyPlan($plan);
 
+        $this->forgetPlanDenialSession($request);
+
         return redirect()
             ->route('dashboard')
             ->with('success', 'Plan actualizado correctamente.');
+    }
+
+    private function forgetPlanDenialSession(Request $request): void
+    {
+        $request->session()->forget([
+            'plan_denial',
+            'blocked_feature',
+            'plan_denial_kind',
+        ]);
     }
 }
