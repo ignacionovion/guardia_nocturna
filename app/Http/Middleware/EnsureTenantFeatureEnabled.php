@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Exceptions\PlanAccessDeniedException;
 use App\Services\FeatureFlagService;
 use Closure;
 use Illuminate\Http\Request;
@@ -36,48 +37,19 @@ class EnsureTenantFeatureEnabled
 
         // Check if feature is enabled for this tenant
         if (!$this->featureService->enabled($feature)) {
-            // Cargar la relación explícitamente para asegurar que esté disponible
             $tenant->loadMissing('planRelation');
 
             Log::warning('Feature blocked for tenant.', [
                 'tenant_id' => $tenant->id,
                 'feature' => $feature,
                 'plan_id' => $tenant->plan_id,
-                'plan_slug' => $tenant->planRelation?->slug, // Acceder al slug desde la relación renombrada
+                'plan_slug' => $tenant->planRelation?->slug,
                 'request_uri' => $request->getRequestUri(),
             ]);
 
-            // Return 403 with custom view
-            return response()->view('errors.feature-disabled', [
-                'feature' => $feature,
-                'featureName' => $this->getFeatureName($feature),
-            ], 403);
+            throw PlanAccessDeniedException::featureNotIncluded($feature, $tenant->planRelation?->nombre);
         }
 
         return $next($request);
-    }
-
-    /**
-     * Get human-readable feature name
-     */
-    protected function getFeatureName(string $feature): string
-    {
-        $names = [
-            'guardia' => 'Gestión de Guardias',
-            'camas' => 'Gestión de Camas',
-            'planilla' => 'Planilla y formularios dinámicos',
-            'preventiva' => 'Mantenimiento Preventivo',
-            'emergencias' => 'Módulo de Emergencias',
-            'reportes' => 'Reportes y Estadísticas',
-            'calendario' => 'Calendario y Planificación',
-            'now' => 'Guardia NOW',
-            'voluntarios' => 'Gestión de Voluntarios',
-            'dotaciones' => 'Gestión de Dotaciones',
-            'api_access' => 'Acceso API',
-            'webhooks' => 'Webhooks e Integraciones',
-            'custom_branding' => 'Marca Personalizada',
-        ];
-
-        return $names[$feature] ?? ucfirst($feature);
     }
 }

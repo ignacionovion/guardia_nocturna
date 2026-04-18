@@ -36,7 +36,7 @@ class PlanAccessDeniedException extends \Exception implements ShouldntReport
     public static function organizationNotResolved(): self
     {
         return new self(
-            'No pudimos identificar tu organización. Vuelve a iniciar sesión o contacta a soporte.',
+            'No pudimos identificar tu organización. Volvé a iniciar sesión e intentá de nuevo.',
             self::KIND_NO_TENANT,
         );
     }
@@ -44,7 +44,7 @@ class PlanAccessDeniedException extends \Exception implements ShouldntReport
     public static function noPlanAssigned(): self
     {
         return new self(
-            'Tu cuenta no tiene un plan asignado. Elige un plan para continuar.',
+            'Tu cuenta no tiene un plan asignado. Elegí un plan para continuar.',
             self::KIND_NO_PLAN,
         );
     }
@@ -52,7 +52,7 @@ class PlanAccessDeniedException extends \Exception implements ShouldntReport
     public static function featureNotIncluded(string $feature, ?string $currentPlanName = null): self
     {
         return new self(
-            'Tu plan no incluye esta funcionalidad.',
+            'Esta funcionalidad no está incluida en tu plan actual.',
             self::KIND_FEATURE,
             $feature,
             $currentPlanName,
@@ -63,7 +63,7 @@ class PlanAccessDeniedException extends \Exception implements ShouldntReport
     public static function tenantInactive(?string $currentPlanName = null): self
     {
         return new self(
-            'Tu cuenta está suspendida o inactiva. Renueva tu plan o contacta a soporte.',
+            'Tu cuenta está suspendida o inactiva. Actualizá tu plan para reactivarla.',
             self::KIND_INACTIVE,
             null,
             $currentPlanName,
@@ -82,6 +82,53 @@ class PlanAccessDeniedException extends \Exception implements ShouldntReport
         );
     }
 
+    /**
+     * Mensaje corto según el motivo del bloqueo (UX / conversión).
+     */
+    public static function denialKindMessage(?string $kind): string
+    {
+        return match ($kind) {
+            self::KIND_FEATURE => 'Este módulo no está incluido en tu plan.',
+            self::KIND_LIMIT => 'Has alcanzado el límite de tu plan.',
+            self::KIND_INACTIVE => 'Tu cuenta está suspendida.',
+            self::KIND_NO_PLAN => 'Necesitás un plan activo para continuar.',
+            self::KIND_NO_TENANT => 'No pudimos cargar los datos de tu organización.',
+            default => '',
+        };
+    }
+
+    /**
+     * Texto principal de conversión según el tipo de bloqueo.
+     */
+    public static function conversionSubtitle(?string $kind, ?string $blockedFeature): string
+    {
+        if ($kind === null || $kind === '') {
+            return 'Compará los planes y cambiá el tuyo cuando lo necesites. El monto se ajusta según tu ciclo de facturación.';
+        }
+
+        if ($kind === self::KIND_INACTIVE) {
+            return 'Elegí un plan para reactivar tu cuenta y seguir usando el sistema.';
+        }
+
+        if ($kind === self::KIND_NO_PLAN) {
+            return 'Elegí un plan que se ajuste a tu organización y empezá en segundos.';
+        }
+
+        if ($kind === self::KIND_NO_TENANT) {
+            return 'Si ya tenés un plan, podés gestionarlo desde esta pantalla.';
+        }
+
+        if ($kind === self::KIND_LIMIT && $blockedFeature !== null && $blockedFeature !== '') {
+            $resource = self::limitLabel($blockedFeature);
+
+            return "Para superar el límite de {$resource} necesitás actualizar tu plan.";
+        }
+
+        $label = self::featureLabel($blockedFeature);
+
+        return "Para acceder a {$label} necesitás actualizar tu plan.";
+    }
+
     public function render(Request $request): Response|RedirectResponse
     {
         if ($request->expectsJson()) {
@@ -95,22 +142,41 @@ class PlanAccessDeniedException extends \Exception implements ShouldntReport
             ], 422);
         }
 
+        $request->session()->flash('blocked_feature', $this->blockedFeature);
+        $request->session()->flash('plan_denial_kind', $this->kind);
+
         return redirect()
             ->route('tenant.upgrade')
             ->with('plan_denial', [
                 'message' => $this->getMessage(),
                 'kind' => $this->kind,
                 'feature' => $this->blockedFeature,
-                'feature_label' => self::featureLabel($this->blockedFeature),
+                'feature_label' => self::resourceLabelForDenial($this->kind, $this->blockedFeature),
                 'current_plan' => $this->currentPlanName,
                 'required_plan' => $this->requiredPlanName,
             ]);
     }
 
+    /**
+     * Etiqueta humana del recurso bloqueado (módulo, addon o tipo de límite).
+     */
+    public static function resourceLabelForDenial(?string $kind, ?string $blocked): string
+    {
+        if ($blocked === null || $blocked === '') {
+            return self::featureLabel(null);
+        }
+
+        if ($kind === self::KIND_LIMIT) {
+            return self::limitLabel($blocked);
+        }
+
+        return self::featureLabel($blocked);
+    }
+
     public static function featureLabel(?string $feature): string
     {
         if ($feature === null || $feature === '') {
-            return 'Esta función';
+            return 'esta función';
         }
 
         $modules = Plan::availableModules();
@@ -130,5 +196,48 @@ class PlanAccessDeniedException extends \Exception implements ShouldntReport
             'storage' => 'almacenamiento',
             default => $type,
         };
+    }
+
+    /**
+     * Plan a destacar como recomendado en la pantalla de upgrade.
+     */
+    public static function isPlanRecommended(Plan $plan, ?string $kind, ?string $blockedFeature, ?Plan $currentPlan): bool
+    {
+        if ($kind === self::KIND_INACTIVE || $kind === self::KIND_NO_TENANT) {
+            return false;
+        }
+
+        if ($kind === self::KIND_FEATURE || $kind === self::KIND_NO_PLAN) {
+            if ($blockedFeature === null || $blockedFeature === '') {
+                return false;
+            }
+
+            return $plan->hasFeature($blockedFeature);
+        }
+
+        if ($kind === self::KIND_LIMIT && $blockedFeature !== null && $blockedFeature !== '') {
+            return self::planHasBetterLimit($plan, $blockedFeature, $currentPlan);
+        }
+
+        return false;
+    }
+
+    private static function planHasBetterLimit(Plan $plan, string $limitType, ?Plan $currentPlan): bool
+    {
+        $candidate = $plan->getLimit($limitType);
+        if ($candidate === null) {
+            return true;
+        }
+
+        if ($currentPlan === null) {
+            return true;
+        }
+
+        $current = $currentPlan->getLimit($limitType);
+        if ($current === null) {
+            return false;
+        }
+
+        return $candidate > $current;
     }
 }

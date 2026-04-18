@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Exceptions\PlanAccessDeniedException;
 use App\Services\FeatureFlagService;
 use Closure;
 use Illuminate\Http\Request;
@@ -13,7 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
  * Middleware to enforce feature flags on routes.
  *
  * Usage in routes: ->middleware('feature:inventario')
- * Will return 403 if the feature is disabled for the current tenant.
+ * Redirige a la pantalla de upgrade si la feature no está habilitada.
  */
 class EnforceFeatureFlag
 {
@@ -28,18 +29,10 @@ class EnforceFeatureFlag
         }
 
         if (!$this->features->enabled($feature)) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'error' => 'Esta funcionalidad no está disponible en tu plan.',
-                    'feature' => $feature,
-                ], 403);
-            }
+            $tenant = tenant();
+            $tenant?->loadMissing('planRelation');
 
-            return response()->view('feature-disabled', [
-                'feature' => $feature,
-                'label' => FeatureFlagService::featureLabels()[$feature] ?? $feature,
-                'plan' => tenant()->planRelation?->nombre ?? 'Sin plan asignado',
-            ], 403);
+            throw PlanAccessDeniedException::featureNotIncluded($feature, $tenant?->planRelation?->nombre);
         }
 
         return $next($request);

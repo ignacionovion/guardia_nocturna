@@ -2,100 +2,133 @@
 
 @section('content')
 @php
+    $recommendedPlanId = $recommendedPlanId ?? null;
     $denial = $denial ?? session('plan_denial');
-    $currentPlanName = $denial['current_plan'] ?? optional(tenant()?->planRelation)->nombre ?? '—';
-    $featureLabel = $denial['feature_label'] ?? \App\Exceptions\PlanAccessDeniedException::featureLabel($denial['feature'] ?? null);
+    $blockedFeature = session('blocked_feature') ?? ($denial['feature'] ?? null);
+    $denialKind = session('plan_denial_kind') ?? ($denial['kind'] ?? null);
+    $currentPlan = tenant()?->planRelation;
+    $currentPlanName = $denial['current_plan'] ?? $currentPlan?->nombre ?? '—';
+    $featureLabel = $denial['feature_label']
+        ?? \App\Exceptions\PlanAccessDeniedException::resourceLabelForDenial($denialKind, $blockedFeature);
+    $hasDenialContext = $denial !== null || $denialKind !== null;
+    $pageTitle = $hasDenialContext
+        ? 'Funcionalidad no disponible en tu plan'
+        : 'Planes y mejoras';
+    $pageSubtitle = \App\Exceptions\PlanAccessDeniedException::conversionSubtitle($denialKind, $blockedFeature);
+    $kindBanner = $denialKind ? \App\Exceptions\PlanAccessDeniedException::denialKindMessage($denialKind) : '';
 @endphp
 
-<div class="max-w-5xl mx-auto px-4 py-10">
-    <div class="rounded-2xl border border-slate-200/80 bg-white/90 shadow-lg shadow-slate-200/50 overflow-hidden">
-        <div class="bg-gradient-to-br from-indigo-50 via-white to-violet-50 px-8 py-10 border-b border-slate-100">
-            <div class="inline-flex items-center gap-2 rounded-full bg-indigo-100/80 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-indigo-800">
-                <i class="fas fa-layer-group"></i>
-                Plan y facturación
-            </div>
-            <h1 class="mt-4 text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-                {{ $denial['message'] ?? 'Planes y mejoras' }}
-            </h1>
-            <p class="mt-3 text-slate-600 text-base leading-relaxed max-w-2xl">
-                @if($denial)
-                    Elegí un plan superior para desbloquear la función o ampliar límites. El cambio se aplica a tu facturación y a tu cuenta al instante.
-                @else
-                    Compará los planes y cambiá el tuyo cuando lo necesites. El monto se recalcula según tu ciclo de facturación (mensual o anual).
-                @endif
-            </p>
-            @if(session('error'))
-                <div class="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-                    {{ session('error') }}
-                </div>
-            @endif
-            <div class="mt-6 flex flex-wrap gap-3">
-                <span class="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-slate-800 shadow-sm ring-1 ring-slate-200/80">
-                    <i class="fas fa-puzzle-piece text-indigo-500"></i>
-                    Módulo: <span class="font-semibold text-slate-900">{{ $featureLabel }}</span>
+<div class="max-w-6xl mx-auto px-4 py-10 sm:py-14">
+    <div class="rounded-3xl border border-slate-200/90 bg-white shadow-xl shadow-slate-200/40 overflow-hidden">
+        <div class="bg-gradient-to-br from-slate-50 via-white to-indigo-50/40 px-6 sm:px-10 py-10 sm:py-12 border-b border-slate-100">
+            <div class="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-indigo-700/90">
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-indigo-100/90 px-3 py-1">
+                    <i class="fas fa-layer-group text-[10px] opacity-80"></i>
+                    Plan y facturación
                 </span>
-                <span class="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-slate-800 shadow-sm ring-1 ring-slate-200/80">
-                    <i class="fas fa-id-badge text-violet-500"></i>
+                @if($hasDenialContext && $kindBanner !== '')
+                    <span class="inline-flex items-center rounded-full bg-violet-100/90 px-3 py-1 text-violet-900">
+                        {{ $kindBanner }}
+                    </span>
+                @endif
+            </div>
+
+            <h1 class="mt-5 text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+                {{ $pageTitle }}
+            </h1>
+
+            <p class="mt-3 text-base text-slate-600 leading-relaxed max-w-2xl">
+                {{ $pageSubtitle }}
+            </p>
+
+            @if($blockedFeature)
+                <p class="mt-4 text-sm sm:text-base text-slate-700 font-medium">
+                    Estás intentando acceder a: <span class="text-indigo-700">{{ $featureLabel }}</span>
+                </p>
+            @endif
+
+            <div class="mt-8 flex flex-wrap gap-3">
+                <span class="inline-flex items-center gap-2 rounded-2xl bg-white/90 px-4 py-2.5 text-sm font-medium text-slate-800 shadow-sm ring-1 ring-slate-200/80">
+                    <i class="fas fa-id-badge text-indigo-500"></i>
                     Plan actual: <span class="font-semibold text-slate-900">{{ $currentPlanName }}</span>
                 </span>
             </div>
-            <div class="mt-8 flex flex-col sm:flex-row gap-3">
-                <a href="{{ \App\Support\CentralUrls::billingPlans() }}"
-                   target="_blank" rel="noopener noreferrer"
-                   class="inline-flex justify-center items-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-md hover:bg-slate-800 transition-colors">
-                    <i class="fas fa-external-link-alt text-xs opacity-90"></i>
-                    Ver planes
-                </a>
-                <a href="{{ \App\Support\CentralUrls::billingIndex() }}"
-                   target="_blank" rel="noopener noreferrer"
-                   class="inline-flex justify-center items-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-md hover:bg-indigo-700 transition-colors">
-                    <i class="fas fa-arrow-up-right-from-square text-xs opacity-90"></i>
-                    Actualizar ahora
-                </a>
+
+            @if(session('error'))
+                <div class="mt-6 rounded-2xl border border-amber-200/80 bg-amber-50/90 px-4 py-3 text-sm text-amber-950">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            <div class="mt-8 flex flex-wrap gap-3">
                 <a href="{{ url()->previous() !== url()->current() ? url()->previous() : route('dashboard') }}"
-                   class="inline-flex justify-center items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50 transition-colors">
+                   class="inline-flex justify-center items-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50 transition-colors">
                     <i class="fas fa-arrow-left text-xs"></i>
                     Volver
                 </a>
             </div>
         </div>
 
-        <div class="px-8 py-8 bg-slate-50/80">
-            <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">Planes disponibles</h2>
+        <div class="px-6 sm:px-10 py-10 bg-slate-50/50">
+            <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-6">Elegí tu plan</h2>
+
             @if($plans->isEmpty())
-                <p class="text-slate-600 text-sm">No hay planes publicados en este momento. Contactá al administrador de la plataforma.</p>
+                <p class="text-slate-600 text-sm leading-relaxed max-w-lg">
+                    No hay planes publicados en este momento. Volvé a intentar más tarde o accedé a la consola principal de la plataforma.
+                </p>
             @else
-                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     @foreach($plans as $plan)
                         @php
-                            $isCurrent = (int) $plan->id === (int) optional(tenant()?->planRelation)->id;
+                            $isCurrent = $currentPlan && (int) $plan->id === (int) $currentPlan->id;
+                            $isLowerTier = $currentPlan
+                                && (float) $plan->precio_mensual < (float) $currentPlan->precio_mensual;
+                            $isRecommended = $recommendedPlanId !== null && (int) $plan->id === $recommendedPlanId;
                         @endphp
-                        <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow ring-1 ring-transparent hover:ring-indigo-100 flex flex-col">
-                            <div class="flex items-start justify-between gap-2">
-                                <h3 class="font-semibold text-slate-900">{{ $plan->nombre }}</h3>
+                        <div @class([
+                            'relative flex flex-col rounded-2xl border bg-white p-6 shadow-sm transition-shadow',
+                            'border-indigo-300 ring-2 ring-indigo-100/80 shadow-md' => $isRecommended,
+                            'border-slate-200/90 hover:shadow-md' => ! $isRecommended,
+                        ])>
+                            @if($isRecommended)
+                                <span class="absolute -top-3 left-4 inline-flex items-center rounded-full bg-indigo-600 px-3 py-1 text-xs font-semibold text-white shadow-sm">
+                                    Recomendado
+                                </span>
+                            @endif
+
+                            <div class="flex items-start justify-between gap-2 {{ $isRecommended ? 'mt-1' : '' }}">
+                                <h3 class="text-lg font-semibold text-slate-900">{{ $plan->nombre }}</h3>
                                 @if($isCurrent)
-                                    <span class="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800">Tu plan actual</span>
+                                    <span class="shrink-0 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-900">Tu plan actual</span>
                                 @endif
                             </div>
+
                             @if($plan->descripcion)
-                                <p class="mt-2 text-sm text-slate-600 line-clamp-3">{{ $plan->descripcion }}</p>
+                                <p class="mt-3 text-sm text-slate-600 leading-relaxed line-clamp-4">{{ $plan->descripcion }}</p>
                             @endif
-                            <div class="mt-4 flex items-baseline gap-1 text-slate-900">
-                                <span class="text-lg font-bold">${{ number_format((float) $plan->precio_mensual, 0, ',', '.') }}</span>
+
+                            <div class="mt-5 flex items-baseline gap-1 text-slate-900">
+                                <span class="text-2xl font-bold">${{ number_format((float) $plan->precio_mensual, 0, ',', '.') }}</span>
                                 <span class="text-sm text-slate-500">/ mes</span>
                             </div>
-                            <div class="mt-auto pt-4 border-t border-slate-100">
+
+                            <div class="mt-auto pt-6">
                                 @if($isCurrent)
                                     <button type="button" disabled
-                                            class="w-full rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-400 cursor-not-allowed">
-                                        Plan actual
+                                            class="w-full cursor-not-allowed rounded-2xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-400">
+                                        Tu plan actual
+                                    </button>
+                                @elseif($isLowerTier)
+                                    <button type="button" disabled
+                                            class="w-full cursor-not-allowed rounded-2xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-400">
+                                        No disponible (plan inferior)
                                     </button>
                                 @else
                                     <form method="POST" action="{{ route('tenant.upgrade.process', $plan) }}">
                                         @csrf
                                         <button type="submit"
-                                                class="w-full rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 transition-colors">
-                                            Cambiar a este plan
+                                                class="w-full rounded-2xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-md hover:bg-indigo-700 transition-colors">
+                                            {{ $isRecommended ? 'Actualizar ahora' : 'Cambiar a este plan' }}
                                         </button>
                                     </form>
                                 @endif

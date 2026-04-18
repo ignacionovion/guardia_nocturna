@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Exceptions\PlanAccessDeniedException;
 use App\Http\Controllers\Controller;
 use App\Models\Plan;
 use Illuminate\Http\RedirectResponse;
@@ -16,10 +17,24 @@ class TenantUpgradeController extends Controller
     {
         $plans = Plan::query()->active()->ordered()->get();
         $denial = session('plan_denial');
+        $blockedFeature = session('blocked_feature') ?? $denial['feature'] ?? null;
+        $denialKind = session('plan_denial_kind') ?? $denial['kind'] ?? null;
+        $currentPlan = tenant()?->planRelation;
+
+        $recommendedPlanId = null;
+        if ($blockedFeature && $denialKind && $plans->isNotEmpty()) {
+            foreach ($plans as $candidate) {
+                if (PlanAccessDeniedException::isPlanRecommended($candidate, $denialKind, $blockedFeature, $currentPlan)) {
+                    $recommendedPlanId = (int) $candidate->getKey();
+                    break;
+                }
+            }
+        }
 
         return view('tenant.upgrade', [
             'plans' => $plans,
             'denial' => $denial,
+            'recommendedPlanId' => $recommendedPlanId,
         ]);
     }
 
@@ -42,7 +57,7 @@ class TenantUpgradeController extends Controller
         if (! $billing) {
             return redirect()
                 ->route('tenant.upgrade')
-                ->with('error', 'No hay facturación registrada para tu organización. Contactá al administrador.');
+                ->with('error', 'No pudimos aplicar el cambio desde aquí. Completá la suscripción o volvé a intentar en unos minutos.');
         }
 
         $billing->loadMissing('planRelation');
