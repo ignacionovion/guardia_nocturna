@@ -124,11 +124,11 @@
                             'border-slate-900/15 shadow-[0_8px_30px_-8px_rgba(15,23,42,0.12)] ring-1 ring-slate-900/[0.06]' => $isPopular,
                             'border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300 transition-shadow duration-200' => ! $isPopular,
                         ])>
-                            @if($isPopular)
-                                <span class="absolute -top-12 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-white shadow-sm">
-                                    Más popular
-                                </span>
-                            @endif
+@if($isPopular)
+    <span class="absolute -top-16 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-white shadow-sm">
+        Más popular
+    </span>
+@endif
 
                             <div class="relative flex flex-col flex-1 p-7 sm:p-8 pt-9 text-center {{ $isPopular ? 'bg-slate-50/40' : '' }} rounded-2xl">
                                 <div class="rounded-xl border border-slate-200/90 bg-white px-4 py-4 mb-7 mx-auto w-full max-w-sm">
