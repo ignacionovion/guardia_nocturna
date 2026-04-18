@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Middleware;
 
 use App\Exceptions\PlanAccessDeniedException;
+use App\Services\PlanService;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,8 +25,8 @@ class CheckTenantActive
         }
 
         if ($tenant->activo !== true) {
-            $tenant->loadMissing('planRelation');
-            throw PlanAccessDeniedException::tenantInactive($tenant->planRelation?->nombre);
+            $plan = PlanService::planForTenant($tenant);
+            throw PlanAccessDeniedException::tenantInactive($plan?->nombre);
         }
 
         return $next($request);

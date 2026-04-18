@@ -6,6 +6,7 @@ namespace App\Http\Middleware;
 
 use App\Exceptions\PlanAccessDeniedException;
 use App\Services\FeatureFlagService;
+use App\Services\PlanService;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -36,18 +37,18 @@ class EnsureTenantFeatureEnabled
         }
 
         // Check if feature is enabled for this tenant
-        if (!$this->featureService->enabled($feature)) {
-            $tenant->loadMissing('planRelation');
+        if (! $this->featureService->enabled($feature)) {
+            $plan = PlanService::planForTenant($tenant);
 
             Log::warning('Feature blocked for tenant.', [
                 'tenant_id' => $tenant->id,
                 'feature' => $feature,
                 'plan_id' => $tenant->plan_id,
-                'plan_slug' => $tenant->planRelation?->slug,
+                'plan_slug' => $plan?->slug,
                 'request_uri' => $request->getRequestUri(),
             ]);
 
-            throw PlanAccessDeniedException::featureNotIncluded($feature, $tenant->planRelation?->nombre);
+            throw PlanAccessDeniedException::featureNotIncluded($feature, $plan?->nombre);
         }
 
         return $next($request);

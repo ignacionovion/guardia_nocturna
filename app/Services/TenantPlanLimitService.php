@@ -9,6 +9,7 @@ use App\Models\Guardia;
 use App\Models\Plan;
 use App\Models\Tenant;
 use App\Models\User;
+use App\Services\PlanService;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -321,8 +322,7 @@ class TenantPlanLimitService
             $this->plan = $tenant->planRelation;
             $this->planSource = 'central_tenant_relation';
         } else {
-            $tenant->loadMissing('planRelation');
-            $this->plan = $tenant->planRelation;
+            $this->plan = PlanService::planForTenant($tenant);
             $this->planSource = 'runtime_tenant_relation';
         }
 

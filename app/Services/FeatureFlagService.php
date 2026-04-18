@@ -258,17 +258,7 @@ class FeatureFlagService
      */
     private function getTenantPlan(Tenant $tenant): ?Plan
     {
-        if (!$tenant->plan_id) {
-            return null;
-        }
-
-        if ($tenant->relationLoaded('planRelation') && $tenant->planRelation) {
-            return $tenant->planRelation;
-        }
-
-        $tenant->loadMissing('planRelation');
-
-        return $tenant->planRelation;
+        return PlanService::planForTenant($tenant);
     }
 
     /**

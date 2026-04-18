@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Middleware;
 
 use App\Exceptions\PlanAccessDeniedException;
+use App\Services\PlanService;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,10 +20,9 @@ class CheckPlanAccess
             throw PlanAccessDeniedException::organizationNotResolved();
         }
 
-        $tenant->loadMissing('planRelation');
-        $plan = $tenant->planRelation;
+        $plan = PlanService::planForTenant($tenant);
 
-        if (!$plan) {
+        if (! $plan) {
             throw PlanAccessDeniedException::noPlanAssigned();
         }
 

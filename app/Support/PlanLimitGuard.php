@@ -7,6 +7,7 @@ namespace App\Support;
 use App\Exceptions\PlanAccessDeniedException;
 use App\Models\Plan;
 use App\Models\Tenant;
+use App\Services\PlanService;
 
 class PlanLimitGuard
 {
@@ -25,10 +26,9 @@ class PlanLimitGuard
             throw PlanAccessDeniedException::organizationNotResolved();
         }
 
-        $tenant->loadMissing('planRelation');
-        $plan = $tenant->planRelation;
+        $plan = PlanService::planForTenant($tenant);
 
-        if (!$plan instanceof Plan) {
+        if (! $plan instanceof Plan) {
             throw PlanAccessDeniedException::noPlanAssigned();
         }
 

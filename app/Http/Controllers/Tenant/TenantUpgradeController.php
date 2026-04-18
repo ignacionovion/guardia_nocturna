@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Tenant;
 use App\Exceptions\PlanAccessDeniedException;
 use App\Http\Controllers\Controller;
 use App\Models\Plan;
+use App\Services\PlanService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -19,7 +20,8 @@ class TenantUpgradeController extends Controller
         $denial = session('plan_denial');
         $blockedFeature = session('blocked_feature') ?? $denial['feature'] ?? null;
         $denialKind = session('plan_denial_kind') ?? $denial['kind'] ?? null;
-        $currentPlan = tenant()?->planRelation;
+        $t = tenant();
+        $currentPlan = $t ? PlanService::planForTenant($t) : null;
 
         $recommendedPlanId = null;
         if ($blockedFeature && $denialKind && $plans->isNotEmpty()) {
@@ -40,7 +42,7 @@ class TenantUpgradeController extends Controller
 
     public function upgrade(Request $request, string $tenant, string $targetPlan): RedirectResponse
     {
-        // `$tenant`: subdominio de `{tenant}.dev-app.cl` (obligatorio en firma para alinear con domain routes).
+        // Domain routes (`{tenant}.…`) + path: both parameters must appear in the signature for correct injection.
         $plan = Plan::query()->findOrFail((int) $targetPlan);
 
         $currentTenant = tenant();
@@ -75,8 +77,6 @@ class TenantUpgradeController extends Controller
 
         $currentPlan = $billing->planRelation;
 
-        // Posible foco de revisión: solo se comparan precio_mensual del plan objetivo vs actual;
-        // si el tenant factura en ciclo anual u otros matices, la decisión podría no alinear con expectativas.
         if (
             $currentPlan !== null
             && (float) $plan->precio_mensual < (float) $currentPlan->precio_mensual
@@ -85,6 +85,12 @@ class TenantUpgradeController extends Controller
         }
 
         $billing->applyPlan($plan);
+
+        $syncedTenant = tenant();
+        if ($syncedTenant !== null) {
+            $syncedTenant->refresh();
+            $syncedTenant->unsetRelation('planRelation');
+        }
 
         $this->forgetPlanDenialSession($request);
 

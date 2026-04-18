@@ -6,6 +6,7 @@ namespace App\Http\Middleware;
 
 use App\Exceptions\PlanAccessDeniedException;
 use App\Services\FeatureFlagService;
+use App\Services\PlanService;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,11 +29,11 @@ class EnforceFeatureFlag
             return $next($request);
         }
 
-        if (!$this->features->enabled($feature)) {
+        if (! $this->features->enabled($feature)) {
             $tenant = tenant();
-            $tenant?->loadMissing('planRelation');
+            $plan = $tenant ? PlanService::planForTenant($tenant) : null;
 
-            throw PlanAccessDeniedException::featureNotIncluded($feature, $tenant?->planRelation?->nombre);
+            throw PlanAccessDeniedException::featureNotIncluded($feature, $plan?->nombre);
         }
 
         return $next($request);

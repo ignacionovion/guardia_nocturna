@@ -10,14 +10,26 @@ use Illuminate\Support\Facades\Log;
 
 class PlanService
 {
+    /**
+     * Plan efectivo del tenant, siempre alineado con `plan_id` (evita relación Eloquent stale tras upgrade/cambio).
+     */
+    public static function planForTenant(Tenant $tenant): ?Plan
+    {
+        return self::resolvePlanForTenant($tenant);
+    }
+
     private static function resolvePlanForTenant(Tenant $tenant): ?Plan
     {
-        if (!$tenant->plan_id) {
+        if (! $tenant->plan_id) {
             return null;
         }
 
         if ($tenant->relationLoaded('planRelation') && $tenant->planRelation) {
-            return $tenant->planRelation;
+            if ((int) $tenant->planRelation->getKey() !== (int) $tenant->plan_id) {
+                $tenant->unsetRelation('planRelation');
+            } else {
+                return $tenant->planRelation;
+            }
         }
 
         $tenant->loadMissing('planRelation');
