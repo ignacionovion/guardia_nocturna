@@ -60,7 +60,7 @@
             <p class="mt-4 text-sm sm:text-base text-slate-600 leading-[1.7] max-w-xl mx-auto">
                 Desbloquea más módulos, más capacidad y una mejor experiencia operativa para tu compañía.
             </p>
-            <div class="mt-9 flex justify-center">
+            <div class="mt-12 sm:mt-14 mb-2 sm:mb-4 flex justify-center">
                 <div class="inline-flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-5 py-3.5 shadow-sm">
                     <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-900 text-white">
                         <i class="fas fa-layer-group text-sm"></i>
@@ -120,7 +120,7 @@
 
                         <div class="w-full max-w-md xl:max-w-none">
                         <div @class([
-                            'relative flex flex-col h-full min-h-[32rem] rounded-2xl border bg-white',
+                            'relative flex flex-col h-full min-h-[30rem] rounded-2xl border bg-white',
                             'border-slate-900/15 shadow-[0_8px_30px_-8px_rgba(15,23,42,0.12)] ring-1 ring-slate-900/[0.06]' => $isPopular,
                             'border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300 transition-shadow duration-200' => ! $isPopular,
                         ])>
