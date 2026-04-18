@@ -38,16 +38,14 @@ class TenantUpgradeController extends Controller
         ]);
     }
 
-    public function upgrade(Request $request, string $planId): RedirectResponse
+    public function upgrade(Request $request, string $tenant, string $targetPlan): RedirectResponse
     {
-        // TEMP DEBUG staging: quitar tras confirmar routing. Si ves esto, el POST llega al controller.
-        dd('ENTRO A UPGRADE', $planId);
+        // `$tenant`: subdominio de `{tenant}.dev-app.cl` (obligatorio en firma para alinear con domain routes).
+        $plan = Plan::query()->findOrFail((int) $targetPlan);
 
-        $plan = Plan::query()->findOrFail((int) $planId);
+        $currentTenant = tenant();
 
-        $tenant = tenant();
-
-        if (! $tenant) {
+        if (! $currentTenant) {
             return redirect()
                 ->route('tenant.upgrade')
                 ->with('error', 'No se pudo identificar tu organización.');
@@ -57,7 +55,7 @@ class TenantUpgradeController extends Controller
             return back()->with('error', 'Este plan no está disponible.');
         }
 
-        $billing = $tenant->billing;
+        $billing = $currentTenant->billing;
 
         if (! $billing) {
             return redirect()
