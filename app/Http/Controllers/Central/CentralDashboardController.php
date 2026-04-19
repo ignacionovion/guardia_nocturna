@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Central;
 use App\Http\Controllers\Controller;
 use App\Models\Body;
 use App\Models\CentralAuditLog;
+use App\Models\OperationalAlert;
 use App\Models\Plan;
 use App\Models\Tenant;
 use App\Services\OperationalHealthService;
@@ -22,6 +23,17 @@ class CentralDashboardController extends Controller
     public function index()
     {
         $operationalHealth = $this->operationalHealth->dashboardSummary();
+
+        $operationalAlertsOpen = OperationalAlert::query()
+            ->where('status', OperationalAlert::STATUS_OPEN)
+            ->orderByRaw("CASE WHEN severity = 'critical' THEN 0 ELSE 1 END")
+            ->orderByDesc('last_triggered_at')
+            ->limit(25)
+            ->get();
+
+        $operationalAlertsOpenCount = OperationalAlert::query()
+            ->where('status', OperationalAlert::STATUS_OPEN)
+            ->count();
 
         $tenantsCount = Tenant::count();
         $activeTenantsCount = Tenant::where('activo', true)->count();
@@ -91,6 +103,8 @@ class CentralDashboardController extends Controller
 
         return view('central.dashboard', compact(
             'operationalHealth',
+            'operationalAlertsOpen',
+            'operationalAlertsOpenCount',
             'tenantsCount',
             'activeTenantsCount',
             'bodiesCount',

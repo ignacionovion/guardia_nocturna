@@ -32,6 +32,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // Primero: señal de que schedule:run está vivo (monitoreo operativo)
         $schedule->command('ops:heartbeat')->everyMinute();
 
+        // Alertas operativas (emails ante cambios reales; no spam por minuto)
+        $schedule->command('ops:check-alerts')->everyFiveMinutes();
+
         $schedule->command('tenant:run', ['guardia:expire-replacements'])->everyMinute();
         $schedule->command('tenant:run', ['guardia:run-calendar'])->everyMinute();
         $schedule->command('tenant:run', ['guardia:reset-beds'])->everyMinute();

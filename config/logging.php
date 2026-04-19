@@ -79,6 +79,14 @@ return [
             'level' => 'debug',
         ],
 
+        'operational_alerts' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/operational_alerts.log'),
+            'level' => env('LOG_LEVEL', 'info'),
+            'days' => 30,
+            'replace_placeholders' => true,
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),

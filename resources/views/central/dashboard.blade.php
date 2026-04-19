@@ -76,6 +76,48 @@
         @endif
     </div>
 
+    <div id="operational-alerts" class="mb-6 rounded-2xl border px-5 py-4 @if($operationalAlertsOpenCount > 0) border-rose-200 bg-rose-50/50 @else border-slate-200 bg-slate-50/80 @endif">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-slate-600">Alertas operativas</p>
+                <p class="text-lg font-bold text-slate-900 mt-0.5">
+                    @if($operationalAlertsOpenCount > 0)
+                        {{ $operationalAlertsOpenCount }} incidente(s) abierto(s)
+                    @else
+                        Sin alertas abiertas
+                    @endif
+                </p>
+            </div>
+            @if($operationalAlertsOpenCount > 0)
+                <span class="inline-flex items-center rounded-full bg-rose-600 text-white text-xs font-bold px-3 py-1">{{ $operationalAlertsOpenCount }}</span>
+            @endif
+        </div>
+
+        @forelse($operationalAlertsOpen as $oa)
+            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 py-3 border-t border-slate-200/80 first:border-t-0 first:pt-0">
+                <div class="min-w-0 flex-1">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-xs font-mono text-slate-500">{{ $oa->alert_key }}</span>
+                        <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded {{ $oa->severity === 'critical' ? 'bg-rose-200 text-rose-900' : 'bg-amber-200 text-amber-900' }}">{{ $oa->severity }}</span>
+                        <span class="text-[10px] uppercase text-slate-500">{{ $oa->source }}</span>
+                    </div>
+                    <p class="font-semibold text-slate-900 mt-1">{{ $oa->title }}</p>
+                    <p class="text-sm text-slate-600 mt-0.5">{{ $oa->message }}</p>
+                </div>
+                <div class="text-xs text-slate-500 whitespace-nowrap sm:text-right">
+                    @if($oa->last_triggered_at)
+                        Última señal<br>
+                        <span class="font-medium text-slate-700">{{ $oa->last_triggered_at->timezone(config('app.timezone'))->format('d/m/Y H:i') }}</span>
+                    @endif
+                </div>
+            </div>
+        @empty
+            <p class="text-sm text-slate-600">
+                No hay incidentes abiertos. Las notificaciones por correo se envían solo ante incidentes nuevos, escalación a crítico o resolución (según configuración).
+            </p>
+        @endforelse
+    </div>
+
     {{-- Main Stats Row --}}
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div class="bg-white rounded-2xl border border-slate-200 p-5">
