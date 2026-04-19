@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Support\TenantSubscriptionUx;
+use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -50,6 +51,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Route::macro('centralNamed', function (?string $name) {
+            if ($name !== null && ($GLOBALS['__central_named_routes'] ?? true)) {
+                $this->name($name);
+            }
+
+            return $this;
+        });
+
         $forceHttps = $this->app->environment('production')
             || filter_var(env('APP_FORCE_HTTPS', false), FILTER_VALIDATE_BOOL)
             || request()->headers->get('x-forwarded-proto') === 'https';

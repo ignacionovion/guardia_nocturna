@@ -98,6 +98,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'plan.limit'          => \App\Http\Middleware\EnforcePlanLimits::class,
             'role'                => \App\Http\Middleware\EnsureRole::class,
             'password.not_temporary' => \App\Http\Middleware\EnsurePasswordIsNotTemporary::class,
+            'central.active' => \App\Http\Middleware\EnsureCentralAdminIsActive::class,
+            'central.super_admin' => \App\Http\Middleware\EnsureCentralSuperAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

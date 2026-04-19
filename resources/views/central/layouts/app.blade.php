@@ -29,6 +29,12 @@
                            class="px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('central.dashboard') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }} transition">
                             Dashboard
                         </a>
+                        @if(Auth::guard('central')->user()?->is_super_admin)
+                            <a href="{{ Route::has('central.admins.index') ? route('central.admins.index') : url('/admin/admins') }}"
+                               class="px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('central.admins.*') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }} transition">
+                                Administradores
+                            </a>
+                        @endif
                         <a href="{{ route('central.tenants.index') }}"
                            class="px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('central.tenants.*') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }} transition">
                             Compañías
@@ -52,8 +58,12 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <span class="text-slate-400 text-sm">{{ Auth::guard('central')->user()->name }}</span>
-                    <form method="POST" action="/logout">
+                    <span class="text-slate-400 text-sm hidden sm:inline">
+                        <span class="text-slate-500">{{ Auth::guard('central')->user()->username }}</span>
+                        <span class="text-slate-600">·</span>
+                        {{ Auth::guard('central')->user()->name }}
+                    </span>
+                    <form method="POST" action="{{ url('/logout') }}">
                         @csrf
                         <button type="submit" class="text-slate-400 hover:text-white text-sm transition">Salir</button>
                     </form>
