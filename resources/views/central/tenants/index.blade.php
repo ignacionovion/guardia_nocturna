@@ -22,7 +22,9 @@
                     <th class="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Compañía</th>
                     <th class="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Cuerpo</th>
                     <th class="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Plan</th>
-                    <th class="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Estado</th>
+                    <th class="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Facturación</th>
+                    <th class="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Vence / Trial</th>
+                    <th class="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Estado acceso</th>
                     <th class="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Subdominio</th>
                     <th class="text-right px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Acciones</th>
                 </tr>
@@ -32,6 +34,8 @@
                     @php
                         $planSlug = $tenant->planRelation?->slug;
                         $planName = $tenant->planRelation?->nombre ?? 'Sin plan';
+                        $b = $tenant->billing;
+                        $cycleLabel = $b?->billing_cycle === 'yearly' ? 'Anual' : 'Mensual';
                     @endphp
                     <tr class="hover:bg-white transition">
                         <td class="px-6 py-4">
@@ -52,10 +56,35 @@
                                 {{ $planName }}
                             </span>
                         </td>
+                        <td class="px-6 py-4 text-xs text-slate-600">
+                            @if($b)
+                                <div class="font-medium text-slate-800 capitalize">{{ str_replace('_', ' ', $b->estado_pago) }}</div>
+                                <div class="text-slate-500">{{ $cycleLabel }} · ${{ number_format((float) $b->monto, 0, ',', '.') }}</div>
+                                @if(in_array($b->estado_pago, ['vencido', 'suspendido'], true))
+                                    <span class="inline-block mt-1 text-[10px] font-semibold text-rose-600">Requiere acción</span>
+                                @elseif($b->estado_pago === 'pendiente' && $tenant->daysUntilExpiry() !== null && $tenant->daysUntilExpiry() <= 7 && $tenant->daysUntilExpiry() >= 0)
+                                    <span class="inline-block mt-1 text-[10px] font-semibold text-amber-600">Por vencer</span>
+                                @endif
+                            @else
+                                <span class="text-amber-600">Sin billing</span>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4 text-xs text-slate-600 whitespace-nowrap">
+                            @if($b && $b->estado_pago === 'trial' && $b->trial_ends_at)
+                                Trial {{ $b->trial_ends_at->format('d/m/Y') }}
+                            @elseif($tenant->fecha_vencimiento)
+                                {{ $tenant->fecha_vencimiento->format('d/m/Y') }}
+                            @else
+                                —
+                            @endif
+                        </td>
                         <td class="px-6 py-4">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $tenant->estadoBadgeClass() }}">
                                 {{ $tenant->estadoLabel() }}
                             </span>
+                            @if(!$tenant->activo)
+                                <span class="block text-[10px] text-slate-500 mt-0.5">activo=0</span>
+                            @endif
                             @if($tenant->daysUntilExpiry() !== null && $tenant->daysUntilExpiry() <= 7 && $tenant->daysUntilExpiry() > 0)
                                 <span class="text-[10px] text-amber-600 ml-1">{{ $tenant->daysUntilExpiry() }}d</span>
                             @endif
@@ -83,7 +112,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-12 text-center text-slate-400 text-sm">
+                        <td colspan="8" class="px-6 py-12 text-center text-slate-400 text-sm">
                             No hay compañías registradas. <a href="{{ route('central.tenants.create') }}" class="text-blue-600 hover:underline">Crear la primera</a>
                         </td>
                     </tr>

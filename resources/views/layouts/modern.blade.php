@@ -144,7 +144,14 @@
         <div class="flex-1 flex flex-col min-w-0 w-full max-w-full" :class="{ 'lg:ml-0': !$refs }">
             {{-- Topbar --}}
             @auth
-                @include('components.layouts.topbar', ['title' => $__env->yieldContent('page-title', '')])
+                @include('components.layouts.topbar', [
+                    'title' => $__env->yieldContent('page-title', ''),
+                    'subscriptionUx' => $subscriptionUx ?? [],
+                ])
+            @endauth
+
+            @auth
+                @include('components.tenant-subscription-banner', ['ux' => $subscriptionUx ?? []])
             @endauth
             
             {{-- Page Content --}}

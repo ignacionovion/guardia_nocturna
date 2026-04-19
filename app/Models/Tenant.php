@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
 use Stancl\Tenancy\Contracts\TenantWithDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDatabase;
@@ -90,11 +91,38 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     }
 
     /**
+     * Tenants cuya base de datos debe incluirse en backups programados (continuidad SaaS).
+     *
+     * Incluye: trial, activo, vencido, suspendido (mora u otro) — los datos siguen bajo custodia.
+     * Excluye: cancelado — fuera de ciclo de servicio; dump puntual vía comando con --include-cancelled.
+     *
+     * No filtra por `activo`: un suspendido sigue siendo cliente con datos a recuperar.
+     */
+    public function scopeForDatabaseBackup($query)
+    {
+        return $query->where('estado', '!=', self::ESTADO_CANCELADO);
+    }
+
+    /**
      * Check if the tenant is in an operational state (can access the app).
      */
     public function isOperational(): bool
     {
         return in_array($this->estado, [self::ESTADO_TRIAL, self::ESTADO_ACTIVO]);
+    }
+
+    /**
+     * Fin del período de gracia (inclusive) respecto a fecha_vencimiento.
+     */
+    public function gracePeriodEndsAt(): ?Carbon
+    {
+        if (!$this->fecha_vencimiento) {
+            return null;
+        }
+
+        $graceDays = $this->grace_days ?? (int) config('billing.grace_days_after_due', 5);
+
+        return $this->fecha_vencimiento->copy()->startOfDay()->addDays($graceDays)->endOfDay();
     }
 
     /**
@@ -106,10 +134,9 @@ class Tenant extends BaseTenant implements TenantWithDatabase
             return false;
         }
 
-        $graceDays = $this->grace_days ?? 5;
-        $graceEnd = $this->fecha_vencimiento->addDays($graceDays);
+        $graceEnd = $this->gracePeriodEndsAt();
 
-        return now()->lte($graceEnd);
+        return $graceEnd !== null && now()->lte($graceEnd);
     }
 
     /**

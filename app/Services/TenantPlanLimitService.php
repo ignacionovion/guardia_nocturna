@@ -384,24 +384,33 @@ class TenantPlanLimitService
      */
     protected function getCurrentStorageUsageMb(): float
     {
-        // This is a placeholder - implement based on your storage strategy
-        // Could track uploads in a table, or scan storage directory
-        
-        $storagePath = storage_path('app/tenant-' . tenant()->id);
-        
-        if (!is_dir($storagePath)) {
-            return 0;
+        $id = tenant()?->id;
+        if ($id === null) {
+            return 0.0;
         }
 
-        // Calculate directory size
+        return $this->directorySizeMb(storage_path('app/tenant-' . $id))
+            + $this->directorySizeMb(storage_path('app/public/branding/' . $id))
+            + $this->directorySizeMb(storage_path('app/tenants/' . $id));
+    }
+
+    private function directorySizeMb(string $path): float
+    {
+        if (!is_dir($path)) {
+            return 0.0;
+        }
+
         $size = 0;
-        foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($storagePath)) as $file) {
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($path, \RecursiveDirectoryIterator::SKIP_DOTS)
+        );
+        foreach ($iterator as $file) {
             if ($file->isFile()) {
                 $size += $file->getSize();
             }
         }
 
-        return $size / 1024 / 1024; // Convert to MB
+        return $size / 1024 / 1024;
     }
 
     /**

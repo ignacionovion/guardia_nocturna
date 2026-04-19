@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Support\TenantSubscriptionUx;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -61,5 +63,9 @@ class AppServiceProvider extends ServiceProvider
         
         // Registrar observer para sincronización automática de estado de camas
         \App\Models\BedAssignment::observe(\App\Observers\BedAssignmentObserver::class);
+
+        View::composer('layouts.modern', function ($view): void {
+            $view->with('subscriptionUx', TenantSubscriptionUx::forLayout(tenant()));
+        });
     }
 }

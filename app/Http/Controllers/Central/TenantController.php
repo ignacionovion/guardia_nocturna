@@ -26,7 +26,7 @@ class TenantController extends Controller
     ) {}
     public function index()
     {
-        $tenants = Tenant::with(['body', 'domains', 'planRelation'])->latest()->paginate(20);
+        $tenants = Tenant::with(['body', 'domains', 'planRelation', 'billing'])->latest()->paginate(20);
         return view('central.tenants.index', compact('tenants'));
     }
 

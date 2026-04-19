@@ -1,5 +1,6 @@
 @props([
     'title' => '',
+    'subscriptionUx' => [],
 ])
 
 @php
@@ -8,7 +9,8 @@ $tenant = tenant();
 $currentDate = now()->locale('es');
 @endphp
 
-<header class="sticky top-0 z-30 flex items-center justify-between h-16 px-4 sm:px-6 bg-white/80 glass border-b border-slate-200 shadow-sm">
+<header class="sticky top-0 z-30 flex flex-col border-b border-slate-200 shadow-sm bg-white/80 glass">
+<div class="flex h-16 items-center justify-between px-4 sm:px-6 w-full">
     {{-- Left: Mobile menu + Title + Date --}}
     <div class="flex items-center gap-4">
         {{-- Mobile sidebar toggle --}}
@@ -18,13 +20,18 @@ $currentDate = now()->locale('es');
         </button>
         
         {{-- Page title & date --}}
-        <div class="hidden sm:flex flex-col">
+        <div class="hidden sm:flex flex-col min-w-0">
             @if($title)
             <h1 class="text-base font-semibold text-[#0f172a] leading-tight">{{ $title }}</h1>
             @endif
             <span class="text-xs text-[#475569]">
                 {{ $currentDate->isoFormat('dddd, D [de] MMMM') }}
             </span>
+            @if(!empty($subscriptionUx['show_topbar_hint']) && !empty($subscriptionUx['topbar_line']))
+                <span class="mt-0.5 text-[11px] font-medium text-slate-600 truncate max-w-[18rem] lg:max-w-md" title="{{ $subscriptionUx['topbar_line'] }}">
+                    {{ $subscriptionUx['topbar_line'] }}
+                </span>
+            @endif
         </div>
     </div>
     
@@ -158,4 +165,5 @@ $currentDate = now()->locale('es');
             </div>
         </div>
     </div>
+</div>
 </header>

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\EnsureTenantActive;
 use App\Http\Middleware\EnsureTenantHasPlan;
 use App\Http\Middleware\EnsureTenantHasPlanForApp;
 use Illuminate\Support\Facades\Route;
@@ -40,6 +41,6 @@ Route::domain('{tenant}.dev-app.cl')
         PreventAccessFromCentralDomains::class, // Debe ir ANTES de inicializar
         'tenant',
         EnsureTenantHasPlanForApp::class,
-        'activo',
+        EnsureTenantActive::class,
     ])
     ->group(base_path('routes/app.php'));

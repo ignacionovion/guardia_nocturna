@@ -8,6 +8,7 @@ use App\Exceptions\PlanAccessDeniedException;
 use App\Http\Controllers\Controller;
 use App\Models\Plan;
 use App\Services\PlanService;
+use App\Support\TenantSubscriptionUx;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -37,6 +38,7 @@ class TenantUpgradeController extends Controller
             'plans' => $plans,
             'denial' => $denial,
             'recommendedPlanId' => $recommendedPlanId,
+            'upgradeUx' => TenantSubscriptionUx::forUpgrade($t),
         ]);
     }
 

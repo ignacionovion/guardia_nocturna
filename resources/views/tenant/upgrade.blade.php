@@ -82,6 +82,35 @@
                 </div>
             @endif
 
+            @php
+                $upgradeUx = $upgradeUx ?? ['panels' => [], 'footer_note' => null];
+            @endphp
+            @foreach($upgradeUx['panels'] ?? [] as $panel)
+                @php
+                    $pv = $panel['variant'] ?? 'info';
+                    $panelWrap = match ($pv) {
+                        'danger' => 'border-rose-200 bg-rose-50 text-rose-950',
+                        'warning' => 'border-amber-200 bg-amber-50 text-amber-950',
+                        default => 'border-sky-200 bg-sky-50 text-sky-950',
+                    };
+                    $panelIcon = $panel['icon'] ?? 'info-circle';
+                @endphp
+                <div class="mb-10 max-w-3xl mx-auto w-full rounded-2xl border {{ $panelWrap }} px-5 py-5 sm:px-6 sm:py-6 shadow-sm">
+                    <div class="flex gap-4">
+                        <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/80 border border-black/5">
+                            <i class="fas fa-{{ $panelIcon }} text-lg opacity-90"></i>
+                        </span>
+                        <div class="min-w-0 flex-1 text-left">
+                            <p class="text-sm font-semibold leading-snug">{{ $panel['title'] ?? '' }}</p>
+                            <p class="mt-2 text-sm leading-relaxed opacity-95">{{ $panel['body'] ?? '' }}</p>
+                            @if(!empty($panel['footnote']))
+                                <p class="mt-3 text-xs leading-relaxed opacity-90">{{ $panel['footnote'] }}</p>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+
             @if($plansList->isEmpty())
                 <p class="text-center text-slate-600 max-w-md mx-auto py-12 text-sm leading-relaxed">
                     No hay planes disponibles en este momento. Intenta más tarde.
@@ -222,7 +251,13 @@
                                 </span>
                                 <div>
                                     <p class="text-sm font-semibold text-slate-900">Flexibilidad total</p>
-                                    <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">Sube o baja de plan cuando lo necesites.</p>
+                                    <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">
+                                        @if(!empty($upgradeUx['footer_note']))
+                                            Los cambios de plan aplican a tu contrato en la plataforma. Si tu cuenta está suspendida o con mora, la reactivación se coordina con GuardiAPP.
+                                        @else
+                                            Sube o baja de plan cuando lo necesites.
+                                        @endif
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -233,8 +268,13 @@
     </main>
 
     <footer class="py-10 px-5 text-center border-t border-slate-200 bg-white">
+        @if(!empty($upgradeUx['footer_note']))
+            <p class="text-xs text-slate-600 max-w-lg mx-auto leading-relaxed font-medium mb-3">
+                {{ $upgradeUx['footer_note'] }}
+            </p>
+        @endif
         <p class="text-xs text-slate-500 max-w-lg mx-auto leading-relaxed">
-            Puedes cambiar de plan en cualquier momento. Los precios están en CLP.
+            Podés revisar los planes en cualquier momento. Los precios están en CLP.
         </p>
     </footer>
 </div>

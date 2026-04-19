@@ -9,71 +9,88 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\Process\Process;
+use Throwable;
 
+/**
+ * Respaldos MySQL por tenant (activos, vencidos, suspendidos; excluye cancelados salvo --include-cancelled).
+ *
+ * Política: el booleano `activo` no define si se respalda; el estado comercial no debe privar
+ * de continuidad operativa ante mora (los datos siguen siendo responsabilidad del servicio).
+ */
 class TenantBackupCommand extends Command
 {
     protected $signature = 'tenant:backup
-                            {--tenant= : Backup only a specific tenant ID}
-                            {--keep=7 : Number of days to keep old backups}';
+                            {--tenant= : Solo este ID de tenant}
+                            {--keep= : Días de retención de archivos .sql.gz (por defecto: config backups.retention_days)}
+                            {--include-cancelled : Con --tenant, permite respaldar un tenant cancelado (exportación puntual)}';
 
-    protected $description = 'Create MySQL dumps for tenant databases';
+    protected $description = 'Dump MySQL de cada base tenant (incluye suspendidos/vencidos; excluye cancelados)';
 
     public function handle(): int
     {
+        $startedAt = microtime(true);
         $specificTenant = $this->option('tenant');
-        $keepDays = (int) $this->option('keep');
+        $keepDays = $this->option('keep') !== null && $this->option('keep') !== ''
+            ? (int) $this->option('keep')
+            : (int) config('backups.retention_days', 7);
+        $includeCancelled = (bool) $this->option('include-cancelled');
 
-        $query = Tenant::where('activo', true);
-        if ($specificTenant) {
-            $query->where('id', $specificTenant);
-        }
+        $backupDir = $this->resolveBackupDirectory();
 
-        $tenants = $query->get();
-
-        if ($tenants->isEmpty()) {
-            $this->warn('No active tenants found.');
-            Log::channel('tenant')->info('tenant:backup skipped: no active tenants');
-            return self::SUCCESS;
-        }
-
-        $backupDir = storage_path('app/backups');
-        if (!is_dir($backupDir)) {
-            mkdir($backupDir, 0755, true);
-        }
-
-        Log::channel('tenant')->info('tenant:backup preflight', [
+        Log::channel('tenant')->info('tenant:backup job_start', [
             'backup_dir' => $backupDir,
-            'dir_writable' => is_writable($backupDir),
             'keep_days' => $keepDays,
+            'tenant_filter' => $specificTenant,
+            'include_cancelled' => $includeCancelled,
             'app_env' => config('app.env'),
         ]);
 
-        $host = config('database.connections.mysql.host');
-        $port = config('database.connections.mysql.port', 3306);
-        $username = config('database.connections.mysql.username');
-        $password = config('database.connections.mysql.password');
-
-        $mysqldumpPath = $this->findMysqldump();
-        if (!$mysqldumpPath) {
-            $hint = 'Instala el cliente MySQL (p. ej. mysql-client / mariadb-client) y asegura mysqldump en PATH.';
-            $this->error("mysqldump no encontrado. {$hint}");
-            Log::channel('tenant')->error('tenant:backup aborted: mysqldump not found (sale antes del dump; no se intenta respaldo por tenant)', [
-                'hint' => $hint,
-                'paths_checked' => '/usr/bin/mysqldump, which mysqldump, etc.',
-            ]);
+        $preflight = $this->runPreflight($backupDir);
+        if ($preflight !== null) {
+            Log::channel('tenant')->error('tenant:backup preflight_failed', $preflight);
 
             return self::FAILURE;
         }
 
-        Log::channel('tenant')->info('tenant:backup started', [
+        $tenants = $this->resolveTenants($specificTenant, $includeCancelled);
+        if ($tenants->isEmpty()) {
+            if ($specificTenant && ! $includeCancelled) {
+                $one = Tenant::query()->where('id', $specificTenant)->first();
+                if ($one && $one->estado === Tenant::ESTADO_CANCELADO) {
+                    $this->warn('Ese tenant está cancelado. Usá --include-cancelled para un dump puntual.');
+                }
+            }
+            $this->warn('No hay tenants elegibles para backup.');
+            Log::channel('tenant')->warning('tenant:backup skipped: no eligible tenants', [
+                'tenant_filter' => $specificTenant,
+                'include_cancelled' => $includeCancelled,
+            ]);
+
+            return self::SUCCESS;
+        }
+
+        $host = (string) config('database.connections.mysql.host');
+        $port = config('database.connections.mysql.port', 3306);
+        $username = (string) config('database.connections.mysql.username');
+        $password = (string) config('database.connections.mysql.password');
+
+        $mysqldumpPath = $this->findMysqldump();
+        if ($mysqldumpPath === null) {
+            $hint = 'Instalá mysql-client / mariadb-client y asegurá mysqldump en PATH o en rutas estándar.';
+            $this->error("mysqldump no encontrado. {$hint}");
+            Log::channel('tenant')->error('tenant:backup aborted: mysqldump not found', ['hint' => $hint]);
+
+            return self::FAILURE;
+        }
+
+        Log::channel('tenant')->info('tenant:backup batch_start', [
             'tenant_count' => $tenants->count(),
-            'backup_dir' => $backupDir,
+            'mysqldump' => $mysqldumpPath,
             'mysql_host' => $host,
             'mysql_port' => $port,
-            'mysqldump' => $mysqldumpPath,
         ]);
 
-        $this->info("Backing up {$tenants->count()} tenant(s)...");
+        $this->info("Respaldando {$tenants->count()} tenant(s)…");
         $this->newLine();
 
         $ok = 0;
@@ -82,52 +99,129 @@ class TenantBackupCommand extends Command
         foreach ($tenants as $tenant) {
             $dbName = $tenant->database()->getName();
             $date = now()->format('Y-m-d_His');
-            $filename = "{$dbName}_{$date}.sql.gz";
+            $filename = "{$dbName}_{$date}__tenant-{$tenant->id}.sql.gz";
             $filepath = "{$backupDir}/{$filename}";
 
-            $this->info("  Backing up {$dbName}...");
+            $t0 = microtime(true);
+            $this->line("  [{$tenant->id}] {$dbName} (estado={$tenant->estado}, activo=" . ($tenant->activo ? '1' : '0') . ')…');
 
-            $success = $this->runBackup($mysqldumpPath, $host, $port, $username, $password, $dbName, $filepath);
+            try {
+                $success = $this->runBackup($mysqldumpPath, $host, $port, $username, $password, $dbName, $filepath);
+            } catch (Throwable $e) {
+                $success = false;
+                Log::channel('tenant')->error('tenant:backup tenant_exception', [
+                    'tenant_id' => $tenant->id,
+                    'database' => $dbName,
+                    'message' => $e->getMessage(),
+                ]);
+            }
+
+            $durationMs = (int) round((microtime(true) - $t0) * 1000);
 
             if ($success && file_exists($filepath) && filesize($filepath) > 0) {
-                $size = $this->formatBytes(filesize($filepath));
-                $this->info("  ✓ Saved: {$filename} ({$size})");
-                Log::channel('tenant')->info("Backup created for {$dbName}: {$filename} ({$size})");
+                $size = $this->formatBytes((int) filesize($filepath));
+                $this->info("    ✓ {$filename} ({$size})");
+                Log::channel('tenant')->info('tenant:backup tenant_ok', [
+                    'tenant_id' => $tenant->id,
+                    'estado' => $tenant->estado,
+                    'activo' => (bool) $tenant->activo,
+                    'database' => $dbName,
+                    'file' => $filename,
+                    'size_human' => $size,
+                    'duration_ms' => $durationMs,
+                ]);
                 $ok++;
             } else {
-                $this->error("  ✗ Failed to backup {$dbName}");
-                Log::channel('tenant')->error('tenant:backup failed for database', [
-                    'database' => $dbName,
+                $this->error("    ✗ Falló backup de {$dbName}");
+                Log::channel('tenant')->error('tenant:backup tenant_failed', [
                     'tenant_id' => $tenant->id,
+                    'estado' => $tenant->estado,
+                    'database' => $dbName,
                     'filepath' => $filepath,
+                    'duration_ms' => $durationMs,
                 ]);
                 if (file_exists($filepath)) {
-                    unlink($filepath);
+                    @unlink($filepath);
                 }
                 $fail++;
             }
         }
 
         $deletedOld = $this->cleanOldBackups($backupDir, $keepDays);
-        if ($deletedOld > 0) {
-            Log::channel('tenant')->info('tenant:backup retention', [
-                'deleted_files' => $deletedOld,
-                'keep_days' => $keepDays,
-            ]);
-        }
+
+        $totalMs = (int) round((microtime(true) - $startedAt) * 1000);
 
         $this->newLine();
-        $this->info("Done: {$ok} OK, {$fail} failed.");
-        $this->line('Traza detallada: canal de log `tenant` (ver config/logging.php → storage/logs/tenant/tenant.log).');
+        $this->info("Listo: {$ok} OK, {$fail} fallidos. Retención: {$deletedOld} archivo(s) eliminado(s). Tiempo total: " . round($totalMs / 1000, 1) . 's.');
+        $this->line('Log operativo: canal `tenant` → storage/logs/tenant/tenant.log');
 
-        Log::channel('tenant')->info('tenant:backup finished', [
+        Log::channel('tenant')->info('tenant:backup job_finished', [
             'ok' => $ok,
             'failed' => $fail,
+            'retention_deleted_files' => $deletedOld,
+            'keep_days' => $keepDays,
             'backup_dir' => $backupDir,
-            'retention_deleted' => $deletedOld,
+            'duration_ms' => $totalMs,
         ]);
 
         return $fail > 0 ? self::FAILURE : self::SUCCESS;
+    }
+
+    /**
+     * @return array<string, mixed>|null null = OK
+     */
+    protected function runPreflight(string $backupDir): ?array
+    {
+        if (! is_dir($backupDir)) {
+            if (! @mkdir($backupDir, 0755, true)) {
+                return ['reason' => 'cannot_create_dir', 'dir' => $backupDir];
+            }
+        }
+
+        if (! is_writable($backupDir)) {
+            return ['reason' => 'dir_not_writable', 'dir' => $backupDir];
+        }
+
+        try {
+            $this->assertMysqlServerReachable();
+        } catch (Throwable $e) {
+            return [
+                'reason' => 'mysql_connection_failed',
+                'message' => $e->getMessage(),
+            ];
+        }
+
+        $this->info("Preflight OK · directorio: {$backupDir}");
+
+        return null;
+    }
+
+    protected function resolveBackupDirectory(): string
+    {
+        $configured = config('backups.path');
+
+        return $configured !== null && $configured !== ''
+            ? (string) $configured
+            : storage_path('app/backups');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Collection<int, Tenant>
+     */
+    protected function resolveTenants(?string $specificTenant, bool $includeCancelled)
+    {
+        $q = Tenant::query();
+
+        if ($specificTenant !== null && $specificTenant !== '') {
+            $q->where('id', $specificTenant);
+            if (! $includeCancelled) {
+                $q->where('estado', '!=', Tenant::ESTADO_CANCELADO);
+            }
+        } else {
+            $q->forDatabaseBackup();
+        }
+
+        return $q->orderBy('id')->get();
     }
 
     /**
@@ -135,13 +229,12 @@ class TenantBackupCommand extends Command
      */
     protected function runBackup(string $mysqldump, string $host, string $port, string $username, string $password, string $dbName, string $filepath): bool
     {
-        // Try 1: Symfony Process (if proc_open is available)
         if (function_exists('proc_open')) {
             try {
                 $command = [
                     $mysqldump,
                     '--host=' . $host,
-                    '--port=' . $port,
+                    '--port=' . (string) $port,
                     '--user=' . $username,
                     '--password=' . $password,
                     '--single-transaction',
@@ -159,6 +252,7 @@ class TenantBackupCommand extends Command
                     if ($gzFile) {
                         gzwrite($gzFile, $process->getOutput());
                         gzclose($gzFile);
+
                         return true;
                     }
                 }
@@ -169,7 +263,7 @@ class TenantBackupCommand extends Command
                     'exit_code' => $process->getExitCode(),
                     'output_excerpt' => mb_substr($err, 0, 2000),
                 ]);
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 Log::channel('tenant')->warning('tenant:backup Symfony Process exception', [
                     'database' => $dbName,
                     'message' => $e->getMessage(),
@@ -177,7 +271,6 @@ class TenantBackupCommand extends Command
             }
         }
 
-        // Try 2: proc_open directly
         if (function_exists('proc_open')) {
             $dumpCommand = sprintf(
                 '%s --host=%s --port=%s --user=%s --password=%s --single-transaction --routines --triggers --databases %s',
@@ -208,14 +301,15 @@ class TenantBackupCommand extends Command
                     if ($gzFile) {
                         gzwrite($gzFile, $output);
                         gzclose($gzFile);
+
                         return true;
                     }
                 }
             }
         }
 
-        // Try 3: Pure PHP fallback (always works but slower)
-        $this->warn("  → Usando método PHP puro (más lento pero compatible)...");
+        $this->warn('    → Intentando respaldo en PHP (más lento)…');
+
         return $this->runBackupPurePhp($host, $port, $username, $password, $dbName, $filepath);
     }
 
@@ -225,37 +319,32 @@ class TenantBackupCommand extends Command
     protected function runBackupPurePhp(string $host, string $port, string $username, string $password, string $dbName, string $filepath): bool
     {
         try {
-            // Connect to database
             $dsn = "mysql:host={$host};port={$port};dbname={$dbName};charset=utf8mb4";
             $pdo = new \PDO($dsn, $username, $password, [
                 \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
             ]);
 
             $gzFile = gzopen($filepath, 'wb9');
-            if (!$gzFile) {
+            if (! $gzFile) {
                 return false;
             }
 
-            // Header
             gzwrite($gzFile, "-- GuardiAPP Backup\n");
             gzwrite($gzFile, "-- Database: {$dbName}\n");
-            gzwrite($gzFile, "-- Generated: " . now()->format('Y-m-d H:i:s') . "\n");
+            gzwrite($gzFile, '-- Generated: ' . now()->format('Y-m-d H:i:s') . "\n");
             gzwrite($gzFile, "SET FOREIGN_KEY_CHECKS=0;\n\n");
 
-            // Get all tables
-            $tables = $pdo->query("SHOW TABLES")->fetchAll(\PDO::FETCH_COLUMN);
+            $tables = $pdo->query('SHOW TABLES')->fetchAll(\PDO::FETCH_COLUMN);
 
             foreach ($tables as $table) {
-                // Table structure
                 gzwrite($gzFile, "-- Table: {$table}\n");
                 gzwrite($gzFile, "DROP TABLE IF EXISTS `{$table}`;\n");
 
-                $createTable = $pdo->query("SHOW CREATE TABLE `{$table}`")->fetch(\PDO::FETCH_ASSOC);
+                $createTable = $pdo->query('SHOW CREATE TABLE `' . $table . '`')->fetch(\PDO::FETCH_ASSOC);
                 gzwrite($gzFile, $createTable['Create Table'] . ";\n\n");
 
-                // Table data
-                $rows = $pdo->query("SELECT * FROM `{$table}`", \PDO::FETCH_ASSOC);
-                $rowCount = 0;
+                $stmt = $pdo->query('SELECT * FROM `' . $table . '`');
+                $rows = $stmt ? $stmt->fetchAll(\PDO::FETCH_ASSOC) : [];
                 $values = [];
 
                 foreach ($rows as $row) {
@@ -266,38 +355,37 @@ class TenantBackupCommand extends Command
                         } elseif (is_numeric($value)) {
                             $rowValues[] = $value;
                         } else {
-                            $rowValues[] = "'" . str_replace("'", "''", $value) . "'";
+                            $rowValues[] = "'" . str_replace("'", "''", (string) $value) . "'";
                         }
                     }
                     $values[] = '(' . implode(', ', $rowValues) . ')';
-                    $rowCount++;
 
-                    // Write in batches of 1000 rows to avoid memory issues
                     if (count($values) >= 1000) {
-                        gzwrite($gzFile, "INSERT INTO `{$table}` VALUES " . implode(', ', $values) . ";\n");
+                        gzwrite($gzFile, 'INSERT INTO `' . $table . '` VALUES ' . implode(', ', $values) . ";\n");
                         $values = [];
                     }
                 }
 
                 if (count($values) > 0) {
-                    gzwrite($gzFile, "INSERT INTO `{$table}` VALUES " . implode(', ', $values) . ";\n");
+                    gzwrite($gzFile, 'INSERT INTO `' . $table . '` VALUES ' . implode(', ', $values) . ";\n");
                 }
 
-                if ($rowCount > 0) {
-                    gzwrite($gzFile, "\n");
-                }
+                gzwrite($gzFile, "\n");
             }
 
-            // Footer
             gzwrite($gzFile, "SET FOREIGN_KEY_CHECKS=1;\n");
             gzclose($gzFile);
 
             return true;
-        } catch (\Throwable $e) {
-            Log::error("Pure PHP backup failed: {$e->getMessage()}");
+        } catch (Throwable $e) {
+            Log::channel('tenant')->error('tenant:backup pure_php_failed', [
+                'database' => $dbName,
+                'message' => $e->getMessage(),
+            ]);
             if (file_exists($filepath)) {
-                unlink($filepath);
+                @unlink($filepath);
             }
+
             return false;
         }
     }
@@ -309,15 +397,13 @@ class TenantBackupCommand extends Command
             '/usr/local/bin/mysqldump',
             '/opt/homebrew/bin/mysqldump',
             '/usr/local/mysql/bin/mysqldump',
-            'mysqldump',  // Let PATH find it
+            'mysqldump',
         ];
 
         foreach ($paths as $path) {
             if ($path === 'mysqldump') {
-                // Try to run via shell
-                $result = shell_exec('which mysqldump 2>/dev/null') ?? '';
-                $result = trim($result);
-                if ($result && is_executable($result)) {
+                $result = trim((string) shell_exec('which mysqldump 2>/dev/null'));
+                if ($result !== '' && is_executable($result)) {
                     return $result;
                 }
             } elseif (file_exists($path) && is_executable($path)) {
@@ -329,23 +415,37 @@ class TenantBackupCommand extends Command
     }
 
     /**
-     * Elimina archivos *.sql.gz más antiguos que $keepDays (por mtime en disco).
-     * Si el cron no corre, los archivos no se borran y pueden acumularse hasta el próximo run exitoso.
+     * Solo archivos *.sql.gz bajo $dir cuyo mtime sea anterior al corte (retención por días).
      */
     protected function cleanOldBackups(string $dir, int $keepDays): int
     {
         $cutoff = now()->subDays($keepDays)->getTimestamp();
         $deleted = 0;
+        $deletedNames = [];
 
-        foreach (glob("{$dir}/*.sql.gz") as $file) {
+        foreach (glob($dir . '/*.sql.gz') ?: [] as $file) {
+            if (! is_file($file)) {
+                continue;
+            }
             if (filemtime($file) < $cutoff) {
-                unlink($file);
-                $deleted++;
+                $name = basename($file);
+                if (@unlink($file)) {
+                    $deleted++;
+                    if (count($deletedNames) < 25) {
+                        $deletedNames[] = $name;
+                    }
+                }
             }
         }
 
         if ($deleted > 0) {
-            $this->info("Cleaned up {$deleted} old backup(s) (older than {$keepDays} days).");
+            $this->info("Retención: eliminados {$deleted} archivo(s) más viejos que {$keepDays} día(s).");
+            Log::channel('tenant')->info('tenant:backup retention_cleanup', [
+                'deleted_count' => $deleted,
+                'keep_days' => $keepDays,
+                'cutoff_timestamp' => $cutoff,
+                'sample_filenames' => $deletedNames,
+            ]);
         }
 
         return $deleted;
@@ -353,9 +453,36 @@ class TenantBackupCommand extends Command
 
     protected function formatBytes(int $bytes): string
     {
-        if ($bytes === 0) return '0 B';
+        if ($bytes === 0) {
+            return '0 B';
+        }
         $units = ['B', 'KB', 'MB', 'GB'];
-        $i = floor(log($bytes, 1024));
-        return round($bytes / pow(1024, $i), 1) . ' ' . $units[$i];
+        $i = (int) floor(log($bytes, 1024));
+
+        return round($bytes / (1024 ** $i), 1) . ' ' . $units[$i];
+    }
+
+    /**
+     * Valida conectividad al servidor MySQL usado por mysqldump (misma config que tenant dumps).
+     */
+    protected function assertMysqlServerReachable(): void
+    {
+        try {
+            DB::connection('mysql')->select('SELECT 1 AS ok');
+
+            return;
+        } catch (Throwable $e) {
+            try {
+                DB::connection('central')->select('SELECT 1 AS ok');
+
+                return;
+            } catch (Throwable $e2) {
+                throw new \RuntimeException(
+                    'No se pudo conectar al MySQL (connection `mysql` ni `central`): ' . $e->getMessage(),
+                    0,
+                    $e
+                );
+            }
+        }
     }
 }

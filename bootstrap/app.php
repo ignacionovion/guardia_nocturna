@@ -39,12 +39,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->command('tenant:backup')->dailyAt('03:00');
 
         /*
-         * Facturación: billing:check-expiration (tenant_billing) sincroniza tenants vía Billing::syncToTenant().
-         * tenant:check-expiry usa tenants.fecha_vencimiento / grace para avisos y transiciones;
-         * ejecutar ambos diariamente; la fecha de acceso debe quedar alineada tras billing (sync).
+         * Facturación: primero billing:check-expiration (fuente de verdad tenant_billing → tenants).
+         * tenant:check-expiry solo envía emails de aviso según tenants ya sincronizados.
          */
-        $schedule->command('tenant:check-expiry')->dailyAt('06:00');
-        $schedule->command('billing:check-expiration')->dailyAt('06:15');
+        $schedule->command('billing:check-expiration')->dailyAt('06:00');
+        $schedule->command('tenant:check-expiry')->dailyAt('06:10');
     })
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(

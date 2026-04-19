@@ -107,9 +107,10 @@ class Billing extends Model
      */
     public function finalizarTrial(): void
     {
+        $dueDays = (int) config('billing.trial_to_pending_due_days', 30);
         $this->update([
             'estado_pago' => 'pendiente',
-            'fecha_vencimiento' => now()->addDays(30),
+            'fecha_vencimiento' => now()->addDays($dueDays)->startOfDay(),
             'trial_ends_at' => null,
         ]);
         $this->refresh();

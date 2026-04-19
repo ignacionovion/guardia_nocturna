@@ -10,18 +10,15 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 /**
- * Checks tenant expiration dates and updates lifecycle states.
+ * Avisos por correo según tenants.fecha_vencimiento (alineada vía Billing::syncToTenant).
  *
- * - Sends warning emails at 7, 3, and 1 day(s) before expiry
- * - Transitions active tenants to 'vencido' when expired
- * - Transitions vencido tenants past grace period to 'suspendido'
- *
- * Scheduled to run daily.
+ * Las transiciones trial / pagado / pendiente / vencido / suspendido las ejecuta únicamente
+ * `billing:check-expiration` sobre tenant_billing — no duplicar aquí para evitar inconsistencias.
  */
 class TenantCheckExpiryCommand extends Command
 {
     protected $signature = 'tenant:check-expiry {--dry-run : Show what would happen without making changes}';
-    protected $description = 'Check tenant expirations, update states, and send warning emails';
+    protected $description = 'Email warnings before/after expiry (states: billing:check-expiration)';
 
     public function handle(): int
     {
@@ -34,15 +31,16 @@ class TenantCheckExpiryCommand extends Command
 
         $warnings = 0;
         $expired = 0;
-        $suspended = 0;
 
         foreach ($tenants as $tenant) {
             $days = $tenant->daysUntilExpiry();
 
-            if ($days === null) continue;
+            if ($days === null) {
+                continue;
+            }
 
             // Warning emails: 7, 3, 1 days before expiry
-            if ($days > 0 && in_array($days, [7, 3, 1]) && $tenant->isOperational()) {
+            if ($days > 0 && in_array($days, [7, 3, 1], true) && $tenant->isOperational()) {
                 $this->warn("  ⚠ {$tenant->nombre} ({$tenant->id}): vence en {$days} día(s)");
                 $warnings++;
 
@@ -51,30 +49,14 @@ class TenantCheckExpiryCommand extends Command
                 }
             }
 
-            // Transition: activo/trial → vencido (just expired)
+            // Aviso de vencimiento (primer día o subsiguientes en estado operativo — el estado lo fija billing)
             if ($days <= 0 && $tenant->isOperational()) {
-                $graceDays = $tenant->grace_days ?? 5;
-                $this->error("  ✗ {$tenant->nombre} ({$tenant->id}): VENCIDO — grace period: {$graceDays} días");
+                $graceDays = $tenant->grace_days ?? (int) config('billing.grace_days_after_due', 5);
+                $this->error("  ✗ {$tenant->nombre} ({$tenant->id}): fecha de vencimiento pasada — gracia configurada: {$graceDays} días (ver billing:check-expiration)");
                 $expired++;
 
                 if (!$dryRun) {
-                    $tenant->estado = Tenant::ESTADO_VENCIDO;
-                    $tenant->save();
-                    Log::channel('single')->info("Tenant {$tenant->id} transitioned to VENCIDO");
                     $this->sendExpiryNotice($tenant);
-                }
-            }
-
-            // Transition: vencido → suspendido (past grace period)
-            if ($tenant->estado === Tenant::ESTADO_VENCIDO && !$tenant->isInGracePeriod()) {
-                $this->error("  ✗ {$tenant->nombre} ({$tenant->id}): grace period terminado → SUSPENDIDO");
-                $suspended++;
-
-                if (!$dryRun) {
-                    $tenant->estado = Tenant::ESTADO_SUSPENDIDO;
-                    $tenant->activo = false;
-                    $tenant->save();
-                    Log::channel('single')->info("Tenant {$tenant->id} transitioned to SUSPENDIDO (grace expired)");
                 }
             }
         }
@@ -85,8 +67,7 @@ class TenantCheckExpiryCommand extends Command
             [
                 ['Tenants revisados', $tenants->count()],
                 ['Avisos enviados', $warnings],
-                ['Nuevos vencidos', $expired],
-                ['Nuevos suspendidos', $suspended],
+                ['Avisos post-vencimiento (operativo)', $expired],
             ]
         );
 
@@ -117,7 +98,7 @@ class TenantCheckExpiryCommand extends Command
     protected function sendExpiryNotice(Tenant $tenant): void
     {
         try {
-            $graceDays = $tenant->grace_days ?? 5;
+            $graceDays = $tenant->grace_days ?? (int) config('billing.grace_days_after_due', 5);
             $tenant->loadMissing('planRelation');
             $planLabel = $tenant->planRelation?->nombre ?? 'Sin plan asignado';
             $subject = "❌ Plan vencido — {$tenant->nombre}";

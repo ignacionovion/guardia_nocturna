@@ -25,6 +25,11 @@ class EnsureTenantActive
             return $next($request);
         }
 
+        // Misma idea que CheckTenantActive: pantalla de upgrade aunque la cuenta esté inactiva
+        if ($request->routeIs(['tenant.upgrade', 'tenant.upgrade.process'])) {
+            return $next($request);
+        }
+
         $estado = $tenant->estado ?? 'activo';
 
         // Operational states — always allow
@@ -93,6 +98,8 @@ class EnsureTenantActive
         if ($tenant && $tenant->fecha_vencimiento) {
             $data['expired_at'] = $tenant->fecha_vencimiento->format('d/m/Y');
         }
+
+        $data['reason_key'] = $reason;
 
         return response()->view('suspended', $data, 403);
     }

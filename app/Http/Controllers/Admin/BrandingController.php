@@ -6,18 +6,17 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Services\BrandingService;
+use App\Services\TenantPlanLimitService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class BrandingController extends Controller
 {
-    private BrandingService $brandingService;
-
-    public function __construct(BrandingService $brandingService)
-    {
-        $this->brandingService = $brandingService;
-    }
+    public function __construct(
+        private BrandingService $brandingService,
+        private TenantPlanLimitService $limitService,
+    ) {}
 
     /**
      * Show branding configuration form
@@ -94,6 +93,12 @@ class BrandingController extends Controller
                 ->with('error', 'Error: El archivo no es válido o no se subió correctamente.');
         }
 
+        if (!$this->limitService->canUploadStorage((int) $file->getSize())) {
+            return redirect()
+                ->route('admin.branding.index')
+                ->with('error', $this->limitService->getLimitExceededMessage('storage_mb'));
+        }
+
         try {
             // Normalizar extensión
             $extension = strtolower($file->getClientOriginalExtension());
@@ -163,6 +168,12 @@ class BrandingController extends Controller
             return redirect()
                 ->route('admin.branding.index')
                 ->with('error', 'Error: El archivo no es válido.');
+        }
+
+        if (!$this->limitService->canUploadStorage((int) $file->getSize())) {
+            return redirect()
+                ->route('admin.branding.index')
+                ->with('error', $this->limitService->getLimitExceededMessage('storage_mb'));
         }
 
         try {

@@ -24,8 +24,8 @@ class EnforcePlanLimits
             return $next($request);
         }
         
-        // For POST requests (creating resources), check if limit would be exceeded
-        if ($request->isMethod('post') || $request->isMethod('put')) {
+        // Solo creación (POST): PUT/PATCH no deben bloquear ediciones por el mismo conteo
+        if ($request->isMethod('POST')) {
             if (PlanService::exceedsLimit($resourceType, 1)) {
                 $limit = PlanService::getLimit($resourceType);
                 if ($limit === null) {
