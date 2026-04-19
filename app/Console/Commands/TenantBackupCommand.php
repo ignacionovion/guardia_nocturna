@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Models\Tenant;
+use App\Services\OperationalHealthService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -28,6 +29,7 @@ class TenantBackupCommand extends Command
 
     public function handle(): int
     {
+        $ops = app(OperationalHealthService::class);
         $startedAt = microtime(true);
         $specificTenant = $this->option('tenant');
         $keepDays = $this->option('keep') !== null && $this->option('keep') !== ''
@@ -48,6 +50,15 @@ class TenantBackupCommand extends Command
         $preflight = $this->runPreflight($backupDir);
         if ($preflight !== null) {
             Log::channel('tenant')->error('tenant:backup preflight_failed', $preflight);
+            $ops->recordBackupRun([
+                'ok' => 0,
+                'failed' => 0,
+                'duration_ms' => (int) round((microtime(true) - $startedAt) * 1000),
+                'exit_success' => false,
+                'backup_dir' => $backupDir,
+                'error' => 'preflight_failed',
+                'detail' => $preflight,
+            ]);
 
             return self::FAILURE;
         }
@@ -65,6 +76,14 @@ class TenantBackupCommand extends Command
                 'tenant_filter' => $specificTenant,
                 'include_cancelled' => $includeCancelled,
             ]);
+            $ops->recordBackupRun([
+                'ok' => 0,
+                'failed' => 0,
+                'duration_ms' => (int) round((microtime(true) - $startedAt) * 1000),
+                'exit_success' => true,
+                'backup_dir' => $backupDir,
+                'note' => 'no_eligible_tenants',
+            ]);
 
             return self::SUCCESS;
         }
@@ -79,6 +98,14 @@ class TenantBackupCommand extends Command
             $hint = 'Instalá mysql-client / mariadb-client y asegurá mysqldump en PATH o en rutas estándar.';
             $this->error("mysqldump no encontrado. {$hint}");
             Log::channel('tenant')->error('tenant:backup aborted: mysqldump not found', ['hint' => $hint]);
+            $ops->recordBackupRun([
+                'ok' => 0,
+                'failed' => 0,
+                'duration_ms' => (int) round((microtime(true) - $startedAt) * 1000),
+                'exit_success' => false,
+                'backup_dir' => $backupDir,
+                'error' => 'mysqldump_not_found',
+            ]);
 
             return self::FAILURE;
         }
@@ -162,6 +189,16 @@ class TenantBackupCommand extends Command
             'keep_days' => $keepDays,
             'backup_dir' => $backupDir,
             'duration_ms' => $totalMs,
+        ]);
+
+        $ops->recordBackupRun([
+            'ok' => $ok,
+            'failed' => $fail,
+            'duration_ms' => $totalMs,
+            'exit_success' => $fail === 0,
+            'backup_dir' => $backupDir,
+            'retention_deleted_files' => $deletedOld,
+            'keep_days' => $keepDays,
         ]);
 
         return $fail > 0 ? self::FAILURE : self::SUCCESS;

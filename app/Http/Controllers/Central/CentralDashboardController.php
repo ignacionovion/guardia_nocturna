@@ -9,16 +9,20 @@ use App\Models\Body;
 use App\Models\CentralAuditLog;
 use App\Models\Plan;
 use App\Models\Tenant;
+use App\Services\OperationalHealthService;
 use App\Services\TenantMetricsService;
 
 class CentralDashboardController extends Controller
 {
     public function __construct(
         protected TenantMetricsService $metrics,
+        protected OperationalHealthService $operationalHealth,
     ) {}
 
     public function index()
     {
+        $operationalHealth = $this->operationalHealth->dashboardSummary();
+
         $tenantsCount = Tenant::count();
         $activeTenantsCount = Tenant::where('activo', true)->count();
         $bodiesCount = Body::count();
@@ -86,6 +90,7 @@ class CentralDashboardController extends Controller
         }
 
         return view('central.dashboard', compact(
+            'operationalHealth',
             'tenantsCount',
             'activeTenantsCount',
             'bodiesCount',

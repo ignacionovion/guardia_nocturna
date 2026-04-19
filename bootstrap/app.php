@@ -29,6 +29,9 @@ return Application::configure(basePath: dirname(__DIR__))
          * (transición semanal de guardia). No es duplicado de tenant:run: es otro closure programado
          * en el mismo schedule:run; ambos dependen de que el cron ejecute `php artisan schedule:run`.
          */
+        // Primero: señal de que schedule:run está vivo (monitoreo operativo)
+        $schedule->command('ops:heartbeat')->everyMinute();
+
         $schedule->command('tenant:run', ['guardia:expire-replacements'])->everyMinute();
         $schedule->command('tenant:run', ['guardia:run-calendar'])->everyMinute();
         $schedule->command('tenant:run', ['guardia:reset-beds'])->everyMinute();

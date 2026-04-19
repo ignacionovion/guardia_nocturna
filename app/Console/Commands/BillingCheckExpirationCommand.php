@@ -6,9 +6,11 @@ namespace App\Console\Commands;
 
 use App\Models\Billing;
 use App\Models\Tenant;
+use App\Services\OperationalHealthService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 /**
  * Única transición automática de estado comercial: lee/escribe tenant_billing y sincroniza tenants.
@@ -21,6 +23,8 @@ class BillingCheckExpirationCommand extends Command
 
     public function handle(): int
     {
+        $ops = app(OperationalHealthService::class);
+        $startedAt = microtime(true);
         $this->info('Checking billing expirations and trials...');
         $totalUpdated = 0;
         $totalSuspended = 0;
@@ -28,6 +32,8 @@ class BillingCheckExpirationCommand extends Command
         $lapsedPaid = 0;
 
         $today = Carbon::today();
+
+        try {
 
         // 1. Trial terminado → pendiente (+ fecha de vencimiento inicial)
         $endedTrials = Billing::where('estado_pago', 'trial')
@@ -138,7 +144,31 @@ class BillingCheckExpirationCommand extends Command
 
         $this->info("\nTotal: {$totalUpdated} billing records updated.");
 
+        $durationMs = (int) round((microtime(true) - $startedAt) * 1000);
+        $ops->recordBillingExpiration([
+            'exit_success' => true,
+            'trials_ended' => $totalTrialsEnded,
+            'lapsed_paid' => $lapsedPaid,
+            'expired_pending_to_vencido' => $expiredBillings->count(),
+            'suspended' => $totalSuspended,
+            'total_updated' => $totalUpdated,
+            'duration_ms' => $durationMs,
+        ]);
+
         return self::SUCCESS;
+        } catch (Throwable $e) {
+            Log::error('billing:check-expiration failed', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            $ops->recordBillingExpiration([
+                'exit_success' => false,
+                'error' => $e->getMessage(),
+                'duration_ms' => (int) round((microtime(true) - $startedAt) * 1000),
+            ]);
+
+            return self::FAILURE;
+        }
     }
 
     private function graceStillActive(Billing $billing, Carbon $today): bool

@@ -8,6 +8,74 @@
         <p class="text-slate-500 text-sm mt-1">Vista general de la plataforma SaaS</p>
     </div>
 
+    @php
+        $opsOverall = $operationalHealth['overall'] ?? 'ok';
+        $opsWrap = match ($opsOverall) {
+            'critical' => 'border-rose-200 bg-rose-50',
+            'warning' => 'border-amber-200 bg-amber-50',
+            default => 'border-emerald-200 bg-emerald-50',
+        };
+        $opsLabel = match ($opsOverall) {
+            'critical' => 'Crítico',
+            'warning' => 'Atención',
+            default => 'OK',
+        };
+    @endphp
+    <div class="mb-6 rounded-2xl border {{ $opsWrap }} px-5 py-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-slate-600">Salud operativa (cron / backups / billing)</p>
+                <p class="text-lg font-bold text-slate-900 mt-1">Estado general: {{ $opsLabel }}</p>
+            </div>
+            <div class="flex flex-wrap gap-2 text-xs">
+                @foreach (['scheduler' => 'Scheduler', 'backup' => 'Backups', 'billing' => 'Billing'] as $k => $label)
+                    @php $lvl = $operationalHealth[$k]['level'] ?? 'ok'; @endphp
+                    <span class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 font-medium bg-white/80 border border-slate-200/80">
+                        <span class="w-2 h-2 rounded-full @if($lvl === 'critical') bg-rose-500 @elseif($lvl === 'warning') bg-amber-500 @else bg-emerald-500 @endif"></span>
+                        {{ $label }}: {{ strtoupper($lvl) }}
+                    </span>
+                @endforeach
+            </div>
+        </div>
+        <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3 text-sm text-slate-700">
+            <div class="rounded-xl bg-white/70 border border-slate-200/60 p-3">
+                <p class="text-[10px] font-semibold uppercase text-slate-500">Scheduler</p>
+                <p class="mt-1">{{ $operationalHealth['scheduler']['message'] ?? '' }}</p>
+                @if(!empty($operationalHealth['scheduler']['last_at']))
+                    <p class="text-xs text-slate-500 mt-1">Última señal: {{ \Illuminate\Support\Carbon::parse($operationalHealth['scheduler']['last_at'])->timezone(config('app.timezone'))->format('d/m/Y H:i') }}</p>
+                @endif
+            </div>
+            <div class="rounded-xl bg-white/70 border border-slate-200/60 p-3">
+                <p class="text-[10px] font-semibold uppercase text-slate-500">Backups</p>
+                <p class="mt-1">{{ $operationalHealth['backup']['message'] ?? '' }}</p>
+                @if(!empty($operationalHealth['backup']['payload']['at']))
+                    <p class="text-xs text-slate-500 mt-1">Último job: {{ \Illuminate\Support\Carbon::parse($operationalHealth['backup']['payload']['at'])->timezone(config('app.timezone'))->format('d/m/Y H:i') }}</p>
+                @endif
+            </div>
+            <div class="rounded-xl bg-white/70 border border-slate-200/60 p-3">
+                <p class="text-[10px] font-semibold uppercase text-slate-500">Billing</p>
+                <p class="mt-1">{{ $operationalHealth['billing']['message'] ?? '' }}</p>
+                @if(!empty($operationalHealth['billing']['payload']['at']))
+                    <p class="text-xs text-slate-500 mt-1">Última corrida: {{ \Illuminate\Support\Carbon::parse($operationalHealth['billing']['payload']['at'])->timezone(config('app.timezone'))->format('d/m/Y H:i') }}</p>
+                @endif
+            </div>
+        </div>
+        @if(!empty($operationalHealth['tenant_runs']))
+            <details class="mt-4 text-sm">
+                <summary class="cursor-pointer font-medium text-slate-800">Comandos tenant:run (guardia)</summary>
+                <ul class="mt-2 space-y-1 text-xs text-slate-600">
+                    @foreach($operationalHealth['tenant_runs'] as $tr)
+                        <li class="flex flex-wrap gap-2">
+                            <span class="font-mono text-[11px]">{{ $tr['label'] }}</span>
+                            <span class="@if($tr['level'] === 'critical') text-rose-700 @elseif($tr['level'] === 'warning') text-amber-700 @else text-emerald-700 @endif">{{ strtoupper($tr['level']) }}</span>
+                            <span>— {{ $tr['message'] }}</span>
+                        </li>
+                    @endforeach
+                </ul>
+            </details>
+        @endif
+    </div>
+
     {{-- Main Stats Row --}}
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div class="bg-white rounded-2xl border border-slate-200 p-5">
