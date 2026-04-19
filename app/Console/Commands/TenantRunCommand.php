@@ -11,14 +11,14 @@ use Illuminate\Support\Facades\Artisan;
 class TenantRunCommand extends Command
 {
     protected $signature = 'tenant:run
-                            {command : The artisan command to run for each tenant}
+                            {tenantCommand : The artisan command to run for each tenant}
                             {--tenant= : Run only for a specific tenant ID}';
 
     protected $description = 'Run an artisan command within the context of each active tenant';
 
     public function handle(): int
     {
-        $commandToRun = $this->argument('command');
+        $commandToRun = $this->argument('tenantCommand');
         $specificTenant = $this->option('tenant');
 
         $query = Tenant::where('activo', true);
