@@ -19,20 +19,20 @@
             <table class="min-w-full text-sm">
                 <thead>
                     <tr class="bg-slate-50 border-b border-slate-200 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        <th class="px-5 py-3 w-16">ID</th>
                         <th class="px-5 py-3">Nombre</th>
                         <th class="px-5 py-3">Usuario</th>
-                        <th class="px-5 py-3">Correo</th>
                         <th class="px-5 py-3">Estado</th>
-                        <th class="px-5 py-3">Rol</th>
+                        <th class="px-5 py-3">Super admin</th>
                         <th class="px-5 py-3 text-right">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @foreach($admins as $a)
                         <tr class="hover:bg-slate-50/80">
+                            <td class="px-5 py-3 text-slate-500 font-mono text-xs">{{ $a->id }}</td>
                             <td class="px-5 py-3 font-medium text-slate-900">{{ $a->name }}</td>
                             <td class="px-5 py-3 font-mono text-slate-700">{{ $a->username }}</td>
-                            <td class="px-5 py-3 text-slate-600">{{ $a->email ?: '—' }}</td>
                             <td class="px-5 py-3">
                                 @if($a->activo)
                                     <span class="inline-flex text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Activo</span>

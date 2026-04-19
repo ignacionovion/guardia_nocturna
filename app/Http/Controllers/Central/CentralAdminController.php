@@ -53,7 +53,7 @@ final class CentralAdminController extends Controller
             'is_super_admin' => $isSuper,
         ]);
 
-        return redirect()->route('central.admins.index')->with('success', 'Usuario SaaS creado.');
+        return redirect('/admin/admins')->with('success', 'Usuario SaaS creado.');
     }
 
     public function edit(CentralAdmin $admin): View
@@ -88,26 +88,26 @@ final class CentralAdminController extends Controller
 
         $admin->save();
 
-        return redirect()->route('central.admins.index')->with('success', 'Usuario actualizado.');
+        return redirect('/admin/admins')->with('success', 'Usuario actualizado.');
     }
 
     public function destroy(CentralAdmin $admin): RedirectResponse
     {
         if ($admin->is(Auth::guard('central')->user())) {
-            return redirect()->route('central.admins.index')->with('error', 'No podés eliminar tu propia sesión desde aquí.');
+            return redirect('/admin/admins')->with('error', 'No podés eliminar tu propia sesión desde aquí.');
         }
 
         if (CentralAdmin::query()->count() <= 1) {
-            return redirect()->route('central.admins.index')->with('error', 'No se puede eliminar el único administrador del panel central.');
+            return redirect('/admin/admins')->with('error', 'No se puede eliminar el único administrador del panel central.');
         }
 
         if ($admin->is_super_admin && CentralAdmin::query()->where('is_super_admin', true)->count() <= 1) {
-            return redirect()->route('central.admins.index')->with('error', 'Debe existir al menos un super administrador.');
+            return redirect('/admin/admins')->with('error', 'Debe existir al menos un super administrador.');
         }
 
         $admin->delete();
 
-        return redirect()->route('central.admins.index')->with('success', 'Usuario eliminado.');
+        return redirect('/admin/admins')->with('success', 'Usuario eliminado.');
     }
 
     private function validateNewAdmin(bool $activo, bool $isSuper): void
