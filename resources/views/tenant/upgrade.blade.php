@@ -125,12 +125,12 @@
                             'border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300 transition-shadow duration-200' => ! $isPopular,
                         ])>
 @if($isPopular)
-    <span class="absolute -top-16 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-white shadow-sm">
+    <span class="absolute -top-24 left-1/2 z-20 -translate-x-1/2 whitespace-nowrap rounded-full bg-slate-900 px-4 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-white shadow-md">
         Más popular
     </span>
 @endif
 
-                            <div class="relative flex flex-col flex-1 p-7 sm:p-8 pt-12 text-center {{ $isPopular ? 'bg-slate-50/40' : '' }} rounded-2xl">
+                            <div class="relative flex flex-col flex-1 p-7 sm:p-8 pt-16 text-center {{ $isPopular ? 'bg-slate-50/40' : '' }} rounded-2xl">
                                 <div class="rounded-xl border border-slate-200/90 bg-white px-4 py-4 mb-7 mx-auto w-full max-w-sm">
                                     <p class="text-[10px] font-semibold uppercase tracking-widest text-slate-500 mb-2">Ideal para</p>
                                     <p class="text-sm text-slate-800 leading-relaxed font-medium">{{ $idealLine }}</p>
