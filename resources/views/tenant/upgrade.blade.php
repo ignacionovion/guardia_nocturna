@@ -130,7 +130,7 @@
     </span>
 @endif
 
-                            <div class="relative flex flex-col flex-1 p-7 sm:p-8 pt-9 text-center {{ $isPopular ? 'bg-slate-50/40' : '' }} rounded-2xl">
+                            <div class="relative flex flex-col flex-1 p-7 sm:p-8 pt-12 text-center {{ $isPopular ? 'bg-slate-50/40' : '' }} rounded-2xl">
                                 <div class="rounded-xl border border-slate-200/90 bg-white px-4 py-4 mb-7 mx-auto w-full max-w-sm">
                                     <p class="text-[10px] font-semibold uppercase tracking-widest text-slate-500 mb-2">Ideal para</p>
                                     <p class="text-sm text-slate-800 leading-relaxed font-medium">{{ $idealLine }}</p>
