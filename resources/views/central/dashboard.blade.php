@@ -10,6 +10,8 @@
 
     @php
         $opsOverall = $operationalHealth['overall'] ?? 'ok';
+        $newCompanyRoute = \Illuminate\Support\Facades\Route::has('central.tenants.create') ? route('central.tenants.create') : null;
+        $newBodyRoute = \Illuminate\Support\Facades\Route::has('central.bodies.create') ? route('central.bodies.create') : null;
         $opsWrap = match ($opsOverall) {
             'critical' => 'border-rose-200 bg-rose-50',
             'warning' => 'border-amber-200 bg-amber-50',
@@ -203,16 +205,25 @@
         <div class="bg-white rounded-2xl border border-slate-200 p-6">
             <h2 class="font-semibold text-slate-900 text-sm uppercase tracking-wider mb-4">Acciones Rápidas</h2>
             <div class="space-y-2">
-                <a href="{{ route('central.tenants.create') }}"
-                   class="flex items-center space-x-3 w-full bg-slate-900 text-white text-sm font-medium py-3 px-4 rounded-xl hover:bg-slate-800 transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    <span>Nueva Compañía</span>
-                </a>
-                <a href="{{ route('central.bodies.create') }}"
-                   class="flex items-center space-x-3 w-full bg-white text-slate-700 text-sm font-medium py-3 px-4 rounded-xl border border-slate-200 hover:bg-white transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    <span>Nuevo Cuerpo</span>
-                </a>
+                @if($newCompanyRoute)
+                    <a href="{{ $newCompanyRoute }}"
+                       class="flex items-center space-x-3 w-full bg-slate-900 text-white text-sm font-medium py-3 px-4 rounded-xl hover:bg-slate-800 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        <span>Nueva Compañía</span>
+                    </a>
+                @endif
+                @if($newBodyRoute)
+                    <a href="{{ $newBodyRoute }}"
+                       class="flex items-center space-x-3 w-full bg-white text-slate-700 text-sm font-medium py-3 px-4 rounded-xl border border-slate-200 hover:bg-white transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        <span>Nuevo Cuerpo</span>
+                    </a>
+                @endif
+                @if(!$newCompanyRoute && !$newBodyRoute)
+                    <div class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800">
+                        No hay acciones de creación disponibles para este entorno.
+                    </div>
+                @endif
             </div>
 
             <div class="mt-5 pt-4 border-t border-slate-100">
