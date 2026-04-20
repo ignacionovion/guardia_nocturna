@@ -266,7 +266,7 @@ class CleaningWebController extends Controller
         }
 
         SystemEmailService::send(
-            type: 'cleaning',
+            type: 'cleaning_assignment',
             subject: '🧹 Asignación de aseo - ' . (Guardia::find($guardiaId)?->name ?? 'Guardia') . ' - ' . $date->format('d/m/Y'),
             lines: $lines,
             actorEmail: $user->email ?? null,

@@ -6,9 +6,11 @@ use App\Http\Controllers\Central\BillingController;
 use App\Http\Controllers\Central\BodyController;
 use App\Http\Controllers\Central\CentralAdminController;
 use App\Http\Controllers\Central\CentralDashboardController;
+use App\Http\Controllers\Central\FinancialDashboardController;
 use App\Http\Controllers\Central\AuditController;
 use App\Http\Controllers\Central\BackupController;
 use App\Http\Controllers\Central\ImpersonationController;
+use App\Http\Controllers\Central\PaymentController;
 use App\Http\Controllers\Central\TenantController;
 use App\Http\Controllers\Central\TenantDataExplorerController;
 use App\Http\Controllers\Central\TenantAdminController;
@@ -65,6 +67,14 @@ Route::get('tenants/{tenant}/explorer/{table}/record/{id}', [TenantDataExplorerC
 // Admin actions
 Route::post('tenants/{tenant}/reset-database', [TenantAdminController::class, 'resetDatabase'])->centralNamed('central.tenants.reset-database');
 Route::delete('tenants/{tenant}/destroy-completely', [TenantAdminController::class, 'destroyCompletely'])->centralNamed('central.tenants.destroy-completely');
+
+// Pagos (historial / caja base)
+$paymentsResource = Route::resource('payments', PaymentController::class)->except(['destroy']);
+if ($GLOBALS['__central_named_routes'] ?? true) {
+    $paymentsResource->names('central.payments');
+}
+Route::post('payments/{payment}/mark-paid', [PaymentController::class, 'markPaid'])->centralNamed('central.payments.mark-paid');
+Route::get('financial', [FinancialDashboardController::class, 'index'])->centralNamed('central.financial.index');
 
 // Billing
 Route::get('billing', [BillingController::class, 'index'])->centralNamed('central.billing.index');

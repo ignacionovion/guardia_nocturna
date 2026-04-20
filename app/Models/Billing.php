@@ -58,7 +58,7 @@ class Billing extends Model
 
     public function payments(): HasMany
     {
-        return $this->hasMany(Payment::class, 'tenant_id', 'tenant_id');
+        return $this->hasMany(Payment::class, 'billing_id');
     }
 
     /**

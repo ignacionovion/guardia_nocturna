@@ -177,6 +177,10 @@ class AdminCalendarController extends Controller
         }
 
         $subject = 'Rotación Semanal de Guardias Generada - ' . $startDate->format('d/m/Y');
+
+        if (! \App\Services\SystemEmailService::ensurePolicyAllows('guard_rotation', $subject, auth()->user()?->email)) {
+            return;
+        }
         
         // Build concise email body (without full list)
         $lines = [
@@ -208,7 +212,7 @@ class AdminCalendarController extends Controller
                 mailSubject: $subject,
                 lines: $lines,
                 fileAttachments: $fileAttachments,
-                notificationType: 'rotation',
+                notificationType: 'guard_rotation',
                 sourceLabel: 'Calendario',
                 senderName: auth()->user()?->name,
                 senderEmail: auth()->user()?->email,

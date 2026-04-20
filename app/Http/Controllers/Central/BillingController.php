@@ -8,7 +8,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Billing;
 use App\Models\Payment;
 use App\Models\Plan;
+use App\Services\CentralPaymentBillingService;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class BillingController extends Controller
 {
@@ -37,25 +42,37 @@ class BillingController extends Controller
     /**
      * Mark billing as paid and create payment record
      */
-    public function markPaid(Request $request, Billing $billing)
+    public function markPaid(Request $request, Billing $billing, CentralPaymentBillingService $paymentBillingService)
     {
         $validated = $request->validate([
             'fecha_pago' => ['required', 'date'],
-            'metodo_pago' => ['nullable', 'string', 'max:50'],
+            'metodo_pago' => ['required', 'string', 'max:64'],
         ]);
 
-        // Crear registro en payments
-        Payment::create([
-            'tenant_id' => $billing->tenant_id,
-            'monto' => $billing->monto,
-            'fecha_pago' => $validated['fecha_pago'],
-            'metodo_pago' => $validated['metodo_pago'],
-            'observacion' => 'Pago registrado manualmente desde panel admin',
-        ]);
+        try {
+            DB::connection('central')->transaction(function () use ($billing, $validated, $paymentBillingService): void {
+                $payment = Payment::query()->create([
+                    'tenant_id' => $billing->tenant_id,
+                    'billing_id' => $billing->id,
+                    'amount' => $billing->monto,
+                    'currency' => 'CLP',
+                    'payment_method' => $validated['metodo_pago'],
+                    'status' => Payment::STATUS_PAID,
+                    'reference' => null,
+                    'notes' => 'Pago registrado manualmente desde facturación central',
+                    'paid_at' => $validated['fecha_pago'],
+                    'created_by_central_admin_id' => Auth::guard('central')->id(),
+                ]);
 
-        // Actualizar billing con fecha de pago y recalcular vencimiento (incluye sync a tenants)
-        $billing->marcarPagado($validated['fecha_pago']);
+                $paymentBillingService->syncTenantBillingFromPaidPayment($payment);
+            });
+        } catch (ValidationException $e) {
+            return redirect()
+                ->route('central.billing.index')
+                ->withErrors($e->errors());
+        }
 
+        $billing->refresh();
         $ciclo = $billing->billing_cycle === 'yearly' ? '1 año' : '1 mes';
 
         return redirect()
@@ -170,12 +187,17 @@ class BillingController extends Controller
             'plan_id' => ['required', 'exists:plans,id'],
             'monto' => ['nullable', 'numeric', 'min:0'],
             'billing_cycle' => ['required', 'in:monthly,yearly'],
-            'fecha_vencimiento' => ['required', 'date'],
+            'fecha_vencimiento' => ['nullable', 'date'],
         ]);
 
         $plan = Plan::findOrFail((int) $validated['plan_id']);
         $cycle = $validated['billing_cycle'] ?? 'monthly';
         $monto = $validated['monto'] ?? $plan->montoSegunCiclo($cycle);
+
+        $days = $cycle === 'yearly' ? 365 : 30;
+        $fechaVencimiento = ! empty($validated['fecha_vencimiento'])
+            ? Carbon::parse($validated['fecha_vencimiento'])->startOfDay()
+            : now()->addDays($days)->startOfDay();
 
         $billing = Billing::create([
             'tenant_id' => $validated['tenant_id'],
@@ -184,7 +206,7 @@ class BillingController extends Controller
             'billing_cycle' => $cycle,
             'monto' => $monto,
             'estado_pago' => 'pendiente',
-            'fecha_vencimiento' => $validated['fecha_vencimiento'],
+            'fecha_vencimiento' => $fechaVencimiento,
         ]);
         $billing->syncToTenant();
 

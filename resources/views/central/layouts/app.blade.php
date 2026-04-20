@@ -34,7 +34,15 @@
                                class="px-3 py-2 rounded-md text-sm font-medium {{ (request()->routeIs('central.admins.*') || request()->is('admin/admins') || request()->is('admin/admins/*')) ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }} transition">
                                 Administradores
                             </a>
+                            <a href="{{ route('central.financial.index') }}"
+                               class="px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('central.financial.*') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }} transition">
+                                Finanzas
+                            </a>
                         @endif
+                        <a href="{{ route('central.payments.index') }}"
+                           class="px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('central.payments.*') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }} transition">
+                            Pagos
+                        </a>
                         <a href="{{ route('central.tenants.index') }}"
                            class="px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('central.tenants.*') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }} transition">
                             Compañías

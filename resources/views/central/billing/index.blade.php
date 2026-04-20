@@ -27,6 +27,16 @@
         </div>
     @endif
 
+    @if ($errors->any())
+        <div class="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-lg mb-6 text-sm">
+            <ul class="list-disc list-inside space-y-1">
+                @foreach ($errors->all() as $err)
+                    <li>{{ $err }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     {{-- Stats Cards --}}
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <div class="bg-white rounded-xl border border-yellow-200 p-4">
@@ -242,8 +252,9 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Fecha Vencimiento</label>
-                    <input type="date" name="fecha_vencimiento" class="w-full rounded-lg border-slate-300" required>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Fecha vencimiento (opcional)</label>
+                    <input type="date" name="fecha_vencimiento" class="w-full rounded-lg border-slate-300">
+                    <p class="text-xs text-slate-500 mt-1">Si la dejás vacía, se usa el primer período según el ciclo (30 o 365 días desde hoy).</p>
                 </div>
             </div>
             <div class="flex justify-end gap-3 mt-6">
@@ -271,7 +282,7 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1">Método de Pago</label>
-                    <select name="metodo_pago" class="w-full rounded-lg border-slate-300">
+                    <select name="metodo_pago" class="w-full rounded-lg border-slate-300" required>
                         <option value="">Seleccionar...</option>
                         <option value="transferencia">Transferencia</option>
                         <option value="efectivo">Efectivo</option>

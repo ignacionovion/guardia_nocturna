@@ -197,6 +197,11 @@ final class OperationalAlertService
 
     private function sendMail(OperationalAlert $alert, string $eventType): int
     {
+        $subject = 'Alerta operativa SaaS (' . $eventType . ') #' . $alert->id;
+        if (! SystemEmailService::ensurePolicyAllows('operational_alert', $subject, null)) {
+            return 0;
+        }
+
         $emails = $this->recipientEmails();
         if ($emails === []) {
             Log::warning('[operational_alerts] Sin destinatarios configurados (OPS_ALERT_EMAILS vacío y sin emails en central_admins).');

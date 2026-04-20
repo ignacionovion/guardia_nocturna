@@ -7,11 +7,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Payment extends Model
 {
     use HasFactory;
+
+    public const STATUS_PENDING = 'pending';
+
+    public const STATUS_PAID = 'paid';
+
+    public const STATUS_FAILED = 'failed';
+
+    public const STATUS_CANCELLED = 'cancelled';
 
     protected $connection = 'central';
 
@@ -19,15 +26,20 @@ class Payment extends Model
 
     protected $fillable = [
         'tenant_id',
-        'monto',
-        'fecha_pago',
-        'metodo_pago',
-        'observacion',
+        'billing_id',
+        'amount',
+        'currency',
+        'payment_method',
+        'status',
+        'reference',
+        'notes',
+        'paid_at',
+        'created_by_central_admin_id',
     ];
 
     protected $casts = [
-        'monto' => 'decimal:2',
-        'fecha_pago' => 'date',
+        'amount' => 'decimal:2',
+        'paid_at' => 'date',
     ];
 
     public function tenant(): BelongsTo
@@ -37,6 +49,16 @@ class Payment extends Model
 
     public function billing(): BelongsTo
     {
-        return $this->belongsTo(Billing::class, 'tenant_id', 'tenant_id');
+        return $this->belongsTo(Billing::class, 'billing_id');
+    }
+
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(CentralAdmin::class, 'created_by_central_admin_id');
+    }
+
+    public function isPaid(): bool
+    {
+        return $this->status === self::STATUS_PAID;
     }
 }

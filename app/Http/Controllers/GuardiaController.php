@@ -519,7 +519,11 @@ class GuardiaController extends Controller
         // Enviar email
         try {
             $subject = 'Snapshot Guardia - ' . $guardia?->name . ' - ' . $now->format('d/m/Y H:i');
-            
+
+            if (! \App\Services\SystemEmailService::ensurePolicyAllows('guard_snapshot', $subject, $user->email ?? null)) {
+                return response()->json(['error' => 'Envío de correo bloqueado por política mail_strategy'], 403);
+            }
+
             \Illuminate\Support\Facades\Mail::send('emails.snapshot', [
                 'guardia' => $guardia,
                 'generatedAt' => $now,

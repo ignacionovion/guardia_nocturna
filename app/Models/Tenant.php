@@ -90,6 +90,11 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         return $this->hasOne(Billing::class, 'tenant_id');
     }
 
+    public function payments()
+    {
+        return $this->hasMany(Payment::class, 'tenant_id');
+    }
+
     /**
      * Tenants cuya base de datos debe incluirse en backups programados (continuidad SaaS).
      *

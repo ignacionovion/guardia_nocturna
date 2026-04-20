@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Models\Tenant;
+use App\Services\SystemEmailService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -84,6 +85,10 @@ class TenantCheckExpiryCommand extends Command
             $tenant->loadMissing('planRelation');
             $planLabel = $tenant->planRelation?->nombre ?? 'Sin plan asignado';
             $subject = "⚠ Tu plan vence en {$days} día(s) — {$tenant->nombre}";
+            if (! SystemEmailService::ensurePolicyAllows('tenant_expiry_warning', $subject, null)) {
+                return;
+            }
+
             $body = "Hola,\n\nTu plan '{$planLabel}' para {$tenant->nombre} vence el {$tenant->fecha_vencimiento->format('d/m/Y')}.\n\nRenueva tu suscripción para evitar la interrupción del servicio.\n\nSaludos,\nGuardiAPP";
 
             Mail::raw($body, function ($message) use ($tenant, $subject) {
@@ -102,6 +107,10 @@ class TenantCheckExpiryCommand extends Command
             $tenant->loadMissing('planRelation');
             $planLabel = $tenant->planRelation?->nombre ?? 'Sin plan asignado';
             $subject = "❌ Plan vencido — {$tenant->nombre}";
+            if (! SystemEmailService::ensurePolicyAllows('tenant_expiry_notice', $subject, null)) {
+                return;
+            }
+
             $body = "Hola,\n\nEl plan '{$planLabel}' para {$tenant->nombre} ha vencido el {$tenant->fecha_vencimiento->format('d/m/Y')}.\n\nTienes {$graceDays} días de gracia antes de que la cuenta sea suspendida.\n\nRenueva lo antes posible.\n\nSaludos,\nGuardiAPP";
 
             Mail::raw($body, function ($message) use ($tenant, $subject) {

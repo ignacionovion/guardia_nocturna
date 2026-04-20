@@ -326,7 +326,7 @@ class AsignacionCamaController extends Controller
 
             // Enviar email con PDF adjunto
             SystemEmailService::send(
-                type: 'beds',
+                type: 'bed_report',
                 subject: $subject,
                 lines: $lines,
                 actorEmail: $user?->email,

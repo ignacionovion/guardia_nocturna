@@ -22,11 +22,17 @@ class TestEmailCommand extends Command
         $this->newLine();
 
         try {
-            // Forzar el envío directo (bypass de validaciones)
+            $subject = '✅ Prueba de correo - GuardiAPP';
+            if (! SystemEmailService::ensurePolicyAllows('smtp_test', $subject, null)) {
+                $this->error('Envío bloqueado por política mail_strategy (smtp_test deshabilitado).');
+
+                return self::FAILURE;
+            }
+
             \Illuminate\Support\Facades\Mail::to($email)->send(new \App\Mail\SystemNotificationMail(
                 fromAddress: config('mail.from.address'),
                 fromName: config('mail.from.name'),
-                mailSubject: '✅ Prueba de correo - GuardiAPP',
+                mailSubject: $subject,
                 lines: [
                     'Este es un correo de prueba para verificar la configuración SMTP.',
                     'Si estás leyendo esto, ¡la configuración está correcta!',
