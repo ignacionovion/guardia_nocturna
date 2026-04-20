@@ -33,23 +33,26 @@ class CentralAuthController extends Controller
         ]);
 
         $this->ensureIsNotRateLimited($request);
+        $username = $request->string('username')->trim()->toString();
 
         /** @var CentralAdmin|null $admin */
         $admin = CentralAdmin::query()
-            ->where('username', $request->string('username')->trim()->toString())
+            ->where('username', $username)
             ->first();
 
         if ($admin === null || ! Hash::check($request->input('password'), $admin->password)) {
             RateLimiter::hit($this->throttleKey($request), 60);
 
             throw ValidationException::withMessages([
-                'username' => 'Las credenciales no coinciden con nuestros registros.',
+                'username' => 'Credenciales incorrectas.',
             ]);
         }
 
         if (! $admin->activo) {
+            RateLimiter::hit($this->throttleKey($request), 60);
+
             throw ValidationException::withMessages([
-                'username' => 'Esta cuenta está desactivada. Contactá a un super administrador.',
+                'username' => 'Usuario desactivado.',
             ]);
         }
 
