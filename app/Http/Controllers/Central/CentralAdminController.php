@@ -97,12 +97,27 @@ final class CentralAdminController extends Controller
             return redirect('/admin/admins')->with('error', 'No podés eliminar tu propia sesión desde aquí.');
         }
 
-        if (CentralAdmin::query()->count() <= 1) {
-            return redirect('/admin/admins')->with('error', 'No se puede eliminar el único administrador del panel central.');
-        }
+        if ($admin->activo) {
+            $otherActiveAdmins = CentralAdmin::query()
+                ->whereKeyNot($admin->id)
+                ->where('activo', true)
+                ->count();
 
-        if ($admin->is_super_admin && CentralAdmin::query()->where('is_super_admin', true)->count() <= 1) {
-            return redirect('/admin/admins')->with('error', 'Debe existir al menos un super administrador.');
+            if ($otherActiveAdmins < 1) {
+                return redirect('/admin/admins')->with('error', 'No podés eliminar al único administrador activo del panel central.');
+            }
+
+            if ($admin->is_super_admin) {
+                $otherActiveSupers = CentralAdmin::query()
+                    ->whereKeyNot($admin->id)
+                    ->where('activo', true)
+                    ->where('is_super_admin', true)
+                    ->count();
+
+                if ($otherActiveSupers < 1) {
+                    return redirect('/admin/admins')->with('error', 'No podés eliminar al único super administrador activo.');
+                }
+            }
         }
 
         $admin->delete();

@@ -29,9 +29,9 @@
                            class="px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('central.dashboard') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }} transition">
                             Dashboard
                         </a>
-                        @if(Auth::guard('central')->user()?->is_super_admin)
+                        @if(auth('central')->user()?->is_super_admin === true)
                             <a href="{{ Route::has('central.admins.index') ? route('central.admins.index') : url('/admin/admins') }}"
-                               class="px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('central.admins.*') ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }} transition">
+                               class="px-3 py-2 rounded-md text-sm font-medium {{ (request()->routeIs('central.admins.*') || request()->is('admin/admins') || request()->is('admin/admins/*')) ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }} transition">
                                 Administradores
                             </a>
                         @endif
