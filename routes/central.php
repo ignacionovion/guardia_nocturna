@@ -28,16 +28,31 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [CentralDashboardController::class, 'index'])->centralNamed('central.dashboard');
 
-$bodiesResource = Route::resource('bodies', BodyController::class);
-if ($GLOBALS['__central_named_routes'] ?? true) {
-    $bodiesResource->names('central.bodies');
-}
+// Bodies
+Route::get('bodies', [BodyController::class, 'index'])->centralNamed('central.bodies.index');
+Route::get('bodies/create', [BodyController::class, 'create'])->centralNamed('central.bodies.create');
+Route::post('bodies', [BodyController::class, 'store'])->centralNamed('central.bodies.store');
+Route::get('bodies/{body}', [BodyController::class, 'show'])->centralNamed('central.bodies.show');
+Route::get('bodies/{body}/edit', [BodyController::class, 'edit'])->centralNamed('central.bodies.edit');
+Route::match(['put', 'patch'], 'bodies/{body}', [BodyController::class, 'update'])->centralNamed('central.bodies.update');
+Route::delete('bodies/{body}', [BodyController::class, 'destroy'])->centralNamed('central.bodies.destroy');
 
-$tenantsResource = Route::resource('tenants', TenantController::class)
-    ->where(['tenant' => '[a-z0-9\-]+']);
-if ($GLOBALS['__central_named_routes'] ?? true) {
-    $tenantsResource->names('central.tenants');
-}
+// Tenants
+Route::get('tenants', [TenantController::class, 'index'])->centralNamed('central.tenants.index');
+Route::get('tenants/create', [TenantController::class, 'create'])->centralNamed('central.tenants.create');
+Route::post('tenants', [TenantController::class, 'store'])->centralNamed('central.tenants.store');
+Route::get('tenants/{tenant}', [TenantController::class, 'show'])
+    ->where(['tenant' => '[a-z0-9\-]+'])
+    ->centralNamed('central.tenants.show');
+Route::get('tenants/{tenant}/edit', [TenantController::class, 'edit'])
+    ->where(['tenant' => '[a-z0-9\-]+'])
+    ->centralNamed('central.tenants.edit');
+Route::match(['put', 'patch'], 'tenants/{tenant}', [TenantController::class, 'update'])
+    ->where(['tenant' => '[a-z0-9\-]+'])
+    ->centralNamed('central.tenants.update');
+Route::delete('tenants/{tenant}', [TenantController::class, 'destroy'])
+    ->where(['tenant' => '[a-z0-9\-]+'])
+    ->centralNamed('central.tenants.destroy');
 
 // Check slug availability (AJAX)
 Route::get('check-slug', [TenantController::class, 'checkSlugAvailability'])->centralNamed('central.check-slug');
@@ -69,10 +84,12 @@ Route::post('tenants/{tenant}/reset-database', [TenantAdminController::class, 'r
 Route::delete('tenants/{tenant}/destroy-completely', [TenantAdminController::class, 'destroyCompletely'])->centralNamed('central.tenants.destroy-completely');
 
 // Pagos (historial / caja base)
-$paymentsResource = Route::resource('payments', PaymentController::class)->except(['destroy']);
-if ($GLOBALS['__central_named_routes'] ?? true) {
-    $paymentsResource->names('central.payments');
-}
+Route::get('payments', [PaymentController::class, 'index'])->centralNamed('central.payments.index');
+Route::get('payments/create', [PaymentController::class, 'create'])->centralNamed('central.payments.create');
+Route::post('payments', [PaymentController::class, 'store'])->centralNamed('central.payments.store');
+Route::get('payments/{payment}', [PaymentController::class, 'show'])->centralNamed('central.payments.show');
+Route::get('payments/{payment}/edit', [PaymentController::class, 'edit'])->centralNamed('central.payments.edit');
+Route::match(['put', 'patch'], 'payments/{payment}', [PaymentController::class, 'update'])->centralNamed('central.payments.update');
 Route::post('payments/{payment}/mark-paid', [PaymentController::class, 'markPaid'])->centralNamed('central.payments.mark-paid');
 Route::get('financial', [FinancialDashboardController::class, 'index'])->centralNamed('central.financial.index');
 
@@ -106,9 +123,11 @@ Route::get('audit', [AuditController::class, 'index'])->centralNamed('central.au
 
 // Administradores SaaS (central_admins)
 Route::middleware(['central.super_admin'])->group(function () {
-    $adminsResource = Route::resource('admins', CentralAdminController::class)->except(['show']);
-    if ($GLOBALS['__central_named_routes'] ?? true) {
-        $adminsResource->names('central.admins');
-    }
+    Route::get('admins', [CentralAdminController::class, 'index'])->centralNamed('central.admins.index');
+    Route::get('admins/create', [CentralAdminController::class, 'create'])->centralNamed('central.admins.create');
+    Route::post('admins', [CentralAdminController::class, 'store'])->centralNamed('central.admins.store');
+    Route::get('admins/{admin}/edit', [CentralAdminController::class, 'edit'])->centralNamed('central.admins.edit');
+    Route::match(['put', 'patch'], 'admins/{admin}', [CentralAdminController::class, 'update'])->centralNamed('central.admins.update');
+    Route::delete('admins/{admin}', [CentralAdminController::class, 'destroy'])->centralNamed('central.admins.destroy');
 });
 
