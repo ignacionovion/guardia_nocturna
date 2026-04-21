@@ -10,7 +10,10 @@
 
     @php
         $opsOverall = $operationalHealth['overall'] ?? 'ok';
-        $newCompanyRoute = \Illuminate\Support\Facades\Route::has('central.tenants.create') ? route('central.tenants.create') : null;
+        // Prioriza nombre de ruta de negocio y mantiene compatibilidad con naming legacy.
+        $newCompanyCreateRouteName = collect(['central.companies.create', 'central.tenants.create'])
+            ->first(fn (string $routeName): bool => \Illuminate\Support\Facades\Route::has($routeName));
+        $newCompanyRoute = $newCompanyCreateRouteName ? route($newCompanyCreateRouteName) : null;
         $newBodyRoute = \Illuminate\Support\Facades\Route::has('central.bodies.create') ? route('central.bodies.create') : null;
         $opsWrap = match ($opsOverall) {
             'critical' => 'border-rose-200 bg-rose-50',
