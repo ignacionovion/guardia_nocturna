@@ -4,9 +4,15 @@
 
 @section('content')
     @php
-        $pendingDueDays = max(1, min(365, (int) config('billing.trial_to_pending_due_days', 7)));
+        $monthlyCycleDays = 30;
+        $yearlyCycleDays = 365;
     @endphp
-    <div id="billing-onboarding-config" class="hidden" data-pending-due-days="{{ $pendingDueDays }}"></div>
+    <div
+        id="billing-onboarding-config"
+        class="hidden"
+        data-monthly-cycle-days="{{ $monthlyCycleDays }}"
+        data-yearly-cycle-days="{{ $yearlyCycleDays }}"
+    ></div>
     <div class="mb-8">
         <a href="{{ route('central.tenants.index') }}" class="text-sm text-slate-500 hover:text-slate-700 flex items-center space-x-1 mb-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
@@ -276,9 +282,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const planSelect = document.getElementById('plan_id');
     const billingCycleSelect = document.getElementById('billing_cycle');
     const billingConfigEl = document.getElementById('billing-onboarding-config');
-    const pendingDueDays = billingConfigEl
-        ? Math.max(1, Math.min(365, parseInt(billingConfigEl.dataset.pendingDueDays || '7', 10) || 7))
-        : 7;
+    const monthlyCycleDays = billingConfigEl
+        ? Math.max(1, Math.min(365, parseInt(billingConfigEl.dataset.monthlyCycleDays || '30', 10) || 30))
+        : 30;
+    const yearlyCycleDays = billingConfigEl
+        ? Math.max(1, Math.min(365, parseInt(billingConfigEl.dataset.yearlyCycleDays || '365', 10) || 365))
+        : 365;
 
     const montoPreview = document.getElementById('monto-preview');
     const estadoPreview = document.getElementById('estado-preview');
@@ -309,7 +318,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const hoy = new Date();
         const vencimiento = new Date(hoy);
-        vencimiento.setDate(vencimiento.getDate() + pendingDueDays);
+        const cycleDays = billingCycle === 'yearly' ? yearlyCycleDays : monthlyCycleDays;
+        vencimiento.setDate(vencimiento.getDate() + cycleDays);
         vencimientoPreview.textContent = 'Primer vencimiento estimado: ' + formatDate(vencimiento);
     }
 

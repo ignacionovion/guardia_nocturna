@@ -7,6 +7,7 @@
         $planSlug = $tenant->planRelation?->slug;
         $planName = $tenant->planRelation?->nombre ?? 'Sin plan';
         $planBadgeClass = $planSlug ? 'bg-blue-50 text-blue-700' : 'bg-white text-slate-600';
+        $canActivateTrial = in_array(optional($tenant->billing)->estado_pago, ['pending', 'pendiente', 'vencido'], true);
     @endphp
 
     @if(session('success'))
@@ -66,11 +67,14 @@
                 </div>
             </div>
             <div class="flex items-center space-x-3">
-                @if(in_array(optional($tenant->billing)->estado_pago, ['pending', 'pendiente', 'vencido'], true))
+                @if($canActivateTrial)
                     <form method="POST" action="{{ route('central.tenants.activate-trial', $tenant) }}">
                         @csrf
                         <button type="submit"
-                            class="inline-flex items-center px-4 py-2 bg-amber-500 text-white rounded-xl font-semibold text-sm hover:bg-amber-600 transition">
+                            class="inline-flex items-center px-4 py-2 bg-amber-500 text-white rounded-xl font-semibold text-sm hover:bg-amber-600 transition shadow-sm">
+                            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2m0 0a6 6 0 016 6c0 2.4-1.4 4.5-3.5 5.5L14 21h-4l-.5-4.5A6 6 0 016 11a6 6 0 016-6z"/>
+                            </svg>
                             Activar trial
                         </button>
                     </form>
@@ -96,6 +100,23 @@
             </div>
         </div>
     </div>
+
+    @if($canActivateTrial)
+        <div class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                    <p class="text-sm font-semibold text-amber-900">Acción comercial disponible: activar trial manual</p>
+                    <p class="text-xs text-amber-800 mt-1">Útil para demos o evaluación comercial antes del primer pago.</p>
+                </div>
+                <form method="POST" action="{{ route('central.tenants.activate-trial', $tenant) }}" class="shrink-0">
+                    @csrf
+                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-amber-500 text-white rounded-xl font-semibold text-sm hover:bg-amber-600 transition">
+                        Activar trial
+                    </button>
+                </form>
+            </div>
+        </div>
+    @endif
 
     {{-- Metrics Cards --}}
     <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">

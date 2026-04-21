@@ -125,7 +125,7 @@ class TenantController extends Controller
             // Step 1b: Billing inicial sin trial automático (estado pendiente)
             try {
                 $billingCycle = $validated['billing_cycle'] ?? 'monthly';
-                $dueDays = max(1, min(365, (int) config('billing.trial_to_pending_due_days', 7)));
+                $dueDays = $billingCycle === 'yearly' ? 365 : 30;
 
                 $billing = $this->createInitialBillingRecord($tenant, $plan, $billingCycle);
 
@@ -617,6 +617,10 @@ class TenantController extends Controller
             return back()->with('error', 'No puedes activar trial sobre una compañía ya pagada.');
         }
 
+        if (! in_array((string) $billing->estado_pago, ['pending', 'pendiente', 'vencido'], true)) {
+            return back()->with('error', 'El trial solo se puede activar para compañías pendientes o vencidas.');
+        }
+
         $days = max(1, min(365, (int) config('billing.default_trial_days', 14)));
 
         $billing->estado_pago = 'trial';
@@ -708,7 +712,8 @@ class TenantController extends Controller
 
     /**
      * Alta inicial en `tenant_billing`: sin trial automático.
-     * Nuevo tenant queda en estado pendiente y vence en `billing.trial_to_pending_due_days`.
+     * Nuevo tenant queda en estado pendiente y vence según ciclo:
+     * mensual = 30 días, anual = 365 días.
      * Alineación del tenant vía {@see Billing::syncToTenant()}.
      */
     private function createInitialBillingRecord(
@@ -716,7 +721,7 @@ class TenantController extends Controller
         Plan $plan,
         string $billingCycle,
     ): Billing {
-        $dueDays = max(1, min(365, (int) config('billing.trial_to_pending_due_days', 7)));
+        $dueDays = $billingCycle === 'yearly' ? 365 : 30;
         $planPrice = $billingCycle === 'yearly'
             ? (float) ($plan->precio_anual ?? (($plan->precio_mensual ?? 0) * 12))
             : (float) ($plan->precio_mensual ?? 0);
