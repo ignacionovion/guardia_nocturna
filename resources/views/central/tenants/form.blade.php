@@ -4,9 +4,9 @@
 
 @section('content')
     @php
-        $defaultTrialDays = max(1, min(365, (int) config('billing.default_trial_days', 14)));
+        $pendingDueDays = max(1, min(365, (int) config('billing.trial_to_pending_due_days', 7)));
     @endphp
-    <div id="billing-onboarding-config" class="hidden" data-default-trial-days="{{ $defaultTrialDays }}"></div>
+    <div id="billing-onboarding-config" class="hidden" data-pending-due-days="{{ $pendingDueDays }}"></div>
     <div class="mb-8">
         <a href="{{ route('central.tenants.index') }}" class="text-sm text-slate-500 hover:text-slate-700 flex items-center space-x-1 mb-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
@@ -110,9 +110,9 @@
                     </h3>
 
                     <p class="text-xs text-slate-600 leading-relaxed rounded-lg border border-blue-100 bg-blue-50/60 px-3 py-2.5">
-                        Todas las nuevas compañías comienzan con un período de prueba de
-                        <strong>{{ $defaultTrialDays }}</strong> días. Luego deberán activar un plan para continuar usando el sistema
-                        (cobros y renovación se gestionan en Facturación y Pagos).
+                        La compañía se creará en estado <strong>pendiente</strong>. Para activar el servicio deberás registrar un pago
+                        desde Facturación/Pagos. Si necesitas una demo o evaluación comercial, luego podrás activar un trial manualmente
+                        desde la ficha de la compañía.
                     </p>
 
                     <div class="grid grid-cols-2 gap-4">
@@ -136,7 +136,7 @@
                         <div>
                             <label class="block text-xs font-medium text-slate-500 mb-1">Estado inicial (referencia)</label>
                             <div id="estado-preview" class="text-sm font-medium text-blue-600">
-                                Trial
+                                Pendiente
                             </div>
                         </div>
                         <div>
@@ -276,9 +276,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const planSelect = document.getElementById('plan_id');
     const billingCycleSelect = document.getElementById('billing_cycle');
     const billingConfigEl = document.getElementById('billing-onboarding-config');
-    const defaultTrialDays = billingConfigEl
-        ? Math.max(1, Math.min(365, parseInt(billingConfigEl.dataset.defaultTrialDays || '14', 10) || 14))
-        : 14;
+    const pendingDueDays = billingConfigEl
+        ? Math.max(1, Math.min(365, parseInt(billingConfigEl.dataset.pendingDueDays || '7', 10) || 7))
+        : 7;
 
     const montoPreview = document.getElementById('monto-preview');
     const estadoPreview = document.getElementById('estado-preview');
@@ -297,21 +297,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const selectedPlan = planSelect.options[planSelect.selectedIndex];
         const billingCycle = billingCycleSelect.value;
-        const trialDays = defaultTrialDays;
 
         const precioMensual = parseInt(selectedPlan.dataset.precioMensual) || 0;
         const precioAnual = parseInt(selectedPlan.dataset.precioAnual) || 0;
 
         const monto = billingCycle === 'yearly' ? precioAnual : precioMensual;
-        montoPreview.textContent = formatCurrency(0) + ' (Trial)';
+        montoPreview.textContent = formatCurrency(monto);
 
-        estadoPreview.textContent = 'Trial';
-        estadoPreview.className = 'text-sm font-medium text-blue-600';
+        estadoPreview.textContent = 'Pendiente';
+        estadoPreview.className = 'text-sm font-medium text-amber-700';
 
         const hoy = new Date();
         const vencimiento = new Date(hoy);
-        vencimiento.setDate(vencimiento.getDate() + trialDays);
-        vencimientoPreview.textContent = 'Fin del trial: ' + formatDate(vencimiento);
+        vencimiento.setDate(vencimiento.getDate() + pendingDueDays);
+        vencimientoPreview.textContent = 'Primer vencimiento estimado: ' + formatDate(vencimiento);
     }
 
     if (planSelect) {
