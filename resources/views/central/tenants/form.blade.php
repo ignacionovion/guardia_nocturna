@@ -3,6 +3,13 @@
 @section('title', $tenant ? 'Editar Compañía' : 'Nueva Compañía')
 
 @section('content')
+    @php
+        $forceTrialOnCreate = (bool) config('billing.enabled_trial_on_create');
+        $defaultTrialDays = max(1, min(365, (int) config('billing.default_trial_days', 14)));
+    @endphp
+    <div id="billing-onboarding-config" class="hidden"
+         data-default-trial-days="{{ $defaultTrialDays }}"
+         data-force-trial="{{ $forceTrialOnCreate ? '1' : '0' }}"></div>
     <div class="mb-8">
         <a href="{{ route('central.tenants.index') }}" class="text-sm text-slate-500 hover:text-slate-700 flex items-center space-x-1 mb-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
@@ -97,7 +104,7 @@
                     </div>
                 </div>
 
-                {{-- Sección de Facturación --}}
+                {{-- Sección de Facturación (alta: sin fecha manual; vigencia desde backend / pagos) --}}
                 @unless($tenant)
                 <div class="bg-white border border-slate-200 rounded-xl p-5 space-y-4">
                     <h3 class="text-sm font-semibold text-slate-900 flex items-center gap-2">
@@ -105,12 +112,17 @@
                         Configuración de Facturación
                     </h3>
 
+                    <p class="text-xs text-slate-500 leading-relaxed">
+                        La vigencia inicial se calcula automáticamente según el ciclo, la política de trial del SaaS y la facturación;
+                        el calendario comercial lo actualizan los pagos registrados (no se ingresa vencimiento manual en el alta).
+                    </p>
+
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label for="billing_cycle" class="block text-sm font-medium text-slate-700 mb-1.5">Ciclo de Facturación</label>
                             <select id="billing_cycle" name="billing_cycle" required
                                     class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white billing-input">
-                                <option value="monthly" {{ old('billing_cycle') === 'monthly' ? 'selected' : '' }}>Mensual (30 días)</option>
+                                <option value="monthly" {{ old('billing_cycle', 'monthly') === 'monthly' ? 'selected' : '' }}>Mensual (30 días)</option>
                                 <option value="yearly" {{ old('billing_cycle') === 'yearly' ? 'selected' : '' }}>Anual (365 días)</option>
                             </select>
                         </div>
@@ -122,30 +134,32 @@
                         </div>
                     </div>
 
-                    <div class="flex items-center space-x-3">
-                        <input type="checkbox" id="tiene_trial" name="tiene_trial" value="1" {{ old('tiene_trial') ? 'checked' : '' }}
-                               class="rounded border-slate-300 text-amber-500 focus:ring-amber-500 billing-input">
-                        <label for="tiene_trial" class="text-sm text-slate-700">
-                            <span class="font-medium">Activar período de prueba (Trial)</span>
-                        </label>
-                    </div>
-
-                    <div id="trial-days-container" class="{{ old('tiene_trial') ? '' : 'hidden' }}">
-                        <label for="trial_days" class="block text-sm font-medium text-slate-700 mb-1.5">Días de Trial</label>
-                        <input type="number" id="trial_days" name="trial_days" value="{{ old('trial_days', 30) }}" min="1" max="90"
-                               class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none billing-input">
-                        <p class="text-xs text-slate-400 mt-1">Duración del período de prueba gratuito.</p>
-                    </div>
+                    @if($forceTrialOnCreate)
+                        <div class="rounded-lg border border-blue-200 bg-blue-50/80 px-3 py-2.5 text-xs text-blue-900">
+                            <span class="font-semibold">Política central:</span> las nuevas compañías inician en <strong>trial</strong>
+                            de <strong>{{ $defaultTrialDays }}</strong> días (<code class="text-[11px]">BILLING_ENABLED_TRIAL_ON_CREATE</code> /
+                            <code class="text-[11px]">BILLING_DEFAULT_TRIAL_DAYS</code>).
+                        </div>
+                    @else
+                        <div class="flex items-center space-x-3">
+                            <input type="checkbox" id="tiene_trial" name="tiene_trial" value="1" {{ old('tiene_trial') ? 'checked' : '' }}
+                                   class="rounded border-slate-300 text-amber-500 focus:ring-amber-500 billing-input">
+                            <label for="tiene_trial" class="text-sm text-slate-700">
+                                <span class="font-medium">Activar período de prueba (Trial)</span>
+                                <span class="block text-xs text-slate-500 mt-0.5">Duración fija: {{ $defaultTrialDays }} días (configuración central).</span>
+                            </label>
+                        </div>
+                    @endif
 
                     <div class="grid grid-cols-2 gap-4 pt-2 border-t border-slate-200">
                         <div>
-                            <label class="block text-xs font-medium text-slate-500 mb-1">Estado Inicial</label>
+                            <label class="block text-xs font-medium text-slate-500 mb-1">Estado inicial (referencia)</label>
                             <div id="estado-preview" class="text-sm font-medium text-slate-700">
                                 Pendiente
                             </div>
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-slate-500 mb-1">Vencimiento Estimado</label>
+                            <label class="block text-xs font-medium text-slate-500 mb-1">Vigencia (referencia)</label>
                             <div id="vencimiento-preview" class="text-sm font-medium text-slate-700">
                                 Calculando...
                             </div>
@@ -167,12 +181,15 @@
                     </select>
                 </div>
 
-                <div>
-                    <label for="fecha_vencimiento" class="block text-sm font-medium text-slate-700 mb-1.5">Fecha de Vencimiento</label>
-                    <input type="date" id="fecha_vencimiento" name="fecha_vencimiento"
-                           value="{{ old('fecha_vencimiento', $tenant?->fecha_vencimiento?->format('Y-m-d')) }}"
-                           class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none">
+                @if($tenant)
+                <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-600">
+                    <span class="font-semibold text-slate-700">Vigencia y vencimiento</span>
+                    provienen de la facturación central (<code class="text-[11px]">tenant_billing</code>) y de los pagos;
+                    para ajustar períodos usá <a href="{{ route('central.billing.index') }}" class="text-amber-700 font-medium hover:underline">Facturación</a>
+                    o <a href="{{ route('central.payments.index') }}" class="text-amber-700 font-medium hover:underline">Pagos</a>.
+                    Fecha mostrada hoy en la ficha: <strong class="text-slate-800">{{ $tenant->fecha_vencimiento?->format('d/m/Y') ?? '—' }}</strong>.
                 </div>
+                @endif
 
                 @if($tenant)
                 <div class="grid grid-cols-2 gap-4">
@@ -277,9 +294,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Billing calculation logic
     const planSelect = document.getElementById('plan_id');
     const billingCycleSelect = document.getElementById('billing_cycle');
+    const billingConfigEl = document.getElementById('billing-onboarding-config');
+    const defaultTrialDays = billingConfigEl
+        ? Math.max(1, Math.min(365, parseInt(billingConfigEl.dataset.defaultTrialDays || '14', 10) || 14))
+        : 14;
+    const forceTrialOnCreate = billingConfigEl && billingConfigEl.dataset.forceTrial === '1';
+
     const tieneTrialCheckbox = document.getElementById('tiene_trial');
-    const trialDaysInput = document.getElementById('trial_days');
-    const trialDaysContainer = document.getElementById('trial-days-container');
     const montoPreview = document.getElementById('monto-preview');
     const estadoPreview = document.getElementById('estado-preview');
     const vencimientoPreview = document.getElementById('vencimiento-preview');
@@ -297,8 +318,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const selectedPlan = planSelect.options[planSelect.selectedIndex];
         const billingCycle = billingCycleSelect.value;
-        const tieneTrial = tieneTrialCheckbox && tieneTrialCheckbox.checked;
-        const trialDays = trialDaysInput ? parseInt(trialDaysInput.value) || 30 : 30;
+        const tieneTrial = forceTrialOnCreate || (tieneTrialCheckbox && tieneTrialCheckbox.checked);
+        const trialDays = defaultTrialDays;
 
         const precioMensual = parseInt(selectedPlan.dataset.precioMensual) || 0;
         const precioAnual = parseInt(selectedPlan.dataset.precioAnual) || 0;
@@ -332,13 +353,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (tieneTrialCheckbox) {
         tieneTrialCheckbox.addEventListener('change', function() {
-            trialDaysContainer.classList.toggle('hidden', !this.checked);
             calcularFacturacion();
         });
-    }
-
-    if (trialDaysInput) {
-        trialDaysInput.addEventListener('input', calcularFacturacion);
     }
 
     if (planSelect) {

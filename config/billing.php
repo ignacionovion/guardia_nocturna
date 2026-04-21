@@ -34,4 +34,17 @@ return [
     */
     'trial_to_pending_due_days' => (int) env('BILLING_TRIAL_TO_PENDING_DUE_DAYS', 30),
 
+    /*
+    | Onboarding al crear una compañía (panel central): si es true, todas las altas inician en trial
+    | con la duración definida en default_trial_days (sin entrada manual de vencimiento).
+    | Si es false, el operador puede marcar trial opcional en el formulario; la duración sigue
+    | tomándose solo desde default_trial_days (backend), no desde un campo libre.
+    */
+    'enabled_trial_on_create' => (bool) env('BILLING_ENABLED_TRIAL_ON_CREATE', false),
+
+    /*
+    | Días de trial aplicados al crear compañía cuando corresponde trial (política o checkbox).
+    */
+    'default_trial_days' => (int) env('BILLING_DEFAULT_TRIAL_DAYS', 14),
+
 ];
