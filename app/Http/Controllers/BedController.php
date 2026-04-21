@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Bed;
+use App\Services\PlanService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -104,11 +105,15 @@ class BedController extends Controller
 
     public function create()
     {
-        return view('admin.beds.create');
+        return view('admin.beds.create', [
+            'beds_plan_usage' => PlanService::usageLabel('beds'),
+        ]);
     }
 
     public function store(Request $request)
     {
+        PlanService::assertCanIncrement('beds');
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'room' => 'nullable|string|max:255',

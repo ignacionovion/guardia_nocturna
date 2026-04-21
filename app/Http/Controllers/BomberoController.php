@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Bombero;
 use App\Models\Guardia;
+use App\Services\PlanService;
 use App\Traits\TenantAdminAuth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -17,7 +18,7 @@ class BomberoController extends Controller
     use TenantAdminAuth;
 
     public function __construct(
-        protected \App\Services\TenantPlanLimitService $limitService
+        protected \App\Services\TenantPlanLimitService $limitService,
     ) {}
 
     public function apiIndex(Request $request)
@@ -65,19 +66,21 @@ class BomberoController extends Controller
         $this->requireTenantAdmin();
 
         $guardias = Guardia::all();
-        return view('admin.volunteers.create', compact('guardias'));
+        $canCreateVolunteer = $this->limitService->canCreateVolunteer();
+        $limitData = [
+            'can_create' => $canCreateVolunteer,
+            'message' => ! $canCreateVolunteer ? $this->limitService->getLimitExceededMessage('volunteers') : null,
+        ];
+        $volunteers_plan_usage = PlanService::usageLabel('volunteers');
+
+        return view('admin.volunteers.create', compact('guardias', 'limitData', 'volunteers_plan_usage'));
     }
 
     public function store(Request $request)
     {
         $this->requireTenantAdmin();
 
-        // Check plan limit for guardias
-        if (\App\Services\PlanService::exceedsLimit('guardias')) {
-            return back()
-                ->withInput()
-                ->with('error', 'Has alcanzado el límite de guardias de tu plan. Actualiza tu plan para agregar más.');
-        }
+        PlanService::assertCanIncrement('volunteers');
 
         $validated = $request->validate([
             'nombres' => 'required|string|max:255',
@@ -379,6 +382,12 @@ class BomberoController extends Controller
             
             if ($existsQuery->exists()) continue;
 
+            if (PlanService::exceedsLimit('volunteers', 1)) {
+                $errors[] = $this->limitService->getLimitExceededMessage('volunteers');
+
+                continue;
+            }
+
             try {
                 $val = function($idx) use ($row) {
                     return isset($row[$idx]) ? trim($row[$idx]) : null;
@@ -545,6 +554,12 @@ class BomberoController extends Controller
             
             if ($existsQuery->exists()) {
                 // Opcional: Actualizar existente? Por ahora saltamos
+                continue;
+            }
+
+            if (PlanService::exceedsLimit('volunteers', 1)) {
+                $errors[] = $this->limitService->getLimitExceededMessage('volunteers');
+
                 continue;
             }
 

@@ -4,43 +4,38 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Exceptions\PlanAccessDeniedException;
 use App\Services\PlanService;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Middleware to enforce max_users plan limit.
- *
- * Blocks user creation when the tenant has reached its user limit.
- * Only applies to POST routes that create users.
+ * Bloquea la creación de usuarios cuando el tenant alcanzó max_users del plan.
+ * Lanza {@see PlanAccessDeniedException} (misma UX que otros bloqueos de plan → /upgrade).
  */
 class EnforceMaxUsers
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (!tenant()) {
+        if (! tenant()) {
             return $next($request);
         }
 
-        // Get max users limit from PlanService (database-driven only)
         $maxUsers = PlanService::getLimit('users');
 
-        // null or -1 means unlimited
-        if ($maxUsers === null || $maxUsers === -1) {
+        if ($maxUsers === null) {
             return $next($request);
+        }
+
+        if ($maxUsers <= 0) {
+            throw PlanAccessDeniedException::limitReached('users', $maxUsers, PlanService::getCurrentPlan()?->nombre);
         }
 
         $currentUsers = \App\Models\User::count();
 
         if ($currentUsers >= (int) $maxUsers) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'error' => "Límite de usuarios alcanzado ({$maxUsers}). Actualiza tu plan para agregar más.",
-                ], 403);
-            }
-
-            return back()->with('error', "Has alcanzado el límite de {$maxUsers} usuarios de tu plan. Contacta al administrador para actualizar tu plan.");
+            throw PlanAccessDeniedException::limitReached('users', (int) $maxUsers, PlanService::getCurrentPlan()?->nombre);
         }
 
         return $next($request);

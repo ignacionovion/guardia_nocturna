@@ -69,6 +69,7 @@
                             <td class="px-4 py-3">
                                 <div class="text-xs space-y-1">
                                     <div><span class="text-slate-500">Usuarios:</span> <span class="font-medium">{{ $plan->max_users ?? '∞' }}</span></div>
+                                    <div><span class="text-slate-500">Voluntarios:</span> <span class="font-medium">{{ $plan->max_volunteers ?? '∞' }}</span></div>
                                     <div><span class="text-slate-500">Guardias:</span> <span class="font-medium">{{ $plan->max_guardias ?? '∞' }}</span></div>
                                     <div><span class="text-slate-500">Camas:</span> <span class="font-medium">{{ $plan->max_beds ?? '∞' }}</span></div>
                                 </div>

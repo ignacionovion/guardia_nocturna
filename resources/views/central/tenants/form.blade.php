@@ -4,12 +4,9 @@
 
 @section('content')
     @php
-        $forceTrialOnCreate = (bool) config('billing.enabled_trial_on_create');
         $defaultTrialDays = max(1, min(365, (int) config('billing.default_trial_days', 14)));
     @endphp
-    <div id="billing-onboarding-config" class="hidden"
-         data-default-trial-days="{{ $defaultTrialDays }}"
-         data-force-trial="{{ $forceTrialOnCreate ? '1' : '0' }}"></div>
+    <div id="billing-onboarding-config" class="hidden" data-default-trial-days="{{ $defaultTrialDays }}"></div>
     <div class="mb-8">
         <a href="{{ route('central.tenants.index') }}" class="text-sm text-slate-500 hover:text-slate-700 flex items-center space-x-1 mb-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
@@ -112,9 +109,10 @@
                         Configuración de Facturación
                     </h3>
 
-                    <p class="text-xs text-slate-500 leading-relaxed">
-                        La vigencia inicial se calcula automáticamente según el ciclo, la política de trial del SaaS y la facturación;
-                        el calendario comercial lo actualizan los pagos registrados (no se ingresa vencimiento manual en el alta).
+                    <p class="text-xs text-slate-600 leading-relaxed rounded-lg border border-blue-100 bg-blue-50/60 px-3 py-2.5">
+                        Todas las nuevas compañías comienzan con un período de prueba de
+                        <strong>{{ $defaultTrialDays }}</strong> días. Luego deberán activar un plan para continuar usando el sistema
+                        (cobros y renovación se gestionan en Facturación y Pagos).
                     </p>
 
                     <div class="grid grid-cols-2 gap-4">
@@ -134,28 +132,11 @@
                         </div>
                     </div>
 
-                    @if($forceTrialOnCreate)
-                        <div class="rounded-lg border border-blue-200 bg-blue-50/80 px-3 py-2.5 text-xs text-blue-900">
-                            <span class="font-semibold">Política central:</span> las nuevas compañías inician en <strong>trial</strong>
-                            de <strong>{{ $defaultTrialDays }}</strong> días (<code class="text-[11px]">BILLING_ENABLED_TRIAL_ON_CREATE</code> /
-                            <code class="text-[11px]">BILLING_DEFAULT_TRIAL_DAYS</code>).
-                        </div>
-                    @else
-                        <div class="flex items-center space-x-3">
-                            <input type="checkbox" id="tiene_trial" name="tiene_trial" value="1" {{ old('tiene_trial') ? 'checked' : '' }}
-                                   class="rounded border-slate-300 text-amber-500 focus:ring-amber-500 billing-input">
-                            <label for="tiene_trial" class="text-sm text-slate-700">
-                                <span class="font-medium">Activar período de prueba (Trial)</span>
-                                <span class="block text-xs text-slate-500 mt-0.5">Duración fija: {{ $defaultTrialDays }} días (configuración central).</span>
-                            </label>
-                        </div>
-                    @endif
-
                     <div class="grid grid-cols-2 gap-4 pt-2 border-t border-slate-200">
                         <div>
                             <label class="block text-xs font-medium text-slate-500 mb-1">Estado inicial (referencia)</label>
-                            <div id="estado-preview" class="text-sm font-medium text-slate-700">
-                                Pendiente
+                            <div id="estado-preview" class="text-sm font-medium text-blue-600">
+                                Trial
                             </div>
                         </div>
                         <div>
@@ -298,9 +279,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const defaultTrialDays = billingConfigEl
         ? Math.max(1, Math.min(365, parseInt(billingConfigEl.dataset.defaultTrialDays || '14', 10) || 14))
         : 14;
-    const forceTrialOnCreate = billingConfigEl && billingConfigEl.dataset.forceTrial === '1';
 
-    const tieneTrialCheckbox = document.getElementById('tiene_trial');
     const montoPreview = document.getElementById('monto-preview');
     const estadoPreview = document.getElementById('estado-preview');
     const vencimientoPreview = document.getElementById('vencimiento-preview');
@@ -318,43 +297,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const selectedPlan = planSelect.options[planSelect.selectedIndex];
         const billingCycle = billingCycleSelect.value;
-        const tieneTrial = forceTrialOnCreate || (tieneTrialCheckbox && tieneTrialCheckbox.checked);
         const trialDays = defaultTrialDays;
 
         const precioMensual = parseInt(selectedPlan.dataset.precioMensual) || 0;
         const precioAnual = parseInt(selectedPlan.dataset.precioAnual) || 0;
 
-        // Calcular monto
         const monto = billingCycle === 'yearly' ? precioAnual : precioMensual;
-        montoPreview.textContent = tieneTrial ? formatCurrency(0) + ' (Trial)' : formatCurrency(monto);
+        montoPreview.textContent = formatCurrency(0) + ' (Trial)';
 
-        // Calcular estado
-        const estado = tieneTrial ? 'Trial' : 'Pendiente';
-        estadoPreview.textContent = estado;
-        estadoPreview.className = 'text-sm font-medium ' + (tieneTrial ? 'text-blue-600' : 'text-yellow-600');
+        estadoPreview.textContent = 'Trial';
+        estadoPreview.className = 'text-sm font-medium text-blue-600';
 
-        // Calcular vencimiento
         const hoy = new Date();
-        let vencimiento;
-        if (tieneTrial) {
-            vencimiento = new Date(hoy);
-            vencimiento.setDate(vencimiento.getDate() + trialDays);
-            vencimientoPreview.textContent = 'Finaliza trial: ' + formatDate(vencimiento);
-        } else {
-            vencimiento = new Date(hoy);
-            if (billingCycle === 'yearly') {
-                vencimiento.setDate(vencimiento.getDate() + 365);
-            } else {
-                vencimiento.setDate(vencimiento.getDate() + 30);
-            }
-            vencimientoPreview.textContent = formatDate(vencimiento);
-        }
-    }
-
-    if (tieneTrialCheckbox) {
-        tieneTrialCheckbox.addEventListener('change', function() {
-            calcularFacturacion();
-        });
+        const vencimiento = new Date(hoy);
+        vencimiento.setDate(vencimiento.getDate() + trialDays);
+        vencimientoPreview.textContent = 'Fin del trial: ' + formatDate(vencimiento);
     }
 
     if (planSelect) {

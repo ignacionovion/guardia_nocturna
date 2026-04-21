@@ -26,7 +26,7 @@ class SyncPlansCommand extends Command
         foreach ($plans as $plan) {
             $this->line("<comment>{$plan->nombre}</comment> ({$plan->slug})");
             $this->line("  Precio: $" . number_format((float) $plan->precio_mensual, 0, ',', '.') . "/mes");
-            $this->line("  Límites: {$plan->max_users} usuarios, {$plan->max_guardias} guardias, {$plan->max_beds} camas");
+            $this->line("  Límites: {$plan->max_users} usuarios, {$plan->max_volunteers} voluntarios, {$plan->max_guardias} guardias, {$plan->max_beds} camas");
             
             $enabledModules = $plan->getEnabledModules();
             $this->line("  Módulos: " . (empty($enabledModules) ? 'ninguno' : implode(', ', $enabledModules)));

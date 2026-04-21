@@ -18,6 +18,11 @@
         </x-ui.alert>
     @endif
 
+    <div class="mb-6 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 flex flex-wrap items-center justify-between gap-2">
+        <span>Almacenamiento según tu plan: <strong>{{ plan_usage_line('storage') }}</strong></span>
+        <a href="{{ tenant_upgrade_url() }}" class="text-amber-700 font-semibold hover:underline">Ver planes y upgrade</a>
+    </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {{-- Logo Section --}}
         <x-ui.card>

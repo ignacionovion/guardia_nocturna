@@ -548,12 +548,6 @@ class GuardiaController extends Controller
     {
         $authUser = Auth::user();
 
-        // Check plan limit for guardias (shifts)
-        if (\App\Services\PlanService::exceedsLimit('guardias')) {
-            return back()
-                ->with('error', 'Has alcanzado el límite de guardias activas de tu plan. Actualiza tu plan para crear más.');
-        }
-
         $guardia = null;
         if ($authUser?->guardia_id) {
             $guardia = Guardia::find($authUser->guardia_id);

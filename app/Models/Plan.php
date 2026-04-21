@@ -16,6 +16,7 @@ class Plan extends Model
         'nombre',
         'descripcion',
         'max_users',
+        'max_volunteers',
         'max_guardias',
         'max_beds',
         'max_storage_mb',
@@ -157,6 +158,7 @@ class Plan extends Model
     {
         return match($type) {
             'users' => $this->max_users,
+            'volunteers' => $this->max_volunteers,
             'guardias' => $this->max_guardias,
             'beds' => $this->max_beds,
             'storage' => $this->max_storage_mb,

@@ -16,6 +16,11 @@
         @endif
     </x-ui.page-header>
 
+    <div class="mb-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 flex flex-wrap items-center justify-between gap-2">
+        <span>Equipos de guardia según tu plan: <strong>{{ plan_usage_line('guardias') }}</strong></span>
+        <a href="{{ tenant_upgrade_url() }}" class="text-amber-700 font-semibold hover:underline">Ver planes y upgrade</a>
+    </div>
+
     @if(isset($limitData) && !$limitData['can_create'])
         <div class="bg-amber-50 border border-amber-200 text-amber-700 px-4 py-3 rounded-lg mb-6">
             <div class="flex items-center gap-2">

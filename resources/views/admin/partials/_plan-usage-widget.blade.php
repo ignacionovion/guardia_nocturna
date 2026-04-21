@@ -12,7 +12,7 @@
             </span>
         @endif
     </div>
-    <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
         
         {{-- Usuarios --}}
         <div>
@@ -31,6 +31,28 @@
                 <div class="w-full bg-white rounded-full h-2">
                     <div class="bg-blue-600 h-2 rounded-full" 
                          style="width: {{ $planUsage['users']['limit'] > 0 ? ($planUsage['users']['current'] / $planUsage['users']['limit']) * 100 : 0 }}%">
+                    </div>
+                </div>
+            @endif
+        </div>
+
+        {{-- Voluntarios (registro bomberos) --}}
+        <div>
+            <div class="flex items-center justify-between mb-1">
+                <p class="text-sm font-medium text-slate-700">Voluntarios</p>
+                <p class="text-sm font-bold text-slate-900">
+                    {{ $planUsage['volunteers']['current'] }}
+                    @if(!$planUsage['volunteers']['unlimited'])
+                        / {{ $planUsage['volunteers']['limit'] }}
+                    @else
+                        <i class="fas fa-infinity text-slate-500"></i>
+                    @endif
+                </p>
+            </div>
+            @if(!$planUsage['volunteers']['unlimited'])
+                <div class="w-full bg-white rounded-full h-2">
+                    <div class="bg-sky-600 h-2 rounded-full"
+                         style="width: {{ $planUsage['volunteers']['limit'] > 0 ? ($planUsage['volunteers']['current'] / $planUsage['volunteers']['limit']) * 100 : 0 }}%">
                     </div>
                 </div>
             @endif
@@ -58,10 +80,10 @@
             @endif
         </div>
 
-        {{-- Guardias (mes) --}}
+        {{-- Equipos de guardia --}}
         <div>
             <div class="flex items-center justify-between mb-1">
-                <p class="text-sm font-medium text-slate-700">Guardias (este mes)</p>
+                <p class="text-sm font-medium text-slate-700">Equipos de guardia</p>
                 <p class="text-sm font-bold text-slate-900">
                     {{ $planUsage['guardias']['current'] }}
                     @if(!$planUsage['guardias']['unlimited'])

@@ -8,6 +8,13 @@
         </x-ui.button>
     </x-ui.page-header>
 
+    @isset($beds_plan_usage)
+        <div class="mb-6 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 flex flex-wrap items-center justify-between gap-2">
+            <span>Uso de camas según tu plan: <strong>{{ $beds_plan_usage }}</strong></span>
+            <a href="{{ tenant_upgrade_url() }}" class="text-amber-700 font-semibold hover:underline">Ver planes y upgrade</a>
+        </div>
+    @endisset
+
     @if($errors->any())
         <x-ui.alert type="error" icon="fas fa-exclamation-triangle" class="mb-6">
             <ul class="list-disc list-inside">

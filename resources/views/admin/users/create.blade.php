@@ -14,9 +14,12 @@
 
                 @if(isset($limitData) && !$limitData['can_create'])
                     <div class="bg-amber-50 border border-amber-200 text-amber-700 px-4 py-3 rounded-lg mb-6">
-                        <div class="flex items-center gap-2">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <p class="font-bold">{{ $limitData['message'] }}</p>
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <p class="font-bold">{{ $limitData['message'] }}</p>
+                            </div>
+                            <a href="{{ tenant_upgrade_url() }}" class="text-amber-900 font-semibold underline shrink-0">Actualizar plan</a>
                         </div>
                     </div>
                 @endif

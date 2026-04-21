@@ -130,6 +130,9 @@
                             if ($plan->max_users) {
                                 $bullets[] = 'Hasta ' . (int) $plan->max_users . ' usuarios en el plan';
                             }
+                            if ($plan->max_volunteers) {
+                                $bullets[] = 'Hasta ' . (int) $plan->max_volunteers . ' voluntarios registrados';
+                            }
                             foreach (array_filter($plan->features ?? []) as $key => $on) {
                                 if ($on && isset($moduleLabels[$key])) {
                                     $bullets[] = $moduleLabels[$key];

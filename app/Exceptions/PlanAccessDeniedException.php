@@ -51,8 +51,10 @@ class PlanAccessDeniedException extends \Exception implements ShouldntReport
 
     public static function featureNotIncluded(string $feature, ?string $currentPlanName = null): self
     {
+        $label = self::featureLabel($feature);
+
         return new self(
-            'Esta funcionalidad no está incluida en tu plan actual.',
+            "Tu plan actual no incluye el módulo «{$label}». Actualizá tu plan para habilitarlo.",
             self::KIND_FEATURE,
             $feature,
             $currentPlanName,
@@ -75,7 +77,7 @@ class PlanAccessDeniedException extends \Exception implements ShouldntReport
         $resource = self::limitLabel($limitType);
 
         return new self(
-            "Has alcanzado el límite de {$resource} de tu plan ({$max}).",
+            "Has alcanzado el límite de {$resource} de tu plan (máx. {$max}). Actualizá tu plan para continuar.",
             self::KIND_LIMIT,
             $limitType,
             $currentPlanName,
@@ -136,6 +138,7 @@ class PlanAccessDeniedException extends \Exception implements ShouldntReport
                 'error' => $this->getMessage(),
                 'feature' => $this->blockedFeature,
                 'upgrade_url' => CentralUrls::billingPlans(),
+                'tenant_upgrade_url' => route('tenant.upgrade'),
                 'kind' => $this->kind,
                 'current_plan' => $this->currentPlanName,
                 'required_plan' => $this->requiredPlanName,
@@ -191,6 +194,7 @@ class PlanAccessDeniedException extends \Exception implements ShouldntReport
     {
         return match ($type) {
             'users' => 'usuarios',
+            'volunteers' => 'voluntarios',
             'guardias' => 'guardias',
             'beds' => 'camas',
             'storage' => 'almacenamiento',

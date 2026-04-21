@@ -5,14 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Models\Bed;
-use App\Services\TenantPlanLimitService;
+use App\Services\PlanService;
 
 class CamaController extends Controller
 {
-    public function __construct(
-        protected TenantPlanLimitService $limitService
-    ) {}
-
     /**
      * Display a listing of the resource.
      */
@@ -27,13 +23,7 @@ class CamaController extends Controller
      */
     public function store(Request $request)
     {
-        // Validar límite de plan antes de crear
-        if (!$this->limitService->canCreateBed()) {
-            return response()->json([
-                'message' => $this->limitService->getLimitExceededMessage('beds'),
-                'error' => 'limit_exceeded'
-            ], 403);
-        }
+        PlanService::assertCanIncrement('beds');
 
         $validated = $request->validate([
             'name' => 'required|string|unique:beds,name',

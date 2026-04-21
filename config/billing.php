@@ -8,8 +8,11 @@ declare(strict_types=1);
  * Fuente de verdad comercial: tabla `tenant_billing` (modelo Billing).
  * Réplica operativa / acceso: tabla `tenants` (sincronizada vía Billing::syncToTenant()).
  *
+ * Onboarding (alta de compañía desde el panel central): SIEMPRE inicia en trial; la duración es
+ * únicamente `default_trial_days` (no configurable por el operador ni por flags .env adicionales).
+ *
  * Estados en tenant_billing.estado_pago:
- * - trial: período de prueba; fecha efectiva de fin = trial_ends_at
+ * - trial: período de prueba; fecha efectiva de fin = trial_ends_at (alineada a fecha_vencimiento en alta)
  * - pagado: período corriente abonado; fecha de fin de período = fecha_vencimiento
  * - pendiente: sin pago confirmado para el ciclo actual o período vencido sin registrar cobro
  * - vencido: pasó fecha_vencimiento sin estar al día según reglas del comando de expiración
@@ -35,15 +38,7 @@ return [
     'trial_to_pending_due_days' => (int) env('BILLING_TRIAL_TO_PENDING_DUE_DAYS', 30),
 
     /*
-    | Onboarding al crear una compañía (panel central): si es true, todas las altas inician en trial
-    | con la duración definida en default_trial_days (sin entrada manual de vencimiento).
-    | Si es false, el operador puede marcar trial opcional en el formulario; la duración sigue
-    | tomándose solo desde default_trial_days (backend), no desde un campo libre.
-    */
-    'enabled_trial_on_create' => (bool) env('BILLING_ENABLED_TRIAL_ON_CREATE', false),
-
-    /*
-    | Días de trial aplicados al crear compañía cuando corresponde trial (política o checkbox).
+    | Días de trial para toda compañía nueva (única palanca de duración del onboarding en trial).
     */
     'default_trial_days' => (int) env('BILLING_DEFAULT_TRIAL_DAYS', 14),
 

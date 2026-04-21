@@ -28,6 +28,7 @@ use App\Events\BomberoStatusUpdated;
 use App\Events\BomberoConfirmed;
 use App\Events\RefuerzoAdded;
 use App\Events\ReplacementAssigned;
+use App\Services\PlanService;
 
 class AdministradorController extends Controller
 {
@@ -912,18 +913,7 @@ class AdministradorController extends Controller
 
     public function storeGuardia(Request $request)
     {
-        if (!$this->limitService->canCreateGuardia()) {
-            $tenant = tenant();
-            $tenant->loadMissing('planRelation');
-
-            Log::warning('Guardia creation blocked: limit reached.', [
-                'tenant_id' => $tenant->id,
-                'plan_id' => $tenant->plan_id,
-                'plan_slug' => $tenant->planRelation?->slug,
-            ]);
-
-            return back()->withErrors(['limit' => $this->limitService->getLimitExceededMessage('guardias')])->withInput();
-        }
+        PlanService::assertCanIncrement('guardias');
 
         if (!in_array(auth()->user()->role, ['capitan', 'super_admin', 'capitania'], true)) {
             abort(403, 'No autorizado.');

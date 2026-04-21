@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
 use App\Models\User;
+use App\Services\PlanService;
+use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
@@ -36,6 +36,8 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+        PlanService::assertCanIncrement('users');
+
         $validated = $request->validate([
             'name' => 'required|string',
             'email' => 'required|email|unique:users,email',

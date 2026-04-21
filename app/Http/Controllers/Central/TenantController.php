@@ -92,7 +92,6 @@ class TenantController extends Controller
             'body_id' => ['nullable', 'exists:bodies,id'],
             'plan_id' => ['nullable', 'exists:plans,id'],
             'billing_cycle' => ['required', 'in:monthly,yearly'],
-            'tiene_trial' => ['nullable', 'boolean'],
             'seed' => ['boolean'],
         ], [
             'id.required' => 'El identificador es obligatorio.',
@@ -123,12 +122,12 @@ class TenantController extends Controller
             ]);
             $steps[] = '✓ Registro tenant creado';
 
-            // Step 1b: Create billing record automatically (fechas y trial solo desde backend / config)
+            // Step 1b: Billing inicial siempre en trial (duración = config billing.default_trial_days)
             try {
                 $billingCycle = $validated['billing_cycle'] ?? 'monthly';
-                ['use_trial' => $tieneTrial, 'trial_days' => $trialDays] = $this->resolveTrialForNewTenant($request);
+                $trialDays = max(1, min(365, (int) config('billing.default_trial_days', 14)));
 
-                $billing = $this->createInitialBillingRecord($tenant, $plan, $billingCycle, $tieneTrial, $trialDays);
+                $billing = $this->createInitialBillingRecord($tenant, $plan, $billingCycle);
 
                 Log::debug('Billing record created successfully', [
                     'billing_id' => $billing->id,
@@ -137,8 +136,7 @@ class TenantController extends Controller
 
                 $planPrice = (float) $billing->monto;
                 $cicloLabel = $billingCycle === 'yearly' ? 'Anual' : 'Mensual';
-                $trialLabel = $tieneTrial ? " (Trial {$trialDays} días)" : '';
-                $steps[] = "✓ Facturación creada: {$cicloLabel}{$trialLabel} - \${$planPrice}";
+                $steps[] = "✓ Facturación creada: {$cicloLabel} (Trial {$trialDays} días) - \${$planPrice}";
             } catch (\Throwable $e) {
                 Log::error('Billing record creation failed', [
                     'tenant_id' => $tenant->id,
@@ -666,71 +664,33 @@ class TenantController extends Controller
     }
 
     /**
-     * Trial al crear compañía: forzado por config o opcional vía checkbox; duración siempre desde config (backend).
-     *
-     * @return array{use_trial: bool, trial_days: int}
-     */
-    private function resolveTrialForNewTenant(Request $request): array
-    {
-        $trialDays = max(1, min(365, (int) config('billing.default_trial_days', 14)));
-
-        if (config('billing.enabled_trial_on_create')) {
-            return ['use_trial' => true, 'trial_days' => $trialDays];
-        }
-
-        return [
-            'use_trial' => $request->boolean('tiene_trial'),
-            'trial_days' => $trialDays,
-        ];
-    }
-
-    /**
-     * Alta inicial en `tenant_billing` y alineación del tenant vía {@see Billing::syncToTenant()}.
-     * No usa fechas ingresadas por el operador: trial o primer vencimiento según ciclo.
+     * Alta inicial en `tenant_billing`: siempre trial; fin de trial = hoy + default_trial_days
+     * (fecha_vencimiento y trial_ends_at alineados). Alineación del tenant vía {@see Billing::syncToTenant()}.
      */
     private function createInitialBillingRecord(
         Tenant $tenant,
         Plan $plan,
         string $billingCycle,
-        bool $useTrial,
-        int $trialDays,
     ): Billing {
+        $trialDays = max(1, min(365, (int) config('billing.default_trial_days', 14)));
         $planPrice = $billingCycle === 'yearly'
             ? (float) ($plan->precio_anual ?? (($plan->precio_mensual ?? 0) * 12))
             : (float) ($plan->precio_mensual ?? 0);
 
-        if ($useTrial) {
-            $trialEndsAt = Carbon::now()->addDays($trialDays)->startOfDay();
+        $trialEndsAt = Carbon::now()->addDays($trialDays)->startOfDay();
 
-            $billing = Billing::create([
-                'tenant_id' => $tenant->id,
-                'plan_id' => $plan->id,
-                'plan' => $plan->slug,
-                'billing_cycle' => $billingCycle,
-                'monto' => $planPrice,
-                'estado_pago' => 'trial',
-                'fecha_vencimiento' => null,
-                'trial_ends_at' => $trialEndsAt,
-                'fecha_ultimo_pago' => null,
-                'observacion' => "Período de prueba de {$trialDays} días (política SaaS).",
-            ]);
-        } else {
-            $diasVencimiento = $billingCycle === 'yearly' ? 365 : 30;
-            $fechaVencimiento = Carbon::now()->addDays($diasVencimiento)->startOfDay();
-
-            $billing = Billing::create([
-                'tenant_id' => $tenant->id,
-                'plan_id' => $plan->id,
-                'plan' => $plan->slug,
-                'billing_cycle' => $billingCycle,
-                'monto' => $planPrice,
-                'estado_pago' => 'pendiente',
-                'fecha_vencimiento' => $fechaVencimiento,
-                'trial_ends_at' => null,
-                'fecha_ultimo_pago' => null,
-                'observacion' => null,
-            ]);
-        }
+        $billing = Billing::create([
+            'tenant_id' => $tenant->id,
+            'plan_id' => $plan->id,
+            'plan' => $plan->slug,
+            'billing_cycle' => $billingCycle,
+            'monto' => $planPrice,
+            'estado_pago' => 'trial',
+            'fecha_vencimiento' => $trialEndsAt->copy(),
+            'trial_ends_at' => $trialEndsAt,
+            'fecha_ultimo_pago' => null,
+            'observacion' => "Período de prueba de {$trialDays} días (onboarding SaaS).",
+        ]);
 
         $billing->syncToTenant();
 

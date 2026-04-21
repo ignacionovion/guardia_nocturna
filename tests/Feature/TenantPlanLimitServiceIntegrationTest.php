@@ -5,6 +5,7 @@ namespace Tests\Feature;
 
 use Database\Seeders\TenantDatabaseSeeder;
 use App\Models\Bed;
+use App\Models\Bombero;
 use App\Models\Plan;
 use App\Models\Tenant;
 use App\Models\User;
@@ -30,6 +31,7 @@ class TenantPlanLimitServiceIntegrationTest extends TestCase
             'slug' => 'test-plan-' . Str::uuid(),
             'nombre' => 'Plan de Prueba',
             'max_users' => 5,
+            'max_volunteers' => 4,
             'max_beds' => 10,
             'max_guardias' => 3,
             'max_storage_mb' => 100,
@@ -57,6 +59,7 @@ class TenantPlanLimitServiceIntegrationTest extends TestCase
 
         $this->assertEquals('Plan de Prueba', $usage['plan_name']);
         $this->assertEquals(5, $usage['users']['limit']);
+        $this->assertEquals(4, $usage['volunteers']['limit']);
         $this->assertEquals(10, $usage['beds']['limit']);
         $this->assertEquals(3, $usage['guardias']['limit']);
         $this->assertEquals(100, $usage['storage_mb']['limit']);
@@ -97,6 +100,27 @@ User::create([
         $this->assertFalse($service->canCreateBed());
     }
 
+    public function test_can_create_volunteer_con_limite_real(): void
+    {
+        $service = new TenantPlanLimitService();
+
+        $this->assertTrue($service->canCreateVolunteer());
+
+        for ($i = 0; $i < 4; $i++) {
+            Bombero::create([
+                'nombres' => "Vol {$i}",
+                'apellido_paterno' => 'Test',
+                'estado_asistencia' => 'constituye',
+                'es_titular' => true,
+                'es_jefe_guardia' => false,
+                'es_cambio' => false,
+                'es_sancion' => false,
+            ]);
+        }
+
+        $this->assertFalse($service->canCreateVolunteer());
+    }
+
     public function test_tenant_seed_no_crea_camas_por_defecto(): void
     {
         $seedExitCode = Artisan::call('db:seed', [
@@ -108,7 +132,7 @@ User::create([
         $this->assertSame(0, Bed::count());
     }
 
-    public function test_excepcion_si_tenant_sin_plan(): void
+    public function test_tenant_sin_plan_no_rompe_resumen_de_uso(): void
     {
         $tenant = Tenant::create([
             'id' => 'tenant-with-plan-' . Str::uuid(),
@@ -117,7 +141,6 @@ User::create([
             'activo' => true,
         ]);
 
-        // Bypass del modelo para simular inconsistencia real en BD
         DB::connection('central')
             ->table('tenants')
             ->where('id', $tenant->id)
@@ -130,10 +153,11 @@ User::create([
 
         $service = new TenantPlanLimitService();
 
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Tenant sin plan asignado. Sistema inconsistente.');
+        $usage = $service->getCurrentUsage();
 
-        $service->getCurrentUsage();
+        $this->assertSame('Sin plan', $usage['plan_name']);
+        $this->assertNull($usage['users']['limit']);
+        $this->assertTrue($usage['users']['unlimited']);
     }
 
     public function test_limite_nulo_es_ilimitado(): void
@@ -142,6 +166,7 @@ User::create([
             'slug' => 'plan-ilimitado-' . Str::uuid(),
             'nombre' => 'Plan Ilimitado',
             'max_users' => null,
+            'max_volunteers' => null,
             'max_beds' => null,
             'max_guardias' => null,
             'max_storage_mb' => null,
@@ -166,11 +191,13 @@ User::create([
         $usage = $service->getCurrentUsage();
 
         $this->assertTrue($usage['users']['unlimited']);
+        $this->assertTrue($usage['volunteers']['unlimited']);
         $this->assertTrue($usage['beds']['unlimited']);
         $this->assertTrue($usage['guardias']['unlimited']);
         $this->assertTrue($usage['storage_mb']['unlimited']);
 
         $this->assertTrue($service->canCreateUser());
+        $this->assertTrue($service->canCreateVolunteer());
         $this->assertTrue($service->canCreateBed());
         $this->assertTrue($service->canCreateGuardia());
     }

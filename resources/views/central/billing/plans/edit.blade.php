@@ -103,6 +103,12 @@
                         </div>
 
                         <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Máximo de Voluntarios (bomberos)</label>
+                            <input type="number" name="max_volunteers" value="{{ old('max_volunteers', $plan->max_volunteers) }}"
+                                   class="w-full rounded-lg border-slate-300" min="1" placeholder="Ilimitado">
+                        </div>
+
+                        <div>
                             <label class="block text-sm font-medium text-slate-700 mb-1">Máximo de Guardias</label>
                             <input type="number" name="max_guardias" value="{{ old('max_guardias', $plan->max_guardias) }}" 
                                    class="w-full rounded-lg border-slate-300" min="1" placeholder="Ilimitado">

@@ -8,11 +8,31 @@
             </x-ui.button>
         </x-ui.page-header>
 
+        @isset($volunteers_plan_usage)
+            <div class="mb-6 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 flex flex-wrap items-center justify-between gap-2">
+                <span>Voluntarios según tu plan: <strong>{{ $volunteers_plan_usage }}</strong></span>
+                <a href="{{ tenant_upgrade_url() }}" class="text-amber-700 font-semibold hover:underline">Ver planes y upgrade</a>
+            </div>
+        @endisset
+
+        @if(isset($limitData) && !$limitData['can_create'])
+            <div class="mb-6 bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p class="font-bold">{{ $limitData['message'] }}</p>
+                    </div>
+                    <a href="{{ tenant_upgrade_url() }}" class="text-amber-900 font-semibold underline shrink-0">Actualizar plan</a>
+                </div>
+            </div>
+        @endif
+
         <div class="card-base overflow-hidden">
 
             <form action="{{ route('admin.volunteers.store') }}" method="POST" enctype="multipart/form-data" class="p-8">
                 @csrf
 
+                <fieldset @if(isset($limitData) && !$limitData['can_create']) disabled @endif>
                 <!-- Sección 1: Identificación Personal -->
                 <div class="mb-10">
                     <div class="flex items-center gap-3 mb-6 border-b border-slate-200 pb-3">
@@ -202,10 +222,11 @@
                     <x-ui.button variant="secondary" size="md" href="{{ route('admin.volunteers.index') }}">
                         Cancelar
                     </x-ui.button>
-                    <x-ui.button type="submit" variant="primary" size="md" icon="fas fa-save">
+                    <x-ui.button type="submit" variant="primary" size="md" icon="fas fa-save" :disabled="isset($limitData) && !$limitData['can_create']">
                         Registrar Voluntario
                     </x-ui.button>
                 </div>
+                </fieldset>
             </form>
         </div>
     </div>

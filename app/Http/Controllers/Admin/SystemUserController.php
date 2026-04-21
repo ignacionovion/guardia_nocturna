@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Guardia;
 use App\Models\Role;
 use App\Models\User;
-use App\Support\PlanLimitGuard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -53,19 +52,6 @@ class SystemUserController extends Controller
 
     public function store(Request $request)
     {
-        if (PlanLimitGuard::exceeds('users', User::count())) {
-            $tenant = tenant();
-            $tenant->loadMissing('planRelation');
-
-            Log::warning('User creation blocked: limit reached.', [
-                'tenant_id' => $tenant->id,
-                'plan_id' => $tenant->plan_id,
-                'plan_slug' => $tenant->planRelation?->slug,
-            ]);
-
-            return back()->withErrors(['limit' => $this->limitService->getLimitExceededMessage('users')])->withInput();
-        }
-
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],

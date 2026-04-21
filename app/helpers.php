@@ -75,13 +75,23 @@ if (!function_exists('plan_remaining')) {
 
 if (!function_exists('plan_exceeded')) {
     /**
-     * Check if the tenant has exceeded the limit for a resource type.
+     * True si no cabe una unidad más (p. ej. ya llegaste al máximo de usuarios).
      *
      * Usage: if (plan_exceeded('users')) { ... }
      */
     function plan_exceeded(string $type): bool
     {
-        return PlanService::exceedsLimit($type);
+        return PlanService::exceedsLimit($type, 1);
+    }
+}
+
+if (!function_exists('plan_usage_line')) {
+    /**
+     * Resumen "uso / cupo" para UI (ej. usuarios o camas). Storage en MB.
+     */
+    function plan_usage_line(string $type): string
+    {
+        return PlanService::usageLabel($type);
     }
 }
 

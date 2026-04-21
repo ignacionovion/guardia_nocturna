@@ -91,13 +91,13 @@ Route::middleware(['auth', 'password.not_temporary', 'tenant.feature:guardia', '
     // Camas (operación)
     Route::middleware(['tenant.feature:camas'])->group(function () {
         Route::get('/camas', [TableroController::class, 'camas'])->name('camas');
-        Route::post('/camas/asignar', [AsignacionCamaController::class, 'store'])->middleware('plan.limit:beds')->name('beds.assign');
+        Route::post('/camas/asignar', [AsignacionCamaController::class, 'store'])->name('beds.assign');
         Route::post('/camas/liberar/{id}', [AsignacionCamaController::class, 'update'])->name('beds.release');
     });
 
     // Guardia
     Route::get('/guardia', [GuardiaController::class, 'index'])->name('guardia');
-    Route::post('/guardia', [GuardiaController::class, 'start'])->middleware('plan.limit:guardias')->name('guardia.start');
+    Route::post('/guardia', [GuardiaController::class, 'start'])->name('guardia.start');
     Route::post('/guardia/{id}/close', [GuardiaController::class, 'close'])->name('guardia.close');
 
     // NOW (pantalla en vivo)
@@ -119,7 +119,7 @@ Route::middleware(['auth', 'password.not_temporary'])->group(function () {
     Route::middleware(['tenant.feature:camas'])->group(function () {
         Route::get('/api/beds', [\App\Http\Controllers\BedManagementController::class, 'index'])->name('api.beds.index');
         Route::get('/api/beds/available-firefighters', [\App\Http\Controllers\BedManagementController::class, 'availableFirefighters'])->name('api.beds.available_firefighters');
-        Route::post('/api/beds/assign', [\App\Http\Controllers\BedManagementController::class, 'assign'])->middleware('plan.limit:beds')->name('api.beds.assign');
+        Route::post('/api/beds/assign', [\App\Http\Controllers\BedManagementController::class, 'assign'])->name('api.beds.assign');
         Route::post('/api/beds/release', [\App\Http\Controllers\BedManagementController::class, 'release'])->name('api.beds.release');
     });
 
@@ -241,7 +241,7 @@ Route::middleware(['auth', 'password.not_temporary'])->group(function () {
         Route::post('/{bed}/status', [\App\Http\Controllers\BedController::class, 'changeStatus'])->name('status');
 
         // Rutas de asignación y liberación
-        Route::post('/{bed}/assign', [\App\Http\Controllers\BedAssignmentController::class, 'assign'])->middleware('plan.limit:beds')->name('assign');
+        Route::post('/{bed}/assign', [\App\Http\Controllers\BedAssignmentController::class, 'assign'])->name('assign');
         Route::post('/{bed}/release', [\App\Http\Controllers\BedAssignmentController::class, 'release'])->name('release');
         Route::get('/{bed}/history', [\App\Http\Controllers\BedAssignmentController::class, 'history'])->name('history');
 
