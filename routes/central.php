@@ -67,6 +67,7 @@ Route::post('tenants/{tenant}/change-plan', [TenantController::class, 'changePla
 Route::post('tenants/{tenant}/run-migrations', [TenantController::class, 'runMigrations'])->centralNamed('central.tenants.run-migrations');
 Route::post('tenants/{tenant}/run-seed', [TenantController::class, 'runSeed'])->centralNamed('central.tenants.run-seed');
 Route::post('tenants/{tenant}/reset-captain-password', [TenantController::class, 'resetCaptainPassword'])->centralNamed('central.tenants.reset-captain-password');
+Route::post('tenants/{tenant}/activate-trial', [TenantController::class, 'activateTrial'])->centralNamed('central.tenants.activate-trial');
 Route::get('tenants/{tenant}/timeline', [TenantController::class, 'timeline'])->centralNamed('central.tenants.timeline');
 Route::get('tenants/{tenant}/admin', [TenantController::class, 'admin'])->centralNamed('central.tenants.admin');
 

@@ -66,6 +66,15 @@
                 </div>
             </div>
             <div class="flex items-center space-x-3">
+                @if(in_array(optional($tenant->billing)->estado_pago, ['pending', 'pendiente', 'vencido'], true))
+                    <form method="POST" action="{{ route('central.tenants.activate-trial', $tenant) }}">
+                        @csrf
+                        <button type="submit"
+                            class="inline-flex items-center px-4 py-2 bg-amber-500 text-white rounded-xl font-semibold text-sm hover:bg-amber-600 transition">
+                            Activar trial
+                        </button>
+                    </form>
+                @endif
                 @if($tenant->domains->first())
                     <a href="https://{{ $tenant->domains->first()->domain }}" target="_blank"
                        class="px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-xl hover:bg-blue-100 transition flex items-center space-x-1.5">

@@ -122,10 +122,10 @@ class TenantController extends Controller
             ]);
             $steps[] = '✓ Registro tenant creado';
 
-            // Step 1b: Billing inicial siempre en trial (duración = config billing.default_trial_days)
+            // Step 1b: Billing inicial sin trial automático (estado pendiente)
             try {
                 $billingCycle = $validated['billing_cycle'] ?? 'monthly';
-                $trialDays = max(1, min(365, (int) config('billing.default_trial_days', 14)));
+                $dueDays = max(1, min(365, (int) config('billing.trial_to_pending_due_days', 7)));
 
                 $billing = $this->createInitialBillingRecord($tenant, $plan, $billingCycle);
 
@@ -136,7 +136,7 @@ class TenantController extends Controller
 
                 $planPrice = (float) $billing->monto;
                 $cicloLabel = $billingCycle === 'yearly' ? 'Anual' : 'Mensual';
-                $steps[] = "✓ Facturación creada: {$cicloLabel} (Trial {$trialDays} días) - \${$planPrice}";
+                $steps[] = "✓ Facturación creada: {$cicloLabel} (Pendiente, vence en {$dueDays} días) - \${$planPrice}";
             } catch (\Throwable $e) {
                 Log::error('Billing record creation failed', [
                     'tenant_id' => $tenant->id,
@@ -330,7 +330,7 @@ class TenantController extends Controller
     public function show(string $tenant)
     {
         $tenant = Tenant::findOrFail($tenant);
-        $tenant->load(['body', 'domains', 'planRelation']);
+        $tenant->load(['body', 'domains', 'planRelation', 'billing']);
         
         $metrics = $this->metrics->forTenant($tenant);
         $health = $this->metrics->healthStatus($tenant);
@@ -597,6 +597,49 @@ class TenantController extends Controller
         return view('central.tenants.admin', compact('tenant'));
     }
 
+    public function activateTrial($tenant)
+    {
+        if (!$tenant instanceof Tenant) {
+            $tenant = Tenant::findOrFail($tenant);
+        }
+
+        $billing = $tenant->billing;
+
+        if (! $billing) {
+            return back()->with('error', 'No existe registro de facturación.');
+        }
+
+        if ($billing->estado_pago === 'trial') {
+            return back()->with('error', 'La compañía ya está en trial.');
+        }
+
+        if ($billing->estado_pago === 'pagado') {
+            return back()->with('error', 'No puedes activar trial sobre una compañía ya pagada.');
+        }
+
+        $days = max(1, min(365, (int) config('billing.default_trial_days', 14)));
+
+        $billing->estado_pago = 'trial';
+        $billing->trial_ends_at = now()->addDays($days)->startOfDay();
+        $billing->fecha_vencimiento = $billing->trial_ends_at->copy();
+        $billing->observacion = "Trial manual activado por admin ({$days} días)";
+        $billing->save();
+
+        $billing->syncToTenant();
+
+        CentralAuditLog::log(
+            'tenant_trial_activated',
+            "Trial manual activado para «{$tenant->nombre}» ({$days} días)",
+            $tenant->id,
+            [
+                'billing_id' => $billing->id,
+                'trial_days' => $days,
+            ]
+        );
+
+        return back()->with('success', 'Trial activado correctamente.');
+    }
+
     /**
      * Check if a slug is available via AJAX.
      */
@@ -664,20 +707,21 @@ class TenantController extends Controller
     }
 
     /**
-     * Alta inicial en `tenant_billing`: siempre trial; fin de trial = hoy + default_trial_days
-     * (fecha_vencimiento y trial_ends_at alineados). Alineación del tenant vía {@see Billing::syncToTenant()}.
+     * Alta inicial en `tenant_billing`: sin trial automático.
+     * Nuevo tenant queda en estado pendiente y vence en `billing.trial_to_pending_due_days`.
+     * Alineación del tenant vía {@see Billing::syncToTenant()}.
      */
     private function createInitialBillingRecord(
         Tenant $tenant,
         Plan $plan,
         string $billingCycle,
     ): Billing {
-        $trialDays = max(1, min(365, (int) config('billing.default_trial_days', 14)));
+        $dueDays = max(1, min(365, (int) config('billing.trial_to_pending_due_days', 7)));
         $planPrice = $billingCycle === 'yearly'
             ? (float) ($plan->precio_anual ?? (($plan->precio_mensual ?? 0) * 12))
             : (float) ($plan->precio_mensual ?? 0);
 
-        $trialEndsAt = Carbon::now()->addDays($trialDays)->startOfDay();
+        $dueAt = Carbon::now()->addDays($dueDays)->startOfDay();
 
         $billing = Billing::create([
             'tenant_id' => $tenant->id,
@@ -685,11 +729,11 @@ class TenantController extends Controller
             'plan' => $plan->slug,
             'billing_cycle' => $billingCycle,
             'monto' => $planPrice,
-            'estado_pago' => 'trial',
-            'fecha_vencimiento' => $trialEndsAt->copy(),
-            'trial_ends_at' => $trialEndsAt,
+            'estado_pago' => 'pendiente',
+            'fecha_vencimiento' => $dueAt->copy(),
+            'trial_ends_at' => null,
             'fecha_ultimo_pago' => null,
-            'observacion' => "Período de prueba de {$trialDays} días (onboarding SaaS).",
+            'observacion' => "Onboarding sin trial automático. Estado pendiente, vencimiento en {$dueDays} días.",
         ]);
 
         $billing->syncToTenant();
