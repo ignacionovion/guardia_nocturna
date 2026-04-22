@@ -8,14 +8,79 @@
         $planName = $tenant->planRelation?->nombre ?? 'Sin plan';
         $planBadgeClass = $planSlug ? 'bg-blue-50 text-blue-700' : 'bg-white text-slate-600';
         $canActivateTrial = in_array(optional($tenant->billing)->estado_pago, ['pending', 'pendiente', 'vencido'], true);
-    @endphp
+        $billingStatus = strtolower((string) optional($tenant->billing)->estado_pago);
+        $tenantStatus = strtolower((string) $tenant->estado);
 
-    @if(session('success'))
-        <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 whitespace-pre-line">{{ session('success') }}</div>
-    @endif
-    @if(session('error'))
-        <div class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{{ session('error') }}</div>
-    @endif
+        $uiStatusKey = match (true) {
+            in_array($billingStatus, ['pending', 'pendiente'], true) => 'pending',
+            $tenantStatus === 'suspendido' => 'suspended',
+            $tenantStatus === 'vencido' || $billingStatus === 'vencido' => 'expired',
+            $tenantStatus === 'trial' || $billingStatus === 'trial' => 'trial',
+            $tenantStatus === 'activo' || $billingStatus === 'pagado' => 'active',
+            default => 'active',
+        };
+
+        $uiStatusMap = [
+            'pending' => [
+                'title' => 'Compañía pendiente de activación',
+                'description' => 'Debes registrar un pago para activar el sistema.',
+                'panelClass' => 'border-amber-200 bg-amber-50',
+                'titleClass' => 'text-amber-900',
+                'descriptionClass' => 'text-amber-800',
+                'badgeClass' => 'bg-amber-100 text-amber-800 border border-amber-200',
+                'badgeLabel' => 'PENDIENTE',
+            ],
+            'expired' => [
+                'title' => 'Servicio vencido',
+                'description' => 'El sistema está fuera de vigencia. Registra un pago para reactivar.',
+                'panelClass' => 'border-red-200 bg-red-50',
+                'titleClass' => 'text-red-900',
+                'descriptionClass' => 'text-red-800',
+                'badgeClass' => 'bg-red-100 text-red-800 border border-red-200',
+                'badgeLabel' => 'VENCIDO',
+            ],
+            'suspended' => [
+                'title' => 'Sistema suspendido',
+                'description' => 'Acceso bloqueado por falta de pago.',
+                'panelClass' => 'border-red-200 bg-red-50',
+                'titleClass' => 'text-red-900',
+                'descriptionClass' => 'text-red-800',
+                'badgeClass' => 'bg-red-100 text-red-800 border border-red-200',
+                'badgeLabel' => 'SUSPENDIDO',
+            ],
+            'trial' => [
+                'title' => 'Sistema en trial',
+                'description' => 'La compañía está operando en período de evaluación comercial.',
+                'panelClass' => 'border-blue-200 bg-blue-50',
+                'titleClass' => 'text-blue-900',
+                'descriptionClass' => 'text-blue-800',
+                'badgeClass' => 'bg-blue-100 text-blue-800 border border-blue-200',
+                'badgeLabel' => 'TRIAL',
+            ],
+            'active' => [
+                'title' => 'Sistema activo',
+                'description' => 'Operando con normalidad.',
+                'panelClass' => 'border-emerald-200 bg-emerald-50',
+                'titleClass' => 'text-emerald-900',
+                'descriptionClass' => 'text-emerald-800',
+                'badgeClass' => 'bg-emerald-100 text-emerald-800 border border-emerald-200',
+                'badgeLabel' => 'ACTIVO',
+            ],
+        ];
+
+        $uiStatus = $uiStatusMap[$uiStatusKey];
+        $daysToExpiry = $tenant->daysUntilExpiry();
+        $expiryText = null;
+        if ($tenant->fecha_vencimiento) {
+            $expiryText = match (true) {
+                $daysToExpiry === null => 'Vence el ' . $tenant->fecha_vencimiento->format('d/m/Y'),
+                $daysToExpiry < 0 => 'Vencida hace ' . abs($daysToExpiry) . ' día' . (abs($daysToExpiry) === 1 ? '' : 's'),
+                $daysToExpiry === 0 => 'Vence hoy',
+                $daysToExpiry === 1 => 'Vence mañana',
+                default => 'Vence en ' . $daysToExpiry . ' días',
+            };
+        }
+    @endphp
     @if(session('captain_access_credentials'))
         @php $creds = session('captain_access_credentials'); @endphp
         <div class="mb-6 rounded-2xl border-2 border-amber-300 bg-amber-50 p-5">
@@ -52,33 +117,24 @@
                 </div>
                 <div>
                     <h1 class="text-2xl font-bold text-slate-900">{{ $tenant->nombre }}</h1>
-                    <p class="text-slate-500 text-sm mt-0.5">
+                    <div class="text-slate-500 text-sm mt-0.5 flex flex-wrap items-center gap-2">
                         <code class="text-xs bg-white px-1.5 py-0.5 rounded">{{ $tenant->id }}</code>
-                        &middot;
-                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $tenant->estadoBadgeClass() }}">
-                            {{ $tenant->estadoLabel() }}
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold {{ $uiStatus['badgeClass'] }}">
+                            {{ $uiStatus['badgeLabel'] }}
                         </span>
-                        &middot;
                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
                             {{ $planBadgeClass }}">
                             {{ $planName }}
                         </span>
-                    </p>
+                        @if($expiryText)
+                            <span class="text-xs {{ $daysToExpiry !== null && $daysToExpiry < 0 ? 'text-red-600 font-medium' : 'text-slate-500' }}">
+                                {{ $expiryText }} · {{ $tenant->fecha_vencimiento?->format('d/m/Y') }}
+                            </span>
+                        @endif
+                    </div>
                 </div>
             </div>
             <div class="flex items-center space-x-3">
-                @if($canActivateTrial)
-                    <form method="POST" action="{{ route('central.tenants.activate-trial', $tenant) }}">
-                        @csrf
-                        <button type="submit"
-                            class="inline-flex items-center px-4 py-2 bg-amber-500 text-white rounded-xl font-semibold text-sm hover:bg-amber-600 transition shadow-sm">
-                            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2m0 0a6 6 0 016 6c0 2.4-1.4 4.5-3.5 5.5L14 21h-4l-.5-4.5A6 6 0 016 11a6 6 0 016-6z"/>
-                            </svg>
-                            Activar trial
-                        </button>
-                    </form>
-                @endif
                 @if($tenant->domains->first())
                     <a href="https://{{ $tenant->domains->first()->domain }}" target="_blank"
                        class="px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-xl hover:bg-blue-100 transition flex items-center space-x-1.5">
@@ -101,22 +157,35 @@
         </div>
     </div>
 
-    @if($canActivateTrial)
-        <div class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <div>
-                    <p class="text-sm font-semibold text-amber-900">Acción comercial disponible: activar trial manual</p>
-                    <p class="text-xs text-amber-800 mt-1">Útil para demos o evaluación comercial antes del primer pago.</p>
-                </div>
-                <form method="POST" action="{{ route('central.tenants.activate-trial', $tenant) }}" class="shrink-0">
-                    @csrf
-                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-amber-500 text-white rounded-xl font-semibold text-sm hover:bg-amber-600 transition">
-                        Activar trial
-                    </button>
-                </form>
+    <div class="mb-6 rounded-2xl border px-5 py-4 {{ $uiStatus['panelClass'] }}">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+                <p class="text-sm font-semibold {{ $uiStatus['titleClass'] }}">{{ $uiStatus['title'] }}</p>
+                <p class="text-xs mt-1 {{ $uiStatus['descriptionClass'] }}">{{ $uiStatus['description'] }}</p>
+            </div>
+            <div class="flex items-center gap-2">
+                @if(in_array($uiStatusKey, ['pending', 'expired', 'suspended'], true))
+                    <a href="{{ route('central.payments.create', ['tenant_id' => $tenant->id]) }}"
+                       class="inline-flex items-center px-4 py-2 bg-slate-900 text-white rounded-xl font-semibold text-sm hover:bg-slate-800 transition">
+                        Registrar pago
+                    </a>
+                @endif
+                @if($canActivateTrial)
+                    <form method="POST" action="{{ route('central.tenants.activate-trial', $tenant) }}" class="shrink-0">
+                        @csrf
+                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-amber-500 text-white rounded-xl font-semibold text-sm hover:bg-amber-600 transition">
+                            Activar trial
+                        </button>
+                    </form>
+                @endif
+                @if($expiryText)
+                    <span class="text-xs font-medium {{ $uiStatus['descriptionClass'] }}">
+                        {{ $expiryText }}
+                    </span>
+                @endif
             </div>
         </div>
-    @endif
+    </div>
 
     {{-- Metrics Cards --}}
     <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">

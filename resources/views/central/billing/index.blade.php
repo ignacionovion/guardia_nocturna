@@ -15,18 +15,6 @@
         </a>
     </div>
 
-    @if(session('success'))
-        <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-lg mb-6">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    @if(session('error'))
-        <div class="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-lg mb-6">
-            {{ session('error') }}
-        </div>
-    @endif
-
     @if ($errors->any())
         <div class="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-lg mb-6 text-sm">
             <ul class="list-disc list-inside space-y-1">
@@ -44,6 +32,7 @@
                 <div>
                     <p class="text-sm text-slate-600">Pagos Pendientes</p>
                     <p class="text-2xl font-bold text-yellow-600">{{ $stats['pagos_pendientes'] }}</p>
+                    <p class="text-[11px] text-slate-500 mt-1">Pagos aún no regularizados.</p>
                 </div>
                 <div class="bg-yellow-100 p-3 rounded-lg">
                     <i class="fas fa-clock text-yellow-600"></i>
@@ -56,6 +45,7 @@
                 <div>
                     <p class="text-sm text-slate-600">En Trial</p>
                     <p class="text-2xl font-bold text-blue-600">{{ $stats['trials'] }}</p>
+                    <p class="text-[11px] text-slate-500 mt-1">Clientes en evaluación comercial.</p>
                 </div>
                 <div class="bg-blue-100 p-3 rounded-lg">
                     <i class="fas fa-gift text-blue-600"></i>
@@ -68,6 +58,7 @@
                 <div>
                     <p class="text-sm text-slate-600">Por Vencer (7 días)</p>
                     <p class="text-2xl font-bold text-amber-600">{{ $stats['por_vencer'] }}</p>
+                    <p class="text-[11px] text-slate-500 mt-1">Clientes con riesgo comercial.</p>
                 </div>
                 <div class="bg-amber-100 p-3 rounded-lg">
                     <i class="fas fa-exclamation-triangle text-amber-600"></i>
@@ -80,6 +71,7 @@
                 <div>
                     <p class="text-sm text-slate-600">Vencidos</p>
                     <p class="text-2xl font-bold text-red-600">{{ $stats['vencidos'] }}</p>
+                    <p class="text-[11px] text-slate-500 mt-1">Servicio fuera de vigencia.</p>
                 </div>
                 <div class="bg-red-100 p-3 rounded-lg">
                     <i class="fas fa-ban text-red-600"></i>
@@ -92,6 +84,7 @@
                 <div>
                     <p class="text-sm text-slate-600">Ingresos Estimados</p>
                     <p class="text-2xl font-bold text-emerald-600">${{ number_format($stats['ingresos_estimados'], 0, ',', '.') }}</p>
+                    <p class="text-[11px] text-slate-500 mt-1">Ingresos reales confirmados y proyectados.</p>
                 </div>
                 <div class="bg-emerald-100 p-3 rounded-lg">
                     <i class="fas fa-dollar-sign text-emerald-600"></i>

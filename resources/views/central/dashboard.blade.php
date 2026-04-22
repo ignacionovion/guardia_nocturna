@@ -137,7 +137,8 @@
                 @endif
             </div>
             <p class="text-2xl font-bold text-slate-900">{{ $tenantsCount }}</p>
-            <p class="text-xs text-slate-500 mt-0.5">Compañías <span class="text-emerald-600 font-medium">({{ $activeTenantsCount }} activas)</span></p>
+            <p class="text-xs text-slate-500 mt-0.5">Compañías <span class="text-emerald-600 font-medium">({{ $activeTenantsCount }} operativas)</span></p>
+            <p class="text-[11px] text-slate-400 mt-1">Tenants sin problema operativo inmediato.</p>
         </div>
 
         <div class="bg-white rounded-2xl border border-slate-200 p-5">
@@ -150,6 +151,7 @@
             </div>
             <p class="text-2xl font-bold text-slate-900">{{ $bodiesCount }}</p>
             <p class="text-xs text-slate-500 mt-0.5">Cuerpos de Bomberos</p>
+            <p class="text-[11px] text-slate-400 mt-1">Organizaciones centrales registradas.</p>
         </div>
 
         <div class="bg-white rounded-2xl border border-slate-200 p-5">
@@ -162,6 +164,7 @@
             </div>
             <p class="text-2xl font-bold text-slate-900">{{ $globalMetrics['total_users'] }}</p>
             <p class="text-xs text-slate-500 mt-0.5">Usuarios totales</p>
+            <p class="text-[11px] text-slate-400 mt-1">Usuarios activos en ecosistema SaaS.</p>
         </div>
 
         <div class="bg-white rounded-2xl border border-slate-200 p-5">
@@ -174,6 +177,7 @@
             </div>
             <p class="text-2xl font-bold text-slate-900">{{ $globalMetrics['total_db_size'] }}</p>
             <p class="text-xs text-slate-500 mt-0.5">Uso total de BD</p>
+            <p class="text-[11px] text-slate-400 mt-1">Capacidad consumida en entorno central.</p>
         </div>
     </div>
 
@@ -186,14 +190,17 @@
                 <div class="text-center p-4 rounded-xl bg-emerald-50 border border-emerald-100">
                     <p class="text-2xl font-bold text-emerald-700">{{ $globalMetrics['healthy'] }}</p>
                     <p class="text-xs text-emerald-600 font-medium mt-1">Saludables</p>
+                    <p class="text-[10px] text-emerald-700 mt-1">Tenants sin incidentes.</p>
                 </div>
                 <div class="text-center p-4 rounded-xl {{ $globalMetrics['warnings'] > 0 ? 'bg-amber-50 border border-amber-100' : 'bg-white border border-slate-100' }}">
                     <p class="text-2xl font-bold {{ $globalMetrics['warnings'] > 0 ? 'text-amber-700' : 'text-slate-400' }}">{{ $globalMetrics['warnings'] }}</p>
                     <p class="text-xs {{ $globalMetrics['warnings'] > 0 ? 'text-amber-600' : 'text-slate-400' }} font-medium mt-1">Advertencias</p>
+                    <p class="text-[10px] {{ $globalMetrics['warnings'] > 0 ? 'text-amber-700' : 'text-slate-400' }} mt-1">Clientes con riesgo comercial.</p>
                 </div>
                 <div class="text-center p-4 rounded-xl {{ $globalMetrics['errors'] > 0 ? 'bg-red-50 border border-red-100' : 'bg-white border border-slate-100' }}">
                     <p class="text-2xl font-bold {{ $globalMetrics['errors'] > 0 ? 'text-red-700' : 'text-slate-400' }}">{{ $globalMetrics['errors'] }}</p>
                     <p class="text-xs {{ $globalMetrics['errors'] > 0 ? 'text-red-600' : 'text-slate-400' }} font-medium mt-1">Errores</p>
+                    <p class="text-[10px] {{ $globalMetrics['errors'] > 0 ? 'text-red-700' : 'text-slate-400' }} mt-1">Pagos aún no regularizados.</p>
                 </div>
             </div>
             @if($globalMetrics['expiring_soon'] > 0)

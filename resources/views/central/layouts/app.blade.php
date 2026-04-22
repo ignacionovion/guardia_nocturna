@@ -153,19 +153,23 @@
     </div>
 
     {{-- Flash messages --}}
-    @if(session('success'))
+    @php
+        $flashSuccess = session('success');
+        $flashError = session('error');
+    @endphp
+    @if($flashSuccess)
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
             <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl text-sm flex items-center justify-between">
-                <span>{{ session('success') }}</span>
+                <span class="whitespace-pre-line">{{ $flashSuccess }}</span>
                 <button onclick="this.parentElement.remove()" class="text-emerald-600 hover:text-emerald-800">&times;</button>
             </div>
         </div>
     @endif
 
-    @if(session('error'))
+    @if($flashError)
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
             <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl text-sm flex items-center justify-between">
-                <span>{{ session('error') }}</span>
+                <span class="whitespace-pre-line">{{ $flashError }}</span>
                 <button onclick="this.parentElement.remove()" class="text-red-600 hover:text-red-800">&times;</button>
             </div>
         </div>
