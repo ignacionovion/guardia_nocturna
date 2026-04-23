@@ -13,20 +13,20 @@
         </div>
     @endif
 
-    <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="mb-8 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
             <h1 class="text-2xl font-bold text-slate-900">Pagos</h1>
             <p class="text-slate-500 text-sm mt-1">Historial central de ingresos; la facturación operativa sigue en <a href="{{ route('central.billing.index') }}" class="text-amber-700 hover:underline">Facturación</a>.</p>
         </div>
         <a href="{{ route('central.payments.create') }}"
-           class="inline-flex items-center justify-center px-4 py-2.5 bg-slate-900 text-white text-sm font-medium rounded-xl hover:bg-slate-800 transition">
+           class="inline-flex items-center justify-center px-4 py-2.5 bg-slate-900 text-white text-sm font-medium rounded-xl hover:bg-slate-800 transition w-full sm:w-auto">
             Registrar pago
         </a>
     </div>
 
     <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="min-w-full text-sm">
+            <table class="min-w-[980px] w-full text-sm">
                 <thead>
                     <tr class="bg-slate-50 border-b border-slate-200 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                         <th class="px-5 py-3">ID</th>
@@ -71,8 +71,10 @@
                                 @endif
                             </td>
                             <td class="px-5 py-3 text-right whitespace-nowrap">
-                                <a href="{{ route('central.payments.show', $p) }}" class="text-slate-600 hover:text-slate-900 font-medium mr-2">Ver</a>
-                                <a href="{{ route('central.payments.edit', $p) }}" class="text-amber-700 hover:text-amber-900 font-medium">Editar</a>
+                                <div class="inline-flex items-center gap-3">
+                                    <a href="{{ route('central.payments.show', $p) }}" class="text-slate-600 hover:text-slate-900 font-medium">Ver</a>
+                                    <a href="{{ route('central.payments.edit', $p) }}" class="text-amber-700 hover:text-amber-900 font-medium">Editar</a>
+                                </div>
                             </td>
                         </tr>
                     @empty

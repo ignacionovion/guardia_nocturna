@@ -1,16 +1,16 @@
 <x-ui.page-container>
     <div class="mb-8">
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
                 <h1 class="text-3xl font-bold text-[#1e293b] mb-1">Centro de Operaciones</h1>
                 <p class="text-sm text-[#475569]">Panel de control operativo del sistema</p>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3">
                 <div class="flex items-center gap-2 px-3 py-1.5 bg-green-50 border border-green-200 rounded-lg">
                     <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
                     <span class="text-xs font-semibold text-green-700">Sistema Operativo</span>
                 </div>
-                <div class="bg-slate-900 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+                <div class="bg-slate-900 text-white px-3 sm:px-4 py-2 rounded-lg flex items-center gap-2">
                     <i class="fas fa-clock text-slate-400 text-xs"></i>
                     <span id="digital-clock" class="text-lg font-mono font-semibold">--:--:--</span>
                 </div>
@@ -96,7 +96,7 @@
                                 ? $activeStaff->filter(fn($staff) => (bool) ($staff->es_refuerzo ?? false))->values()
                                 : collect();
                         @endphp
-                        <div class="grid grid-cols-3 gap-4 mb-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                             <div class="text-center p-4 bg-white border border-slate-200 rounded-xl shadow-sm">
                                 <div class="metric-value text-purple-600">{{ $activeReplacementsCount }}</div>
                                 <div class="metric-label mt-1">Reemplazos</div>
@@ -111,7 +111,7 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-5 gap-3 mb-6">
+                        <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
                             <div class="text-center p-3 bg-white border border-slate-200 rounded-xl shadow-sm">
                                 <div class="text-2xl font-black text-emerald-600">{{ $countConstituye }}</div>
                                 <div class="metric-label mt-1">Constituyen</div>
@@ -140,7 +140,7 @@
                                 <div class="space-y-3">
                                     @foreach($dashboardActiveReplacements as $replacement)
                                         <div class="p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
-                                            <div class="flex items-start gap-4">
+                                            <div class="flex flex-col xl:flex-row xl:items-start gap-4">
                                                 <!-- Reemplazado -->
                                                 <div class="flex-1">
                                                     <div class="text-xs font-bold text-[#475569] uppercase tracking-wider mb-1">Titular Reemplazado</div>
@@ -156,7 +156,7 @@
                                                 </div>
 
                                                 <!-- Flecha -->
-                                                <div class="pt-4">
+                                                <div class="pt-0 xl:pt-4">
                                                     <div class="bg-purple-100 p-2 rounded-full">
                                                         <i class="fas fa-arrow-right text-purple-600"></i>
                                                     </div>
@@ -177,7 +177,7 @@
                                                 </div>
 
                                                 <!-- Info adicional -->
-                                                <div class="text-right">
+                                                <div class="text-left xl:text-right">
                                                     <div class="text-xs font-bold text-[#475569] uppercase tracking-wider mb-1">Inicio</div>
                                                     <div class="text-sm font-bold text-[#1e293b]">{{ $replacement->inicio?->format('d/m/Y H:i') ?? 'N/A' }}</div>
                                                     <button type="button" onclick="openUndoReplacementModal('{{ route('admin.guardias.replacement.undo', $replacement->id) }}')" class="mt-2 text-xs font-bold text-purple-600 hover:text-purple-800 underline">
@@ -224,7 +224,7 @@
                         @endif
 
                         @if(Auth::check() && Auth::user()->role === 'guardia' && isset($myGuardia) && $myGuardia)
-                            <div class="flex gap-3 pt-6 mt-6 border-t border-[#9fb0c3]">
+                            <div class="flex flex-col sm:flex-row gap-3 pt-6 mt-6 border-t border-[#9fb0c3]">
                                 <button onclick="openReplacementModal()" class="btn-primary flex-1">
                                     <i class="fas fa-plus"></i>
                                     Nuevo Reemplazo
@@ -241,7 +241,7 @@
                 <!-- Resumen de Personal -->
                 <x-ui.card>
                     <h2 class="text-xl font-semibold text-[#1e293b] mb-6">Resumen de Personal</h2>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
                         <div class="text-center">
                             <p class="metric-value">{{ $totalFirefighters }}</p>
                             <p class="metric-label mt-1">Total Bomberos</p>
@@ -262,7 +262,7 @@
                 </x-ui.card>
 
                 <!-- Accesos directos (coherentes con el plan: módulo no incluido → CTA upgrade) -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
                     <x-tenant.quick-link
                         featureKey="guardia"
                         :href="route('admin.guardias')"

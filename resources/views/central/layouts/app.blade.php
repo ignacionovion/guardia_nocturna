@@ -47,10 +47,77 @@
     @endphp
 
     {{-- Barra principal + subnavegación (sticky) --}}
-    <div class="sticky top-0 z-50">
+    <div class="sticky top-0 z-50 border-b border-slate-800">
         <nav class="bg-slate-900 border-b border-slate-800">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex flex-col gap-3 py-3 md:flex-row md:items-center md:justify-between md:py-0 md:h-16 md:gap-4">
+                <div class="py-3 md:py-0 md:h-16">
+                    <div class="flex items-center justify-between gap-3 md:hidden">
+                        <a href="{{ route('central.dashboard') }}" class="flex items-center min-w-0 gap-3">
+                            <div class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/>
+                                </svg>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="text-white font-bold text-lg leading-none truncate block">GuardiAPP</span>
+                                <span class="text-amber-400 text-[10px] font-semibold bg-amber-400/10 px-2 py-0.5 rounded">CENTRAL</span>
+                            </div>
+                        </a>
+                        <button type="button"
+                                data-mobile-nav-toggle
+                                class="inline-flex items-center justify-center w-10 h-10 rounded-lg border border-slate-700 text-slate-200 hover:bg-slate-800 transition"
+                                aria-controls="central-mobile-nav"
+                                aria-expanded="false"
+                                aria-label="Abrir menú">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div id="central-mobile-nav" class="hidden mt-3 space-y-3 md:hidden">
+                        <div class="grid gap-1">
+                            <a href="{{ route('central.dashboard') }}"
+                               class="px-3 py-2.5 rounded-md text-sm font-medium {{ $navDashboardActive ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }} transition">
+                                Dashboard
+                            </a>
+                            <a href="{{ $orgDefaultUrl }}"
+                               class="px-3 py-2.5 rounded-md text-sm font-medium {{ $navOrgActive ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }} transition">
+                                Organización
+                            </a>
+                            <a href="{{ $financeDefaultUrl }}"
+                               class="px-3 py-2.5 rounded-md text-sm font-medium {{ $navFinanceActive ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }} transition">
+                                Finanzas
+                            </a>
+                            <a href="{{ route('central.backups.index') }}"
+                               class="px-3 py-2.5 rounded-md text-sm font-medium {{ $navBackupsActive ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }} transition">
+                                Backups
+                            </a>
+                            <a href="{{ route('central.audit.index') }}"
+                               class="px-3 py-2.5 rounded-md text-sm font-medium {{ $navAuditActive ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }} transition">
+                                Auditoría
+                            </a>
+                            @if($isSuperAdmin)
+                                <a href="{{ route('central.admins.index') }}"
+                                   class="px-3 py-2.5 rounded-md text-sm font-medium {{ $navAdminsActive ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }} transition">
+                                    Administradores
+                                </a>
+                            @endif
+                        </div>
+                        <div class="flex items-center justify-between border-t border-slate-800 pt-3">
+                            <p class="text-xs text-slate-400 min-w-0 truncate pr-3">
+                                <span class="text-slate-500">{{ Auth::guard('central')->user()->username }}</span>
+                                <span class="text-slate-600">·</span>
+                                {{ Auth::guard('central')->user()->name }}
+                            </p>
+                            <form method="POST" action="{{ url('/logout') }}">
+                                @csrf
+                                <button type="submit" class="text-slate-300 hover:text-white text-sm transition px-3 py-1.5 rounded-md hover:bg-slate-800">Salir</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="hidden md:flex md:items-center md:justify-between md:gap-4 md:h-16">
                     <div class="flex flex-col sm:flex-row sm:items-center min-w-0 flex-1 gap-3 sm:gap-4 lg:gap-8">
                         <a href="{{ route('central.dashboard') }}" class="flex items-center shrink-0 space-x-3">
                             <div class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
@@ -103,6 +170,7 @@
                             <button type="submit" class="text-slate-400 hover:text-white text-sm transition">Salir</button>
                         </form>
                     </div>
+                    </div>
                 </div>
             </div>
         </nav>
@@ -110,7 +178,7 @@
         @if($navOrgActive)
             <div class="bg-slate-800 border-b border-slate-700/80">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div class="flex flex-wrap items-center gap-1 py-2">
+                    <div class="flex items-center gap-1 py-2 overflow-x-auto whitespace-nowrap">
                         <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-500 px-2 hidden sm:inline">Organización</span>
                         <a href="{{ route('central.bodies.index') }}"
                            class="px-3 py-1.5 rounded-md text-sm font-medium whitespace-nowrap {{ $subnavOrgBodiesActive ? 'bg-slate-900 text-white' : 'text-slate-300 hover:bg-slate-900/60 hover:text-white' }} transition">
@@ -126,7 +194,7 @@
         @elseif($navFinanceActive)
             <div class="bg-slate-800 border-b border-slate-700/80">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div class="flex flex-wrap items-center gap-1 py-2">
+                    <div class="flex items-center gap-1 py-2 overflow-x-auto whitespace-nowrap">
                         <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-500 px-2 hidden sm:inline">Finanzas</span>
                         @if($isSuperAdmin)
                             <a href="{{ route('central.financial.index') }}"
@@ -159,26 +227,40 @@
     @endphp
     @if($flashSuccess)
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
-            <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl text-sm flex items-center justify-between">
-                <span class="whitespace-pre-line">{{ $flashSuccess }}</span>
-                <button onclick="this.parentElement.remove()" class="text-emerald-600 hover:text-emerald-800">&times;</button>
+            <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl text-sm flex items-start gap-3">
+                <span class="whitespace-pre-line break-words flex-1 min-w-0">{{ $flashSuccess }}</span>
+                <button onclick="this.parentElement.remove()" class="text-emerald-600 hover:text-emerald-800 text-xl leading-none shrink-0" aria-label="Cerrar">&times;</button>
             </div>
         </div>
     @endif
 
     @if($flashError)
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
-            <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl text-sm flex items-center justify-between">
-                <span class="whitespace-pre-line">{{ $flashError }}</span>
-                <button onclick="this.parentElement.remove()" class="text-red-600 hover:text-red-800">&times;</button>
+            <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl text-sm flex items-start gap-3">
+                <span class="whitespace-pre-line break-words flex-1 min-w-0">{{ $flashError }}</span>
+                <button onclick="this.parentElement.remove()" class="text-red-600 hover:text-red-800 text-xl leading-none shrink-0" aria-label="Cerrar">&times;</button>
             </div>
         </div>
     @endif
 
     {{-- Content --}}
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         @yield('content')
     </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const navToggle = document.querySelector('[data-mobile-nav-toggle]');
+            const mobileNav = document.getElementById('central-mobile-nav');
+            if (!navToggle || !mobileNav) return;
+
+            navToggle.addEventListener('click', function () {
+                const isOpen = !mobileNav.classList.contains('hidden');
+                mobileNav.classList.toggle('hidden', isOpen);
+                navToggle.setAttribute('aria-expanded', String(!isOpen));
+            });
+        });
+    </script>
 
     @stack('scripts')
 </body>

@@ -3,14 +3,14 @@
 @section('title', 'Facturación - GuardiAPP SaaS')
 
 @section('content')
-<div class="container mx-auto px-4 py-6">
-    <div class="mb-6 flex justify-between items-center">
+<div class="container mx-auto px-0 py-1">
+    <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-start">
         <div>
             <h1 class="text-2xl font-bold text-slate-900">Facturación</h1>
             <p class="text-slate-600">Administración de pagos y suscripciones de tenants.</p>
         </div>
         <a href="{{ route('central.billing.plans.index') }}" 
-           class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm">
+           class="inline-flex items-center justify-center bg-slate-700 hover:bg-slate-600 text-white px-4 py-2.5 rounded-lg text-sm w-full sm:w-auto">
             <i class="fas fa-layer-group mr-2"></i>Administrar Planes
         </a>
     </div>
@@ -26,7 +26,7 @@
     @endif
 
     {{-- Stats Cards --}}
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4 mb-6">
         <div class="bg-white rounded-xl border border-yellow-200 p-4">
             <div class="flex items-center justify-between">
                 <div>
@@ -95,16 +95,16 @@
 
     {{-- Billing Table --}}
     <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-        <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+        <div class="px-4 sm:px-6 py-4 border-b border-slate-200 flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
             <h2 class="text-lg font-semibold text-slate-900">Registros de Facturación</h2>
             <button onclick="document.getElementById('create-modal').classList.remove('hidden')" 
-                    class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg text-sm">
+                    class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 rounded-lg text-sm w-full sm:w-auto">
                 <i class="fas fa-plus mr-2"></i>Nuevo Registro
             </button>
         </div>
 
         <div class="overflow-x-auto">
-            <table class="w-full">
+            <table class="min-w-[980px] w-full">
                 <thead class="bg-white">
                     <tr>
                         <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Compañía</th>
@@ -154,28 +154,28 @@
                                     {{ $billing->observacion ?: '-' }}
                                 </div>
                             </td>
-                            <td class="px-4 py-3" style="min-width: 320px;">
-                                <div class="flex items-center gap-1">
+                            <td class="px-4 py-3 min-w-[320px]">
+                                <div class="flex items-center flex-wrap gap-1.5">
                                     <button onclick="openPaymentModal({{ $billing->id }})" 
-                                            class="px-2 py-1 text-xs font-medium rounded bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border border-emerald-200" 
+                                            class="px-2.5 py-1.5 text-xs font-medium rounded bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border border-emerald-200" 
                                             title="Registrar pago">
                                         Pagar
                                     </button>
 
                                     <button onclick="openExtendModal({{ $billing->id }})" 
-                                            class="px-2 py-1 text-xs font-medium rounded bg-blue-100 text-blue-700 hover:bg-blue-200 border border-blue-200" 
+                                            class="px-2.5 py-1.5 text-xs font-medium rounded bg-blue-100 text-blue-700 hover:bg-blue-200 border border-blue-200" 
                                             title="Extender vencimiento">
                                         Extender
                                     </button>
 
                                     <button onclick="openPlanModal({{ $billing->id }}, '{{ $billing->plan_id ?? $billing->tenant?->plan_id }}')" 
-                                            class="px-2 py-1 text-xs font-medium rounded bg-purple-100 text-purple-700 hover:bg-purple-200 border border-purple-200" 
+                                            class="px-2.5 py-1.5 text-xs font-medium rounded bg-purple-100 text-purple-700 hover:bg-purple-200 border border-purple-200" 
                                             title="Cambiar plan">
                                         Plan
                                     </button>
 
                                     <button onclick="openObservationModal({{ $billing->id }}, '{{ addslashes($billing->observacion) }}')" 
-                                            class="px-2 py-1 text-xs font-medium rounded bg-white text-slate-700 hover:bg-slate-200 border border-slate-200" 
+                                            class="px-2.5 py-1.5 text-xs font-medium rounded bg-white text-slate-700 hover:bg-slate-200 border border-slate-200" 
                                             title="Editar observación">
                                         Obs
                                     </button>
@@ -184,7 +184,7 @@
                                         @csrf
                                         @method('PATCH')
                                         <button type="submit" 
-                                                class="px-2 py-1 text-xs font-medium rounded bg-red-100 text-red-700 hover:bg-red-200 border border-red-200" 
+                                                class="px-2.5 py-1.5 text-xs font-medium rounded bg-red-100 text-red-700 hover:bg-red-200 border border-red-200" 
                                                 title="Suspender">
                                             Suspender
                                         </button>

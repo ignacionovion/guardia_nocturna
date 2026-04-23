@@ -117,7 +117,8 @@
             </div>
             
             {{-- Mobile Sidebar Overlay --}}
-            <div x-show="mobileSidebarOpen" 
+            <div x-cloak
+                 x-show="mobileSidebarOpen" 
                  x-transition:enter="transition-opacity ease-out duration-300"
                  x-transition:enter-start="opacity-0"
                  x-transition:enter-end="opacity-100"
@@ -128,15 +129,16 @@
                  class="lg:hidden fixed inset-0 z-40 bg-black/50"></div>
             
             {{-- Mobile Sidebar --}}
-            <div x-show="mobileSidebarOpen"
+            <div x-cloak
+                 x-show="mobileSidebarOpen"
                  x-transition:enter="transition ease-out duration-300"
                  x-transition:enter-start="-translate-x-full"
                  x-transition:enter-end="translate-x-0"
                  x-transition:leave="transition ease-in duration-200"
                  x-transition:leave-start="translate-x-0"
                  x-transition:leave-end="-translate-x-full"
-                 class="lg:hidden fixed inset-y-0 left-0 z-50 w-64">
-                @include('components.layouts.sidebar')
+                 class="lg:hidden fixed inset-y-0 left-0 z-50">
+                @include('components.layouts.sidebar', ['mobile' => true])
             </div>
         @endauth
         
@@ -167,11 +169,11 @@
                 {{-- Flash Messages --}}
                 @if(session('success'))
                 <div class="mb-6 animate-slide-in">
-                    <div class="flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800">
+                    <div class="flex items-start gap-3 px-4 py-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800">
                         <div class="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center">
                             <i class="fas fa-check text-white text-sm"></i>
                         </div>
-                        <p class="text-sm font-medium text-emerald-800 dark:text-emerald-200">{{ session('success') }}</p>
+                        <p class="text-sm font-medium text-emerald-800 dark:text-emerald-200 break-words min-w-0 flex-1">{{ session('success') }}</p>
                         <button onclick="this.parentElement.parentElement.remove()" class="ml-auto text-emerald-500 hover:text-emerald-700">
                             <i class="fas fa-xmark"></i>
                         </button>
@@ -181,11 +183,11 @@
                 
                 @if(session('error'))
                 <div class="mb-6 animate-slide-in">
-                    <div class="flex items-center gap-3 px-4 py-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                    <div class="flex items-start gap-3 px-4 py-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
                         <div class="w-8 h-8 rounded-lg bg-red-500 flex items-center justify-center">
                             <i class="fas fa-exclamation-triangle text-white text-sm"></i>
                         </div>
-                        <p class="text-sm font-medium text-red-800 dark:text-red-200">{{ session('error') }}</p>
+                        <p class="text-sm font-medium text-red-800 dark:text-red-200 break-words min-w-0 flex-1">{{ session('error') }}</p>
                         <button onclick="this.parentElement.parentElement.remove()" class="ml-auto text-red-500 hover:text-red-700">
                             <i class="fas fa-xmark"></i>
                         </button>

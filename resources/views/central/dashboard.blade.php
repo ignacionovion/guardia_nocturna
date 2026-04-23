@@ -124,7 +124,7 @@
     </div>
 
     {{-- Main Stats Row --}}
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div class="bg-white rounded-2xl border border-slate-200 p-5">
             <div class="flex items-center justify-between mb-3">
                 <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
@@ -186,7 +186,7 @@
         {{-- System Health --}}
         <div class="md:col-span-2 bg-white rounded-2xl border border-slate-200 p-6">
             <h2 class="font-semibold text-slate-900 text-sm uppercase tracking-wider mb-4">Salud del Sistema</h2>
-            <div class="grid grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div class="text-center p-4 rounded-xl bg-emerald-50 border border-emerald-100">
                     <p class="text-2xl font-bold text-emerald-700">{{ $globalMetrics['healthy'] }}</p>
                     <p class="text-xs text-emerald-600 font-medium mt-1">Saludables</p>
@@ -331,18 +331,18 @@
     </div>
     @endif
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {{-- Recent tenants with health --}}
         <div class="bg-white rounded-2xl border border-slate-200">
-            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div class="px-4 sm:px-6 py-4 border-b border-slate-100 flex items-center justify-between gap-3">
                 <h2 class="font-semibold text-slate-900">Compañías Recientes</h2>
                 <a href="{{ route('central.tenants.index') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">Ver todas</a>
             </div>
             <div class="divide-y divide-slate-100">
                 @forelse($recentTenants as $tenant)
                     @php $health = $tenantHealthMap[$tenant->id] ?? ['overall' => 'ok']; @endphp
-                    <a href="{{ route('central.tenants.show', $tenant->id) }}" class="px-6 py-3 flex items-center justify-between hover:bg-white transition block">
-                        <div class="flex items-center space-x-3">
+                    <a href="{{ route('central.tenants.show', $tenant->id) }}" class="px-4 sm:px-6 py-3 flex items-center justify-between gap-3 hover:bg-white transition block">
+                        <div class="flex items-center space-x-3 min-w-0">
                             <div class="relative">
                                 <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
                                     <span class="text-xs font-bold text-slate-600">{{ $tenant->numero ?? '#' }}</span>
@@ -351,8 +351,8 @@
                                     {{ $health['overall'] === 'ok' ? 'bg-emerald-400' : ($health['overall'] === 'warning' ? 'bg-amber-400' : 'bg-red-400') }}">
                                 </div>
                             </div>
-                            <div>
-                                <p class="text-sm font-medium text-slate-900">{{ $tenant->nombre }}</p>
+                            <div class="min-w-0">
+                                <p class="text-sm font-medium text-slate-900 truncate">{{ $tenant->nombre }}</p>
                                 <p class="text-[10px] text-slate-400">{{ $tenant->domains->first()?->domain ?? $tenant->id }}</p>
                             </div>
                         </div>
@@ -370,13 +370,13 @@
 
         {{-- Recent Audit Logs --}}
         <div class="bg-white rounded-2xl border border-slate-200">
-            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div class="px-4 sm:px-6 py-4 border-b border-slate-100 flex items-center justify-between gap-3">
                 <h2 class="font-semibold text-slate-900">Actividad Reciente</h2>
                 <a href="{{ route('central.audit.index') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">Ver todo</a>
             </div>
             <div class="divide-y divide-slate-100">
                 @forelse($recentAuditLogs as $log)
-                    <div class="px-6 py-3 flex items-start space-x-3">
+                    <div class="px-4 sm:px-6 py-3 flex items-start space-x-3">
                         <span class="text-lg">{{ $log->actionIcon() }}</span>
                         <div class="flex-1 min-w-0">
                             <p class="text-sm text-slate-900 truncate">{{ $log->description }}</p>

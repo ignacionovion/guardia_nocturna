@@ -10,21 +10,22 @@ $currentDate = now()->locale('es');
 @endphp
 
 <header class="sticky top-0 z-30 flex flex-col border-b border-slate-200 shadow-sm bg-white/80 glass">
-<div class="flex h-16 items-center justify-between px-4 sm:px-6 w-full">
+<div class="flex h-16 items-center justify-between px-3 sm:px-6 w-full gap-2">
     {{-- Left: Mobile menu + Title + Date --}}
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-2 sm:gap-4 min-w-0">
         {{-- Mobile sidebar toggle --}}
-        <button @click="mobileSidebarOpen = !mobileSidebarOpen" 
-                class="lg:hidden p-2 rounded-xl text-[#475569] hover:bg-[#eef3f9] transition-colors">
+        <button @click="mobileSidebarOpen = !mobileSidebarOpen"
+                class="lg:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl border border-[#e5e7eb] text-[#475569] hover:bg-[#eef3f9] transition-colors"
+                aria-label="Abrir menú">
             <i class="fas fa-bars"></i>
         </button>
         
         {{-- Page title & date --}}
-        <div class="hidden sm:flex flex-col min-w-0">
+        <div class="flex flex-col min-w-0">
             @if($title)
-            <h1 class="text-base font-semibold text-[#0f172a] leading-tight">{{ $title }}</h1>
+            <h1 class="text-sm sm:text-base font-semibold text-[#0f172a] leading-tight truncate">{{ $title }}</h1>
             @endif
-            <span class="text-xs text-[#475569]">
+            <span class="hidden sm:block text-xs text-[#475569]">
                 {{ $currentDate->isoFormat('dddd, D [de] MMMM') }}
             </span>
             @if(!empty($subscriptionUx['show_topbar_hint']) && !empty($subscriptionUx['topbar_line']))
@@ -46,7 +47,7 @@ $currentDate = now()->locale('es');
     @endif
     
     {{-- Right: Actions --}}
-    <div class="flex items-center gap-1 sm:gap-2">
+    <div class="flex items-center gap-1 sm:gap-2 shrink-0">
         {{-- Search --}}
         <div class="hidden md:block relative" x-data="{ focused: false }">
             <input type="text" 

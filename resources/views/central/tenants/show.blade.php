@@ -105,8 +105,8 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
             <span>Volver a compañías</span>
         </a>
-        <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-4">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div class="flex items-start space-x-3 sm:space-x-4 min-w-0">
                 <div class="relative">
                     <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center">
                         <span class="text-xl font-bold text-slate-600">{{ $tenant->numero ?? '#' }}</span>
@@ -115,8 +115,8 @@
                         {{ $health['overall'] === 'ok' ? 'bg-emerald-400' : ($health['overall'] === 'warning' ? 'bg-amber-400' : 'bg-red-400') }}">
                     </div>
                 </div>
-                <div>
-                    <h1 class="text-2xl font-bold text-slate-900">{{ $tenant->nombre }}</h1>
+                <div class="min-w-0">
+                    <h1 class="text-2xl font-bold text-slate-900 break-words">{{ $tenant->nombre }}</h1>
                     <div class="text-slate-500 text-sm mt-0.5 flex flex-wrap items-center gap-2">
                         <code class="text-xs bg-white px-1.5 py-0.5 rounded">{{ $tenant->id }}</code>
                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold {{ $uiStatus['badgeClass'] }}">
@@ -134,7 +134,7 @@
                     </div>
                 </div>
             </div>
-            <div class="flex items-center space-x-3">
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3">
                 @if($tenant->domains->first())
                     <a href="https://{{ $tenant->domains->first()->domain }}" target="_blank"
                        class="px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-xl hover:bg-blue-100 transition flex items-center space-x-1.5">
@@ -188,7 +188,7 @@
     </div>
 
     {{-- Metrics Cards --}}
-    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
         <div class="bg-white rounded-xl border border-slate-200 p-4">
             <p class="text-xs text-slate-500 font-medium">Base de datos</p>
             <p class="text-lg font-bold text-slate-900 mt-1">{{ $metrics['db_size'] }}</p>
@@ -276,7 +276,7 @@
             </div>
             <div class="space-y-3">
                 @foreach($health['checks'] as $check)
-                    <div class="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
+                    <div class="flex items-start justify-between gap-3 py-2 border-b border-slate-50 last:border-0">
                         <div class="flex items-center space-x-2.5">
                             @if($check['status'] === 'ok')
                                 <div class="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center">
@@ -293,7 +293,7 @@
                             @endif
                             <span class="text-sm text-slate-700 font-medium">{{ $check['name'] }}</span>
                         </div>
-                        <span class="text-xs text-slate-500">{{ $check['detail'] }}</span>
+                        <span class="text-xs text-slate-500 text-right">{{ $check['detail'] }}</span>
                     </div>
                 @endforeach
             </div>
@@ -394,7 +394,7 @@
                     <div class="flex items-center justify-between text-xs">
                         <span class="text-slate-600">{{ match($type) { 'users' => 'Usuarios', 'guardias' => 'Guardias', 'beds' => 'Camas', 'storage' => 'Almacenamiento', default => $type } }}</span>
                         <div class="flex items-center space-x-2">
-                            <div class="w-24 h-2 bg-white rounded-full overflow-hidden">
+                            <div class="w-16 sm:w-24 h-2 bg-white rounded-full overflow-hidden">
                                 @if($info['unlimited'])
                                     <div class="h-full bg-emerald-500 w-full"></div>
                                 @elseif($info['percentage'] !== null)
@@ -417,8 +417,8 @@
                 @if(isset($availablePlans) && $availablePlans->count() > 0)
                 <form method="POST" action="{{ route('central.tenants.change-plan', $tenant) }}" class="mt-4 pt-3 border-t border-slate-100">
                     @csrf
-                    <div class="flex items-end space-x-2">
-                        <div class="flex-1">
+                    <div class="flex flex-col sm:flex-row sm:items-end gap-2">
+                        <div class="flex-1 min-w-0">
                             <label class="block text-[10px] font-medium text-slate-500 mb-1 uppercase">Cambiar Plan</label>
                             <select name="plan_id" class="w-full px-2 py-1.5 text-xs border border-slate-300 rounded-lg bg-white focus:ring-1 focus:ring-blue-500 outline-none">
                                 @foreach($availablePlans as $planOption)
@@ -429,7 +429,7 @@
                             </select>
                         </div>
                         <button type="submit" onclick="return confirm('¿Cambiar el plan de {{ $tenant->nombre }}?')"
-                                class="px-3 py-1.5 bg-blue-500 text-white text-xs font-medium rounded-lg hover:bg-blue-600 transition">
+                                class="w-full sm:w-auto px-3 py-2 bg-blue-500 text-white text-xs font-medium rounded-lg hover:bg-blue-600 transition">
                             Cambiar
                         </button>
                     </div>
@@ -488,7 +488,7 @@
                         <svg class="w-4 h-4 mr-1.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
                         Módulos del Sistema
                     </h3>
-                    <div class="grid grid-cols-2 gap-2">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                         @foreach($modules as $module => $value)
                             <label class="flex items-center justify-between py-2 px-3 rounded-lg {{ $value ? 'bg-emerald-50 border border-emerald-200' : 'bg-white border border-slate-200' }} cursor-pointer hover:bg-white transition">
                                 <div class="flex items-center space-x-2">
@@ -516,7 +516,7 @@
                         <svg class="w-4 h-4 mr-1.5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
                         Addons SaaS / Comerciales
                     </h3>
-                    <div class="grid grid-cols-2 gap-2">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                         @foreach($addons as $addon => $value)
                             <label class="flex items-center justify-between py-2 px-3 rounded-lg {{ $value ? 'bg-purple-50 border border-purple-200' : 'bg-white border border-slate-200' }} cursor-pointer hover:bg-white transition">
                                 <div class="flex items-center space-x-2">
@@ -611,7 +611,7 @@
             </div>
             <span class="text-[10px] text-amber-600 bg-amber-50 px-2 py-1 rounded font-medium">⚠️ Se registra en auditoría</span>
         </div>
-        <form method="POST" action="{{ route('central.tenants.impersonate', $tenant) }}" class="flex items-end space-x-3">
+        <form method="POST" action="{{ route('central.tenants.impersonate', $tenant) }}" class="flex flex-col sm:flex-row sm:items-end gap-3">
             @csrf
             <div class="flex-1">
                 <label class="block text-xs font-medium text-slate-500 mb-1">Seleccionar usuario</label>
@@ -625,7 +625,7 @@
                 </select>
             </div>
             <button type="submit" onclick="return confirm('¿Impersonar este usuario? La acción quedará registrada en auditoría.')"
-                    class="px-4 py-2 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition flex items-center space-x-1.5">
+                    class="w-full sm:w-auto px-4 py-2.5 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition flex items-center justify-center space-x-1.5">
                 <span>🎭</span>
                 <span>Impersonar</span>
             </button>

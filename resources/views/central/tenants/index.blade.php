@@ -3,20 +3,21 @@
 @section('title', 'Compañías')
 
 @section('content')
-    <div class="flex items-center justify-between mb-8">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-8">
         <div>
             <h1 class="text-2xl font-bold text-slate-900">Compañías</h1>
             <p class="text-slate-500 text-sm mt-1">Gestión de compañías (tenants) de la plataforma</p>
         </div>
         <a href="{{ route('central.tenants.create') }}"
-           class="bg-slate-900 text-white text-sm font-medium py-2.5 px-5 rounded-xl hover:bg-slate-800 transition flex items-center space-x-2">
+           class="bg-slate-900 text-white text-sm font-medium py-2.5 px-5 rounded-xl hover:bg-slate-800 transition inline-flex items-center justify-center space-x-2 w-full sm:w-auto">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             <span>Nueva Compañía</span>
         </a>
     </div>
 
     <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-        <table class="w-full">
+        <div class="overflow-x-auto">
+        <table class="min-w-[1050px] w-full">
             <thead>
                 <tr class="bg-white border-b border-slate-200">
                     <th class="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Compañía</th>
@@ -119,6 +120,7 @@
                 @endforelse
             </tbody>
         </table>
+        </div>
 
         @if($tenants->hasPages())
             <div class="px-6 py-4 border-t border-slate-100">

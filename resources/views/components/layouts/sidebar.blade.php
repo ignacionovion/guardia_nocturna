@@ -1,3 +1,7 @@
+@props([
+    'mobile' => false,
+])
+
 @php
 $user = Auth::user();
 $role = $user->role ?? 'guardia';
@@ -34,15 +38,16 @@ $menuItems = [
 // capitan (y roles heredados super_admin/capitania) → menú completo de administración
 $normalizedRole = in_array($role, ['capitan', 'super_admin', 'capitania'], true) ? 'super_admin' : $role;
 $items = $menuItems[$normalizedRole] ?? $menuItems['guardia'];
+$expanded = $mobile ? true : null;
 @endphp
 
 <aside id="sidebar" 
-       class="fixed inset-y-0 left-0 z-40 flex flex-col bg-[#0f172a] border-r border-[#1e293b] transition-all duration-300 shadow-xl"
-       :class="sidebarCollapsed ? 'w-[72px]' : 'w-64'">
+       class="{{ $mobile ? 'h-full w-72 max-w-[85vw]' : 'fixed inset-y-0 left-0 z-40' }} flex flex-col bg-[#0f172a] border-r border-[#1e293b] shadow-xl transition-all duration-300"
+       :class="{{ $mobile ? "'w-72'" : "sidebarCollapsed ? 'w-[72px]' : 'w-64'" }}">
     
     {{-- Logo --}}
-    <div class="flex items-center h-16 px-4 border-b border-[#1e293b]">
-        <a href="{{ tenancy()->initialized ? route('dashboard') : route('central.dashboard') }}" class="flex items-center gap-3 group">
+    <div class="flex items-center h-16 px-4 border-b border-[#1e293b] justify-between">
+        <a href="{{ tenancy()->initialized ? route('dashboard') : route('central.dashboard') }}" class="flex items-center gap-3 group min-w-0">
             @if(branding()->logo)
                 <img src="{{ branding()->logo }}" alt="{{ branding()->nombre_empresa }}" class="h-9 w-auto">
             @else
@@ -50,11 +55,19 @@ $items = $menuItems[$normalizedRole] ?? $menuItems['guardia'];
                     <i class="fas fa-helmet-safety text-white text-sm"></i>
                 </div>
             @endif
-            <div x-show="!sidebarCollapsed" x-transition:enter="transition-opacity duration-200" x-transition:leave="transition-opacity duration-100" class="flex flex-col">
+            <div x-show="{{ $mobile ? 'true' : '!sidebarCollapsed' }}" x-transition:enter="transition-opacity duration-200" x-transition:leave="transition-opacity duration-100" class="flex flex-col min-w-0">
                 <span class="font-bold text-white text-base leading-tight">{{ branding()->nombre_empresa }}</span>
                 <span class="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Centro de Comando</span>
             </div>
         </a>
+        @if($mobile)
+            <button type="button"
+                    @click="mobileSidebarOpen = false"
+                    class="inline-flex items-center justify-center w-9 h-9 rounded-lg text-slate-300 hover:bg-[#1e293b] hover:text-white transition"
+                    aria-label="Cerrar menú">
+                <i class="fas fa-xmark"></i>
+            </button>
+        @endif
     </div>
     
     {{-- Navigation --}}
@@ -63,25 +76,25 @@ $items = $menuItems[$normalizedRole] ?? $menuItems['guardia'];
             @foreach($items as $item)
                 @if(isset($item['divider']))
                     <li class="pt-6 pb-3">
-                        <span x-show="!sidebarCollapsed" class="px-3 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
+                        <span x-show="{{ $mobile ? 'true' : '!sidebarCollapsed' }}" class="px-3 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
                             {{ $item['label'] }}
                         </span>
-                        <div x-show="sidebarCollapsed" class="h-px bg-[#1e293b] mx-3 my-1"></div>
+                        <div x-show="{{ $mobile ? 'false' : 'sidebarCollapsed' }}" class="h-px bg-[#1e293b] mx-3 my-1"></div>
                     </li>
                 @else
                     @if(!isset($item['feature']) || feature($item['feature']))
                     @if(isset($item['children']))
                     <li>
                         <div class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium text-slate-300"
-                             :class="sidebarCollapsed ? 'justify-center px-0' : ''"
+                             :class="{{ $mobile ? "''" : "sidebarCollapsed ? 'justify-center px-0' : ''" }}"
                              title="{{ $item['label'] }}">
                             <span class="w-5 flex items-center justify-center shrink-0">
                                 <i class="{{ $item['icon'] }}"></i>
                             </span>
-                            <span x-show="!sidebarCollapsed" x-transition class="truncate">{{ $item['label'] }}</span>
+                            <span x-show="{{ $mobile ? 'true' : '!sidebarCollapsed' }}" x-transition class="truncate">{{ $item['label'] }}</span>
                         </div>
 
-                        <ul x-show="!sidebarCollapsed" class="ml-8 mt-1 space-y-1">
+                        <ul x-show="{{ $mobile ? 'true' : '!sidebarCollapsed' }}" class="ml-8 mt-1 space-y-1">
                             @foreach($item['children'] as $child)
                             <li>
                                 <a href="{{ route($child['route']) }}"
@@ -102,14 +115,14 @@ $items = $menuItems[$normalizedRole] ?? $menuItems['guardia'];
                                   {{ request()->routeIs($item['match']) 
                                       ? 'bg-[#2563eb] text-white' 
                                       : 'text-slate-300 hover:bg-white/5 hover:text-white' }}"
-                           :class="sidebarCollapsed ? 'justify-center px-0' : ''"
+                           :class="{{ $mobile ? "''" : "sidebarCollapsed ? 'justify-center px-0' : ''" }}"
                            title="{{ $item['label'] }}">
                             <span class="w-5 flex items-center justify-center shrink-0">
                                 <i class="{{ $item['icon'] }} {{ request()->routeIs($item['match']) ? '' : 'group-hover:scale-110 transition-transform' }}"></i>
                             </span>
-                            <span x-show="!sidebarCollapsed" x-transition class="truncate">{{ $item['label'] }}</span>
+                            <span x-show="{{ $mobile ? 'true' : '!sidebarCollapsed' }}" x-transition class="truncate">{{ $item['label'] }}</span>
                             @if(isset($item['badge']) && $item['badge'] === 'live')
-                            <span x-show="!sidebarCollapsed" class="ml-auto flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-emerald-500 text-white">
+                            <span x-show="{{ $mobile ? 'true' : '!sidebarCollapsed' }}" class="ml-auto flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-emerald-500 text-white">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
                                 Live
                             </span>
@@ -124,7 +137,7 @@ $items = $menuItems[$normalizedRole] ?? $menuItems['guardia'];
     </nav>
     
     @if(in_array($role, ['capitan', 'super_admin', 'capitania'], true))
-    <div x-show="!sidebarCollapsed" x-transition class="mx-3 mb-2 px-1">
+    <div x-show="{{ $mobile ? 'true' : '!sidebarCollapsed' }}" x-transition class="mx-3 mb-2 px-1">
         <p class="text-[10px] text-slate-500 truncate leading-tight">Plan actual: <span class="text-slate-300 font-medium">{{ tenant_plan_label() }}</span></p>
         <a href="{{ route('tenant.upgrade') }}" class="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-400 hover:text-indigo-300 transition-colors">
             <i class="fas fa-layer-group text-[10px]"></i>
@@ -134,7 +147,7 @@ $items = $menuItems[$normalizedRole] ?? $menuItems['guardia'];
     @endif
 
     {{-- Status Card --}}
-    <div x-show="!sidebarCollapsed" x-transition class="mx-3 mb-3">
+    <div x-show="{{ $mobile ? 'true' : '!sidebarCollapsed' }}" x-transition class="mx-3 mb-3">
         <div class="p-3 rounded-xl bg-[#1e293b] border border-[#334155]">
             <div class="flex items-center gap-2 mb-2">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 status-pulse"></span>
@@ -145,11 +158,13 @@ $items = $menuItems[$normalizedRole] ?? $menuItems['guardia'];
     </div>
     
     {{-- Collapse Button --}}
-    <div class="p-2 border-t border-[#1e293b]">
+    @if(!$mobile)
+    <div class="p-2 border-t border-[#1e293b] hidden lg:block">
         <button @click="sidebarCollapsed = !sidebarCollapsed" 
                 class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:bg-[#1e293b] hover:text-white transition-colors">
             <i class="fas text-[10px]" :class="sidebarCollapsed ? 'fa-angles-right' : 'fa-angles-left'"></i>
             <span x-show="!sidebarCollapsed" x-transition>Colapsar menú</span>
         </button>
     </div>
+    @endif
 </aside>

@@ -24,7 +24,7 @@
         @endif
     </div>
 
-    <div class="bg-white rounded-2xl border border-slate-200 p-8 max-w-2xl">
+    <div class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-8 max-w-2xl w-full">
         @if(session('steps'))
             <div class="bg-amber-50 border border-amber-200 text-amber-900 px-4 py-3 rounded-xl text-sm mb-6">
                 <p class="font-medium">Detalle del proceso antes del error</p>
@@ -77,7 +77,7 @@
                            class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none">
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label for="numero" class="block text-sm font-medium text-slate-700 mb-1.5">Número</label>
                         <input type="number" id="numero" name="numero" value="{{ old('numero', $tenant?->numero) }}" min="1"
@@ -118,7 +118,7 @@
                         desde la ficha de la compañía.
                     </p>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label for="billing_cycle" class="block text-sm font-medium text-slate-700 mb-1.5">Ciclo de Facturación</label>
                             <select id="billing_cycle" name="billing_cycle" required
@@ -135,7 +135,7 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4 pt-2 border-t border-slate-200">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-200">
                         <div>
                             <label class="block text-xs font-medium text-slate-500 mb-1">Estado inicial (referencia)</label>
                             <div id="estado-preview" class="text-sm font-medium text-blue-600">
@@ -176,7 +176,7 @@
                 @endif
 
                 @if($tenant)
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label for="estado" class="block text-sm font-medium text-slate-700 mb-1.5">Estado</label>
                         <select id="estado" name="estado" required
@@ -199,7 +199,7 @@
                 @endif
 
                 @unless($tenant)
-                <div class="flex items-center space-x-3 bg-blue-50 border border-blue-200 rounded-xl p-4">
+                <div class="flex items-start space-x-3 bg-blue-50 border border-blue-200 rounded-xl p-4">
                     <input type="checkbox" id="seed" name="seed" value="1" checked
                            class="rounded border-slate-300 text-amber-500 focus:ring-amber-500">
                     <label for="seed" class="text-sm text-blue-800">
@@ -210,13 +210,13 @@
                 @endunless
             </div>
 
-            <div class="flex items-center justify-end space-x-3 mt-8 pt-6 border-t border-slate-200">
+            <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3 mt-8 pt-6 border-t border-slate-200">
                 <a href="{{ route('central.tenants.index') }}"
-                   class="px-5 py-2.5 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-white transition">
+                   class="w-full sm:w-auto text-center px-5 py-2.5 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-white transition">
                     Cancelar
                 </a>
                 <button type="submit"
-                        class="px-5 py-2.5 text-sm font-medium text-white bg-slate-900 rounded-xl hover:bg-slate-800 transition">
+                        class="w-full sm:w-auto px-5 py-2.5 text-sm font-medium text-white bg-slate-900 rounded-xl hover:bg-slate-800 transition">
                     {{ $tenant ? 'Guardar Cambios' : 'Crear Compañía' }}
                 </button>
             </div>
