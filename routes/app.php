@@ -80,8 +80,10 @@ Route::middleware(['auth', 'password.not_temporary'])->group(function () {
 // ================================
 Route::middleware(['auth', 'password.not_temporary', 'tenant.feature:guardia', 'guardia_on_duty', \App\Http\Middleware\ExpireReplacements::class])->group(function () {
 
-    // Dashboard operativo
-    Route::redirect('/dashboard', '/dashboard-live')->name('dashboard');
+    // Dashboard operativo: alias con nombre fijo (compat); destino real es dashboard-live
+    Route::get('/dashboard', function () {
+        return redirect()->route('dashboard.live');
+    })->name('dashboard');
     Route::get('/dashboard-live', [GuardiaLiveController::class, 'index'])->name('dashboard.live');
 
     // Guardia en vivo API
