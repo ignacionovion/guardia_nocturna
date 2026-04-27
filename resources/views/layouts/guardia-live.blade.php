@@ -32,6 +32,34 @@
 
     @include('components.impersonation-banner')
 
+    @php
+        $panelRoute = \Illuminate\Support\Facades\Route::has('admin.guardias')
+            ? 'admin.guardias'
+            : (\Illuminate\Support\Facades\Route::has('dashboard') ? 'dashboard' : 'tenant.login');
+    @endphp
+
+    <div class="fixed top-0 left-0 right-0 z-50 bg-black/60 backdrop-blur-sm border-b border-white/10">
+        <div class="flex items-center justify-between gap-3 px-3 sm:px-4 py-2">
+            <a href="{{ route($panelRoute) }}"
+               class="inline-flex items-center gap-2 text-white text-sm font-semibold hover:opacity-80 transition-opacity">
+                <span aria-hidden="true">←</span>
+                <span>Panel</span>
+            </a>
+
+            <div class="text-white/80 text-[11px] sm:text-xs font-medium text-center truncate">
+                {{ config('app.name') }} · Modo en vivo
+            </div>
+
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit"
+                        class="text-red-300 hover:text-red-200 text-sm font-semibold transition-colors">
+                    Salir
+                </button>
+            </form>
+        </div>
+    </div>
+
     {{-- Initial state injected for Vue store --}}
     @isset($initialState)
     <script>
@@ -39,7 +67,7 @@
     </script>
     @endisset
 
-    <div id="guardia-live-app" class="min-h-screen"></div>
+    <div id="guardia-live-app" class="min-h-screen pt-12 sm:pt-14"></div>
 
     {{-- Include modals from dashboard for calendar, novelties, academies --}}
     @include('dashboard._modals')
