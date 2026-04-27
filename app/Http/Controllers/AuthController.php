@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Guardia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 
 class AuthController extends Controller
 {
@@ -62,6 +63,14 @@ class AuthController extends Controller
 
             if ($user->password_must_change) {
                 return redirect()->route('password.initial');
+            }
+
+            if ($user->role === 'guardia') {
+                $guardiaRoute = Route::has('guardia.dashboard')
+                    ? 'guardia.dashboard'
+                    : (Route::has('guardia') ? 'guardia' : 'dashboard.live');
+
+                return redirect()->route($guardiaRoute);
             }
 
             return redirect()->route('dashboard.live');

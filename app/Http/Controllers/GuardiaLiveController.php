@@ -14,6 +14,7 @@ use App\Models\Novelty;
 use App\Models\SystemSetting;
 use App\Services\TurnoDraftService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Route;
 
 class GuardiaLiveController extends Controller
 {
@@ -21,8 +22,12 @@ class GuardiaLiveController extends Controller
     {
         $user = auth()->user();
 
-        if (!$user || $user->role !== 'guardia') {
-            return redirect()->route('dashboard');
+        if (!$user) {
+            return redirect()->route(Route::has('login') ? 'login' : 'tenant.login');
+        }
+
+        if (!$this->canAccessLiveDashboard($user)) {
+            return $this->redirectByRole($user);
         }
 
         $payload = $this->buildPayload($user);
@@ -62,7 +67,7 @@ class GuardiaLiveController extends Controller
             return response()->json(['ok' => false], 401);
         }
 
-        if ($user->role !== 'guardia') {
+        if (!$this->canAccessLiveDashboard($user)) {
             return response()->json(['ok' => false], 403);
         }
 
@@ -332,7 +337,7 @@ class GuardiaLiveController extends Controller
             return response()->json(['ok' => false], 401);
         }
 
-        if ($user->role !== 'guardia') {
+        if (!$this->canAccessLiveDashboard($user)) {
             return response()->json(['ok' => false], 403);
         }
 
@@ -341,10 +346,12 @@ class GuardiaLiveController extends Controller
             return response()->json(['ok' => false, 'message' => 'Guardia ID required'], 400);
         }
 
-        // Verify the guardia belongs to this user
-        $guardia = Guardia::where('id', $guardiaId)
-            ->whereHas('users', fn ($q) => $q->where('users.id', $user->id))
-            ->first();
+        // Guardia users: must belong to current user. Admin roles can query by id.
+        $guardiaQuery = Guardia::where('id', $guardiaId);
+        if ($user->role === 'guardia') {
+            $guardiaQuery->whereHas('users', fn ($q) => $q->where('users.id', $user->id));
+        }
+        $guardia = $guardiaQuery->first();
 
         if (!$guardia) {
             return response()->json(['ok' => false, 'message' => 'Guardia not found'], 404);
@@ -386,12 +393,16 @@ class GuardiaLiveController extends Controller
     {
         $user = $request->user();
 
-        if (!$user || $user->role !== 'guardia') {
+        if (!$user || !$this->canAccessLiveDashboard($user)) {
             return response()->json(['ok' => false], 403);
         }
 
         $guardiaId = $request->query('guardia_id');
-        if (!$guardiaId || $guardiaId != $user->guardia_id) {
+        if (!$guardiaId) {
+            return response()->json(['ok' => false, 'message' => 'Invalid guardia'], 400);
+        }
+
+        if ($user->role === 'guardia' && $guardiaId != $user->guardia_id) {
             return response()->json(['ok' => false, 'message' => 'Invalid guardia'], 400);
         }
 
@@ -442,5 +453,27 @@ class GuardiaLiveController extends Controller
             'assignments' => $assignmentsByIndex,
             'date' => $date->toDateString(),
         ]);
+    }
+
+    private function canAccessLiveDashboard($user): bool
+    {
+        return in_array($user->role, ['capitan', 'super_admin', 'capitania', 'admin'], true);
+    }
+
+    private function redirectByRole($user)
+    {
+        if (!$user) {
+            return redirect()->route(Route::has('login') ? 'login' : 'tenant.login');
+        }
+
+        if ($user->role === 'guardia') {
+            $guardiaRoute = Route::has('guardia.dashboard')
+                ? 'guardia.dashboard'
+                : (Route::has('guardia') ? 'guardia' : 'dashboard.live');
+
+            return redirect()->route($guardiaRoute);
+        }
+
+        return redirect()->route('dashboard.live');
     }
 }

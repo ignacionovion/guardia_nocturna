@@ -80,10 +80,29 @@ Route::middleware(['auth', 'password.not_temporary'])->group(function () {
 // ================================
 Route::middleware(['auth', 'password.not_temporary', 'tenant.feature:guardia', 'guardia_on_duty', \App\Http\Middleware\ExpireReplacements::class])->group(function () {
 
-    // Dashboard operativo: alias con nombre fijo (compat); destino real es dashboard-live
+    // Alias de compatibilidad legacy: mantiene route('dashboard') activo por rol
     Route::get('/dashboard', function () {
+        $user = auth()->user();
+
+        if (!$user) {
+            return redirect()->route(Route::has('login') ? 'login' : 'tenant.login');
+        }
+
+        if (in_array($user->role, ['capitan', 'super_admin', 'capitania', 'admin'], true)) {
+            return redirect()->route('dashboard.live');
+        }
+
+        if ($user->role === 'guardia') {
+            $guardiaRoute = Route::has('guardia.dashboard')
+                ? 'guardia.dashboard'
+                : (Route::has('guardia') ? 'guardia' : 'dashboard.live');
+
+            return redirect()->route($guardiaRoute);
+        }
+
         return redirect()->route('dashboard.live');
     })->name('dashboard');
+
     Route::get('/dashboard-live', [GuardiaLiveController::class, 'index'])->name('dashboard.live');
 
     // Guardia en vivo API

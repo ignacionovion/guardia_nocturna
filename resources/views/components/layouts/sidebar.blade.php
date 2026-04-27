@@ -5,6 +5,9 @@
 @php
 $user = Auth::user();
 $role = $user->role ?? 'guardia';
+$guardiaHomeRoute = \Illuminate\Support\Facades\Route::has('guardia.dashboard')
+    ? 'guardia.dashboard'
+    : (\Illuminate\Support\Facades\Route::has('guardia') ? 'guardia' : 'dashboard.live');
 
 $menuItems = [
     'super_admin' => [
@@ -29,7 +32,7 @@ $menuItems = [
         ['route' => 'admin.system.index', 'icon' => 'fas fa-sliders', 'label' => 'Configuración', 'match' => 'admin.system*'],
     ],
     'guardia' => [
-        ['route' => 'dashboard.live', 'icon' => 'fas fa-gauge-high', 'label' => 'Inicio', 'match' => 'dashboard*'],
+        ['route' => $guardiaHomeRoute, 'icon' => 'fas fa-gauge-high', 'label' => 'Inicio', 'match' => 'guardia*'],
         ['route' => 'camas', 'icon' => 'fas fa-bed', 'label' => 'Camas', 'match' => 'camas*'],
         ['divider' => true, 'label' => 'Módulos'],
         ['route' => 'forms.execution.index', 'icon' => 'fas fa-clipboard-list', 'label' => 'Formularios', 'match' => 'forms*'],
@@ -39,6 +42,7 @@ $menuItems = [
 // capitan (y roles heredados super_admin/capitania) → menú completo de administración
 $normalizedRole = in_array($role, ['capitan', 'super_admin', 'capitania'], true) ? 'super_admin' : $role;
 $items = $menuItems[$normalizedRole] ?? $menuItems['guardia'];
+$tenantHomeRoute = $normalizedRole === 'guardia' ? $guardiaHomeRoute : 'dashboard.live';
 $expanded = $mobile ? true : null;
 @endphp
 
@@ -48,7 +52,7 @@ $expanded = $mobile ? true : null;
     
     {{-- Logo --}}
     <div class="flex items-center h-16 px-4 border-b border-[#1e293b] justify-between">
-        <a href="{{ tenancy()->initialized ? route('dashboard.live') : route('central.dashboard') }}" class="flex items-center gap-3 group min-w-0">
+        <a href="{{ tenancy()->initialized ? route($tenantHomeRoute) : route('central.dashboard') }}" class="flex items-center gap-3 group min-w-0">
             @if(branding()->logo)
                 <img src="{{ branding()->logo }}" alt="{{ branding()->nombre_empresa }}" class="h-9 w-auto">
             @else

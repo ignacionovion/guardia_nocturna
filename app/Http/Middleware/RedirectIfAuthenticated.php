@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Symfony\Component\HttpFoundation\Response;
 
 class RedirectIfAuthenticated
@@ -25,8 +26,17 @@ class RedirectIfAuthenticated
                     return redirect('/admin');
                 }
                 
-                // Web guard (tenant) → tenant dashboard live
-                return redirect('/dashboard-live');
+                $user = Auth::guard($guard)->user();
+                if ($user && $user->role === 'guardia') {
+                    $guardiaRoute = Route::has('guardia.dashboard')
+                        ? 'guardia.dashboard'
+                        : (Route::has('guardia') ? 'guardia' : 'dashboard.live');
+
+                    return redirect()->route($guardiaRoute);
+                }
+
+                // Web guard (tenant) → dashboard principal de administración
+                return redirect()->route('dashboard.live');
             }
         }
 
