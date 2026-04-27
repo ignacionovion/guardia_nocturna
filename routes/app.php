@@ -80,22 +80,16 @@ Route::middleware(['auth', 'password.not_temporary'])->group(function () {
 // ================================
 Route::middleware(['auth', 'password.not_temporary', 'tenant.feature:guardia', 'guardia_on_duty', \App\Http\Middleware\ExpireReplacements::class])->group(function () {
 
-    // Alias de compatibilidad legacy: mantiene route('dashboard') activo por rol
+    // route('dashboard') legacy: solo resuelve destino, sin afectar el resto de rutas internas
     Route::get('/dashboard', function () {
         $user = auth()->user();
 
         if (!$user) {
-            return redirect()->route(Route::has('login') ? 'login' : 'tenant.login');
-        }
-
-        if (in_array($user->role, ['capitan', 'super_admin', 'capitania', 'admin'], true)) {
-            return redirect()->route('dashboard.live');
+            return redirect()->route('tenant.login');
         }
 
         if ($user->role === 'guardia') {
-            $guardiaRoute = Route::has('guardia.dashboard')
-                ? 'guardia.dashboard'
-                : (Route::has('guardia') ? 'guardia' : 'dashboard.live');
+            $guardiaRoute = Route::has('guardia.dashboard') ? 'guardia.dashboard' : 'guardia';
 
             return redirect()->route($guardiaRoute);
         }
