@@ -5,9 +5,7 @@
 @php
 $user = Auth::user();
 $role = $user->role ?? 'guardia';
-$guardiaHomeRoute = \Illuminate\Support\Facades\Route::has('guardia.dashboard')
-    ? 'guardia.dashboard'
-    : (\Illuminate\Support\Facades\Route::has('guardia') ? 'guardia' : 'dashboard');
+$guardiaHomeRoute = 'dashboard.live';
 
 $menuItems = [
     'super_admin' => [
@@ -33,7 +31,8 @@ $menuItems = [
         ['route' => 'admin.system.index', 'icon' => 'fas fa-sliders', 'label' => 'Configuración', 'match' => 'admin.system*'],
     ],
     'guardia' => [
-        ['route' => $guardiaHomeRoute, 'icon' => 'fas fa-gauge-high', 'label' => 'Inicio', 'match' => 'guardia*'],
+        ['route' => $guardiaHomeRoute, 'icon' => 'fas fa-gauge-high', 'label' => 'Inicio', 'match' => 'dashboard.live'],
+        ['route' => 'guardia', 'icon' => 'fas fa-book', 'label' => 'Libro de Guardia', 'match' => 'guardia'],
         ['route' => 'camas', 'icon' => 'fas fa-bed', 'label' => 'Camas', 'match' => 'camas*'],
         ['divider' => true, 'label' => 'Módulos'],
         ['route' => 'forms.execution.index', 'icon' => 'fas fa-clipboard-list', 'label' => 'Formularios', 'match' => 'forms*'],

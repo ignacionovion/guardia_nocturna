@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Guardia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
 
 class AuthController extends Controller
 {
@@ -66,11 +65,11 @@ class AuthController extends Controller
             }
 
             if ($user->role === 'guardia') {
-                $guardiaRoute = Route::has('guardia.dashboard')
-                    ? 'guardia.dashboard'
-                    : (Route::has('guardia') ? 'guardia' : 'dashboard');
+                return redirect()->route('dashboard.live');
+            }
 
-                return redirect()->route($guardiaRoute);
+            if (in_array($user->role, ['capitan', 'super_admin', 'capitania', 'admin'], true)) {
+                return redirect()->route('dashboard');
             }
 
             return redirect()->route('dashboard');

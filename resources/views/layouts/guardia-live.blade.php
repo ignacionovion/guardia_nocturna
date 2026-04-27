@@ -36,10 +36,13 @@
         $currentUser = auth()->user();
         if (!$currentUser) {
             $panelRoute = 'tenant.login';
+            $panelLabel = 'Panel';
         } elseif ($currentUser->role === 'guardia') {
-            $panelRoute = \Illuminate\Support\Facades\Route::has('guardia.dashboard') ? 'guardia.dashboard' : 'guardia';
+            $panelRoute = 'dashboard.live';
+            $panelLabel = 'Inicio';
         } else {
             $panelRoute = 'dashboard';
+            $panelLabel = 'Panel';
         }
     @endphp
 
@@ -48,7 +51,7 @@
             <a href="{{ route($panelRoute) }}"
                class="inline-flex items-center gap-2 text-white text-sm font-semibold hover:opacity-80 transition-opacity">
                 <span aria-hidden="true">←</span>
-                <span>Panel</span>
+                <span>{{ $panelLabel }}</span>
             </a>
 
             <div class="text-white/80 text-[11px] sm:text-xs font-medium text-center truncate">
