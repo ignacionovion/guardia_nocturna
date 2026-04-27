@@ -63,11 +63,11 @@
                     Vaciar compañías
                 </button>
                 <button type="button"
-                        @if(! $enabled) disabled @endif
-                        onclick="document.getElementById('modal-reset-saas').classList.remove('hidden')"
-                        class="w-full inline-flex items-center justify-center px-4 py-3 rounded-xl text-sm font-semibold bg-rose-700 text-white hover:bg-rose-800 disabled:opacity-50 disabled:cursor-not-allowed transition shadow-sm">
-                    Reset total SaaS
-                </button>
+    @if(! $enabled) disabled @endif
+    onclick="document.getElementById('modal-reset-saas').classList.remove('hidden')"
+    class="w-full inline-flex items-center justify-center px-4 py-3 rounded-xl text-sm font-semibold bg-rose-700 !text-white hover:!bg-rose-800 disabled:opacity-50 disabled:cursor-not-allowed transition shadow-sm">
+    Reset total SaaS
+</button>
             </div>
         </div>
 
