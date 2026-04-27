@@ -68,12 +68,12 @@ class AuthController extends Controller
             if ($user->role === 'guardia') {
                 $guardiaRoute = Route::has('guardia.dashboard')
                     ? 'guardia.dashboard'
-                    : (Route::has('guardia') ? 'guardia' : 'dashboard.live');
+                    : (Route::has('guardia') ? 'guardia' : 'dashboard');
 
                 return redirect()->route($guardiaRoute);
             }
 
-            return redirect()->route('dashboard.live');
+            return redirect()->route('dashboard');
         }
 
 

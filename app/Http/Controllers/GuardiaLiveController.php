@@ -457,7 +457,7 @@ class GuardiaLiveController extends Controller
 
     private function canAccessLiveDashboard($user): bool
     {
-        return in_array($user->role, ['capitan', 'super_admin', 'capitania', 'admin'], true);
+        return in_array($user->role, ['guardia', 'capitan', 'super_admin', 'capitania', 'admin'], true);
     }
 
     private function redirectByRole($user)
@@ -469,11 +469,11 @@ class GuardiaLiveController extends Controller
         if ($user->role === 'guardia') {
             $guardiaRoute = Route::has('guardia.dashboard')
                 ? 'guardia.dashboard'
-                : (Route::has('guardia') ? 'guardia' : 'dashboard.live');
+                : (Route::has('guardia') ? 'guardia' : 'dashboard');
 
             return redirect()->route($guardiaRoute);
         }
 
-        return redirect()->route('dashboard.live');
+        return redirect()->route('dashboard');
     }
 }

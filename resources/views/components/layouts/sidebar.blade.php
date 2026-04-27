@@ -7,12 +7,13 @@ $user = Auth::user();
 $role = $user->role ?? 'guardia';
 $guardiaHomeRoute = \Illuminate\Support\Facades\Route::has('guardia.dashboard')
     ? 'guardia.dashboard'
-    : (\Illuminate\Support\Facades\Route::has('guardia') ? 'guardia' : 'dashboard.live');
+    : (\Illuminate\Support\Facades\Route::has('guardia') ? 'guardia' : 'dashboard');
 
 $menuItems = [
     'super_admin' => [
-        ['route' => 'dashboard.live', 'icon' => 'fas fa-gauge-high', 'label' => 'Dashboard', 'match' => 'dashboard*'],
+        ['route' => 'dashboard', 'icon' => 'fas fa-gauge-high', 'label' => 'Dashboard', 'match' => 'dashboard'],
         ['divider' => true, 'label' => 'Centro de Comando'],
+        ['route' => 'dashboard.live', 'icon' => 'fas fa-tv', 'label' => 'Pantalla en vivo', 'match' => 'dashboard.live'],
         ['route' => 'guardia.now', 'icon' => 'fas fa-satellite-dish', 'label' => 'Guardia en Vivo', 'match' => 'guardia.now*', 'feature' => 'now', 'badge' => 'live'],
         ['route' => 'admin.guardias', 'icon' => 'fas fa-shield-halved', 'label' => 'Guardias', 'match' => 'admin.guardias*', 'feature' => 'guardia'],
         ['route' => 'camas', 'icon' => 'fas fa-bed', 'label' => 'Camas', 'match' => 'camas*', 'feature' => 'camas'],
@@ -42,7 +43,7 @@ $menuItems = [
 // capitan (y roles heredados super_admin/capitania) → menú completo de administración
 $normalizedRole = in_array($role, ['capitan', 'super_admin', 'capitania'], true) ? 'super_admin' : $role;
 $items = $menuItems[$normalizedRole] ?? $menuItems['guardia'];
-$tenantHomeRoute = $normalizedRole === 'guardia' ? $guardiaHomeRoute : 'dashboard.live';
+$tenantHomeRoute = $normalizedRole === 'guardia' ? $guardiaHomeRoute : 'dashboard';
 $expanded = $mobile ? true : null;
 @endphp
 

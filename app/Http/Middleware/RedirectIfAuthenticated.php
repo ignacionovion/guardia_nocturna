@@ -40,13 +40,13 @@ class RedirectIfAuthenticated
                 if ($user && $user->role === 'guardia') {
                     $guardiaRoute = Route::has('guardia.dashboard')
                         ? 'guardia.dashboard'
-                        : (Route::has('guardia') ? 'guardia' : 'dashboard.live');
+                        : (Route::has('guardia') ? 'guardia' : 'dashboard');
 
                     return redirect()->route($guardiaRoute);
                 }
 
-                // Web guard (tenant) → dashboard principal de administración
-                return redirect()->route('dashboard.live');
+                // Web guard (tenant) → dashboard administrativo principal
+                return redirect()->route('dashboard');
             }
         }
 

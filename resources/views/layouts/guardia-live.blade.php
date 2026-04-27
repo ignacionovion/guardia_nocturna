@@ -33,9 +33,14 @@
     @include('components.impersonation-banner')
 
     @php
-        $panelRoute = \Illuminate\Support\Facades\Route::has('admin.guardias')
-            ? 'admin.guardias'
-            : (\Illuminate\Support\Facades\Route::has('dashboard') ? 'dashboard' : 'tenant.login');
+        $currentUser = auth()->user();
+        if (!$currentUser) {
+            $panelRoute = 'tenant.login';
+        } elseif ($currentUser->role === 'guardia') {
+            $panelRoute = \Illuminate\Support\Facades\Route::has('guardia.dashboard') ? 'guardia.dashboard' : 'guardia';
+        } else {
+            $panelRoute = 'dashboard';
+        }
     @endphp
 
     <div class="fixed top-0 left-0 right-0 z-50 bg-black/60 backdrop-blur-sm border-b border-white/10">
