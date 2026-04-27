@@ -156,14 +156,14 @@
                                 <!-- Apellido Paterno -->
                                 <div class="form-group">
                                     <label class="form-label">Apellido Paterno</label>
-                                    <input type="text" name="apellido_paterno" value="{{ old('apellido_paterno', $volunteer->apellido_paterno) }}"
+                                    <input type="text" name="apellido_paterno" value="{{ old('apellido_paterno', $volunteer->apellido_paterno) }}" required
                                            class="form-input">
                                 </div>
 
                                 <!-- Apellido Materno -->
                                 <div class="form-group">
                                     <label class="form-label">Apellido Materno</label>
-                                    <input type="text" name="apellido_materno" value="{{ old('apellido_materno', $volunteer->apellido_materno) }}"
+                                    <input type="text" name="apellido_materno" value="{{ old('apellido_materno', $volunteer->apellido_materno) }}" required
                                            class="form-input">
                                 </div>
 
@@ -172,7 +172,7 @@
                                     <label class="form-label">
                                         RUT <span class="text-red-500">*</span>
                                     </label>
-                                    <input type="text" name="rut" value="{{ old('rut', $volunteer->rut) }}" placeholder="12.345.678-9"
+                                    <input type="text" name="rut" value="{{ old('rut', $volunteer->rut) }}" placeholder="12.345.678-9" required
                                            class="form-input font-medium">
                                 </div>
 
@@ -185,19 +185,20 @@
 
                                 <!-- Cargo -->
                                 <div class="form-group md:col-span-2">
-                                    <label class="form-label">Cargo</label>
-                                    <div class="relative" id="cargoComboboxEdit">
-                                        <div class="relative">
-                                            <input type="text" name="cargo_texto" value="{{ old('cargo_texto', $volunteer->cargo_texto) }}" autocomplete="off" id="cargoInputEdit"
-                                                   class="form-input pr-10">
-                                            <button type="button" id="cargoToggleEdit" class="absolute inset-y-0 right-0 flex items-center px-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
-                                                <i class="fas fa-chevron-down text-sm"></i>
-                                            </button>
-                                        </div>
-                                        <div id="cargoListEdit" class="absolute z-30 mt-1 w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl overflow-hidden hidden">
-                                            <div class="max-h-56 overflow-auto" id="cargoOptionsEdit"></div>
+                                    <label class="form-label">Cargo <span class="text-red-500">*</span></label>
+                                    <div class="relative">
+                                        <select name="cargo_texto" class="form-select pr-10" required>
+                                            @foreach($cargos as $cargo)
+                                                <option value="{{ $cargo }}" {{ old('cargo_texto', \Illuminate\Support\Str::lower((string) $volunteer->cargo_texto)) === $cargo ? 'selected' : '' }}>
+                                                    {{ \Illuminate\Support\Str::title($cargo) }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+                                            <i class="fas fa-chevron-down text-slate-400 text-sm"></i>
                                         </div>
                                     </div>
+                                    @error('cargo_texto') <p class="form-error">{{ $message }}</p> @enderror
                                 </div>
 
                                 <!-- Email -->
@@ -428,80 +429,6 @@ function previewPhoto(input) {
         reader.readAsDataURL(input.files[0]);
     }
 }
-</script>
-
-<!-- Script para combobox de cargo -->
-<script>
-(function() {
-    const cargos = [
-        'Honorario', 'Director', 'Secretario', 'Tesorero', 'Capitan', 'Teniente 1', 'Teniente 2', 'Teniente 3', 'Teniente 4',
-        'Ayudante', 'Ayudante 1', 'Ayudante 2', 'Ayudante 3', 'Pro Secretario', 'Pro Tesorero', 'Administrativo'
-    ];
-
-    const root = document.getElementById('cargoComboboxEdit');
-    if (!root) return;
-
-    const input = document.getElementById('cargoInputEdit');
-    const toggle = document.getElementById('cargoToggleEdit');
-    const list = document.getElementById('cargoListEdit');
-    const options = document.getElementById('cargoOptionsEdit');
-
-    let filtered = cargos.slice();
-    let activeIndex = -1;
-
-    const open = () => { list.classList.remove('hidden'); };
-    const close = () => { list.classList.add('hidden'); activeIndex = -1; };
-
-    const render = () => {
-        options.innerHTML = '';
-        if (filtered.length === 0) {
-            options.innerHTML = '<div class="px-4 py-2.5 text-sm text-slate-500">Sin resultados</div>';
-            return;
-        }
-        filtered.forEach((value, idx) => {
-            const item = document.createElement('button');
-            item.type = 'button';
-            item.className = 'w-full text-left px-4 py-2.5 text-sm hover:bg-white dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300';
-            item.textContent = value;
-            item.addEventListener('mousedown', (e) => {
-                e.preventDefault();
-                input.value = value;
-                close();
-            });
-            item.addEventListener('mousemove', () => { activeIndex = idx; highlight(); });
-            options.appendChild(item);
-        });
-        highlight();
-    };
-
-    const highlight = () => {
-        options.querySelectorAll('button').forEach((el, i) => {
-            el.classList.toggle('bg-white dark:bg-slate-800', i === activeIndex);
-        });
-    };
-
-    const applyFilter = () => {
-        const q = (input.value || '').trim().toLowerCase();
-        filtered = q ? cargos.filter(c => c.toLowerCase().includes(q)) : cargos.slice();
-        activeIndex = filtered.length ? 0 : -1;
-        render();
-        open();
-    };
-
-    input.addEventListener('focus', applyFilter);
-    input.addEventListener('input', applyFilter);
-    toggle.addEventListener('click', () => {
-        list.classList.contains('hidden') ? input.focus() : close();
-    });
-    input.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') { close(); return; }
-        if (e.key === 'ArrowDown') { activeIndex = Math.min(filtered.length - 1, activeIndex + 1); highlight(); e.preventDefault(); return; }
-        if (e.key === 'ArrowUp') { activeIndex = Math.max(0, activeIndex - 1); highlight(); e.preventDefault(); return; }
-        if (e.key === 'Enter' && activeIndex >= 0) { input.value = filtered[activeIndex]; close(); e.preventDefault(); }
-    });
-    document.addEventListener('click', (e) => { if (!root.contains(e.target)) close(); });
-    render();
-})();
 </script>
 
 <!-- Script para conductor -->

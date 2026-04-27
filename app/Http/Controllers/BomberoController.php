@@ -69,6 +69,7 @@ class BomberoController extends Controller
         $this->requireTenantAdmin();
 
         $guardias = Guardia::all();
+        $cargos = Bombero::CARGOS;
         $specialties = Specialty::query()->where('active', true)->orderBy('name')->get();
         $canCreateVolunteer = $this->limitService->canCreateVolunteer();
         $limitData = [
@@ -77,7 +78,7 @@ class BomberoController extends Controller
         ];
         $volunteers_plan_usage = PlanService::usageLabel('volunteers');
 
-        return view('admin.volunteers.create', compact('guardias', 'specialties', 'limitData', 'volunteers_plan_usage'));
+        return view('admin.volunteers.create', compact('guardias', 'cargos', 'specialties', 'limitData', 'volunteers_plan_usage'));
     }
 
     public function store(Request $request)
@@ -85,17 +86,20 @@ class BomberoController extends Controller
         $this->requireTenantAdmin();
 
         PlanService::assertCanIncrement('volunteers');
+        $request->merge([
+            'cargo_texto' => $this->normalizeCargo($request->input('cargo_texto')),
+        ]);
 
         $validated = $request->validate([
             'nombres' => 'required|string|max:255',
-            'apellido_paterno' => 'nullable|string|max:255',
-            'apellido_materno' => 'nullable|string|max:255',
-            'rut' => 'nullable|string|unique:bomberos,rut',
+            'apellido_paterno' => 'required|string|max:255',
+            'apellido_materno' => 'required|string|max:255',
+            'rut' => 'required|string|unique:bomberos,rut',
             'numero_registro' => 'nullable|string|max:255',
             'correo' => 'nullable|email',
             'photo' => 'nullable|image|max:2048',
             'fecha_nacimiento' => 'nullable|date',
-            'cargo_texto' => 'nullable|string|max:255',
+            'cargo_texto' => 'required|string|in:' . implode(',', Bombero::CARGOS),
             'numero_portatil' => 'nullable|string|max:255',
             'guardia_id' => 'nullable|exists:guardias,id',
             'fecha_ingreso' => 'nullable|date',
@@ -111,6 +115,7 @@ class BomberoController extends Controller
 
         $data = $validated;
         $data['correo'] = $request->input('correo') ?: null;
+        $data['cargo_texto'] = $this->normalizeCargo($request->input('cargo_texto'));
         $data['es_conductor'] = $request->has('es_conductor');
         $data['conductor_carros_bomba'] = $data['es_conductor'] ? ($request->has('conductor_carros_bomba') ? true : false) : null;
         $data['es_operador_rescate'] = $request->has('es_operador_rescate');
@@ -153,8 +158,9 @@ class BomberoController extends Controller
         $id = $request->route('volunteer');
         $volunteer = Bombero::with('specialties')->findOrFail((int) $id);
         $guardias = Guardia::all();
+        $cargos = Bombero::CARGOS;
         $specialties = Specialty::query()->where('active', true)->orderBy('name')->get();
-        return view('admin.volunteers.edit', compact('volunteer', 'guardias', 'specialties'));
+        return view('admin.volunteers.edit', compact('volunteer', 'guardias', 'cargos', 'specialties'));
     }
 
     public function update(Request $request)
@@ -163,15 +169,20 @@ class BomberoController extends Controller
 
         $id = $request->route('volunteer');
         $volunteer = Bombero::findOrFail((int) $id);
+        $request->merge([
+            'cargo_texto' => $this->normalizeCargo($request->input('cargo_texto')),
+        ]);
         
         $request->validate([
             'nombres' => 'required|string|max:255',
-            'rut' => 'nullable|string|unique:bomberos,rut,'.$id,
+            'apellido_paterno' => 'required|string|max:255',
+            'apellido_materno' => 'required|string|max:255',
+            'rut' => 'required|string|unique:bomberos,rut,'.$id,
             'numero_registro' => 'nullable|string|max:255',
             'correo' => 'nullable|email',
             'photo' => 'nullable|image|max:2048',
             'fecha_nacimiento' => 'nullable|date',
-            'cargo_texto' => 'nullable|string|max:255',
+            'cargo_texto' => 'required|string|in:' . implode(',', Bombero::CARGOS),
             'numero_portatil' => 'nullable|string|max:255',
             'fecha_ingreso' => 'nullable|date',
             'guardia_id' => 'nullable|exists:guardias,id',
@@ -197,6 +208,7 @@ class BomberoController extends Controller
         ]);
 
         $data['es_conductor'] = $request->has('es_conductor');
+        $data['cargo_texto'] = $this->normalizeCargo($request->input('cargo_texto'));
         $data['conductor_carros_bomba'] = $data['es_conductor'] ? ($request->has('conductor_carros_bomba') ? true : false) : null;
         $data['es_operador_rescate'] = $request->has('es_operador_rescate');
         $data['es_asistente_trauma'] = $request->has('es_asistente_trauma');
@@ -310,9 +322,10 @@ class BomberoController extends Controller
     public function downloadImportTemplate()
     {
         $specialties = Specialty::query()->where('active', true)->orderBy('name')->get();
+        $guardias = Guardia::query()->orderBy('name')->get(['id', 'name']);
 
         return Excel::download(
-            new VolunteerImportTemplateExport($specialties),
+            new VolunteerImportTemplateExport($specialties, $guardias),
             'plantilla-importacion-voluntarios.xlsx'
         );
     }
@@ -404,9 +417,19 @@ class BomberoController extends Controller
         $isNewTemplate = isset($headerMap['rut']) && isset($headerMap['nombres']);
 
         foreach ($chunk as $index => $row) {
+            $line = $offset + $index + 2;
+
+            $hasAnyValue = collect($row)->contains(fn ($value) => trim((string) $value) !== '');
+            if (!$hasAnyValue) {
+                continue;
+            }
+
             $rut = trim((string) ($this->col($row, $headerMap, 'rut', $isNewTemplate ? null : 3) ?? ''));
 
-            if (!$rut) continue;
+            if (!$rut) {
+                $errors[] = "Fila {$line}: campo 'rut' es obligatorio.";
+                continue;
+            }
 
             $rutClean = strtoupper(preg_replace('/[^0-9K]/', '', $rut));
             $existsQuery = Bombero::query()->whereRaw("
@@ -427,29 +450,26 @@ class BomberoController extends Controller
                 };
 
                 $nombres = trim((string) ($this->col($row, $headerMap, 'nombres', 0) ?? ''));
-                $apellidoPaterno = $this->col($row, $headerMap, 'apellido_paterno', 1);
-                $apellidoMaterno = $this->col($row, $headerMap, 'apellido_materno', 2);
+                $apellidoPaterno = trim((string) ($this->col($row, $headerMap, 'apellido_paterno', 1) ?? ''));
+                $apellidoMaterno = trim((string) ($this->col($row, $headerMap, 'apellido_materno', 2) ?? ''));
 
                 if (!$nombres) {
-                    $errors[] = "Fila " . ($offset + $index + 2) . ": Falta 'nombres'";
+                    $errors[] = "Fila {$line}: campo 'nombres' es obligatorio.";
                     continue;
                 }
 
-                $admissionDate = null;
-                $rawDate = $this->col($row, $headerMap, 'fecha_ingreso', 8);
-                if ($rawDate) {
-                    try {
-                        $admissionDate = \Carbon\Carbon::parse($rawDate)->toDateString();
-                    } catch (\Exception $e) {}
+                if (!$apellidoPaterno) {
+                    $errors[] = "Fila {$line}: campo 'apellido_paterno' es obligatorio.";
+                    continue;
                 }
 
-                $birthdate = null;
-                $rawBirthdate = $this->col($row, $headerMap, 'fecha_cumpleanos', 6);
-                if ($rawBirthdate) {
-                    try {
-                        $birthdate = \Carbon\Carbon::parse($rawBirthdate)->toDateString();
-                    } catch (\Exception $e) {}
+                if (!$apellidoMaterno) {
+                    $errors[] = "Fila {$line}: campo 'apellido_materno' es obligatorio.";
+                    continue;
                 }
+
+                $admissionDate = $this->parseImportDate($this->col($row, $headerMap, 'fecha_ingreso', 8));
+                $birthdate = $this->parseImportDate($this->col($row, $headerMap, 'fecha_nacimiento', 6));
 
                 $parseBool = function ($value) {
                     $v = trim((string) $value);
@@ -458,21 +478,50 @@ class BomberoController extends Controller
                     return in_array($v, ['1', 'si', 'sí', 'true', 'x', 'yes'], true);
                 };
 
-                $cargo = $this->col($row, $headerMap, 'cargo', 4);
-                $portable = $this->col($row, $headerMap, 'telefono', 5) ?: $this->col($row, $headerMap, 'portatil', 5);
+                $cargoRaw = trim((string) ($this->col($row, $headerMap, 'cargo', $isNewTemplate ? 4 : null) ?? ''));
+                if ($cargoRaw === '' && !$isNewTemplate && !array_key_exists('cargo', $headerMap)) {
+                    $cargoRaw = 'bombero';
+                }
+                if ($cargoRaw === '') {
+                    $errors[] = "Fila {$line}: campo 'cargo' es obligatorio.";
+                    continue;
+                }
+                $cargo = $this->normalizeCargo($cargoRaw);
+                if (!in_array($cargo, Bombero::CARGOS, true)) {
+                    $errors[] = "Fila {$line}: cargo inválido (valor recibido: {$cargoRaw}).";
+                    continue;
+                }
+
+                $portable = $this->col($row, $headerMap, 'numero_radial')
+                    ?: $this->col($row, $headerMap, 'telefono', 5)
+                    ?: $this->col($row, $headerMap, 'portatil', 5);
                 $email = $this->col($row, $headerMap, 'email', 12);
                 $numeroRegistro = $this->col($row, $headerMap, 'numero_registro', 13);
                 $guardiaRaw = $this->col($row, $headerMap, 'guardia', 7);
                 $specialtiesRaw = (string) ($this->col($row, $headerMap, 'especialidades', null) ?? '');
+                $direccionRaw = trim((string) ($this->col($row, $headerMap, 'direccion') ?? ''));
+                $estadoAsistencia = trim((string) ($this->col($row, $headerMap, 'estado') ?? ''));
+                $allowedStates = ['constituye', 'reemplazo', 'permiso', 'ausente', 'falta', 'licencia'];
+
+                if ($estadoAsistencia !== '' && !in_array(mb_strtolower($estadoAsistencia), $allowedStates, true)) {
+                    $errors[] = "Fila {$line}: estado '{$estadoAsistencia}' inválido. Valores permitidos: " . implode(', ', $allowedStates) . '.';
+                    continue;
+                }
 
                 $guardiaId = null;
                 if ($guardiaRaw !== null && $guardiaRaw !== '') {
                     if (is_numeric($guardiaRaw)) {
-                        $guardiaId = (int) $guardiaRaw;
+                        $candidateGuardiaId = (int) $guardiaRaw;
+                        $guardiaId = Guardia::query()->whereKey($candidateGuardiaId)->value('id');
                     } else {
                         $guardiaId = Guardia::query()
                             ->whereRaw('LOWER(name) = ?', [mb_strtolower(trim((string) $guardiaRaw))])
                             ->value('id');
+                    }
+
+                    if (!$guardiaId) {
+                        $errors[] = "Fila {$line}: guardia '{$guardiaRaw}' no existe.";
+                        continue;
                     }
                 }
 
@@ -487,11 +536,22 @@ class BomberoController extends Controller
                         $specialty = $specialtiesByName->get(mb_strtolower($requestedSpecialty));
 
                         if (!$specialty) {
-                            $errors[] = "Fila " . ($offset + $index + 2) . ": especialidad '{$requestedSpecialty}' no existe o está inactiva.";
+                            $errors[] = "Fila {$line}: especialidad '{$requestedSpecialty}' no existe o está inactiva.";
                             continue 2;
                         }
 
                         $specialtyIds[] = $specialty->id;
+                    }
+                }
+
+                $addressStreet = null;
+                $addressNumber = null;
+                if ($direccionRaw !== '') {
+                    if (preg_match('/^(.*?)[,\s]+(\d+[A-Za-z\-]*)$/u', $direccionRaw, $matches)) {
+                        $addressStreet = trim((string) $matches[1]) ?: $direccionRaw;
+                        $addressNumber = trim((string) $matches[2]) ?: null;
+                    } else {
+                        $addressStreet = $direccionRaw;
                     }
                 }
 
@@ -504,13 +564,15 @@ class BomberoController extends Controller
                     'cargo_texto' => $cargo,
                     'numero_portatil' => $portable ?: null,
                     'fecha_nacimiento' => $birthdate,
+                    'direccion_calle' => $addressStreet,
+                    'direccion_numero' => $addressNumber,
                     'guardia_id' => $guardiaId,
                     'fecha_ingreso' => $admissionDate,
                     'correo' => $email ?: null,
                     'es_conductor' => $parseBool($this->col($row, $headerMap, 'conductor', 9)),
                     'es_operador_rescate' => $parseBool($this->col($row, $headerMap, 'operador_rescate', 10)),
                     'es_asistente_trauma' => $parseBool($this->col($row, $headerMap, 'asistente_trauma', 11)),
-                    'estado_asistencia' => 'constituye',
+                    'estado_asistencia' => $estadoAsistencia !== '' ? mb_strtolower($estadoAsistencia) : 'constituye',
                     'es_titular' => true,
                     'es_jefe_guardia' => false,
                     'es_cambio' => false,
@@ -522,7 +584,7 @@ class BomberoController extends Controller
                 }
                 $processed++;
             } catch (\Exception $e) {
-                $errors[] = "Fila " . ($offset + $index + 2) . ": " . $e->getMessage();
+                $errors[] = "Fila {$line}: " . $e->getMessage();
             }
         }
 
@@ -547,17 +609,30 @@ class BomberoController extends Controller
             'apellido_paterno' => 'apellido_paterno',
             'apellido_materno' => 'apellido_materno',
             'telefono' => 'telefono',
+            'telefono_contacto' => 'telefono',
             'email' => 'email',
+            'correo' => 'email',
+            'e_mail' => 'email',
             'guardia' => 'guardia',
             'especialidades' => 'especialidades',
             'fecha_ingreso' => 'fecha_ingreso',
-            'fecha_cumpleanos' => 'fecha_cumpleanos',
+            'fecha_cumpleanos' => 'fecha_nacimiento',
+            'fecha_nacimiento' => 'fecha_nacimiento',
             'cargo' => 'cargo',
+            'cargo_texto' => 'cargo',
             'portatil' => 'portatil',
+            'numero_portatil' => 'portatil',
+            'numero_radial' => 'numero_radial',
             'conductor' => 'conductor',
+            'es_conductor' => 'conductor',
             'operador_rescate' => 'operador_rescate',
+            'es_operador_rescate' => 'operador_rescate',
             'asistente_trauma' => 'asistente_trauma',
+            'es_asistente_trauma' => 'asistente_trauma',
             'numero_registro' => 'numero_registro',
+            'direccion' => 'direccion',
+            'direccion_calle' => 'direccion',
+            'estado' => 'estado',
         ];
 
         $map = [];
@@ -582,6 +657,34 @@ class BomberoController extends Controller
         }
 
         return null;
+    }
+
+    private function parseImportDate(mixed $value): ?string
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        if (is_numeric($value)) {
+            try {
+                return \Carbon\Carbon::createFromDate(1899, 12, 30)
+                    ->addDays((int) $value)
+                    ->toDateString();
+            } catch (\Throwable) {
+                return null;
+            }
+        }
+
+        try {
+            return \Carbon\Carbon::parse((string) $value)->toDateString();
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    private function normalizeCargo(?string $cargo): string
+    {
+        return mb_strtolower(trim((string) $cargo));
     }
 
     public function import(Request $request)

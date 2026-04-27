@@ -6,6 +6,25 @@ use Illuminate\Database\Eloquent\Model;
 
 class Bombero extends Model
 {
+    public const CARGOS = [
+        'director',
+        'secretario',
+        'tesorero',
+        'capitan',
+        'teniente 1',
+        'teniente 2',
+        'teniente 3',
+        'teniente 4',
+        'ayudante',
+        'ayudante 1',
+        'ayudante 2',
+        'ayudante 3',
+        'pro secretario',
+        'pro tesorero',
+        'administrativo',
+        'bombero',
+    ];
+
     protected $table = 'bomberos';
 
     protected $fillable = [

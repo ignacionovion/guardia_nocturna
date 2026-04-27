@@ -51,17 +51,17 @@
                         </div>
                         <div class="form-group">
                             <label class="form-label">Apellido Paterno</label>
-                            <input type="text" name="apellido_paterno" value="{{ old('apellido_paterno') }}"
+                            <input type="text" name="apellido_paterno" value="{{ old('apellido_paterno') }}" required
                                 class="form-input">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Apellido Materno</label>
-                            <input type="text" name="apellido_materno" value="{{ old('apellido_materno') }}"
+                            <input type="text" name="apellido_materno" value="{{ old('apellido_materno') }}" required
                                 class="form-input">
                         </div>
                         <div class="form-group">
                             <label class="form-label">RUT <span class="text-red-500">*</span></label>
-                            <input type="text" name="rut" value="{{ old('rut') }}" placeholder="12.345.678-9"
+                            <input type="text" name="rut" value="{{ old('rut') }}" placeholder="12.345.678-9" required
                                 class="form-input font-medium">
                             @error('rut') <p class="form-error">{{ $message }}</p> @enderror
                         </div>
@@ -71,19 +71,20 @@
                                 class="form-input">
                         </div>
                         <div class="form-group md:col-span-3">
-                            <label class="form-label">Cargo</label>
-                            <div class="relative" id="cargoComboboxCreate">
-                                <div class="relative">
-                                    <input type="text" name="cargo_texto" value="{{ old('cargo_texto') }}" autocomplete="off" id="cargoInputCreate"
-                                        class="form-input pr-11">
-                                    <button type="button" id="cargoToggleCreate" class="absolute inset-y-0 right-0 flex items-center px-3 text-[#475569] hover:text-[#1e293b]">
-                                        <i class="fas fa-chevron-down"></i>
-                                    </button>
-                                </div>
-                                <div id="cargoListCreate" class="absolute z-30 mt-2 w-full bg-white border border-slate-200 rounded-2xl shadow-lg overflow-hidden hidden">
-                                    <div class="max-h-56 overflow-auto" id="cargoOptionsCreate"></div>
+                            <label class="form-label">Cargo <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <select name="cargo_texto" class="form-select pr-10" required>
+                                    @foreach($cargos as $cargo)
+                                        <option value="{{ $cargo }}" {{ old('cargo_texto', 'bombero') === $cargo ? 'selected' : '' }}>
+                                            {{ \Illuminate\Support\Str::title($cargo) }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                                    <i class="fas fa-chevron-down"></i>
                                 </div>
                             </div>
+                            @error('cargo_texto') <p class="form-error">{{ $message }}</p> @enderror
                         </div>
                         <div class="form-group">
                             <label class="form-label">Portátil</label>
@@ -253,143 +254,6 @@
             </form>
         </div>
     </div>
-
-    <script>
-        (function() {
-            const cargos = [
-                'Honorario', 'Director', 'Secretario', 'Tesorero', 'Capitán', 'Teniente 1', 'Teniente 2', 'Teniente 3', 'Teniente 4',
-                'Ayudante', 'Ayudante 1', 'Ayudante 2', 'Ayudante 3', 'Pro Secretario', 'Pro Tesorero', 'Administrativo'
-            ];
-
-            const root = document.getElementById('cargoComboboxCreate');
-            if (!root) return;
-
-            const input = document.getElementById('cargoInputCreate');
-            const toggle = document.getElementById('cargoToggleCreate');
-            const list = document.getElementById('cargoListCreate');
-            const options = document.getElementById('cargoOptionsCreate');
-
-            let filtered = cargos.slice();
-            let activeIndex = -1;
-
-            const open = () => {
-                list.classList.remove('hidden');
-            };
-
-            const close = () => {
-                list.classList.add('hidden');
-                activeIndex = -1;
-            };
-
-            const render = () => {
-                options.innerHTML = '';
-
-                if (filtered.length === 0) {
-                    const empty = document.createElement('div');
-                    empty.className = 'px-4 py-2.5 text-sm text-[#475569]';
-                    empty.textContent = 'Sin resultados';
-                    options.appendChild(empty);
-                    return;
-                }
-
-                filtered.forEach((value, idx) => {
-                    const item = document.createElement('button');
-                    item.type = 'button';
-                    item.className = 'w-full text-left px-4 py-2.5 text-sm hover:bg-white focus:bg-white focus:outline-none text-[#1e293b]';
-                    item.textContent = value;
-                    item.addEventListener('mousedown', (e) => {
-                        e.preventDefault();
-                        input.value = value;
-                        close();
-                    });
-                    item.addEventListener('mousemove', () => {
-                        activeIndex = idx;
-                        highlight();
-                    });
-                    options.appendChild(item);
-                });
-
-                highlight();
-            };
-
-            const highlight = () => {
-                const children = options.querySelectorAll('button');
-                children.forEach((el, i) => {
-                    el.classList.toggle('bg-slate-100', i === activeIndex);
-                });
-            };
-
-            const applyFilter = () => {
-                const q = (input.value || '').trim().toLowerCase();
-                filtered = q ? cargos.filter(c => c.toLowerCase().includes(q)) : cargos.slice();
-                activeIndex = filtered.length ? 0 : -1;
-                render();
-                open();
-            };
-
-            input.addEventListener('focus', () => {
-                applyFilter();
-            });
-
-            input.addEventListener('input', () => {
-                applyFilter();
-            });
-
-            toggle.addEventListener('click', () => {
-                if (list.classList.contains('hidden')) {
-                    input.focus();
-                    applyFilter();
-                } else {
-                    close();
-                }
-            });
-
-            input.addEventListener('keydown', (e) => {
-                if (list.classList.contains('hidden') && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
-                    applyFilter();
-                    e.preventDefault();
-                    return;
-                }
-
-                if (e.key === 'Escape') {
-                    close();
-                    return;
-                }
-
-                if (e.key === 'ArrowDown') {
-                    if (filtered.length) {
-                        activeIndex = Math.min(filtered.length - 1, activeIndex + 1);
-                        highlight();
-                    }
-                    e.preventDefault();
-                    return;
-                }
-
-                if (e.key === 'ArrowUp') {
-                    if (filtered.length) {
-                        activeIndex = Math.max(0, activeIndex - 1);
-                        highlight();
-                    }
-                    e.preventDefault();
-                    return;
-                }
-
-                if (e.key === 'Enter') {
-                    if (!list.classList.contains('hidden') && filtered.length && activeIndex >= 0) {
-                        input.value = filtered[activeIndex];
-                        close();
-                        e.preventDefault();
-                    }
-                }
-            });
-
-            document.addEventListener('click', (e) => {
-                if (!root.contains(e.target)) close();
-            });
-
-            render();
-        })();
-    </script>
 
     <script>
         (function() {
