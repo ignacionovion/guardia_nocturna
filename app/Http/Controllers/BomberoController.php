@@ -103,10 +103,6 @@ class BomberoController extends Controller
             'numero_portatil' => 'nullable|string|max:255',
             'guardia_id' => 'nullable|exists:guardias,id',
             'fecha_ingreso' => 'nullable|date',
-            'es_conductor' => 'nullable|boolean',
-            'conductor_carros_bomba' => 'nullable|boolean',
-            'es_operador_rescate' => 'nullable|boolean',
-            'es_asistente_trauma' => 'nullable|boolean',
             'fuera_de_servicio' => 'nullable|boolean',
             'es_permanente' => 'nullable|boolean',
             'specialty_ids' => 'nullable|array',
@@ -116,10 +112,6 @@ class BomberoController extends Controller
         $data = $validated;
         $data['correo'] = $request->input('correo') ?: null;
         $data['cargo_texto'] = $this->normalizeCargo($request->input('cargo_texto'));
-        $data['es_conductor'] = $request->has('es_conductor');
-        $data['conductor_carros_bomba'] = $data['es_conductor'] ? ($request->has('conductor_carros_bomba') ? true : false) : null;
-        $data['es_operador_rescate'] = $request->has('es_operador_rescate');
-        $data['es_asistente_trauma'] = $request->has('es_asistente_trauma');
         $data['fuera_de_servicio'] = $request->has('fuera_de_servicio');
         $data['es_permanente'] = $request->boolean('es_permanente');
         $data['numero_portatil'] = $request->input('numero_portatil') ?: null;
@@ -207,11 +199,7 @@ class BomberoController extends Controller
             'fuera_de_servicio',
         ]);
 
-        $data['es_conductor'] = $request->has('es_conductor');
         $data['cargo_texto'] = $this->normalizeCargo($request->input('cargo_texto'));
-        $data['conductor_carros_bomba'] = $data['es_conductor'] ? ($request->has('conductor_carros_bomba') ? true : false) : null;
-        $data['es_operador_rescate'] = $request->has('es_operador_rescate');
-        $data['es_asistente_trauma'] = $request->has('es_asistente_trauma');
         $data['fuera_de_servicio'] = $request->has('fuera_de_servicio');
         $data['es_permanente'] = $request->boolean('es_permanente');
 
@@ -544,6 +532,27 @@ class BomberoController extends Controller
                     }
                 }
 
+                $legacyFlagToSpecialty = [
+                    'conductor' => 'Conductor',
+                    'operador_rescate' => 'Operador Rescate',
+                    'asistente_trauma' => 'Asistente Trauma',
+                ];
+
+                foreach ($legacyFlagToSpecialty as $legacyColumn => $specialtyName) {
+                    $legacyValue = $this->col($row, $headerMap, $legacyColumn, null);
+                    if (!$parseBool($legacyValue)) {
+                        continue;
+                    }
+
+                    $legacySpecialty = $specialtiesByName->get(mb_strtolower($specialtyName));
+                    if (!$legacySpecialty) {
+                        $errors[] = "Fila {$line}: especialidad '{$specialtyName}' requerida por columna legacy '{$legacyColumn}' no existe o está inactiva.";
+                        continue 2;
+                    }
+
+                    $specialtyIds[] = $legacySpecialty->id;
+                }
+
                 $addressStreet = null;
                 $addressNumber = null;
                 if ($direccionRaw !== '') {
@@ -569,9 +578,6 @@ class BomberoController extends Controller
                     'guardia_id' => $guardiaId,
                     'fecha_ingreso' => $admissionDate,
                     'correo' => $email ?: null,
-                    'es_conductor' => $parseBool($this->col($row, $headerMap, 'conductor', 9)),
-                    'es_operador_rescate' => $parseBool($this->col($row, $headerMap, 'operador_rescate', 10)),
-                    'es_asistente_trauma' => $parseBool($this->col($row, $headerMap, 'asistente_trauma', 11)),
                     'estado_asistencia' => $estadoAsistencia !== '' ? mb_strtolower($estadoAsistencia) : 'constituye',
                     'es_titular' => true,
                     'es_jefe_guardia' => false,
@@ -625,10 +631,13 @@ class BomberoController extends Controller
             'numero_radial' => 'numero_radial',
             'conductor' => 'conductor',
             'es_conductor' => 'conductor',
+            'is_driver' => 'conductor',
             'operador_rescate' => 'operador_rescate',
             'es_operador_rescate' => 'operador_rescate',
+            'is_rescue_operator' => 'operador_rescate',
             'asistente_trauma' => 'asistente_trauma',
             'es_asistente_trauma' => 'asistente_trauma',
+            'is_trauma_assistant' => 'asistente_trauma',
             'numero_registro' => 'numero_registro',
             'direccion' => 'direccion',
             'direccion_calle' => 'direccion',

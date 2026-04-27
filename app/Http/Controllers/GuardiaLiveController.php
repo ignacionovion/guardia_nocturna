@@ -127,6 +127,7 @@ class GuardiaLiveController extends Controller
 
         // All staff in this guardia
         $allStaff = Bombero::where('guardia_id', $guardiaId)
+            ->with(['specialties:id,name,icon,color,active'])
             ->orderBy('apellido_paterno')
             ->orderBy('nombres')
             ->get();
@@ -240,6 +241,21 @@ class GuardiaLiveController extends Controller
             $bedByFirefighter, $draftItemsByFirefighterId, $replacementByReplacement, $shiftClosedForToday
         ) {
             $draftItem = $draftItemsByFirefighterId->get($b->id);
+            $specialties = $b->specialties->where('active', true)->values();
+            $specialtyNames = $specialties
+                ->map(fn ($s) => mb_strtolower(trim((string) $s->name)))
+                ->values();
+
+            $hasSpecialties = $specialties->isNotEmpty();
+            $isDriver = $hasSpecialties
+                ? $specialtyNames->contains('conductor')
+                : (bool) ($b->es_conductor ?? false);
+            $isRescueOperator = $hasSpecialties
+                ? $specialtyNames->contains('operador rescate')
+                : (bool) ($b->es_operador_rescate ?? false);
+            $isTraumaAssistant = $hasSpecialties
+                ? $specialtyNames->contains('asistente trauma')
+                : (bool) ($b->es_asistente_trauma ?? false);
 
             // When shift is closed (after 07:00), don't show confirmation status
             $confirmedAt = $shiftClosedForToday ? null : $draftItem?->confirmed_at?->toISOString();
@@ -270,9 +286,15 @@ class GuardiaLiveController extends Controller
             'months_service' => isset($b->fecha_ingreso)
                 ? (int) (Carbon::parse($b->fecha_ingreso)->diffInMonths(now()) % 12)
                 : null,
-                'es_conductor'           => (bool) ($b->es_conductor ?? false),
-                'es_operador_rescate'    => (bool) ($b->es_operador_rescate ?? false),
-                'es_asistente_trauma'    => (bool) ($b->es_asistente_trauma ?? false),
+                'es_conductor'           => $isDriver,
+                'es_operador_rescate'    => $isRescueOperator,
+                'es_asistente_trauma'    => $isTraumaAssistant,
+                'specialties'            => $specialties->map(fn ($s) => [
+                    'id' => (int) $s->id,
+                    'name' => (string) $s->name,
+                    'icon' => (string) ($s->icon ?? ''),
+                    'color' => (string) ($s->color ?? ''),
+                ])->values(),
                 'replacement_info'       => $replacementByReplacement->has($b->id) 
                     ? [
                         'id' => $replacementByReplacement->get($b->id)->id,

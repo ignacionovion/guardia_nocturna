@@ -138,6 +138,7 @@ class VolunteerImportHelpSheet implements FromArray, WithHeadings, WithTitle
             ['Opcional', 'fecha_ingreso', 'Formato recomendado AAAA-MM-DD', '2018-03-01'],
             ['Opcional', 'especialidades', 'Separadas por coma. Deben existir y estar activas.', 'Hazmat, Gersa'],
             ['Opcional', 'estado', 'Valores admitidos: constituye, reemplazo, permiso, ausente, falta, licencia', 'constituye'],
+            ['Compatibilidad', 'conductor / operador_rescate / asistente_trauma', 'Columnas legacy aceptadas temporalmente; se convierten a especialidades.', 'true'],
             ['Nota', 'Campos extra', 'grupo_sanguineo, contactos y observaciones se aceptan por compatibilidad y se ignoran si no existen en BD.', ''],
             ['', '', '', ''],
             ['Guardias', 'guardia', 'Se puede usar ID o nombre exacto de guardia', 'Guardia 1'],

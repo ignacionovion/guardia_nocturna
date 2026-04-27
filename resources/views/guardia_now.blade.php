@@ -280,9 +280,20 @@
         
         // Specialties
         const specs = [];
-        if (b.es_conductor) specs.push({ icon: 'fa-car', label: 'Conductor', cls: 'text-blue-600 dark:text-blue-400' });
-        if (b.es_operador_rescate) specs.push({ icon: 'fa-life-ring', label: 'Rescate', cls: 'text-orange-600 dark:text-orange-400' });
-        if (b.es_asistente_trauma) specs.push({ icon: 'fa-heart-pulse', label: 'Trauma', cls: 'text-red-600 dark:text-red-400' });
+        if (Array.isArray(b.specialties) && b.specialties.length > 0) {
+            b.specialties.forEach((specialty) => {
+                specs.push({
+                    icon: specialty.icon || 'fa-star',
+                    label: specialty.name || 'Especialidad',
+                    style: specialty.color ? `style="color:${specialty.color}"` : '',
+                    cls: '',
+                });
+            });
+        } else {
+            if (b.es_conductor) specs.push({ icon: 'fa-car', label: 'Conductor', cls: 'text-blue-600 dark:text-blue-400', style: '' });
+            if (b.es_operador_rescate) specs.push({ icon: 'fa-life-ring', label: 'Rescate', cls: 'text-orange-600 dark:text-orange-400', style: '' });
+            if (b.es_asistente_trauma) specs.push({ icon: 'fa-heart-pulse', label: 'Trauma', cls: 'text-red-600 dark:text-red-400', style: '' });
+        }
 
         // Service years
         let serviceYears = '';
@@ -325,7 +336,7 @@
                 
                 ${specs.length > 0 ? `
                 <div class="mt-2 flex items-center gap-3">
-                    ${specs.map(s => `<span class="flex items-center gap-1 text-xs ${s.cls}" title="${s.label}"><i class="fas ${s.icon} text-[10px]"></i></span>`).join('')}
+                    ${specs.map(s => `<span class="flex items-center gap-1 text-xs ${s.cls}" title="${s.label}" ${s.style || ''}><i class="fas ${s.icon} text-[10px]"></i></span>`).join('')}
                 </div>` : ''}
                 
                 <div class="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700 grid grid-cols-2 gap-2 text-xs">

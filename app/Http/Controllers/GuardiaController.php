@@ -217,6 +217,7 @@ class GuardiaController extends Controller
         // Si hay guardia, cargar todos sus bomberos (incluyendo los no asignados al turno)
         if ($guardiaId) {
             $allBomberos = Bombero::where('guardia_id', $guardiaId)
+                ->with(['specialties:id,name,icon,color,active'])
                 ->where(function ($q) {
                     $q->whereNull('fuera_de_servicio')->orWhere('fuera_de_servicio', false);
                 })
@@ -287,6 +288,11 @@ class GuardiaController extends Controller
                 }
 
                 $confirmadoDashboard = (bool) ($draftItem && (bool) ($draftItem->included ?? true) && $draftItem->confirmed_at);
+                $specialties = $b->specialties->where('active', true)->values();
+                $specialtyNames = $specialties
+                    ->map(fn ($s) => mb_strtolower(trim((string) $s->name)))
+                    ->values();
+                $hasSpecialties = $specialties->isNotEmpty();
 
                 return [
                     'id' => (int) $b->id,
@@ -303,11 +309,17 @@ class GuardiaController extends Controller
                     'es_cambio' => (bool) ($b->es_cambio ?? false),
                     'es_sancion' => (bool) ($b->es_sancion ?? false),
                     'fuera_de_servicio' => (bool) ($b->fuera_de_servicio ?? false),
-                    'es_conductor' => (bool) ($b->es_conductor ?? false),
-                    'es_operador_rescate' => (bool) ($b->es_operador_rescate ?? false),
-                    'es_asistente_trauma' => (bool) ($b->es_asistente_trauma ?? false),
+                    'es_conductor' => $hasSpecialties ? $specialtyNames->contains('conductor') : (bool) ($b->es_conductor ?? false),
+                    'es_operador_rescate' => $hasSpecialties ? $specialtyNames->contains('operador rescate') : (bool) ($b->es_operador_rescate ?? false),
+                    'es_asistente_trauma' => $hasSpecialties ? $specialtyNames->contains('asistente trauma') : (bool) ($b->es_asistente_trauma ?? false),
                     'es_permanente' => (bool) ($b->es_permanente ?? false),
                     'cargo_texto' => $b->cargo_texto,
+                    'specialties' => $specialties->map(fn ($s) => [
+                        'id' => (int) $s->id,
+                        'name' => (string) $s->name,
+                        'icon' => (string) ($s->icon ?? ''),
+                        'color' => (string) ($s->color ?? ''),
+                    ])->values(),
                     'service_years' => $serviceYears,
                     'service_months' => $serviceMonths,
                     // Información de reemplazo

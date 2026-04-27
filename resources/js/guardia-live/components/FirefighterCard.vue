@@ -192,6 +192,29 @@ const serviceLabel = computed(() => {
 
 const radialNumber = computed(() => f.value.numero_portatil ?? null);
 
+const specialtyBadges = computed(() => {
+    const fromSpecialties = Array.isArray(f.value.specialties) ? f.value.specialties : [];
+    if (fromSpecialties.length > 0) {
+        return fromSpecialties.map((specialty) => ({
+            id: specialty.id ?? specialty.name,
+            label: specialty.name ?? 'Especialidad',
+            iconClass: specialty.icon || 'fas fa-star',
+            style: specialty.color
+                ? {
+                    backgroundColor: `${specialty.color}cc`,
+                    color: '#ffffff',
+                }
+                : {},
+        }));
+    }
+
+    const fallback = [];
+    if (f.value.es_conductor) fallback.push({ id: 'legacy-driver', label: 'Conductor', iconClass: 'fas fa-car', style: {} });
+    if (f.value.es_operador_rescate) fallback.push({ id: 'legacy-rescue', label: 'Operador de Rescate', iconClass: 'fas fa-life-ring', style: {} });
+    if (f.value.es_asistente_trauma) fallback.push({ id: 'legacy-trauma', label: 'Asistente de Trauma', iconClass: 'fas fa-heart-pulse', style: {} });
+    return fallback;
+});
+
 // Position for fixed dropdown to avoid overflow
 const dropdownPosition = computed(() => {
     if (!pickerRef.value) return {};
@@ -309,20 +332,15 @@ onUnmounted(() => document.removeEventListener('click', onDocClick, true));
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
                 </span>
-                <!-- Conductor -->
-                <span v-if="f.es_conductor" class="w-5 h-5 rounded bg-sky-500/90 flex items-center justify-center shadow" title="Conductor">
-                    <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
-                    </svg>
-                </span>
-                <!-- Operador de Rescate -->
-                <span v-if="f.es_operador_rescate" class="w-5 h-5 rounded bg-orange-500/90 flex items-center justify-center shadow" title="Operador de Rescate">
-                    <span class="text-xs font-bold text-white">R</span>
-                </span>
-                <!-- Asistente de Trauma -->
-                <span v-if="f.es_asistente_trauma" class="w-5 h-5 rounded bg-rose-500/90 flex items-center justify-center shadow" title="Asistente de Trauma">
-                    <span class="text-xs font-bold text-white">AT</span>
+                <!-- Specialties (new system first, legacy fallback) -->
+                <span
+                    v-for="specialty in specialtyBadges"
+                    :key="specialty.id"
+                    class="w-5 h-5 rounded bg-slate-500/90 flex items-center justify-center shadow"
+                    :title="specialty.label"
+                    :style="specialty.style"
+                >
+                    <i :class="[specialty.iconClass, 'text-[10px] text-white']"></i>
                 </span>
             </div>
 

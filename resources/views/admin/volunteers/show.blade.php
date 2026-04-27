@@ -70,28 +70,33 @@
 
                         {{-- Especialidades --}}
                         <div class="flex flex-wrap gap-2 mt-3">
-                            @if($volunteer->es_conductor)
-                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-bold bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400 border border-sky-200 dark:border-sky-800">
-                                    <i class="fas fa-car"></i>
-                                    Conductor
-                                    @if($volunteer->conductor_carros_bomba)
-                                        <span class="ml-1 text-[10px]">(Carros Bomba)</span>
-                                    @endif
-                                </span>
-                            @endif
-                            
-                            @if($volunteer->es_operador_rescate)
-                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-bold bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 border border-orange-200 dark:border-orange-800">
-                                    <i class="fas fa-car-crash"></i>
-                                    Operador Rescate
-                                </span>
-                            @endif
-                            
-                            @if($volunteer->es_asistente_trauma)
-                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-bold bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400 border border-rose-200 dark:border-rose-800">
-                                    <i class="fas fa-medkit"></i>
-                                    Asistente Trauma
-                                </span>
+                            @if($volunteer->specialties->isNotEmpty())
+                                @foreach($volunteer->specialties as $specialty)
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-bold border"
+                                          style="color: {{ $specialty->color }}; border-color: {{ $specialty->color }}33; background-color: {{ $specialty->color }}14;">
+                                        <i class="{{ $specialty->icon }}"></i>
+                                        {{ $specialty->name }}
+                                    </span>
+                                @endforeach
+                            @else
+                                @if($volunteer->es_conductor)
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-bold bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400 border border-sky-200 dark:border-sky-800">
+                                        <i class="fas fa-car"></i>
+                                        Conductor (legacy)
+                                    </span>
+                                @endif
+                                @if($volunteer->es_operador_rescate)
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-bold bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 border border-orange-200 dark:border-orange-800">
+                                        <i class="fas fa-car-crash"></i>
+                                        Operador Rescate (legacy)
+                                    </span>
+                                @endif
+                                @if($volunteer->es_asistente_trauma)
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-bold bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400 border border-rose-200 dark:border-rose-800">
+                                        <i class="fas fa-medkit"></i>
+                                        Asistente Trauma (legacy)
+                                    </span>
+                                @endif
                             @endif
                         </div>
                     </div>
