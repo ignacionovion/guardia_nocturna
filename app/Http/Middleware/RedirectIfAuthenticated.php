@@ -25,8 +25,8 @@ class RedirectIfAuthenticated
                     return redirect('/admin');
                 }
                 
-                // Web guard (tenant) → tenant dashboard
-                return redirect('/dashboard');
+                // Web guard (tenant) → tenant dashboard live
+                return redirect('/dashboard-live');
             }
         }
 

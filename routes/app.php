@@ -17,6 +17,7 @@ use App\Http\Controllers\NovedadController;
 use App\Http\Controllers\Admin\GuardiaArchiveController;
 use App\Http\Controllers\Admin\EmergencyKeyController;
 use App\Http\Controllers\Admin\EmergencyUnitController;
+use App\Http\Controllers\Admin\SpecialtyController;
 
 use App\Http\Controllers\Admin\PreventiveEventController;
 use App\Http\Controllers\TurnoDraftController;
@@ -80,7 +81,7 @@ Route::middleware(['auth', 'password.not_temporary'])->group(function () {
 Route::middleware(['auth', 'password.not_temporary', 'tenant.feature:guardia', 'guardia_on_duty', \App\Http\Middleware\ExpireReplacements::class])->group(function () {
 
     // Dashboard operativo
-    Route::get('/dashboard', [TableroController::class, 'index'])->name('dashboard');
+    Route::redirect('/dashboard', '/dashboard-live')->name('dashboard');
     Route::get('/dashboard-live', [GuardiaLiveController::class, 'index'])->name('dashboard.live');
 
     // Guardia en vivo API
@@ -194,9 +195,18 @@ Route::middleware(['auth', 'password.not_temporary'])->group(function () {
         // Importación de Voluntarios - Solo capitanes y admins
         Route::middleware(['role:capitan,super_admin,capitania'])->group(function () {
             Route::get('/admin/volunteers/import', [BomberoController::class, 'importForm'])->name('admin.volunteers.import');
+            Route::get('/admin/volunteers/import/template', [BomberoController::class, 'downloadImportTemplate'])->name('admin.volunteers.import.template');
             Route::post('/admin/volunteers/import/upload', [BomberoController::class, 'uploadImport'])->name('admin.volunteers.import.upload');
             Route::post('/admin/volunteers/import/process', [BomberoController::class, 'processImport'])->name('admin.volunteers.import.process');
             Route::post('/admin/volunteers/import', [BomberoController::class, 'import'])->name('admin.volunteers.import.post');
+        });
+
+        Route::middleware(['role:capitan,super_admin,capitania'])->prefix('admin/specialties')->name('admin.specialties.')->group(function () {
+            Route::get('/', [SpecialtyController::class, 'index'])->name('index');
+            Route::post('/', [SpecialtyController::class, 'store'])->name('store');
+            Route::put('/{specialty}', [SpecialtyController::class, 'update'])->name('update');
+            Route::post('/{specialty}/toggle', [SpecialtyController::class, 'toggle'])->name('toggle');
+            Route::delete('/{specialty}', [SpecialtyController::class, 'destroy'])->name('destroy');
         });
 
         // Resource de volunteers (debe ir AL FINAL)

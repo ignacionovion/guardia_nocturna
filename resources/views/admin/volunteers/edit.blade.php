@@ -300,6 +300,33 @@
                         </div>
                     </div>
 
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                        <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50">
+                            <h2 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                                <div class="w-8 h-8 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-shield-halved text-indigo-600 dark:text-indigo-400 text-sm"></i>
+                                </div>
+                                Especialidades del Tenant
+                            </h2>
+                        </div>
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                @php $selectedSpecialties = old('specialty_ids', $volunteer->specialties->pluck('id')->all()); @endphp
+                                @forelse($specialties as $specialty)
+                                    <label class="flex items-center p-3 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/10 transition-all group">
+                                        <input type="checkbox" name="specialty_ids[]" value="{{ $specialty->id }}" {{ in_array($specialty->id, $selectedSpecialties) ? 'checked' : '' }} class="w-5 h-5 rounded border-slate-300 dark:border-slate-600 text-indigo-600 focus:ring-indigo-500">
+                                        <div class="ml-3 flex-1 min-w-0">
+                                            <span class="block text-sm font-semibold text-slate-800 dark:text-white group-hover:text-indigo-700">{{ $specialty->name }}</span>
+                                            <span class="block text-xs text-slate-500 dark:text-slate-400">{{ $specialty->icon }} · {{ $specialty->color }}</span>
+                                        </div>
+                                    </label>
+                                @empty
+                                    <p class="text-sm text-slate-500 dark:text-slate-400">No hay especialidades activas.</p>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Card: Cualidades Tecnicas -->
                     <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
                         <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50">
@@ -307,7 +334,7 @@
                                 <div class="w-8 h-8 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg flex items-center justify-center">
                                     <i class="fas fa-user-shield text-yellow-600 dark:text-yellow-400 text-sm"></i>
                                 </div>
-                                Cualidades Tecnicas
+                                Cualidades Tecnicas Legacy
                             </h2>
                         </div>
                         <div class="p-6">

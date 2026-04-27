@@ -168,13 +168,36 @@
                     </div>
                 </div>
 
+                <div class="mb-10">
+                    <div class="flex items-center gap-3 mb-6 border-b border-slate-200 pb-3">
+                        <div class="bg-indigo-100 p-2 rounded-lg text-indigo-700">
+                            <i class="fas fa-shield-halved text-lg"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-[#1e293b]">Especialidades del Tenant</h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        @forelse($specialties as $specialty)
+                            <label class="flex items-center p-3 bg-white border border-slate-200 rounded-lg hover:border-indigo-400 cursor-pointer transition-all shadow-sm group">
+                                <input type="checkbox" name="specialty_ids[]" value="{{ $specialty->id }}" {{ in_array($specialty->id, old('specialty_ids', [])) ? 'checked' : '' }} class="rounded text-indigo-600 focus:ring-indigo-500 h-5 w-5 border-slate-200">
+                                <div class="ml-3 min-w-0">
+                                    <span class="block text-sm font-bold text-[#1e293b] group-hover:text-indigo-700">{{ $specialty->name }}</span>
+                                    <span class="block text-xs text-[#475569]">{{ $specialty->icon }} · {{ $specialty->color }}</span>
+                                </div>
+                            </label>
+                        @empty
+                            <p class="text-sm text-[#475569]">No hay especialidades activas. Configura en el módulo de Especialidades.</p>
+                        @endforelse
+                    </div>
+                </div>
+
                 <!-- Sección 3: Permisos y Roles Técnicos -->
                 <div class="mb-10">
                     <div class="flex items-center gap-3 mb-6 border-b border-slate-200 pb-3">
                         <div class="bg-yellow-100 p-2 rounded-lg text-yellow-700">
                             <i class="fas fa-user-shield text-lg"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-[#1e293b]">Cualidades Técnicas</h3>
+                        <h3 class="text-xl font-bold text-[#1e293b]">Cualidades Técnicas Legacy</h3>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">

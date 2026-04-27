@@ -22,6 +22,9 @@
                 Importar Excel
             </x-ui.button>
             @endif
+            <x-ui.button variant="secondary" size="md" icon="fas fa-shield-halved" href="{{ route('admin.specialties.index') }}">
+                Especialidades
+            </x-ui.button>
             @if(!plan_exceeded('guardias'))
             <x-ui.button variant="primary" size="md" icon="fas fa-plus" href="{{ route('admin.volunteers.create') }}">
                 Nuevo Voluntario
@@ -120,22 +123,12 @@
                                             </div>
 
                                             <div class="md:hidden mt-1 flex flex-wrap gap-1">
-                                                @if($volunteer->es_conductor)
-                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-100" title="Conductor">
-                                                        <i class="fas fa-car mr-1"></i> Cond
+                                                @foreach($volunteer->specialties as $specialty)
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold border" style="color: {{ $specialty->color }}; border-color: {{ $specialty->color }}33; background-color: {{ $specialty->color }}14;">
+                                                        {{ $specialty->name }}
                                                     </span>
-                                                @endif
-                                                @if($volunteer->es_operador_rescate)
-                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-orange-50 text-orange-700 border border-orange-100" title="Operador de Rescate">
-                                                        <i class="fas fa-tools mr-1"></i> Resc
-                                                    </span>
-                                                @endif
-                                                @if($volunteer->es_asistente_trauma)
-                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-50 text-red-700 border border-red-100" title="Asistente de Trauma">
-                                                        <i class="fas fa-medkit mr-1"></i> Trauma
-                                                    </span>
-                                                @endif
-                                                @if(!$volunteer->es_conductor && !$volunteer->es_operador_rescate && !$volunteer->es_asistente_trauma)
+                                                @endforeach
+                                                @if($volunteer->specialties->isEmpty())
                                                     <span class="text-xs text-[#475569] italic">-</span>
                                                 @endif
                                             </div>
@@ -169,22 +162,12 @@
                                 </td>
                                 <td class="px-6 py-4 hidden lg:table-cell">
                                     <div class="flex flex-wrap gap-1 max-w-xs">
-                                        @if($volunteer->es_conductor)
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-100" title="Conductor">
-                                                <i class="fas fa-car mr-1"></i> Cond
+                                        @foreach($volunteer->specialties as $specialty)
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold border" style="color: {{ $specialty->color }}; border-color: {{ $specialty->color }}33; background-color: {{ $specialty->color }}14;">
+                                                {{ $specialty->name }}
                                             </span>
-                                        @endif
-                                        @if($volunteer->es_operador_rescate)
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-orange-50 text-orange-700 border border-orange-100" title="Operador de Rescate">
-                                                <i class="fas fa-tools mr-1"></i> Resc
-                                            </span>
-                                        @endif
-                                        @if($volunteer->es_asistente_trauma)
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-50 text-red-700 border border-red-100" title="Asistente de Trauma">
-                                                <i class="fas fa-medkit mr-1"></i> Trauma
-                                            </span>
-                                        @endif
-                                        @if(!$volunteer->es_conductor && !$volunteer->es_operador_rescate && !$volunteer->es_asistente_trauma)
+                                        @endforeach
+                                        @if($volunteer->specialties->isEmpty())
                                             <span class="text-xs text-[#475569] italic">-</span>
                                         @endif
                                     </div>

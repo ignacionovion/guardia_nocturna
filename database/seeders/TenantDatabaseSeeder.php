@@ -20,6 +20,7 @@ class TenantDatabaseSeeder extends Seeder
             CleaningTaskSeeder::class,
             GuardiaAssignmentsSnapshotSeeder::class,
             PlanillaListItemSeeder::class,
+            TenantSpecialtySeeder::class,
         ]);
     }
 }

@@ -11,9 +11,14 @@
                 </h1>
                 <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium">Carga de voluntarios desde planilla externa</p>
             </div>
-            <a href="{{ route('admin.volunteers.index') }}" class="inline-flex items-center text-slate-600 dark:text-slate-400 hover:text-blue-600 font-medium transition-colors bg-white dark:bg-slate-900 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-300 shadow-sm">
-                <i class="fas fa-arrow-left mr-2"></i> Volver al listado
-            </a>
+            <div class="flex gap-2">
+                <a href="{{ route('admin.volunteers.import.template') }}" class="inline-flex items-center text-emerald-700 hover:text-emerald-800 font-medium transition-colors bg-emerald-50 px-4 py-2 rounded-lg border border-emerald-200 hover:border-emerald-300 shadow-sm">
+                    <i class="fas fa-download mr-2"></i> Descargar plantilla
+                </a>
+                <a href="{{ route('admin.volunteers.index') }}" class="inline-flex items-center text-slate-600 dark:text-slate-400 hover:text-blue-600 font-medium transition-colors bg-white dark:bg-slate-900 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-300 shadow-sm">
+                    <i class="fas fa-arrow-left mr-2"></i> Volver al listado
+                </a>
+            </div>
         </div>
 
         <div class="bg-white dark:bg-slate-900 rounded-xl shadow-lg overflow-hidden border border-slate-200 dark:border-slate-700">
@@ -32,7 +37,7 @@
                         <div class="ml-4">
                             <h3 class="text-sm font-bold text-yellow-800 uppercase tracking-wide">Instrucciones Importantes</h3>
                             <div class="mt-2 text-sm text-yellow-700 space-y-1">
-                                <p>• El archivo debe seguir estrictamente la estructura de columnas (A-N).</p>
+                                <p>• Puede usar la nueva plantilla (`rut,nombres,apellido_paterno,apellido_materno,telefono,email,guardia,especialidades`) o la plantilla legacy.</p>
                                 <p>• Formatos permitidos: <strong>.CSV</strong>, <strong>.XLSX</strong>.</p>
                                 <div class="pt-2 border-t border-yellow-200">
                                     <p class="font-bold">Columnas (en español):</p>
@@ -50,6 +55,8 @@
                                     <p>L: asistente_trauma</p>
                                     <p>M: email</p>
                                     <p>N: NUMERO_REGISTRO</p>
+                                    <p class="pt-2 font-bold">Especialidades válidas tenant:</p>
+                                    <p>{{ $specialties->pluck('name')->implode(', ') ?: 'Sin especialidades activas' }}</p>
                                 </div>
                             </div>
                         </div>

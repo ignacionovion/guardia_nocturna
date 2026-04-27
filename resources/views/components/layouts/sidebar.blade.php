@@ -8,7 +8,7 @@ $role = $user->role ?? 'guardia';
 
 $menuItems = [
     'super_admin' => [
-        ['route' => 'dashboard', 'icon' => 'fas fa-gauge-high', 'label' => 'Dashboard', 'match' => 'dashboard'],
+        ['route' => 'dashboard.live', 'icon' => 'fas fa-gauge-high', 'label' => 'Dashboard', 'match' => 'dashboard*'],
         ['divider' => true, 'label' => 'Centro de Comando'],
         ['route' => 'guardia.now', 'icon' => 'fas fa-satellite-dish', 'label' => 'Guardia en Vivo', 'match' => 'guardia.now*', 'feature' => 'now', 'badge' => 'live'],
         ['route' => 'admin.guardias', 'icon' => 'fas fa-shield-halved', 'label' => 'Guardias', 'match' => 'admin.guardias*', 'feature' => 'guardia'],
@@ -23,12 +23,13 @@ $menuItems = [
         ['route' => 'forms.execution.index', 'icon' => 'fas fa-clipboard-list', 'label' => 'Formularios', 'match' => 'forms*'],
         ['route' => 'admin.reports.index', 'icon' => 'fas fa-chart-line', 'label' => 'Reportes', 'match' => 'admin.reports*', 'feature' => 'reportes'],
         ['divider' => true, 'label' => 'Configuración'],
+        ['route' => 'admin.specialties.index', 'icon' => 'fas fa-shield-halved', 'label' => 'Especialidades', 'match' => 'admin.specialties*', 'feature' => 'voluntarios'],
         ['divider' => true, 'label' => 'Sistema'],
         ['route' => 'admin.users.index', 'icon' => 'fas fa-user-shield', 'label' => 'Usuarios', 'match' => 'admin.users*'],
         ['route' => 'admin.system.index', 'icon' => 'fas fa-sliders', 'label' => 'Configuración', 'match' => 'admin.system*'],
     ],
     'guardia' => [
-        ['route' => 'dashboard', 'icon' => 'fas fa-gauge-high', 'label' => 'Inicio', 'match' => 'dashboard'],
+        ['route' => 'dashboard.live', 'icon' => 'fas fa-gauge-high', 'label' => 'Inicio', 'match' => 'dashboard*'],
         ['route' => 'camas', 'icon' => 'fas fa-bed', 'label' => 'Camas', 'match' => 'camas*'],
         ['divider' => true, 'label' => 'Módulos'],
         ['route' => 'forms.execution.index', 'icon' => 'fas fa-clipboard-list', 'label' => 'Formularios', 'match' => 'forms*'],
@@ -47,7 +48,7 @@ $expanded = $mobile ? true : null;
     
     {{-- Logo --}}
     <div class="flex items-center h-16 px-4 border-b border-[#1e293b] justify-between">
-        <a href="{{ tenancy()->initialized ? route('dashboard') : route('central.dashboard') }}" class="flex items-center gap-3 group min-w-0">
+        <a href="{{ tenancy()->initialized ? route('dashboard.live') : route('central.dashboard') }}" class="flex items-center gap-3 group min-w-0">
             @if(branding()->logo)
                 <img src="{{ branding()->logo }}" alt="{{ branding()->nombre_empresa }}" class="h-9 w-auto">
             @else

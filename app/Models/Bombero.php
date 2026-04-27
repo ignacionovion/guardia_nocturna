@@ -64,6 +64,12 @@ class Bombero extends Model
         return $this->hasMany(ShiftUser::class, 'firefighter_id');
     }
 
+    public function specialties()
+    {
+        return $this->belongsToMany(Specialty::class, 'bombero_specialty', 'bombero_id', 'specialty_id')
+            ->withTimestamps();
+    }
+
     public function legacyUserMap()
     {
         return $this->hasOne(MapaBomberoUsuarioLegacy::class, 'firefighter_id');

@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\VolunteerImportTemplateExport;
 use Illuminate\Http\Request;
 use App\Models\Bombero;
 use App\Models\Guardia;
+use App\Models\Specialty;
 use App\Services\PlanService;
 use App\Traits\TenantAdminAuth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
 use Shuchkin\SimpleXLSX;
 
 class BomberoController extends Controller
@@ -41,7 +44,7 @@ class BomberoController extends Controller
     {
         $this->requireTenantAdmin();
 
-        $query = Bombero::query()->with('guardia');
+        $query = Bombero::query()->with(['guardia', 'specialties']);
 
         if ($request->filled('search')) {
             $search = trim((string) $request->get('search'));
@@ -66,6 +69,7 @@ class BomberoController extends Controller
         $this->requireTenantAdmin();
 
         $guardias = Guardia::all();
+        $specialties = Specialty::query()->where('active', true)->orderBy('name')->get();
         $canCreateVolunteer = $this->limitService->canCreateVolunteer();
         $limitData = [
             'can_create' => $canCreateVolunteer,
@@ -73,7 +77,7 @@ class BomberoController extends Controller
         ];
         $volunteers_plan_usage = PlanService::usageLabel('volunteers');
 
-        return view('admin.volunteers.create', compact('guardias', 'limitData', 'volunteers_plan_usage'));
+        return view('admin.volunteers.create', compact('guardias', 'specialties', 'limitData', 'volunteers_plan_usage'));
     }
 
     public function store(Request $request)
@@ -101,6 +105,8 @@ class BomberoController extends Controller
             'es_asistente_trauma' => 'nullable|boolean',
             'fuera_de_servicio' => 'nullable|boolean',
             'es_permanente' => 'nullable|boolean',
+            'specialty_ids' => 'nullable|array',
+            'specialty_ids.*' => 'integer|exists:specialties,id',
         ]);
 
         $data = $validated;
@@ -122,7 +128,10 @@ class BomberoController extends Controller
             $data['photo_path'] = $request->file('photo')->store('bomberos', 'public');
         }
 
-        Bombero::create($data);
+        $bombero = Bombero::create($data);
+        $bombero->specialties()->sync(
+            Specialty::query()->whereIn('id', $request->input('specialty_ids', []))->where('active', true)->pluck('id')->all()
+        );
 
         return redirect()->route('admin.volunteers.index')->with('success', 'Voluntario creado exitosamente.');
     }
@@ -132,7 +141,7 @@ class BomberoController extends Controller
         $this->requireTenantAdmin();
         
         $id = $request->route('volunteer');
-        $volunteer = Bombero::with('guardia')->findOrFail((int) $id);
+        $volunteer = Bombero::with(['guardia', 'specialties'])->findOrFail((int) $id);
         
         return view('admin.volunteers.show', compact('volunteer'));
     }
@@ -142,9 +151,10 @@ class BomberoController extends Controller
         $this->requireTenantAdmin();
 
         $id = $request->route('volunteer');
-        $volunteer = Bombero::findOrFail((int) $id);
+        $volunteer = Bombero::with('specialties')->findOrFail((int) $id);
         $guardias = Guardia::all();
-        return view('admin.volunteers.edit', compact('volunteer', 'guardias'));
+        $specialties = Specialty::query()->where('active', true)->orderBy('name')->get();
+        return view('admin.volunteers.edit', compact('volunteer', 'guardias', 'specialties'));
     }
 
     public function update(Request $request)
@@ -167,6 +177,8 @@ class BomberoController extends Controller
             'guardia_id' => 'nullable|exists:guardias,id',
             'fuera_de_servicio' => 'nullable|boolean',
             'es_permanente' => 'nullable|boolean',
+            'specialty_ids' => 'nullable|array',
+            'specialty_ids.*' => 'integer|exists:specialties,id',
         ]);
 
         $data = $request->only([
@@ -206,6 +218,9 @@ class BomberoController extends Controller
         }
 
         $volunteer->update($data);
+        $volunteer->specialties()->sync(
+            Specialty::query()->whereIn('id', $request->input('specialty_ids', []))->pluck('id')->all()
+        );
 
         return redirect()->route('admin.volunteers.index')->with('success', 'Voluntario actualizado exitosamente.');
     }
@@ -287,7 +302,19 @@ class BomberoController extends Controller
 
     public function importForm()
     {
-        return view('admin.volunteers.import');
+        $specialties = Specialty::query()->where('active', true)->orderBy('name')->get();
+
+        return view('admin.volunteers.import', compact('specialties'));
+    }
+
+    public function downloadImportTemplate()
+    {
+        $specialties = Specialty::query()->where('active', true)->orderBy('name')->get();
+
+        return Excel::download(
+            new VolunteerImportTemplateExport($specialties),
+            'plantilla-importacion-voluntarios.xlsx'
+        );
     }
 
     public function uploadImport(Request $request)
@@ -339,7 +366,10 @@ class BomberoController extends Controller
         // Guardar datos procesados en archivo temporal JSON para procesar por lotes
         $batchId = uniqid();
         $batchPath = storage_path('app/import_batch_' . $batchId . '.json');
-        file_put_contents($batchPath, json_encode($data));
+        file_put_contents($batchPath, json_encode([
+            'header' => $header,
+            'rows' => $data,
+        ]));
 
         return response()->json([
             'batchId' => $batchId,
@@ -361,17 +391,20 @@ class BomberoController extends Controller
 
         // Leer todo el archivo (no es ideal para archivos gigantescos, pero funcional para este contexto)
         // Optimización: Si fuera muy grande, usaríamos lectura por streams, pero json_decode carga todo a memoria igual.
-        $data = json_decode(file_get_contents($batchPath), true);
-        
-        $chunk = array_slice($data, $offset, $limit);
+        $payload = json_decode(file_get_contents($batchPath), true);
+        $header = isset($payload['header']) && is_array($payload['header']) ? $payload['header'] : [];
+        $rows = isset($payload['rows']) && is_array($payload['rows']) ? $payload['rows'] : [];
+
+        $chunk = array_slice($rows, $offset, $limit);
         $processed = 0;
         $errors = [];
+        $activeSpecialties = Specialty::query()->where('active', true)->get();
+        $specialtiesByName = $activeSpecialties->keyBy(fn ($s) => mb_strtolower(trim($s->name)));
+        $headerMap = $this->buildHeaderMap($header);
+        $isNewTemplate = isset($headerMap['rut']) && isset($headerMap['nombres']);
 
         foreach ($chunk as $index => $row) {
-            // Validar longitud mínima
-            if (count($row) < 4) continue;
-
-            $rut = isset($row[3]) ? trim($row[3]) : null;
+            $rut = trim((string) ($this->col($row, $headerMap, 'rut', $isNewTemplate ? null : 3) ?? ''));
 
             if (!$rut) continue;
 
@@ -393,9 +426,9 @@ class BomberoController extends Controller
                     return isset($row[$idx]) ? trim($row[$idx]) : null;
                 };
 
-                $nombres = $val(0);
-                $apellidoPaterno = $val(1);
-                $apellidoMaterno = $val(2);
+                $nombres = trim((string) ($this->col($row, $headerMap, 'nombres', 0) ?? ''));
+                $apellidoPaterno = $this->col($row, $headerMap, 'apellido_paterno', 1);
+                $apellidoMaterno = $this->col($row, $headerMap, 'apellido_materno', 2);
 
                 if (!$nombres) {
                     $errors[] = "Fila " . ($offset + $index + 2) . ": Falta 'nombres'";
@@ -403,7 +436,7 @@ class BomberoController extends Controller
                 }
 
                 $admissionDate = null;
-                $rawDate = $val(8);
+                $rawDate = $this->col($row, $headerMap, 'fecha_ingreso', 8);
                 if ($rawDate) {
                     try {
                         $admissionDate = \Carbon\Carbon::parse($rawDate)->toDateString();
@@ -411,7 +444,7 @@ class BomberoController extends Controller
                 }
 
                 $birthdate = null;
-                $rawBirthdate = $val(6);
+                $rawBirthdate = $this->col($row, $headerMap, 'fecha_cumpleanos', 6);
                 if ($rawBirthdate) {
                     try {
                         $birthdate = \Carbon\Carbon::parse($rawBirthdate)->toDateString();
@@ -425,32 +458,68 @@ class BomberoController extends Controller
                     return in_array($v, ['1', 'si', 'sí', 'true', 'x', 'yes'], true);
                 };
 
-                $cargo = $val(4);
-                $portable = $val(5);
-                $email = $val(12);
-                $numeroRegistro = $val(13);
+                $cargo = $this->col($row, $headerMap, 'cargo', 4);
+                $portable = $this->col($row, $headerMap, 'telefono', 5) ?: $this->col($row, $headerMap, 'portatil', 5);
+                $email = $this->col($row, $headerMap, 'email', 12);
+                $numeroRegistro = $this->col($row, $headerMap, 'numero_registro', 13);
+                $guardiaRaw = $this->col($row, $headerMap, 'guardia', 7);
+                $specialtiesRaw = (string) ($this->col($row, $headerMap, 'especialidades', null) ?? '');
 
-                Bombero::create([
+                $guardiaId = null;
+                if ($guardiaRaw !== null && $guardiaRaw !== '') {
+                    if (is_numeric($guardiaRaw)) {
+                        $guardiaId = (int) $guardiaRaw;
+                    } else {
+                        $guardiaId = Guardia::query()
+                            ->whereRaw('LOWER(name) = ?', [mb_strtolower(trim((string) $guardiaRaw))])
+                            ->value('id');
+                    }
+                }
+
+                $specialtyIds = [];
+                if ($specialtiesRaw !== '') {
+                    $requestedSpecialties = collect(explode(',', $specialtiesRaw))
+                        ->map(fn ($item) => trim((string) $item))
+                        ->filter()
+                        ->values();
+
+                    foreach ($requestedSpecialties as $requestedSpecialty) {
+                        $specialty = $specialtiesByName->get(mb_strtolower($requestedSpecialty));
+
+                        if (!$specialty) {
+                            $errors[] = "Fila " . ($offset + $index + 2) . ": especialidad '{$requestedSpecialty}' no existe o está inactiva.";
+                            continue 2;
+                        }
+
+                        $specialtyIds[] = $specialty->id;
+                    }
+                }
+
+                $bombero = Bombero::create([
                     'nombres' => $nombres,
                     'apellido_paterno' => $apellidoPaterno,
                     'apellido_materno' => $apellidoMaterno,
-                    'rut' => $val(3),
+                    'rut' => $rut,
                     'numero_registro' => $numeroRegistro ?: null,
                     'cargo_texto' => $cargo,
                     'numero_portatil' => $portable ?: null,
                     'fecha_nacimiento' => $birthdate,
-                    'guardia_id' => $val(7) ?: null,
+                    'guardia_id' => $guardiaId,
                     'fecha_ingreso' => $admissionDate,
                     'correo' => $email ?: null,
-                    'es_conductor' => $parseBool($val(9)),
-                    'es_operador_rescate' => $parseBool($val(10)),
-                    'es_asistente_trauma' => $parseBool($val(11)),
+                    'es_conductor' => $parseBool($this->col($row, $headerMap, 'conductor', 9)),
+                    'es_operador_rescate' => $parseBool($this->col($row, $headerMap, 'operador_rescate', 10)),
+                    'es_asistente_trauma' => $parseBool($this->col($row, $headerMap, 'asistente_trauma', 11)),
                     'estado_asistencia' => 'constituye',
                     'es_titular' => true,
                     'es_jefe_guardia' => false,
                     'es_cambio' => false,
                     'es_sancion' => false,
                 ]);
+
+                if (!empty($specialtyIds)) {
+                    $bombero->specialties()->sync($specialtyIds);
+                }
                 $processed++;
             } catch (\Exception $e) {
                 $errors[] = "Fila " . ($offset + $index + 2) . ": " . $e->getMessage();
@@ -458,7 +527,7 @@ class BomberoController extends Controller
         }
 
         // Si terminamos, borrar archivo temporal
-        $finished = ($offset + $limit) >= count($data);
+        $finished = ($offset + $limit) >= count($rows);
         if ($finished) {
             unlink($batchPath);
         }
@@ -468,6 +537,51 @@ class BomberoController extends Controller
             'errors' => $errors,
             'finished' => $finished
         ]);
+    }
+
+    private function buildHeaderMap(array $header): array
+    {
+        $aliases = [
+            'rut' => 'rut',
+            'nombres' => 'nombres',
+            'apellido_paterno' => 'apellido_paterno',
+            'apellido_materno' => 'apellido_materno',
+            'telefono' => 'telefono',
+            'email' => 'email',
+            'guardia' => 'guardia',
+            'especialidades' => 'especialidades',
+            'fecha_ingreso' => 'fecha_ingreso',
+            'fecha_cumpleanos' => 'fecha_cumpleanos',
+            'cargo' => 'cargo',
+            'portatil' => 'portatil',
+            'conductor' => 'conductor',
+            'operador_rescate' => 'operador_rescate',
+            'asistente_trauma' => 'asistente_trauma',
+            'numero_registro' => 'numero_registro',
+        ];
+
+        $map = [];
+        foreach ($header as $index => $column) {
+            $normalized = Str::of((string) $column)->lower()->ascii()->replace(' ', '_')->replace('-', '_')->value();
+            if (isset($aliases[$normalized])) {
+                $map[$aliases[$normalized]] = $index;
+            }
+        }
+
+        return $map;
+    }
+
+    private function col(array $row, array $headerMap, string $name, ?int $fallback = null): mixed
+    {
+        if (array_key_exists($name, $headerMap) && array_key_exists($headerMap[$name], $row)) {
+            return is_string($row[$headerMap[$name]]) ? trim($row[$headerMap[$name]]) : $row[$headerMap[$name]];
+        }
+
+        if ($fallback !== null && array_key_exists($fallback, $row)) {
+            return is_string($row[$fallback]) ? trim($row[$fallback]) : $row[$fallback];
+        }
+
+        return null;
     }
 
     public function import(Request $request)

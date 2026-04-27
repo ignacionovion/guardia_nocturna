@@ -64,7 +64,7 @@ class AuthController extends Controller
                 return redirect()->route('password.initial');
             }
 
-            return redirect('/dashboard');
+            return redirect()->route('dashboard.live');
         }
 
 
