@@ -90,6 +90,9 @@ class CentralAuditLog extends Model
             'backup_run'        => '💾',
             'backup_restored'   => '♻️',
             'estado_changed'    => '🔄',
+            'danger_zone_clear_tenants_started' => '☠️',
+            'danger_zone_clear_tenants_completed' => '☠️',
+            'danger_zone_reset_saas_completed' => '☠️',
             default             => '📝',
         };
     }

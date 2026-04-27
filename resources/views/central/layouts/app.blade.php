@@ -31,6 +31,7 @@
         $navBackupsActive = request()->routeIs('central.backups.*');
         $navAuditActive = request()->routeIs('central.audit.*');
         $navAdminsActive = request()->routeIs('central.admins.*');
+        $navDangerZoneActive = request()->routeIs('central.danger-zone.*');
 
         $orgDefaultUrl = route('central.bodies.index');
         $financeDefaultUrl = $isSuperAdmin
@@ -102,6 +103,10 @@
                                    class="px-3 py-2.5 rounded-md text-sm font-medium {{ $navAdminsActive ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }} transition">
                                     Administradores
                                 </a>
+                                <a href="{{ route('central.danger-zone.show') }}"
+                                   class="px-3 py-2.5 rounded-md text-sm font-medium {{ $navDangerZoneActive ? 'bg-rose-900 text-white' : 'text-rose-200 hover:bg-rose-950 hover:text-white border border-rose-800/80' }} transition">
+                                    Zona de peligro
+                                </a>
                             @endif
                         </div>
                         <div class="flex items-center justify-between border-t border-slate-800 pt-3">
@@ -154,6 +159,10 @@
                                 <a href="{{ route('central.admins.index') }}"
                                    class="px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap {{ $navAdminsActive ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }} transition">
                                     Administradores
+                                </a>
+                                <a href="{{ route('central.danger-zone.show') }}"
+                                   class="px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap {{ $navDangerZoneActive ? 'bg-rose-900 text-white' : 'text-rose-200 hover:bg-rose-950 hover:text-white border border-rose-800/80' }} transition">
+                                    Zona de peligro
                                 </a>
                             @endif
                         </div>

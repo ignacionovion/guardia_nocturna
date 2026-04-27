@@ -6,6 +6,7 @@ use App\Http\Controllers\Central\BillingController;
 use App\Http\Controllers\Central\BodyController;
 use App\Http\Controllers\Central\CentralAdminController;
 use App\Http\Controllers\Central\CentralDashboardController;
+use App\Http\Controllers\Central\DangerZoneController;
 use App\Http\Controllers\Central\FinancialDashboardController;
 use App\Http\Controllers\Central\AuditController;
 use App\Http\Controllers\Central\BackupController;
@@ -122,7 +123,7 @@ Route::delete('backups', [BackupController::class, 'destroy'])->centralNamed('ce
 // Audit Log
 Route::get('audit', [AuditController::class, 'index'])->centralNamed('central.audit.index');
 
-// Administradores SaaS (central_admins)
+// Administradores SaaS (central_admins) + zona de peligro (solo super admin)
 Route::middleware(['central.super_admin'])->group(function () {
     Route::get('admins', [CentralAdminController::class, 'index'])->centralNamed('central.admins.index');
     Route::get('admins/create', [CentralAdminController::class, 'create'])->centralNamed('central.admins.create');
@@ -130,5 +131,9 @@ Route::middleware(['central.super_admin'])->group(function () {
     Route::get('admins/{admin}/edit', [CentralAdminController::class, 'edit'])->centralNamed('central.admins.edit');
     Route::match(['put', 'patch'], 'admins/{admin}', [CentralAdminController::class, 'update'])->centralNamed('central.admins.update');
     Route::delete('admins/{admin}', [CentralAdminController::class, 'destroy'])->centralNamed('central.admins.destroy');
+
+    Route::get('system/danger-zone', [DangerZoneController::class, 'show'])->centralNamed('central.danger-zone.show');
+    Route::post('danger-zone/clear-tenants', [DangerZoneController::class, 'clearTenants'])->centralNamed('central.danger-zone.clear-tenants');
+    Route::post('danger-zone/reset-saas', [DangerZoneController::class, 'resetSaas'])->centralNamed('central.danger-zone.reset-saas');
 });
 

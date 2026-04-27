@@ -47,6 +47,9 @@ class AuditController extends Controller
             'seed_run' => 'Seeders',
             'backup_run' => 'Backup',
             'backup_restored' => 'Restore',
+            'danger_zone_clear_tenants_started' => 'Zona de peligro (inicio vaciado)',
+            'danger_zone_clear_tenants_completed' => 'Zona de peligro (vaciado compañías)',
+            'danger_zone_reset_saas_completed' => 'Zona de peligro (reset SaaS)',
         ];
 
         return view('central.audit.index', compact('logs', 'tenants', 'actions'));
