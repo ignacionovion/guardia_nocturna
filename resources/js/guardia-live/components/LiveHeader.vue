@@ -4,8 +4,8 @@ import { useGuardiaStore } from '../stores/guardia';
 
 const store = useGuardiaStore();
 const isFullscreen = ref(false);
-const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
-const logoutUrl = window.__GUARDIA_LIVE_LOGOUT_URL__ ?? '/logout';
+const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+const logoutUrl = window.__GUARDIA_LIVE_LOGOUT_URL__ || '/logout';
 
 const saveBtnDisabled = computed(() =>
     !store.attendanceEnabled || store.isSaving || !store.allConfirmed
@@ -213,9 +213,17 @@ onUnmounted(() => {
                         <input type="hidden" name="_token" :value="csrfToken">
                         <button
                             type="submit"
-                            class="inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white hover:bg-white/10 transition"
+                            title="Cerrar sesión"
+                            class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-red-500/15 text-red-300 hover:bg-red-500/25 hover:text-red-200 transition"
                         >
-                            Salir
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M17 16l4-4m0 0l-4-4m4 4H9m4 8H5a2 2 0 01-2-2V6a2 2 0 012-2h8"
+                                />
+                            </svg>
                         </button>
                     </form>
 
