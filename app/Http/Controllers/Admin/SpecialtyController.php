@@ -48,9 +48,10 @@ class SpecialtyController extends Controller
         return redirect()->route('admin.specialties.index')->with('success', 'Especialidad creada correctamente.');
     }
 
-    public function update(Request $request, Specialty $specialty)
+    public function update(Request $request, string|int|Specialty $specialty)
     {
         $this->requireTenantAdmin();
+        $specialty = $this->resolveSpecialty($specialty);
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:100', Rule::unique('specialties', 'name')->ignore($specialty->id)],
@@ -77,9 +78,10 @@ class SpecialtyController extends Controller
         return redirect()->route('admin.specialties.index')->with('success', 'Especialidad actualizada.');
     }
 
-    public function toggle(Specialty $specialty)
+    public function toggle(string|int|Specialty $specialty)
     {
         $this->requireTenantAdmin();
+        $specialty = $this->resolveSpecialty($specialty);
 
         $specialty->update([
             'active' => !$specialty->active,
@@ -89,9 +91,10 @@ class SpecialtyController extends Controller
         return redirect()->route('admin.specialties.index')->with('success', 'Estado de especialidad actualizado.');
     }
 
-    public function destroy(Specialty $specialty)
+    public function destroy(string|int|Specialty $specialty)
     {
         $this->requireTenantAdmin();
+        $specialty = $this->resolveSpecialty($specialty);
 
         $inUse = $specialty->bomberos()->exists();
 
@@ -126,5 +129,14 @@ class SpecialtyController extends Controller
         }
 
         return $slug;
+    }
+
+    private function resolveSpecialty(string|int|Specialty $specialty): Specialty
+    {
+        if ($specialty instanceof Specialty) {
+            return $specialty;
+        }
+
+        return Specialty::query()->findOrFail($specialty);
     }
 }
