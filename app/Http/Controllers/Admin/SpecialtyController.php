@@ -45,7 +45,7 @@ class SpecialtyController extends Controller
         ]);
         SystemSetting::setValue('specialties_customized', '1');
 
-        return redirect()->to('/admin/specialties')->with('success', 'Especialidad creada correctamente.');
+        return $this->redirectToSpecialties('success', 'Especialidad creada correctamente.');
     }
 
     public function update(Request $request, string|int|Specialty $specialty)
@@ -75,7 +75,7 @@ class SpecialtyController extends Controller
         ]);
         SystemSetting::setValue('specialties_customized', '1');
 
-        return redirect()->to('/admin/specialties')->with('success', 'Especialidad actualizada.');
+        return $this->redirectToSpecialties('success', 'Especialidad actualizada.');
     }
 
     public function toggle(string|int|Specialty $specialty)
@@ -88,28 +88,39 @@ class SpecialtyController extends Controller
         ]);
         SystemSetting::setValue('specialties_customized', '1');
 
-        return redirect()->to('/admin/specialties')->with('success', 'Estado de especialidad actualizado.');
+        return $this->redirectToSpecialties('success', 'Estado de especialidad actualizado.');
     }
 
     public function destroy(string|int|Specialty $specialty)
     {
         $this->requireTenantAdmin();
-        $specialty = $this->resolveSpecialty($specialty);
 
-        $inUse = $specialty->bomberos()->exists();
+        try {
+            $specialty = $this->resolveSpecialty($specialty);
+            $inUse = $specialty->bomberos()->exists();
 
-        if ($inUse) {
-            $specialty->update(['active' => false]);
+            if ($inUse) {
+                $specialty->update(['active' => false]);
+                SystemSetting::setValue('specialties_customized', '1');
+
+                return $this->redirectToSpecialties(
+                    'warning',
+                    'La especialidad está en uso y fue desactivada en lugar de eliminarse.'
+                );
+            }
+
+            $specialty->delete();
             SystemSetting::setValue('specialties_customized', '1');
 
-            return redirect()->to('/admin/specialties')
-                ->with('warning', 'La especialidad está en uso y fue desactivada en lugar de eliminarse.');
+            return $this->redirectToSpecialties('success', 'Especialidad eliminada correctamente.');
+        } catch (\Throwable $e) {
+            report($e);
+
+            return $this->redirectToSpecialties(
+                'error',
+                'No se pudo eliminar la especialidad. Inténtalo nuevamente.'
+            );
         }
-
-        $specialty->delete();
-        SystemSetting::setValue('specialties_customized', '1');
-
-        return redirect()->to('/admin/specialties')->with('success', 'Especialidad eliminada correctamente.');
     }
 
     private function buildUniqueSlug(string $name, ?int $ignoreId = null): string
@@ -137,6 +148,11 @@ class SpecialtyController extends Controller
             return $specialty;
         }
 
-        return Specialty::query()->findOrFail($specialty);
+        return Specialty::query()->findOrFail((int) $specialty);
+    }
+
+    private function redirectToSpecialties(string $type = 'success', string $message = 'Operación realizada correctamente.')
+    {
+        return redirect('/admin/specialties')->with($type, $message);
     }
 }

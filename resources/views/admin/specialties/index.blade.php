@@ -13,6 +13,9 @@
     @if(session('warning'))
         <x-ui.alert type="warning" icon="fas fa-exclamation-triangle" class="mb-6">{{ session('warning') }}</x-ui.alert>
     @endif
+    @if(session('error'))
+        <x-ui.alert type="danger" icon="fas fa-exclamation-circle" class="mb-6">{{ session('error') }}</x-ui.alert>
+    @endif
 
     <x-ui.card class="mb-8">
         <form action="{{ route('admin.specialties.store') }}" method="POST" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
@@ -45,7 +48,7 @@
                 @forelse($specialties as $specialty)
                     <tr>
                         <td class="px-4 py-3">
-                            <form action="{{ route('admin.specialties.update', $specialty) }}" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <form action="{{ route('admin.specialties.update', $specialty->id) }}" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-2">
                                 @csrf
                                 @method('PUT')
                                 <input type="text" name="name" value="{{ $specialty->name }}" class="w-full min-h-[44px] px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white" required>
@@ -63,13 +66,13 @@
                         </td>
                         <td class="px-4 py-3">
                             <div class="flex items-center justify-end gap-2">
-                                <form action="{{ route('admin.specialties.toggle', $specialty) }}" method="POST">
+                                <form action="{{ route('admin.specialties.toggle', $specialty->id) }}" method="POST">
                                     @csrf
                                     <x-ui.button type="submit" variant="{{ $specialty->active ? 'warning' : 'success' }}" size="sm" icon="fas fa-power-off">
                                         {{ $specialty->active ? 'Desactivar' : 'Activar' }}
                                     </x-ui.button>
                                 </form>
-                                <form action="{{ route('admin.specialties.destroy', $specialty) }}" method="POST" onsubmit="return confirm('¿Eliminar especialidad?');">
+                                <form action="{{ route('admin.specialties.destroy', $specialty->id) }}" method="POST" onsubmit="return confirm('¿Eliminar especialidad?');">
                                     @csrf
                                     @method('DELETE')
                                     <x-ui.button type="submit" variant="danger" size="sm" icon="fas fa-trash-can">Eliminar</x-ui.button>
