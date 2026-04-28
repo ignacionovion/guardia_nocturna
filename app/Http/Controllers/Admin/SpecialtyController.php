@@ -32,14 +32,13 @@ class SpecialtyController extends Controller
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:100', 'unique:specialties,name'],
-            'icon' => ['nullable', 'string', 'max:50'],
             'color' => ['nullable', 'string', 'max:20'],
         ]);
 
         Specialty::query()->create([
             'name' => trim($validated['name']),
             'slug' => $this->buildUniqueSlug($validated['name']),
-            'icon' => trim((string) ($validated['icon'] ?? 'shield')) ?: 'shield',
+            'icon' => null,
             'color' => trim((string) ($validated['color'] ?? '#334155')) ?: '#334155',
             'active' => true,
         ]);
@@ -53,7 +52,6 @@ class SpecialtyController extends Controller
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:100', Rule::unique('specialties', 'name')->ignore($specialty->id)],
-            'icon' => ['nullable', 'string', 'max:50'],
             'color' => ['nullable', 'string', 'max:20'],
             'active' => ['nullable', 'boolean'],
         ]);
@@ -68,7 +66,7 @@ class SpecialtyController extends Controller
         $specialty->update([
             'name' => $newName,
             'slug' => $slug,
-            'icon' => trim((string) ($validated['icon'] ?? $specialty->icon)) ?: 'shield',
+            'icon' => null,
             'color' => trim((string) ($validated['color'] ?? $specialty->color)) ?: '#334155',
             'active' => $request->boolean('active', $specialty->active),
         ]);

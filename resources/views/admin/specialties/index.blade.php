@@ -19,15 +19,11 @@
             @csrf
             <div class="md:col-span-2">
                 <label class="form-label">Nombre</label>
-                <input type="text" name="name" class="form-input" required>
-            </div>
-            <div>
-                <label class="form-label">Icono</label>
-                <input type="text" name="icon" class="form-input" placeholder="shield">
+                <input type="text" name="name" class="w-full min-h-[44px] px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white" required>
             </div>
             <div>
                 <label class="form-label">Color</label>
-                <input type="text" name="color" class="form-input" placeholder="#334155">
+                <input type="text" name="color" class="w-full min-h-[44px] px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white" placeholder="#334155">
             </div>
             <div class="md:col-span-4">
                 <x-ui.button type="submit" variant="primary" size="md" icon="fas fa-plus">Agregar especialidad</x-ui.button>
@@ -49,13 +45,12 @@
                 @forelse($specialties as $specialty)
                     <tr>
                         <td class="px-4 py-3">
-                            <form action="{{ route('admin.specialties.update', $specialty) }}" method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                            <form action="{{ route('admin.specialties.update', $specialty) }}" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-2">
                                 @csrf
                                 @method('PUT')
-                                <input type="text" name="name" value="{{ $specialty->name }}" class="form-input" required>
-                                <input type="text" name="icon" value="{{ $specialty->icon }}" class="form-input">
-                                <input type="text" name="color" value="{{ $specialty->color }}" class="form-input">
-                                <div class="md:col-span-3 mt-2">
+                                <input type="text" name="name" value="{{ $specialty->name }}" class="w-full min-h-[44px] px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white" required>
+                                <input type="text" name="color" value="{{ $specialty->color }}" class="w-full min-h-[44px] px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white">
+                                <div class="md:col-span-2 mt-2">
                                     <x-ui.button type="submit" variant="secondary" size="sm" icon="fas fa-save">Guardar cambios</x-ui.button>
                                 </div>
                             </form>

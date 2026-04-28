@@ -89,7 +89,7 @@
     padding: 0.625rem 1rem;
     border-radius: 0.875rem;
     border: 1px solid #cbd5e1;
-    background-color: #f8fafc;
+    background-color: #ffffff;
     color: #0f172a;
     font-size: 0.875rem;
     transition: all 200ms;
@@ -115,8 +115,8 @@
 .input-base:focus,
 .select-base:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.2);
     background-color: #ffffff;
 }
 

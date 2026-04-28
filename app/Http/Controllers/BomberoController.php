@@ -344,7 +344,7 @@ class BomberoController extends Controller
                     if (file_exists($tempPath)) {
                         unlink($tempPath);
                     }
-                    return response()->json(['error' => 'Error leyendo Excel.'], 400);
+                    return response()->json(['error' => 'No se pudo procesar el archivo. Asegúrate de usar la plantilla oficial y que los datos estén correctamente formateados.'], 400);
                 }
 
                 $data = $xlsx->rows();
@@ -353,12 +353,12 @@ class BomberoController extends Controller
                     unlink($tempPath);
                 }
             }
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Error procesando archivo: ' . $e->getMessage()], 500);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => 'No se pudo procesar el archivo. Asegúrate de usar la plantilla oficial y que los datos estén correctamente formateados.'], 500);
         }
 
         if (empty($data)) {
-            return response()->json(['error' => 'No se encontraron datos en el archivo.'], 400);
+            return response()->json(['error' => 'No se pudo procesar el archivo. Asegúrate de usar la plantilla oficial y que los datos estén correctamente formateados.'], 400);
         }
 
         // Eliminar cabecera si existe
@@ -380,31 +380,30 @@ class BomberoController extends Controller
 
     public function processImport(Request $request)
     {
-        $batchId = $request->input('batchId');
-        $offset = $request->input('offset', 0);
-        $limit = $request->input('limit', 50);
+        try {
+            $batchId = $request->input('batchId');
+            $offset = $request->input('offset', 0);
+            $limit = $request->input('limit', 50);
 
-        $batchPath = storage_path('app/import_batch_' . $batchId . '.json');
+            $batchPath = storage_path('app/import_batch_' . $batchId . '.json');
 
-        if (!file_exists($batchPath)) {
-            return response()->json(['error' => 'Lote no encontrado o expirado.'], 404);
-        }
+            if (!file_exists($batchPath)) {
+                return response()->json(['error' => 'No se pudo procesar el archivo. Asegúrate de usar la plantilla oficial y que los datos estén correctamente formateados.'], 404);
+            }
 
-        // Leer todo el archivo (no es ideal para archivos gigantescos, pero funcional para este contexto)
-        // Optimización: Si fuera muy grande, usaríamos lectura por streams, pero json_decode carga todo a memoria igual.
-        $payload = json_decode(file_get_contents($batchPath), true);
-        $header = isset($payload['header']) && is_array($payload['header']) ? $payload['header'] : [];
-        $rows = isset($payload['rows']) && is_array($payload['rows']) ? $payload['rows'] : [];
+            $payload = json_decode(file_get_contents($batchPath), true);
+            $header = isset($payload['header']) && is_array($payload['header']) ? $payload['header'] : [];
+            $rows = isset($payload['rows']) && is_array($payload['rows']) ? $payload['rows'] : [];
 
-        $chunk = array_slice($rows, $offset, $limit);
-        $processed = 0;
-        $errors = [];
-        $activeSpecialties = Specialty::query()->where('active', true)->get();
-        $specialtiesByName = $activeSpecialties->keyBy(fn ($s) => mb_strtolower(trim($s->name)));
-        $headerMap = $this->buildHeaderMap($header);
-        $isNewTemplate = isset($headerMap['rut']) && isset($headerMap['nombres']);
+            $chunk = array_slice($rows, $offset, $limit);
+            $processed = 0;
+            $errors = [];
+            $activeSpecialties = Specialty::query()->where('active', true)->get();
+            $specialtiesByName = $activeSpecialties->keyBy(fn ($s) => mb_strtolower(trim($s->name)));
+            $headerMap = $this->buildHeaderMap($header);
+            $isNewTemplate = isset($headerMap['rut']) && isset($headerMap['nombres']);
 
-        foreach ($chunk as $index => $row) {
+            foreach ($chunk as $index => $row) {
             $line = $offset + $index + 2;
 
             $hasAnyValue = collect($row)->contains(fn ($value) => trim((string) $value) !== '');
@@ -416,6 +415,11 @@ class BomberoController extends Controller
 
             if (!$rut) {
                 $errors[] = "Fila {$line}: campo 'rut' es obligatorio.";
+                continue;
+            }
+
+            if (!$this->isValidRutFormat($rut)) {
+                $errors[] = "Fila {$line}: el campo 'rut' no tiene un formato válido.";
                 continue;
             }
 
@@ -456,7 +460,6 @@ class BomberoController extends Controller
                     continue;
                 }
 
-                $admissionDate = $this->parseImportDate($this->col($row, $headerMap, 'fecha_ingreso', 8));
                 $birthdate = $this->parseImportDate($this->col($row, $headerMap, 'fecha_nacimiento', 6));
 
                 $parseBool = function ($value) {
@@ -565,18 +568,18 @@ class BomberoController extends Controller
                 }
 
                 $bombero = Bombero::create([
-                    'nombres' => $nombres,
-                    'apellido_paterno' => $apellidoPaterno,
-                    'apellido_materno' => $apellidoMaterno,
+                    'nombres' => $this->normalizeImportUpper($nombres),
+                    'apellido_paterno' => $this->normalizeImportUpper($apellidoPaterno),
+                    'apellido_materno' => $this->normalizeImportUpper($apellidoMaterno),
                     'rut' => $rut,
                     'numero_registro' => $numeroRegistro ?: null,
-                    'cargo_texto' => $cargo,
+                    'cargo_texto' => $this->normalizeImportUpper($cargo),
                     'numero_portatil' => $portable ?: null,
                     'fecha_nacimiento' => $birthdate,
-                    'direccion_calle' => $addressStreet,
+                    'direccion_calle' => $this->normalizeImportUpper($addressStreet),
                     'direccion_numero' => $addressNumber,
                     'guardia_id' => $guardiaId,
-                    'fecha_ingreso' => $admissionDate,
+                    'fecha_ingreso' => null,
                     'correo' => $email ?: null,
                     'estado_asistencia' => $estadoAsistencia !== '' ? mb_strtolower($estadoAsistencia) : 'constituye',
                     'es_titular' => true,
@@ -590,7 +593,7 @@ class BomberoController extends Controller
                 }
                 $processed++;
             } catch (\Exception $e) {
-                $errors[] = "Fila {$line}: " . $e->getMessage();
+                $errors[] = "Fila {$line}: El formato de uno o más datos en el archivo no es válido. Revisa especialmente fechas, números o campos obligatorios.";
             }
         }
 
@@ -600,11 +603,16 @@ class BomberoController extends Controller
             unlink($batchPath);
         }
 
-        return response()->json([
-            'processed' => $processed,
-            'errors' => $errors,
-            'finished' => $finished
-        ]);
+            return response()->json([
+                'processed' => $processed,
+                'errors' => $errors,
+                'finished' => $finished
+            ]);
+        } catch (\Throwable) {
+            return response()->json([
+                'error' => 'No se pudo procesar el archivo. Asegúrate de usar la plantilla oficial y que los datos estén correctamente formateados.'
+            ], 500);
+        }
     }
 
     private function buildHeaderMap(array $header): array
@@ -694,6 +702,21 @@ class BomberoController extends Controller
     private function normalizeCargo(?string $cargo): string
     {
         return mb_strtolower(trim((string) $cargo));
+    }
+
+    private function normalizeImportUpper(?string $value): ?string
+    {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return null;
+        }
+
+        return mb_strtoupper($value, 'UTF-8');
+    }
+
+    private function isValidRutFormat(string $rut): bool
+    {
+        return (bool) preg_match('/^[0-9]{1,2}\.?[0-9]{3}\.?[0-9]{3}-?[0-9kK]$/', trim($rut));
     }
 
     public function import(Request $request)

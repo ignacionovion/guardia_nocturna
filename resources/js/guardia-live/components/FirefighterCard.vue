@@ -247,9 +247,6 @@ const specialtyBadges = computed(() => {
     return fallback;
 });
 
-const visibleSpecialtyBadges = computed(() => specialtyBadges.value.slice(0, 4));
-const hiddenSpecialtyCount = computed(() => Math.max(specialtyBadges.value.length - 4, 0));
-
 // Position for fixed dropdown to avoid overflow
 const dropdownPosition = computed(() => {
     if (!pickerRef.value) return {};
@@ -368,22 +365,15 @@ onUnmounted(() => document.removeEventListener('click', onDocClick, true));
                     </svg>
                 </span>
                 <!-- Specialties (new system first, legacy fallback) -->
-                <div v-if="specialtyBadges.length > 0" class="flex max-w-[120px] flex-wrap justify-end gap-1">
+                <div v-if="specialtyBadges.length > 0" class="flex max-w-[140px] flex-wrap justify-end gap-1">
                     <span
-                        v-for="specialty in visibleSpecialtyBadges"
+                        v-for="specialty in specialtyBadges"
                         :key="specialty.id"
                         :title="specialty.label"
                         class="inline-flex h-6 min-w-6 items-center justify-center rounded-md px-1.5 text-[10px] font-bold shadow"
                         :style="specialty.style"
                     >
                         {{ specialty.initials }}
-                    </span>
-                    <span
-                        v-if="hiddenSpecialtyCount > 0"
-                        :title="`+${hiddenSpecialtyCount} especialidades`"
-                        class="flex items-center rounded-md bg-slate-900/80 px-2 py-1 text-[10px] font-bold text-white shadow"
-                    >
-                        +{{ hiddenSpecialtyCount }}
                     </span>
                 </div>
             </div>

@@ -183,7 +183,7 @@
                                 <input type="checkbox" name="specialty_ids[]" value="{{ $specialty->id }}" {{ in_array($specialty->id, old('specialty_ids', [])) ? 'checked' : '' }} class="rounded text-indigo-600 focus:ring-indigo-500 h-5 w-5 border-slate-200">
                                 <div class="ml-3 min-w-0">
                                     <span class="block text-sm font-bold text-[#1e293b] group-hover:text-indigo-700">{{ $specialty->name }}</span>
-                                    <span class="block text-xs text-[#475569]">{{ $specialty->icon }} · {{ $specialty->color }}</span>
+                                    <span class="block text-xs text-[#475569]">{{ $specialty->color }}</span>
                                 </div>
                             </label>
                         @empty

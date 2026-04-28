@@ -50,11 +50,6 @@ class VolunteerImportMainSheet implements FromArray, WithHeadings, WithTitle
             'estado',
             'especialidades',
             'numero_radial',
-            'grupo_sanguineo',
-            'contacto_emergencia_nombre',
-            'contacto_emergencia_telefono',
-            'fecha_ingreso',
-            'observaciones',
         ];
     }
 
@@ -76,11 +71,6 @@ class VolunteerImportMainSheet implements FromArray, WithHeadings, WithTitle
                 'constituye',
                 'Hazmat, Gersa',
                 'R-12',
-                'O+',
-                'Ana Perez',
-                '+56999999999',
-                '2018-03-01',
-                'Ejemplo de observacion',
             ],
             [
                 '11.111.111-1',
@@ -97,11 +87,6 @@ class VolunteerImportMainSheet implements FromArray, WithHeadings, WithTitle
                 'reemplazo',
                 'Rescate vehicular',
                 'R-7',
-                'A-',
-                'Carlos Diaz',
-                '+56988888888',
-                '2020-07-10',
-                '',
             ],
         ];
     }
@@ -135,11 +120,10 @@ class VolunteerImportHelpSheet implements FromArray, WithHeadings, WithTitle
             ['Obligatorio', 'apellido_materno', 'Apellido materno', 'Soto'],
             ['Obligatorio', 'cargo', 'Debe ser uno de los cargos permitidos', 'bombero'],
             ['Opcional', 'fecha_nacimiento', 'Formato recomendado AAAA-MM-DD', '1990-04-15'],
-            ['Opcional', 'fecha_ingreso', 'Formato recomendado AAAA-MM-DD', '2018-03-01'],
             ['Opcional', 'especialidades', 'Separadas por coma. Deben existir y estar activas.', 'Hazmat, Gersa'],
             ['Opcional', 'estado', 'Valores admitidos: constituye, reemplazo, permiso, ausente, falta, licencia', 'constituye'],
             ['Compatibilidad', 'conductor / operador_rescate / asistente_trauma', 'Columnas legacy aceptadas temporalmente; se convierten a especialidades.', 'true'],
-            ['Nota', 'Campos extra', 'grupo_sanguineo, contactos y observaciones se aceptan por compatibilidad y se ignoran si no existen en BD.', ''],
+            ['Nota', 'Plantillas antiguas', 'Si vienen columnas antiguas extra, se ignoran sin error.', ''],
             ['', '', '', ''],
             ['Guardias', 'guardia', 'Se puede usar ID o nombre exacto de guardia', 'Guardia 1'],
         ];

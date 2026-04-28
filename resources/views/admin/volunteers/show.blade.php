@@ -74,7 +74,6 @@
                                 @foreach($volunteer->specialties as $specialty)
                                     <span class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-bold border"
                                           style="color: {{ $specialty->color }}; border-color: {{ $specialty->color }}33; background-color: {{ $specialty->color }}14;">
-                                        <i class="{{ $specialty->icon }}"></i>
                                         {{ $specialty->name }}
                                     </span>
                                 @endforeach

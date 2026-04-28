@@ -59,7 +59,7 @@
                     <div class="relative">
                         <input type="text" id="id" name="id" value="{{ old('id') }}" required
                                pattern="[a-z0-9\-]+" placeholder="tercera-temuco"
-                               class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none"
+                               class="w-full min-h-[44px] px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white"
                                autocomplete="off">
                         <div id="slug-status" class="absolute right-3 top-2.5 text-xs font-medium"></div>
                     </div>
@@ -74,7 +74,7 @@
                     <label for="nombre" class="block text-sm font-medium text-slate-700 mb-1.5">Nombre de la Compañía</label>
                     <input type="text" id="nombre" name="nombre" value="{{ old('nombre', $tenant?->nombre) }}" required
                            placeholder="Tercera Compañía de Bomberos Temuco"
-                           class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none">
+                           class="w-full min-h-[44px] px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white">
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -82,12 +82,12 @@
                         <label for="numero" class="block text-sm font-medium text-slate-700 mb-1.5">Número</label>
                         <input type="number" id="numero" name="numero" value="{{ old('numero', $tenant?->numero) }}" min="1"
                                placeholder="3"
-                               class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none">
+                               class="w-full min-h-[44px] px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white">
                     </div>
                     <div>
                         <label for="plan_id" class="block text-sm font-medium text-slate-700 mb-1.5">Plan</label>
                         <select id="plan_id" name="plan_id" required
-                                class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white billing-input">
+                                class="w-full min-h-[44px] px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white billing-input">
                             @if(isset($plans) && $plans->count() > 0)
                                 @foreach($plans as $planOption)
                                     <option value="{{ $planOption->id }}"
@@ -122,7 +122,7 @@
                         <div>
                             <label for="billing_cycle" class="block text-sm font-medium text-slate-700 mb-1.5">Ciclo de Facturación</label>
                             <select id="billing_cycle" name="billing_cycle" required
-                                    class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white billing-input">
+                                    class="w-full min-h-[44px] px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white billing-input">
                                 <option value="monthly" {{ old('billing_cycle', 'monthly') === 'monthly' ? 'selected' : '' }}>Mensual (30 días)</option>
                                 <option value="yearly" {{ old('billing_cycle') === 'yearly' ? 'selected' : '' }}>Anual (365 días)</option>
                             </select>
@@ -155,7 +155,7 @@
                 <div>
                     <label for="body_id" class="block text-sm font-medium text-slate-700 mb-1.5">Cuerpo de Bomberos</label>
                     <select id="body_id" name="body_id"
-                            class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white">
+                            class="w-full min-h-[44px] px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white">
                         <option value="">— Sin cuerpo —</option>
                         @foreach($bodies as $body)
                             <option value="{{ $body->id }}" {{ old('body_id', $tenant?->body_id) == $body->id ? 'selected' : '' }}>
@@ -180,7 +180,7 @@
                     <div>
                         <label for="estado" class="block text-sm font-medium text-slate-700 mb-1.5">Estado</label>
                         <select id="estado" name="estado" required
-                                class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white">
+                                class="w-full min-h-[44px] px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white">
                             <option value="trial" {{ old('estado', $tenant->estado) === 'trial' ? 'selected' : '' }}>Trial</option>
                             <option value="activo" {{ old('estado', $tenant->estado) === 'activo' ? 'selected' : '' }}>Activo</option>
                             <option value="suspendido" {{ old('estado', $tenant->estado) === 'suspendido' ? 'selected' : '' }}>Suspendido</option>
@@ -192,7 +192,7 @@
                         <label for="grace_days" class="block text-sm font-medium text-slate-700 mb-1.5">Días de Gracia</label>
                         <input type="number" id="grace_days" name="grace_days" min="0" max="30"
                                value="{{ old('grace_days', $tenant->grace_days ?? 5) }}"
-                               class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none">
+                               class="w-full min-h-[44px] px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white">
                         <p class="text-xs text-slate-400 mt-1">Días permitidos después del vencimiento antes de suspender.</p>
                     </div>
                 </div>
