@@ -9,6 +9,7 @@ use App\Traits\TenantAdminAuth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Throwable;
 
 class SpecialtyController extends Controller
 {
@@ -43,7 +44,7 @@ class SpecialtyController extends Controller
             'color' => trim((string) ($validated['color'] ?? '#334155')) ?: '#334155',
             'active' => true,
         ]);
-        SystemSetting::setValue('specialties_customized', '1');
+        $this->markSpecialtiesCustomized();
 
         return $this->redirectToSpecialties('success', 'Especialidad creada correctamente.');
     }
@@ -73,7 +74,7 @@ class SpecialtyController extends Controller
             'color' => trim((string) ($validated['color'] ?? $specialty->color)) ?: '#334155',
             'active' => $request->boolean('active', $specialty->active),
         ]);
-        SystemSetting::setValue('specialties_customized', '1');
+        $this->markSpecialtiesCustomized();
 
         return $this->redirectToSpecialties('success', 'Especialidad actualizada.');
     }
@@ -86,7 +87,7 @@ class SpecialtyController extends Controller
         $specialty->update([
             'active' => !$specialty->active,
         ]);
-        SystemSetting::setValue('specialties_customized', '1');
+        $this->markSpecialtiesCustomized();
 
         return $this->redirectToSpecialties('success', 'Estado de especialidad actualizado.');
     }
@@ -101,7 +102,7 @@ class SpecialtyController extends Controller
 
             if ($inUse) {
                 $specialty->update(['active' => false]);
-                SystemSetting::setValue('specialties_customized', '1');
+                $this->markSpecialtiesCustomized();
 
                 return $this->redirectToSpecialties(
                     'warning',
@@ -110,7 +111,7 @@ class SpecialtyController extends Controller
             }
 
             $specialty->delete();
-            SystemSetting::setValue('specialties_customized', '1');
+            $this->markSpecialtiesCustomized();
 
             return $this->redirectToSpecialties('success', 'Especialidad eliminada correctamente.');
         } catch (\Throwable $e) {
@@ -154,5 +155,14 @@ class SpecialtyController extends Controller
     private function redirectToSpecialties(string $type = 'success', string $message = 'Operación realizada correctamente.')
     {
         return redirect('/admin/specialties')->with($type, $message);
+    }
+
+    private function markSpecialtiesCustomized(): void
+    {
+        try {
+            SystemSetting::setValue('specialties_customized', '1');
+        } catch (Throwable $e) {
+            report($e);
+        }
     }
 }
