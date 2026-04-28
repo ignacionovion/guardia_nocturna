@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Specialty;
+use App\Models\SystemSetting;
 use App\Traits\TenantAdminAuth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -42,6 +43,7 @@ class SpecialtyController extends Controller
             'color' => trim((string) ($validated['color'] ?? '#334155')) ?: '#334155',
             'active' => true,
         ]);
+        SystemSetting::setValue('specialties_customized', '1');
 
         return redirect()->route('admin.specialties.index')->with('success', 'Especialidad creada correctamente.');
     }
@@ -70,6 +72,7 @@ class SpecialtyController extends Controller
             'color' => trim((string) ($validated['color'] ?? $specialty->color)) ?: '#334155',
             'active' => $request->boolean('active', $specialty->active),
         ]);
+        SystemSetting::setValue('specialties_customized', '1');
 
         return redirect()->route('admin.specialties.index')->with('success', 'Especialidad actualizada.');
     }
@@ -81,6 +84,7 @@ class SpecialtyController extends Controller
         $specialty->update([
             'active' => !$specialty->active,
         ]);
+        SystemSetting::setValue('specialties_customized', '1');
 
         return redirect()->route('admin.specialties.index')->with('success', 'Estado de especialidad actualizado.');
     }
@@ -93,12 +97,14 @@ class SpecialtyController extends Controller
 
         if ($inUse) {
             $specialty->update(['active' => false]);
+            SystemSetting::setValue('specialties_customized', '1');
 
             return redirect()->route('admin.specialties.index')
                 ->with('warning', 'La especialidad está en uso y fue desactivada en lugar de eliminarse.');
         }
 
         $specialty->delete();
+        SystemSetting::setValue('specialties_customized', '1');
 
         return redirect()->route('admin.specialties.index')->with('success', 'Especialidad eliminada correctamente.');
     }

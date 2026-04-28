@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Bombero;
 use App\Models\Guardia;
 use App\Models\Specialty;
+use App\Models\SystemSetting;
 use App\Services\PlanService;
 use App\Traits\TenantAdminAuth;
 use Illuminate\Support\Facades\Hash;
@@ -43,6 +44,7 @@ class BomberoController extends Controller
     public function index(Request $request)
     {
         $this->requireTenantAdmin();
+        $showSpecialtiesSetupAlert = SystemSetting::getValue('specialties_customized', '0') !== '1';
 
         $query = Bombero::query()->with(['guardia', 'specialties']);
 
@@ -61,12 +63,13 @@ class BomberoController extends Controller
 
         $volunteers = $query->orderBy('nombres')->paginate(20)->withQueryString();
 
-        return view('admin.volunteers.index', compact('volunteers'));
+        return view('admin.volunteers.index', compact('volunteers', 'showSpecialtiesSetupAlert'));
     }
 
     public function create()
     {
         $this->requireTenantAdmin();
+        $showSpecialtiesSetupAlert = SystemSetting::getValue('specialties_customized', '0') !== '1';
 
         $guardias = Guardia::all();
         $cargos = Bombero::CARGOS;
@@ -78,7 +81,7 @@ class BomberoController extends Controller
         ];
         $volunteers_plan_usage = PlanService::usageLabel('volunteers');
 
-        return view('admin.volunteers.create', compact('guardias', 'cargos', 'specialties', 'limitData', 'volunteers_plan_usage'));
+        return view('admin.volunteers.create', compact('guardias', 'cargos', 'specialties', 'limitData', 'volunteers_plan_usage', 'showSpecialtiesSetupAlert'));
     }
 
     public function store(Request $request)
@@ -146,13 +149,14 @@ class BomberoController extends Controller
     public function edit(Request $request)
     {
         $this->requireTenantAdmin();
+        $showSpecialtiesSetupAlert = SystemSetting::getValue('specialties_customized', '0') !== '1';
 
         $id = $request->route('volunteer');
         $volunteer = Bombero::with('specialties')->findOrFail((int) $id);
         $guardias = Guardia::all();
         $cargos = Bombero::CARGOS;
         $specialties = Specialty::query()->where('active', true)->orderBy('name')->get();
-        return view('admin.volunteers.edit', compact('volunteer', 'guardias', 'cargos', 'specialties'));
+        return view('admin.volunteers.edit', compact('volunteer', 'guardias', 'cargos', 'specialties', 'showSpecialtiesSetupAlert'));
     }
 
     public function update(Request $request)

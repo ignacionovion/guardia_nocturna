@@ -28,6 +28,23 @@
 
     <!-- Contenido Principal -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        @if($showSpecialtiesSetupAlert ?? false)
+            <div class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-amber-900">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <p class="font-semibold">Configura las especialidades de tu compañía</p>
+                        <p class="mt-1 text-sm text-amber-800">
+                            Las especialidades actuales son iniciales. Puedes crear, editar o desactivar las que correspondan a tu compañía antes de cargar o editar voluntarios.
+                        </p>
+                    </div>
+                    <a href="{{ route('admin.specialties.index') }}"
+                       class="inline-flex items-center justify-center rounded-xl bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700">
+                        Configurar especialidades
+                    </a>
+                </div>
+            </div>
+        @endif
+
         <form action="{{ route('admin.volunteers.update', $volunteer->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
             @csrf
             @method('PUT')
@@ -307,7 +324,7 @@
                                 <div class="w-8 h-8 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center">
                                     <i class="fas fa-shield-halved text-indigo-600 dark:text-indigo-400 text-sm"></i>
                                 </div>
-                                Especialidades del Tenant
+                                Especialidades
                             </h2>
                         </div>
                         <div class="p-6">

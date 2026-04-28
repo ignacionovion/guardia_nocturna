@@ -37,6 +37,23 @@
         </div>
     </x-ui.page-header>
 
+    @if($showSpecialtiesSetupAlert ?? false)
+        <div class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-amber-900">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <p class="font-semibold">Configura las especialidades de tu compañía</p>
+                    <p class="mt-1 text-sm text-amber-800">
+                        Las especialidades actuales son iniciales. Puedes crear, editar o desactivar las que correspondan a tu compañía antes de cargar o editar voluntarios.
+                    </p>
+                </div>
+                <a href="{{ route('admin.specialties.index') }}"
+                   class="inline-flex items-center justify-center rounded-xl bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700">
+                    Configurar especialidades
+                </a>
+            </div>
+        </div>
+    @endif
+
     <!-- Buscador Mejorado -->
     <x-ui.card class="mb-8">
         <form action="{{ route('admin.volunteers.index') }}" method="GET" class="relative" id="volunteer-search-form">
