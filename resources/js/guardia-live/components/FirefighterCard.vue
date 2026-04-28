@@ -192,26 +192,58 @@ const serviceLabel = computed(() => {
 
 const radialNumber = computed(() => f.value.numero_portatil ?? null);
 
+function resolveSpecialtyInitials(name, slug = '') {
+    const raw = String(name || slug || '').trim().toLowerCase();
+
+    const map = {
+        'rescate vehicular': 'RV',
+        'gersa': 'G',
+        'incendios forestales': 'F',
+        'hazmat': 'HZ',
+        'grimp': 'GR',
+        'investigacion de incendios': 'II',
+        'investigación de incendios': 'II',
+        'rescate agreste': 'RA',
+        'rescate marino': 'RM',
+        'conductor': 'C',
+        'operador rescate': 'OR',
+        'asistente trauma': 'AT',
+        'bombero': 'B',
+    };
+
+    if (map[raw]) return map[raw];
+
+    const words = raw.split(/\s+/).filter(Boolean);
+    if (words.length === 0) return 'SP';
+    if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+
+    return words
+        .slice(0, 2)
+        .map((word) => word[0])
+        .join('')
+        .toUpperCase();
+}
+
 const specialtyBadges = computed(() => {
     const fromSpecialties = Array.isArray(f.value.specialties) ? f.value.specialties : [];
     if (fromSpecialties.length > 0) {
         return fromSpecialties.map((specialty) => ({
             id: specialty.id ?? specialty.name,
             label: specialty.name ?? 'Especialidad',
-            iconClass: specialty.icon || 'fas fa-star',
+            initials: resolveSpecialtyInitials(specialty.name, specialty.slug),
             style: specialty.color
                 ? {
-                    backgroundColor: `${specialty.color}20`,
-                    color: specialty.color,
+                    backgroundColor: specialty.color,
+                    color: '#ffffff',
                 }
-                : {},
+                : { backgroundColor: '#64748b', color: '#ffffff' },
         }));
     }
 
     const fallback = [];
-    if (f.value.es_conductor) fallback.push({ id: 'legacy-driver', label: 'Conductor', iconClass: 'fas fa-truck', style: {} });
-    if (f.value.es_operador_rescate) fallback.push({ id: 'legacy-rescue', label: 'Operador de Rescate', iconClass: 'fas fa-screwdriver-wrench', style: {} });
-    if (f.value.es_asistente_trauma) fallback.push({ id: 'legacy-trauma', label: 'Asistente de Trauma', iconClass: 'fas fa-plus', style: {} });
+    if (f.value.es_conductor) fallback.push({ id: 'legacy-driver', label: 'Conductor', initials: 'C', style: { backgroundColor: '#0ea5e9', color: '#ffffff' } });
+    if (f.value.es_operador_rescate) fallback.push({ id: 'legacy-rescue', label: 'Operador Rescate', initials: 'OR', style: { backgroundColor: '#f97316', color: '#ffffff' } });
+    if (f.value.es_asistente_trauma) fallback.push({ id: 'legacy-trauma', label: 'Asistente Trauma', initials: 'AT', style: { backgroundColor: '#f43f5e', color: '#ffffff' } });
     return fallback;
 });
 
@@ -341,10 +373,10 @@ onUnmounted(() => document.removeEventListener('click', onDocClick, true));
                         v-for="specialty in visibleSpecialtyBadges"
                         :key="specialty.id"
                         :title="specialty.label"
-                        class="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold shadow backdrop-blur-sm bg-slate-900/70 text-white"
+                        class="inline-flex h-6 min-w-6 items-center justify-center rounded-md px-1.5 text-[10px] font-bold shadow"
                         :style="specialty.style"
                     >
-                        <i :class="[specialty.iconClass, 'text-[10px]']"></i>
+                        {{ specialty.initials }}
                     </span>
                     <span
                         v-if="hiddenSpecialtyCount > 0"
