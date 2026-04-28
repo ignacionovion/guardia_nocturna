@@ -45,7 +45,7 @@ class SpecialtyController extends Controller
         ]);
         SystemSetting::setValue('specialties_customized', '1');
 
-        return redirect()->route('admin.specialties.index')->with('success', 'Especialidad creada correctamente.');
+        return redirect()->to('/admin/specialties')->with('success', 'Especialidad creada correctamente.');
     }
 
     public function update(Request $request, string|int|Specialty $specialty)
@@ -75,7 +75,7 @@ class SpecialtyController extends Controller
         ]);
         SystemSetting::setValue('specialties_customized', '1');
 
-        return redirect()->route('admin.specialties.index')->with('success', 'Especialidad actualizada.');
+        return redirect()->to('/admin/specialties')->with('success', 'Especialidad actualizada.');
     }
 
     public function toggle(string|int|Specialty $specialty)
@@ -88,7 +88,7 @@ class SpecialtyController extends Controller
         ]);
         SystemSetting::setValue('specialties_customized', '1');
 
-        return redirect()->route('admin.specialties.index')->with('success', 'Estado de especialidad actualizado.');
+        return redirect()->to('/admin/specialties')->with('success', 'Estado de especialidad actualizado.');
     }
 
     public function destroy(string|int|Specialty $specialty)
@@ -102,14 +102,14 @@ class SpecialtyController extends Controller
             $specialty->update(['active' => false]);
             SystemSetting::setValue('specialties_customized', '1');
 
-            return redirect()->route('admin.specialties.index')
+            return redirect()->to('/admin/specialties')
                 ->with('warning', 'La especialidad está en uso y fue desactivada en lugar de eliminarse.');
         }
 
         $specialty->delete();
         SystemSetting::setValue('specialties_customized', '1');
 
-        return redirect()->route('admin.specialties.index')->with('success', 'Especialidad eliminada correctamente.');
+        return redirect()->to('/admin/specialties')->with('success', 'Especialidad eliminada correctamente.');
     }
 
     private function buildUniqueSlug(string $name, ?int $ignoreId = null): string
