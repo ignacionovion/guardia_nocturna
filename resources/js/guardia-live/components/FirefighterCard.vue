@@ -201,19 +201,22 @@ const specialtyBadges = computed(() => {
             iconClass: specialty.icon || 'fas fa-star',
             style: specialty.color
                 ? {
-                    backgroundColor: `${specialty.color}cc`,
-                    color: '#ffffff',
+                    backgroundColor: `${specialty.color}20`,
+                    color: specialty.color,
                 }
                 : {},
         }));
     }
 
     const fallback = [];
-    if (f.value.es_conductor) fallback.push({ id: 'legacy-driver', label: 'Conductor', iconClass: 'fas fa-car', style: {} });
-    if (f.value.es_operador_rescate) fallback.push({ id: 'legacy-rescue', label: 'Operador de Rescate', iconClass: 'fas fa-life-ring', style: {} });
-    if (f.value.es_asistente_trauma) fallback.push({ id: 'legacy-trauma', label: 'Asistente de Trauma', iconClass: 'fas fa-heart-pulse', style: {} });
+    if (f.value.es_conductor) fallback.push({ id: 'legacy-driver', label: 'Conductor', iconClass: 'fas fa-truck', style: {} });
+    if (f.value.es_operador_rescate) fallback.push({ id: 'legacy-rescue', label: 'Operador de Rescate', iconClass: 'fas fa-screwdriver-wrench', style: {} });
+    if (f.value.es_asistente_trauma) fallback.push({ id: 'legacy-trauma', label: 'Asistente de Trauma', iconClass: 'fas fa-plus', style: {} });
     return fallback;
 });
+
+const visibleSpecialtyBadges = computed(() => specialtyBadges.value.slice(0, 4));
+const hiddenSpecialtyCount = computed(() => Math.max(specialtyBadges.value.length - 4, 0));
 
 // Position for fixed dropdown to avoid overflow
 const dropdownPosition = computed(() => {
@@ -325,7 +328,7 @@ onUnmounted(() => document.removeEventListener('click', onDocClick, true));
             </div>
 
             <!-- Badges top-right corner - matching old dashboard style -->
-            <div class="absolute top-1.5 right-1.5 flex flex-col gap-1 z-10">
+            <div class="absolute top-1.5 right-1.5 flex flex-col items-end gap-1 z-10">
                 <!-- Jefe de Guardia -->
                 <span v-if="f.es_jefe_guardia" class="w-5 h-5 rounded bg-amber-500/90 flex items-center justify-center shadow" title="Jefe de Guardia">
                     <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -333,15 +336,24 @@ onUnmounted(() => document.removeEventListener('click', onDocClick, true));
                     </svg>
                 </span>
                 <!-- Specialties (new system first, legacy fallback) -->
-                <span
-                    v-for="specialty in specialtyBadges"
-                    :key="specialty.id"
-                    class="w-5 h-5 rounded bg-slate-500/90 flex items-center justify-center shadow"
-                    :title="specialty.label"
-                    :style="specialty.style"
-                >
-                    <i :class="[specialty.iconClass, 'text-[10px] text-white']"></i>
-                </span>
+                <div v-if="specialtyBadges.length > 0" class="flex max-w-[120px] flex-wrap justify-end gap-1">
+                    <span
+                        v-for="specialty in visibleSpecialtyBadges"
+                        :key="specialty.id"
+                        :title="specialty.label"
+                        class="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold shadow backdrop-blur-sm bg-slate-900/70 text-white"
+                        :style="specialty.style"
+                    >
+                        <i :class="[specialty.iconClass, 'text-[10px]']"></i>
+                    </span>
+                    <span
+                        v-if="hiddenSpecialtyCount > 0"
+                        :title="`+${hiddenSpecialtyCount} especialidades`"
+                        class="flex items-center rounded-md bg-slate-900/80 px-2 py-1 text-[10px] font-bold text-white shadow"
+                    >
+                        +{{ hiddenSpecialtyCount }}
+                    </span>
+                </div>
             </div>
 
             <!-- Badge bed top-left corner -->
