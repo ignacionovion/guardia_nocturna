@@ -7,14 +7,8 @@
         </x-ui.button>
     </x-ui.page-header>
 
-    @if(session('success'))
-        <x-ui.alert type="success" icon="fas fa-check-circle" class="mb-6">{{ session('success') }}</x-ui.alert>
-    @endif
     @if(session('warning'))
         <x-ui.alert type="warning" icon="fas fa-exclamation-triangle" class="mb-6">{{ session('warning') }}</x-ui.alert>
-    @endif
-    @if(session('error'))
-        <x-ui.alert type="danger" icon="fas fa-exclamation-circle" class="mb-6">{{ session('error') }}</x-ui.alert>
     @endif
 
     <x-ui.card class="mb-8">

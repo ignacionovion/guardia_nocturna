@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Specialty;
 use App\Models\SystemSetting;
 use App\Traits\TenantAdminAuth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -110,12 +112,28 @@ class SpecialtyController extends Controller
                 );
             }
 
-            $specialty->delete();
+            DB::transaction(function () use ($specialty): void {
+                DB::table('bombero_specialty')
+                    ->where('specialty_id', $specialty->id)
+                    ->delete();
+
+                $specialty->delete();
+            });
             $this->markSpecialtiesCustomized();
 
             return $this->redirectToSpecialties('success', 'Especialidad eliminada correctamente.');
         } catch (\Throwable $e) {
-            report($e);
+            Log::error('[specialties.destroy] Error eliminando especialidad', [
+                'specialty_param' => is_object($specialty)
+                    ? get_class($specialty) . '#' . ($specialty->id ?? 'na')
+                    : $specialty,
+                'tenant_id' => tenant()?->id,
+                'current_database' => DB::connection()->getDatabaseName(),
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => collect($e->getTrace())->take(5)->toArray(),
+            ]);
 
             return $this->redirectToSpecialties(
                 'error',
